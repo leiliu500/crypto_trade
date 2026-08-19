@@ -107,6 +107,7 @@ export class TradingEngine extends EventEmitter {
   private readonly now: () => number;
   private readonly watchdog: HealthWatchdog;
   private readonly recorder?: EventRecorder;
+  private readonly reportedPositionDust = new Map<string, number>();
   private equity = 0;
   private equityHighWater = 0;
   private realizedSessionPnl = 0;
@@ -634,7 +635,8 @@ export class TradingEngine extends EventEmitter {
       runtime.position.qty = remainingQty;
       const minimumTradableQty = runtime.asset?.minOrderSize ?? runtime.asset?.minTradeIncrement ?? 1e-12;
       if (runtime.position.qty < minimumTradableQty) {
-        if (runtime.position.qty > 0) this.emit("positionDust", { symbol: fill.symbol, qty: runtime.position.qty, reason: "BELOW_MINIMUM_ORDER_SIZE" });
+        if (runtime.position.qty > 0) this.reportPositionDust(fill.symbol, runtime.position.qty);
+        else this.reportedPositionDust.delete(fill.symbol);
         delete runtime.position;
       }
     }
@@ -644,19 +646,31 @@ export class TradingEngine extends EventEmitter {
   }
 
   private reconcilePositions(positions: readonly AlpacaPosition[]): void {
+    const observedDustSymbols = new Set<string>();
     for (const runtime of this.runtimes.values()) delete runtime.position;
     for (const remote of positions) {
       const runtime = this.runtimes.get(normalizeSymbol(remote.symbol));
       const qty = Number(remote.qty), entryPx = Number(remote.avg_entry_price);
       if (!runtime || !(qty > 0) || !(entryPx > 0) || remote.side !== "long") continue;
       if (runtime.asset && qty < runtime.asset.minOrderSize) {
-        this.emit("positionDust", { symbol: runtime.book.symbol, qty, reason: "BELOW_MINIMUM_ORDER_SIZE" });
+        observedDustSymbols.add(runtime.book.symbol);
+        this.reportPositionDust(runtime.book.symbol, qty);
         continue;
       }
+      this.reportedPositionDust.delete(runtime.book.symbol);
       const risk = Math.max(entryPx * .01, runtime.asset?.priceIncrement ?? 0);
       runtime.position = { symbol: runtime.book.symbol, side: 1, qty, entryPx, openedMs: this.now(), initialRiskPx: risk, roundTripCostPx: 0,
         mfePx: 0, maePx: 0, floorPx: -risk, breakEvenArmed: false, phase: "OPEN" };
     }
+    for (const symbol of this.reportedPositionDust.keys()) {
+      if (!observedDustSymbols.has(symbol)) this.reportedPositionDust.delete(symbol);
+    }
+  }
+
+  private reportPositionDust(symbol: string, qty: number): void {
+    if (this.reportedPositionDust.get(symbol) === qty) return;
+    this.reportedPositionDust.set(symbol, qty);
+    this.emit("positionDust", { symbol, qty, reason: "BELOW_MINIMUM_ORDER_SIZE" });
   }
 
   private recomputePortfolioRisk(): void {
