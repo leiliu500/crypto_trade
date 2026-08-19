@@ -1,5 +1,6 @@
 import type { CostEstimate } from "../strategy/cost.js";
 import type { EntryPipelineSnapshot } from "../engine/entry-pipeline-audit.js";
+import type { FeatureStaleReason } from "../core/market.js";
 
 export type HealthTone = "healthy" | "degraded" | "critical";
 export type EventSeverity = "info" | "warning" | "critical";
@@ -105,6 +106,7 @@ export interface DashboardMarketCard {
   staleThresholdMs: number | null;
   warmedUp: boolean;
   stale: boolean;
+  staleReason: FeatureStaleReason | null;
   sequence: string;
   qi1: number | null;
   ofi: number | null;

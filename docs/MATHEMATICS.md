@@ -12,7 +12,7 @@ Optional model-overlay modes additionally use `src/strategy/forecast.ts` and exp
 A_max = max(A_absolute, median(A) + 6 MAD(A))
 ```
 
-Negative age, excessive age, timestamp reversal, missing reset, crossed book, or stream/account uncertainty blocks entries.
+Provider timestamps up to the configured 250 ms future-skew tolerance are clamped to zero age. A larger future lead, excessive positive age, timestamp reversal, missing reset, crossed book, kinematic gap reset, or stream/account uncertainty blocks entries. Operational diagnostics preserve the specific cause instead of collapsing every condition into a generic stale-data reason.
 
 ## Causal microstructure features
 

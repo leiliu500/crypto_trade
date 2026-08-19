@@ -1,4 +1,4 @@
-import type { BookFlow, BookState, Features, MarketTrade } from "./market.js";
+import type { BookFlow, BookState, Features, FeatureStaleReason, MarketTrade } from "./market.js";
 import { clamp } from "./market.js";
 import { DecayedSignedFlow, DecayedValue, RobustAgeGate, TimeEwma } from "./statistics.js";
 
@@ -35,7 +35,7 @@ export const DEFAULT_FEATURE_CONFIG: FeatureConfig = {
   efficiencyWindowMs: 15_000,
   forecastHorizonMs: 5_000,
   absoluteMaxProviderAgeMs: 2_000,
-  maximumProviderFutureSkewMs: 100,
+  maximumProviderFutureSkewMs: 250,
   providerAgeWindowMs: 300_000,
   providerAgeMadMultiplier: 6,
   cusumDrift: 0.25,
@@ -249,7 +249,9 @@ export class FeatureEngine {
     const warmedUp = this.eventCount >= this.cfg.minimumWarmupEvents
       && book.receiveTsMs - this.firstReceiveMs >= this.cfg.minimumWarmupMs
       && this.varianceRate.ready && this.spreadStats.ready && this.depthStats.ready;
-    const stale = !book.valid || age.stale || !kinematicsValid;
+    const staleReason: FeatureStaleReason | null = !book.valid ? "BOOK_INVALID"
+      : age.reason ?? (!kinematicsValid ? "KINEMATICS_RESET" : null);
+    const stale = staleReason !== null;
 
     this.previousBook = book;
     this.previousLogMicro = logMicro;
@@ -262,7 +264,7 @@ export class FeatureEngine {
       velocity, acceleration, varianceRate, sigmaHBps,
       microEdgeZ: clamp(microEdgeZ, -8, 8), velocityZ: clamp(velocityZ, -8, 8), accelerationZ: clamp(accelerationZ, -8, 8),
       efficiency, cusumUp: cusumState.up, cusumDown: cusumState.down, spreadZ, depthZ, signalFlipRate,
-      providerAgeMs, staleThresholdMs: age.thresholdMs, warmedUp, stale, receiveTsMs: book.receiveTsMs,
+      providerAgeMs, staleThresholdMs: age.thresholdMs, warmedUp, stale, staleReason, receiveTsMs: book.receiveTsMs,
     }, kinematicsValid);
   }
 
@@ -304,5 +306,6 @@ function finalizeFeatures(features: Features, sourceValid: boolean): Features {
   }
   normalized.warmedUp = normalized.warmedUp && finite;
   normalized.stale = normalized.stale || !finite;
+  if (!finite && normalized.staleReason === null) normalized.staleReason = "NON_FINITE_FEATURE";
   return normalized;
 }

@@ -1,4 +1,4 @@
-import { clamp } from "./market.js";
+import { clamp, type FeatureStaleReason } from "./market.js";
 
 export class TimeEwma {
   private initialized = false;
@@ -128,16 +128,24 @@ export class RobustAgeGate {
     private readonly maximumFutureSkewMs = 0,
   ) { this.ages = new RollingWindow(windowMs, 4096); }
 
-  public observe(ageMs: number, nowMs: number): { stale: boolean; thresholdMs: number; adjustedAgeMs: number } {
+  public observe(ageMs: number, nowMs: number): {
+    stale: boolean;
+    reason: Extract<FeatureStaleReason, "FUTURE_CLOCK_SKEW" | "PROVIDER_TOO_OLD" | "INVALID_PROVIDER_AGE"> | null;
+    thresholdMs: number;
+    adjustedAgeMs: number;
+  } {
     const values = this.ages.snapshot(nowMs);
     const robust = values.length >= this.minimumSamples
       ? median(values) + this.madMultiplier * Math.max(mad(values), 0.01)
       : this.absoluteMs;
     const thresholdMs = Math.max(this.absoluteMs, robust);
     const adjustedAgeMs = Number.isFinite(ageMs) && ageMs >= -this.maximumFutureSkewMs ? Math.max(0, ageMs) : ageMs;
-    const stale = !Number.isFinite(adjustedAgeMs) || adjustedAgeMs < 0 || adjustedAgeMs > thresholdMs;
+    const reason = !Number.isFinite(adjustedAgeMs) ? "INVALID_PROVIDER_AGE"
+      : adjustedAgeMs < 0 ? "FUTURE_CLOCK_SKEW"
+        : adjustedAgeMs > thresholdMs ? "PROVIDER_TOO_OLD" : null;
+    const stale = reason !== null;
     if (!stale) this.ages.add(adjustedAgeMs, nowMs);
-    return { stale, thresholdMs, adjustedAgeMs };
+    return { stale, reason, thresholdMs, adjustedAgeMs };
   }
 }
 

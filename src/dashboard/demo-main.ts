@@ -68,7 +68,7 @@ function features(symbol: string, mid: number, spread: number, nowMs: number, si
     tfi: .31 + Math.sin(sequence / 5) * .18, bidCancellationRatio: .12, askCancellationRatio: .18, replenishmentPressure: .24,
     velocity: .003, acceleration: .0001, varianceRate: .00002, sigmaHBps: sigma, microEdgeZ: .8, velocityZ: .46 + Math.sin(sequence / 4) * .22, accelerationZ: .12,
     efficiency: .74, cusumUp: true, cusumDown: false, spreadZ: -.24, depthZ: .82, signalFlipRate: .08,
-    providerAgeMs: 18 + sequence % 9, staleThresholdMs: 2_000, warmedUp: true, stale: false, receiveTsMs: nowMs - 14 };
+    providerAgeMs: 18 + sequence % 9, staleThresholdMs: 2_000, warmedUp: true, stale: false, staleReason: null, receiveTsMs: nowMs - 14 };
 }
 
 function demoOrders(nowMs: number, progress: number, btc: number): readonly TrackedOrder[] {

@@ -12,7 +12,7 @@ const features = (patch: Partial<Features> = {}): Features => ({
   qi1: .2, qiK: .2, persistentQiK: .2, ofi: .5, tfi: .3, bidCancellationRatio: .1, askCancellationRatio: .2, replenishmentPressure: .1,
   velocity: .001, acceleration: 0, varianceRate: 1e-6, sigmaHBps: 10, microEdgeZ: .5, velocityZ: .5, accelerationZ: 0,
   efficiency: .8, cusumUp: false, cusumDown: false, spreadZ: 0, depthZ: 0, signalFlipRate: 0,
-  providerAgeMs: 10, staleThresholdMs: 100, warmedUp: true, stale: false, receiveTsMs: 1_000,
+  providerAgeMs: 10, staleThresholdMs: 100, warmedUp: true, stale: false, staleReason: null, receiveTsMs: 1_000,
   ...patch,
 });
 

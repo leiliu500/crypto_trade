@@ -129,6 +129,7 @@ export class OperationsMonitor extends EventEmitter {
         staleThresholdMs: features?.staleThresholdMs ?? null,
         warmedUp: features?.warmedUp ?? false,
         stale: features?.stale ?? !market.bookValid,
+        staleReason: features?.staleReason ?? (!market.bookValid ? "BOOK_INVALID" : null),
         sequence: market.sequence,
         qi1: features?.qi1 ?? null,
         ofi: features?.ofi ?? null,

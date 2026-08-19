@@ -38,6 +38,14 @@ export interface BookFlow {
   askReplenishmentRate: number;
 }
 
+export type FeatureStaleReason =
+  | "BOOK_INVALID"
+  | "FUTURE_CLOCK_SKEW"
+  | "PROVIDER_TOO_OLD"
+  | "INVALID_PROVIDER_AGE"
+  | "KINEMATICS_RESET"
+  | "NON_FINITE_FEATURE";
+
 export interface Features {
   symbol: string;
   mid: number;
@@ -74,6 +82,7 @@ export interface Features {
   staleThresholdMs: number;
   warmedUp: boolean;
   stale: boolean;
+  staleReason: FeatureStaleReason | null;
   receiveTsMs: number;
 }
 

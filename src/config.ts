@@ -233,7 +233,7 @@ function loadSymbolConfig(symbol: string, env: NodeJS.ProcessEnv, mode: TradingM
   const signalMode = parseSignalMode(env.SIGNAL_MODE ?? env.ENTRY_MODE);
   if (signalMode !== "DETERMINISTIC_ONLY" && !env.MODEL_CONFIG_JSON) throw new Error(`${signalMode} requires MODEL_CONFIG_JSON; optional model modes fail closed without a model`);
   const model = signalMode === "DETERMINISTIC_ONLY" ? parseModel(undefined) : parseModel(env.MODEL_CONFIG_JSON);
-  const configurationVersion = env.DETERMINISTIC_CONFIG_VERSION ?? "deterministic-micro-v1";
+  const configurationVersion = env.DETERMINISTIC_CONFIG_VERSION ?? "deterministic-micro-v1.1";
   const deterministicExtension = loadExtensionConfig(env);
   const deterministicRegime = loadDeterministicRegimeConfig(env);
   const deterministicSignal = loadDeterministicSignalConfig(env, signalMode, configurationVersion);

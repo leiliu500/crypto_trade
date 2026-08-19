@@ -443,8 +443,9 @@ export class TradingEngine extends EventEmitter {
       Boolean(item.position || this.pendingForSymbol(item.book.symbol)) && item.latestFeatures?.stale !== false);
     this.riskState.setHealth({ bookValid: allBooksStructurallyValid && !staleExposure });
     if (features.stale) {
-      this.rejectEntry(runtime, "FEATURES_READY", "FEATURES_STALE", features.receiveTsMs, {
-        providerAgeMs: features.providerAgeMs, staleThresholdMs: features.staleThresholdMs,
+      this.rejectEntry(runtime, "FEATURES_READY", features.staleReason ?? "FEATURES_STALE", features.receiveTsMs, {
+        staleReason: features.staleReason, providerAgeMs: features.providerAgeMs,
+        staleThresholdMs: features.staleThresholdMs,
       });
       const pending = this.pendingForSymbol(book.symbol);
       if (pending) void this.cancelTracked(pending);

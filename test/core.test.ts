@@ -57,17 +57,41 @@ test("robust statistics implement quantile, median, MAD and dynamic stale thresh
   gate.observe(10, 1); gate.observe(11, 2); gate.observe(9, 3);
   const normal = gate.observe(12, 4);
   assert.equal(normal.stale, false);
+  assert.equal(normal.reason, null);
   const stale = gate.observe(1_000, 5);
   assert.equal(stale.stale, true);
+  assert.equal(stale.reason, "PROVIDER_TOO_OLD");
   assert.ok(stale.thresholdMs >= 100);
 });
 
 test("provider timestamps slightly ahead of the local clock are clamped within an explicit tolerance", () => {
   const gate = new RobustAgeGate(100, 10_000, 6, 3, 50);
-  assert.deepEqual(gate.observe(-16, 1), { stale: false, thresholdMs: 100, adjustedAgeMs: 0 });
+  assert.deepEqual(gate.observe(-16, 1), { stale: false, reason: null, thresholdMs: 100, adjustedAgeMs: 0 });
   const excessiveLead = gate.observe(-51, 2);
   assert.equal(excessiveLead.stale, true);
+  assert.equal(excessiveLead.reason, "FUTURE_CLOCK_SKEW");
   assert.equal(excessiveLead.adjustedAgeMs, -51);
+});
+
+test("250 ms provider future-skew tolerance accepts the observed Alpaca clock lead", () => {
+  const gate = new RobustAgeGate(2_000, 300_000, 6, 20, 250);
+  assert.deepEqual(gate.observe(-127, 1), { stale: false, reason: null, thresholdMs: 2_000, adjustedAgeMs: 0 });
+  const excessiveLead = gate.observe(-251, 2);
+  assert.equal(excessiveLead.reason, "FUTURE_CLOCK_SKEW");
+});
+
+test("feature freshness reports future skew and old data as distinct causes", () => {
+  const book = (exchangeTsMs: number, receiveTsMs: number) => ({
+    symbol: "TEST/USD", bids: [{ px: 99.995, qty: 10 }], asks: [{ px: 100.005, qty: 10 }],
+    sequence: 1n, exchangeTsMs, receiveTsMs, valid: true, sourceReset: true,
+  });
+  const tolerated = new FeatureEngine().onBook(book(1_127, 1_000));
+  assert.equal(tolerated?.providerAgeMs, 0);
+  assert.equal(tolerated?.staleReason, null);
+  const future = new FeatureEngine().onBook(book(1_251, 1_000));
+  assert.equal(future?.staleReason, "FUTURE_CLOCK_SKEW");
+  const old = new FeatureEngine().onBook(book(1_000, 3_001));
+  assert.equal(old?.staleReason, "PROVIDER_TOO_OLD");
 });
 
 test("kinematic features remain finite under bursty and irregular event timestamps", () => {
@@ -102,9 +126,11 @@ test("a long observation gap resets kinematics and fails closed for that event",
   const afterGap = engine.onBook({ symbol: "TEST/USD", bids: [{ px: 100.005, qty: 10 }], asks: [{ px: 100.015, qty: 10 }],
     sequence: 41n, exchangeTsMs: gapMs, receiveTsMs: gapMs, valid: true, sourceReset: true });
   assert.equal(afterGap?.stale, true);
+  assert.equal(afterGap?.staleReason, "KINEMATICS_RESET");
   assert.equal(afterGap?.warmedUp, false);
   assert.equal(Number.isFinite(afterGap?.velocityZ ?? Number.NaN), true);
   const recovered = engine.onBook({ symbol: "TEST/USD", bids: [{ px: 100.006, qty: 10 }], asks: [{ px: 100.016, qty: 10 }],
     sequence: 42n, exchangeTsMs: gapMs + 100, receiveTsMs: gapMs + 100, valid: true, sourceReset: true });
   assert.equal(recovered?.stale, false);
+  assert.equal(recovered?.staleReason, null);
 });
