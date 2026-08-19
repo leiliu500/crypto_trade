@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import type { FeatureConfig } from "./core/features.js";
 import { DEFAULT_FEATURE_CONFIG } from "./core/features.js";
 import type { PlannerConfig } from "./execution/planner.js";
@@ -14,14 +16,8 @@ import type { DeterministicHoldConfig } from "./strategy/deterministic-hold.js";
 import { DEFAULT_DETERMINISTIC_HOLD_CONFIG, DEFAULT_DETERMINISTIC_REGIME_CONFIG, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG, DEFAULT_EXTENSION_CONFIG } from "./config/deterministic-defaults.js";
 
 export type TradingMode = "record" | "replay" | "shadow" | "paper" | "live";
-export interface EngineConfig {
-  mode: TradingMode;
-  credentials: { keyId: string; secretKey: string };
-  paper: boolean;
-  symbols: string[];
-  cryptoLocation: string;
-  recordFile: string;
-  replayFile: string;
+export interface SymbolConfig {
+  symbol: string;
   maximumNotional: number;
   initialStopSigma: number;
   minimumStopSpreadMultiple: number;
@@ -41,9 +37,20 @@ export interface EngineConfig {
   signal: SignalConfig;
   cost: CostConfig;
   sizing: RiskConfig;
-  portfolio: PortfolioRiskConfig;
   position: PositionConfig;
   planner: PlannerConfig;
+}
+
+export interface EngineConfig extends Omit<SymbolConfig, "symbol"> {
+  mode: TradingMode;
+  credentials: { keyId: string; secretKey: string };
+  paper: boolean;
+  symbols: string[];
+  symbolConfigs: Readonly<Record<string, SymbolConfig>>;
+  cryptoLocation: string;
+  recordFile: string;
+  replayFile: string;
+  portfolio: PortfolioRiskConfig;
   rollingLossFraction: number;
   sessionLossFraction: number;
   dashboardEnabled: boolean;
@@ -60,7 +67,24 @@ export interface EngineConfig {
 const MODEL_DIMENSION = 15;
 const zeroWeights = (): number[] => Array.from({ length: MODEL_DIMENSION }, () => 0);
 
+type ParameterValue = string | number | boolean;
+interface ParameterFile { schemaVersion: number; symbols: string[]; parameters: Record<string, ParameterValue> }
+interface SymbolParameterFile { schemaVersion: number; symbol: string; parameters: Record<string, ParameterValue> }
+
+const RUNTIME_ONLY_KEYS = new Set([
+  "ALPACA_API_KEY", "ALPACA_API_SECRET", "APCA_API_KEY_ID", "APCA_API_SECRET_KEY", "ALPACA_PAPER",
+  "TRADING_MODE", "ALLOW_LIVE_TRADING", "LIVE_TRADING_CONFIRMATION", "DATABASE_URL",
+  "POSTGRES_DB", "POSTGRES_USER", "POSTGRES_PASSWORD", "POSTGRES_HOST", "POSTGRES_PORT", "CONFIG_DIR",
+]);
+const GLOBAL_PARAMETER_KEYS = new Set([
+  "ALPACA_CRYPTO_LOCATION", "REPLAY_FILE", "RECORD_FILE", "DASHBOARD_ENABLED", "DASHBOARD_HOST", "DASHBOARD_PORT",
+  "DATABASE_ENABLED", "DATABASE_REQUIRED", "DATABASE_FLUSH_INTERVAL_MS", "DATABASE_MAX_QUEUE", "DATABASE_MARKET_SAMPLE_MS",
+  "MAXIMUM_GROSS_NOTIONAL",
+]);
+
 export function loadConfig(env: NodeJS.ProcessEnv = process.env, modeOverride?: string): EngineConfig {
+  const files = loadParameterFiles(env.CONFIG_DIR ?? "config");
+  const configuredEnv = applyParameters(env, files.base.parameters);
   const mode = parseMode(modeOverride ?? env.TRADING_MODE ?? "shadow");
   const keyId = env.ALPACA_API_KEY ?? env.APCA_API_KEY_ID ?? "";
   const secretKey = env.ALPACA_API_SECRET ?? env.APCA_API_SECRET_KEY ?? "";
@@ -75,6 +99,108 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env, modeOverride?: 
       throw new Error("Live trading interlock is not armed");
     }
   }
+  const baseline = loadSymbolConfig("__base__", configuredEnv);
+  const symbolConfigs: Record<string, SymbolConfig> = {};
+  for (const symbol of files.base.symbols) {
+    const overlay = files.symbols.get(symbol);
+    if (!overlay) throw new Error(`Missing symbol configuration for ${symbol}`);
+    symbolConfigs[symbol] = loadSymbolConfig(symbol, applyParameters(configuredEnv, overlay.parameters));
+  }
+  const { symbol: _baselineSymbol, ...baselineConfig } = baseline;
+  return {
+    ...baselineConfig,
+    mode, credentials: { keyId, secretKey }, paper, symbols: [...files.base.symbols], symbolConfigs,
+    cryptoLocation: configuredEnv.ALPACA_CRYPTO_LOCATION ?? "us", recordFile: configuredEnv.RECORD_FILE ?? "data/events.jsonl", replayFile: configuredEnv.REPLAY_FILE ?? "data/events.jsonl",
+    portfolio: { maximumVariance: Number.POSITIVE_INFINITY, maximumClusterPositions: 1, maximumGrossNotional: numberEnv(configuredEnv.MAXIMUM_GROSS_NOTIONAL, 5_000), rollingLossBudgetFraction: .0075 },
+    rollingLossFraction: .0075, sessionLossFraction: .0075,
+    dashboardEnabled: parseBoolean(configuredEnv.DASHBOARD_ENABLED, true),
+    dashboardHost: configuredEnv.DASHBOARD_HOST ?? "127.0.0.1",
+    dashboardPort: integerEnv(configuredEnv.DASHBOARD_PORT, 8_787, 1, 65_535),
+    databaseEnabled: parseBoolean(configuredEnv.DATABASE_ENABLED, true),
+    databaseRequired: parseBoolean(configuredEnv.DATABASE_REQUIRED, false),
+    databaseUrl: env.DATABASE_URL ?? buildDatabaseUrl(env),
+    databaseFlushIntervalMs: integerEnv(configuredEnv.DATABASE_FLUSH_INTERVAL_MS, 250, 25, 60_000),
+    databaseMaxQueue: integerEnv(configuredEnv.DATABASE_MAX_QUEUE, 10_000, 100, 1_000_000),
+    databaseMarketSampleMs: integerEnv(configuredEnv.DATABASE_MARKET_SAMPLE_MS, 1_000, 100, 60_000),
+  };
+}
+
+function loadParameterFiles(configDirectory: string): { base: ParameterFile; symbols: Map<string, SymbolParameterFile> } {
+  const directory = resolve(configDirectory);
+  const basePath = resolve(directory, "base.json");
+  const base = readParameterFile(basePath);
+  if (base.schemaVersion !== 1) throw new Error(`${basePath}: unsupported schemaVersion ${base.schemaVersion}`);
+  if (!Array.isArray(base.symbols) || base.symbols.length === 0 || base.symbols.some((symbol) => typeof symbol !== "string" || !symbol.trim())) {
+    throw new Error(`${basePath}: symbols must be a non-empty string array`);
+  }
+  base.symbols = base.symbols.map((symbol) => symbol.trim());
+  if (new Set(base.symbols).size !== base.symbols.length) throw new Error(`${basePath}: symbols must be unique`);
+  validateParameters(base.parameters, basePath);
+
+  const symbols = new Map<string, SymbolParameterFile>();
+  for (const symbol of base.symbols) {
+    const path = resolve(directory, `${symbolFileStem(symbol)}.json`);
+    const overlay = readSymbolParameterFile(path);
+    if (overlay.schemaVersion !== 1) throw new Error(`${path}: unsupported schemaVersion ${overlay.schemaVersion}`);
+    if (overlay.symbol !== symbol) throw new Error(`${path}: expected symbol ${symbol}, received ${overlay.symbol}`);
+    validateParameters(overlay.parameters, path);
+    for (const key of Object.keys(overlay.parameters)) {
+      if (!(key in base.parameters)) throw new Error(`${path}: ${key} is not defined by base.json`);
+      if (GLOBAL_PARAMETER_KEYS.has(key)) throw new Error(`${path}: ${key} is global and cannot be overridden per symbol`);
+    }
+    symbols.set(symbol, overlay);
+  }
+  return { base, symbols };
+}
+
+function readParameterFile(path: string): ParameterFile {
+  const value = readJsonObject(path);
+  assertOnlyKeys(value, ["schemaVersion", "symbols", "parameters"], path);
+  if (typeof value.schemaVersion !== "number" || !Array.isArray(value.symbols) || !isObject(value.parameters)) throw new Error(`${path}: invalid base configuration document`);
+  return value as unknown as ParameterFile;
+}
+
+function readSymbolParameterFile(path: string): SymbolParameterFile {
+  const value = readJsonObject(path);
+  assertOnlyKeys(value, ["schemaVersion", "symbol", "parameters"], path);
+  if (typeof value.schemaVersion !== "number" || typeof value.symbol !== "string" || !isObject(value.parameters)) throw new Error(`${path}: invalid symbol configuration document`);
+  return value as unknown as SymbolParameterFile;
+}
+
+function readJsonObject(path: string): Record<string, unknown> {
+  let parsed: unknown;
+  try { parsed = JSON.parse(readFileSync(path, "utf8")); }
+  catch (error) { throw new Error(`Unable to load configuration ${path}: ${error instanceof Error ? error.message : String(error)}`); }
+  if (!isObject(parsed)) throw new Error(`${path}: root must be an object`);
+  return parsed;
+}
+
+function validateParameters(parameters: Record<string, ParameterValue>, path: string): void {
+  for (const [key, value] of Object.entries(parameters)) {
+    if (!/^[A-Z][A-Z0-9_]*$/.test(key)) throw new Error(`${path}: invalid parameter name ${key}`);
+    if (RUNTIME_ONLY_KEYS.has(key)) throw new Error(`${path}: ${key} is runtime-only and must remain in .env`);
+    if (!["string", "number", "boolean"].includes(typeof value) || (typeof value === "number" && !Number.isFinite(value))) {
+      throw new Error(`${path}: ${key} must be a finite number, boolean, or string`);
+    }
+  }
+}
+
+function applyParameters(env: NodeJS.ProcessEnv, parameters: Record<string, ParameterValue>): NodeJS.ProcessEnv {
+  const result = { ...env };
+  for (const [key, value] of Object.entries(parameters)) result[key] = String(value);
+  return result;
+}
+
+function symbolFileStem(symbol: string): string {
+  return symbol.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+}
+
+function assertOnlyKeys(value: Record<string, unknown>, allowed: readonly string[], path: string): void {
+  for (const key of Object.keys(value)) if (!allowed.includes(key)) throw new Error(`${path}: unknown property ${key}`);
+}
+function isObject(value: unknown): value is Record<string, unknown> { return typeof value === "object" && value !== null && !Array.isArray(value); }
+
+function loadSymbolConfig(symbol: string, env: NodeJS.ProcessEnv): SymbolConfig {
   const feature: FeatureConfig = {
     ...DEFAULT_FEATURE_CONFIG,
     forecastHorizonMs: numberEnv(env.FORECAST_HORIZON_MS, 5_000),
@@ -90,8 +216,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env, modeOverride?: 
   const deterministicSignal = loadDeterministicSignalConfig(env, signalMode, configurationVersion);
   const deterministicHold = loadDeterministicHoldConfig(env);
   return {
-    mode, credentials: { keyId, secretKey }, paper, symbols: (env.SYMBOLS ?? "BTC/USD").split(",").map((x) => x.trim()).filter(Boolean),
-    cryptoLocation: env.ALPACA_CRYPTO_LOCATION ?? "us", recordFile: env.RECORD_FILE ?? "data/events.jsonl", replayFile: env.REPLAY_FILE ?? "data/events.jsonl",
+    symbol,
     maximumNotional: numberEnv(env.MAXIMUM_NOTIONAL, 1_000), initialStopSigma: numberEnv(env.INITIAL_STOP_SIGMA, 3),
     minimumStopSpreadMultiple: numberEnv(env.MINIMUM_STOP_SPREAD_MULTIPLE, 3), jumpSigma: numberEnv(env.JUMP_SIGMA, 5),
     strategyVersion: env.STRATEGY_VERSION ?? "1.0.0", modelVersion: signalMode === "DETERMINISTIC_ONLY" ? "none" : model.version,
@@ -101,17 +226,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env, modeOverride?: 
     signal: { costSafetyFactor: 1.75, minimumDirectionProbability: .62, minimumNetEdgeBps: 1, fullQualityEdgeBps: 20 },
     cost: { makerFeeBps: numberEnv(env.MAKER_FEE_BPS, 15), takerFeeBps: numberEnv(env.TAKER_FEE_BPS, 25), expectedExitTaker: true, latencyAdverseFraction: .25, adverseSelectionBps: 1, fundingBps: 0, borrowBps: 0 },
     sizing: { baseRiskFraction: .001, maximumDrawdown: .05, maximumBookParticipation: .01, fractionalKelly: .1, maximumKellyFraction: .05, targetSigmaHBps: 20, minimumQualityScale: .1 },
-    portfolio: { maximumVariance: Number.POSITIVE_INFINITY, maximumClusterPositions: 1, maximumGrossNotional: numberEnv(env.MAXIMUM_GROSS_NOTIONAL, 5_000), rollingLossBudgetFraction: .0075 },
-    position: defaultPositionConfig(), planner: defaultPlannerConfig(), rollingLossFraction: .0075, sessionLossFraction: .0075,
-    dashboardEnabled: parseBoolean(env.DASHBOARD_ENABLED, true),
-    dashboardHost: env.DASHBOARD_HOST ?? "127.0.0.1",
-    dashboardPort: integerEnv(env.DASHBOARD_PORT, 8_787, 1, 65_535),
-    databaseEnabled: parseBoolean(env.DATABASE_ENABLED, true),
-    databaseRequired: parseBoolean(env.DATABASE_REQUIRED, false),
-    databaseUrl: env.DATABASE_URL ?? buildDatabaseUrl(env),
-    databaseFlushIntervalMs: integerEnv(env.DATABASE_FLUSH_INTERVAL_MS, 250, 25, 60_000),
-    databaseMaxQueue: integerEnv(env.DATABASE_MAX_QUEUE, 10_000, 100, 1_000_000),
-    databaseMarketSampleMs: integerEnv(env.DATABASE_MARKET_SAMPLE_MS, 1_000, 100, 60_000),
+    position: defaultPositionConfig(), planner: defaultPlannerConfig(),
   };
 }
 

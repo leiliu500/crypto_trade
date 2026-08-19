@@ -70,7 +70,7 @@ npm install
 Copy-Item .env.example .env
 ```
 
-The CLI loads `.env` through Node's built-in environment-file support. You may also set variables in the current shell before starting:
+The CLI loads `.env` through Node's built-in environment-file support. `.env` is reserved for credentials, endpoint safety controls, trading mode, live interlocks, and database connection values. You may also set those runtime values in the current shell before starting:
 
 ```powershell
 $env:ALPACA_API_KEY = '<paper key>'
@@ -80,6 +80,15 @@ npm run shadow
 ```
 
 The standard Alpaca names `APCA_API_KEY_ID` and `APCA_API_SECRET_KEY` are also accepted. Secrets are never included in application logs. `.env` is ignored by Git.
+
+Tunable parameters are JSON-backed:
+
+- `config/base.json` contains the enabled symbol list and baseline parameter values.
+- `config/btc_usd.json` and `config/link_usd.json` contain symbol-specific overrides. A symbol such as `BTC/USD` maps to `btc_usd.json`.
+- A symbol file only needs to include values that differ from the baseline. Its keys must already exist in `base.json`, and global dashboard/database parameters cannot be overridden per symbol.
+- `CONFIG_DIR` can select another configuration directory. JSON values take precedence over legacy tunable environment variables, so tuning has one source of truth.
+
+Keep credentials and connection secrets out of all JSON files.
 
 ## Modes
 
@@ -102,7 +111,7 @@ npm run build
 npm test
 ```
 
-The default configuration is:
+The default deterministic configuration in `config/base.json` is:
 
 ```text
 SIGNAL_MODE=DETERMINISTIC_ONLY
@@ -134,7 +143,7 @@ npm run db:smoke
 
 The Compose service binds only to `127.0.0.1:5433` by default so it can coexist with a conventional local PostgreSQL instance on port 5432. Override `POSTGRES_PORT` and `DATABASE_URL` together if needed.
 
-Engine modes start the dashboard and asynchronous database writer with the trading engine. Persistence is bounded and batched so PostgreSQL is never awaited on the strategy hot path. Set `DATABASE_REQUIRED=true` to make database availability a startup requirement; otherwise the engine continues while the dashboard reports degraded persistence. The named Docker volume `crypto_trade_postgres_data` preserves records across container restarts.
+Engine modes start the dashboard and asynchronous database writer with the trading engine. Persistence is bounded and batched so PostgreSQL is never awaited on the strategy hot path. Set `DATABASE_REQUIRED` in `config/base.json` to `true` to make database availability a startup requirement; otherwise the engine continues while the dashboard reports degraded persistence. The named Docker volume `crypto_trade_postgres_data` preserves records across container restarts.
 
 For a credential-free dashboard preview:
 

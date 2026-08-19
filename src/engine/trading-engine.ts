@@ -1,6 +1,6 @@
 import { randomUUID, createHash } from "node:crypto";
 import { EventEmitter } from "node:events";
-import type { EngineConfig } from "../config.js";
+import type { EngineConfig, SymbolConfig } from "../config.js";
 import { FeatureEngine } from "../core/features.js";
 import { LatencyTracker } from "../core/latency.js";
 import type { BookState, Features, MarketTrade } from "../core/market.js";
@@ -64,12 +64,18 @@ export interface EngineOperationalSnapshot {
 }
 
 interface SymbolRuntime {
+  config: SymbolConfig;
   book: LocalOrderBook;
   features: FeatureEngine;
   pressure: BookPressureTracker;
   deterministicFeatures: DeterministicFeatureExtensions;
   regimeEngine: DeterministicRegimeEngine;
   entryEngine: DeterministicEntryEngine;
+  signalRouter: SignalRouter;
+  holdEngine: DeterministicHoldEngine;
+  cost: CostModel;
+  planner: ExecutionPlanner;
+  positionManager: PositionManager;
   asset?: AssetRules;
   latestFeatures?: DeterministicFeatures;
   latestRegime?: RegimeDecision;
@@ -96,12 +102,6 @@ export class TradingEngine extends EventEmitter {
   private readonly latency = new LatencyTracker();
   private readonly riskState: RiskState;
   private readonly portfolio: PortfolioRiskEngine;
-  private readonly optionalForecast?: ForecastEngine;
-  private readonly signalRouter: SignalRouter;
-  private readonly holdEngine: DeterministicHoldEngine;
-  private readonly cost: CostModel;
-  private readonly planner: ExecutionPlanner;
-  private readonly positionManager: PositionManager;
   private readonly now: () => number;
   private readonly watchdog: HealthWatchdog;
   private readonly recorder?: EventRecorder;
@@ -120,23 +120,28 @@ export class TradingEngine extends EventEmitter {
     this.tradeStream = dependencies.tradeStream ?? new AlpacaTradeStream({ credentials: cfg.credentials, paper: cfg.paper });
     this.riskState = new RiskState(cfg.rollingLossFraction, cfg.sessionLossFraction, cfg.sizing.maximumDrawdown);
     this.portfolio = new PortfolioRiskEngine(cfg.portfolio);
-    if (cfg.signalMode !== "DETERMINISTIC_ONLY") this.optionalForecast = new ForecastEngine(cfg.probabilityHead, cfg.returnHead, cfg.forecast);
-    this.signalRouter = new SignalRouter(cfg.signalMode, this.optionalModel());
-    this.holdEngine = new DeterministicHoldEngine(cfg.deterministicHold);
-    this.cost = new CostModel(cfg.cost);
-    this.planner = new ExecutionPlanner(cfg.planner, new RiskSizer(cfg.sizing), this.cost, cfg.strategyVersion, cfg.modelVersion);
-    this.positionManager = new PositionManager(cfg.position);
     this.watchdog = new HealthWatchdog(
       { checkIntervalMs: 1_000, publicSilenceMs: 30_000, privateSilenceMs: 45_000, maximumEventLoopDriftMs: 2_000 },
       (fault) => this.onWatchdogFault(fault), this.now,
     );
     if (cfg.mode === "record") this.recorder = new EventRecorder(cfg.recordFile);
-    for (const symbol of cfg.symbols) this.runtimes.set(symbol, {
-      book: new LocalOrderBook(symbol), features: new FeatureEngine(cfg.feature), pressure: new BookPressureTracker(cfg.feature.depthLevels),
-      deterministicFeatures: new DeterministicFeatureExtensions(cfg.deterministicExtension),
-      regimeEngine: new DeterministicRegimeEngine(cfg.deterministicRegime), entryEngine: new DeterministicEntryEngine(cfg.deterministicSignal),
-      cluster: baseAsset(symbol),
-    });
+    for (const symbol of cfg.symbols) {
+      const symbolCfg = cfg.symbolConfigs[symbol];
+      if (!symbolCfg) throw new Error(`Missing resolved symbol configuration for ${symbol}`);
+      const optionalForecast = symbolCfg.signalMode === "DETERMINISTIC_ONLY" ? undefined
+        : new ForecastEngine(symbolCfg.probabilityHead, symbolCfg.returnHead, symbolCfg.forecast);
+      const cost = new CostModel(symbolCfg.cost);
+      this.runtimes.set(symbol, {
+        config: symbolCfg,
+        book: new LocalOrderBook(symbol), features: new FeatureEngine(symbolCfg.feature), pressure: new BookPressureTracker(symbolCfg.feature.depthLevels),
+        deterministicFeatures: new DeterministicFeatureExtensions(symbolCfg.deterministicExtension),
+        regimeEngine: new DeterministicRegimeEngine(symbolCfg.deterministicRegime), entryEngine: new DeterministicEntryEngine(symbolCfg.deterministicSignal),
+        signalRouter: new SignalRouter(symbolCfg.signalMode, this.optionalModel(symbolCfg, optionalForecast)),
+        holdEngine: new DeterministicHoldEngine(symbolCfg.deterministicHold), cost,
+        planner: new ExecutionPlanner(symbolCfg.planner, new RiskSizer(symbolCfg.sizing), cost, symbolCfg.strategyVersion, symbolCfg.modelVersion),
+        positionManager: new PositionManager(symbolCfg.position), cluster: baseAsset(symbol),
+      });
+    }
     this.bindStreams();
   }
 
@@ -238,20 +243,20 @@ export class TradingEngine extends EventEmitter {
     };
   }
 
-  private optionalModel(): OptionalSignalModel | undefined {
-    if (!this.optionalForecast) return undefined;
+  private optionalModel(cfg: SymbolConfig, forecastEngine?: ForecastEngine): OptionalSignalModel | undefined {
+    if (!forecastEngine) return undefined;
     return {
       evaluate: (features, intent) => {
-        const forecast = this.optionalForecast!.evaluate(features, Math.max(1, this.latency.p95Total(this.now()) || 250));
+        const forecast = forecastEngine.evaluate(features, Math.max(1, this.latency.p95Total(this.now()) || 250));
         const modelLowerBoundBps = forecast.grossAtArrivalBps - forecast.residualQ95Bps
-          - this.cfg.signal.costSafetyFactor * intent.diagnostics.roundTripCostBps;
+          - cfg.signal.costSafetyFactor * intent.diagnostics.roundTripCostBps;
         const accept = !forecast.expired && forecast.side === intent.side
-          && forecast.probability >= this.cfg.signal.minimumDirectionProbability
-          && modelLowerBoundBps >= this.cfg.signal.minimumNetEdgeBps;
+          && forecast.probability >= cfg.signal.minimumDirectionProbability
+          && modelLowerBoundBps >= cfg.signal.minimumNetEdgeBps;
         return {
           accept, rankingScore: modelLowerBoundBps,
-          sizeMultiplier: Math.max(0, Math.min(1, modelLowerBoundBps / Math.max(this.cfg.signal.fullQualityEdgeBps, 1e-9))),
-          modelVersion: this.cfg.modelVersion,
+          sizeMultiplier: Math.max(0, Math.min(1, modelLowerBoundBps / Math.max(cfg.signal.fullQualityEdgeBps, 1e-9))),
+          modelVersion: cfg.modelVersion,
         };
       },
     };
@@ -364,8 +369,8 @@ export class TradingEngine extends EventEmitter {
     runtime.latestRegime = regime;
     if (!runtime.asset) return;
     const smallQty = runtime.asset?.minOrderSize ?? 0;
-    const longCost = this.planner.preliminaryCost(features, book, 1, smallQty);
-    const shortCost = this.planner.preliminaryCost(features, book, -1, smallQty);
+    const longCost = runtime.planner.preliminaryCost(features, book, 1, smallQty);
+    const shortCost = runtime.planner.preliminaryCost(features, book, -1, smallQty);
     if (!longCost || !shortCost) return;
     const deterministicIntent = runtime.entryEngine.evaluate({
       symbol: book.symbol, sequence: book.sequence, nowMs: features.receiveTsMs, features, regime,
@@ -375,22 +380,22 @@ export class TradingEngine extends EventEmitter {
     const evaluation = runtime.entryEngine.latestEvaluation();
     if (evaluation) runtime.latestRuleEvaluation = evaluation;
     this.emit("ruleEvaluation", {
-      configurationVersion: this.cfg.configurationVersion, strategyVersion: this.cfg.strategyVersion,
+      configurationVersion: runtime.config.configurationVersion, strategyVersion: runtime.config.strategyVersion,
       symbolRulesetVersion: assetRulesVersion(runtime.asset), features, regime, evaluation: runtime.latestRuleEvaluation,
     });
-    const routed = this.signalRouter.route(deterministicIntent, features);
+    const routed = runtime.signalRouter.route(deterministicIntent, features);
     if (!routed || routed.sizeMultiplier <= 0) return;
     const intent = plannerIntent(routed.intent, 1);
     const initialStopDistance = Math.max(
-      cfgPriceSigma(features, this.cfg.initialStopSigma),
-      this.cfg.minimumStopSpreadMultiple * features.spread,
+      cfgPriceSigma(features, runtime.config.initialStopSigma),
+      runtime.config.minimumStopSpreadMultiple * features.spread,
       runtime.asset.priceIncrement,
     );
-    const plan = this.planner.build(intent, features, book, runtime.asset, {
+    const plan = runtime.planner.build(intent, features, book, runtime.asset, {
       equity: this.equity, equityHighWater: this.equityHighWater, initialStopDistance,
-      jumpBuffer: cfgPriceSigma(features, this.cfg.jumpSigma), maximumNotional: this.cfg.maximumNotional,
+      jumpBuffer: cfgPriceSigma(features, runtime.config.jumpSigma), maximumNotional: runtime.config.maximumNotional,
       lotSize: runtime.asset.minTradeIncrement, regimeScale: regime.riskScale,
-      exposureCapacityQty: this.cfg.maximumNotional / features.mid,
+      exposureCapacityQty: runtime.config.maximumNotional / features.mid,
     }, false, {
       createdMs: features.receiveTsMs, decisionId: routed.intent.decisionId,
       quantityMultiplier: routed.sizeMultiplier,
@@ -403,7 +408,7 @@ export class TradingEngine extends EventEmitter {
     const candidate = { symbol: plan.symbol, notional: plan.qty * features.mid * plan.side, cluster: runtime.cluster, stressedLoss: plan.risk.modeledMaximumLoss };
     if (!this.portfolio.canAdd(candidate, this.equity, Math.max(0, -this.realizedSessionPnl))) return;
     this.emit("decision", {
-      configurationVersion: this.cfg.configurationVersion, strategyVersion: this.cfg.strategyVersion,
+      configurationVersion: runtime.config.configurationVersion, strategyVersion: runtime.config.strategyVersion,
       adapterVersion: "alpaca-v1", symbolRulesetVersion: assetRulesVersion(runtime.asset),
       regime, deterministicIntent: routed.intent, routing: routed, features, plan, mode: this.cfg.mode,
     });
@@ -463,7 +468,7 @@ export class TradingEngine extends EventEmitter {
 
   private reevaluatePending(runtime: SymbolRuntime, pending: ReturnType<OrderStateReconciler["all"]>[number], book: ReturnType<LocalOrderBook["snapshot"]>, features: DeterministicFeatures): void {
     if (pending.status === "UNKNOWN") { this.riskState.halt("ORDER_SEND_UNKNOWN"); return; }
-    const cost = this.cost.estimate(features, book, pending.plan.side, Math.max(pending.plan.qty - pending.filledQty, 0), pending.plan.style === "maker");
+    const cost = runtime.cost.estimate(features, book, pending.plan.side, Math.max(pending.plan.qty - pending.filledQty, 0), pending.plan.style === "maker");
     let regime = runtime.regimeEngine.classify(features);
     if (!runtime.asset?.shortable && regime.allowShort) regime = { ...regime, allowShort: false };
     runtime.latestRegime = regime;
@@ -482,13 +487,13 @@ export class TradingEngine extends EventEmitter {
     let regime = runtime.regimeEngine.classify(features);
     if (!runtime.asset?.shortable && regime.allowShort) regime = { ...regime, allowShort: false };
     runtime.latestRegime = regime;
-    const exitCost = this.cost.estimate(features, book, -1, position.qty, false);
+    const exitCost = runtime.cost.estimate(features, book, -1, position.qty, false);
     const expectedDelayAndExitCostBps = exitCost ? exitCost.spreadBps / 2 + exitCost.feeBps / 2 + exitCost.impactBps
       + exitCost.latencyBps + exitCost.adverseSelectionBps + exitCost.fundingBps + exitCost.borrowBps : Number.POSITIVE_INFINITY;
-    const hold = this.holdEngine.evaluate(position.side, features, expectedDelayAndExitCostBps);
+    const hold = runtime.holdEngine.evaluate(position.side, features, expectedDelayAndExitCostBps);
     const executableExit = book.bids[0]!.px;
-    const decision = this.positionManager.update(position, executableExit, this.now(), features, hold.holdLowerBoundBps, hold.reversalScore, Math.max(0, -hold.holdLowerBoundBps));
-    this.emit("positionDecision", { configurationVersion: this.cfg.configurationVersion, position: { ...position }, decision, hold, regime });
+    const decision = runtime.positionManager.update(position, executableExit, this.now(), features, hold.holdLowerBoundBps, hold.reversalScore, Math.max(0, -hold.holdLowerBoundBps));
+    this.emit("positionDecision", { configurationVersion: runtime.config.configurationVersion, position: { ...position }, decision, hold, regime });
     if (hold.exitEvidence) void this.submitExit(runtime, position.qty, "DETERMINISTIC_HOLD_EVIDENCE", book, features);
     else if (decision.action === "EXIT") void this.submitExit(runtime, position.qty, decision.reason, book, features);
     else if (decision.action === "REDUCE") void this.submitExit(runtime, position.qty * decision.fraction, decision.reason, book, features);
@@ -499,7 +504,7 @@ export class TradingEngine extends EventEmitter {
     const qty = Math.min(runtime.position.qty, Math.floor(desiredQty / runtime.asset.minTradeIncrement + 1e-12) * runtime.asset.minTradeIncrement);
     if (qty < runtime.asset.minOrderSize) return;
     const sweep = estimateSweep(book.bids, qty);
-    const cost = this.cost.estimate(features, book, -1, qty, false);
+    const cost = runtime.cost.estimate(features, book, -1, qty, false);
     if (!sweep || !cost) { this.riskState.halt("BOOK_INVALID"); return; }
     const risk: RiskApproval = { qty, riskBudget: 0, maximumLossPerUnit: 0, modeledMaximumLoss: 0, drawdownScale: 1, qualityScale: 1, volatilityScale: 1, bindingLimit: "exposure" };
     const nowMs = this.now();
@@ -507,8 +512,8 @@ export class TradingEngine extends EventEmitter {
       clientOrderId: `mlce-exit-${nowMs}-${randomUUID().slice(0, 8)}`, decisionId: randomUUID(), riskApprovalId: randomUUID(),
       symbol: runtime.position.symbol, side: -1, qty, limitPx: floorPrice(sweep.worstPx, runtime.asset.priceIncrement), style: "taker", timeInForce: "ioc",
       createdMs: nowMs, expiresMs: nowMs + 1_000, originatingSequence: book.sequence,
-      featureHash: createHash("sha256").update(JSON.stringify(features)).digest("hex").slice(0, 24), strategyVersion: this.cfg.strategyVersion,
-      modelVersion: this.cfg.modelVersion, expectedCost: cost, risk, fillProbability: 1,
+      featureHash: createHash("sha256").update(JSON.stringify(features)).digest("hex").slice(0, 24), strategyVersion: runtime.config.strategyVersion,
+      modelVersion: runtime.config.modelVersion, expectedCost: cost, risk, fillProbability: 1,
       expectedValue: -qty * features.mid * cost.roundTripBps / 10_000, reduceOnlyIntent: true,
     };
     this.emit("exitDecision", { reason, plan });

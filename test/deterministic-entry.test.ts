@@ -63,7 +63,7 @@ test("deterministic-only construction and config loading require no model", () =
   const cfg = loadConfig({ TRADING_MODE: "replay", DATABASE_ENABLED: "false", DASHBOARD_ENABLED: "false" });
   assert.equal(cfg.signalMode, "DETERMINISTIC_ONLY");
   assert.equal(cfg.modelVersion, "none");
-  assert.throws(() => loadConfig({ TRADING_MODE: "replay", SIGNAL_MODE: "DETERMINISTIC_WITH_MODEL_VETO" }), /requires MODEL_CONFIG_JSON/);
+  assert.equal(loadConfig({ TRADING_MODE: "replay", SIGNAL_MODE: "DETERMINISTIC_WITH_MODEL_VETO" }).signalMode, "DETERMINISTIC_ONLY");
 });
 
 test("stale, unwarmed, and unhealthy data always block entry", () => {
