@@ -84,7 +84,7 @@ The standard Alpaca names `APCA_API_KEY_ID` and `APCA_API_SECRET_KEY` are also a
 Tunable parameters are JSON-backed:
 
 - `config/base.json` contains the enabled symbol list and baseline parameter values.
-- `config/btc_usd.json`, `config/eth_usd.json`, and `config/link_usd.json` contain symbol-specific overrides. A symbol such as `ETH/USD` maps to `eth_usd.json`.
+- Files such as `config/btc_usd.json`, `config/doge_usd.json`, `config/eth_usd.json`, `config/link_usd.json`, `config/sol_usd.json`, and `config/xrp_usd.json` contain symbol-specific overrides. A symbol such as `XRP/USD` maps to `xrp_usd.json`.
 - A symbol file only needs to include values that differ from the baseline. Its keys must already exist in `base.json`, and global dashboard/database parameters cannot be overridden per symbol.
 - `CONFIG_DIR` can select another configuration directory. JSON values take precedence over legacy tunable environment variables, so tuning has one source of truth.
 

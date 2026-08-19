@@ -3,7 +3,10 @@
   "symbols": [
     "BTC/USD",
     "ETH/USD",
-    "LINK/USD"
+    "LINK/USD",
+    "SOL/USD",
+    "XRP/USD",
+    "DOGE/USD"
   ],
   "parameters": {
     "SIGNAL_MODE": "DETERMINISTIC_ONLY",
