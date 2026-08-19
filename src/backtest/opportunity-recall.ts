@@ -23,6 +23,7 @@ interface DirectionCandidateCounts {
   evaluations: number; regimePass: number; quorumPass: number; scorePass: number; arbitrationPass: number;
   antiChasePass: number; rawDirectionalPass: number; persistencePass: number; candidatePass: number;
   liquidityPass: number; preliminaryCostPass: number;
+  maximumPersistence: number; maximumConfirmationMs: number; maximumConfirmationEvents: number;
 }
 interface OfflineRuntime {
   config: SymbolConfig;
@@ -36,6 +37,8 @@ interface OfflineRuntime {
   planner: ExecutionPlanner;
   points: RecallPoint[];
   signals: RecallSignal[];
+  rawSignals: RecallSignal[];
+  candidateSignals: RecallSignal[];
   blockReasons: Map<string, number>;
   lastSampleMs: number;
   staleEvents: number;
@@ -56,6 +59,12 @@ export interface DirectionRecallReport {
   signalCount: number;
   profitableSignals: number;
   precision: number;
+  rawSignalCount: number;
+  rawCapturedWindows: number;
+  rawRecall: number;
+  candidateSignalCount: number;
+  candidateCapturedWindows: number;
+  candidateRecall: number;
 }
 export interface SymbolRecallReport {
   samples: number;
@@ -95,7 +104,7 @@ export async function analyzeOpportunityRecall(path: string, cfg: EngineConfig):
       entry: new DeterministicEntryEngine(symbolCfg.deterministicSignal),
       liquidity: new DynamicLiquidityPolicy(symbolCfg.dynamicLiquidity),
       planner: new ExecutionPlanner(symbolCfg.planner, new RiskSizer(symbolCfg.sizing), cost, symbolCfg.strategyVersion, symbolCfg.modelVersion),
-      points: [], signals: [], blockReasons: new Map(), lastSampleMs: Number.NEGATIVE_INFINITY,
+      points: [], signals: [], rawSignals: [], candidateSignals: [], blockReasons: new Map(), lastSampleMs: Number.NEGATIVE_INFINITY,
       staleEvents: 0, nonFiniteEvents: 0, evaluationEvents: 0, rawDirectionalEvents: 0,
       directionalCandidateEvents: 0, costQualifiedIntentEvents: 0,
       directionCounters: { long: emptyDirectionCounts(), short: emptyDirectionCounts() },
@@ -207,6 +216,9 @@ function processState(runtime: OfflineRuntime, book: BookState, base: Features, 
     if (latest.intent) runtime.costQualifiedIntentEvents += 1;
     incrementDirection(runtime.directionCounters.long, latest.long);
     incrementDirection(runtime.directionCounters.short, latest.short);
+    if (latest.long.rawDirectionalPass) runtime.rawSignals.push({ atMs: features.receiveTsMs, side: 1, bid: book.bids[0]!.px, ask: book.asks[0]!.px });
+    if (latest.short.rawDirectionalPass) runtime.rawSignals.push({ atMs: features.receiveTsMs, side: -1, bid: book.bids[0]!.px, ask: book.asks[0]!.px });
+    if (latest.candidate) runtime.candidateSignals.push({ atMs: features.receiveTsMs, side: latest.candidate.side, bid: book.bids[0]!.px, ask: book.asks[0]!.px });
     for (const reason of [...latest.long.reasons, ...latest.short.reasons]) {
       runtime.blockReasons.set(reason, (runtime.blockReasons.get(reason) ?? 0) + 1);
     }
@@ -224,13 +236,20 @@ function directionReport(runtime: OfflineRuntime, side: Direction, cfg: EngineCo
   const labels = runtime.points.map((point, index) => bestNetMove(runtime.points, index, side, cfg.recall.opportunityHorizonMs, feesAndFixedCosts));
   const windows = groupWindows(runtime.points, labels, cfg.recall.minimumNetMoveBps, cfg.recall.sampleIntervalMs);
   const signals = runtime.signals.filter((signal) => signal.side === side);
+  const rawSignals = runtime.rawSignals.filter((signal) => signal.side === side);
+  const candidateSignals = runtime.candidateSignals.filter((signal) => signal.side === side);
   const captured = windows.filter((window) => signals.some((signal) => signal.atMs >= window.startMs && signal.atMs <= window.endMs + cfg.recall.sampleIntervalMs)).length;
+  const rawCaptured = windows.filter((window) => rawSignals.some((signal) => signal.atMs >= window.startMs && signal.atMs <= window.endMs + cfg.recall.sampleIntervalMs)).length;
+  const candidateCaptured = windows.filter((window) => candidateSignals.some((signal) => signal.atMs >= window.startMs && signal.atMs <= window.endMs + cfg.recall.sampleIntervalMs)).length;
   const profitableSignals = signals.filter((signal) => bestNetForSignal(signal, runtime.points, cfg.recall.opportunityHorizonMs, feesAndFixedCosts) >= cfg.recall.minimumNetMoveBps).length;
   return {
     venueEligible: side === 1,
     opportunityWindows: windows.length, capturedWindows: captured, recall: ratio(captured, windows.length),
     maximumNetMoveBps: labels.length ? Math.max(0, ...labels.filter(Number.isFinite)) : 0,
     signalCount: signals.length, profitableSignals, precision: ratio(profitableSignals, signals.length),
+    rawSignalCount: rawSignals.length, rawCapturedWindows: rawCaptured, rawRecall: ratio(rawCaptured, windows.length),
+    candidateSignalCount: candidateSignals.length, candidateCapturedWindows: candidateCaptured,
+    candidateRecall: ratio(candidateCaptured, windows.length),
   };
 }
 
@@ -279,7 +298,8 @@ function allNumbersFinite(value: object): boolean {
 }
 function emptyDirectionCounts(): DirectionCandidateCounts {
   return { evaluations: 0, regimePass: 0, quorumPass: 0, scorePass: 0, arbitrationPass: 0, antiChasePass: 0,
-    rawDirectionalPass: 0, persistencePass: 0, candidatePass: 0, liquidityPass: 0, preliminaryCostPass: 0 };
+    rawDirectionalPass: 0, persistencePass: 0, candidatePass: 0, liquidityPass: 0, preliminaryCostPass: 0,
+    maximumPersistence: 0, maximumConfirmationMs: 0, maximumConfirmationEvents: 0 };
 }
 function incrementDirection(counts: DirectionCandidateCounts, diagnostics: DeterministicEvaluation["long"]): void {
   counts.evaluations += 1;
@@ -293,6 +313,9 @@ function incrementDirection(counts: DirectionCandidateCounts, diagnostics: Deter
   if (diagnostics.candidatePass) counts.candidatePass += 1;
   if (diagnostics.liquidityPass) counts.liquidityPass += 1;
   if (diagnostics.costPass) counts.preliminaryCostPass += 1;
+  counts.maximumPersistence = Math.max(counts.maximumPersistence, diagnostics.persistence);
+  counts.maximumConfirmationMs = Math.max(counts.maximumConfirmationMs, diagnostics.confirmationMs);
+  counts.maximumConfirmationEvents = Math.max(counts.maximumConfirmationEvents, diagnostics.confirmationEvents);
 }
 function liquidityInput(features: DeterministicFeatures, impactBps: number) {
   return {

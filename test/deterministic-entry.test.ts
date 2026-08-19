@@ -109,6 +109,7 @@ test("anti-chasing rejects overextended signals", () => {
     result = engine.evaluate(value);
   }
   assert.equal(result, null);
+  assert.equal(engine.latestEvaluation()!.candidate?.side, 1);
   assert.ok(engine.latestEvaluation()!.long.reasons.includes("ANTI_CHASE_GATE"));
 });
 

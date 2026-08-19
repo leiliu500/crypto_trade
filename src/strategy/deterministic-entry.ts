@@ -117,8 +117,8 @@ export class DeterministicEntryEngine {
     const shortAntiChase = this.antiChase(-1, context.features, context.bestBid, context.bestAsk);
     const longArbitrationPass = longScore - shortScore >= this.cfg.arbitrationMargin;
     const shortArbitrationPass = shortScore - longScore >= this.cfg.arbitrationMargin;
-    const longRaw = this.directionalPass(1, context.regime, longVotes, longScore, longArbitrationPass, longAntiChase.pass);
-    const shortRaw = this.directionalPass(-1, context.regime, shortVotes, shortScore, shortArbitrationPass, shortAntiChase.pass);
+    const longRaw = this.directionalPass(1, context.regime, longVotes, longScore, longArbitrationPass);
+    const shortRaw = this.directionalPass(-1, context.regime, shortVotes, shortScore, shortArbitrationPass);
     const longPersistence = this.mustState(1).persistence.update(context.nowMs, longRaw);
     const shortPersistence = this.mustState(-1).persistence.update(context.nowMs, shortRaw);
     const long = this.diagnostics(1, context, longScore, shortScore, longVotes, longPersistence, longRaw, longArbitrationPass, longAntiChase);
@@ -163,11 +163,12 @@ export class DeterministicEntryEngine {
     return !features.stale && votes.quorum && score > this.cfg.scoreReset && (side === 1 ? regime.allowLong : regime.allowShort);
   }
 
-  private directionalPass(direction: Direction, regime: RegimeDecision, votes: RuleVotes, score: number, arbitrationPass: boolean, antiChasePass: boolean): boolean {
-    return this.regimeAllows(direction, regime) && votes.quorum && score >= this.cfg.scoreEnter && arbitrationPass && antiChasePass;
+  private directionalPass(direction: Direction, regime: RegimeDecision, votes: RuleVotes, score: number, arbitrationPass: boolean): boolean {
+    return this.regimeAllows(direction, regime) && votes.quorum && score >= this.cfg.scoreEnter && arbitrationPass;
   }
   private commonPass(d: RuleDiagnostics): boolean {
-    return d.candidatePass && d.healthPass && d.liquidityPass && d.exposurePass && d.cooldownPass && d.costPass;
+    return d.candidatePass && d.healthPass && d.liquidityPass && d.antiChasePass
+      && d.exposurePass && d.cooldownPass && d.costPass;
   }
   private healthPass(system: SystemGateState): boolean {
     return system.bookValid && system.sequenceValid && system.checksumValid && system.publicStreamHealthy && system.privateStreamHealthy

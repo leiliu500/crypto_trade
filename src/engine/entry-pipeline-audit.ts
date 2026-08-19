@@ -40,8 +40,7 @@ export interface EntryPipelineSnapshot {
 export class EntryPipelineAudit {
   private readonly counts = Object.fromEntries(ENTRY_PIPELINE_STAGES.map((stage) => [stage, 0])) as Record<EntryPipelineStage, number>;
   private lastRejection: EntryPipelineRejection | null = null;
-  private lastEmittedSignature = "";
-  private lastEmittedMs = Number.NEGATIVE_INFINITY;
+  private readonly lastEmittedBySignature = new Map<string, number>();
 
   public pass(stage: EntryPipelineStage): void { this.counts[stage] += 1; }
 
@@ -50,8 +49,9 @@ export class EntryPipelineAudit {
     values: Readonly<Record<string, number | string | boolean | null>> = {}): boolean {
     this.lastRejection = { stage, reason, atMs, values: { ...values } };
     const signature = `${stage}:${reason}`;
-    const shouldEmit = signature !== this.lastEmittedSignature || atMs - this.lastEmittedMs >= 30_000;
-    if (shouldEmit) { this.lastEmittedSignature = signature; this.lastEmittedMs = atMs; }
+    const lastEmittedMs = this.lastEmittedBySignature.get(signature) ?? Number.NEGATIVE_INFINITY;
+    const shouldEmit = atMs - lastEmittedMs >= 30_000;
+    if (shouldEmit) this.lastEmittedBySignature.set(signature, atMs);
     return shouldEmit;
   }
 

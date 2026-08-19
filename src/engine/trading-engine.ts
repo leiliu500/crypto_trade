@@ -553,11 +553,13 @@ export class TradingEngine extends EventEmitter {
   private auditEvaluation(runtime: SymbolRuntime, evaluation: DeterministicEvaluation, atMs: number): void {
     const scoreFocus = evaluation.long.score >= evaluation.short.score ? evaluation.long : evaluation.short;
     if (!evaluation.long.rawDirectionalPass && !evaluation.short.rawDirectionalPass) {
-      const reason = !scoreFocus.regimePass ? "REGIME_GATE" : !scoreFocus.votes.quorum ? "RULE_QUORUM"
-        : !scoreFocus.scorePass ? "SCORE_GATE" : !scoreFocus.arbitrationPass ? "ARBITRATION_GATE" : "ANTI_CHASE_GATE";
+      const focus = evaluation.long.regimePass !== evaluation.short.regimePass
+        ? (evaluation.long.regimePass ? evaluation.long : evaluation.short) : scoreFocus;
+      const reason = !focus.regimePass ? "REGIME_GATE" : !focus.votes.quorum ? "RULE_QUORUM"
+        : !focus.scorePass ? "SCORE_GATE" : "ARBITRATION_GATE";
       this.rejectEntry(runtime, "DIRECTIONAL_RAW_PASS", reason, atMs, {
-        side: scoreFocus.side, score: scoreFocus.score, oppositeScore: scoreFocus.oppositeScore,
-        bookVotes: scoreFocus.votes.book, flowVotes: scoreFocus.votes.flow, kinematicVotes: scoreFocus.votes.kinematic,
+        side: focus.side, score: focus.score, oppositeScore: focus.oppositeScore,
+        bookVotes: focus.votes.book, flowVotes: focus.votes.flow, kinematicVotes: focus.votes.kinematic,
       });
       return;
     }
