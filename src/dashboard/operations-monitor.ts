@@ -285,7 +285,10 @@ function projectRule(rule: NonNullable<EngineMarketSnapshot["ruleEvaluation"]>["
   return {
     side: rule.side, phase: rule.phase, score: rule.score,
     bookVotes: rule.votes.book, flowVotes: rule.votes.flow, kinematicVotes: rule.votes.kinematic, quorumPass: rule.votes.quorum,
-    persistence: rule.persistence, confirmationMs: rule.confirmationMs, confirmationEvents: rule.confirmationEvents,
+    persistence: rule.persistence, evidence: rule.evidence,
+    confirmationMs: rule.confirmationMs, confirmationEvents: rule.confirmationEvents,
+    deltaMicroBps: rule.deltaMicroBps, sensorThresholdBps: rule.sensorThresholdBps,
+    microNoiseBps: rule.microNoiseBps, chaseBps: rule.chaseBps,
     grossOpportunityBps: rule.grossOpportunityBps, uncertaintyReserveBps: rule.uncertaintyReserveBps,
     roundTripCostBps: rule.roundTripCostBps, lowerBoundNetBps: rule.lowerBoundNetBps,
     scorePass: rule.scorePass, rawDirectionalPass: rule.rawDirectionalPass, candidatePass: rule.candidatePass,

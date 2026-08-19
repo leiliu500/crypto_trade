@@ -42,38 +42,49 @@ Directional efficiency is net log movement divided by path length. CUSUM maintai
 
 ## Deterministic regimes, entry, and costs
 
-`src/strategy/deterministic-features.ts` causally extends the base features with log-price impulse, a prior range that excludes the current event, anchor distance, CUSUM scores, alignment flip rate, usable depth, and replenishment pressure. `src/strategy/deterministic-regime.ts` uses only directional features for breakout/trend votes, chop rejection, and hysteresis. Spread, provider age, absolute depth, costs, and account state are execution concerns and cannot change the directional regime.
+`src/strategy/deterministic-features.ts` causally extends the base features with log-price impulse, a prior range that excludes the current event, anchor distance, CUSUM scores, alignment flip rate, usable depth, and replenishment pressure. `src/strategy/small-fraction-entry-trigger.ts` owns independent state for each symbol runtime: previous microprice, prior-event noise, occupancy, evidence, episode state, anchor, cooldown, and event counters.
+
+The current event-to-event microprice movement and its causal threshold are:
+
+```text
+deltaMicroBps_t = 10000 log(microprice_t / microprice_(t-1))
+sensorThreshold_t = max(minimumMicroMoveBps,
+                        noiseMovementMultiplier * priorNoiseRms_t)
+```
+
+The current movement is evaluated against the noise estimate from prior events; only afterward is the time-aware EWMA square updated. Micropressure is `(microprice-mid)/(spread/2)`, clipped to `[-1,1]`.
 
 For direction `d ∈ {−1,+1}`, candidate generation uses independent evidence groups:
 
 ```text
-bookPass = bookVotes(d) >= configured minimum
-flowPass = flowVotes(d) >= configured minimum
-kinematicPass = kinematicVotes(d) >= configured minimum
-quorum = at least two groups pass AND kinematicPass AND at least one quality vote
-qualityVotes = I(efficiency >= threshold) + I(flowFlipRate <= maximum)
+bookPass = micropressure or QIK passes
+flowPass = OFI or TFI or replenishment passes
+motionPass = adaptive delta-micro or velocity or breakout or CUSUM passes
+quorum = at least two groups pass AND motionPass
 ```
 
-The fixed-weight score is an engineering rule, not a trained predictor:
+The score is a bounded fixed-weight engineering rule, not a trained predictor. The seven nonnegative weights sum to one:
 
 ```text
-S_d = sum(w_i clip(d X_i / threshold_i, -1, 1)) / sum(w_i)
+S_d = d sum(w_i tanh(X_i / scale_i))
 ```
 
-Raw direction-only regime/quorum/score/arbitration validity is persisted in event time:
+Weak support is accumulated with two event-time states:
 
 ```text
-rho_d(t) = sum(deltaTime_i pass_i) / sum(deltaTime_i)
+O_t = exp(-dt/tau_O) O_(t-1) + (1-exp(-dt/tau_O)) I(support)
+A_t = max(0, exp(-dt/tau_A) A_(t-1)
+             + dtSeconds (S_d - drift - opposingPenalty max(0,-S_d)))
 ```
 
-Occupancy, minimum consecutive time, and minimum event count must all pass. Long requires `S_long − S_short >= arbitrationMargin`; short is symmetric. A conflict produces no trade.
+Candidate firing requires quorum, arm score, minimum occupancy and evidence, confirmation time/events, cooldown, and chase distance from the midpoint captured when the episode armed. Strong scores use the shorter strong-confirmation thresholds. Release hysteresis resets an episode below `releaseScore`; a long event gap also resets it. One episode emits at most one candidate. Long/short arbitration is symmetric, and a conflict inside the configured margin produces no candidate. Regime classification remains diagnostic and may inform position analysis, but it is not a micro-candidate or sizing gate.
 
 `src/strategy/deterministic-edge-resolver.ts` first requests calibrated edge when configured and falls back to a deterministic analytical estimate when calibration is absent. For economic horizon `H_E`:
 
 ```text
 sigma_E,bps = 10000 sqrt(varianceRate H_E)
-quality_d = clip(0.30 scoreQuality + 0.20 persistence + 0.15 efficiency
-                 + 0.20 flowQuality + 0.15 kinematicQuality, 0, 1)
+quality_d = clip(0.30 scoreQuality + 0.20 occupancy + 0.20 evidenceQuality
+                 + 0.15 efficiency + 0.15 flowQuality, 0, 1)
 grossDet_d = min(maxGrossBps,
                  sigmaCaptureFraction quality_d sigma_E,bps
                  + breakoutWeight breakoutBps_d)
@@ -94,13 +105,13 @@ For Alpaca spot, funding and borrow are zero. `src/strategy/deterministic-entry.
 LCB_d = grossDet_d - uncertaintyReserve_d - 1.75 roundTripBps(q)
 ```
 
-The cost gate is run first at minimum quantity and again during every sizing iteration and final exact book walk. Equality with the configured minimum edge passes; a value below it fails. Anti-chasing independently caps price-versus-microprice chase, standardized impulse, and anchor distance. Exposure/pending-order gates plus the `IDLE → ARMED → COOLDOWN` state machine ensure one continuous signal produces at most one order and cannot re-arm until both cooldown and reset intervals pass.
+The cost gate is run first at minimum quantity and again during every sizing iteration and final exact book walk. Equality with the configured minimum edge passes; a value below it fails. The micro trigger's chase distance is measured from the midpoint at arm time, so a late candidate cannot use its current microprice as a moving anchor. Candidate detection is separate from health, liquidity, venue direction, exposure, economic edge, exact cost, size, execution plan, portfolio capacity, risk reservation, and send/acknowledgment lifecycle gates.
 
 `SIGNAL_MODE=DETERMINISTIC_ONLY` constructs no forecast engine and needs no model artifact. `src/strategy/signal-router.ts` accepts only an existing deterministic intent, so optional model veto/ranking modes cannot create a trade.
 
-## Regime and execution
+## Direction and execution
 
-The deterministic regime permits only one direction. Chop/unknown deny both directions. Liquidity is evaluated separately from prior spread observations, and the current spread is then observed even when no candidate exists. Alpaca's live Asset record is authoritative: because spot crypto is not shortable, a short regime remains observable but execution permission is forced false.
+The micro trigger arbitrates direction directly from bounded long/short scores; chop/unknown regime labels do not erase candidates or force risk sizing to zero. Liquidity is evaluated separately from prior spread observations, and the current spread is then observed even when no candidate exists. Alpaca's live Asset record is authoritative: because spot crypto is not shortable, a short candidate remains observable but execution permission is forced false.
 
 `src/execution/planner.ts` compares:
 
@@ -121,7 +132,7 @@ Maker and taker are independent execution candidates. Each candidate iterates qu
 `src/risk/sizing.ts` computes:
 
 ```text
-B = equity baseRisk drawdownScale qualityScale volatilityScale regimeScale
+B = equity baseRisk drawdownScale qualityScale volatilityScale
 lossPerUnit = initialStopDistance + exitCostPerUnit + jumpBuffer
 q_risk = B / lossPerUnit
 q_liquidity = participation visibleDepth

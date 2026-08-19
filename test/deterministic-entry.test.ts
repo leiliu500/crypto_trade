@@ -54,8 +54,23 @@ const testConfig = () => ({ ...DEFAULT_DETERMINISTIC_SIGNAL_CONFIG, minimumNetEd
 
 function persistentIntent(engine: DeterministicEntryEngine, side: 1 | -1 = 1, startMs = 1_000) {
   let intent = null;
-  for (let index = 0; index < 8; index += 1) intent = engine.evaluate(context(side, startMs + index * 50));
+  for (let index = 0; index < 20; index += 1) {
+    const current = engine.evaluate(context(side, startMs + index * 50));
+    if (current) { intent = current; break; }
+  }
   return intent;
+}
+
+function neutralContext(nowMs: number): EntryContext {
+  const value = context(1, nowMs);
+  value.features.microprice = value.features.mid;
+  value.features.microEdgeBps = 0; value.features.qi1 = 0; value.features.qiK = 0;
+  value.features.ofi = 0; value.features.tfi = 0; value.features.replenishmentPressure = 0;
+  value.features.velocity = 0; value.features.velocityZ = 0; value.features.accelerationZ = 0;
+  value.features.impulseBps = 0; value.features.breakoutUpBps = 0; value.features.breakoutDownBps = 0;
+  value.features.cusumUpScore = 0; value.features.cusumDownScore = 0;
+  value.features.efficiency = 0; value.features.flowFlipRate = 1;
+  return value;
 }
 
 test("deterministic-only construction and config loading require no model", () => {
@@ -82,13 +97,15 @@ test("stale, unwarmed, and unhealthy data always block entry", () => {
 test("account health blocks execution without suppressing directional candidates", () => {
   const engine = new DeterministicEntryEngine(testConfig());
   let intent = null;
-  for (let index = 0; index < 8; index += 1) {
+  let candidateSide: 1 | -1 | undefined;
+  for (let index = 0; index < 20; index += 1) {
     const value = context(1, 1_000 + index * 50);
     value.system.accountReconciled = false;
     intent = engine.evaluate(value);
+    candidateSide ??= engine.latestEvaluation()?.candidate?.side;
   }
   assert.equal(intent, null);
-  assert.equal(engine.latestEvaluation()!.candidate?.side, 1);
+  assert.equal(candidateSide, 1);
   assert.equal(engine.latestEvaluation()!.long.healthPass, false);
 });
 
@@ -102,10 +119,10 @@ test("one event cannot bypass event-time persistence; aligned long and short inp
 test("independent group quorum tolerates one unavailable evidence group", () => {
   const engine = new DeterministicEntryEngine(testConfig());
   let result = null;
-  for (let index = 0; index < 8; index += 1) {
+  for (let index = 0; index < 20; index += 1) {
     const value = context(1, 1_000 + index * 50);
     value.features.ofi = 0; value.features.tfi = 0; value.features.replenishmentPressure = 0;
-    result = engine.evaluate(value);
+    result ??= engine.evaluate(value);
   }
   assert.equal(result?.side, 1);
   const diagnostics = engine.latestEvaluation()!.long;
@@ -132,16 +149,19 @@ test("independent group quorum still requires kinematic confirmation", () => {
   assert.equal(engine.latestEvaluation()!.long.votes.quorum, false);
 });
 
-test("anti-chasing rejects overextended signals", () => {
+test("anti-chasing uses midpoint at arm and rejects a late entry", () => {
   const engine = new DeterministicEntryEngine(testConfig());
   let result = null;
-  for (let index = 0; index < 8; index += 1) {
-    const value = context(1, 1_000 + index * 50); value.features.anchorDistanceBps = 20;
+  for (let index = 0; index < 20; index += 1) {
+    const value = context(1, 1_000 + index * 50);
+    const mid = 100.005 * Math.exp(index * .5 / 10_000);
+    value.features.mid = mid; value.features.microprice = mid * Math.exp(.3 / 10_000);
+    value.bestBid = mid - .005; value.bestAsk = mid + .005;
     result = engine.evaluate(value);
   }
   assert.equal(result, null);
-  assert.equal(engine.latestEvaluation()!.candidate?.side, 1);
-  assert.ok(engine.latestEvaluation()!.long.reasons.includes("ANTI_CHASE_GATE"));
+  assert.equal(engine.latestEvaluation()!.candidate, null);
+  assert.ok(engine.latestEvaluation()!.long.reasons.includes("MAXIMUM_CHASE_EXCEEDED"));
 });
 
 test("exact quantity cost is inclusive at the threshold and rejects one increment above it", () => {
@@ -154,43 +174,61 @@ test("exact quantity cost is inclusive at the threshold and rejects one incremen
   assert.equal(engine.revalidateExactCost(intent, cost(thresholdCost + 1e-9)), null);
 });
 
+test("an uneconomic micro candidate never becomes an order intent", () => {
+  const engine = new DeterministicEntryEngine({ ...testConfig(), minimumNetEdgeBps: .5 });
+  let sawCandidate = false;
+  let intent = null;
+  for (let index = 0; index < 20; index += 1) {
+    const value = context(1, 1_000 + index * 50);
+    value.longCost = cost(100); value.shortCost = cost(100);
+    intent ??= engine.evaluate(value);
+    sawCandidate ||= engine.latestEvaluation()?.candidate?.side === 1;
+  }
+  assert.equal(sawCandidate, true);
+  assert.equal(intent, null);
+  assert.equal(engine.latestEvaluation()!.long.costPass, false);
+});
+
 test("a continuous signal fires once and needs both cooldown and reset before re-arming", () => {
   const engine = new DeterministicEntryEngine(testConfig());
   const first = persistentIntent(engine)!;
-  engine.markFired(first.side, first.createdMs);
+  assert.ok(first);
   assert.equal(persistentIntent(engine, 1, first.createdMs + 100), null);
-  for (const at of [first.createdMs + 3_100, first.createdMs + 3_400]) {
-    const reset = context(1, at);
-    reset.regime = { name: "CHOP", allowLong: false, allowShort: false, riskScale: 0 };
-    assert.equal(engine.evaluate(reset), null);
-  }
+  for (const at of [first.createdMs + 3_100, first.createdMs + 3_400]) assert.equal(engine.evaluate(neutralContext(at)), null);
   assert.equal(persistentIntent(engine, 1, first.createdMs + 3_700)?.side, 1);
 });
 
-test("directional persistence survives a liquidity block and becomes executable without re-confirming", () => {
+test("a liquidity-blocked candidate is recorded once and a new episode must reconfirm", () => {
   const engine = new DeterministicEntryEngine(testConfig());
   const blockedLiquidity = {
     pass: false, stress: false, sampleCount: 50, medianSpreadBps: 1,
     tradeThresholdBps: .5, stressThresholdBps: 2,
     reasons: ["SPREAD_ABOVE_DYNAMIC_TRADE_THRESHOLD"],
   } as const;
-  for (let index = 0; index < 8; index += 1) {
+  let candidateSide: 1 | -1 | undefined;
+  for (let index = 0; index < 20; index += 1) {
     const value = context(1, 1_000 + index * 50);
     value.longLiquidity = blockedLiquidity;
     value.shortLiquidity = blockedLiquidity;
     assert.equal(engine.evaluate(value), null);
+    candidateSide ??= engine.latestEvaluation()?.candidate?.side;
   }
   const blocked = engine.latestEvaluation()!;
-  assert.equal(blocked.candidate?.side, 1);
+  assert.equal(candidateSide, 1);
   assert.equal(blocked.long.rawDirectionalPass, true);
-  assert.equal(blocked.long.candidatePass, true);
+  assert.equal(blocked.long.candidatePass, false);
   assert.equal(blocked.long.liquidityPass, false);
 
-  const released = context(1, 1_400);
   const passingLiquidity = { ...blockedLiquidity, pass: true, reasons: [] } as const;
-  released.longLiquidity = passingLiquidity;
-  released.shortLiquidity = passingLiquidity;
-  assert.equal(engine.evaluate(released)?.side, 1);
+  const released = context(1, 4_500); released.longLiquidity = passingLiquidity; released.shortLiquidity = passingLiquidity;
+  assert.equal(engine.evaluate(released), null);
+  engine.evaluate(neutralContext(4_600));
+  let reconfirmed = null;
+  for (let index = 0; index < 20; index += 1) {
+    const value = context(1, 4_700 + index * 50); value.longLiquidity = passingLiquidity; value.shortLiquidity = passingLiquidity;
+    reconfirmed ??= engine.evaluate(value);
+  }
+  assert.equal(reconfirmed?.side, 1);
 });
 
 test("direction conflict and a null deterministic signal always produce no trade", () => {

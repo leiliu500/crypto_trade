@@ -23,7 +23,7 @@ test("missing calibrated edge falls back to a finite deterministic analytical es
     DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.analyticEdge,
     { resolve: () => null },
   );
-  const edge = resolver.resolve({ side: 1, score: .7, scoreReset: .1, persistence: .8, features });
+  const edge = resolver.resolve({ side: 1, score: .7, scoreReset: .1, persistence: .8, evidence: .08, features });
   assert.equal(edge?.source, "ANALYTIC");
   assert.ok(edge && edge.grossOpportunityBps > edge.uncertaintyBps);
   assert.ok(edge && Number.isFinite(edge.grossOpportunityBps) && Number.isFinite(edge.uncertaintyBps));
@@ -35,5 +35,5 @@ test("calibration-required mode still fails closed when calibration is unavailab
     DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.analyticEdge,
     { resolve: () => null },
   );
-  assert.equal(resolver.resolve({ side: 1, score: .7, scoreReset: .1, persistence: .8, features }), null);
+  assert.equal(resolver.resolve({ side: 1, score: .7, scoreReset: .1, persistence: .8, evidence: .08, features }), null);
 });

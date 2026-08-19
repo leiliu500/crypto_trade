@@ -2,6 +2,8 @@
   "schemaVersion": 1,
   "symbol": "BTC/USD",
   "parameters": {
-    "DYNAMIC_SHADOW_TRADE_CAP_BPS": 25
+    "DYNAMIC_SHADOW_TRADE_CAP_BPS": 25,
+    "MICRO_MAX_CHASE_BPS": 1.5,
+    "MICRO_MIN_MOVE_BPS": 0.008
   }
 }

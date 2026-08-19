@@ -516,7 +516,8 @@ export class TradingEngine extends EventEmitter {
     const plan = runtime.planner.build(intent, features, book, runtime.asset, {
       equity: this.equity, equityHighWater: this.equityHighWater, initialStopDistance,
       jumpBuffer: cfgPriceSigma(features, runtime.config.jumpSigma), maximumNotional: runtime.config.maximumNotional,
-      lotSize: runtime.asset.minTradeIncrement, regimeScale: regime.riskScale,
+      // A micro candidate is regime-independent by construction; candidate quality already scales risk.
+      lotSize: runtime.asset.minTradeIncrement, regimeScale: 1,
       exposureCapacityQty: runtime.config.maximumNotional / features.mid,
     }, false, {
       createdMs: features.receiveTsMs, decisionId: routed.intent.decisionId,
@@ -546,29 +547,38 @@ export class TradingEngine extends EventEmitter {
       adapterVersion: "alpaca-v1", symbolRulesetVersion: assetRulesVersion(runtime.asset),
       regime, deterministicIntent: routed.intent, routing: routed, features, plan, mode: this.cfg.mode,
     });
-    if (this.cfg.mode === "shadow") runtime.entryEngine.markFired(plan.side, this.now());
-    else void this.submit(plan);
+    if (this.cfg.mode !== "shadow") void this.submit(plan);
   }
 
   private auditEvaluation(runtime: SymbolRuntime, evaluation: DeterministicEvaluation, atMs: number): void {
+    runtime.entryAudit.pass("MICRO_EVENT");
+    if (evaluation.long.votes.book > 0 || evaluation.short.votes.book > 0) runtime.entryAudit.pass("BOOK_GROUP_PASS");
+    if (evaluation.long.votes.flow > 0 || evaluation.short.votes.flow > 0) runtime.entryAudit.pass("FLOW_GROUP_PASS");
+    if (evaluation.long.votes.kinematic > 0 || evaluation.short.votes.kinematic > 0) runtime.entryAudit.pass("MOTION_GROUP_PASS");
+    if (evaluation.long.votes.quorum || evaluation.short.votes.quorum) runtime.entryAudit.pass("GROUP_QUORUM_PASS");
+    if (evaluation.long.phase === "ARMED" || evaluation.short.phase === "ARMED") runtime.entryAudit.pass("MICRO_ARMED");
+    if (evaluation.candidate) runtime.entryAudit.pass("MICRO_CANDIDATE");
     const scoreFocus = evaluation.long.score >= evaluation.short.score ? evaluation.long : evaluation.short;
     if (!evaluation.long.rawDirectionalPass && !evaluation.short.rawDirectionalPass) {
-      const focus = evaluation.long.regimePass !== evaluation.short.regimePass
-        ? (evaluation.long.regimePass ? evaluation.long : evaluation.short) : scoreFocus;
-      const reason = !focus.regimePass ? "REGIME_GATE" : !focus.votes.quorum ? "RULE_QUORUM"
+      const focus = scoreFocus;
+      const reason = !focus.votes.quorum ? "RULE_QUORUM"
         : !focus.scorePass ? "SCORE_GATE" : "ARBITRATION_GATE";
       this.rejectEntry(runtime, "DIRECTIONAL_RAW_PASS", reason, atMs, {
         side: focus.side, score: focus.score, oppositeScore: focus.oppositeScore,
         bookVotes: focus.votes.book, flowVotes: focus.votes.flow, kinematicVotes: focus.votes.kinematic,
+        deltaMicroBps: focus.deltaMicroBps, sensorThresholdBps: focus.sensorThresholdBps,
       });
       return;
     }
     runtime.entryAudit.pass("DIRECTIONAL_RAW_PASS");
     if (!evaluation.candidate) {
       const focus = evaluation.long.rawDirectionalPass ? evaluation.long : evaluation.short;
-      this.rejectEntry(runtime, "DIRECTIONAL_CANDIDATE", "PERSISTENCE_GATE", atMs, {
+      const reason = focus.reasons.find((value) => ["OCCUPANCY_FALSE", "EVIDENCE_FALSE", "CONFIRMATION_TIME_FALSE",
+        "CONFIRMATION_EVENTS_FALSE", "MAXIMUM_CHASE_EXCEEDED", "COOLDOWN_ACTIVE", "ALREADY_FIRED_IN_EPISODE"].includes(value))
+        ?? "PERSISTENCE_GATE";
+      this.rejectEntry(runtime, "DIRECTIONAL_CANDIDATE", reason, atMs, {
         side: focus.side, persistence: focus.persistence, confirmationMs: focus.confirmationMs,
-        confirmationEvents: focus.confirmationEvents,
+        confirmationEvents: focus.confirmationEvents, evidence: focus.evidence, chaseBps: focus.chaseBps,
       });
       return;
     }
@@ -647,7 +657,6 @@ export class TradingEngine extends EventEmitter {
       this.orderState.reserve(plan);
       this.runtimes.get(plan.symbol)?.entryAudit.pass("RISK_RESERVED");
       this.emit("orderReserved", { plan });
-      if (!plan.reduceOnlyIntent) this.runtimes.get(plan.symbol)?.entryEngine.markFired(plan.side, this.now());
       this.orderState.markSending(plan.clientOrderId);
       this.runtimes.get(plan.symbol)?.entryAudit.pass("ORDER_SEND_ATTEMPT");
       this.emit("orderSending", { plan });

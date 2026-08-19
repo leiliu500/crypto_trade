@@ -10,7 +10,9 @@ test("JSON baseline wins over legacy tunable environment values and symbol overl
   try {
     writeFileSync(join(directory, "base.json"), readFileSync("config/base.json", "utf8"));
     writeFileSync(join(directory, "btc_usd.json"), JSON.stringify({
-      schemaVersion: 1, symbol: "BTC/USD", parameters: { RULE_SCORE_ENTER: 0.9, MAXIMUM_NOTIONAL: 250 },
+      schemaVersion: 1, symbol: "BTC/USD", parameters: {
+        RULE_SCORE_ENTER: 0.9, MAXIMUM_NOTIONAL: 250, MICRO_MIN_MOVE_BPS: 0.008,
+      },
     }));
     writeFileSync(join(directory, "eth_usd.json"), JSON.stringify({ schemaVersion: 1, symbol: "ETH/USD", parameters: {} }));
     writeFileSync(join(directory, "link_usd.json"), JSON.stringify({ schemaVersion: 1, symbol: "LINK/USD", parameters: {} }));
@@ -27,6 +29,8 @@ test("JSON baseline wins over legacy tunable environment values and symbol overl
     assert.equal(cfg.symbolConfigs["SOL/USD"]?.deterministicSignal.scoreEnter, 0.3);
     assert.equal(cfg.symbolConfigs["XRP/USD"]?.deterministicSignal.scoreEnter, 0.3);
     assert.equal(cfg.symbolConfigs["DOGE/USD"]?.deterministicSignal.scoreEnter, 0.3);
+    assert.equal(cfg.deterministicSignal.microTrigger.minimumMicroMoveBps, 0.01);
+    assert.equal(cfg.symbolConfigs["BTC/USD"]?.deterministicSignal.microTrigger.minimumMicroMoveBps, 0.008);
   } finally { rmSync(directory, { recursive: true, force: true }); }
 });
 
@@ -50,6 +54,9 @@ test("wide per-symbol spread caps are restricted to shadow and replay verificati
   const replay = loadConfig({ TRADING_MODE: "replay" });
   assert.equal(replay.symbolConfigs["BTC/USD"]?.dynamicLiquidity.absoluteTradeCapBps, 25);
   assert.equal(replay.symbolConfigs["DOGE/USD"]?.dynamicLiquidity.absoluteTradeCapBps, 60);
+  assert.equal(replay.symbolConfigs["BTC/USD"]?.deterministicSignal.microTrigger.minimumMicroMoveBps, 0.008);
+  assert.equal(replay.symbolConfigs["LINK/USD"]?.deterministicSignal.microTrigger.maximumChaseBps, 3);
+  assert.equal(replay.symbolConfigs["DOGE/USD"]?.deterministicSignal.microTrigger.noiseMovementMultiplier, 0.4);
 
   const paper = loadConfig({
     TRADING_MODE: "paper", ALPACA_PAPER: "true", ALPACA_API_KEY: "paper-key", ALPACA_API_SECRET: "paper-secret",

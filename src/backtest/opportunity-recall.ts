@@ -206,7 +206,6 @@ function processState(runtime: OfflineRuntime, book: BookState, base: Features, 
   });
   if (intent) {
     runtime.signals.push({ atMs: features.receiveTsMs, side: intent.side, bid: book.bids[0]!.px, ask: book.asks[0]!.px });
-    runtime.entry.markFired(intent.side, features.receiveTsMs);
   }
   const latest = runtime.entry.latestEvaluation();
   if (latest) {

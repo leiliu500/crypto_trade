@@ -3,7 +3,9 @@ import { clamp } from "../core/market.js";
 import type { CostEstimate } from "./cost.js";
 import { DeterministicEdgeResolver, type AnalyticEdgeConfig, type EdgeSourceMode } from "./deterministic-edge-resolver.js";
 import type { DeterministicFeatures } from "./deterministic-features.js";
+import type { SideTriggerDiagnostics, SmallFractionCandidate, SmallFractionFeatures, SmallFractionTriggerConfig } from "./micro-fraction-types.js";
 import type { RegimeDecision } from "./deterministic-regime.js";
+import { SmallFractionEntryTrigger, validateSmallFractionTriggerConfig } from "./small-fraction-entry-trigger.js";
 import type { LiquidityDecision } from "./dynamic-liquidity.js";
 
 export type SignalMode = "DETERMINISTIC_ONLY" | "DETERMINISTIC_WITH_MODEL_VETO" | "DETERMINISTIC_WITH_MODEL_RANKING";
@@ -28,6 +30,7 @@ export interface DeterministicSignalConfig {
   maximumImpulseZ: number; maximumChaseBps: number; maximumAnchorZ: number;
   costSafetyFactor: number; minimumNetEdgeBps: number; fullQualityEdgeBps: number;
   edgeSourceMode: EdgeSourceMode; analyticEdge: AnalyticEdgeConfig;
+  microTrigger: SmallFractionTriggerConfig;
 }
 export interface EntryContext {
   symbol: string; sequence: bigint; nowMs: number; features: DeterministicFeatures; regime: RegimeDecision; system: SystemGateState;
@@ -45,8 +48,10 @@ export interface RuleVotes {
 export type DirectionPhase = "IDLE" | "ARMED" | "COOLDOWN";
 export interface RuleDiagnostics {
   side: Direction; phase: DirectionPhase; score: number; oppositeScore: number; scoreMargin: number; votes: RuleVotes;
-  persistence: number; confirmationMs: number; confirmationEvents: number; grossOpportunityBps: number; uncertaintyReserveBps: number;
-  roundTripCostBps: number; lowerBoundNetBps: number; chaseBps: number; impulseZ: number; anchorZ: number;
+  persistence: number; evidence: number; confirmationMs: number; confirmationEvents: number;
+  deltaMicroBps: number; sensorThresholdBps: number; microNoiseBps: number; microPressure: number;
+  grossOpportunityBps: number; uncertaintyReserveBps: number; roundTripCostBps: number; lowerBoundNetBps: number;
+  chaseBps: number; impulseZ: number; anchorZ: number;
   edgeSource: "CALIBRATED" | "ANALYTIC" | "UNRESOLVED"; edgeHorizonMs: number; edgeQuality: number;
   scorePass: boolean; rawDirectionalPass: boolean; candidatePass: boolean; edgeResolvedPass: boolean;
   healthPass: boolean; liquidityPass: boolean; regimePass: boolean; persistencePass: boolean; antiChasePass: boolean;
@@ -54,11 +59,12 @@ export interface RuleDiagnostics {
   liquidityReasons: readonly string[]; tradeThresholdBps: number; stressThresholdBps: number; reasons: string[];
 }
 export interface DeterministicDirectionalCandidate {
-  source: "DETERMINISTIC"; configurationVersion: string; decisionId: string; symbol: string; sequence: bigint; createdMs: number;
-  side: Direction; deterministicScore: number; diagnostics: RuleDiagnostics;
+  source: "DETERMINISTIC_MICRO"; configurationVersion: string; decisionId: string; symbol: string; sequence: bigint; createdMs: number;
+  side: Direction; deterministicScore: number; occupancy: number; evidence: number; deltaMicroBps: number;
+  sensorThresholdBps: number; chaseBps: number; diagnostics: RuleDiagnostics;
 }
 export interface DeterministicTradeIntent {
-  source: "DETERMINISTIC"; configurationVersion: string; decisionId: string; symbol: string; sequence: bigint; createdMs: number;
+  source: "DETERMINISTIC_MICRO"; configurationVersion: string; decisionId: string; symbol: string; sequence: bigint; createdMs: number;
   side: Direction; deterministicScore: number; grossOpportunityBps: number; uncertaintyReserveBps: number; lowerBoundNetBps: number;
   quality: number; diagnostics: RuleDiagnostics;
 }
@@ -66,228 +72,206 @@ export interface DeterministicEvaluation {
   long: RuleDiagnostics; short: RuleDiagnostics; candidate: DeterministicDirectionalCandidate | null; intent: DeterministicTradeIntent | null;
 }
 
-interface PersistenceSample { t: number; pass: boolean; }
-interface PersistenceResult { occupancy: number; consecutiveMs: number; consecutiveEvents: number; }
-interface DirectionState { phase: DirectionPhase; lastFireMs: number; resetObservedMs?: number; persistence: TimeWeightedPersistence; }
-
-class TimeWeightedPersistence {
-  private samples: PersistenceSample[] = [];
-  private head = 0;
-  private streakStartMs?: number;
-  private streakEvents = 0;
-  public constructor(private readonly windowMs: number) {}
-  public update(nowMs: number, pass: boolean): PersistenceResult {
-    const previous = this.samples.at(-1);
-    if (!previous || previous.pass !== pass) {
-      if (pass) { this.streakStartMs = nowMs; this.streakEvents = 1; }
-      else { delete this.streakStartMs; this.streakEvents = 0; }
-    } else if (pass) this.streakEvents += 1;
-    this.samples.push({ t: nowMs, pass });
-    const cutoff = nowMs - this.windowMs;
-    while (this.head + 1 < this.samples.length && this.samples[this.head + 1]!.t < cutoff) this.head += 1;
-    if (this.head > 2048) { this.samples = this.samples.slice(this.head); this.head = 0; }
-    let passDuration = 0, totalDuration = 0;
-    for (let index = this.head; index < this.samples.length; index += 1) {
-      const sample = this.samples[index]!;
-      const nextT = index + 1 < this.samples.length ? this.samples[index + 1]!.t : nowMs;
-      const start = Math.max(sample.t, cutoff), end = Math.max(start, Math.min(nextT, nowMs)), duration = end - start;
-      totalDuration += duration; if (sample.pass) passDuration += duration;
-    }
-    return {
-      occupancy: clamp(totalDuration > 0 ? passDuration / totalDuration : pass ? 1 : 0, 0, 1),
-      consecutiveMs: pass && this.streakStartMs !== undefined ? nowMs - this.streakStartMs : 0,
-      consecutiveEvents: pass ? this.streakEvents : 0,
-    };
-  }
-}
-
+/** Converts a sensitive micro-move candidate into an order intent only after all conservative execution gates pass. */
 export class DeterministicEntryEngine {
-  private readonly states = new Map<Direction, DirectionState>();
   private readonly edgeResolver: DeterministicEdgeResolver;
+  private readonly microTrigger: SmallFractionEntryTrigger;
   private lastEvaluation?: DeterministicEvaluation;
+
   public constructor(private readonly cfg: DeterministicSignalConfig) {
     validateDeterministicConfig(cfg);
     this.edgeResolver = new DeterministicEdgeResolver(cfg.edgeSourceMode, cfg.analyticEdge);
-    this.states.set(1, { phase: "IDLE", lastFireMs: Number.NEGATIVE_INFINITY, persistence: new TimeWeightedPersistence(cfg.persistenceWindowMs) });
-    this.states.set(-1, { phase: "IDLE", lastFireMs: Number.NEGATIVE_INFINITY, persistence: new TimeWeightedPersistence(cfg.persistenceWindowMs) });
+    this.microTrigger = new SmallFractionEntryTrigger(cfg.microTrigger);
   }
 
   public evaluate(context: EntryContext): DeterministicTradeIntent | null {
-    const longVotes = this.votes(1, context.features), shortVotes = this.votes(-1, context.features);
-    const longScore = this.normalizedScore(1, context.features), shortScore = this.normalizedScore(-1, context.features);
-    const longAntiChase = this.antiChase(1, context.features, context.bestBid, context.bestAsk);
-    const shortAntiChase = this.antiChase(-1, context.features, context.bestBid, context.bestAsk);
-    const longArbitrationPass = longScore - shortScore >= this.cfg.arbitrationMargin;
-    const shortArbitrationPass = shortScore - longScore >= this.cfg.arbitrationMargin;
-    const longRaw = this.directionalPass(1, context.regime, longVotes, longScore, longArbitrationPass);
-    const shortRaw = this.directionalPass(-1, context.regime, shortVotes, shortScore, shortArbitrationPass);
-    const longPersistence = this.mustState(1).persistence.update(context.nowMs, longRaw);
-    const shortPersistence = this.mustState(-1).persistence.update(context.nowMs, shortRaw);
-    const long = this.diagnostics(1, context, longScore, shortScore, longVotes, longPersistence, longRaw, longArbitrationPass, longAntiChase);
-    const short = this.diagnostics(-1, context, shortScore, longScore, shortVotes, shortPersistence, shortRaw, shortArbitrationPass, shortAntiChase);
-    const longCandidate = long.candidatePass, shortCandidate = short.candidatePass;
-    let candidate: DeterministicDirectionalCandidate | null = null;
-    if (longCandidate !== shortCandidate) {
-      const selected = longCandidate ? long : short;
-      candidate = this.directionalCandidate(context, selected);
-    }
-    const longPass = this.commonPass(long);
-    const shortPass = this.commonPass(short);
-    let intent: DeterministicTradeIntent | null = null;
-    if (longPass !== shortPass) {
-      const selected = longPass ? long : short;
-      intent = {
-        source: "DETERMINISTIC", configurationVersion: this.cfg.configurationVersion,
-        decisionId: `${context.symbol}:${context.sequence.toString()}:${selected.side}:${context.nowMs}`,
-        symbol: context.symbol, sequence: context.sequence, createdMs: context.nowMs, side: selected.side,
-        deterministicScore: selected.score, grossOpportunityBps: selected.grossOpportunityBps,
-        uncertaintyReserveBps: selected.uncertaintyReserveBps, lowerBoundNetBps: selected.lowerBoundNetBps,
-        quality: clamp(selected.lowerBoundNetBps / this.cfg.fullQualityEdgeBps, 0, 1), diagnostics: selected,
-      };
-    }
+    const trigger = this.microTrigger.update(this.microFeatures(context));
+    const longArbitrationPass = trigger.long.score - trigger.short.score >= this.cfg.microTrigger.arbitrationMargin;
+    const shortArbitrationPass = trigger.short.score - trigger.long.score >= this.cfg.microTrigger.arbitrationMargin;
+    const long = this.diagnostics(trigger.long, trigger.short.score, context, trigger.candidate, longArbitrationPass);
+    const short = this.diagnostics(trigger.short, trigger.long.score, context, trigger.candidate, shortArbitrationPass);
+    const selectedDiagnostics = trigger.candidate?.side === 1 ? long : trigger.candidate?.side === -1 ? short : undefined;
+    const candidate = selectedDiagnostics && trigger.candidate
+      ? this.directionalCandidate(context, trigger.candidate, selectedDiagnostics) : null;
+    const intent = selectedDiagnostics && this.commonPass(selectedDiagnostics)
+      ? this.tradeIntent(context, selectedDiagnostics) : null;
     this.lastEvaluation = { long, short, candidate, intent };
     return intent;
   }
 
   public latestEvaluation(): DeterministicEvaluation | undefined { return this.lastEvaluation; }
+
   public revalidateExactCost(intent: DeterministicTradeIntent, exactCost: CostEstimate): DeterministicTradeIntent | null {
     const lowerBoundNetBps = intent.grossOpportunityBps - intent.uncertaintyReserveBps - this.cfg.costSafetyFactor * exactCost.roundTripBps;
-    if (lowerBoundNetBps < this.cfg.minimumNetEdgeBps) return null;
-    return { ...intent, lowerBoundNetBps, quality: clamp(lowerBoundNetBps / this.cfg.fullQualityEdgeBps, 0, 1),
-      diagnostics: { ...intent.diagnostics, roundTripCostBps: exactCost.roundTripBps, lowerBoundNetBps, costPass: true,
-        reasons: intent.diagnostics.reasons.filter((reason) => reason !== "COST_GATE") } };
-  }
-  public markFired(side: Direction, nowMs: number): void {
-    const state = this.mustState(side); state.phase = "COOLDOWN"; state.lastFireMs = nowMs; delete state.resetObservedMs;
-  }
-  public signalStillValid(side: Direction, features: DeterministicFeatures, regime: RegimeDecision): boolean {
-    const votes = this.votes(side, features), score = this.normalizedScore(side, features);
-    return !features.stale && votes.quorum && score > this.cfg.scoreReset && (side === 1 ? regime.allowLong : regime.allowShort);
+    const tolerance = Math.max(1e-9, Math.abs(this.cfg.minimumNetEdgeBps) * 1e-12);
+    if (lowerBoundNetBps + tolerance < this.cfg.minimumNetEdgeBps) return null;
+    return {
+      ...intent, lowerBoundNetBps, quality: clamp(lowerBoundNetBps / this.cfg.fullQualityEdgeBps, 0, 1),
+      diagnostics: {
+        ...intent.diagnostics, roundTripCostBps: exactCost.roundTripBps, lowerBoundNetBps, costPass: true,
+        reasons: intent.diagnostics.reasons.filter((reason) => reason !== "COST_GATE"),
+      },
+    };
   }
 
-  private directionalPass(direction: Direction, regime: RegimeDecision, votes: RuleVotes, score: number, arbitrationPass: boolean): boolean {
-    return this.regimeAllows(direction, regime) && votes.quorum && score >= this.cfg.scoreEnter && arbitrationPass;
+  public signalStillValid(side: Direction, features: DeterministicFeatures, _regime: RegimeDecision): boolean {
+    if (features.stale) return false;
+    const halfSpread = Math.max(features.spread / 2, 1e-12);
+    const pressure = clamp((features.microprice - features.mid) / halfSpread, -1, 1);
+    const cfg = this.cfg.microTrigger;
+    const book = side * pressure >= cfg.minimumMicroPressure || side * features.qiK >= cfg.minimumQiK;
+    const flow = side * features.ofi >= cfg.minimumOfi || side * features.tfi >= cfg.minimumTfi
+      || side * features.replenishmentPressure >= cfg.minimumReplenishment;
+    const breakout = side === 1 ? features.breakoutUpBps : features.breakoutDownBps;
+    const cusum = side === 1 ? features.cusumUpScore : -features.cusumDownScore;
+    const motion = side * features.velocityZ >= cfg.minimumVelocityZ
+      || breakout >= cfg.minimumBreakoutBps || cusum >= cfg.minimumCusum;
+    const score = side * this.signedScore(pressure, features);
+    return Number(book) + Number(flow) + Number(motion) >= 2 && motion && score > cfg.releaseScore;
   }
+
   private commonPass(d: RuleDiagnostics): boolean {
-    return d.candidatePass && d.healthPass && d.liquidityPass && d.antiChasePass
-      && d.exposurePass && d.cooldownPass && d.edgeResolvedPass && d.costPass;
+    return d.candidatePass && d.healthPass && d.liquidityPass && d.antiChasePass && d.exposurePass
+      && d.cooldownPass && d.edgeResolvedPass && d.costPass;
   }
+
+  private diagnostics(trigger: SideTriggerDiagnostics, oppositeScore: number, context: EntryContext,
+    candidate: SmallFractionCandidate | null, arbitrationPass: boolean): RuleDiagnostics {
+    const direction = trigger.side;
+    const f = context.features;
+    const cost = direction === 1 ? context.longCost : context.shortCost;
+    const dynamicLiquidity = direction === 1 ? context.longLiquidity : context.shortLiquidity;
+    const votes = this.microVotes(direction, f, trigger);
+    const healthPass = this.healthPass(context.system);
+    const liquidityPass = dynamicLiquidity?.pass ?? this.staticLiquidityPass(f, cost);
+    const regimePass = direction === 1 ? context.regime.allowLong : context.regime.allowShort;
+    const candidatePass = candidate?.side === direction;
+    const scorePass = trigger.score >= this.cfg.microTrigger.armScore;
+    const rawDirectionalPass = trigger.groupQuorum && scorePass && arbitrationPass;
+    const strong = trigger.score >= this.cfg.microTrigger.strongScore;
+    const requiredTimeMs = strong ? this.cfg.microTrigger.strongConfirmationMs : this.cfg.microTrigger.minimumConfirmationMs;
+    const requiredEvents = strong ? this.cfg.microTrigger.strongConfirmationEvents : this.cfg.microTrigger.minimumConfirmationEvents;
+    const persistencePass = trigger.occupancy >= this.cfg.microTrigger.minimumOccupancy
+      && trigger.evidence >= this.cfg.microTrigger.fireEvidenceScoreSeconds
+      && trigger.confirmationMs >= requiredTimeMs && trigger.consecutiveEvents >= requiredEvents;
+    const antiChasePass = trigger.chaseBps <= this.cfg.microTrigger.maximumChaseBps;
+    const cooldownPass = !trigger.reasons.includes("COOLDOWN_ACTIVE") && !trigger.reasons.includes("ALREADY_FIRED_IN_EPISODE");
+    const edge = this.edgeResolver.resolve({
+      side: direction, score: trigger.score, scoreReset: this.cfg.microTrigger.releaseScore,
+      persistence: trigger.occupancy, evidence: trigger.evidence,
+      features: f,
+    });
+    const grossOpportunityBps = edge?.grossOpportunityBps ?? 0;
+    const uncertaintyReserveBps = edge?.uncertaintyBps ?? 0;
+    const lowerBoundNetBps = grossOpportunityBps - uncertaintyReserveBps - this.cfg.costSafetyFactor * cost.roundTripBps;
+    const edgeResolvedPass = edge !== null;
+    const costPass = edgeResolvedPass && lowerBoundNetBps >= this.cfg.minimumNetEdgeBps;
+    const exposurePass = context.system.noExistingPosition && context.system.noPendingEntry;
+    const impulseZ = direction * f.impulseBps / Math.max(f.sigmaImpulseBps, 1e-6);
+    const anchorZ = direction * f.anchorDistanceBps / Math.max(f.sigmaHBps, 1e-6);
+    const phase: DirectionPhase = trigger.reasons.includes("COOLDOWN_ACTIVE") || trigger.reasons.includes("ALREADY_FIRED_IN_EPISODE")
+      ? "COOLDOWN" : trigger.armed ? "ARMED" : "IDLE";
+    const reasons = [...trigger.reasons];
+    if (!healthPass) reasons.push("HEALTH_GATE");
+    if (!liquidityPass) reasons.push("LIQUIDITY_GATE");
+    if (!exposurePass) reasons.push("EXPOSURE_GATE");
+    if (!edgeResolvedPass) reasons.push("EDGE_NOT_RESOLVED");
+    if (edgeResolvedPass && !costPass) reasons.push("COST_GATE");
+    if (!arbitrationPass) reasons.push("ARBITRATION_GATE");
+    return {
+      side: direction, phase, score: trigger.score, oppositeScore, scoreMargin: trigger.score - oppositeScore, votes,
+      persistence: trigger.occupancy, evidence: trigger.evidence, confirmationMs: trigger.confirmationMs,
+      confirmationEvents: trigger.consecutiveEvents, deltaMicroBps: trigger.deltaMicroBps,
+      sensorThresholdBps: trigger.sensorThresholdBps, microNoiseBps: trigger.microNoiseBps, microPressure: trigger.microPressure,
+      grossOpportunityBps, uncertaintyReserveBps, roundTripCostBps: cost.roundTripBps, lowerBoundNetBps,
+      chaseBps: trigger.chaseBps, impulseZ, anchorZ,
+      edgeSource: edge?.source ?? "UNRESOLVED", edgeHorizonMs: edge?.horizonMs ?? 0, edgeQuality: edge?.quality ?? 0,
+      scorePass, rawDirectionalPass, candidatePass, edgeResolvedPass, healthPass, liquidityPass, regimePass,
+      persistencePass, antiChasePass, exposurePass, cooldownPass, costPass, arbitrationPass,
+      liquidityReasons: dynamicLiquidity?.reasons ?? (liquidityPass ? [] : ["STATIC_LIQUIDITY_LIMIT"]),
+      tradeThresholdBps: dynamicLiquidity?.tradeThresholdBps ?? this.cfg.maximumSpreadBps,
+      stressThresholdBps: dynamicLiquidity?.stressThresholdBps ?? this.cfg.maximumSpreadBps,
+      reasons: [...new Set(reasons)],
+    };
+  }
+
+  private tradeIntent(context: EntryContext, selected: RuleDiagnostics): DeterministicTradeIntent {
+    return {
+      source: "DETERMINISTIC_MICRO", configurationVersion: this.cfg.configurationVersion,
+      decisionId: `${context.symbol}:${context.sequence.toString()}:${selected.side}:${context.nowMs}`,
+      symbol: context.symbol, sequence: context.sequence, createdMs: context.nowMs, side: selected.side,
+      deterministicScore: selected.score, grossOpportunityBps: selected.grossOpportunityBps,
+      uncertaintyReserveBps: selected.uncertaintyReserveBps, lowerBoundNetBps: selected.lowerBoundNetBps,
+      quality: clamp(selected.lowerBoundNetBps / this.cfg.fullQualityEdgeBps, 0, 1), diagnostics: selected,
+    };
+  }
+
+  private directionalCandidate(context: EntryContext, micro: SmallFractionCandidate,
+    selected: RuleDiagnostics): DeterministicDirectionalCandidate {
+    return {
+      source: "DETERMINISTIC_MICRO", configurationVersion: this.cfg.configurationVersion,
+      decisionId: `${context.symbol}:${context.sequence.toString()}:${selected.side}:${context.nowMs}`,
+      symbol: context.symbol, sequence: context.sequence, createdMs: context.nowMs, side: selected.side,
+      deterministicScore: selected.score, occupancy: micro.occupancy, evidence: micro.evidence,
+      deltaMicroBps: micro.deltaMicroBps, sensorThresholdBps: micro.sensorThresholdBps,
+      chaseBps: micro.chaseBps, diagnostics: selected,
+    };
+  }
+
   private healthPass(system: SystemGateState): boolean {
-    return system.bookValid && system.sequenceValid && system.checksumValid && system.publicStreamHealthy && system.privateStreamHealthy
-      && system.accountReconciled && system.clockHealthy && system.entriesAllowed;
+    return system.bookValid && system.sequenceValid && system.checksumValid && system.publicStreamHealthy
+      && system.privateStreamHealthy && system.accountReconciled && system.clockHealthy && system.entriesAllowed;
   }
+
   private staticLiquidityPass(f: DeterministicFeatures, cost: CostEstimate): boolean {
     return f.warmedUp && !f.stale && f.providerAgeMs >= 0 && f.spreadBps <= this.cfg.maximumSpreadBps
       && f.spreadZ <= this.cfg.maximumSpreadZ && f.depthZ >= this.cfg.minimumDepthZ
       && cost.impactBps <= this.cfg.maximumImpactBps;
   }
-  private regimeAllows(direction: Direction, regime: RegimeDecision): boolean { return direction === 1 ? regime.allowLong : regime.allowShort; }
-  private votes(direction: Direction, f: DeterministicFeatures): RuleVotes {
+
+  private microFeatures(context: EntryContext): SmallFractionFeatures {
+    const f = context.features;
+    return {
+      symbol: context.symbol, nowMs: context.nowMs, bestBid: context.bestBid, bestAsk: context.bestAsk,
+      mid: f.mid, microprice: f.microprice, qiK: f.qiK, ofi: f.ofi, tfi: f.tfi,
+      replenishmentPressure: f.replenishmentPressure, velocityZ: f.velocityZ, accelerationZ: f.accelerationZ,
+      breakoutUpBps: f.breakoutUpBps, breakoutDownBps: f.breakoutDownBps,
+      cusumUp: f.cusumUpScore, cusumDown: f.cusumDownScore, efficiency: f.efficiency,
+      flowFlipRate: f.flowFlipRate, varianceRate: f.varianceRate, providerAgeMs: f.providerAgeMs,
+      stale: f.stale, bookReady: context.system.bookValid,
+    };
+  }
+
+  private signedScore(microPressure: number, f: DeterministicFeatures): number {
+    const cfg = this.cfg.microTrigger;
+    return cfg.microWeight * Math.tanh(microPressure / cfg.microPressureScale)
+      + cfg.qiKWeight * Math.tanh(f.qiK / cfg.qiKScale)
+      + cfg.ofiWeight * Math.tanh(f.ofi / cfg.ofiScale)
+      + cfg.tfiWeight * Math.tanh(f.tfi / cfg.tfiScale)
+      + cfg.replenishmentWeight * Math.tanh(f.replenishmentPressure / cfg.replenishmentScale)
+      + cfg.velocityWeight * Math.tanh(f.velocityZ / cfg.velocityScale)
+      + cfg.breakoutWeight * Math.tanh((f.breakoutUpBps - f.breakoutDownBps) / cfg.breakoutScaleBps);
+  }
+
+  private microVotes(direction: Direction, f: DeterministicFeatures, d: SideTriggerDiagnostics): RuleVotes {
+    const cfg = this.cfg.microTrigger;
     const directionalBreakout = direction === 1 ? f.breakoutUpBps : f.breakoutDownBps;
     const directionalCusum = direction === 1 ? f.cusumUpScore : -f.cusumDownScore;
     const vector: RuleVoteVector = {
-      micro: direction * f.microEdgeBps >= this.cfg.microEdgeBps, qi1: direction * f.qi1 >= this.cfg.qi1,
-      qiK: direction * f.qiK >= this.cfg.qiK, ofi: direction * f.ofi >= this.cfg.ofi, tfi: direction * f.tfi >= this.cfg.tfi,
-      replenishment: direction * f.replenishmentPressure >= this.cfg.replenishment,
-      velocity: direction * f.velocityZ >= this.cfg.velocityZ,
-      acceleration: direction * f.accelerationZ >= -this.cfg.maximumOpposingAccelerationZ,
-      impulse: direction * f.impulseBps >= this.cfg.impulseBps, breakout: directionalBreakout >= this.cfg.breakoutBps,
-      cusum: directionalCusum >= this.cfg.cusum,
+      micro: direction * d.microPressure >= cfg.minimumMicroPressure, qi1: false,
+      qiK: direction * f.qiK >= cfg.minimumQiK, ofi: direction * f.ofi >= cfg.minimumOfi,
+      tfi: direction * f.tfi >= cfg.minimumTfi,
+      replenishment: direction * f.replenishmentPressure >= cfg.minimumReplenishment,
+      velocity: direction * f.velocityZ >= cfg.minimumVelocityZ, acceleration: false,
+      impulse: direction * d.deltaMicroBps >= d.sensorThresholdBps,
+      breakout: directionalBreakout >= cfg.minimumBreakoutBps, cusum: directionalCusum >= cfg.minimumCusum,
     };
-    const book = Number(vector.micro) + Number(vector.qi1) + Number(vector.qiK);
+    const book = Number(vector.micro) + Number(vector.qiK);
     const flow = Number(vector.ofi) + Number(vector.tfi) + Number(vector.replenishment);
-    const kinematic = Number(vector.velocity) + Number(vector.acceleration) + Number(vector.impulse) + Number(vector.breakout) + Number(vector.cusum);
-    const bookPass = book >= this.cfg.minimumBookVotes;
-    const flowPass = flow >= this.cfg.minimumFlowVotes;
-    const kinematicPass = kinematic >= this.cfg.minimumKinematicVotes;
-    const activeGroups = Number(bookPass) + Number(flowPass) + Number(kinematicPass);
+    const kinematic = Number(vector.velocity) + Number(vector.impulse) + Number(vector.breakout) + Number(vector.cusum);
     const qualityVotes = Number(f.efficiency >= this.cfg.efficiency) + Number(f.flowFlipRate <= this.cfg.maximumFlipRate);
-    const quality = qualityVotes >= 1;
-    return { book, flow, kinematic, activeGroups, qualityVotes, quality,
-      quorum: activeGroups >= 2 && kinematicPass && quality, vector };
+    return { book, flow, kinematic, activeGroups: d.groupCount, qualityVotes, quality: true, quorum: d.groupQuorum, vector };
   }
-  private normalizedScore(direction: Direction, f: DeterministicFeatures): number {
-    const directionalCusum = direction === 1 ? f.cusumUpScore : -f.cusumDownScore;
-    return clamp(weightedAverage([
-      term(direction * f.microEdgeBps / this.cfg.microEdgeBps, this.cfg.scoreWeights.micro),
-      term(direction * f.qi1 / this.cfg.qi1, this.cfg.scoreWeights.qi1), term(direction * f.qiK / this.cfg.qiK, this.cfg.scoreWeights.qiK),
-      term(direction * f.ofi / this.cfg.ofi, this.cfg.scoreWeights.ofi), term(direction * f.tfi / this.cfg.tfi, this.cfg.scoreWeights.tfi),
-      term(direction * f.replenishmentPressure / this.cfg.replenishment, this.cfg.scoreWeights.replenishment),
-      term(direction * f.velocityZ / this.cfg.velocityZ, this.cfg.scoreWeights.velocity),
-      term(direction * f.accelerationZ, this.cfg.scoreWeights.acceleration), term(direction * f.impulseBps / this.cfg.impulseBps, this.cfg.scoreWeights.impulse),
-      term(directionalCusum / this.cfg.cusum, this.cfg.scoreWeights.cusum),
-      term((f.efficiency - this.cfg.efficiency) / Math.max(1 - this.cfg.efficiency, 1e-9), this.cfg.scoreWeights.efficiency),
-      { value: 1 - 2 * clamp(f.flowFlipRate / this.cfg.maximumFlipRate, 0, 1), weight: this.cfg.scoreWeights.flipQuality },
-    ]), -1, 1);
-  }
-  private antiChase(direction: Direction, f: DeterministicFeatures, bestBid: number, bestAsk: number): { pass: boolean; chaseBps: number; impulseZ: number; anchorZ: number } {
-    const chaseBps = direction === 1 ? 10_000 * (bestAsk - f.microprice) / f.mid : 10_000 * (f.microprice - bestBid) / f.mid;
-    const impulseZ = direction * f.impulseBps / Math.max(f.sigmaImpulseBps, 1e-6);
-    const anchorZ = direction * f.anchorDistanceBps / Math.max(f.sigmaHBps, 1e-6);
-    return { pass: chaseBps <= this.cfg.maximumChaseBps && impulseZ <= this.cfg.maximumImpulseZ && anchorZ <= this.cfg.maximumAnchorZ,
-      chaseBps, impulseZ, anchorZ };
-  }
-  private updatePhase(direction: Direction, nowMs: number, rawPass: boolean, score: number): { cooldownPass: boolean; phase: DirectionPhase } {
-    const state = this.mustState(direction), resetCondition = !rawPass || score <= this.cfg.scoreReset;
-    if (resetCondition) state.resetObservedMs ??= nowMs; else delete state.resetObservedMs;
-    if (state.phase === "COOLDOWN") {
-      const cooldownElapsed = nowMs - state.lastFireMs >= this.cfg.cooldownMs;
-      const resetElapsed = state.resetObservedMs !== undefined && nowMs - state.resetObservedMs >= this.cfg.resetMs;
-      if (cooldownElapsed && resetElapsed) state.phase = "IDLE";
-    }
-    if (state.phase === "IDLE" && rawPass) state.phase = "ARMED";
-    if (state.phase === "ARMED" && resetCondition) state.phase = "IDLE";
-    return { cooldownPass: state.phase === "ARMED", phase: state.phase };
-  }
-  private diagnostics(direction: Direction, context: EntryContext, score: number, oppositeScore: number, votes: RuleVotes,
-    persistence: PersistenceResult, rawDirectionalPass: boolean, arbitrationPass: boolean,
-    antiChase: { pass: boolean; chaseBps: number; impulseZ: number; anchorZ: number }): RuleDiagnostics {
-    const f = context.features, cost = direction === 1 ? context.longCost : context.shortCost;
-    const dynamicLiquidity = direction === 1 ? context.longLiquidity : context.shortLiquidity;
-    const healthPass = this.healthPass(context.system);
-    const liquidityPass = dynamicLiquidity?.pass ?? this.staticLiquidityPass(f, cost);
-    const regimePass = this.regimeAllows(direction, context.regime);
-    const phase = this.updatePhase(direction, context.nowMs, rawDirectionalPass, score);
-    const edge = this.edgeResolver.resolve({
-      side: direction, score, scoreReset: this.cfg.scoreReset, persistence: persistence.occupancy, features: f,
-    });
-    const grossOpportunityBps = edge?.grossOpportunityBps ?? 0;
-    const uncertaintyReserveBps = edge?.uncertaintyBps ?? 0;
-    const lowerBoundNetBps = grossOpportunityBps - uncertaintyReserveBps - this.cfg.costSafetyFactor * cost.roundTripBps;
-    const exposurePass = context.system.noExistingPosition && context.system.noPendingEntry;
-    const persistencePass = persistence.occupancy >= this.cfg.minimumPersistence && persistence.consecutiveMs >= this.cfg.minimumConfirmationMs
-      && persistence.consecutiveEvents >= this.cfg.minimumConfirmationEvents;
-    const scorePass = score >= this.cfg.scoreEnter;
-    const candidatePass = rawDirectionalPass && persistencePass;
-    const edgeResolvedPass = edge !== null;
-    const costPass = edgeResolvedPass && lowerBoundNetBps >= this.cfg.minimumNetEdgeBps;
-    const reasons: string[] = [];
-    if (!healthPass) reasons.push("HEALTH_GATE"); if (!liquidityPass) reasons.push("LIQUIDITY_GATE"); if (!regimePass) reasons.push("REGIME_GATE");
-    if (!votes.quorum) reasons.push("RULE_QUORUM"); if (!scorePass) reasons.push("SCORE_GATE"); if (!persistencePass) reasons.push("PERSISTENCE_GATE");
-    if (!antiChase.pass) reasons.push("ANTI_CHASE_GATE"); if (!exposurePass) reasons.push("EXPOSURE_GATE");
-    if (!phase.cooldownPass) reasons.push("COOLDOWN_OR_RESET_GATE"); if (!edgeResolvedPass) reasons.push("EDGE_NOT_RESOLVED");
-    if (edgeResolvedPass && !costPass) reasons.push("COST_GATE"); if (!arbitrationPass) reasons.push("ARBITRATION_GATE");
-    return { side: direction, phase: phase.phase, score, oppositeScore, scoreMargin: score - oppositeScore, votes,
-      persistence: persistence.occupancy, confirmationMs: persistence.consecutiveMs, confirmationEvents: persistence.consecutiveEvents,
-      grossOpportunityBps, uncertaintyReserveBps, roundTripCostBps: cost.roundTripBps,
-      lowerBoundNetBps, chaseBps: antiChase.chaseBps, impulseZ: antiChase.impulseZ, anchorZ: antiChase.anchorZ,
-      edgeSource: edge?.source ?? "UNRESOLVED", edgeHorizonMs: edge?.horizonMs ?? 0, edgeQuality: edge?.quality ?? 0,
-      scorePass, rawDirectionalPass, candidatePass, edgeResolvedPass, healthPass, liquidityPass, regimePass, persistencePass,
-      antiChasePass: antiChase.pass, exposurePass, cooldownPass: phase.cooldownPass, costPass, arbitrationPass,
-      liquidityReasons: dynamicLiquidity?.reasons ?? (liquidityPass ? [] : ["STATIC_LIQUIDITY_LIMIT"]),
-      tradeThresholdBps: dynamicLiquidity?.tradeThresholdBps ?? this.cfg.maximumSpreadBps,
-      stressThresholdBps: dynamicLiquidity?.stressThresholdBps ?? this.cfg.maximumSpreadBps,
-      reasons };
-  }
-  private directionalCandidate(context: EntryContext, selected: RuleDiagnostics): DeterministicDirectionalCandidate {
-    return {
-      source: "DETERMINISTIC", configurationVersion: this.cfg.configurationVersion,
-      decisionId: `${context.symbol}:${context.sequence.toString()}:${selected.side}:${context.nowMs}`,
-      symbol: context.symbol, sequence: context.sequence, createdMs: context.nowMs,
-      side: selected.side, deterministicScore: selected.score, diagnostics: selected,
-    };
-  }
-  private mustState(side: Direction): DirectionState { const state = this.states.get(side); if (!state) throw new Error("Missing deterministic direction state"); return state; }
 }
 
 export function validateDeterministicConfig(cfg: DeterministicSignalConfig): void {
@@ -295,8 +279,7 @@ export function validateDeterministicConfig(cfg: DeterministicSignalConfig): voi
   if (!cfg.configurationVersion) fail("configurationVersion is required");
   if (!["DETERMINISTIC_ONLY", "DETERMINISTIC_WITH_MODEL_VETO", "DETERMINISTIC_WITH_MODEL_RANKING"].includes(cfg.mode)) fail("unknown signal mode");
   if (!["CALIBRATED_REQUIRED", "CALIBRATED_OR_ANALYTIC", "ANALYTIC_ONLY"].includes(cfg.edgeSourceMode)) fail("unknown edge source mode");
-  const finite = flattenNumbers(cfg);
-  if (finite.some((value) => !Number.isFinite(value))) fail("all numeric configuration values must be finite");
+  if (flattenNumbers(cfg).some((value) => !Number.isFinite(value))) fail("all numeric configuration values must be finite");
   if (!(cfg.scoreEnter > cfg.scoreReset)) fail("scoreEnter must be greater than scoreReset");
   if (cfg.scoreEnter < -1 || cfg.scoreEnter > 1 || cfg.scoreReset < -1 || cfg.scoreReset > 1) fail("score thresholds must be in [-1,1]");
   if (cfg.arbitrationMargin < 0 || cfg.arbitrationMargin > 2) fail("arbitrationMargin must be in [0,2]");
@@ -310,22 +293,18 @@ export function validateDeterministicConfig(cfg: DeterministicSignalConfig): voi
   }
   const scoreWeights = Object.values(cfg.scoreWeights);
   if (scoreWeights.some((value) => value < 0) || !(scoreWeights.reduce((sum, value) => sum + value, 0) > 0)) fail("score weights must be nonnegative with positive total");
-  const positive = [cfg.maximumSpreadBps, cfg.microEdgeBps, cfg.qi1, cfg.qiK,
-    cfg.ofi, cfg.tfi, cfg.replenishment, cfg.velocityZ, cfg.efficiency, cfg.persistenceWindowMs, cfg.fullQualityEdgeBps];
-  if (positive.some((value) => !Number.isFinite(value) || value <= 0)) fail("positive thresholds must be finite and positive");
-  const nonnegative = [cfg.maximumSpreadZ, cfg.maximumImpactBps, cfg.maximumOpposingAccelerationZ, cfg.impulseBps, cfg.breakoutBps,
-    cfg.cusum, cfg.minimumConfirmationMs, cfg.cooldownMs, cfg.resetMs, cfg.maximumImpulseZ, cfg.maximumChaseBps, cfg.maximumAnchorZ,
-  ];
+  const positive = [cfg.maximumSpreadBps, cfg.microEdgeBps, cfg.qi1, cfg.qiK, cfg.ofi, cfg.tfi, cfg.replenishment,
+    cfg.velocityZ, cfg.efficiency, cfg.persistenceWindowMs, cfg.fullQualityEdgeBps];
+  if (positive.some((value) => value <= 0)) fail("positive thresholds must be finite and positive");
+  const nonnegative = [cfg.maximumSpreadZ, cfg.maximumImpactBps, cfg.maximumOpposingAccelerationZ, cfg.impulseBps,
+    cfg.breakoutBps, cfg.cusum, cfg.minimumConfirmationMs, cfg.cooldownMs, cfg.resetMs, cfg.maximumImpulseZ,
+    cfg.maximumChaseBps, cfg.maximumAnchorZ];
   if (nonnegative.some((value) => value < 0)) fail("nonnegative thresholds cannot be negative");
+  validateSmallFractionTriggerConfig(cfg.microTrigger);
 }
 
-function term(value: number, weight: number): { value: number; weight: number } { return { value: clamp(value, -1, 1), weight }; }
-function weightedAverage(terms: ReadonlyArray<{ value: number; weight: number }>): number {
-  let numerator = 0, denominator = 0;
-  for (const item of terms) if (item.weight > 0) { numerator += item.value * item.weight; denominator += item.weight; }
-  return denominator > 0 ? numerator / denominator : 0;
-}
 function flattenNumbers(value: unknown): number[] {
-  if (typeof value === "number") return [value]; if (!value || typeof value !== "object") return [];
+  if (typeof value === "number") return [value];
+  if (!value || typeof value !== "object") return [];
   return Object.values(value as Record<string, unknown>).flatMap(flattenNumbers);
 }

@@ -14,7 +14,7 @@ export const DEFAULT_DETERMINISTIC_REGIME_CONFIG: DeterministicRegimeConfig = {
   hysteresisResetRatio: .75,
 };
 export const DEFAULT_DETERMINISTIC_SIGNAL_CONFIG: DeterministicSignalConfig = {
-  mode: "DETERMINISTIC_ONLY", configurationVersion: "deterministic-v1",
+  mode: "DETERMINISTIC_ONLY", configurationVersion: "deterministic-micro-v1",
   maximumSpreadBps: 30, maximumSpreadZ: 3, minimumDepthZ: -2.5, maximumImpactBps: 1.5,
   microEdgeBps: .2, qi1: .15, qiK: .1, ofi: .3, tfi: .15, replenishment: .1, velocityZ: .25,
   maximumOpposingAccelerationZ: .3, impulseBps: .4, breakoutBps: .5, cusum: 2.5, efficiency: .45, maximumFlipRate: .45,
@@ -32,7 +32,23 @@ export const DEFAULT_DETERMINISTIC_SIGNAL_CONFIG: DeterministicSignalConfig = {
     microEdgeScaleBps: .50, breakoutScaleBps: 5,
     sigmaCaptureFraction: .65, breakoutWeight: .25, maximumGrossBps: 300,
     baseUncertaintyBps: 2, sigmaUncertaintyFraction: .20,
-    spreadUncertaintyWeight: .50, flipUncertaintyWeight: .20,
+    spreadUncertaintyWeight: .50, flipUncertaintyWeight: .20, fullEvidence: .10,
+  },
+  microTrigger: {
+    noiseTauMs: 2_000,
+    microPressureScale: .20, qiKScale: .20, ofiScale: .50, tfiScale: .25,
+    replenishmentScale: .30, velocityScale: .50, breakoutScaleBps: 2,
+    microWeight: .20, qiKWeight: .15, ofiWeight: .20, tfiWeight: .10,
+    replenishmentWeight: .10, velocityWeight: .15, breakoutWeight: .10,
+    minimumMicroPressure: .08, minimumQiK: .08, minimumOfi: .10, minimumTfi: .08,
+    minimumReplenishment: .08, minimumVelocityZ: .10, minimumBreakoutBps: .05, minimumCusum: .30,
+    minimumMicroMoveBps: .01, noiseMovementMultiplier: .25,
+    armScore: .16, strongScore: .30, releaseScore: .04,
+    evidenceDriftAllowance: .06, opposingEvidencePenalty: 1.50, evidenceTauMs: 700,
+    fireEvidenceScoreSeconds: .025, occupancyTauMs: 300, minimumOccupancy: .52,
+    minimumConfirmationMs: 40, strongConfirmationMs: 20,
+    minimumConfirmationEvents: 3, strongConfirmationEvents: 2,
+    maximumChaseBps: 2, arbitrationMargin: .08, cooldownMs: 750, maximumEventGapMs: 1_500,
   },
 };
 export const DEFAULT_DETERMINISTIC_HOLD_CONFIG: DeterministicHoldConfig = {

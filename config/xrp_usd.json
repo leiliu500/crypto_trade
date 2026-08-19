@@ -2,6 +2,8 @@
   "schemaVersion": 1,
   "symbol": "XRP/USD",
   "parameters": {
-    "DYNAMIC_SHADOW_TRADE_CAP_BPS": 60
+    "DYNAMIC_SHADOW_TRADE_CAP_BPS": 60,
+    "MICRO_MAX_CHASE_BPS": 3.5,
+    "MICRO_NOISE_MOVEMENT_MULTIPLIER": 0.35
   }
 }

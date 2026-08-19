@@ -14,5 +14,6 @@ test("entry pipeline audit keeps monotonic stage counts and throttles repeated r
   const snapshot = audit.snapshot();
   assert.equal(snapshot.counts.MARKET_EVENT, 2);
   assert.equal(snapshot.counts.BOOK_READY, 1);
+  assert.equal(snapshot.counts.MICRO_EVENT, 0);
   assert.equal(snapshot.lastRejection?.reason, "RULE_QUORUM");
 });

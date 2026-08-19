@@ -12,9 +12,10 @@ The hot path is:
 Alpaca crypto WebSocket
   -> reset/delta L2 book validation
   -> causal deterministic feature extensions
-  -> direction-only regime + independent evidence-group quorum
-  -> event-time persistence + score hysteresis + arbitration
-  -> health/liquidity + venue/exposure/reset/cooldown gates
+  -> prior-event adaptive microprice-noise threshold
+  -> bounded micro/book/flow/motion score + mandatory motion quorum
+  -> decayed occupancy/evidence + hysteresis + arm-anchored anti-chasing
+  -> health/liquidity + venue/exposure/cooldown gates
   -> calibrated-or-analytic edge - uncertainty - exact walked cost
   -> anti-chasing + quantity-aware execution planning
   -> risk, correlation, and liquidity sizing
@@ -26,11 +27,11 @@ Alpaca crypto WebSocket
 
 The main contracts are:
 
-- Candidate: the direction-only regime, score, arbitration, persistence, and a two-of-three book/flow/kinematic group quorum must pass; kinematic evidence remains mandatory. Spread, account state, fees, and order state cannot suppress candidate telemetry.
-- Entry: every health, dynamic-liquidity, venue, anti-chasing, exposure, edge, cost, sizing, execution-plan, and portfolio gate must then pass.
+- Candidate: a bounded directional score, two-of-three book/flow/motion quorum with motion mandatory, decayed occupancy, leaky evidence, confirmation time/events, arbitration, cooldown, and midpoint-at-arm chase limit must pass. A directional regime is still reported but cannot suppress a micro candidate.
+- Entry: every health, dynamic-liquidity, venue, exposure, edge, cost, sizing, execution-plan, and portfolio gate must then pass. Candidate sensitivity never bypasses order economics.
 - Cost: `deterministic opportunity − uncertainty reserve − 1.75 × exact quantity-dependent round-trip cost >= minimum edge`.
 - Horizon: the causal trigger uses short feature windows, while analytical edge uses a separately configured economic horizon (`RULE_ECONOMIC_HORIZON_MS`).
-- State: one continuous signal produces at most one entry; both a cooldown and a below-reset interval are required to re-arm.
+- State: one continuous episode produces at most one candidate. Re-arming requires release hysteresis or an excessive event-gap reset, and the configured cooldown must have elapsed.
 - Models: `SIGNAL_MODE=DETERMINISTIC_ONLY` is the default. An optional model may only veto, rank, or reduce an already-valid deterministic intent; it cannot create exposure.
 - Risk: `quantity × maximum modeled loss per unit <= current risk budget`.
 - Protection: `profitFloor[t] >= profitFloor[t−1]`.
@@ -119,12 +120,12 @@ The default deterministic configuration in `config/base.json` is:
 
 ```text
 SIGNAL_MODE=DETERMINISTIC_ONLY
-DETERMINISTIC_CONFIG_VERSION=deterministic-v1
+DETERMINISTIC_CONFIG_VERSION=deterministic-micro-v1
 ```
 
 `record` appends raw order-book and trade events to `data/events.jsonl`. Paper, shadow, and live modes also continuously append independently compressed gzip batches to `data/continuous-events.jsonl.gz` when `CONTINUOUS_RECORDING_ENABLED` is true. The batched writer keeps compression off the market-data hot path and makes completed batches replayable while the engine remains online. Run `npm run recall -- data/continuous-events.jsonl.gz` to analyze that capture.
 
-`recall` reconstructs the same causal feature, regime, persistence, cost, and deterministic-entry pipeline, then labels the best executable move available over the configured future horizon. It reports long opportunity recall, signal precision, audit-only downside moves, gate-block frequencies, and non-finite feature incidents. Labels deduct two taker fees plus fixed costs but omit latency and impact, so the result is an optimistic upper bound rather than a profit claim.
+`recall` reconstructs the same causal features, adaptive micro trigger, occupancy/evidence state, cost, and deterministic-entry pipeline, then labels the best executable move available over the configured future horizon. It reports long opportunity recall, signal precision, audit-only downside moves, gate-block frequencies, and non-finite feature incidents. Labels deduct two taker fees plus fixed costs but omit latency and impact, so the result is an optimistic upper bound rather than a profit claim.
 
 `paper:demo-trade` is an explicit diagnostic path for observing the real Alpaca paper order lifecycle. It waits for a healthy warmed book, submits one approximately $11 `BTC/USD` capped IOC entry by default (above Alpaca's $10 USD-crypto minimum), and records reserve, send, acknowledgment, private updates, fills, position management, and any strategy-managed exit in the normal dashboard and database. It is hard-disabled outside paper mode, refuses existing exposure or pending orders, caps entry notional at $25, and labels the decision `PAPER_LIFECYCLE_DEMO` because it intentionally bypasses strategy gates. Stop the normal engine before using it because both commands bind the same dashboard port.
 
@@ -142,7 +143,7 @@ LIVE_TRADING_CONFIRMATION=I_UNDERSTAND_LIVE_ORDERS_USE_REAL_MONEY
 
 ## Operations dashboard and PostgreSQL
 
-The local dashboard is enabled by default at `http://127.0.0.1:8787`. It shows execution-gate liveness, Alpaca public/private stream state, reconciliation and book validity, deterministic regime/score/phase/block reasons, per-direction votes, gross opportunity, uncertainty, round-trip cost and lower-bound edge, risk halts, latency, live microstructure, hold/reversal exit dynamics, order fill progression and cost decomposition, lifecycle timelines, and the operational audit stream. It is read-only, binds to loopback by default, uses no third-party browser assets, and redacts credential-shaped event fields.
+The local dashboard is enabled by default at `http://127.0.0.1:8787`. It shows execution-gate liveness, Alpaca public/private stream state, reconciliation and book validity, micro score/phase/block reasons, occupancy, evidence, adaptive noise and movement threshold, arm-anchored chase, per-direction groups, gross opportunity, uncertainty, round-trip cost and lower-bound edge, risk halts, latency, hold/reversal exit dynamics, order fill progression, lifecycle timelines, and the operational audit stream. Its pipeline counters expose `MICRO_EVENT`, `MICRO_ARMED`, and `MICRO_CANDIDATE` separately from cost qualification and order sends. It is read-only, binds to loopback by default, uses no third-party browser assets, and redacts credential-shaped event fields.
 
 Start the PostgreSQL 16 service and validate its schema:
 
@@ -165,7 +166,7 @@ npm run dashboard:demo
 
 ## Validation
 
-The test suite enforces exact decimal conversion, reset/delta and duplicate behavior, crossed-book rejection, causal feature replay equality, mandatory warm-up/staleness/health gates, independent evidence quorums, event-time persistence, long/short symmetry, anti-chasing, direction-conflict no-trade, inclusive exact-cost thresholds, cooldown plus reset re-arming, model non-creation, deterministic hold/reversal, maximum-loss sizing, monotone floors, operational reconciliation, private-event idempotence, and non-retry of order POSTs.
+The test suite enforces exact decimal conversion, reset/delta and duplicate behavior, crossed-book rejection, causal feature replay equality, mandatory warm-up/staleness/health gates, adaptive prior-noise decisions, independent evidence quorums, tiny persistent movement detection, spike rejection, opposing-evidence decay, event-gap reset, one candidate per episode, arm-anchored anti-chasing, long/short symmetry, inclusive exact-cost thresholds, model non-creation, deterministic hold/reversal, maximum-loss sizing, monotone floors, operational reconciliation, private-event idempotence, and non-retry of order POSTs.
 
 The replay package includes event validation, opportunity-recall analysis, arrival-time IOC/maker fill simulation primitives, chronological walk-forward fold construction with purge/embargo, conservative stress profiles, and reusable trade-metric calculations. A complete fill-to-P&L walk-forward runner still requires a sufficiently long recorded dataset; the software does not present short smoke-test output as validated performance.
 

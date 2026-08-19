@@ -137,8 +137,13 @@ export interface DashboardRuleDiagnostics {
   kinematicVotes: number;
   quorumPass: boolean;
   persistence: number;
+  evidence: number;
   confirmationMs: number;
   confirmationEvents: number;
+  deltaMicroBps: number;
+  sensorThresholdBps: number;
+  microNoiseBps: number;
+  chaseBps: number;
   grossOpportunityBps: number;
   uncertaintyReserveBps: number;
   roundTripCostBps: number;

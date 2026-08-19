@@ -233,7 +233,7 @@ function loadSymbolConfig(symbol: string, env: NodeJS.ProcessEnv, mode: TradingM
   const signalMode = parseSignalMode(env.SIGNAL_MODE ?? env.ENTRY_MODE);
   if (signalMode !== "DETERMINISTIC_ONLY" && !env.MODEL_CONFIG_JSON) throw new Error(`${signalMode} requires MODEL_CONFIG_JSON; optional model modes fail closed without a model`);
   const model = signalMode === "DETERMINISTIC_ONLY" ? parseModel(undefined) : parseModel(env.MODEL_CONFIG_JSON);
-  const configurationVersion = env.DETERMINISTIC_CONFIG_VERSION ?? "deterministic-v1";
+  const configurationVersion = env.DETERMINISTIC_CONFIG_VERSION ?? "deterministic-micro-v1";
   const deterministicExtension = loadExtensionConfig(env);
   const deterministicRegime = loadDeterministicRegimeConfig(env);
   const deterministicSignal = loadDeterministicSignalConfig(env, signalMode, configurationVersion);
@@ -406,6 +406,51 @@ function loadDeterministicSignalConfig(env: NodeJS.ProcessEnv, mode: SignalMode,
       sigmaUncertaintyFraction: numberEnv(env.RULE_EDGE_SIGMA_UNCERTAINTY_FRACTION, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.analyticEdge.sigmaUncertaintyFraction),
       spreadUncertaintyWeight: numberEnv(env.RULE_EDGE_SPREAD_UNCERTAINTY_WEIGHT, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.analyticEdge.spreadUncertaintyWeight),
       flipUncertaintyWeight: numberEnv(env.RULE_EDGE_FLIP_UNCERTAINTY_WEIGHT, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.analyticEdge.flipUncertaintyWeight),
+      fullEvidence: numberEnv(env.RULE_EDGE_FULL_EVIDENCE, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.analyticEdge.fullEvidence),
+    },
+    microTrigger: {
+      noiseTauMs: numberEnv(env.MICRO_NOISE_TAU_MS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.noiseTauMs),
+      microPressureScale: numberEnv(env.MICRO_PRESSURE_SCALE, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.microPressureScale),
+      qiKScale: numberEnv(env.MICRO_QIK_SCALE, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.qiKScale),
+      ofiScale: numberEnv(env.MICRO_OFI_SCALE, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.ofiScale),
+      tfiScale: numberEnv(env.MICRO_TFI_SCALE, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.tfiScale),
+      replenishmentScale: numberEnv(env.MICRO_REPLENISHMENT_SCALE, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.replenishmentScale),
+      velocityScale: numberEnv(env.MICRO_VELOCITY_SCALE, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.velocityScale),
+      breakoutScaleBps: numberEnv(env.MICRO_BREAKOUT_SCALE_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.breakoutScaleBps),
+      microWeight: numberEnv(env.MICRO_WEIGHT_MICRO, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.microWeight),
+      qiKWeight: numberEnv(env.MICRO_WEIGHT_QIK, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.qiKWeight),
+      ofiWeight: numberEnv(env.MICRO_WEIGHT_OFI, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.ofiWeight),
+      tfiWeight: numberEnv(env.MICRO_WEIGHT_TFI, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.tfiWeight),
+      replenishmentWeight: numberEnv(env.MICRO_WEIGHT_REPLENISHMENT, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.replenishmentWeight),
+      velocityWeight: numberEnv(env.MICRO_WEIGHT_VELOCITY, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.velocityWeight),
+      breakoutWeight: numberEnv(env.MICRO_WEIGHT_BREAKOUT, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.breakoutWeight),
+      minimumMicroPressure: numberEnv(env.MICRO_MIN_PRESSURE, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.minimumMicroPressure),
+      minimumQiK: numberEnv(env.MICRO_MIN_QIK, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.minimumQiK),
+      minimumOfi: numberEnv(env.MICRO_MIN_OFI, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.minimumOfi),
+      minimumTfi: numberEnv(env.MICRO_MIN_TFI, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.minimumTfi),
+      minimumReplenishment: numberEnv(env.MICRO_MIN_REPLENISHMENT, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.minimumReplenishment),
+      minimumVelocityZ: numberEnv(env.MICRO_MIN_VELOCITY_Z, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.minimumVelocityZ),
+      minimumBreakoutBps: numberEnv(env.MICRO_MIN_BREAKOUT_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.minimumBreakoutBps),
+      minimumCusum: numberEnv(env.MICRO_MIN_CUSUM, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.minimumCusum),
+      minimumMicroMoveBps: numberEnv(env.MICRO_MIN_MOVE_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.minimumMicroMoveBps),
+      noiseMovementMultiplier: numberEnv(env.MICRO_NOISE_MOVEMENT_MULTIPLIER, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.noiseMovementMultiplier),
+      armScore: numberEnv(env.MICRO_ARM_SCORE, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.armScore),
+      strongScore: numberEnv(env.MICRO_STRONG_SCORE, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.strongScore),
+      releaseScore: numberEnv(env.MICRO_RELEASE_SCORE, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.releaseScore),
+      evidenceDriftAllowance: numberEnv(env.MICRO_EVIDENCE_DRIFT_ALLOWANCE, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.evidenceDriftAllowance),
+      opposingEvidencePenalty: numberEnv(env.MICRO_OPPOSING_EVIDENCE_PENALTY, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.opposingEvidencePenalty),
+      evidenceTauMs: numberEnv(env.MICRO_EVIDENCE_TAU_MS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.evidenceTauMs),
+      fireEvidenceScoreSeconds: numberEnv(env.MICRO_FIRE_EVIDENCE_SCORE_SECONDS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.fireEvidenceScoreSeconds),
+      occupancyTauMs: numberEnv(env.MICRO_OCCUPANCY_TAU_MS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.occupancyTauMs),
+      minimumOccupancy: numberEnv(env.MICRO_MIN_OCCUPANCY, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.minimumOccupancy),
+      minimumConfirmationMs: numberEnv(env.MICRO_MIN_CONFIRMATION_MS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.minimumConfirmationMs),
+      strongConfirmationMs: numberEnv(env.MICRO_STRONG_CONFIRMATION_MS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.strongConfirmationMs),
+      minimumConfirmationEvents: integerEnv(env.MICRO_MIN_CONFIRMATION_EVENTS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.minimumConfirmationEvents, 1, 10_000),
+      strongConfirmationEvents: integerEnv(env.MICRO_STRONG_CONFIRMATION_EVENTS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.strongConfirmationEvents, 1, 10_000),
+      maximumChaseBps: numberEnv(env.MICRO_MAX_CHASE_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.maximumChaseBps),
+      arbitrationMargin: numberEnv(env.MICRO_ARBITRATION_MARGIN, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.arbitrationMargin),
+      cooldownMs: numberEnv(env.MICRO_COOLDOWN_MS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.cooldownMs),
+      maximumEventGapMs: numberEnv(env.MICRO_MAX_EVENT_GAP_MS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.maximumEventGapMs),
     },
   };
 }
