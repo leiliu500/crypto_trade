@@ -50,6 +50,8 @@ export interface EngineConfig extends Omit<SymbolConfig, "symbol"> {
   cryptoLocation: string;
   recordFile: string;
   replayFile: string;
+  continuousRecordingEnabled: boolean;
+  continuousRecordFile: string;
   portfolio: PortfolioRiskConfig;
   rollingLossFraction: number;
   sessionLossFraction: number;
@@ -62,6 +64,13 @@ export interface EngineConfig extends Omit<SymbolConfig, "symbol"> {
   databaseFlushIntervalMs: number;
   databaseMaxQueue: number;
   databaseMarketSampleMs: number;
+  recall: {
+    sampleIntervalMs: number;
+    opportunityHorizonMs: number;
+    minimumNetMoveBps: number;
+    minimumTuningDurationMs: number;
+    minimumTuningOpportunities: number;
+  };
 }
 
 const MODEL_DIMENSION = 15;
@@ -77,9 +86,11 @@ const RUNTIME_ONLY_KEYS = new Set([
   "POSTGRES_DB", "POSTGRES_USER", "POSTGRES_PASSWORD", "POSTGRES_HOST", "POSTGRES_PORT", "CONFIG_DIR",
 ]);
 const GLOBAL_PARAMETER_KEYS = new Set([
-  "ALPACA_CRYPTO_LOCATION", "REPLAY_FILE", "RECORD_FILE", "DASHBOARD_ENABLED", "DASHBOARD_HOST", "DASHBOARD_PORT",
+  "ALPACA_CRYPTO_LOCATION", "REPLAY_FILE", "RECORD_FILE", "CONTINUOUS_RECORDING_ENABLED", "CONTINUOUS_RECORD_FILE",
+  "DASHBOARD_ENABLED", "DASHBOARD_HOST", "DASHBOARD_PORT",
   "DATABASE_ENABLED", "DATABASE_REQUIRED", "DATABASE_FLUSH_INTERVAL_MS", "DATABASE_MAX_QUEUE", "DATABASE_MARKET_SAMPLE_MS",
-  "MAXIMUM_GROSS_NOTIONAL",
+  "MAXIMUM_GROSS_NOTIONAL", "RECALL_SAMPLE_INTERVAL_MS", "RECALL_OPPORTUNITY_HORIZON_MS", "RECALL_MIN_NET_MOVE_BPS",
+  "RECALL_MIN_TUNING_DURATION_MS", "RECALL_MIN_TUNING_OPPORTUNITIES",
 ]);
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env, modeOverride?: string): EngineConfig {
@@ -111,6 +122,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env, modeOverride?: 
     ...baselineConfig,
     mode, credentials: { keyId, secretKey }, paper, symbols: [...files.base.symbols], symbolConfigs,
     cryptoLocation: configuredEnv.ALPACA_CRYPTO_LOCATION ?? "us", recordFile: configuredEnv.RECORD_FILE ?? "data/events.jsonl", replayFile: configuredEnv.REPLAY_FILE ?? "data/events.jsonl",
+    continuousRecordingEnabled: parseBoolean(configuredEnv.CONTINUOUS_RECORDING_ENABLED, false),
+    continuousRecordFile: configuredEnv.CONTINUOUS_RECORD_FILE ?? "data/continuous-events.jsonl.gz",
     portfolio: { maximumVariance: Number.POSITIVE_INFINITY, maximumClusterPositions: 1, maximumGrossNotional: numberEnv(configuredEnv.MAXIMUM_GROSS_NOTIONAL, 5_000), rollingLossBudgetFraction: .0075 },
     rollingLossFraction: .0075, sessionLossFraction: .0075,
     dashboardEnabled: parseBoolean(configuredEnv.DASHBOARD_ENABLED, true),
@@ -122,6 +135,13 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env, modeOverride?: 
     databaseFlushIntervalMs: integerEnv(configuredEnv.DATABASE_FLUSH_INTERVAL_MS, 250, 25, 60_000),
     databaseMaxQueue: integerEnv(configuredEnv.DATABASE_MAX_QUEUE, 10_000, 100, 1_000_000),
     databaseMarketSampleMs: integerEnv(configuredEnv.DATABASE_MARKET_SAMPLE_MS, 1_000, 100, 60_000),
+    recall: {
+      sampleIntervalMs: integerEnv(configuredEnv.RECALL_SAMPLE_INTERVAL_MS, 1_000, 10, 60_000),
+      opportunityHorizonMs: integerEnv(configuredEnv.RECALL_OPPORTUNITY_HORIZON_MS, 60_000, 1_000, 86_400_000),
+      minimumNetMoveBps: numberEnv(configuredEnv.RECALL_MIN_NET_MOVE_BPS, 5),
+      minimumTuningDurationMs: integerEnv(configuredEnv.RECALL_MIN_TUNING_DURATION_MS, 604_800_000, 60_000, 2_147_483_647),
+      minimumTuningOpportunities: integerEnv(configuredEnv.RECALL_MIN_TUNING_OPPORTUNITIES, 100, 1, 1_000_000),
+    },
   };
 }
 

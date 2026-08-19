@@ -105,6 +105,7 @@ Commands:
 ```powershell
 npm run record
 npm run replay
+npm run recall
 npm run shadow
 npm run paper
 npm run build
@@ -117,6 +118,12 @@ The default deterministic configuration in `config/base.json` is:
 SIGNAL_MODE=DETERMINISTIC_ONLY
 DETERMINISTIC_CONFIG_VERSION=deterministic-v1
 ```
+
+`record` appends raw order-book and trade events to `data/events.jsonl`. Paper, shadow, and live modes also continuously append independently compressed gzip batches to `data/continuous-events.jsonl.gz` when `CONTINUOUS_RECORDING_ENABLED` is true. The batched writer keeps compression off the market-data hot path and makes completed batches replayable while the engine remains online. Run `npm run recall -- data/continuous-events.jsonl.gz` to analyze that capture.
+
+`recall` reconstructs the same causal feature, regime, persistence, cost, and deterministic-entry pipeline, then labels the best executable move available over the configured future horizon. It reports long opportunity recall, signal precision, audit-only downside moves, gate-block frequencies, and non-finite feature incidents. Labels deduct two taker fees plus fixed costs but omit latency and impact, so the result is an optimistic upper bound rather than a profit claim.
+
+Recall and tuning safeguards live in `config/base.json` under the `RECALL_*` parameters. The report refuses to authorize per-symbol tuning until it has both the minimum recording duration and the minimum count of eligible long opportunity windows. The checked-in baseline requires seven days and 100 opportunities; shorter captures are smoke tests only and must not be used to loosen trading gates.
 
 No `MODEL_CONFIG_JSON` is read in this mode. `ENTRY_MODE=rules` remains a compatibility alias. The optional `DETERMINISTIC_WITH_MODEL_VETO` and `DETERMINISTIC_WITH_MODEL_RANKING` modes require a versioned `MODEL_CONFIG_JSON` and fail closed when it is absent. The router is structurally unable to turn a null deterministic intent into an order.
 
@@ -155,6 +162,6 @@ npm run dashboard:demo
 
 The test suite enforces exact decimal conversion, reset/delta and duplicate behavior, crossed-book rejection, causal feature replay equality, mandatory warm-up/staleness/health gates, independent evidence quorums, event-time persistence, long/short symmetry, anti-chasing, direction-conflict no-trade, inclusive exact-cost thresholds, cooldown plus reset re-arming, model non-creation, deterministic hold/reversal, maximum-loss sizing, monotone floors, operational reconciliation, private-event idempotence, and non-retry of order POSTs.
 
-The replay package includes arrival-time latency, IOC partial fills, maker queue-ahead depletion, chronological walk-forward folds with purge/embargo, and conservative fee/slippage/latency/liquidity stresses. Metrics include expectancy, P&L, drawdown, CVaR, profit factor, MFE/MAE, edge capture, shortfall, maker fill/adverse selection, taker slippage, fee burden, latency percentiles, calibration, drift, and P&L breakdowns.
+The replay package includes event validation, opportunity-recall analysis, arrival-time IOC/maker fill simulation primitives, chronological walk-forward fold construction with purge/embargo, conservative stress profiles, and reusable trade-metric calculations. A complete fill-to-P&L walk-forward runner still requires a sufficiently long recorded dataset; the software does not present short smoke-test output as validated performance.
 
 Start with recorder → replay → shadow → paper → minimum-size live. Do not scale until live fill quality, latency, costs, and calibration agree with conservative out-of-sample results.

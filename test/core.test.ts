@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { ceilToGrid, createGrid, decimalToUnits, floorToGrid, unitsToDecimal } from "../src/core/decimal.js";
 import { LocalOrderBook } from "../src/core/order-book.js";
+import { FeatureEngine } from "../src/core/features.js";
 import { estimateSweep } from "../src/execution/book-walk.js";
 import { mad, median, quantile, RobustAgeGate } from "../src/core/statistics.js";
 
@@ -67,4 +68,43 @@ test("provider timestamps slightly ahead of the local clock are clamped within a
   const excessiveLead = gate.observe(-51, 2);
   assert.equal(excessiveLead.stale, true);
   assert.equal(excessiveLead.adjustedAgeMs, -51);
+});
+
+test("kinematic features remain finite under bursty and irregular event timestamps", () => {
+  const engine = new FeatureEngine();
+  let timestampMs = 0;
+  let freshSamples = 0;
+  for (let i = 0; i < 2_000; i += 1) {
+    if (i % 2 === 0) timestampMs += 1_000;
+    const noise = ((((i + 1) * 48_271) % 2_147_483_647) / 2_147_483_647 - .5) * .01;
+    const mid = 100 + noise;
+    const features = engine.onBook({
+      symbol: "TEST/USD", bids: [{ px: mid - .005, qty: 10 }], asks: [{ px: mid + .005, qty: 10 }],
+      sequence: BigInt(i + 1), exchangeTsMs: timestampMs, receiveTsMs: timestampMs, valid: true, sourceReset: true,
+    });
+    assert.ok(features);
+    for (const value of Object.values(features)) if (typeof value === "number") assert.equal(Number.isFinite(value), true);
+    if (features.warmedUp && !features.stale) freshSamples += 1;
+  }
+  assert.ok(freshSamples > 0);
+});
+
+test("a long observation gap resets kinematics and fails closed for that event", () => {
+  const engine = new FeatureEngine();
+  let features;
+  for (let i = 0; i < 40; i += 1) {
+    const timestampMs = i * 500;
+    features = engine.onBook({ symbol: "TEST/USD", bids: [{ px: 99.995, qty: 10 }], asks: [{ px: 100.005, qty: 10 }],
+      sequence: BigInt(i + 1), exchangeTsMs: timestampMs, receiveTsMs: timestampMs, valid: true, sourceReset: true });
+  }
+  assert.equal(features?.warmedUp, true);
+  const gapMs = 30_000;
+  const afterGap = engine.onBook({ symbol: "TEST/USD", bids: [{ px: 100.005, qty: 10 }], asks: [{ px: 100.015, qty: 10 }],
+    sequence: 41n, exchangeTsMs: gapMs, receiveTsMs: gapMs, valid: true, sourceReset: true });
+  assert.equal(afterGap?.stale, true);
+  assert.equal(afterGap?.warmedUp, false);
+  assert.equal(Number.isFinite(afterGap?.velocityZ ?? Number.NaN), true);
+  const recovered = engine.onBook({ symbol: "TEST/USD", bids: [{ px: 100.006, qty: 10 }], asks: [{ px: 100.016, qty: 10 }],
+    sequence: 42n, exchangeTsMs: gapMs + 100, receiveTsMs: gapMs + 100, valid: true, sourceReset: true });
+  assert.equal(recovered?.stale, false);
 });

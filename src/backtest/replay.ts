@@ -1,5 +1,6 @@
 import { createReadStream } from "node:fs";
 import { createInterface } from "node:readline";
+import { createGunzip } from "node:zlib";
 import type { BookDelta } from "../core/order-book.js";
 import { LocalOrderBook } from "../core/order-book.js";
 import type { BookState, MarketTrade } from "../core/market.js";
@@ -16,7 +17,10 @@ export interface WalkForwardFold { train: [number, number]; validation: [number,
 export interface StressProfile { feeMultiplier: number; slippageMultiplier: number; latencyMultiplier: number; fillProbabilityMultiplier: number; adverseSelectionMultiplier: number; spreadMultiplier: number; depthMultiplier: number; }
 
 export async function* readRecordedEvents(path: string): AsyncGenerator<RecordedEvent> {
-  const lines = createInterface({ input: createReadStream(path, { encoding: "utf8" }), crlfDelay: Infinity });
+  const file = createReadStream(path);
+  const input = path.toLowerCase().endsWith(".gz") ? file.pipe(createGunzip()) : file;
+  input.setEncoding("utf8");
+  const lines = createInterface({ input, crlfDelay: Infinity });
   for await (const line of lines) {
     if (!line.trim()) continue;
     const parsed = JSON.parse(line) as RecordedEvent;

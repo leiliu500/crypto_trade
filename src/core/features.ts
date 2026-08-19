@@ -45,15 +45,27 @@ export const DEFAULT_FEATURE_CONFIG: FeatureConfig = {
 };
 
 class AlphaBetaGamma {
+  private static readonly MINIMUM_DT_SECONDS = .001;
+  private static readonly MAXIMUM_GAP_MS = 5_000;
+  private static readonly MAXIMUM_ABSOLUTE_VELOCITY = 1;
+  private static readonly MAXIMUM_ABSOLUTE_ACCELERATION = 100;
   private initialized = false;
   private lastMs = 0;
   public x = 0;
   public v = 0;
   public a = 0;
   public constructor(private readonly alpha = .35, private readonly beta = .08, private readonly gamma = .01) {}
-  public update(measurement: number, nowMs: number): void {
-    if (!this.initialized) { this.initialized = true; this.lastMs = nowMs; this.x = measurement; return; }
-    const dt = Math.max((nowMs - this.lastMs) / 1000, 1e-4);
+  public update(measurement: number, nowMs: number): boolean {
+    if (!Number.isFinite(measurement) || !Number.isFinite(nowMs)) return false;
+    if (!this.initialized) { this.reset(measurement, nowMs); return true; }
+    const elapsedMs = nowMs - this.lastMs;
+    if (elapsedMs <= 0) {
+      this.x += this.alpha * (measurement - this.x);
+      if (!Number.isFinite(this.x)) { this.reset(measurement, nowMs); return false; }
+      return true;
+    }
+    if (elapsedMs > AlphaBetaGamma.MAXIMUM_GAP_MS) { this.reset(measurement, nowMs); return false; }
+    const dt = Math.max(elapsedMs / 1000, AlphaBetaGamma.MINIMUM_DT_SECONDS);
     const predictedX = this.x + this.v * dt + .5 * this.a * dt * dt;
     const predictedV = this.v + this.a * dt;
     const residual = measurement - predictedX;
@@ -61,6 +73,18 @@ class AlphaBetaGamma {
     this.v = predictedV + (this.beta / dt) * residual;
     this.a += (2 * this.gamma / (dt * dt)) * residual;
     this.lastMs = nowMs;
+    const stable = [this.x, this.v, this.a].every(Number.isFinite)
+      && Math.abs(this.v) <= AlphaBetaGamma.MAXIMUM_ABSOLUTE_VELOCITY
+      && Math.abs(this.a) <= AlphaBetaGamma.MAXIMUM_ABSOLUTE_ACCELERATION;
+    if (!stable) this.reset(measurement, nowMs);
+    return stable;
+  }
+  private reset(measurement: number, nowMs: number): void {
+    this.initialized = true;
+    this.lastMs = nowMs;
+    this.x = measurement;
+    this.v = 0;
+    this.a = 0;
   }
 }
 
@@ -182,7 +206,7 @@ export class FeatureEngine {
     this.updateOfi(book, bid, ask);
 
     const logMicro = Math.log(microprice);
-    this.trend.update(logMicro, book.receiveTsMs);
+    const kinematicsValid = this.trend.update(logMicro, book.receiveTsMs);
     let cusumState = { up: false, down: false };
     if (this.previousLogMicro !== undefined && this.previousReceiveMs !== undefined) {
       const dtSec = Math.max((book.receiveTsMs - this.previousReceiveMs) / 1000, 1e-4);
@@ -196,9 +220,11 @@ export class FeatureEngine {
     const horizonSec = this.cfg.forecastHorizonMs / 1000;
     const sigmaH = Math.sqrt(varianceRate * horizonSec);
     const sigmaHBps = sigmaH * 10_000;
+    const velocity = Number.isFinite(this.trend.v) ? this.trend.v : 0;
+    const acceleration = Number.isFinite(this.trend.a) ? this.trend.a : 0;
     const microEdgeZ = Math.log(microprice / mid) / Math.max(sigmaH, 1e-8);
-    const velocityZ = this.trend.v * horizonSec / Math.max(sigmaH, 1e-8);
-    const accelerationZ = .5 * this.trend.a * horizonSec * horizonSec / Math.max(sigmaH, 1e-8);
+    const velocityZ = velocity * horizonSec / Math.max(sigmaH, 1e-8);
+    const accelerationZ = .5 * acceleration * horizonSec * horizonSec / Math.max(sigmaH, 1e-8);
     const efficiency = this.efficiency.add(book.receiveTsMs, logMicro);
     const spreadZ = this.spreadStats.zAndUpdate(spreadBps, book.receiveTsMs);
     const depthZ = this.depthStats.zAndUpdate(Math.log(Math.max(visibleDepth, 1e-12)), book.receiveTsMs);
@@ -223,21 +249,21 @@ export class FeatureEngine {
     const warmedUp = this.eventCount >= this.cfg.minimumWarmupEvents
       && book.receiveTsMs - this.firstReceiveMs >= this.cfg.minimumWarmupMs
       && this.varianceRate.ready && this.spreadStats.ready && this.depthStats.ready;
-    const stale = !book.valid || age.stale;
+    const stale = !book.valid || age.stale || !kinematicsValid;
 
     this.previousBook = book;
     this.previousLogMicro = logMicro;
     this.previousReceiveMs = book.receiveTsMs;
-    return {
+    return finalizeFeatures({
       symbol: book.symbol, mid, spread, spreadBps, microprice, visibleDepth,
       qi1: clamp(qi1, -1, 1), qiK: clamp(qiK, -1, 1), persistentQiK: clamp(persistentQiK, -1, 1),
       ofi: clamp(this.ofi.get(book.receiveTsMs), -10, 10), tfi: clamp(this.tradeFlow.ratio(book.receiveTsMs), -1, 1),
       bidCancellationRatio, askCancellationRatio, replenishmentPressure: clamp(replenishmentPressure, -8, 8),
-      velocity: this.trend.v, acceleration: this.trend.a, varianceRate, sigmaHBps,
+      velocity, acceleration, varianceRate, sigmaHBps,
       microEdgeZ: clamp(microEdgeZ, -8, 8), velocityZ: clamp(velocityZ, -8, 8), accelerationZ: clamp(accelerationZ, -8, 8),
       efficiency, cusumUp: cusumState.up, cusumDown: cusumState.down, spreadZ, depthZ, signalFlipRate,
       providerAgeMs, staleThresholdMs: age.thresholdMs, warmedUp, stale, receiveTsMs: book.receiveTsMs,
-    };
+    }, kinematicsValid);
   }
 
   private persistenceAdjusted(qty: number, ageMs = 0, cancellationHazard = 0): number {
@@ -264,4 +290,19 @@ export class FeatureEngine {
     const averageTopDepth = (bid.qty + ask.qty + pb.qty + pa.qty) / 4;
     this.ofi.add(eventOfi / Math.max(averageTopDepth, 1e-12), book.receiveTsMs);
   }
+}
+
+function finalizeFeatures(features: Features, sourceValid: boolean): Features {
+  const normalized = { ...features };
+  const values = normalized as unknown as Record<string, unknown>;
+  let finite = sourceValid;
+  for (const [key, value] of Object.entries(values)) {
+    if (typeof value === "number" && !Number.isFinite(value)) {
+      values[key] = 0;
+      finite = false;
+    }
+  }
+  normalized.warmedUp = normalized.warmedUp && finite;
+  normalized.stale = normalized.stale || !finite;
+  return normalized;
 }

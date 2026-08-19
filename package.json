@@ -16,6 +16,7 @@
     "paper": "tsx src/main.ts paper",
     "record": "tsx src/main.ts record",
     "replay": "tsx src/main.ts replay",
+    "recall": "tsx src/backtest/opportunity-recall-main.ts",
     "dashboard": "tsx src/dashboard/demo-main.ts",
     "dashboard:demo": "tsx src/dashboard/demo-main.ts",
     "db:migrate": "tsx src/database/migrate-main.ts",

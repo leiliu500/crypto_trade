@@ -89,20 +89,28 @@ class CausalCusum {
 class FlipRateTracker {
   private points: SignPoint[] = [];
   private head = 0;
+  private transitions = 0;
+  private flips = 0;
   public constructor(private readonly windowMs: number) {}
   public update(nowMs: number, sign: -1 | 0 | 1): number {
-    this.points.push({ t: nowMs, sign });
     const cutoff = nowMs - this.windowMs;
-    while (this.head + 1 < this.points.length && this.points[this.head + 1]!.t < cutoff) this.head += 1;
-    if (this.head > 1024) { this.points = this.points.slice(this.head); this.head = 0; }
-    let flips = 0, transitions = 0, previous: -1 | 0 | 1 = 0;
-    for (let index = this.head; index < this.points.length; index += 1) {
-      const current = this.points[index]!.sign;
-      if (current === 0) continue;
-      if (previous !== 0) { transitions += 1; if (current !== previous) flips += 1; }
-      previous = current;
+    while (this.head < this.points.length && this.points[this.head]!.t < cutoff) {
+      const removed = this.points[this.head]!;
+      const next = this.points[this.head + 1];
+      if (next) {
+        this.transitions -= 1;
+        if (removed.sign !== next.sign) this.flips -= 1;
+      }
+      this.head += 1;
     }
-    return transitions > 0 ? flips / transitions : 0;
+    if (this.head === this.points.length) { this.points = []; this.head = 0; this.transitions = 0; this.flips = 0; }
+    if (this.head > 1024) { this.points = this.points.slice(this.head); this.head = 0; }
+    if (sign !== 0) {
+      const previous = this.points.at(-1);
+      if (previous) { this.transitions += 1; if (previous.sign !== sign) this.flips += 1; }
+      this.points.push({ t: nowMs, sign });
+    }
+    return this.transitions > 0 ? this.flips / this.transitions : 0;
   }
 }
 

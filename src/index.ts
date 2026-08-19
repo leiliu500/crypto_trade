@@ -17,6 +17,7 @@ export * from "./strategy/deterministic-entry.js";
 export * from "./strategy/deterministic-hold.js";
 export * from "./strategy/signal-router.js";
 export * from "./config/deterministic-defaults.js";
+export * from "./backtest/opportunity-recall.js";
 export * from "./risk/portfolio.js";
 export * from "./risk/risk-state.js";
 export * from "./risk/sizing.js";

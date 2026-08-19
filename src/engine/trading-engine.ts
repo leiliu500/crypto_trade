@@ -125,6 +125,7 @@ export class TradingEngine extends EventEmitter {
       (fault) => this.onWatchdogFault(fault), this.now,
     );
     if (cfg.mode === "record") this.recorder = new EventRecorder(cfg.recordFile);
+    else if (cfg.continuousRecordingEnabled && ["shadow", "paper", "live"].includes(cfg.mode)) this.recorder = new EventRecorder(cfg.continuousRecordFile);
     for (const symbol of cfg.symbols) {
       const symbolCfg = cfg.symbolConfigs[symbol];
       if (!symbolCfg) throw new Error(`Missing resolved symbol configuration for ${symbol}`);
@@ -163,7 +164,10 @@ export class TradingEngine extends EventEmitter {
     this.marketStream.close();
     this.tradeStream.close();
     this.watchdog.stop();
-    if (this.recorder) await this.recorder.close();
+    if (this.recorder) {
+      this.recorder.write({ kind: "DISCONNECT", receiveTsMs: this.now(), stream: "public" });
+      await this.recorder.close();
+    }
     this.started = false;
   }
 
@@ -341,6 +345,13 @@ export class TradingEngine extends EventEmitter {
   }
 
   private processMarketState(runtime: SymbolRuntime, book: BookState, features: DeterministicFeatures): void {
+    if (!featureNumbersAreFinite(features)) {
+      this.riskState.setHealth({ bookValid: false });
+      this.riskState.halt("BOOK_INVALID");
+      this.emit("engineError", new Error(`Non-finite feature state for ${book.symbol}`));
+      void this.cancelAllSafely();
+      return;
+    }
     runtime.latestFeatures = features;
     const allBooksStructurallyValid = [...this.runtimes.values()].every((item) => item.book.isValid());
     const staleExposure = [...this.runtimes.values()].some((item) =>
@@ -578,6 +589,7 @@ export class TradingEngine extends EventEmitter {
   }
   private async cancelAllSafely(): Promise<void> { if (this.cfg.mode === "paper" || this.cfg.mode === "live") try { await this.gateway.cancelAll(); } catch (error) { this.emit("engineError", error); } }
   private onPublicDisconnect(): void {
+    this.recorder?.write({ kind: "DISCONNECT", receiveTsMs: this.now(), stream: "public" });
     this.riskState.setHealth({ publicStream: false, bookValid: false });
     this.riskState.halt("PUBLIC_STREAM_DOWN");
     for (const runtime of this.runtimes.values()) runtime.book.invalidate();
@@ -633,6 +645,9 @@ function cloneEvaluation(value: DeterministicEvaluation): DeterministicEvaluatio
     long: cloneDiagnostics(value.long), short: cloneDiagnostics(value.short),
     intent: value.intent ? { ...value.intent, diagnostics: cloneDiagnostics(value.intent.diagnostics) } : null,
   };
+}
+function featureNumbersAreFinite(features: DeterministicFeatures): boolean {
+  return Object.values(features).every((value) => typeof value !== "number" || Number.isFinite(value));
 }
 function rollingLossFromPortfolioHistory(value: unknown): number {
   if (!value || typeof value !== "object") return 0;
