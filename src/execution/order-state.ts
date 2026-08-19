@@ -2,8 +2,8 @@ import type { ExecutionPlan } from "./planner.js";
 
 export type LocalOrderStatus = "RESERVED" | "SENDING" | "OPEN" | "PARTIALLY_FILLED" | "FILLED" | "CANCEL_PENDING" | "CANCELED" | "REJECTED" | "EXPIRED" | "UNKNOWN";
 export interface TrackedOrder { plan: ExecutionPlan; alpacaOrderId?: string; status: LocalOrderStatus; filledQty: number; averageFillPx: number; lastUpdateMs: number; error?: string; }
-export interface PrivateOrderEvent { id: string; event: string; orderId: string; clientOrderId: string; symbol: string; filledQty: number; eventQty: number; eventPx: number; timestampMs: number; }
-export interface FillDelta { symbol: string; side: 1 | -1; qty: number; price: number; clientOrderId: string; final: boolean; }
+export interface PrivateOrderEvent { id: string; event: string; orderId: string; clientOrderId: string; symbol: string; filledQty: number; eventQty: number; eventPx: number; timestampMs: number; positionQty?: number; }
+export interface FillDelta { symbol: string; side: 1 | -1; qty: number; price: number; clientOrderId: string; final: boolean; positionQty?: number; }
 
 export class OrderStateReconciler {
   private readonly orders = new Map<string, TrackedOrder>();
@@ -13,7 +13,14 @@ export class OrderStateReconciler {
     this.orders.set(plan.clientOrderId, { plan, status: "RESERVED", filledQty: 0, averageFillPx: 0, lastUpdateMs: plan.createdMs });
   }
   public markSending(clientOrderId: string): void { const order = this.must(clientOrderId); order.status = "SENDING"; order.lastUpdateMs = Date.now(); }
-  public markAccepted(clientOrderId: string, alpacaOrderId: string, nowMs: number): void { const order = this.must(clientOrderId); order.alpacaOrderId = alpacaOrderId; order.status = "OPEN"; order.lastUpdateMs = nowMs; }
+  public markAccepted(clientOrderId: string, alpacaOrderId: string, nowMs: number): void {
+    const order = this.must(clientOrderId);
+    order.alpacaOrderId = alpacaOrderId;
+    // A marketable IOC can fill on the private stream before the POST response
+    // reaches us. The acknowledgment must never regress that newer state.
+    if (["RESERVED", "SENDING", "UNKNOWN"].includes(order.status)) order.status = "OPEN";
+    order.lastUpdateMs = Math.max(order.lastUpdateMs, nowMs);
+  }
   public markSendUnknown(clientOrderId: string, error: unknown): void { const order = this.must(clientOrderId); order.status = "UNKNOWN"; order.error = error instanceof Error ? error.message : String(error); order.lastUpdateMs = Date.now(); }
   public requestCancel(clientOrderId: string): void { const order = this.must(clientOrderId); if (["OPEN", "PARTIALLY_FILLED"].includes(order.status)) order.status = "CANCEL_PENDING"; }
   public apply(event: PrivateOrderEvent): FillDelta | null {
@@ -30,7 +37,8 @@ export class OrderStateReconciler {
     order.status = this.mapStatus(event.event, order.filledQty, order.plan.qty);
     const deltaQty = event.eventQty > 0 ? event.eventQty : Math.max(0, order.filledQty - previousFilled);
     if (deltaQty <= 0 || !["partial_fill", "fill"].includes(event.event)) return null;
-    return { symbol: event.symbol, side: order.plan.side, qty: deltaQty, price: event.eventPx, clientOrderId: event.clientOrderId, final: event.event === "fill" };
+    return { symbol: event.symbol, side: order.plan.side, qty: deltaQty, price: event.eventPx, clientOrderId: event.clientOrderId,
+      final: event.event === "fill", ...(event.positionQty !== undefined ? { positionQty: event.positionQty } : {}) };
   }
   public reconcile(openOrders: readonly { id: string; clientOrderId: string; filledQty: number; status: string }[]): void {
     const byClient = new Map(openOrders.map((order) => [order.clientOrderId, order]));

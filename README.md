@@ -108,6 +108,7 @@ npm run replay
 npm run recall
 npm run shadow
 npm run paper
+npm run paper:demo-trade -- BTC/USD
 npm run build
 npm test
 ```
@@ -122,6 +123,8 @@ DETERMINISTIC_CONFIG_VERSION=deterministic-v1
 `record` appends raw order-book and trade events to `data/events.jsonl`. Paper, shadow, and live modes also continuously append independently compressed gzip batches to `data/continuous-events.jsonl.gz` when `CONTINUOUS_RECORDING_ENABLED` is true. The batched writer keeps compression off the market-data hot path and makes completed batches replayable while the engine remains online. Run `npm run recall -- data/continuous-events.jsonl.gz` to analyze that capture.
 
 `recall` reconstructs the same causal feature, regime, persistence, cost, and deterministic-entry pipeline, then labels the best executable move available over the configured future horizon. It reports long opportunity recall, signal precision, audit-only downside moves, gate-block frequencies, and non-finite feature incidents. Labels deduct two taker fees plus fixed costs but omit latency and impact, so the result is an optimistic upper bound rather than a profit claim.
+
+`paper:demo-trade` is an explicit diagnostic path for observing the real Alpaca paper order lifecycle. It waits for a healthy warmed book, submits one approximately $11 `BTC/USD` capped IOC entry by default (above Alpaca's $10 USD-crypto minimum), and records reserve, send, acknowledgment, private updates, fills, position management, and any strategy-managed exit in the normal dashboard and database. It is hard-disabled outside paper mode, refuses existing exposure or pending orders, caps entry notional at $25, and labels the decision `PAPER_LIFECYCLE_DEMO` because it intentionally bypasses strategy gates. Stop the normal engine before using it because both commands bind the same dashboard port.
 
 Recall and tuning safeguards live in `config/base.json` under the `RECALL_*` parameters. The report refuses to authorize per-symbol tuning until it has both the minimum recording duration and the minimum count of eligible long opportunity windows. The checked-in baseline requires seven days and 100 opportunities; shorter captures are smoke tests only and must not be used to loosen trading gates.
 

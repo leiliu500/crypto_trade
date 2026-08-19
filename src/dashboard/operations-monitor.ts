@@ -10,7 +10,8 @@ import { disabledDatabaseHealth } from "./types.js";
 
 const ENGINE_EVENTS = [
   "reconciled", "engineError", "preflight", "publicStreamReady", "privateStreamReady", "decision",
-  "orderRejected", "orderAccepted", "positionDecision", "exitDecision", "fill", "watchdogFault",
+  "orderReserved", "orderSending", "orderAccepted", "orderUpdate", "orderRejected",
+  "positionDecision", "positionDust", "exitDecision", "fill", "watchdogFault",
 ] as const;
 const TERMINAL_ORDER_STATES = new Set(["FILLED", "CANCELED", "REJECTED", "EXPIRED"]);
 

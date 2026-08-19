@@ -28,6 +28,8 @@ import { AlpacaTradeStream } from "../alpaca/trade-stream.js";
 import type { AlpacaAsset, AlpacaOrder, AlpacaPosition } from "../alpaca/types.js";
 import { HealthWatchdog, type WatchdogFault } from "./watchdog.js";
 
+const PAPER_DEMO_TARGET_NOTIONAL = 11;
+
 export interface EngineMarketSnapshot {
   symbol: string;
   bookValid: boolean;
@@ -169,6 +171,71 @@ export class TradingEngine extends EventEmitter {
       await this.recorder.close();
     }
     this.started = false;
+  }
+
+  /**
+   * Sends one minimum-size, marketable entry through the real order-state path.
+   * This exists only for an explicitly requested Alpaca paper-account lifecycle
+   * demonstration; it is never reachable from normal strategy evaluation.
+   */
+  public async submitPaperDemoEntry(symbol = "BTC/USD"): Promise<ExecutionPlan> {
+    if (this.cfg.mode !== "paper" || !this.cfg.paper) throw new Error("Paper demo entries require paper mode and the Alpaca paper endpoint");
+    if (!this.started) throw new Error("Paper demo entry requires a started engine");
+    if (!this.riskState.entriesAllowed()) throw new Error(`Paper demo entry blocked by risk/health state: ${this.riskState.reasons().join(",") || "not ready"}`);
+    const runtime = this.runtimes.get(symbol);
+    if (!runtime) throw new Error(`Paper demo symbol is not configured: ${symbol}`);
+    if (!runtime.asset) throw new Error(`Paper demo asset rules are not ready: ${symbol}`);
+    if (runtime.position || this.pendingForSymbol(symbol)) throw new Error(`Paper demo requires no position or pending order for ${symbol}`);
+    const book = runtime.book.snapshot();
+    const features = runtime.latestFeatures;
+    if (!book.valid || !features || !features.warmedUp || features.stale || !featureNumbersAreFinite(features)) {
+      throw new Error(`Paper demo market is not ready: ${symbol}`);
+    }
+    // Alpaca enforces a $10 minimum cost basis for USD crypto orders even when
+    // the asset endpoint reports a smaller dynamic quantity. Targeting $11
+    // leaves a small price-movement buffer while remaining tightly capped.
+    const targetQty = PAPER_DEMO_TARGET_NOTIONAL / book.asks[0]!.px;
+    const qty = ceilQuantity(Math.max(runtime.asset.minOrderSize, targetQty), runtime.asset.minTradeIncrement);
+    const sweep = estimateSweep(book.asks, qty);
+    const cost = runtime.cost.estimate(features, book, 1, qty, false);
+    if (!sweep || !cost) throw new Error(`Paper demo cannot build an executable capped order for ${symbol}`);
+    const limitPx = ceilPrice(Math.max(sweep.worstPx, book.asks[0]!.px + Math.max(features.spread, runtime.asset.priceIncrement)), runtime.asset.priceIncrement);
+    const notional = qty * limitPx;
+    const maximumDemoNotional = Math.min(25, runtime.config.maximumNotional);
+    if (!(notional > 0) || notional > maximumDemoNotional + 1e-8) {
+      throw new Error(`Paper demo minimum order notional ${notional.toFixed(2)} exceeds the ${maximumDemoNotional.toFixed(2)} safety cap`);
+    }
+    const maximumLossPerUnit = Math.max(
+      cfgPriceSigma(features, runtime.config.initialStopSigma),
+      runtime.config.minimumStopSpreadMultiple * features.spread,
+      runtime.asset.priceIncrement,
+    ) + features.mid * cost.roundTripBps / 10_000;
+    const risk: RiskApproval = {
+      qty, riskBudget: qty * maximumLossPerUnit, maximumLossPerUnit,
+      modeledMaximumLoss: qty * maximumLossPerUnit, drawdownScale: 1, qualityScale: 1,
+      volatilityScale: 1, bindingLimit: "exchange",
+    };
+    const candidate = { symbol, notional, cluster: runtime.cluster, stressedLoss: risk.modeledMaximumLoss };
+    if (!this.portfolio.canAdd(candidate, this.equity, Math.max(0, -this.realizedSessionPnl))) throw new Error("Paper demo entry blocked by portfolio risk limits");
+    const nowMs = this.now();
+    const plan: ExecutionPlan = {
+      clientOrderId: `mlce-demo-entry-${nowMs}-${randomUUID().slice(0, 8)}`,
+      decisionId: randomUUID(), riskApprovalId: randomUUID(), symbol, side: 1, qty, limitPx,
+      style: "taker", timeInForce: "ioc", createdMs: nowMs, expiresMs: nowMs + 1_000,
+      originatingSequence: book.sequence,
+      featureHash: createHash("sha256").update(JSON.stringify(features)).digest("hex").slice(0, 24),
+      strategyVersion: runtime.config.strategyVersion, modelVersion: runtime.config.modelVersion,
+      expectedCost: cost, risk, fillProbability: 1,
+      expectedValue: -notional * cost.roundTripBps / 10_000, reduceOnlyIntent: false,
+    };
+    this.emit("decision", {
+      diagnostic: "PAPER_LIFECYCLE_DEMO", bypassedStrategyGates: true,
+      reason: "User-requested minimum-size paper order lifecycle demonstration",
+      configurationVersion: runtime.config.configurationVersion, strategyVersion: runtime.config.strategyVersion,
+      adapterVersion: "alpaca-v1", symbolRulesetVersion: assetRulesVersion(runtime.asset), features, plan, mode: this.cfg.mode,
+    });
+    if (!await this.submit(plan)) throw new Error(`Paper demo entry submission failed for ${symbol}`);
+    return plan;
   }
 
   public async reconcileAccount(): Promise<boolean> {
@@ -448,32 +515,39 @@ export class TradingEngine extends EventEmitter {
     this.watchdog.markPrivate(event.timestampMs);
     this.recorder?.write({ kind: "PRIVATE", event });
     const fill = this.orderState.apply(event);
+    const tracked = this.orderState.get(event.clientOrderId);
+    if (tracked) this.emit("orderUpdate", { event, order: tracked });
     if (fill) this.applyFill(fill);
     if (["rejected", "order_replace_rejected", "order_cancel_rejected"].includes(event.event)) this.emit("orderRejected", event);
   }
 
-  private async submit(plan: ExecutionPlan): Promise<void> {
-    if (this.cfg.mode === "shadow") return;
-    if (this.cfg.mode !== "paper" && this.cfg.mode !== "live") return;
+  private async submit(plan: ExecutionPlan): Promise<boolean> {
+    if (this.cfg.mode === "shadow") return false;
+    if (this.cfg.mode !== "paper" && this.cfg.mode !== "live") return false;
     try {
       this.orderState.reserve(plan);
+      this.emit("orderReserved", { plan });
       if (!plan.reduceOnlyIntent) this.runtimes.get(plan.symbol)?.entryEngine.markFired(plan.side, this.now());
       this.orderState.markSending(plan.clientOrderId);
+      this.emit("orderSending", { plan });
       const sentMs = this.now();
       const order = await this.gateway.send(plan);
       const acknowledgedMs = this.now();
       this.orderState.markAccepted(plan.clientOrderId, order.id, acknowledgedMs);
       this.latency.record({ localReceiptMs: plan.createdMs, decisionCompleteMs: plan.createdMs, sentMs, acknowledgedMs }, acknowledgedMs);
       this.emit("orderAccepted", { order, plan });
+      return true;
     } catch (error) {
-      if (error instanceof AlpacaApiError && error.status >= 400) {
+      const tracked = this.orderState.get(plan.clientOrderId);
+      if (tracked && error instanceof AlpacaApiError && error.status >= 400) {
         this.orderState.apply({ id: randomUUID(), event: "rejected", orderId: "", clientOrderId: plan.clientOrderId, symbol: plan.symbol, filledQty: 0, eventQty: 0, eventPx: 0, timestampMs: this.now() });
-      } else {
+      } else if (tracked) {
         this.orderState.markSendUnknown(plan.clientOrderId, error);
         this.riskState.halt("ORDER_SEND_UNKNOWN");
         await this.reconcileAccount();
       }
       this.emit("engineError", error);
+      return false;
     }
   }
 
@@ -494,7 +568,10 @@ export class TradingEngine extends EventEmitter {
   private managePosition(runtime: SymbolRuntime, book: ReturnType<LocalOrderBook["snapshot"]>, features: DeterministicFeatures): void {
     const position = runtime.position!;
     const pending = this.pendingForSymbol(position.symbol);
-    if (pending && pending.plan.side === 1) { void this.cancelTracked(pending); return; }
+    if (pending) {
+      if (pending.plan.side === 1) void this.cancelTracked(pending);
+      return;
+    }
     let regime = runtime.regimeEngine.classify(features);
     if (!runtime.asset?.shortable && regime.allowShort) regime = { ...regime, allowShort: false };
     runtime.latestRegime = regime;
@@ -512,6 +589,7 @@ export class TradingEngine extends EventEmitter {
 
   private async submitExit(runtime: SymbolRuntime, desiredQty: number, reason: string, book: ReturnType<LocalOrderBook["snapshot"]>, features: Features): Promise<void> {
     if (!runtime.asset || !runtime.position) return;
+    if (this.pendingForSymbol(runtime.position.symbol)) return;
     const qty = Math.min(runtime.position.qty, Math.floor(desiredQty / runtime.asset.minTradeIncrement + 1e-12) * runtime.asset.minTradeIncrement);
     if (qty < runtime.asset.minOrderSize) return;
     const sweep = estimateSweep(book.bids, qty);
@@ -537,20 +615,28 @@ export class TradingEngine extends EventEmitter {
     const tracked = this.orderState.get(fill.clientOrderId);
     if (fill.side === 1) {
       if (!runtime.position) {
+        const positionQty = fill.positionQty !== undefined && fill.positionQty > 0 ? fill.positionQty : fill.qty;
         const initialRiskPx = tracked?.plan.risk.maximumLossPerUnit || Math.max(fill.price * .005, runtime.asset?.priceIncrement ?? 0);
-        runtime.position = { symbol: fill.symbol, side: 1, qty: fill.qty, entryPx: fill.price, openedMs: fill.final ? this.now() : (tracked?.plan.createdMs ?? this.now()),
+        runtime.position = { symbol: fill.symbol, side: 1, qty: positionQty, entryPx: fill.price, openedMs: fill.final ? this.now() : (tracked?.plan.createdMs ?? this.now()),
           initialRiskPx, roundTripCostPx: fill.price * (tracked?.plan.expectedCost.roundTripBps ?? 0) / 10_000,
           mfePx: 0, maePx: 0, floorPx: -initialRiskPx, breakEvenArmed: false, phase: "OPEN" };
       } else if (tracked && runtime.position.symbol === tracked.plan.symbol) {
-        const total = runtime.position.qty + fill.qty;
-        runtime.position.entryPx = (runtime.position.entryPx * runtime.position.qty + fill.price * fill.qty) / total;
+        const previous = runtime.position.qty;
+        const total = fill.positionQty !== undefined && fill.positionQty >= previous ? fill.positionQty : previous + fill.qty;
+        const added = Math.max(0, total - previous);
+        if (added > 0) runtime.position.entryPx = (runtime.position.entryPx * previous + fill.price * added) / total;
         runtime.position.qty = total;
       } else throw new Error("NO_AVERAGING_DOWN_INVARIANT");
     } else if (runtime.position) {
-      const closeQty = Math.min(fill.qty, runtime.position.qty);
+      const remainingQty = fill.positionQty !== undefined ? Math.max(0, fill.positionQty) : Math.max(0, runtime.position.qty - fill.qty);
+      const closeQty = Math.max(0, runtime.position.qty - remainingQty);
       this.realizedSessionPnl += closeQty * (fill.price - runtime.position.entryPx);
-      runtime.position.qty -= closeQty;
-      if (runtime.position.qty <= (runtime.asset?.minTradeIncrement ?? 1e-12) / 2) delete runtime.position;
+      runtime.position.qty = remainingQty;
+      const minimumTradableQty = runtime.asset?.minOrderSize ?? runtime.asset?.minTradeIncrement ?? 1e-12;
+      if (runtime.position.qty < minimumTradableQty) {
+        if (runtime.position.qty > 0) this.emit("positionDust", { symbol: fill.symbol, qty: runtime.position.qty, reason: "BELOW_MINIMUM_ORDER_SIZE" });
+        delete runtime.position;
+      }
     }
     this.recomputePortfolioRisk();
     this.riskState.setHealth({ riskRecomputed: true });
@@ -563,6 +649,10 @@ export class TradingEngine extends EventEmitter {
       const runtime = this.runtimes.get(normalizeSymbol(remote.symbol));
       const qty = Number(remote.qty), entryPx = Number(remote.avg_entry_price);
       if (!runtime || !(qty > 0) || !(entryPx > 0) || remote.side !== "long") continue;
+      if (runtime.asset && qty < runtime.asset.minOrderSize) {
+        this.emit("positionDust", { symbol: runtime.book.symbol, qty, reason: "BELOW_MINIMUM_ORDER_SIZE" });
+        continue;
+      }
       const risk = Math.max(entryPx * .01, runtime.asset?.priceIncrement ?? 0);
       runtime.position = { symbol: runtime.book.symbol, side: 1, qty, entryPx, openedMs: this.now(), initialRiskPx: risk, roundTripCostPx: 0,
         mfePx: 0, maePx: 0, floorPx: -risk, breakEvenArmed: false, phase: "OPEN" };
@@ -625,6 +715,8 @@ function assetRules(asset: AlpacaAsset): AssetRules {
 function baseAsset(symbol: string): string { return symbol.split("/")[0] ?? symbol; }
 function normalizeSymbol(symbol: string): string { return symbol.includes("/") ? symbol : symbol.replace(/(USD|USDT|USDC|BTC)$/, "/$1"); }
 function cfgPriceSigma(features: Features, multiple: number): number { return features.mid * features.sigmaHBps / 10_000 * multiple; }
+function ceilQuantity(quantity: number, increment: number): number { return Math.ceil(quantity / increment - 1e-12) * increment; }
+function ceilPrice(price: number, increment: number): number { return Math.ceil(price / increment - 1e-12) * increment; }
 function floorPrice(price: number, increment: number): number { return Math.floor(price / increment + 1e-12) * increment; }
 function plannerIntent(intent: DeterministicTradeIntent, sizeMultiplier: number): TradeIntent {
   return {

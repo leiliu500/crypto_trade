@@ -10,7 +10,9 @@ import { PostgresTelemetryStore } from "./database/postgres-store.js";
 async function main(): Promise<void> {
   loadLocalEnv();
   const modeOverride = process.argv[2];
+  const paperDemoSymbol = argumentValue(process.argv, "--paper-demo-entry");
   const cfg = loadConfig(process.env, modeOverride);
+  if (paperDemoSymbol !== null && cfg.mode !== "paper") throw new Error("--paper-demo-entry is restricted to paper mode");
   if (cfg.mode === "replay") {
     const stats = await validateReplay(cfg.replayFile);
     process.stdout.write(`${JSON.stringify(stats, null, 2)}\n`);
@@ -59,6 +61,14 @@ async function main(): Promise<void> {
     throw error;
   }
   process.stdout.write(`${JSON.stringify({ type: "started", mode: cfg.mode, symbols: cfg.symbols, paper: cfg.paper })}\n`);
+  if (paperDemoSymbol !== null) {
+    void submitPaperDemoWhenReady(engine, paperDemoSymbol || "BTC/USD").then((plan) => {
+      process.stdout.write(`${JSON.stringify({ type: "paper-demo-entry-submitted", symbol: plan.symbol, clientOrderId: plan.clientOrderId,
+        qty: plan.qty, limitPx: plan.limitPx })}\n`);
+    }).catch((error: unknown) => {
+      process.stderr.write(`${JSON.stringify({ type: "paper-demo-entry-failed", message: error instanceof Error ? error.message : String(error) })}\n`);
+    });
+  }
   let shuttingDown = false;
   const shutdown = async (): Promise<void> => {
     if (shuttingDown) return;
@@ -74,6 +84,25 @@ async function main(): Promise<void> {
 }
 
 const bigintReplacer = (_key: string, value: unknown): unknown => typeof value === "bigint" ? value.toString() : value;
+
+function argumentValue(args: readonly string[], name: string): string | null {
+  const index = args.indexOf(name);
+  return index < 0 ? null : (args[index + 1] ?? "");
+}
+
+async function submitPaperDemoWhenReady(engine: TradingEngine, symbol: string, timeoutMs = 120_000): Promise<Awaited<ReturnType<TradingEngine["submitPaperDemoEntry"]>>> {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    const state = engine.state();
+    const market = state.markets.find((candidate) => candidate.symbol === symbol);
+    if (state.started && state.risk.reasons.length === 0 && Object.values(state.risk.health).every(Boolean)
+      && market?.bookValid && market.features?.warmedUp && !market.features.stale) {
+      return engine.submitPaperDemoEntry(symbol);
+    }
+    await new Promise((resolve) => setTimeout(resolve, 250));
+  }
+  throw new Error(`Timed out waiting for a healthy, warmed market for ${symbol}`);
+}
 
 main().catch((error: unknown) => {
   process.stderr.write(`${JSON.stringify({ type: "fatal", message: error instanceof Error ? error.message : String(error) })}\n`);

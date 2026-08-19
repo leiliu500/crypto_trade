@@ -3,6 +3,8 @@ import type { ExecutionPlan } from "../execution/planner.js";
 import type { AlpacaOrder } from "./types.js";
 import { AlpacaRestClient } from "./rest.js";
 
+const ALPACA_CRYPTO_MAXIMUM_DECIMAL_PLACES = 9;
+
 export interface OrderGateway {
   send(plan: ExecutionPlan): Promise<AlpacaOrder>;
   cancel(orderId: string): Promise<void>;
@@ -16,11 +18,11 @@ export class AlpacaOrderGateway implements OrderGateway {
     // book-walk-derived worst price; no uncapped market order is emitted.
     const response = await this.rest.createOrder({
       symbol: plan.symbol,
-      qty: numberToDecimal(plan.qty),
+      qty: numberToDecimal(plan.qty, ALPACA_CRYPTO_MAXIMUM_DECIMAL_PLACES),
       side: plan.side === 1 ? "buy" : "sell",
       type: "limit",
       time_in_force: plan.timeInForce,
-      limit_price: numberToDecimal(plan.limitPx),
+      limit_price: numberToDecimal(plan.limitPx, ALPACA_CRYPTO_MAXIMUM_DECIMAL_PLACES),
       client_order_id: plan.clientOrderId,
       order_class: "simple",
     });

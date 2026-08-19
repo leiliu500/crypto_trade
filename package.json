@@ -14,6 +14,7 @@
     "start": "tsx src/main.ts",
     "shadow": "tsx src/main.ts shadow",
     "paper": "tsx src/main.ts paper",
+    "paper:demo-trade": "tsx src/main.ts paper --paper-demo-entry",
     "record": "tsx src/main.ts record",
     "replay": "tsx src/main.ts replay",
     "recall": "tsx src/backtest/opportunity-recall-main.ts",

@@ -42,10 +42,13 @@ export class AlpacaTradeStream extends EventEmitter {
     if (!order) return;
     const event = String(data.event ?? "unknown");
     const eventId = String(data.event_id ?? data.execution_id ?? createHash("sha256").update(text).digest("hex"));
+    const positionQtyRaw = data.position_qty;
+    const positionQty = positionQtyRaw === undefined || positionQtyRaw === null ? undefined : Number(positionQtyRaw);
     const parsed: PrivateOrderEvent = {
       id: eventId, event, orderId: order.id, clientOrderId: order.client_order_id, symbol: order.symbol,
       filledQty: Number(order.filled_qty ?? 0), eventQty: Number(data.qty ?? 0), eventPx: Number(data.price ?? order.filled_avg_price ?? 0),
       timestampMs: Date.parse(String(data.timestamp ?? order.updated_at ?? new Date().toISOString())),
+      ...(positionQty !== undefined && Number.isFinite(positionQty) ? { positionQty } : {}),
     };
     this.emit("order", parsed);
   }

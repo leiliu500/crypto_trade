@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { AlpacaRestClient } from "../src/alpaca/rest.js";
+import { AlpacaOrderGateway } from "../src/alpaca/gateway.js";
 import { OrderStateReconciler } from "../src/execution/order-state.js";
 import type { ExecutionPlan } from "../src/execution/planner.js";
 
@@ -19,6 +20,26 @@ test("private fill events are idempotent and partial fills create exposure delta
   assert.deepEqual(state.apply(event), { symbol: "BTC/USD", side: 1, qty: .4, price: 100, clientOrderId: "client-1", final: false });
   assert.equal(state.apply(event), null);
   assert.equal(state.get("client-1")?.filledQty, .4);
+});
+
+test("a late POST acknowledgment cannot regress an already filled IOC order", () => {
+  const state = new OrderStateReconciler();
+  state.reserve(plan());
+  state.markSending("client-1");
+  state.apply({ id: "execution-fast", event: "fill", orderId: "order-fast", clientOrderId: "client-1", symbol: "BTC/USD", filledQty: 1, eventQty: 1, eventPx: 100, timestampMs: 11 });
+  state.markAccepted("client-1", "order-fast", 10);
+  assert.equal(state.get("client-1")?.status, "FILLED");
+  assert.equal(state.get("client-1")?.lastUpdateMs, 11);
+});
+
+test("private fills retain Alpaca's fee-adjusted authoritative position quantity", () => {
+  const state = new OrderStateReconciler();
+  state.reserve(plan());
+  state.markSending("client-1");
+  const fill = state.apply({ id: "execution-fee", event: "fill", orderId: "order-fee", clientOrderId: "client-1", symbol: "BTC/USD",
+    filledQty: 1, eventQty: 1, eventPx: 100, timestampMs: 11, positionQty: .9975 });
+  assert.equal(fill?.positionQty, .9975);
+  assert.equal(fill?.qty, 1);
 });
 
 test("REST client uses Alpaca auth, crypto endpoints, and request IDs without exposing credentials", async () => {
@@ -44,4 +65,18 @@ test("POST order requests are never automatically retried", async () => {
   });
   await assert.rejects(() => client.createOrder({ symbol: "BTC/USD", qty: "0.001", side: "buy", type: "limit", time_in_force: "ioc", limit_price: "100", client_order_id: "x" }));
   assert.equal(calls, 1);
+});
+
+test("crypto gateway never sends more than Alpaca's nine decimal places", async () => {
+  let body: Record<string, unknown> | undefined;
+  const client = new AlpacaRestClient({ credentials: { keyId: "key", secretKey: "secret" }, paper: true }, async (_input, init) => {
+    body = JSON.parse(String(init?.body)) as Record<string, unknown>;
+    return new Response(JSON.stringify({ id: "paper-order" }), { status: 200 });
+  });
+  const floatingPlan = { ...plan(), qty: .000015531, limitPx: 68_788.1 };
+  await new AlpacaOrderGateway(client).send(floatingPlan);
+  assert.equal(body?.qty, "0.000015531");
+  assert.equal(body?.limit_price, "68788.1");
+  assert.match(String(body?.qty), /^\d+(?:\.\d{1,9})?$/);
+  assert.match(String(body?.limit_price), /^\d+(?:\.\d{1,9})?$/);
 });
