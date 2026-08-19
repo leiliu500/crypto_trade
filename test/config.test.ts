@@ -45,3 +45,15 @@ test("symbol files cannot override global or runtime-only parameters", () => {
     assert.throws(() => loadConfig({ TRADING_MODE: "replay", CONFIG_DIR: directory }), /DASHBOARD_PORT is global/);
   } finally { rmSync(directory, { recursive: true, force: true }); }
 });
+
+test("wide per-symbol spread caps are restricted to shadow and replay verification", () => {
+  const replay = loadConfig({ TRADING_MODE: "replay" });
+  assert.equal(replay.symbolConfigs["BTC/USD"]?.dynamicLiquidity.absoluteTradeCapBps, 25);
+  assert.equal(replay.symbolConfigs["DOGE/USD"]?.dynamicLiquidity.absoluteTradeCapBps, 60);
+
+  const paper = loadConfig({
+    TRADING_MODE: "paper", ALPACA_PAPER: "true", ALPACA_API_KEY: "paper-key", ALPACA_API_SECRET: "paper-secret",
+  });
+  assert.equal(paper.symbolConfigs["BTC/USD"]?.dynamicLiquidity.absoluteTradeCapBps, 30);
+  assert.equal(paper.symbolConfigs["DOGE/USD"]?.dynamicLiquidity.absoluteTradeCapBps, 30);
+});

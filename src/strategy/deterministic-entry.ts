@@ -3,6 +3,7 @@ import { clamp } from "../core/market.js";
 import type { CostEstimate } from "./cost.js";
 import type { DeterministicFeatures } from "./deterministic-features.js";
 import type { RegimeDecision } from "./deterministic-regime.js";
+import type { LiquidityDecision } from "./dynamic-liquidity.js";
 
 export type SignalMode = "DETERMINISTIC_ONLY" | "DETERMINISTIC_WITH_MODEL_VETO" | "DETERMINISTIC_WITH_MODEL_RANKING";
 export interface SystemGateState {
@@ -35,6 +36,7 @@ export interface DeterministicSignalConfig {
 export interface EntryContext {
   symbol: string; sequence: bigint; nowMs: number; features: DeterministicFeatures; regime: RegimeDecision; system: SystemGateState;
   bestBid: number; bestAsk: number; expectedLatencyMs: number; longCost: CostEstimate; shortCost: CostEstimate;
+  longLiquidity?: LiquidityDecision; shortLiquidity?: LiquidityDecision;
 }
 export interface RuleVoteVector {
   micro: boolean; qi1: boolean; qiK: boolean; ofi: boolean; tfi: boolean; replenishment: boolean;
@@ -46,15 +48,23 @@ export interface RuleDiagnostics {
   side: Direction; phase: DirectionPhase; score: number; oppositeScore: number; scoreMargin: number; votes: RuleVotes;
   persistence: number; confirmationMs: number; confirmationEvents: number; grossOpportunityBps: number; uncertaintyReserveBps: number;
   roundTripCostBps: number; lowerBoundNetBps: number; chaseBps: number; impulseZ: number; anchorZ: number;
+  scorePass: boolean; rawDirectionalPass: boolean; candidatePass: boolean;
   healthPass: boolean; liquidityPass: boolean; regimePass: boolean; persistencePass: boolean; antiChasePass: boolean;
-  exposurePass: boolean; cooldownPass: boolean; costPass: boolean; arbitrationPass: boolean; reasons: string[];
+  exposurePass: boolean; cooldownPass: boolean; costPass: boolean; arbitrationPass: boolean;
+  liquidityReasons: readonly string[]; tradeThresholdBps: number; stressThresholdBps: number; reasons: string[];
+}
+export interface DeterministicDirectionalCandidate {
+  source: "DETERMINISTIC"; configurationVersion: string; decisionId: string; symbol: string; sequence: bigint; createdMs: number;
+  side: Direction; deterministicScore: number; diagnostics: RuleDiagnostics;
 }
 export interface DeterministicTradeIntent {
   source: "DETERMINISTIC"; configurationVersion: string; decisionId: string; symbol: string; sequence: bigint; createdMs: number;
   side: Direction; deterministicScore: number; grossOpportunityBps: number; uncertaintyReserveBps: number; lowerBoundNetBps: number;
   quality: number; diagnostics: RuleDiagnostics;
 }
-export interface DeterministicEvaluation { long: RuleDiagnostics; short: RuleDiagnostics; intent: DeterministicTradeIntent | null; }
+export interface DeterministicEvaluation {
+  long: RuleDiagnostics; short: RuleDiagnostics; candidate: DeterministicDirectionalCandidate | null; intent: DeterministicTradeIntent | null;
+}
 
 interface PersistenceSample { t: number; pass: boolean; }
 interface PersistenceResult { occupancy: number; consecutiveMs: number; consecutiveEvents: number; }
@@ -103,18 +113,24 @@ export class DeterministicEntryEngine {
   public evaluate(context: EntryContext): DeterministicTradeIntent | null {
     const longVotes = this.votes(1, context.features), shortVotes = this.votes(-1, context.features);
     const longScore = this.normalizedScore(1, context.features), shortScore = this.normalizedScore(-1, context.features);
-    const longRaw = this.rawPass(1, context, longVotes, longScore);
-    const shortRaw = this.rawPass(-1, context, shortVotes, shortScore);
+    const longAntiChase = this.antiChase(1, context.features, context.bestBid, context.bestAsk);
+    const shortAntiChase = this.antiChase(-1, context.features, context.bestBid, context.bestAsk);
+    const longArbitrationPass = longScore - shortScore >= this.cfg.arbitrationMargin;
+    const shortArbitrationPass = shortScore - longScore >= this.cfg.arbitrationMargin;
+    const longRaw = this.directionalPass(1, context.regime, longVotes, longScore, longArbitrationPass, longAntiChase.pass);
+    const shortRaw = this.directionalPass(-1, context.regime, shortVotes, shortScore, shortArbitrationPass, shortAntiChase.pass);
     const longPersistence = this.mustState(1).persistence.update(context.nowMs, longRaw);
     const shortPersistence = this.mustState(-1).persistence.update(context.nowMs, shortRaw);
-    const long = this.diagnostics(1, context, longScore, shortScore, longVotes, longPersistence);
-    const short = this.diagnostics(-1, context, shortScore, longScore, shortVotes, shortPersistence);
-    long.arbitrationPass = long.scoreMargin >= this.cfg.arbitrationMargin;
-    short.arbitrationPass = short.scoreMargin >= this.cfg.arbitrationMargin;
-    if (!long.arbitrationPass) long.reasons.push("ARBITRATION_GATE");
-    if (!short.arbitrationPass) short.reasons.push("ARBITRATION_GATE");
-    const longPass = this.commonPass(long) && long.arbitrationPass;
-    const shortPass = this.commonPass(short) && short.arbitrationPass;
+    const long = this.diagnostics(1, context, longScore, shortScore, longVotes, longPersistence, longRaw, longArbitrationPass, longAntiChase);
+    const short = this.diagnostics(-1, context, shortScore, longScore, shortVotes, shortPersistence, shortRaw, shortArbitrationPass, shortAntiChase);
+    const longCandidate = long.candidatePass, shortCandidate = short.candidatePass;
+    let candidate: DeterministicDirectionalCandidate | null = null;
+    if (longCandidate !== shortCandidate) {
+      const selected = longCandidate ? long : short;
+      candidate = this.directionalCandidate(context, selected);
+    }
+    const longPass = this.commonPass(long);
+    const shortPass = this.commonPass(short);
     let intent: DeterministicTradeIntent | null = null;
     if (longPass !== shortPass) {
       const selected = longPass ? long : short;
@@ -127,7 +143,7 @@ export class DeterministicEntryEngine {
         quality: clamp(selected.lowerBoundNetBps / this.cfg.fullQualityEdgeBps, 0, 1), diagnostics: selected,
       };
     }
-    this.lastEvaluation = { long, short, intent };
+    this.lastEvaluation = { long, short, candidate, intent };
     return intent;
   }
 
@@ -147,20 +163,17 @@ export class DeterministicEntryEngine {
     return !features.stale && votes.quorum && score > this.cfg.scoreReset && (side === 1 ? regime.allowLong : regime.allowShort);
   }
 
-  private rawPass(direction: Direction, context: EntryContext, votes: RuleVotes, score: number): boolean {
-    const cost = direction === 1 ? context.longCost : context.shortCost;
-    return this.healthPass(context.system) && this.liquidityPass(context.features, cost) && this.regimeAllows(direction, context.regime)
-      && votes.quorum && score >= this.cfg.scoreEnter;
+  private directionalPass(direction: Direction, regime: RegimeDecision, votes: RuleVotes, score: number, arbitrationPass: boolean, antiChasePass: boolean): boolean {
+    return this.regimeAllows(direction, regime) && votes.quorum && score >= this.cfg.scoreEnter && arbitrationPass && antiChasePass;
   }
   private commonPass(d: RuleDiagnostics): boolean {
-    return d.healthPass && d.liquidityPass && d.regimePass && d.votes.quorum && d.score >= this.cfg.scoreEnter
-      && d.persistencePass && d.antiChasePass && d.exposurePass && d.cooldownPass && d.costPass;
+    return d.candidatePass && d.healthPass && d.liquidityPass && d.exposurePass && d.cooldownPass && d.costPass;
   }
   private healthPass(system: SystemGateState): boolean {
     return system.bookValid && system.sequenceValid && system.checksumValid && system.publicStreamHealthy && system.privateStreamHealthy
       && system.accountReconciled && system.clockHealthy && system.entriesAllowed;
   }
-  private liquidityPass(f: DeterministicFeatures, cost: CostEstimate): boolean {
+  private staticLiquidityPass(f: DeterministicFeatures, cost: CostEstimate): boolean {
     return f.warmedUp && !f.stale && f.providerAgeMs >= 0 && f.providerAgeMs <= this.cfg.maximumProviderAgeMs && f.spreadBps <= this.cfg.maximumSpreadBps
       && f.spreadZ <= this.cfg.maximumSpreadZ && f.depthZ >= this.cfg.minimumDepthZ && f.usableDepthNotional >= this.cfg.minimumDepthNotional
       && cost.impactBps <= this.cfg.maximumImpactBps;
@@ -244,29 +257,46 @@ export class DeterministicEntryEngine {
     if (state.phase === "ARMED" && resetCondition) state.phase = "IDLE";
     return { cooldownPass: state.phase === "ARMED", phase: state.phase };
   }
-  private diagnostics(direction: Direction, context: EntryContext, score: number, oppositeScore: number, votes: RuleVotes, persistence: PersistenceResult): RuleDiagnostics {
+  private diagnostics(direction: Direction, context: EntryContext, score: number, oppositeScore: number, votes: RuleVotes,
+    persistence: PersistenceResult, rawDirectionalPass: boolean, arbitrationPass: boolean,
+    antiChase: { pass: boolean; chaseBps: number; impulseZ: number; anchorZ: number }): RuleDiagnostics {
     const f = context.features, cost = direction === 1 ? context.longCost : context.shortCost;
-    const healthPass = this.healthPass(context.system), liquidityPass = this.liquidityPass(f, cost), regimePass = this.regimeAllows(direction, context.regime);
-    const rawPass = healthPass && liquidityPass && regimePass && votes.quorum && score >= this.cfg.scoreEnter;
-    const phase = this.updatePhase(direction, context.nowMs, rawPass, score);
+    const dynamicLiquidity = direction === 1 ? context.longLiquidity : context.shortLiquidity;
+    const healthPass = this.healthPass(context.system);
+    const liquidityPass = dynamicLiquidity?.pass ?? this.staticLiquidityPass(f, cost);
+    const regimePass = this.regimeAllows(direction, context.regime);
+    const phase = this.updatePhase(direction, context.nowMs, rawDirectionalPass, score);
     const opportunity = this.opportunity(direction, f, score, persistence.occupancy, context.expectedLatencyMs);
     const lowerBoundNetBps = opportunity.grossBps - opportunity.uncertaintyBps - this.cfg.costSafetyFactor * cost.roundTripBps;
-    const antiChase = this.antiChase(direction, f, context.bestBid, context.bestAsk);
     const exposurePass = context.system.noExistingPosition && context.system.noPendingEntry;
     const persistencePass = persistence.occupancy >= this.cfg.minimumPersistence && persistence.consecutiveMs >= this.cfg.minimumConfirmationMs
       && persistence.consecutiveEvents >= this.cfg.minimumConfirmationEvents;
+    const scorePass = score >= this.cfg.scoreEnter;
+    const candidatePass = rawDirectionalPass && persistencePass;
     const costPass = lowerBoundNetBps >= this.cfg.minimumNetEdgeBps;
     const reasons: string[] = [];
     if (!healthPass) reasons.push("HEALTH_GATE"); if (!liquidityPass) reasons.push("LIQUIDITY_GATE"); if (!regimePass) reasons.push("REGIME_GATE");
-    if (!votes.quorum) reasons.push("RULE_QUORUM"); if (score < this.cfg.scoreEnter) reasons.push("SCORE_GATE"); if (!persistencePass) reasons.push("PERSISTENCE_GATE");
+    if (!votes.quorum) reasons.push("RULE_QUORUM"); if (!scorePass) reasons.push("SCORE_GATE"); if (!persistencePass) reasons.push("PERSISTENCE_GATE");
     if (!antiChase.pass) reasons.push("ANTI_CHASE_GATE"); if (!exposurePass) reasons.push("EXPOSURE_GATE");
-    if (!phase.cooldownPass) reasons.push("COOLDOWN_OR_RESET_GATE"); if (!costPass) reasons.push("COST_GATE");
+    if (!phase.cooldownPass) reasons.push("COOLDOWN_OR_RESET_GATE"); if (!costPass) reasons.push("COST_GATE"); if (!arbitrationPass) reasons.push("ARBITRATION_GATE");
     return { side: direction, phase: phase.phase, score, oppositeScore, scoreMargin: score - oppositeScore, votes,
       persistence: persistence.occupancy, confirmationMs: persistence.consecutiveMs, confirmationEvents: persistence.consecutiveEvents,
       grossOpportunityBps: opportunity.grossBps, uncertaintyReserveBps: opportunity.uncertaintyBps, roundTripCostBps: cost.roundTripBps,
       lowerBoundNetBps, chaseBps: antiChase.chaseBps, impulseZ: antiChase.impulseZ, anchorZ: antiChase.anchorZ,
-      healthPass, liquidityPass, regimePass, persistencePass, antiChasePass: antiChase.pass, exposurePass,
-      cooldownPass: phase.cooldownPass, costPass, arbitrationPass: false, reasons };
+      scorePass, rawDirectionalPass, candidatePass, healthPass, liquidityPass, regimePass, persistencePass,
+      antiChasePass: antiChase.pass, exposurePass, cooldownPass: phase.cooldownPass, costPass, arbitrationPass,
+      liquidityReasons: dynamicLiquidity?.reasons ?? (liquidityPass ? [] : ["STATIC_LIQUIDITY_LIMIT"]),
+      tradeThresholdBps: dynamicLiquidity?.tradeThresholdBps ?? this.cfg.maximumSpreadBps,
+      stressThresholdBps: dynamicLiquidity?.stressThresholdBps ?? this.cfg.maximumSpreadBps,
+      reasons };
+  }
+  private directionalCandidate(context: EntryContext, selected: RuleDiagnostics): DeterministicDirectionalCandidate {
+    return {
+      source: "DETERMINISTIC", configurationVersion: this.cfg.configurationVersion,
+      decisionId: `${context.symbol}:${context.sequence.toString()}:${selected.side}:${context.nowMs}`,
+      symbol: context.symbol, sequence: context.sequence, createdMs: context.nowMs,
+      side: selected.side, deterministicScore: selected.score, diagnostics: selected,
+    };
   }
   private mustState(side: Direction): DirectionState { const state = this.states.get(side); if (!state) throw new Error("Missing deterministic direction state"); return state; }
 }

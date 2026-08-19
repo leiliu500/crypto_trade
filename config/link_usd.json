@@ -1,5 +1,7 @@
 {
   "schemaVersion": 1,
   "symbol": "LINK/USD",
-  "parameters": {}
+  "parameters": {
+    "DYNAMIC_SHADOW_TRADE_CAP_BPS": 40
+  }
 }

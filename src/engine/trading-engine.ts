@@ -20,12 +20,14 @@ import { BookPressureTracker, DeterministicFeatureExtensions, type Deterministic
 import { DeterministicRegimeEngine, type RegimeDecision } from "../strategy/deterministic-regime.js";
 import { DeterministicEntryEngine, type DeterministicEvaluation, type DeterministicTradeIntent, type SystemGateState } from "../strategy/deterministic-entry.js";
 import { DeterministicHoldEngine } from "../strategy/deterministic-hold.js";
+import { DynamicLiquidityPolicy, type LiquidityDecision } from "../strategy/dynamic-liquidity.js";
 import { SignalRouter, type OptionalSignalModel } from "../strategy/signal-router.js";
 import { AlpacaOrderGateway, type OrderGateway } from "../alpaca/gateway.js";
 import { AlpacaMarketStream } from "../alpaca/market-stream.js";
 import { AlpacaApiError, AlpacaRestClient } from "../alpaca/rest.js";
 import { AlpacaTradeStream } from "../alpaca/trade-stream.js";
 import type { AlpacaAsset, AlpacaOrder, AlpacaPosition } from "../alpaca/types.js";
+import { EntryPipelineAudit, type EntryPipelineSnapshot, type EntryPipelineStage } from "./entry-pipeline-audit.js";
 import { HealthWatchdog, type WatchdogFault } from "./watchdog.js";
 
 const PAPER_DEMO_TARGET_NOTIONAL = 11;
@@ -41,6 +43,9 @@ export interface EngineMarketSnapshot {
   features: Features | null;
   regime?: RegimeDecision | null;
   ruleEvaluation?: DeterministicEvaluation | null;
+  entryReady?: boolean;
+  liquidity?: { long: LiquidityDecision; short: LiquidityDecision } | null;
+  entryPipeline?: EntryPipelineSnapshot;
 }
 
 export interface EngineOperationalSnapshot {
@@ -73,6 +78,8 @@ interface SymbolRuntime {
   deterministicFeatures: DeterministicFeatureExtensions;
   regimeEngine: DeterministicRegimeEngine;
   entryEngine: DeterministicEntryEngine;
+  liquidity: DynamicLiquidityPolicy;
+  entryAudit: EntryPipelineAudit;
   signalRouter: SignalRouter;
   holdEngine: DeterministicHoldEngine;
   cost: CostModel;
@@ -82,6 +89,7 @@ interface SymbolRuntime {
   latestFeatures?: DeterministicFeatures;
   latestRegime?: RegimeDecision;
   latestRuleEvaluation?: DeterministicEvaluation;
+  latestLiquidity?: { long: LiquidityDecision; short: LiquidityDecision };
   position?: Position;
   cluster: string;
 }
@@ -140,6 +148,7 @@ export class TradingEngine extends EventEmitter {
         book: new LocalOrderBook(symbol), features: new FeatureEngine(symbolCfg.feature), pressure: new BookPressureTracker(symbolCfg.feature.depthLevels),
         deterministicFeatures: new DeterministicFeatureExtensions(symbolCfg.deterministicExtension),
         regimeEngine: new DeterministicRegimeEngine(symbolCfg.deterministicRegime), entryEngine: new DeterministicEntryEngine(symbolCfg.deterministicSignal),
+        liquidity: new DynamicLiquidityPolicy(symbolCfg.dynamicLiquidity), entryAudit: new EntryPipelineAudit(),
         signalRouter: new SignalRouter(symbolCfg.signalMode, this.optionalModel(symbolCfg, optionalForecast)),
         holdEngine: new DeterministicHoldEngine(symbolCfg.deterministicHold), cost,
         planner: new ExecutionPlanner(symbolCfg.planner, new RiskSizer(symbolCfg.sizing), cost, symbolCfg.strategyVersion, symbolCfg.modelVersion),
@@ -290,6 +299,10 @@ export class TradingEngine extends EventEmitter {
         features: runtime.latestFeatures ? { ...runtime.latestFeatures } : null,
         regime: runtime.latestRegime ? { ...runtime.latestRegime } : null,
         ruleEvaluation: runtime.latestRuleEvaluation ? cloneEvaluation(runtime.latestRuleEvaluation) : null,
+        entryReady: Boolean(runtime.latestRuleEvaluation?.intent
+          && (runtime.latestRuleEvaluation.intent.side === 1 || runtime.asset?.shortable === true)),
+        liquidity: runtime.latestLiquidity ? cloneLiquidity(runtime.latestLiquidity) : null,
+        entryPipeline: runtime.entryAudit.snapshot(),
       };
     });
     return {
@@ -413,7 +426,11 @@ export class TradingEngine extends EventEmitter {
   }
 
   private processMarketState(runtime: SymbolRuntime, book: BookState, features: DeterministicFeatures): void {
+    runtime.entryAudit.pass("MARKET_EVENT");
+    if (book.valid) runtime.entryAudit.pass("BOOK_READY");
+    else this.rejectEntry(runtime, "BOOK_READY", "BOOK_INVALID", features.receiveTsMs);
     if (!featureNumbersAreFinite(features)) {
+      this.rejectEntry(runtime, "FEATURES_READY", "NON_FINITE_FEATURES", features.receiveTsMs);
       this.riskState.setHealth({ bookValid: false });
       this.riskState.halt("BOOK_INVALID");
       this.emit("engineError", new Error(`Non-finite feature state for ${book.symbol}`));
@@ -426,6 +443,9 @@ export class TradingEngine extends EventEmitter {
       Boolean(item.position || this.pendingForSymbol(item.book.symbol)) && item.latestFeatures?.stale !== false);
     this.riskState.setHealth({ bookValid: allBooksStructurallyValid && !staleExposure });
     if (features.stale) {
+      this.rejectEntry(runtime, "FEATURES_READY", "FEATURES_STALE", features.receiveTsMs, {
+        providerAgeMs: features.providerAgeMs, staleThresholdMs: features.staleThresholdMs,
+      });
       const pending = this.pendingForSymbol(book.symbol);
       if (pending) void this.cancelTracked(pending);
       // An idle symbol may go stale without disabling unrelated symbols. Existing exposure still fails closed globally.
@@ -434,27 +454,44 @@ export class TradingEngine extends EventEmitter {
       }
       return;
     }
+    if (!features.warmedUp) {
+      runtime.liquidity.observe(features.spreadBps);
+      this.rejectEntry(runtime, "FEATURES_READY", "FEATURE_WARMUP", features.receiveTsMs);
+      return;
+    }
+    runtime.entryAudit.pass("FEATURES_READY");
     this.riskState.setHealth({ riskRecomputed: true });
     this.riskState.resumeAfterReconciliation();
     if (this.cfg.mode === "record") return;
 
-    // Priority: existing exposure -> pending order cancellation -> new entry.
+    // Preserve order/exposure lifecycle priority; candidate evaluation starts only when no entry is already active.
     if (runtime.position && runtime.position.qty > 0) { this.managePosition(runtime, book, features); return; }
     const pending = this.pendingForSymbol(book.symbol);
     if (pending) { this.reevaluatePending(runtime, pending, book, features); return; }
-    const expectedLatencyMs = Math.max(1, this.latency.p95Total(this.now()) || 250);
-    let regime = runtime.regimeEngine.classify(features);
-    if (!runtime.asset?.shortable && regime.allowShort) regime = { ...regime, allowShort: false };
-    runtime.latestRegime = regime;
-    if (!runtime.asset) return;
+
+    if (!runtime.asset) {
+      this.rejectEntry(runtime, "VENUE_DIRECTION_PASS", "ASSET_RULES_UNAVAILABLE", features.receiveTsMs);
+      return;
+    }
     const smallQty = runtime.asset?.minOrderSize ?? 0;
     const longCost = runtime.planner.preliminaryCost(features, book, 1, smallQty);
     const shortCost = runtime.planner.preliminaryCost(features, book, -1, smallQty);
-    if (!longCost || !shortCost) return;
+    if (!longCost || !shortCost) {
+      this.rejectEntry(runtime, "PRELIMINARY_COST_PASS", "COST_ESTIMATE_UNAVAILABLE", features.receiveTsMs);
+      if (runtime.position && runtime.position.qty > 0) this.managePosition(runtime, book, features);
+      return;
+    }
+    const longLiquidity = runtime.liquidity.evaluate(liquidityInput(features, longCost.impactBps));
+    const shortLiquidity = runtime.liquidity.evaluate(liquidityInput(features, shortCost.impactBps));
+    runtime.liquidity.observe(features.spreadBps);
+    runtime.latestLiquidity = { long: longLiquidity, short: shortLiquidity };
+    const expectedLatencyMs = Math.max(1, this.latency.p95Total(this.now()) || 250);
+    const regime = runtime.regimeEngine.classify(features, longLiquidity.stress || shortLiquidity.stress);
+    runtime.latestRegime = regime;
     const deterministicIntent = runtime.entryEngine.evaluate({
       symbol: book.symbol, sequence: book.sequence, nowMs: features.receiveTsMs, features, regime,
       system: this.systemGates(runtime), bestBid: book.bids[0]!.px, bestAsk: book.asks[0]!.px,
-      expectedLatencyMs, longCost, shortCost,
+      expectedLatencyMs, longCost, shortCost, longLiquidity, shortLiquidity,
     });
     const evaluation = runtime.entryEngine.latestEvaluation();
     if (evaluation) runtime.latestRuleEvaluation = evaluation;
@@ -462,8 +499,14 @@ export class TradingEngine extends EventEmitter {
       configurationVersion: runtime.config.configurationVersion, strategyVersion: runtime.config.strategyVersion,
       symbolRulesetVersion: assetRulesVersion(runtime.asset), features, regime, evaluation: runtime.latestRuleEvaluation,
     });
-    const routed = runtime.signalRouter.route(deterministicIntent, features);
-    if (!routed || routed.sizeMultiplier <= 0) return;
+    if (evaluation) this.auditEvaluation(runtime, evaluation, features.receiveTsMs);
+
+    const venueIntent = deterministicIntent && (deterministicIntent.side === 1 || runtime.asset.shortable) ? deterministicIntent : null;
+    const routed = runtime.signalRouter.route(venueIntent, features);
+    if (!routed || routed.sizeMultiplier <= 0) {
+      if (venueIntent) this.rejectEntry(runtime, "EXECUTION_PLAN_PASS", "SIGNAL_ROUTER_BLOCK", features.receiveTsMs);
+      return;
+    }
     const intent = plannerIntent(routed.intent, 1);
     const initialStopDistance = Math.max(
       cfgPriceSigma(features, runtime.config.initialStopSigma),
@@ -483,9 +526,21 @@ export class TradingEngine extends EventEmitter {
         return exact ? plannerIntent(exact, 1) : null;
       },
     });
-    if (!plan) return;
+    if (!plan) {
+      this.rejectEntry(runtime, "EXECUTION_PLAN_PASS", "NO_SAFE_SIZE_OR_EXACT_COST_PLAN", features.receiveTsMs, {
+        side: routed.intent.side, lowerBoundNetBps: routed.intent.lowerBoundNetBps,
+      });
+      return;
+    }
+    runtime.entryAudit.pass("SIZE_PASS");
+    runtime.entryAudit.pass("EXECUTION_PLAN_PASS");
+    runtime.entryAudit.pass("FINAL_COST_PASS");
     const candidate = { symbol: plan.symbol, notional: plan.qty * features.mid * plan.side, cluster: runtime.cluster, stressedLoss: plan.risk.modeledMaximumLoss };
-    if (!this.portfolio.canAdd(candidate, this.equity, Math.max(0, -this.realizedSessionPnl))) return;
+    if (!this.portfolio.canAdd(candidate, this.equity, Math.max(0, -this.realizedSessionPnl))) {
+      this.rejectEntry(runtime, "PORTFOLIO_PASS", "PORTFOLIO_CAPACITY_BLOCK", features.receiveTsMs);
+      return;
+    }
+    runtime.entryAudit.pass("PORTFOLIO_PASS");
     this.emit("decision", {
       configurationVersion: runtime.config.configurationVersion, strategyVersion: runtime.config.strategyVersion,
       adapterVersion: "alpaca-v1", symbolRulesetVersion: assetRulesVersion(runtime.asset),
@@ -493,6 +548,64 @@ export class TradingEngine extends EventEmitter {
     });
     if (this.cfg.mode === "shadow") runtime.entryEngine.markFired(plan.side, this.now());
     else void this.submit(plan);
+  }
+
+  private auditEvaluation(runtime: SymbolRuntime, evaluation: DeterministicEvaluation, atMs: number): void {
+    const scoreFocus = evaluation.long.score >= evaluation.short.score ? evaluation.long : evaluation.short;
+    if (!evaluation.long.rawDirectionalPass && !evaluation.short.rawDirectionalPass) {
+      const reason = !scoreFocus.regimePass ? "REGIME_GATE" : !scoreFocus.votes.quorum ? "RULE_QUORUM"
+        : !scoreFocus.scorePass ? "SCORE_GATE" : !scoreFocus.arbitrationPass ? "ARBITRATION_GATE" : "ANTI_CHASE_GATE";
+      this.rejectEntry(runtime, "DIRECTIONAL_RAW_PASS", reason, atMs, {
+        side: scoreFocus.side, score: scoreFocus.score, oppositeScore: scoreFocus.oppositeScore,
+        bookVotes: scoreFocus.votes.book, flowVotes: scoreFocus.votes.flow, kinematicVotes: scoreFocus.votes.kinematic,
+      });
+      return;
+    }
+    runtime.entryAudit.pass("DIRECTIONAL_RAW_PASS");
+    if (!evaluation.candidate) {
+      const focus = evaluation.long.rawDirectionalPass ? evaluation.long : evaluation.short;
+      this.rejectEntry(runtime, "DIRECTIONAL_CANDIDATE", "PERSISTENCE_GATE", atMs, {
+        side: focus.side, persistence: focus.persistence, confirmationMs: focus.confirmationMs,
+        confirmationEvents: focus.confirmationEvents,
+      });
+      return;
+    }
+    const candidate = evaluation.candidate;
+    const diagnostics = candidate.diagnostics;
+    runtime.entryAudit.pass("DIRECTIONAL_CANDIDATE");
+    if (!diagnostics.healthPass) { this.rejectEntry(runtime, "HEALTH_PASS", "HEALTH_GATE", atMs); return; }
+    runtime.entryAudit.pass("HEALTH_PASS");
+    if (!diagnostics.liquidityPass) {
+      this.rejectEntry(runtime, "LIQUIDITY_PASS", diagnostics.liquidityReasons.join("+") || "LIQUIDITY_GATE", atMs, {
+        spreadBps: runtime.latestFeatures?.spreadBps ?? null,
+        tradeThresholdBps: diagnostics.tradeThresholdBps, stressThresholdBps: diagnostics.stressThresholdBps,
+      });
+      return;
+    }
+    runtime.entryAudit.pass("LIQUIDITY_PASS");
+    if (!diagnostics.antiChasePass) { this.rejectEntry(runtime, "ANTI_CHASE_PASS", "ANTI_CHASE_GATE", atMs); return; }
+    runtime.entryAudit.pass("ANTI_CHASE_PASS");
+    const venuePass = candidate.side === 1 || runtime.asset?.shortable === true;
+    if (!venuePass) { this.rejectEntry(runtime, "VENUE_DIRECTION_PASS", "SPOT_SHORT_UNAVAILABLE", atMs); return; }
+    runtime.entryAudit.pass("VENUE_DIRECTION_PASS");
+    if (!diagnostics.exposurePass) { this.rejectEntry(runtime, "EXPOSURE_PASS", "EXISTING_POSITION_OR_PENDING_ENTRY", atMs); return; }
+    runtime.entryAudit.pass("EXPOSURE_PASS");
+    if (!diagnostics.cooldownPass) { this.rejectEntry(runtime, "COOLDOWN_PASS", "COOLDOWN_OR_RESET_GATE", atMs); return; }
+    runtime.entryAudit.pass("COOLDOWN_PASS");
+    if (!diagnostics.costPass) {
+      this.rejectEntry(runtime, "PRELIMINARY_COST_PASS", "COST_GATE", atMs, {
+        grossOpportunityBps: diagnostics.grossOpportunityBps, uncertaintyReserveBps: diagnostics.uncertaintyReserveBps,
+        roundTripCostBps: diagnostics.roundTripCostBps, lowerBoundNetBps: diagnostics.lowerBoundNetBps,
+      });
+      return;
+    }
+    runtime.entryAudit.pass("PRELIMINARY_COST_PASS");
+  }
+
+  private rejectEntry(runtime: SymbolRuntime, stage: EntryPipelineStage, reason: string, atMs: number,
+    values: Readonly<Record<string, number | string | boolean | null>> = {}): void {
+    if (!runtime.entryAudit.reject(stage, reason, atMs, values)) return;
+    this.emit("entryBlocked", { symbol: runtime.book.symbol, stage, reason, values, atMs });
   }
 
   private onTrade(trade: MarketTrade): void {
@@ -527,14 +640,17 @@ export class TradingEngine extends EventEmitter {
     if (this.cfg.mode !== "paper" && this.cfg.mode !== "live") return false;
     try {
       this.orderState.reserve(plan);
+      this.runtimes.get(plan.symbol)?.entryAudit.pass("RISK_RESERVED");
       this.emit("orderReserved", { plan });
       if (!plan.reduceOnlyIntent) this.runtimes.get(plan.symbol)?.entryEngine.markFired(plan.side, this.now());
       this.orderState.markSending(plan.clientOrderId);
+      this.runtimes.get(plan.symbol)?.entryAudit.pass("ORDER_SEND_ATTEMPT");
       this.emit("orderSending", { plan });
       const sentMs = this.now();
       const order = await this.gateway.send(plan);
       const acknowledgedMs = this.now();
       this.orderState.markAccepted(plan.clientOrderId, order.id, acknowledgedMs);
+      this.runtimes.get(plan.symbol)?.entryAudit.pass("ORDER_ACK");
       this.latency.record({ localReceiptMs: plan.createdMs, decisionCompleteMs: plan.createdMs, sentMs, acknowledgedMs }, acknowledgedMs);
       this.emit("orderAccepted", { order, plan });
       return true;
@@ -555,8 +671,7 @@ export class TradingEngine extends EventEmitter {
   private reevaluatePending(runtime: SymbolRuntime, pending: ReturnType<OrderStateReconciler["all"]>[number], book: ReturnType<LocalOrderBook["snapshot"]>, features: DeterministicFeatures): void {
     if (pending.status === "UNKNOWN") { this.riskState.halt("ORDER_SEND_UNKNOWN"); return; }
     const cost = runtime.cost.estimate(features, book, pending.plan.side, Math.max(pending.plan.qty - pending.filledQty, 0), pending.plan.style === "maker");
-    let regime = runtime.regimeEngine.classify(features);
-    if (!runtime.asset?.shortable && regime.allowShort) regime = { ...regime, allowShort: false };
+    const regime = runtime.regimeEngine.classify(features);
     runtime.latestRegime = regime;
     const stillValid = runtime.entryEngine.signalStillValid(pending.plan.side, features, regime);
     const sourceIntent = runtime.latestRuleEvaluation?.intent;
@@ -573,8 +688,7 @@ export class TradingEngine extends EventEmitter {
       if (pending.plan.side === 1) void this.cancelTracked(pending);
       return;
     }
-    let regime = runtime.regimeEngine.classify(features);
-    if (!runtime.asset?.shortable && regime.allowShort) regime = { ...regime, allowShort: false };
+    const regime = runtime.regimeEngine.classify(features);
     runtime.latestRegime = regime;
     const exitCost = runtime.cost.estimate(features, book, -1, position.qty, false);
     const expectedDelayAndExitCostBps = exitCost ? exitCost.spreadBps / 2 + exitCost.feeBps / 2 + exitCost.impactBps
@@ -614,6 +728,7 @@ export class TradingEngine extends EventEmitter {
     const runtime = this.runtimes.get(fill.symbol);
     if (!runtime) return;
     const tracked = this.orderState.get(fill.clientOrderId);
+    runtime.entryAudit.pass(fill.final ? "FULL_FILL" : "PARTIAL_FILL");
     if (fill.side === 1) {
       if (!runtime.position) {
         const positionQty = fill.positionQty !== undefined && fill.positionQty > 0 ? fill.positionQty : fill.qty;
@@ -744,12 +859,26 @@ function assetRulesVersion(asset: AssetRules): string {
 }
 function cloneEvaluation(value: DeterministicEvaluation): DeterministicEvaluation {
   const cloneDiagnostics = (diagnostics: DeterministicEvaluation["long"]): DeterministicEvaluation["long"] => ({
-    ...diagnostics, reasons: [...diagnostics.reasons],
+    ...diagnostics, reasons: [...diagnostics.reasons], liquidityReasons: [...diagnostics.liquidityReasons],
     votes: { ...diagnostics.votes, vector: { ...diagnostics.votes.vector } },
   });
   return {
     long: cloneDiagnostics(value.long), short: cloneDiagnostics(value.short),
+    candidate: value.candidate ? { ...value.candidate, diagnostics: cloneDiagnostics(value.candidate.diagnostics) } : null,
     intent: value.intent ? { ...value.intent, diagnostics: cloneDiagnostics(value.intent.diagnostics) } : null,
+  };
+}
+function cloneLiquidity(value: { long: LiquidityDecision; short: LiquidityDecision }): { long: LiquidityDecision; short: LiquidityDecision } {
+  return {
+    long: { ...value.long, reasons: [...value.long.reasons] },
+    short: { ...value.short, reasons: [...value.short.reasons] },
+  };
+}
+function liquidityInput(features: DeterministicFeatures, impactBps: number) {
+  return {
+    spreadBps: features.spreadBps, spreadZ: features.spreadZ, depthZ: features.depthZ,
+    usableDepthNotional: features.usableDepthNotional, impactBps, providerAgeMs: features.providerAgeMs,
+    stale: features.stale,
   };
 }
 function featureNumbersAreFinite(features: DeterministicFeatures): boolean {

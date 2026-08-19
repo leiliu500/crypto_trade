@@ -128,9 +128,37 @@ test("a continuous signal fires once and needs both cooldown and reset before re
   engine.markFired(first.side, first.createdMs);
   assert.equal(persistentIntent(engine, 1, first.createdMs + 100), null);
   for (const at of [first.createdMs + 3_100, first.createdMs + 3_400]) {
-    const reset = context(1, at); reset.features.stale = true; assert.equal(engine.evaluate(reset), null);
+    const reset = context(1, at);
+    reset.regime = { name: "CHOP", allowLong: false, allowShort: false, riskScale: 0 };
+    assert.equal(engine.evaluate(reset), null);
   }
   assert.equal(persistentIntent(engine, 1, first.createdMs + 3_700)?.side, 1);
+});
+
+test("directional persistence survives a liquidity block and becomes executable without re-confirming", () => {
+  const engine = new DeterministicEntryEngine(testConfig());
+  const blockedLiquidity = {
+    pass: false, stress: false, sampleCount: 50, medianSpreadBps: 1,
+    tradeThresholdBps: .5, stressThresholdBps: 2,
+    reasons: ["SPREAD_ABOVE_DYNAMIC_TRADE_THRESHOLD"],
+  } as const;
+  for (let index = 0; index < 8; index += 1) {
+    const value = context(1, 1_000 + index * 50);
+    value.longLiquidity = blockedLiquidity;
+    value.shortLiquidity = blockedLiquidity;
+    assert.equal(engine.evaluate(value), null);
+  }
+  const blocked = engine.latestEvaluation()!;
+  assert.equal(blocked.candidate?.side, 1);
+  assert.equal(blocked.long.rawDirectionalPass, true);
+  assert.equal(blocked.long.candidatePass, true);
+  assert.equal(blocked.long.liquidityPass, false);
+
+  const released = context(1, 1_400);
+  const passingLiquidity = { ...blockedLiquidity, pass: true, reasons: [] } as const;
+  released.longLiquidity = passingLiquidity;
+  released.shortLiquidity = passingLiquidity;
+  assert.equal(engine.evaluate(released)?.side, 1);
 });
 
 test("direction conflict and a null deterministic signal always produce no trade", () => {

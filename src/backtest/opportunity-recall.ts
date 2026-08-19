@@ -8,6 +8,7 @@ import { CostModel } from "../strategy/cost.js";
 import { DeterministicEntryEngine, type DeterministicEvaluation } from "../strategy/deterministic-entry.js";
 import { BookPressureTracker, DeterministicFeatureExtensions, type DeterministicFeatures } from "../strategy/deterministic-features.js";
 import { DeterministicRegimeEngine } from "../strategy/deterministic-regime.js";
+import { DynamicLiquidityPolicy } from "../strategy/dynamic-liquidity.js";
 import { readRecordedEvents } from "./replay.js";
 
 interface RecallPoint {
@@ -18,6 +19,11 @@ interface RecallPoint {
 }
 interface RecallSignal { atMs: number; side: Direction; bid: number; ask: number }
 interface OpportunityWindow { startMs: number; endMs: number; peakNetBps: number }
+interface DirectionCandidateCounts {
+  evaluations: number; regimePass: number; quorumPass: number; scorePass: number; arbitrationPass: number;
+  antiChasePass: number; rawDirectionalPass: number; persistencePass: number; candidatePass: number;
+  liquidityPass: number; preliminaryCostPass: number;
+}
 interface OfflineRuntime {
   config: SymbolConfig;
   book: LocalOrderBook;
@@ -26,6 +32,7 @@ interface OfflineRuntime {
   extensions: DeterministicFeatureExtensions;
   regime: DeterministicRegimeEngine;
   entry: DeterministicEntryEngine;
+  liquidity: DynamicLiquidityPolicy;
   planner: ExecutionPlanner;
   points: RecallPoint[];
   signals: RecallSignal[];
@@ -33,6 +40,11 @@ interface OfflineRuntime {
   lastSampleMs: number;
   staleEvents: number;
   nonFiniteEvents: number;
+  evaluationEvents: number;
+  rawDirectionalEvents: number;
+  directionalCandidateEvents: number;
+  costQualifiedIntentEvents: number;
+  directionCounters: { long: DirectionCandidateCounts; short: DirectionCandidateCounts };
 }
 
 export interface DirectionRecallReport {
@@ -51,6 +63,11 @@ export interface SymbolRecallReport {
   nonFiniteEvents: number;
   maximumLongScore: number;
   minimumModeledCostBps: number | null;
+  evaluationEvents: number;
+  rawDirectionalEvents: number;
+  directionalCandidateEvents: number;
+  costQualifiedIntentEvents: number;
+  directionPipeline: { long: DirectionCandidateCounts; short: DirectionCandidateCounts };
   blockReasons: Record<string, number>;
   long: DirectionRecallReport;
   shortAuditOnly: DirectionRecallReport;
@@ -76,9 +93,12 @@ export async function analyzeOpportunityRecall(path: string, cfg: EngineConfig):
       extensions: new DeterministicFeatureExtensions(symbolCfg.deterministicExtension),
       regime: new DeterministicRegimeEngine(symbolCfg.deterministicRegime),
       entry: new DeterministicEntryEngine(symbolCfg.deterministicSignal),
+      liquidity: new DynamicLiquidityPolicy(symbolCfg.dynamicLiquidity),
       planner: new ExecutionPlanner(symbolCfg.planner, new RiskSizer(symbolCfg.sizing), cost, symbolCfg.strategyVersion, symbolCfg.modelVersion),
       points: [], signals: [], blockReasons: new Map(), lastSampleMs: Number.NEGATIVE_INFINITY,
-      staleEvents: 0, nonFiniteEvents: 0,
+      staleEvents: 0, nonFiniteEvents: 0, evaluationEvents: 0, rawDirectionalEvents: 0,
+      directionalCandidateEvents: 0, costQualifiedIntentEvents: 0,
+      directionCounters: { long: emptyDirectionCounts(), short: emptyDirectionCounts() },
     });
   }
 
@@ -125,6 +145,10 @@ export async function analyzeOpportunityRecall(path: string, cfg: EngineConfig):
       samples: runtime.points.length, staleEvents: runtime.staleEvents, nonFiniteEvents: runtime.nonFiniteEvents,
       maximumLongScore: finiteLongScores.length ? Math.max(...finiteLongScores) : 0,
       minimumModeledCostBps: modeledCosts.length ? Math.min(...modeledCosts) : null,
+      evaluationEvents: runtime.evaluationEvents, rawDirectionalEvents: runtime.rawDirectionalEvents,
+      directionalCandidateEvents: runtime.directionalCandidateEvents,
+      costQualifiedIntentEvents: runtime.costQualifiedIntentEvents,
+      directionPipeline: { long: { ...runtime.directionCounters.long }, short: { ...runtime.directionCounters.short } },
       blockReasons: Object.fromEntries([...runtime.blockReasons].sort((a, b) => b[1] - a[1])),
       long, shortAuditOnly,
     };
@@ -152,29 +176,46 @@ export async function analyzeOpportunityRecall(path: string, cfg: EngineConfig):
 function processState(runtime: OfflineRuntime, book: BookState, base: Features, cfg: EngineConfig): void {
   const features = runtime.extensions.update(base, runtime.pressure.update(book));
   if (!allNumbersFinite(features)) runtime.nonFiniteEvents += 1;
-  if (features.stale || !features.warmedUp) { runtime.staleEvents += 1; return; }
+  if (features.stale || !features.warmedUp) {
+    runtime.staleEvents += 1;
+    if (!features.stale) runtime.liquidity.observe(features.spreadBps);
+    return;
+  }
   const longCost = runtime.planner.preliminaryCost(features, book, 1, 0);
   const shortCost = runtime.planner.preliminaryCost(features, book, -1, 0);
   if (!longCost || !shortCost) return;
-  const classified = runtime.regime.classify(features);
-  const spotRegime = classified.allowShort ? { ...classified, allowShort: false } : classified;
+  const longLiquidity = runtime.liquidity.evaluate(liquidityInput(features, longCost.impactBps));
+  const shortLiquidity = runtime.liquidity.evaluate(liquidityInput(features, shortCost.impactBps));
+  runtime.liquidity.observe(features.spreadBps);
+  const classified = runtime.regime.classify(features, longLiquidity.stress || shortLiquidity.stress);
   const intent = runtime.entry.evaluate({
-    symbol: book.symbol, sequence: book.sequence, nowMs: features.receiveTsMs, features, regime: spotRegime,
+    symbol: book.symbol, sequence: book.sequence, nowMs: features.receiveTsMs, features, regime: classified,
     system: { bookValid: true, sequenceValid: true, checksumValid: true, publicStreamHealthy: true, privateStreamHealthy: true,
       accountReconciled: true, clockHealthy: true, entriesAllowed: true, noExistingPosition: true, noPendingEntry: true },
     bestBid: book.bids[0]!.px, bestAsk: book.asks[0]!.px,
-    expectedLatencyMs: runtime.config.deterministicSignal.expectedLatencyMs, longCost, shortCost,
+    expectedLatencyMs: runtime.config.deterministicSignal.expectedLatencyMs, longCost, shortCost, longLiquidity, shortLiquidity,
   });
   if (intent) {
     runtime.signals.push({ atMs: features.receiveTsMs, side: intent.side, bid: book.bids[0]!.px, ask: book.asks[0]!.px });
     runtime.entry.markFired(intent.side, features.receiveTsMs);
+  }
+  const latest = runtime.entry.latestEvaluation();
+  if (latest) {
+    runtime.evaluationEvents += 1;
+    if (latest.long.rawDirectionalPass || latest.short.rawDirectionalPass) runtime.rawDirectionalEvents += 1;
+    if (latest.candidate) runtime.directionalCandidateEvents += 1;
+    if (latest.intent) runtime.costQualifiedIntentEvents += 1;
+    incrementDirection(runtime.directionCounters.long, latest.long);
+    incrementDirection(runtime.directionCounters.short, latest.short);
+    for (const reason of [...latest.long.reasons, ...latest.short.reasons]) {
+      runtime.blockReasons.set(reason, (runtime.blockReasons.get(reason) ?? 0) + 1);
+    }
   }
   if (features.receiveTsMs - runtime.lastSampleMs < cfg.recall.sampleIntervalMs) return;
   const evaluation = runtime.entry.latestEvaluation();
   if (!evaluation) return;
   runtime.lastSampleMs = features.receiveTsMs;
   runtime.points.push({ atMs: features.receiveTsMs, bid: book.bids[0]!.px, ask: book.asks[0]!.px, evaluation });
-  for (const reason of [...evaluation.long.reasons, ...evaluation.short.reasons]) runtime.blockReasons.set(reason, (runtime.blockReasons.get(reason) ?? 0) + 1);
 }
 
 function directionReport(runtime: OfflineRuntime, side: Direction, cfg: EngineConfig): DirectionRecallReport {
@@ -235,5 +276,29 @@ function groupWindows(points: readonly RecallPoint[], labels: readonly number[],
 function allNumbersFinite(value: object): boolean {
   for (const item of Object.values(value)) if (typeof item === "number" && !Number.isFinite(item)) return false;
   return true;
+}
+function emptyDirectionCounts(): DirectionCandidateCounts {
+  return { evaluations: 0, regimePass: 0, quorumPass: 0, scorePass: 0, arbitrationPass: 0, antiChasePass: 0,
+    rawDirectionalPass: 0, persistencePass: 0, candidatePass: 0, liquidityPass: 0, preliminaryCostPass: 0 };
+}
+function incrementDirection(counts: DirectionCandidateCounts, diagnostics: DeterministicEvaluation["long"]): void {
+  counts.evaluations += 1;
+  if (diagnostics.regimePass) counts.regimePass += 1;
+  if (diagnostics.votes.quorum) counts.quorumPass += 1;
+  if (diagnostics.scorePass) counts.scorePass += 1;
+  if (diagnostics.arbitrationPass) counts.arbitrationPass += 1;
+  if (diagnostics.antiChasePass) counts.antiChasePass += 1;
+  if (diagnostics.rawDirectionalPass) counts.rawDirectionalPass += 1;
+  if (diagnostics.persistencePass) counts.persistencePass += 1;
+  if (diagnostics.candidatePass) counts.candidatePass += 1;
+  if (diagnostics.liquidityPass) counts.liquidityPass += 1;
+  if (diagnostics.costPass) counts.preliminaryCostPass += 1;
+}
+function liquidityInput(features: DeterministicFeatures, impactBps: number) {
+  return {
+    spreadBps: features.spreadBps, spreadZ: features.spreadZ, depthZ: features.depthZ,
+    usableDepthNotional: features.usableDepthNotional, impactBps, providerAgeMs: features.providerAgeMs,
+    stale: features.stale,
+  };
 }
 function ratio(numerator: number, denominator: number): number { return denominator > 0 ? numerator / denominator : 0; }

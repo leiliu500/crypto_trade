@@ -11,7 +11,7 @@ import { disabledDatabaseHealth } from "./types.js";
 const ENGINE_EVENTS = [
   "reconciled", "engineError", "preflight", "publicStreamReady", "privateStreamReady", "decision",
   "orderReserved", "orderSending", "orderAccepted", "orderUpdate", "orderRejected",
-  "positionDecision", "positionDust", "exitDecision", "fill", "watchdogFault",
+  "positionDecision", "positionDust", "exitDecision", "fill", "watchdogFault", "entryBlocked",
 ] as const;
 const TERMINAL_ORDER_STATES = new Set(["FILLED", "CANCELED", "REJECTED", "EXPIRED"]);
 
@@ -142,7 +142,20 @@ export class OperationsMonitor extends EventEmitter {
         shortPhase: market.ruleEvaluation?.short.phase ?? null,
         longRule: market.ruleEvaluation ? projectRule(market.ruleEvaluation.long) : null,
         shortRule: market.ruleEvaluation ? projectRule(market.ruleEvaluation.short) : null,
-        entryReady: market.ruleEvaluation?.intent !== null && market.ruleEvaluation?.intent !== undefined,
+        candidateReady: market.ruleEvaluation?.candidate !== null && market.ruleEvaluation?.candidate !== undefined,
+        candidateSide: market.ruleEvaluation?.candidate?.side ?? null,
+        entryReady: market.entryReady ?? (market.ruleEvaluation?.intent !== null && market.ruleEvaluation?.intent !== undefined),
+        liquidityTradeThresholdBps: market.liquidity?.long.tradeThresholdBps ?? null,
+        liquidityStressThresholdBps: market.liquidity?.long.stressThresholdBps ?? null,
+        liquidityReasons: [...new Set([
+          ...(market.liquidity?.long.reasons ?? []), ...(market.liquidity?.short.reasons ?? []),
+        ])],
+        entryPipeline: market.entryPipeline ? {
+          counts: { ...market.entryPipeline.counts },
+          lastRejection: market.entryPipeline.lastRejection ? {
+            ...market.entryPipeline.lastRejection, values: { ...market.entryPipeline.lastRejection.values },
+          } : null,
+        } : null,
         blockReasons: [...new Set([
           ...(market.ruleEvaluation?.long.reasons ?? []), ...(market.ruleEvaluation?.short.reasons ?? []),
         ])],
@@ -275,9 +288,12 @@ function projectRule(rule: NonNullable<EngineMarketSnapshot["ruleEvaluation"]>["
     persistence: rule.persistence, confirmationMs: rule.confirmationMs, confirmationEvents: rule.confirmationEvents,
     grossOpportunityBps: rule.grossOpportunityBps, uncertaintyReserveBps: rule.uncertaintyReserveBps,
     roundTripCostBps: rule.roundTripCostBps, lowerBoundNetBps: rule.lowerBoundNetBps,
+    scorePass: rule.scorePass, rawDirectionalPass: rule.rawDirectionalPass, candidatePass: rule.candidatePass,
     healthPass: rule.healthPass, liquidityPass: rule.liquidityPass, regimePass: rule.regimePass,
-    persistencePass: rule.persistencePass, antiChasePass: rule.antiChasePass, costPass: rule.costPass,
-    arbitrationPass: rule.arbitrationPass, reasons: [...rule.reasons],
+    persistencePass: rule.persistencePass, antiChasePass: rule.antiChasePass, exposurePass: rule.exposurePass,
+    cooldownPass: rule.cooldownPass, costPass: rule.costPass,
+    arbitrationPass: rule.arbitrationPass, tradeThresholdBps: rule.tradeThresholdBps,
+    stressThresholdBps: rule.stressThresholdBps, liquidityReasons: [...rule.liquidityReasons], reasons: [...rule.reasons],
   };
 }
 

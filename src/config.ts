@@ -13,6 +13,7 @@ import type { DeterministicSignalConfig, SignalMode } from "./strategy/determini
 import type { ExtensionConfig } from "./strategy/deterministic-features.js";
 import type { DeterministicRegimeConfig } from "./strategy/deterministic-regime.js";
 import type { DeterministicHoldConfig } from "./strategy/deterministic-hold.js";
+import type { DynamicLiquidityConfig } from "./strategy/dynamic-liquidity.js";
 import { DEFAULT_DETERMINISTIC_HOLD_CONFIG, DEFAULT_DETERMINISTIC_REGIME_CONFIG, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG, DEFAULT_EXTENSION_CONFIG } from "./config/deterministic-defaults.js";
 
 export type TradingMode = "record" | "replay" | "shadow" | "paper" | "live";
@@ -31,6 +32,7 @@ export interface SymbolConfig {
   deterministicRegime: DeterministicRegimeConfig;
   deterministicSignal: DeterministicSignalConfig;
   deterministicHold: DeterministicHoldConfig;
+  dynamicLiquidity: DynamicLiquidityConfig;
   forecast: ForecastConfig;
   probabilityHead: LinearHead;
   returnHead: LinearHead;
@@ -110,12 +112,12 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env, modeOverride?: 
       throw new Error("Live trading interlock is not armed");
     }
   }
-  const baseline = loadSymbolConfig("__base__", configuredEnv);
+  const baseline = loadSymbolConfig("__base__", configuredEnv, mode);
   const symbolConfigs: Record<string, SymbolConfig> = {};
   for (const symbol of files.base.symbols) {
     const overlay = files.symbols.get(symbol);
     if (!overlay) throw new Error(`Missing symbol configuration for ${symbol}`);
-    symbolConfigs[symbol] = loadSymbolConfig(symbol, applyParameters(configuredEnv, overlay.parameters));
+    symbolConfigs[symbol] = loadSymbolConfig(symbol, applyParameters(configuredEnv, overlay.parameters), mode);
   }
   const { symbol: _baselineSymbol, ...baselineConfig } = baseline;
   return {
@@ -220,7 +222,7 @@ function assertOnlyKeys(value: Record<string, unknown>, allowed: readonly string
 }
 function isObject(value: unknown): value is Record<string, unknown> { return typeof value === "object" && value !== null && !Array.isArray(value); }
 
-function loadSymbolConfig(symbol: string, env: NodeJS.ProcessEnv): SymbolConfig {
+function loadSymbolConfig(symbol: string, env: NodeJS.ProcessEnv, mode: TradingMode): SymbolConfig {
   const feature: FeatureConfig = {
     ...DEFAULT_FEATURE_CONFIG,
     forecastHorizonMs: numberEnv(env.FORECAST_HORIZON_MS, 5_000),
@@ -235,12 +237,29 @@ function loadSymbolConfig(symbol: string, env: NodeJS.ProcessEnv): SymbolConfig 
   const deterministicRegime = loadDeterministicRegimeConfig(env);
   const deterministicSignal = loadDeterministicSignalConfig(env, signalMode, configurationVersion);
   const deterministicHold = loadDeterministicHoldConfig(env);
+  const shadowTradeCapBps = numberEnv(env.DYNAMIC_SHADOW_TRADE_CAP_BPS, deterministicSignal.maximumSpreadBps);
+  const absoluteTradeCapBps = ["shadow", "replay"].includes(mode)
+    ? shadowTradeCapBps : deterministicSignal.maximumSpreadBps;
+  const dynamicLiquidity: DynamicLiquidityConfig = {
+    maximumSamples: integerEnv(env.DYNAMIC_SPREAD_MAX_SAMPLES, 512, 10, 100_000),
+    minimumSamples: integerEnv(env.DYNAMIC_SPREAD_MIN_SAMPLES, 30, 2, 100_000),
+    tradeQuantile: numberEnv(env.DYNAMIC_SPREAD_TRADE_QUANTILE, .5),
+    tradeMadMultiple: numberEnv(env.DYNAMIC_SPREAD_TRADE_MAD_MULTIPLE, 3),
+    stressMadMultiple: numberEnv(env.DYNAMIC_SPREAD_STRESS_MAD_MULTIPLE, 6),
+    absoluteTradeCapBps,
+    absoluteStressCapBps: Math.max(absoluteTradeCapBps, deterministicRegime.maximumSpreadBps),
+    maximumSpreadZ: deterministicSignal.maximumSpreadZ,
+    minimumDepthZ: deterministicSignal.minimumDepthZ,
+    minimumUsableDepthNotional: deterministicSignal.minimumDepthNotional,
+    maximumImpactBps: deterministicSignal.maximumImpactBps,
+    maximumProviderAgeMs: deterministicSignal.maximumProviderAgeMs,
+  };
   return {
     symbol,
     maximumNotional: numberEnv(env.MAXIMUM_NOTIONAL, 1_000), initialStopSigma: numberEnv(env.INITIAL_STOP_SIGMA, 3),
     minimumStopSpreadMultiple: numberEnv(env.MINIMUM_STOP_SPREAD_MULTIPLE, 3), jumpSigma: numberEnv(env.JUMP_SIGMA, 5),
     strategyVersion: env.STRATEGY_VERSION ?? "1.0.0", modelVersion: signalMode === "DETERMINISTIC_ONLY" ? "none" : model.version,
-    configurationVersion, signalMode, feature, deterministicExtension, deterministicRegime, deterministicSignal, deterministicHold,
+    configurationVersion, signalMode, feature, deterministicExtension, deterministicRegime, deterministicSignal, deterministicHold, dynamicLiquidity,
     forecast: { alphaDecayTauMs: numberEnv(env.ALPHA_DECAY_TAU_MS, 4_000), intendedHoldMs: numberEnv(env.INTENDED_HOLD_MS, 12_000), residualWindowMs: 86_400_000, fallbackResidualQ95Bps: numberEnv(env.RESIDUAL_Q95_BPS, 8) },
     probabilityHead: model.probabilityHead, returnHead: model.returnHead,
     signal: { costSafetyFactor: 1.75, minimumDirectionProbability: .62, minimumNetEdgeBps: 1, fullQualityEdgeBps: 20 },

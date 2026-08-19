@@ -1,5 +1,7 @@
 {
   "schemaVersion": 1,
   "symbol": "BTC/USD",
-  "parameters": {}
+  "parameters": {
+    "DYNAMIC_SHADOW_TRADE_CAP_BPS": 25
+  }
 }

@@ -1,4 +1,5 @@
 import type { CostEstimate } from "../strategy/cost.js";
+import type { EntryPipelineSnapshot } from "../engine/entry-pipeline-audit.js";
 
 export type HealthTone = "healthy" | "degraded" | "critical";
 export type EventSeverity = "info" | "warning" | "critical";
@@ -117,7 +118,13 @@ export interface DashboardMarketCard {
   shortPhase: string | null;
   longRule: DashboardRuleDiagnostics | null;
   shortRule: DashboardRuleDiagnostics | null;
+  candidateReady: boolean;
+  candidateSide: number | null;
   entryReady: boolean;
+  liquidityTradeThresholdBps: number | null;
+  liquidityStressThresholdBps: number | null;
+  liquidityReasons: readonly string[];
+  entryPipeline: EntryPipelineSnapshot | null;
   blockReasons: readonly string[];
 }
 
@@ -136,13 +143,21 @@ export interface DashboardRuleDiagnostics {
   uncertaintyReserveBps: number;
   roundTripCostBps: number;
   lowerBoundNetBps: number;
+  scorePass: boolean;
+  rawDirectionalPass: boolean;
+  candidatePass: boolean;
   healthPass: boolean;
   liquidityPass: boolean;
   regimePass: boolean;
   persistencePass: boolean;
   antiChasePass: boolean;
+  exposurePass: boolean;
+  cooldownPass: boolean;
   costPass: boolean;
   arbitrationPass: boolean;
+  tradeThresholdBps: number;
+  stressThresholdBps: number;
+  liquidityReasons: readonly string[];
   reasons: readonly string[];
 }
 

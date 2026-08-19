@@ -1,5 +1,7 @@
 {
   "schemaVersion": 1,
   "symbol": "DOGE/USD",
-  "parameters": {}
+  "parameters": {
+    "DYNAMIC_SHADOW_TRADE_CAP_BPS": 60
+  }
 }

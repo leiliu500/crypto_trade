@@ -31,9 +31,9 @@ export class DeterministicRegimeEngine {
   private previous: RegimeName = "UNKNOWN";
   public constructor(private readonly cfg: DeterministicRegimeConfig) { validateRegimeConfig(cfg); }
 
-  public classify(features: DeterministicFeatures): RegimeDecision {
+  public classify(features: DeterministicFeatures, dynamicLiquidityStress?: boolean): RegimeDecision {
     if (features.stale || features.providerAgeMs < 0 || features.providerAgeMs > this.cfg.maximumProviderAgeMs
-      || features.spreadBps > this.cfg.maximumSpreadBps || features.spreadZ >= this.cfg.liquidityStressSpreadZ
+      || (dynamicLiquidityStress ?? features.spreadBps > this.cfg.maximumSpreadBps) || features.spreadZ >= this.cfg.liquidityStressSpreadZ
       || features.depthZ <= -this.cfg.liquidityStressDepthZ || features.usableDepthNotional < this.cfg.minimumDepthNotional) {
       return this.set("LIQUIDITY_STRESS", false, false, 0);
     }
