@@ -1,0 +1,293 @@
+import type { FeatureConfig } from "./core/features.js";
+import { DEFAULT_FEATURE_CONFIG } from "./core/features.js";
+import type { PlannerConfig } from "./execution/planner.js";
+import type { PortfolioRiskConfig } from "./risk/portfolio.js";
+import type { RiskConfig } from "./risk/sizing.js";
+import type { PositionConfig } from "./strategy/position-manager.js";
+import type { CostConfig } from "./strategy/cost.js";
+import type { ForecastConfig, LinearHead } from "./strategy/forecast.js";
+import type { SignalConfig } from "./strategy/signal.js";
+import type { DeterministicSignalConfig, SignalMode } from "./strategy/deterministic-entry.js";
+import type { ExtensionConfig } from "./strategy/deterministic-features.js";
+import type { DeterministicRegimeConfig } from "./strategy/deterministic-regime.js";
+import type { DeterministicHoldConfig } from "./strategy/deterministic-hold.js";
+import { DEFAULT_DETERMINISTIC_HOLD_CONFIG, DEFAULT_DETERMINISTIC_REGIME_CONFIG, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG, DEFAULT_EXTENSION_CONFIG } from "./config/deterministic-defaults.js";
+
+export type TradingMode = "record" | "replay" | "shadow" | "paper" | "live";
+export interface EngineConfig {
+  mode: TradingMode;
+  credentials: { keyId: string; secretKey: string };
+  paper: boolean;
+  symbols: string[];
+  cryptoLocation: string;
+  recordFile: string;
+  replayFile: string;
+  maximumNotional: number;
+  initialStopSigma: number;
+  minimumStopSpreadMultiple: number;
+  jumpSigma: number;
+  strategyVersion: string;
+  modelVersion: string;
+  configurationVersion: string;
+  signalMode: SignalMode;
+  feature: FeatureConfig;
+  deterministicExtension: ExtensionConfig;
+  deterministicRegime: DeterministicRegimeConfig;
+  deterministicSignal: DeterministicSignalConfig;
+  deterministicHold: DeterministicHoldConfig;
+  forecast: ForecastConfig;
+  probabilityHead: LinearHead;
+  returnHead: LinearHead;
+  signal: SignalConfig;
+  cost: CostConfig;
+  sizing: RiskConfig;
+  portfolio: PortfolioRiskConfig;
+  position: PositionConfig;
+  planner: PlannerConfig;
+  rollingLossFraction: number;
+  sessionLossFraction: number;
+  dashboardEnabled: boolean;
+  dashboardHost: string;
+  dashboardPort: number;
+  databaseEnabled: boolean;
+  databaseRequired: boolean;
+  databaseUrl: string;
+  databaseFlushIntervalMs: number;
+  databaseMaxQueue: number;
+  databaseMarketSampleMs: number;
+}
+
+const MODEL_DIMENSION = 15;
+const zeroWeights = (): number[] => Array.from({ length: MODEL_DIMENSION }, () => 0);
+
+export function loadConfig(env: NodeJS.ProcessEnv = process.env, modeOverride?: string): EngineConfig {
+  const mode = parseMode(modeOverride ?? env.TRADING_MODE ?? "shadow");
+  const keyId = env.ALPACA_API_KEY ?? env.APCA_API_KEY_ID ?? "";
+  const secretKey = env.ALPACA_API_SECRET ?? env.APCA_API_SECRET_KEY ?? "";
+  const paper = parseBoolean(env.ALPACA_PAPER, true);
+  if (mode === "paper" && !paper) throw new Error("Paper mode requires ALPACA_PAPER=true; refusing to route paper-mode orders to the live endpoint");
+  if (["record", "shadow", "paper", "live"].includes(mode) && (!keyId || !secretKey)) {
+    throw new Error("Alpaca credentials are required via ALPACA_API_KEY/ALPACA_API_SECRET or APCA_API_KEY_ID/APCA_API_SECRET_KEY");
+  }
+  if (mode === "live") {
+    if (paper) throw new Error("Live mode cannot run with ALPACA_PAPER=true");
+    if (env.ALLOW_LIVE_TRADING !== "true" || env.LIVE_TRADING_CONFIRMATION !== "I_UNDERSTAND_LIVE_ORDERS_USE_REAL_MONEY") {
+      throw new Error("Live trading interlock is not armed");
+    }
+  }
+  const feature: FeatureConfig = {
+    ...DEFAULT_FEATURE_CONFIG,
+    forecastHorizonMs: numberEnv(env.FORECAST_HORIZON_MS, 5_000),
+    absoluteMaxProviderAgeMs: numberEnv(env.MAX_PROVIDER_AGE_MS, 2_000),
+    maximumProviderFutureSkewMs: numberEnv(env.MAX_PROVIDER_FUTURE_SKEW_MS, DEFAULT_FEATURE_CONFIG.maximumProviderFutureSkewMs),
+  };
+  const signalMode = parseSignalMode(env.SIGNAL_MODE ?? env.ENTRY_MODE);
+  if (signalMode !== "DETERMINISTIC_ONLY" && !env.MODEL_CONFIG_JSON) throw new Error(`${signalMode} requires MODEL_CONFIG_JSON; optional model modes fail closed without a model`);
+  const model = signalMode === "DETERMINISTIC_ONLY" ? parseModel(undefined) : parseModel(env.MODEL_CONFIG_JSON);
+  const configurationVersion = env.DETERMINISTIC_CONFIG_VERSION ?? "deterministic-v1";
+  const deterministicExtension = loadExtensionConfig(env);
+  const deterministicRegime = loadDeterministicRegimeConfig(env);
+  const deterministicSignal = loadDeterministicSignalConfig(env, signalMode, configurationVersion);
+  const deterministicHold = loadDeterministicHoldConfig(env);
+  return {
+    mode, credentials: { keyId, secretKey }, paper, symbols: (env.SYMBOLS ?? "BTC/USD").split(",").map((x) => x.trim()).filter(Boolean),
+    cryptoLocation: env.ALPACA_CRYPTO_LOCATION ?? "us", recordFile: env.RECORD_FILE ?? "data/events.jsonl", replayFile: env.REPLAY_FILE ?? "data/events.jsonl",
+    maximumNotional: numberEnv(env.MAXIMUM_NOTIONAL, 1_000), initialStopSigma: numberEnv(env.INITIAL_STOP_SIGMA, 3),
+    minimumStopSpreadMultiple: numberEnv(env.MINIMUM_STOP_SPREAD_MULTIPLE, 3), jumpSigma: numberEnv(env.JUMP_SIGMA, 5),
+    strategyVersion: env.STRATEGY_VERSION ?? "1.0.0", modelVersion: signalMode === "DETERMINISTIC_ONLY" ? "none" : model.version,
+    configurationVersion, signalMode, feature, deterministicExtension, deterministicRegime, deterministicSignal, deterministicHold,
+    forecast: { alphaDecayTauMs: numberEnv(env.ALPHA_DECAY_TAU_MS, 4_000), intendedHoldMs: numberEnv(env.INTENDED_HOLD_MS, 12_000), residualWindowMs: 86_400_000, fallbackResidualQ95Bps: numberEnv(env.RESIDUAL_Q95_BPS, 8) },
+    probabilityHead: model.probabilityHead, returnHead: model.returnHead,
+    signal: { costSafetyFactor: 1.75, minimumDirectionProbability: .62, minimumNetEdgeBps: 1, fullQualityEdgeBps: 20 },
+    cost: { makerFeeBps: numberEnv(env.MAKER_FEE_BPS, 15), takerFeeBps: numberEnv(env.TAKER_FEE_BPS, 25), expectedExitTaker: true, latencyAdverseFraction: .25, adverseSelectionBps: 1, fundingBps: 0, borrowBps: 0 },
+    sizing: { baseRiskFraction: .001, maximumDrawdown: .05, maximumBookParticipation: .01, fractionalKelly: .1, maximumKellyFraction: .05, targetSigmaHBps: 20, minimumQualityScale: .1 },
+    portfolio: { maximumVariance: Number.POSITIVE_INFINITY, maximumClusterPositions: 1, maximumGrossNotional: numberEnv(env.MAXIMUM_GROSS_NOTIONAL, 5_000), rollingLossBudgetFraction: .0075 },
+    position: defaultPositionConfig(), planner: defaultPlannerConfig(), rollingLossFraction: .0075, sessionLossFraction: .0075,
+    dashboardEnabled: parseBoolean(env.DASHBOARD_ENABLED, true),
+    dashboardHost: env.DASHBOARD_HOST ?? "127.0.0.1",
+    dashboardPort: integerEnv(env.DASHBOARD_PORT, 8_787, 1, 65_535),
+    databaseEnabled: parseBoolean(env.DATABASE_ENABLED, true),
+    databaseRequired: parseBoolean(env.DATABASE_REQUIRED, false),
+    databaseUrl: env.DATABASE_URL ?? buildDatabaseUrl(env),
+    databaseFlushIntervalMs: integerEnv(env.DATABASE_FLUSH_INTERVAL_MS, 250, 25, 60_000),
+    databaseMaxQueue: integerEnv(env.DATABASE_MAX_QUEUE, 10_000, 100, 1_000_000),
+    databaseMarketSampleMs: integerEnv(env.DATABASE_MARKET_SAMPLE_MS, 1_000, 100, 60_000),
+  };
+}
+
+function defaultPositionConfig(): PositionConfig {
+  return { recoveryArmR: .5, trailActivationR: .75, minimumProgressR: .25, minimumHoldMs: 1_000, maximumHoldMs: 20_000, evidenceConfirmationMs: 750,
+    lockMin: .1, lockMax: .85, lockMaturityRate: .8, lockReversalWeight: .3, lockTrendDiscount: .15,
+    baseVolatilityMultiple: 2, trendVolatilityBonus: 1, reversalVolatilityPenalty: 1.25, minimumVolatilityMultiple: .5, maximumVolatilityMultiple: 4,
+    partialExitThreshold: .7, maximumPartialExitFraction: .5, minimumPartialExitBenefitBps: 2 };
+}
+function defaultPlannerConfig(): PlannerConfig {
+  return { makerTtlMs: 1_500, alphaHalfLifeMs: 2_772, minimumFillProbability: .65, cancelAheadFraction: .5,
+    fillHazardIntercept: -1, fillHazardAggressiveWeight: .1, fillHazardFlowWeight: 1, fillHazardImbalanceWeight: .5, fillHazardSpreadWeight: .05,
+    makerOpportunityCostBps: 2, staleOrderCostBps: 1, maximumImpactBps: 10, maximumIterations: 5 };
+}
+function parseMode(value: string): TradingMode {
+  if (!["record", "replay", "shadow", "paper", "live"].includes(value)) throw new Error(`Unknown trading mode: ${value}`);
+  return value as TradingMode;
+}
+function parseSignalMode(value: string | undefined): SignalMode {
+  if (value === undefined || value.toLowerCase() === "rules") return "DETERMINISTIC_ONLY";
+  if (value.toLowerCase() === "linear") return "DETERMINISTIC_WITH_MODEL_VETO";
+  const normalized = value.toUpperCase();
+  if (["DETERMINISTIC_ONLY", "DETERMINISTIC_WITH_MODEL_VETO", "DETERMINISTIC_WITH_MODEL_RANKING"].includes(normalized)) return normalized as SignalMode;
+  throw new Error(`Unknown SIGNAL_MODE: ${value}`);
+}
+function parseBoolean(value: string | undefined, fallback: boolean): boolean { return value === undefined ? fallback : value.toLowerCase() === "true"; }
+function numberEnv(value: string | undefined, fallback: number): number { const n = value === undefined ? fallback : Number(value); if (!Number.isFinite(n) || n < 0) throw new Error(`Invalid numeric configuration: ${value}`); return n; }
+function finiteNumberEnv(value: string | undefined, fallback: number): number { const n = value === undefined ? fallback : Number(value); if (!Number.isFinite(n)) throw new Error(`Invalid finite numeric configuration: ${value}`); return n; }
+function integerEnv(value: string | undefined, fallback: number, minimum: number, maximum: number): number {
+  const parsed = value === undefined ? fallback : Number(value);
+  if (!Number.isInteger(parsed) || parsed < minimum || parsed > maximum) throw new Error(`Invalid integer configuration: ${value}`);
+  return parsed;
+}
+function buildDatabaseUrl(env: NodeJS.ProcessEnv): string {
+  const user = encodeURIComponent(env.POSTGRES_USER ?? "crypto_trade");
+  const password = encodeURIComponent(env.POSTGRES_PASSWORD ?? "crypto_trade_dev");
+  const host = env.POSTGRES_HOST ?? "127.0.0.1";
+  const port = integerEnv(env.POSTGRES_PORT, 5_433, 1, 65_535);
+  const database = encodeURIComponent(env.POSTGRES_DB ?? "crypto_trade");
+  return `postgresql://${user}:${password}@${host}:${port}/${database}`;
+}
+function loadExtensionConfig(env: NodeJS.ProcessEnv): ExtensionConfig {
+  return {
+    impulseWindowMs: numberEnv(env.RULE_IMPULSE_WINDOW_MS, DEFAULT_EXTENSION_CONFIG.impulseWindowMs),
+    breakoutWindowMs: numberEnv(env.RULE_BREAKOUT_WINDOW_MS, DEFAULT_EXTENSION_CONFIG.breakoutWindowMs),
+    anchorWindowMs: numberEnv(env.RULE_ANCHOR_WINDOW_MS, DEFAULT_EXTENSION_CONFIG.anchorWindowMs),
+    flipWindowMs: numberEnv(env.RULE_FLIP_WINDOW_MS, DEFAULT_EXTENSION_CONFIG.flipWindowMs),
+    maximumStoredWindowMs: numberEnv(env.RULE_MAX_STORED_WINDOW_MS, DEFAULT_EXTENSION_CONFIG.maximumStoredWindowMs),
+    cusumDrift: numberEnv(env.RULE_CUSUM_DRIFT, DEFAULT_EXTENSION_CONFIG.cusumDrift),
+    cusumCap: numberEnv(env.RULE_CUSUM_CAP, DEFAULT_EXTENSION_CONFIG.cusumCap),
+    alignmentDeadband: numberEnv(env.RULE_ALIGNMENT_DEADBAND, DEFAULT_EXTENSION_CONFIG.alignmentDeadband),
+  };
+}
+function loadDeterministicRegimeConfig(env: NodeJS.ProcessEnv): DeterministicRegimeConfig {
+  return {
+    ...DEFAULT_DETERMINISTIC_REGIME_CONFIG,
+    maximumProviderAgeMs: numberEnv(env.RULE_MAX_PROVIDER_AGE_MS, DEFAULT_DETERMINISTIC_REGIME_CONFIG.maximumProviderAgeMs),
+    maximumSpreadBps: numberEnv(env.RULE_REGIME_MAX_SPREAD_BPS, DEFAULT_DETERMINISTIC_REGIME_CONFIG.maximumSpreadBps),
+    liquidityStressSpreadZ: numberEnv(env.RULE_LIQUIDITY_STRESS_SPREAD_Z, DEFAULT_DETERMINISTIC_REGIME_CONFIG.liquidityStressSpreadZ),
+    liquidityStressDepthZ: numberEnv(env.RULE_LIQUIDITY_STRESS_DEPTH_Z, DEFAULT_DETERMINISTIC_REGIME_CONFIG.liquidityStressDepthZ),
+    minimumDepthNotional: numberEnv(env.RULE_MIN_DEPTH_NOTIONAL, DEFAULT_DETERMINISTIC_REGIME_CONFIG.minimumDepthNotional),
+    trendEfficiency: numberEnv(env.RULE_TREND_EFFICIENCY, DEFAULT_DETERMINISTIC_REGIME_CONFIG.trendEfficiency),
+    chopEfficiency: numberEnv(env.RULE_CHOP_EFFICIENCY, DEFAULT_DETERMINISTIC_REGIME_CONFIG.chopEfficiency),
+    maximumTrendFlipRate: numberEnv(env.RULE_MAX_TREND_FLIP_RATE, DEFAULT_DETERMINISTIC_REGIME_CONFIG.maximumTrendFlipRate),
+    chopFlipRate: numberEnv(env.RULE_CHOP_FLIP_RATE, DEFAULT_DETERMINISTIC_REGIME_CONFIG.chopFlipRate),
+    regimeMicroEdgeBps: numberEnv(env.RULE_REGIME_MICRO_EDGE_BPS, DEFAULT_DETERMINISTIC_REGIME_CONFIG.regimeMicroEdgeBps),
+    regimeQiK: numberEnv(env.RULE_REGIME_QIK, DEFAULT_DETERMINISTIC_REGIME_CONFIG.regimeQiK),
+    regimeOfi: numberEnv(env.RULE_REGIME_OFI, DEFAULT_DETERMINISTIC_REGIME_CONFIG.regimeOfi),
+    regimeTfi: numberEnv(env.RULE_REGIME_TFI, DEFAULT_DETERMINISTIC_REGIME_CONFIG.regimeTfi),
+    regimeVelocityZ: numberEnv(env.RULE_REGIME_VELOCITY_Z, DEFAULT_DETERMINISTIC_REGIME_CONFIG.regimeVelocityZ),
+    maximumOpposingAccelerationZ: numberEnv(env.RULE_REGIME_MAX_OPPOSING_ACCELERATION_Z, DEFAULT_DETERMINISTIC_REGIME_CONFIG.maximumOpposingAccelerationZ),
+    breakoutBps: numberEnv(env.RULE_REGIME_BREAKOUT_BPS, DEFAULT_DETERMINISTIC_REGIME_CONFIG.breakoutBps),
+    breakoutCusum: numberEnv(env.RULE_REGIME_BREAKOUT_CUSUM, DEFAULT_DETERMINISTIC_REGIME_CONFIG.breakoutCusum),
+    breakoutOfi: numberEnv(env.RULE_REGIME_BREAKOUT_OFI, DEFAULT_DETERMINISTIC_REGIME_CONFIG.breakoutOfi),
+    breakoutTfi: numberEnv(env.RULE_REGIME_BREAKOUT_TFI, DEFAULT_DETERMINISTIC_REGIME_CONFIG.breakoutTfi),
+    neutralOfi: numberEnv(env.RULE_REGIME_NEUTRAL_OFI, DEFAULT_DETERMINISTIC_REGIME_CONFIG.neutralOfi),
+    neutralTfi: numberEnv(env.RULE_REGIME_NEUTRAL_TFI, DEFAULT_DETERMINISTIC_REGIME_CONFIG.neutralTfi),
+    hysteresisResetRatio: numberEnv(env.RULE_REGIME_RESET_RATIO, DEFAULT_DETERMINISTIC_REGIME_CONFIG.hysteresisResetRatio),
+  };
+}
+function loadDeterministicSignalConfig(env: NodeJS.ProcessEnv, mode: SignalMode, configurationVersion: string): DeterministicSignalConfig {
+  return {
+    ...DEFAULT_DETERMINISTIC_SIGNAL_CONFIG, mode, configurationVersion,
+    maximumProviderAgeMs: numberEnv(env.RULE_MAX_PROVIDER_AGE_MS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.maximumProviderAgeMs),
+    maximumSpreadBps: numberEnv(env.RULE_MAX_SPREAD_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.maximumSpreadBps),
+    maximumSpreadZ: numberEnv(env.RULE_MAX_SPREAD_Z, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.maximumSpreadZ),
+    minimumDepthZ: finiteNumberEnv(env.RULE_MIN_DEPTH_Z, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.minimumDepthZ),
+    minimumDepthNotional: numberEnv(env.RULE_MIN_DEPTH_NOTIONAL, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.minimumDepthNotional),
+    maximumImpactBps: numberEnv(env.RULE_MAX_IMPACT_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.maximumImpactBps),
+    microEdgeBps: numberEnv(env.RULE_MICRO_EDGE_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microEdgeBps),
+    qi1: numberEnv(env.RULE_QI1, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.qi1), qiK: numberEnv(env.RULE_QIK, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.qiK),
+    ofi: numberEnv(env.RULE_OFI, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.ofi), tfi: numberEnv(env.RULE_TFI, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.tfi),
+    replenishment: numberEnv(env.RULE_REPLENISHMENT, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.replenishment),
+    velocityZ: numberEnv(env.RULE_VELOCITY_Z, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.velocityZ),
+    maximumOpposingAccelerationZ: numberEnv(env.RULE_MAX_OPPOSING_ACCELERATION_Z, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.maximumOpposingAccelerationZ),
+    impulseBps: numberEnv(env.RULE_IMPULSE_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.impulseBps),
+    breakoutBps: numberEnv(env.RULE_BREAKOUT_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.breakoutBps),
+    cusum: numberEnv(env.RULE_CUSUM, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.cusum),
+    efficiency: numberEnv(env.RULE_EFFICIENCY, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.efficiency),
+    maximumFlipRate: numberEnv(env.RULE_MAX_FLIP_RATE, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.maximumFlipRate),
+    minimumBookVotes: integerEnv(env.RULE_MIN_BOOK_VOTES, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.minimumBookVotes, 1, 3),
+    minimumFlowVotes: integerEnv(env.RULE_MIN_FLOW_VOTES, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.minimumFlowVotes, 1, 3),
+    minimumKinematicVotes: integerEnv(env.RULE_MIN_KINEMATIC_VOTES, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.minimumKinematicVotes, 1, 5),
+    scoreEnter: numberEnv(env.RULE_SCORE_ENTER, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.scoreEnter),
+    scoreReset: numberEnv(env.RULE_SCORE_RESET, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.scoreReset),
+    arbitrationMargin: numberEnv(env.RULE_ARBITRATION_MARGIN, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.arbitrationMargin),
+    scoreWeights: {
+      micro: numberEnv(env.RULE_WEIGHT_MICRO, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.scoreWeights.micro),
+      qi1: numberEnv(env.RULE_WEIGHT_QI1, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.scoreWeights.qi1),
+      qiK: numberEnv(env.RULE_WEIGHT_QIK, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.scoreWeights.qiK),
+      ofi: numberEnv(env.RULE_WEIGHT_OFI, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.scoreWeights.ofi),
+      tfi: numberEnv(env.RULE_WEIGHT_TFI, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.scoreWeights.tfi),
+      replenishment: numberEnv(env.RULE_WEIGHT_REPLENISHMENT, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.scoreWeights.replenishment),
+      velocity: numberEnv(env.RULE_WEIGHT_VELOCITY, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.scoreWeights.velocity),
+      acceleration: numberEnv(env.RULE_WEIGHT_ACCELERATION, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.scoreWeights.acceleration),
+      impulse: numberEnv(env.RULE_WEIGHT_IMPULSE, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.scoreWeights.impulse),
+      cusum: numberEnv(env.RULE_WEIGHT_CUSUM, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.scoreWeights.cusum),
+      efficiency: numberEnv(env.RULE_WEIGHT_EFFICIENCY, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.scoreWeights.efficiency),
+      flipQuality: numberEnv(env.RULE_WEIGHT_FLIP_QUALITY, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.scoreWeights.flipQuality),
+    },
+    persistenceWindowMs: numberEnv(env.RULE_PERSISTENCE_WINDOW_MS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.persistenceWindowMs),
+    minimumPersistence: numberEnv(env.RULE_MIN_PERSISTENCE, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.minimumPersistence),
+    minimumConfirmationMs: numberEnv(env.RULE_MIN_CONFIRMATION_MS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.minimumConfirmationMs),
+    minimumConfirmationEvents: integerEnv(env.RULE_MIN_CONFIRMATION_EVENTS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.minimumConfirmationEvents, 1, 10_000),
+    cooldownMs: numberEnv(env.RULE_COOLDOWN_MS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.cooldownMs),
+    resetMs: numberEnv(env.RULE_RESET_MS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.resetMs),
+    maximumImpulseZ: numberEnv(env.RULE_MAX_IMPULSE_Z, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.maximumImpulseZ),
+    maximumChaseBps: numberEnv(env.RULE_MAX_CHASE_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.maximumChaseBps),
+    maximumAnchorZ: numberEnv(env.RULE_MAX_ANCHOR_Z, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.maximumAnchorZ),
+    expectedLatencyMs: numberEnv(env.RULE_EXPECTED_LATENCY_MS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.expectedLatencyMs),
+    holdHorizonMs: numberEnv(env.RULE_HOLD_HORIZON_MS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.holdHorizonMs),
+    ruleDecayTauMs: numberEnv(env.RULE_DECAY_TAU_MS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.ruleDecayTauMs),
+    kinematicSigmaCap: numberEnv(env.RULE_KINEMATIC_SIGMA_CAP, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.kinematicSigmaCap),
+    flowSigmaScale: numberEnv(env.RULE_FLOW_SIGMA_SCALE, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.flowSigmaScale),
+    impulseSigmaCap: numberEnv(env.RULE_IMPULSE_SIGMA_CAP, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.impulseSigmaCap),
+    totalSigmaCap: numberEnv(env.RULE_TOTAL_SIGMA_CAP, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.totalSigmaCap),
+    opportunityWeights: {
+      micro: numberEnv(env.RULE_OPPORTUNITY_WEIGHT_MICRO, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.opportunityWeights.micro),
+      kinematic: numberEnv(env.RULE_OPPORTUNITY_WEIGHT_KINEMATIC, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.opportunityWeights.kinematic),
+      flow: numberEnv(env.RULE_OPPORTUNITY_WEIGHT_FLOW, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.opportunityWeights.flow),
+      impulse: numberEnv(env.RULE_OPPORTUNITY_WEIGHT_IMPULSE, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.opportunityWeights.impulse),
+    },
+    efficiencyExponent: numberEnv(env.RULE_EFFICIENCY_EXPONENT, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.efficiencyExponent),
+    persistenceExponent: numberEnv(env.RULE_PERSISTENCE_EXPONENT, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.persistenceExponent),
+    disagreementPenalty: numberEnv(env.RULE_DISAGREEMENT_PENALTY, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.disagreementPenalty),
+    latencyVolatilityPenalty: numberEnv(env.RULE_LATENCY_VOLATILITY_PENALTY, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.latencyVolatilityPenalty),
+    spreadStressPenaltyBps: numberEnv(env.RULE_SPREAD_STRESS_PENALTY_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.spreadStressPenaltyBps),
+    flipPenaltyBps: numberEnv(env.RULE_FLIP_PENALTY_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.flipPenaltyBps),
+    opposingAccelerationPenaltyBps: numberEnv(env.RULE_OPPOSING_ACCELERATION_PENALTY_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.opposingAccelerationPenaltyBps),
+    costSafetyFactor: numberEnv(env.COST_SAFETY_FACTOR, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.costSafetyFactor),
+    minimumNetEdgeBps: numberEnv(env.RULE_MIN_NET_EDGE_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.minimumNetEdgeBps),
+    fullQualityEdgeBps: numberEnv(env.RULE_FULL_QUALITY_EDGE_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.fullQualityEdgeBps),
+  };
+}
+function loadDeterministicHoldConfig(env: NodeJS.ProcessEnv): DeterministicHoldConfig {
+  return {
+    ...DEFAULT_DETERMINISTIC_HOLD_CONFIG,
+    holdHorizonMs: numberEnv(env.RULE_HOLD_HORIZON_MS, DEFAULT_DETERMINISTIC_HOLD_CONFIG.holdHorizonMs),
+    kinematicSigmaCap: numberEnv(env.RULE_HOLD_KINEMATIC_SIGMA_CAP, DEFAULT_DETERMINISTIC_HOLD_CONFIG.kinematicSigmaCap),
+    flowSigmaScale: numberEnv(env.RULE_HOLD_FLOW_SIGMA_SCALE, DEFAULT_DETERMINISTIC_HOLD_CONFIG.flowSigmaScale),
+    totalSigmaCap: numberEnv(env.RULE_HOLD_TOTAL_SIGMA_CAP, DEFAULT_DETERMINISTIC_HOLD_CONFIG.totalSigmaCap),
+    minimumContinuationScore: numberEnv(env.RULE_MIN_CONTINUATION_SCORE, DEFAULT_DETERMINISTIC_HOLD_CONFIG.minimumContinuationScore),
+    reversalVoteThreshold: integerEnv(env.RULE_REVERSAL_VOTE_THRESHOLD, DEFAULT_DETERMINISTIC_HOLD_CONFIG.reversalVoteThreshold, 1, 5),
+    opposingAccelerationZ: numberEnv(env.RULE_REVERSAL_ACCELERATION_Z, DEFAULT_DETERMINISTIC_HOLD_CONFIG.opposingAccelerationZ),
+    opposingOfi: numberEnv(env.RULE_REVERSAL_OFI, DEFAULT_DETERMINISTIC_HOLD_CONFIG.opposingOfi),
+    opposingTfi: numberEnv(env.RULE_REVERSAL_TFI, DEFAULT_DETERMINISTIC_HOLD_CONFIG.opposingTfi),
+    opposingReplenishment: numberEnv(env.RULE_REVERSAL_REPLENISHMENT, DEFAULT_DETERMINISTIC_HOLD_CONFIG.opposingReplenishment),
+    opposingCusum: numberEnv(env.RULE_REVERSAL_CUSUM, DEFAULT_DETERMINISTIC_HOLD_CONFIG.opposingCusum),
+    uncertaintySpreadPenaltyBps: numberEnv(env.RULE_HOLD_SPREAD_PENALTY_BPS, DEFAULT_DETERMINISTIC_HOLD_CONFIG.uncertaintySpreadPenaltyBps),
+    uncertaintyFlipPenaltyBps: numberEnv(env.RULE_HOLD_FLIP_PENALTY_BPS, DEFAULT_DETERMINISTIC_HOLD_CONFIG.uncertaintyFlipPenaltyBps),
+    minimumHoldEdgeBps: numberEnv(env.RULE_MIN_HOLD_EDGE_BPS, DEFAULT_DETERMINISTIC_HOLD_CONFIG.minimumHoldEdgeBps),
+  };
+}
+function parseModel(json: string | undefined): { version: string; probabilityHead: LinearHead; returnHead: LinearHead } {
+  if (!json) return { version: "untrained-zero", probabilityHead: { intercept: 0, weights: zeroWeights() }, returnHead: { intercept: 0, weights: zeroWeights() } };
+  const parsed = JSON.parse(json) as { version?: unknown; probabilityHead?: LinearHead; returnHead?: LinearHead };
+  if (!parsed.probabilityHead || !parsed.returnHead || parsed.probabilityHead.weights.length !== MODEL_DIMENSION || parsed.returnHead.weights.length !== MODEL_DIMENSION) throw new Error(`MODEL_CONFIG_JSON must contain ${MODEL_DIMENSION}-element probability and return heads`);
+  return { version: typeof parsed.version === "string" ? parsed.version : "external", probabilityHead: parsed.probabilityHead, returnHead: parsed.returnHead };
+}

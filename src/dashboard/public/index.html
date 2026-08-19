@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Northstar · Crypto Operations</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="ambient ambient-a"></div><div class="ambient ambient-b"></div>
+  <main class="shell" data-testid="dashboard-root">
+    <header class="topbar">
+      <a class="brand" href="#top" aria-label="Northstar operations home">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span><b>NORTHSTAR</b><small>CRYPTO OPERATIONS</small></span>
+      </a>
+      <div class="top-meta">
+        <span id="mode-badge" class="mode-badge">OFFLINE</span>
+        <span id="connection-status" class="connection connecting" data-testid="connection-status"><i></i>Connecting</span>
+        <time id="clock">--:--:--</time>
+      </div>
+    </header>
+
+    <section id="top" class="hero panel" data-testid="overall-health">
+      <div class="hero-copy">
+        <div class="eyebrow"><span id="health-pulse" class="pulse"></span> LIVE CONTROL PLANE</div>
+        <h1 id="health-title">Establishing system state</h1>
+        <p id="health-description">Waiting for the first operational snapshot.</p>
+        <div id="halt-reasons" class="halt-reasons"></div>
+      </div>
+      <div class="hero-health">
+        <div id="health-orbit" class="health-orbit"><div><strong id="health-score">—</strong><span>SYSTEM</span></div></div>
+      </div>
+      <div class="hero-stats">
+        <article><span>Equity</span><strong id="equity">—</strong><small id="drawdown">Peak —</small></article>
+        <article><span>Session P&amp;L</span><strong id="session-pnl">—</strong><small>Realized</small></article>
+        <article><span>Latency P95</span><strong id="latency">—</strong><small>Decision → venue</small></article>
+        <article><span>Uptime</span><strong id="uptime">—</strong><small id="strategy-version">Strategy —</small></article>
+      </div>
+    </section>
+
+    <section class="section" data-testid="liveness-panel">
+      <div class="section-head"><div><span class="kicker">SYSTEM FABRIC</span><h2>Liveness matrix</h2></div><span id="last-update" class="freshness">Awaiting data</span></div>
+      <div id="liveness-grid" class="liveness-grid skeleton-grid"></div>
+    </section>
+
+    <section class="section" data-testid="market-panel">
+      <div class="section-head"><div><span class="kicker">ALPACA MARKET DATA</span><h2>Market pulse</h2></div><div class="section-actions"><select id="symbol-filter" aria-label="Filter dashboard by symbol"><option value="all">All symbols</option></select></div></div>
+      <div id="market-grid" class="market-grid empty-grid"><p>Waiting for order books…</p></div>
+    </section>
+
+    <section class="section" data-testid="positions-panel">
+      <div class="section-head"><div><span class="kicker">POSITION INTELLIGENCE</span><h2>Exit dynamics</h2></div><span id="position-count" class="count-pill">0 active</span></div>
+      <div id="positions-grid" class="positions-grid empty-grid"><p>No active positions.</p></div>
+    </section>
+
+    <section class="section orders-section" data-testid="orders-panel">
+      <div class="section-head">
+        <div><span class="kicker">EXECUTION LEDGER</span><h2>Order dynamics</h2></div>
+        <div class="segmented" role="group" aria-label="Filter orders">
+          <button class="active" data-order-filter="all" data-testid="filter-all">All</button>
+          <button data-order-filter="open" data-testid="filter-open">Open</button>
+          <button data-order-filter="terminal" data-testid="filter-terminal">Terminal</button>
+        </div>
+      </div>
+      <div id="orders-grid" class="orders-grid empty-grid"><p>No orders in this engine run.</p></div>
+    </section>
+
+    <section class="section" data-testid="events-panel">
+      <div class="section-head"><div><span class="kicker">AUDIT STREAM</span><h2>Operational events</h2></div><button id="pause-button" class="text-button" data-testid="pause-stream"><span>Ⅱ</span> Pause stream</button></div>
+      <div class="event-table-wrap">
+        <table class="event-table"><thead><tr><th>Time</th><th>Severity</th><th>Event</th><th>Context</th></tr></thead><tbody id="events-body"><tr><td colspan="4" class="empty-row">Waiting for events…</td></tr></tbody></table>
+      </div>
+    </section>
+
+    <footer><span>Northstar operations console</span><span id="footer-detail">Local read-only control plane</span></footer>
+  </main>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+{
+  "name": "alpaca-minimal-latency-crypto-engine",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Event-driven TypeScript crypto trading engine for Alpaca with latency, cost, risk, and order-state controls.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "tsx --test test/*.test.ts",
+    "start": "tsx src/main.ts",
+    "shadow": "tsx src/main.ts shadow",
+    "paper": "tsx src/main.ts paper",
+    "record": "tsx src/main.ts record",
+    "replay": "tsx src/main.ts replay",
+    "dashboard": "tsx src/dashboard/demo-main.ts",
+    "dashboard:demo": "tsx src/dashboard/demo-main.ts",
+    "db:migrate": "tsx src/database/migrate-main.ts",
+    "db:verify": "tsx src/database/verify-main.ts",
+    "db:smoke": "tsx src/database/smoke-main.ts"
+  },
+  "dependencies": {
+    "pg": "^8.23.0",
+    "ws": "^8.18.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.18.0",
+    "@types/pg": "^8.23.1",
+    "@types/ws": "^8.18.1",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
+  }
+}

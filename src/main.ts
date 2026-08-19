@@ -1,0 +1,81 @@
+import { loadConfig } from "./config.js";
+import { validateReplay } from "./backtest/replay.js";
+import { TradingEngine } from "./engine/trading-engine.js";
+import { loadLocalEnv } from "./env.js";
+import { OperationsMonitor } from "./dashboard/operations-monitor.js";
+import { DashboardServer } from "./dashboard/server.js";
+import type { DatabaseHealth, TelemetryRecord } from "./dashboard/types.js";
+import { PostgresTelemetryStore } from "./database/postgres-store.js";
+
+async function main(): Promise<void> {
+  loadLocalEnv();
+  const modeOverride = process.argv[2];
+  const cfg = loadConfig(process.env, modeOverride);
+  if (cfg.mode === "replay") {
+    const stats = await validateReplay(cfg.replayFile);
+    process.stdout.write(`${JSON.stringify(stats, null, 2)}\n`);
+    return;
+  }
+  const engine = new TradingEngine(cfg);
+  const monitor = new OperationsMonitor({ marketSampleMs: cfg.databaseMarketSampleMs });
+  let store: PostgresTelemetryStore | undefined;
+  if (cfg.databaseEnabled) {
+    store = new PostgresTelemetryStore({ connectionString: cfg.databaseUrl, flushIntervalMs: cfg.databaseFlushIntervalMs, maximumQueue: cfg.databaseMaxQueue });
+    const candidate = store;
+    candidate.on("health", (health: DatabaseHealth) => monitor.setDatabaseHealth(health));
+    monitor.setDatabaseHealth(candidate.health());
+    try {
+      const migrations = await candidate.start({ mode: cfg.mode, paper: cfg.paper, strategyVersion: cfg.strategyVersion, modelVersion: cfg.modelVersion,
+        symbols: cfg.symbols, metadata: { configurationVersion: cfg.configurationVersion, signalMode: cfg.signalMode } });
+      process.stdout.write(`${JSON.stringify({ type: "database-ready", migrations })}\n`);
+    } catch (error) {
+      await candidate.close().catch(() => undefined);
+      store = undefined;
+      monitor.setDatabaseHealth({ connected: false, status: "degraded", queuedRecords: 0, droppedRecords: 0, lastPersistedAtMs: null,
+        lastError: error instanceof Error ? error.message : String(error) });
+      if (cfg.databaseRequired) throw error;
+      process.stderr.write(`${JSON.stringify({ type: "database-degraded", message: error instanceof Error ? error.message : String(error) })}\n`);
+    }
+  }
+  const activeStore = store;
+  if (activeStore) monitor.on("telemetry", (record: TelemetryRecord) => activeStore.enqueue(record));
+  monitor.attach(engine);
+  let dashboard: DashboardServer | undefined;
+  if (cfg.dashboardEnabled) {
+    dashboard = new DashboardServer(monitor, { host: cfg.dashboardHost, port: cfg.dashboardPort });
+    const url = await dashboard.start();
+    process.stdout.write(`${JSON.stringify({ type: "dashboard-ready", url })}\n`);
+  }
+  engine.on("decision", (event) => process.stdout.write(`${JSON.stringify({ type: "decision", event }, bigintReplacer)}\n`));
+  engine.on("positionDecision", (event) => process.stdout.write(`${JSON.stringify({ type: "position", event }, bigintReplacer)}\n`));
+  engine.on("engineError", (error) => process.stderr.write(`${JSON.stringify({ type: "error", message: error instanceof Error ? error.message : String(error) })}\n`));
+  try {
+    await engine.start();
+  } catch (error) {
+    await engine.stop().catch(() => undefined);
+    monitor.stop();
+    if (dashboard) await dashboard.stop().catch(() => undefined);
+    if (activeStore) await activeStore.close().catch(() => undefined);
+    throw error;
+  }
+  process.stdout.write(`${JSON.stringify({ type: "started", mode: cfg.mode, symbols: cfg.symbols, paper: cfg.paper })}\n`);
+  let shuttingDown = false;
+  const shutdown = async (): Promise<void> => {
+    if (shuttingDown) return;
+    shuttingDown = true;
+    await engine.stop();
+    monitor.stop();
+    if (dashboard) await dashboard.stop();
+    if (activeStore) await activeStore.close();
+    process.exitCode = 0;
+  };
+  process.once("SIGINT", () => { void shutdown(); });
+  process.once("SIGTERM", () => { void shutdown(); });
+}
+
+const bigintReplacer = (_key: string, value: unknown): unknown => typeof value === "bigint" ? value.toString() : value;
+
+main().catch((error: unknown) => {
+  process.stderr.write(`${JSON.stringify({ type: "fatal", message: error instanceof Error ? error.message : String(error) })}\n`);
+  process.exitCode = 1;
+});
