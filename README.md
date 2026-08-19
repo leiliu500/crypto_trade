@@ -12,10 +12,11 @@ The hot path is:
 Alpaca crypto WebSocket
   -> reset/delta L2 book validation
   -> causal deterministic feature extensions
-  -> liquidity/regime gates + independent evidence quorums
+  -> direction-only regime + independent evidence-group quorum
   -> event-time persistence + score hysteresis + arbitration
-  -> bounded opportunity - uncertainty - exact walked cost
-  -> anti-chasing + exposure/reset/cooldown gates
+  -> health/liquidity + venue/exposure/reset/cooldown gates
+  -> calibrated-or-analytic edge - uncertainty - exact walked cost
+  -> anti-chasing + quantity-aware execution planning
   -> risk, correlation, and liquidity sizing
   -> maker/taker EV comparison
   -> capped Alpaca limit order
@@ -25,9 +26,10 @@ Alpaca crypto WebSocket
 
 The main contracts are:
 
-- Entry: every independent book, executed-flow, kinematic, quality, persistence, regime, health, cost, anti-chasing, and exposure gate must pass.
+- Candidate: the direction-only regime, score, arbitration, persistence, and a two-of-three book/flow/kinematic group quorum must pass; kinematic evidence remains mandatory. Spread, account state, fees, and order state cannot suppress candidate telemetry.
+- Entry: every health, dynamic-liquidity, venue, anti-chasing, exposure, edge, cost, sizing, execution-plan, and portfolio gate must then pass.
 - Cost: `deterministic opportunity − uncertainty reserve − 1.75 × exact quantity-dependent round-trip cost >= minimum edge`.
-- Latency: deterministic opportunity is evaluated at `p95 latency + hold horizon` and decayed by `exp(−L_p95/τ_rule)`.
+- Horizon: the causal trigger uses short feature windows, while analytical edge uses a separately configured economic horizon (`RULE_ECONOMIC_HORIZON_MS`).
 - State: one continuous signal produces at most one entry; both a cooldown and a below-reset interval are required to re-arm.
 - Models: `SIGNAL_MODE=DETERMINISTIC_ONLY` is the default. An optional model may only veto, rank, or reduce an already-valid deterministic intent; it cannot create exposure.
 - Risk: `quantity × maximum modeled loss per unit <= current risk budget`.

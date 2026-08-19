@@ -1,6 +1,7 @@
 import type { Direction } from "../core/market.js";
 import { clamp } from "../core/market.js";
 import type { CostEstimate } from "./cost.js";
+import { DeterministicEdgeResolver, type AnalyticEdgeConfig, type EdgeSourceMode } from "./deterministic-edge-resolver.js";
 import type { DeterministicFeatures } from "./deterministic-features.js";
 import type { RegimeDecision } from "./deterministic-regime.js";
 import type { LiquidityDecision } from "./dynamic-liquidity.js";
@@ -14,12 +15,10 @@ export interface ScoreWeights {
   micro: number; qi1: number; qiK: number; ofi: number; tfi: number; replenishment: number; velocity: number;
   acceleration: number; impulse: number; cusum: number; efficiency: number; flipQuality: number;
 }
-export interface OpportunityWeights { micro: number; kinematic: number; flow: number; impulse: number; }
 export interface DeterministicSignalConfig {
   mode: SignalMode;
   configurationVersion: string;
-  maximumProviderAgeMs: number; maximumSpreadBps: number; maximumSpreadZ: number; minimumDepthZ: number;
-  minimumDepthNotional: number; maximumImpactBps: number;
+  maximumSpreadBps: number; maximumSpreadZ: number; minimumDepthZ: number; maximumImpactBps: number;
   microEdgeBps: number; qi1: number; qiK: number; ofi: number; tfi: number; replenishment: number; velocityZ: number;
   maximumOpposingAccelerationZ: number; impulseBps: number; breakoutBps: number; cusum: number; efficiency: number; maximumFlipRate: number;
   minimumBookVotes: number; minimumFlowVotes: number; minimumKinematicVotes: number;
@@ -27,28 +26,29 @@ export interface DeterministicSignalConfig {
   persistenceWindowMs: number; minimumPersistence: number; minimumConfirmationMs: number; minimumConfirmationEvents: number;
   cooldownMs: number; resetMs: number;
   maximumImpulseZ: number; maximumChaseBps: number; maximumAnchorZ: number;
-  expectedLatencyMs: number; holdHorizonMs: number; ruleDecayTauMs: number;
-  kinematicSigmaCap: number; flowSigmaScale: number; impulseSigmaCap: number; totalSigmaCap: number; opportunityWeights: OpportunityWeights;
-  efficiencyExponent: number; persistenceExponent: number;
-  disagreementPenalty: number; latencyVolatilityPenalty: number; spreadStressPenaltyBps: number; flipPenaltyBps: number; opposingAccelerationPenaltyBps: number;
   costSafetyFactor: number; minimumNetEdgeBps: number; fullQualityEdgeBps: number;
+  edgeSourceMode: EdgeSourceMode; analyticEdge: AnalyticEdgeConfig;
 }
 export interface EntryContext {
   symbol: string; sequence: bigint; nowMs: number; features: DeterministicFeatures; regime: RegimeDecision; system: SystemGateState;
-  bestBid: number; bestAsk: number; expectedLatencyMs: number; longCost: CostEstimate; shortCost: CostEstimate;
+  bestBid: number; bestAsk: number; longCost: CostEstimate; shortCost: CostEstimate;
   longLiquidity?: LiquidityDecision; shortLiquidity?: LiquidityDecision;
 }
 export interface RuleVoteVector {
   micro: boolean; qi1: boolean; qiK: boolean; ofi: boolean; tfi: boolean; replenishment: boolean;
   velocity: boolean; acceleration: boolean; impulse: boolean; breakout: boolean; cusum: boolean;
 }
-export interface RuleVotes { book: number; flow: number; kinematic: number; quality: boolean; quorum: boolean; vector: RuleVoteVector; }
+export interface RuleVotes {
+  book: number; flow: number; kinematic: number; activeGroups: number; qualityVotes: number;
+  quality: boolean; quorum: boolean; vector: RuleVoteVector;
+}
 export type DirectionPhase = "IDLE" | "ARMED" | "COOLDOWN";
 export interface RuleDiagnostics {
   side: Direction; phase: DirectionPhase; score: number; oppositeScore: number; scoreMargin: number; votes: RuleVotes;
   persistence: number; confirmationMs: number; confirmationEvents: number; grossOpportunityBps: number; uncertaintyReserveBps: number;
   roundTripCostBps: number; lowerBoundNetBps: number; chaseBps: number; impulseZ: number; anchorZ: number;
-  scorePass: boolean; rawDirectionalPass: boolean; candidatePass: boolean;
+  edgeSource: "CALIBRATED" | "ANALYTIC" | "UNRESOLVED"; edgeHorizonMs: number; edgeQuality: number;
+  scorePass: boolean; rawDirectionalPass: boolean; candidatePass: boolean; edgeResolvedPass: boolean;
   healthPass: boolean; liquidityPass: boolean; regimePass: boolean; persistencePass: boolean; antiChasePass: boolean;
   exposurePass: boolean; cooldownPass: boolean; costPass: boolean; arbitrationPass: boolean;
   liquidityReasons: readonly string[]; tradeThresholdBps: number; stressThresholdBps: number; reasons: string[];
@@ -103,9 +103,11 @@ class TimeWeightedPersistence {
 
 export class DeterministicEntryEngine {
   private readonly states = new Map<Direction, DirectionState>();
+  private readonly edgeResolver: DeterministicEdgeResolver;
   private lastEvaluation?: DeterministicEvaluation;
   public constructor(private readonly cfg: DeterministicSignalConfig) {
     validateDeterministicConfig(cfg);
+    this.edgeResolver = new DeterministicEdgeResolver(cfg.edgeSourceMode, cfg.analyticEdge);
     this.states.set(1, { phase: "IDLE", lastFireMs: Number.NEGATIVE_INFINITY, persistence: new TimeWeightedPersistence(cfg.persistenceWindowMs) });
     this.states.set(-1, { phase: "IDLE", lastFireMs: Number.NEGATIVE_INFINITY, persistence: new TimeWeightedPersistence(cfg.persistenceWindowMs) });
   }
@@ -168,15 +170,15 @@ export class DeterministicEntryEngine {
   }
   private commonPass(d: RuleDiagnostics): boolean {
     return d.candidatePass && d.healthPass && d.liquidityPass && d.antiChasePass
-      && d.exposurePass && d.cooldownPass && d.costPass;
+      && d.exposurePass && d.cooldownPass && d.edgeResolvedPass && d.costPass;
   }
   private healthPass(system: SystemGateState): boolean {
     return system.bookValid && system.sequenceValid && system.checksumValid && system.publicStreamHealthy && system.privateStreamHealthy
       && system.accountReconciled && system.clockHealthy && system.entriesAllowed;
   }
   private staticLiquidityPass(f: DeterministicFeatures, cost: CostEstimate): boolean {
-    return f.warmedUp && !f.stale && f.providerAgeMs >= 0 && f.providerAgeMs <= this.cfg.maximumProviderAgeMs && f.spreadBps <= this.cfg.maximumSpreadBps
-      && f.spreadZ <= this.cfg.maximumSpreadZ && f.depthZ >= this.cfg.minimumDepthZ && f.usableDepthNotional >= this.cfg.minimumDepthNotional
+    return f.warmedUp && !f.stale && f.providerAgeMs >= 0 && f.spreadBps <= this.cfg.maximumSpreadBps
+      && f.spreadZ <= this.cfg.maximumSpreadZ && f.depthZ >= this.cfg.minimumDepthZ
       && cost.impactBps <= this.cfg.maximumImpactBps;
   }
   private regimeAllows(direction: Direction, regime: RegimeDecision): boolean { return direction === 1 ? regime.allowLong : regime.allowShort; }
@@ -195,9 +197,14 @@ export class DeterministicEntryEngine {
     const book = Number(vector.micro) + Number(vector.qi1) + Number(vector.qiK);
     const flow = Number(vector.ofi) + Number(vector.tfi) + Number(vector.replenishment);
     const kinematic = Number(vector.velocity) + Number(vector.acceleration) + Number(vector.impulse) + Number(vector.breakout) + Number(vector.cusum);
-    const quality = f.efficiency >= this.cfg.efficiency && f.flowFlipRate <= this.cfg.maximumFlipRate;
-    return { book, flow, kinematic, quality, quorum: book >= this.cfg.minimumBookVotes && flow >= this.cfg.minimumFlowVotes
-      && kinematic >= this.cfg.minimumKinematicVotes && quality, vector };
+    const bookPass = book >= this.cfg.minimumBookVotes;
+    const flowPass = flow >= this.cfg.minimumFlowVotes;
+    const kinematicPass = kinematic >= this.cfg.minimumKinematicVotes;
+    const activeGroups = Number(bookPass) + Number(flowPass) + Number(kinematicPass);
+    const qualityVotes = Number(f.efficiency >= this.cfg.efficiency) + Number(f.flowFlipRate <= this.cfg.maximumFlipRate);
+    const quality = qualityVotes >= 1;
+    return { book, flow, kinematic, activeGroups, qualityVotes, quality,
+      quorum: activeGroups >= 2 && kinematicPass && quality, vector };
   }
   private normalizedScore(direction: Direction, f: DeterministicFeatures): number {
     const directionalCusum = direction === 1 ? f.cusumUpScore : -f.cusumDownScore;
@@ -212,32 +219,6 @@ export class DeterministicEntryEngine {
       term((f.efficiency - this.cfg.efficiency) / Math.max(1 - this.cfg.efficiency, 1e-9), this.cfg.scoreWeights.efficiency),
       { value: 1 - 2 * clamp(f.flowFlipRate / this.cfg.maximumFlipRate, 0, 1), weight: this.cfg.scoreWeights.flipQuality },
     ]), -1, 1);
-  }
-  private opportunity(direction: Direction, f: DeterministicFeatures, score: number, persistence: number, expectedLatencyMs: number): { grossBps: number; uncertaintyBps: number } {
-    const effectiveLatencyMs = Number.isFinite(expectedLatencyMs) && expectedLatencyMs >= 0 ? expectedLatencyMs : this.cfg.expectedLatencyMs;
-    const horizonSec = (effectiveLatencyMs + this.cfg.holdHorizonMs) / 1_000;
-    const latencySec = effectiveLatencyMs / 1_000;
-    const sigmaHBps = 10_000 * Math.sqrt(Math.max(f.varianceRate * horizonSec, 1e-16));
-    const sigmaLatencyBps = 10_000 * Math.sqrt(Math.max(f.varianceRate * latencySec, 1e-16));
-    const micro = Math.max(0, direction * f.microEdgeBps);
-    const kinematic = clamp(10_000 * direction * (f.velocity * horizonSec + .5 * f.acceleration * horizonSec * horizonSec), 0, this.cfg.kinematicSigmaCap * sigmaHBps);
-    const flowStrength = clamp((direction * f.ofi / this.cfg.ofi + direction * f.tfi / this.cfg.tfi + direction * f.qiK / this.cfg.qiK) / 3, 0, 1);
-    const flow = this.cfg.flowSigmaScale * sigmaHBps * flowStrength;
-    const impulse = clamp(direction * f.impulseBps, 0, this.cfg.impulseSigmaCap * sigmaHBps);
-    const raw = weightedAverage([
-      { value: micro, weight: this.cfg.opportunityWeights.micro }, { value: kinematic, weight: this.cfg.opportunityWeights.kinematic },
-      { value: flow, weight: this.cfg.opportunityWeights.flow }, { value: impulse, weight: this.cfg.opportunityWeights.impulse },
-    ]);
-    const scoreQuality = clamp((score - this.cfg.scoreReset) / Math.max(1 - this.cfg.scoreReset, 1e-9), 0, 1);
-    const quality = Math.pow(clamp(f.efficiency, 0, 1), this.cfg.efficiencyExponent)
-      * Math.pow(clamp(persistence, 0, 1), this.cfg.persistenceExponent) * scoreQuality;
-    const latencyDecay = Math.exp(-effectiveLatencyMs / Math.max(this.cfg.ruleDecayTauMs, 1));
-    const grossBps = latencyDecay * quality * Math.min(this.cfg.totalSigmaCap * sigmaHBps, raw);
-    const disagreement = medianAbsoluteDeviation([micro, kinematic, flow, impulse]);
-    const uncertaintyBps = this.cfg.disagreementPenalty * disagreement + this.cfg.latencyVolatilityPenalty * sigmaLatencyBps
-      + this.cfg.spreadStressPenaltyBps * Math.max(0, f.spreadZ) + this.cfg.flipPenaltyBps * f.flowFlipRate
-      + this.cfg.opposingAccelerationPenaltyBps * Math.max(0, -direction * f.accelerationZ);
-    return { grossBps, uncertaintyBps };
   }
   private antiChase(direction: Direction, f: DeterministicFeatures, bestBid: number, bestAsk: number): { pass: boolean; chaseBps: number; impulseZ: number; anchorZ: number } {
     const chaseBps = direction === 1 ? 10_000 * (bestAsk - f.microprice) / f.mid : 10_000 * (f.microprice - bestBid) / f.mid;
@@ -267,24 +248,31 @@ export class DeterministicEntryEngine {
     const liquidityPass = dynamicLiquidity?.pass ?? this.staticLiquidityPass(f, cost);
     const regimePass = this.regimeAllows(direction, context.regime);
     const phase = this.updatePhase(direction, context.nowMs, rawDirectionalPass, score);
-    const opportunity = this.opportunity(direction, f, score, persistence.occupancy, context.expectedLatencyMs);
-    const lowerBoundNetBps = opportunity.grossBps - opportunity.uncertaintyBps - this.cfg.costSafetyFactor * cost.roundTripBps;
+    const edge = this.edgeResolver.resolve({
+      side: direction, score, scoreReset: this.cfg.scoreReset, persistence: persistence.occupancy, features: f,
+    });
+    const grossOpportunityBps = edge?.grossOpportunityBps ?? 0;
+    const uncertaintyReserveBps = edge?.uncertaintyBps ?? 0;
+    const lowerBoundNetBps = grossOpportunityBps - uncertaintyReserveBps - this.cfg.costSafetyFactor * cost.roundTripBps;
     const exposurePass = context.system.noExistingPosition && context.system.noPendingEntry;
     const persistencePass = persistence.occupancy >= this.cfg.minimumPersistence && persistence.consecutiveMs >= this.cfg.minimumConfirmationMs
       && persistence.consecutiveEvents >= this.cfg.minimumConfirmationEvents;
     const scorePass = score >= this.cfg.scoreEnter;
     const candidatePass = rawDirectionalPass && persistencePass;
-    const costPass = lowerBoundNetBps >= this.cfg.minimumNetEdgeBps;
+    const edgeResolvedPass = edge !== null;
+    const costPass = edgeResolvedPass && lowerBoundNetBps >= this.cfg.minimumNetEdgeBps;
     const reasons: string[] = [];
     if (!healthPass) reasons.push("HEALTH_GATE"); if (!liquidityPass) reasons.push("LIQUIDITY_GATE"); if (!regimePass) reasons.push("REGIME_GATE");
     if (!votes.quorum) reasons.push("RULE_QUORUM"); if (!scorePass) reasons.push("SCORE_GATE"); if (!persistencePass) reasons.push("PERSISTENCE_GATE");
     if (!antiChase.pass) reasons.push("ANTI_CHASE_GATE"); if (!exposurePass) reasons.push("EXPOSURE_GATE");
-    if (!phase.cooldownPass) reasons.push("COOLDOWN_OR_RESET_GATE"); if (!costPass) reasons.push("COST_GATE"); if (!arbitrationPass) reasons.push("ARBITRATION_GATE");
+    if (!phase.cooldownPass) reasons.push("COOLDOWN_OR_RESET_GATE"); if (!edgeResolvedPass) reasons.push("EDGE_NOT_RESOLVED");
+    if (edgeResolvedPass && !costPass) reasons.push("COST_GATE"); if (!arbitrationPass) reasons.push("ARBITRATION_GATE");
     return { side: direction, phase: phase.phase, score, oppositeScore, scoreMargin: score - oppositeScore, votes,
       persistence: persistence.occupancy, confirmationMs: persistence.consecutiveMs, confirmationEvents: persistence.consecutiveEvents,
-      grossOpportunityBps: opportunity.grossBps, uncertaintyReserveBps: opportunity.uncertaintyBps, roundTripCostBps: cost.roundTripBps,
+      grossOpportunityBps, uncertaintyReserveBps, roundTripCostBps: cost.roundTripBps,
       lowerBoundNetBps, chaseBps: antiChase.chaseBps, impulseZ: antiChase.impulseZ, anchorZ: antiChase.anchorZ,
-      scorePass, rawDirectionalPass, candidatePass, healthPass, liquidityPass, regimePass, persistencePass,
+      edgeSource: edge?.source ?? "UNRESOLVED", edgeHorizonMs: edge?.horizonMs ?? 0, edgeQuality: edge?.quality ?? 0,
+      scorePass, rawDirectionalPass, candidatePass, edgeResolvedPass, healthPass, liquidityPass, regimePass, persistencePass,
       antiChasePass: antiChase.pass, exposurePass, cooldownPass: phase.cooldownPass, costPass, arbitrationPass,
       liquidityReasons: dynamicLiquidity?.reasons ?? (liquidityPass ? [] : ["STATIC_LIQUIDITY_LIMIT"]),
       tradeThresholdBps: dynamicLiquidity?.tradeThresholdBps ?? this.cfg.maximumSpreadBps,
@@ -306,6 +294,7 @@ export function validateDeterministicConfig(cfg: DeterministicSignalConfig): voi
   const fail = (message: string): never => { throw new Error(`Invalid deterministic configuration: ${message}`); };
   if (!cfg.configurationVersion) fail("configurationVersion is required");
   if (!["DETERMINISTIC_ONLY", "DETERMINISTIC_WITH_MODEL_VETO", "DETERMINISTIC_WITH_MODEL_RANKING"].includes(cfg.mode)) fail("unknown signal mode");
+  if (!["CALIBRATED_REQUIRED", "CALIBRATED_OR_ANALYTIC", "ANALYTIC_ONLY"].includes(cfg.edgeSourceMode)) fail("unknown edge source mode");
   const finite = flattenNumbers(cfg);
   if (finite.some((value) => !Number.isFinite(value))) fail("all numeric configuration values must be finite");
   if (!(cfg.scoreEnter > cfg.scoreReset)) fail("scoreEnter must be greater than scoreReset");
@@ -319,18 +308,14 @@ export function validateDeterministicConfig(cfg: DeterministicSignalConfig): voi
   for (const [value, maximum, name] of [[cfg.minimumBookVotes, 3, "minimumBookVotes"], [cfg.minimumFlowVotes, 3, "minimumFlowVotes"], [cfg.minimumKinematicVotes, 5, "minimumKinematicVotes"]] as const) {
     if (!Number.isInteger(value) || value < 1 || value > maximum) fail(`${name} is outside its evidence group`);
   }
-  const opportunityWeights = Object.values(cfg.opportunityWeights);
-  if (opportunityWeights.some((value) => value < 0) || Math.abs(opportunityWeights.reduce((sum, value) => sum + value, 0) - 1) > 1e-9) fail("opportunity weights must be nonnegative and sum to 1");
   const scoreWeights = Object.values(cfg.scoreWeights);
   if (scoreWeights.some((value) => value < 0) || !(scoreWeights.reduce((sum, value) => sum + value, 0) > 0)) fail("score weights must be nonnegative with positive total");
-  const positive = [cfg.maximumProviderAgeMs, cfg.maximumSpreadBps, cfg.minimumDepthNotional, cfg.microEdgeBps, cfg.qi1, cfg.qiK,
+  const positive = [cfg.maximumSpreadBps, cfg.microEdgeBps, cfg.qi1, cfg.qiK,
     cfg.ofi, cfg.tfi, cfg.replenishment, cfg.velocityZ, cfg.efficiency, cfg.persistenceWindowMs, cfg.fullQualityEdgeBps];
   if (positive.some((value) => !Number.isFinite(value) || value <= 0)) fail("positive thresholds must be finite and positive");
   const nonnegative = [cfg.maximumSpreadZ, cfg.maximumImpactBps, cfg.maximumOpposingAccelerationZ, cfg.impulseBps, cfg.breakoutBps,
     cfg.cusum, cfg.minimumConfirmationMs, cfg.cooldownMs, cfg.resetMs, cfg.maximumImpulseZ, cfg.maximumChaseBps, cfg.maximumAnchorZ,
-    cfg.expectedLatencyMs, cfg.holdHorizonMs, cfg.ruleDecayTauMs, cfg.kinematicSigmaCap, cfg.flowSigmaScale, cfg.impulseSigmaCap,
-    cfg.totalSigmaCap, cfg.efficiencyExponent, cfg.persistenceExponent, cfg.disagreementPenalty, cfg.latencyVolatilityPenalty,
-    cfg.spreadStressPenaltyBps, cfg.flipPenaltyBps, cfg.opposingAccelerationPenaltyBps];
+  ];
   if (nonnegative.some((value) => value < 0)) fail("nonnegative thresholds cannot be negative");
 }
 
@@ -340,11 +325,6 @@ function weightedAverage(terms: ReadonlyArray<{ value: number; weight: number }>
   for (const item of terms) if (item.weight > 0) { numerator += item.value * item.weight; denominator += item.weight; }
   return denominator > 0 ? numerator / denominator : 0;
 }
-function median(values: readonly number[]): number {
-  if (values.length === 0) return 0; const sorted = [...values].sort((a, b) => a - b), middle = Math.floor(sorted.length / 2);
-  return sorted.length % 2 === 1 ? sorted[middle]! : (sorted[middle - 1]! + sorted[middle]!) / 2;
-}
-function medianAbsoluteDeviation(values: readonly number[]): number { const center = median(values); return median(values.map((value) => Math.abs(value - center))); }
 function flattenNumbers(value: unknown): number[] {
   if (typeof value === "number") return [value]; if (!value || typeof value !== "object") return [];
   return Object.values(value as Record<string, unknown>).flatMap(flattenNumbers);

@@ -8,16 +8,13 @@ export interface DynamicLiquidityConfig {
   absoluteStressCapBps: number;
   maximumSpreadZ: number;
   minimumDepthZ: number;
-  minimumUsableDepthNotional: number;
   maximumImpactBps: number;
-  maximumProviderAgeMs: number;
 }
 
 export interface LiquidityInput {
   spreadBps: number;
   spreadZ: number;
   depthZ: number;
-  usableDepthNotional: number;
   impactBps: number;
   providerAgeMs: number;
   stale: boolean;
@@ -56,6 +53,8 @@ export class DynamicLiquidityPolicy {
     delete this.cachedThresholds;
   }
 
+  public observationCount(): number { return this.spreads.length; }
+
   public evaluate(input: LiquidityInput): LiquidityDecision {
     const thresholds = this.thresholds();
     const { sampleCount, medianSpreadBps, tradeThresholdBps, stressThresholdBps } = thresholds;
@@ -67,16 +66,13 @@ export class DynamicLiquidityPolicy {
     }
     const reasons: string[] = [];
     if (input.stale) reasons.push("FEATURES_STALE");
-    if (input.providerAgeMs < 0 || input.providerAgeMs > this.cfg.maximumProviderAgeMs) reasons.push("PROVIDER_AGE_INVALID");
+    if (input.providerAgeMs < 0) reasons.push("PROVIDER_AGE_INVALID");
     if (input.spreadBps > tradeThresholdBps) reasons.push("SPREAD_ABOVE_DYNAMIC_TRADE_THRESHOLD");
     if (input.spreadZ > this.cfg.maximumSpreadZ) reasons.push("SPREAD_Z_ABOVE_LIMIT");
-    if (input.depthZ < this.cfg.minimumDepthZ || input.usableDepthNotional < this.cfg.minimumUsableDepthNotional) {
-      reasons.push("INSUFFICIENT_USABLE_DEPTH");
-    }
+    if (input.depthZ < this.cfg.minimumDepthZ) reasons.push("DEPTH_Z_BELOW_LIMIT");
     if (input.impactBps > this.cfg.maximumImpactBps) reasons.push("IMPACT_ABOVE_LIMIT");
-    const stress = input.stale || input.providerAgeMs < 0 || input.providerAgeMs > this.cfg.maximumProviderAgeMs
-      || input.spreadBps > stressThresholdBps || input.depthZ < this.cfg.minimumDepthZ
-      || input.usableDepthNotional < this.cfg.minimumUsableDepthNotional;
+    const stress = input.stale || input.providerAgeMs < 0
+      || input.spreadBps > stressThresholdBps || input.depthZ < this.cfg.minimumDepthZ;
     return { pass: reasons.length === 0, stress, sampleCount, medianSpreadBps, tradeThresholdBps, stressThresholdBps, reasons };
   }
 

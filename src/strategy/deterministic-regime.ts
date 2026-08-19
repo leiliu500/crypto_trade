@@ -1,13 +1,8 @@
 import type { DeterministicFeatures } from "./deterministic-features.js";
 
-export type RegimeName = "LIQUIDITY_STRESS" | "REVERSAL_UP" | "REVERSAL_DOWN" | "BREAKOUT_UP" | "BREAKOUT_DOWN" | "TREND_UP" | "TREND_DOWN" | "CHOP" | "UNKNOWN";
+export type RegimeName = "REVERSAL_UP" | "REVERSAL_DOWN" | "BREAKOUT_UP" | "BREAKOUT_DOWN" | "TREND_UP" | "TREND_DOWN" | "CHOP" | "UNKNOWN";
 export interface RegimeDecision { name: RegimeName; allowLong: boolean; allowShort: boolean; riskScale: number; }
 export interface DeterministicRegimeConfig {
-  maximumProviderAgeMs: number;
-  maximumSpreadBps: number;
-  liquidityStressSpreadZ: number;
-  liquidityStressDepthZ: number;
-  minimumDepthNotional: number;
   trendEfficiency: number;
   chopEfficiency: number;
   maximumTrendFlipRate: number;
@@ -31,12 +26,7 @@ export class DeterministicRegimeEngine {
   private previous: RegimeName = "UNKNOWN";
   public constructor(private readonly cfg: DeterministicRegimeConfig) { validateRegimeConfig(cfg); }
 
-  public classify(features: DeterministicFeatures, dynamicLiquidityStress?: boolean): RegimeDecision {
-    if (features.stale || features.providerAgeMs < 0 || features.providerAgeMs > this.cfg.maximumProviderAgeMs
-      || (dynamicLiquidityStress ?? features.spreadBps > this.cfg.maximumSpreadBps) || features.spreadZ >= this.cfg.liquidityStressSpreadZ
-      || features.depthZ <= -this.cfg.liquidityStressDepthZ || features.usableDepthNotional < this.cfg.minimumDepthNotional) {
-      return this.set("LIQUIDITY_STRESS", false, false, 0);
-    }
+  public classify(features: DeterministicFeatures): RegimeDecision {
     const up = this.aligned(1, features, 1);
     const down = this.aligned(-1, features, 1);
     const breakoutUp = features.breakoutUpBps >= this.cfg.breakoutBps && features.cusumUpScore >= this.cfg.breakoutCusum
@@ -45,8 +35,8 @@ export class DeterministicRegimeEngine {
       && -features.ofi >= this.cfg.breakoutOfi && -features.tfi >= this.cfg.breakoutTfi;
     if (breakoutUp !== breakoutDown) return breakoutUp ? this.set("BREAKOUT_UP", true, false, .8) : this.set("BREAKOUT_DOWN", false, true, .8);
     const trendQuality = features.efficiency >= this.cfg.trendEfficiency && features.flowFlipRate <= this.cfg.maximumTrendFlipRate;
-    const trendUp = trendQuality && up.flowVotes >= 2 && up.kinematicVotes >= 2;
-    const trendDown = trendQuality && down.flowVotes >= 2 && down.kinematicVotes >= 2;
+    const trendUp = trendQuality && up.flowVotes >= 2 && up.kinematicVotes >= 1;
+    const trendDown = trendQuality && down.flowVotes >= 2 && down.kinematicVotes >= 1;
     if (trendUp !== trendDown) return trendUp ? this.set("TREND_UP", true, false, 1) : this.set("TREND_DOWN", false, true, 1);
 
     // Separate reset thresholds retain a valid directional regime near its enter boundary.
@@ -69,7 +59,7 @@ export class DeterministicRegimeEngine {
     const aligned = this.aligned(direction, f, this.cfg.hysteresisResetRatio);
     return f.efficiency >= this.cfg.trendEfficiency * this.cfg.hysteresisResetRatio
       && f.flowFlipRate <= this.cfg.maximumTrendFlipRate / this.cfg.hysteresisResetRatio
-      && aligned.flowVotes >= 2 && aligned.kinematicVotes >= 2;
+      && aligned.flowVotes >= 2 && aligned.kinematicVotes >= 1;
   }
   private set(name: RegimeName, allowLong: boolean, allowShort: boolean, riskScale: number): RegimeDecision {
     this.previous = name; return { name, allowLong, allowShort, riskScale };

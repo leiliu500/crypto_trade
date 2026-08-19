@@ -4,17 +4,7 @@ This file maps the design mathematics to executable TypeScript. All prices used 
 
 ## Latency and stale data
 
-`src/core/latency.ts` records feed, compute, send, acknowledgement, fill, and total latency and exposes p50/p90/p95/p99/max. The deterministic opportunity horizon is:
-
-```text
-h = L_total,p95 + H
-```
-
-The default rule engine decays deterministic opportunity to arrival:
-
-```text
-gross_arrival = gross_observed exp(-L_p95 / tau_rule)
-```
+`src/core/latency.ts` records feed, compute, send, acknowledgement, fill, and total latency and exposes p50/p90/p95/p99/max. Trigger features use short causal windows. Economic edge uses a separate configured horizon, so instantaneous acceleration is never linearly extrapolated over the full trade horizon.
 
 Optional model-overlay modes additionally use `src/strategy/forecast.ts` and expire model output beyond its configured alpha half-life. `src/core/statistics.ts` uses a rolling robust provider-age gate:
 
@@ -52,15 +42,16 @@ Directional efficiency is net log movement divided by path length. CUSUM maintai
 
 ## Deterministic regimes, entry, and costs
 
-`src/strategy/deterministic-features.ts` causally extends the base features with log-price impulse, a prior range that excludes the current event, anchor distance, CUSUM scores, alignment flip rate, usable depth, and replenishment pressure. `src/strategy/deterministic-regime.ts` applies liquidity-stress priority, directional breakout/trend votes, chop rejection, and separate reset thresholds for hysteresis.
+`src/strategy/deterministic-features.ts` causally extends the base features with log-price impulse, a prior range that excludes the current event, anchor distance, CUSUM scores, alignment flip rate, usable depth, and replenishment pressure. `src/strategy/deterministic-regime.ts` uses only directional features for breakout/trend votes, chop rejection, and hysteresis. Spread, provider age, absolute depth, costs, and account state are execution concerns and cannot change the directional regime.
 
-For direction `d ∈ {−1,+1}`, entry requires independent quorums:
+For direction `d ∈ {−1,+1}`, candidate generation uses independent evidence groups:
 
 ```text
-bookVotes(d) >= 2       from microprice edge, QI1, QIK
-flowVotes(d) >= 2       from OFI, TFI, replenishment
-kinematicVotes(d) >= 2  from velocity, acceleration, impulse, breakout, CUSUM
-efficiency >= threshold and flowFlipRate <= maximum
+bookPass = bookVotes(d) >= configured minimum
+flowPass = flowVotes(d) >= configured minimum
+kinematicPass = kinematicVotes(d) >= configured minimum
+quorum = at least two groups pass AND kinematicPass AND at least one quality vote
+qualityVotes = I(efficiency >= threshold) + I(flowFlipRate <= maximum)
 ```
 
 The fixed-weight score is an engineering rule, not a trained predictor:
@@ -69,7 +60,7 @@ The fixed-weight score is an engineering rule, not a trained predictor:
 S_d = sum(w_i clip(d X_i / threshold_i, -1, 1)) / sum(w_i)
 ```
 
-Raw quorum/score/health/liquidity/regime validity is persisted in event time:
+Raw direction-only regime/quorum/score/arbitration validity is persisted in event time:
 
 ```text
 rho_d(t) = sum(deltaTime_i pass_i) / sum(deltaTime_i)
@@ -77,14 +68,18 @@ rho_d(t) = sum(deltaTime_i pass_i) / sum(deltaTime_i)
 
 Occupancy, minimum consecutive time, and minimum event count must all pass. Long requires `S_long − S_short >= arbitrationMargin`; short is symmetric. A conflict produces no trade.
 
-The model-free opportunity estimate combines bounded microprice, kinematic, flow, and impulse components at `h = L_p95 + holdHorizon`:
+`src/strategy/deterministic-edge-resolver.ts` first requests calibrated edge when configured and falls back to a deterministic analytical estimate when calibration is absent. For economic horizon `H_E`:
 
 ```text
-grossDet_d = exp(-L_p95/ruleDecayTau) × quality
-             × min(totalSigmaCap × sigma_h, weightedOpportunity_d)
+sigma_E,bps = 10000 sqrt(varianceRate H_E)
+quality_d = clip(0.30 scoreQuality + 0.20 persistence + 0.15 efficiency
+                 + 0.20 flowQuality + 0.15 kinematicQuality, 0, 1)
+grossDet_d = min(maxGrossBps,
+                 sigmaCaptureFraction quality_d sigma_E,bps
+                 + breakoutWeight breakoutBps_d)
 ```
 
-Quality combines efficiency, persistence, and score above the reset threshold. The uncertainty reserve is the component median absolute deviation plus latency volatility, spread stress, flip-rate, and opposing-acceleration penalties.
+The analytical uncertainty reserve contains a base reserve plus weak-quality volatility, spread, and flow-flip penalties. The edge source and horizon are included in gate diagnostics.
 
 `src/strategy/cost.ts` adds:
 
@@ -105,7 +100,7 @@ The cost gate is run first at minimum quantity and again during every sizing ite
 
 ## Regime and execution
 
-The deterministic regime permits only one direction. Liquidity stress and chop/unknown deny both directions. Alpaca's live Asset record is authoritative: because spot crypto is not shortable, a short regime remains observable but execution permission is forced false.
+The deterministic regime permits only one direction. Chop/unknown deny both directions. Liquidity is evaluated separately from prior spread observations, and the current spread is then observed even when no candidate exists. Alpaca's live Asset record is authoritative: because spot crypto is not shortable, a short regime remains observable but execution permission is forced false.
 
 `src/execution/planner.ts` compares:
 

@@ -37,7 +37,7 @@ function alignedFeatures(side: 1 | -1 = 1, nowMs = 1_000): DeterministicFeatures
 function context(side: 1 | -1 = 1, nowMs = 1_000): EntryContext {
   return {
     symbol: "BTC/USD", sequence: BigInt(nowMs), nowMs, bestBid: 100, bestAsk: 100.01,
-    expectedLatencyMs: 100, features: alignedFeatures(side, nowMs),
+    features: alignedFeatures(side, nowMs),
     regime: side === 1
       ? { name: "TREND_UP", allowLong: true, allowShort: false, riskScale: 1 }
       : { name: "TREND_DOWN", allowLong: false, allowShort: true, riskScale: 1 },
@@ -79,6 +79,19 @@ test("stale, unwarmed, and unhealthy data always block entry", () => {
   }
 });
 
+test("account health blocks execution without suppressing directional candidates", () => {
+  const engine = new DeterministicEntryEngine(testConfig());
+  let intent = null;
+  for (let index = 0; index < 8; index += 1) {
+    const value = context(1, 1_000 + index * 50);
+    value.system.accountReconciled = false;
+    intent = engine.evaluate(value);
+  }
+  assert.equal(intent, null);
+  assert.equal(engine.latestEvaluation()!.candidate?.side, 1);
+  assert.equal(engine.latestEvaluation()!.long.healthPass, false);
+});
+
 test("one event cannot bypass event-time persistence; aligned long and short inputs are symmetric", () => {
   const longEngine = new DeterministicEntryEngine(testConfig());
   assert.equal(longEngine.evaluate(context()), null);
@@ -86,7 +99,7 @@ test("one event cannot bypass event-time persistence; aligned long and short inp
   assert.equal(persistentIntent(new DeterministicEntryEngine(testConfig()), -1)?.side, -1);
 });
 
-test("independent evidence groups cannot be replaced by a high aggregate score", () => {
+test("independent group quorum tolerates one unavailable evidence group", () => {
   const engine = new DeterministicEntryEngine(testConfig());
   let result = null;
   for (let index = 0; index < 8; index += 1) {
@@ -94,11 +107,29 @@ test("independent evidence groups cannot be replaced by a high aggregate score",
     value.features.ofi = 0; value.features.tfi = 0; value.features.replenishmentPressure = 0;
     result = engine.evaluate(value);
   }
-  assert.equal(result, null);
+  assert.equal(result?.side, 1);
   const diagnostics = engine.latestEvaluation()!.long;
   assert.ok(diagnostics.score >= testConfig().scoreEnter);
   assert.equal(diagnostics.votes.flow, 0);
-  assert.ok(diagnostics.reasons.includes("RULE_QUORUM"));
+  assert.equal(diagnostics.votes.activeGroups, 2);
+  assert.equal(diagnostics.votes.quorum, true);
+});
+
+test("independent group quorum still requires kinematic confirmation", () => {
+  const engine = new DeterministicEntryEngine(testConfig());
+  let result = null;
+  for (let index = 0; index < 8; index += 1) {
+    const value = context(1, 1_000 + index * 50);
+    value.features.velocityZ = -1;
+    value.features.accelerationZ = -1;
+    value.features.impulseBps = -1;
+    value.features.breakoutUpBps = 0;
+    value.features.cusumUpScore = 0;
+    result = engine.evaluate(value);
+  }
+  assert.equal(result, null);
+  assert.equal(engine.latestEvaluation()!.long.votes.kinematic, 0);
+  assert.equal(engine.latestEvaluation()!.long.votes.quorum, false);
 });
 
 test("anti-chasing rejects overextended signals", () => {
@@ -197,12 +228,13 @@ test("identical causal event streams replay to identical decisions", () => {
   assert.deepEqual(run(), run());
 });
 
-test("regime and hold engines are deterministic, symmetric, and fail closed under liquidity stress", () => {
-  const regimes = new DeterministicRegimeEngine(DEFAULT_DETERMINISTIC_REGIME_CONFIG);
-  assert.equal(regimes.classify(alignedFeatures(1)).name, "BREAKOUT_UP");
-  const stressed = alignedFeatures(1); stressed.providerAgeMs = 10_000;
-  const gated = regimes.classify(stressed);
-  assert.deepEqual([gated.allowLong, gated.allowShort, gated.riskScale], [false, false, 0]);
+test("directional regime is deterministic, symmetric, and independent of execution liquidity", () => {
+  const baseline = alignedFeatures(1);
+  const stressed = { ...baseline, providerAgeMs: 10_000, spreadBps: 80, spreadZ: 20, depthZ: -20, usableDepthNotional: 1 };
+  const normalDecision = new DeterministicRegimeEngine(DEFAULT_DETERMINISTIC_REGIME_CONFIG).classify(baseline);
+  const stressedDecision = new DeterministicRegimeEngine(DEFAULT_DETERMINISTIC_REGIME_CONFIG).classify(stressed);
+  assert.equal(normalDecision.name, "BREAKOUT_UP");
+  assert.deepEqual(stressedDecision, normalDecision);
 
   const hold = new DeterministicHoldEngine(DEFAULT_DETERMINISTIC_HOLD_CONFIG);
   assert.equal(hold.evaluate(1, alignedFeatures(1), 0).exitEvidence, false);

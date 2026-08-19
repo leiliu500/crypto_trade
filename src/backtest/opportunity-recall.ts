@@ -22,7 +22,7 @@ interface OpportunityWindow { startMs: number; endMs: number; peakNetBps: number
 interface DirectionCandidateCounts {
   evaluations: number; regimePass: number; quorumPass: number; scorePass: number; arbitrationPass: number;
   antiChasePass: number; rawDirectionalPass: number; persistencePass: number; candidatePass: number;
-  liquidityPass: number; preliminaryCostPass: number;
+  liquidityPass: number; edgeResolvedPass: number; preliminaryCostPass: number;
   maximumPersistence: number; maximumConfirmationMs: number; maximumConfirmationEvents: number;
 }
 interface OfflineRuntime {
@@ -192,17 +192,17 @@ function processState(runtime: OfflineRuntime, book: BookState, base: Features, 
   }
   const longCost = runtime.planner.preliminaryCost(features, book, 1, 0);
   const shortCost = runtime.planner.preliminaryCost(features, book, -1, 0);
-  if (!longCost || !shortCost) return;
+  if (!longCost || !shortCost) { runtime.liquidity.observe(features.spreadBps); return; }
   const longLiquidity = runtime.liquidity.evaluate(liquidityInput(features, longCost.impactBps));
   const shortLiquidity = runtime.liquidity.evaluate(liquidityInput(features, shortCost.impactBps));
   runtime.liquidity.observe(features.spreadBps);
-  const classified = runtime.regime.classify(features, longLiquidity.stress || shortLiquidity.stress);
+  const classified = runtime.regime.classify(features);
   const intent = runtime.entry.evaluate({
     symbol: book.symbol, sequence: book.sequence, nowMs: features.receiveTsMs, features, regime: classified,
     system: { bookValid: true, sequenceValid: true, checksumValid: true, publicStreamHealthy: true, privateStreamHealthy: true,
       accountReconciled: true, clockHealthy: true, entriesAllowed: true, noExistingPosition: true, noPendingEntry: true },
     bestBid: book.bids[0]!.px, bestAsk: book.asks[0]!.px,
-    expectedLatencyMs: runtime.config.deterministicSignal.expectedLatencyMs, longCost, shortCost, longLiquidity, shortLiquidity,
+    longCost, shortCost, longLiquidity, shortLiquidity,
   });
   if (intent) {
     runtime.signals.push({ atMs: features.receiveTsMs, side: intent.side, bid: book.bids[0]!.px, ask: book.asks[0]!.px });
@@ -298,7 +298,7 @@ function allNumbersFinite(value: object): boolean {
 }
 function emptyDirectionCounts(): DirectionCandidateCounts {
   return { evaluations: 0, regimePass: 0, quorumPass: 0, scorePass: 0, arbitrationPass: 0, antiChasePass: 0,
-    rawDirectionalPass: 0, persistencePass: 0, candidatePass: 0, liquidityPass: 0, preliminaryCostPass: 0,
+    rawDirectionalPass: 0, persistencePass: 0, candidatePass: 0, liquidityPass: 0, edgeResolvedPass: 0, preliminaryCostPass: 0,
     maximumPersistence: 0, maximumConfirmationMs: 0, maximumConfirmationEvents: 0 };
 }
 function incrementDirection(counts: DirectionCandidateCounts, diagnostics: DeterministicEvaluation["long"]): void {
@@ -312,6 +312,7 @@ function incrementDirection(counts: DirectionCandidateCounts, diagnostics: Deter
   if (diagnostics.persistencePass) counts.persistencePass += 1;
   if (diagnostics.candidatePass) counts.candidatePass += 1;
   if (diagnostics.liquidityPass) counts.liquidityPass += 1;
+  if (diagnostics.edgeResolvedPass) counts.edgeResolvedPass += 1;
   if (diagnostics.costPass) counts.preliminaryCostPass += 1;
   counts.maximumPersistence = Math.max(counts.maximumPersistence, diagnostics.persistence);
   counts.maximumConfirmationMs = Math.max(counts.maximumConfirmationMs, diagnostics.confirmationMs);
@@ -320,7 +321,7 @@ function incrementDirection(counts: DirectionCandidateCounts, diagnostics: Deter
 function liquidityInput(features: DeterministicFeatures, impactBps: number) {
   return {
     spreadBps: features.spreadBps, spreadZ: features.spreadZ, depthZ: features.depthZ,
-    usableDepthNotional: features.usableDepthNotional, impactBps, providerAgeMs: features.providerAgeMs,
+    impactBps, providerAgeMs: features.providerAgeMs,
     stale: features.stale,
   };
 }

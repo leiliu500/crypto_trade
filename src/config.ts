@@ -10,6 +10,7 @@ import type { CostConfig } from "./strategy/cost.js";
 import type { ForecastConfig, LinearHead } from "./strategy/forecast.js";
 import type { SignalConfig } from "./strategy/signal.js";
 import type { DeterministicSignalConfig, SignalMode } from "./strategy/deterministic-entry.js";
+import type { EdgeSourceMode } from "./strategy/deterministic-edge-resolver.js";
 import type { ExtensionConfig } from "./strategy/deterministic-features.js";
 import type { DeterministicRegimeConfig } from "./strategy/deterministic-regime.js";
 import type { DeterministicHoldConfig } from "./strategy/deterministic-hold.js";
@@ -247,12 +248,10 @@ function loadSymbolConfig(symbol: string, env: NodeJS.ProcessEnv, mode: TradingM
     tradeMadMultiple: numberEnv(env.DYNAMIC_SPREAD_TRADE_MAD_MULTIPLE, 3),
     stressMadMultiple: numberEnv(env.DYNAMIC_SPREAD_STRESS_MAD_MULTIPLE, 6),
     absoluteTradeCapBps,
-    absoluteStressCapBps: Math.max(absoluteTradeCapBps, deterministicRegime.maximumSpreadBps),
+    absoluteStressCapBps: Math.max(absoluteTradeCapBps, numberEnv(env.DYNAMIC_SPREAD_STRESS_CAP_BPS, 60)),
     maximumSpreadZ: deterministicSignal.maximumSpreadZ,
     minimumDepthZ: deterministicSignal.minimumDepthZ,
-    minimumUsableDepthNotional: deterministicSignal.minimumDepthNotional,
     maximumImpactBps: deterministicSignal.maximumImpactBps,
-    maximumProviderAgeMs: deterministicSignal.maximumProviderAgeMs,
   };
   return {
     symbol,
@@ -322,11 +321,6 @@ function loadExtensionConfig(env: NodeJS.ProcessEnv): ExtensionConfig {
 function loadDeterministicRegimeConfig(env: NodeJS.ProcessEnv): DeterministicRegimeConfig {
   return {
     ...DEFAULT_DETERMINISTIC_REGIME_CONFIG,
-    maximumProviderAgeMs: numberEnv(env.RULE_MAX_PROVIDER_AGE_MS, DEFAULT_DETERMINISTIC_REGIME_CONFIG.maximumProviderAgeMs),
-    maximumSpreadBps: numberEnv(env.RULE_REGIME_MAX_SPREAD_BPS, DEFAULT_DETERMINISTIC_REGIME_CONFIG.maximumSpreadBps),
-    liquidityStressSpreadZ: numberEnv(env.RULE_LIQUIDITY_STRESS_SPREAD_Z, DEFAULT_DETERMINISTIC_REGIME_CONFIG.liquidityStressSpreadZ),
-    liquidityStressDepthZ: numberEnv(env.RULE_LIQUIDITY_STRESS_DEPTH_Z, DEFAULT_DETERMINISTIC_REGIME_CONFIG.liquidityStressDepthZ),
-    minimumDepthNotional: numberEnv(env.RULE_MIN_DEPTH_NOTIONAL, DEFAULT_DETERMINISTIC_REGIME_CONFIG.minimumDepthNotional),
     trendEfficiency: numberEnv(env.RULE_TREND_EFFICIENCY, DEFAULT_DETERMINISTIC_REGIME_CONFIG.trendEfficiency),
     chopEfficiency: numberEnv(env.RULE_CHOP_EFFICIENCY, DEFAULT_DETERMINISTIC_REGIME_CONFIG.chopEfficiency),
     maximumTrendFlipRate: numberEnv(env.RULE_MAX_TREND_FLIP_RATE, DEFAULT_DETERMINISTIC_REGIME_CONFIG.maximumTrendFlipRate),
@@ -349,11 +343,9 @@ function loadDeterministicRegimeConfig(env: NodeJS.ProcessEnv): DeterministicReg
 function loadDeterministicSignalConfig(env: NodeJS.ProcessEnv, mode: SignalMode, configurationVersion: string): DeterministicSignalConfig {
   return {
     ...DEFAULT_DETERMINISTIC_SIGNAL_CONFIG, mode, configurationVersion,
-    maximumProviderAgeMs: numberEnv(env.RULE_MAX_PROVIDER_AGE_MS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.maximumProviderAgeMs),
     maximumSpreadBps: numberEnv(env.RULE_MAX_SPREAD_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.maximumSpreadBps),
     maximumSpreadZ: numberEnv(env.RULE_MAX_SPREAD_Z, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.maximumSpreadZ),
     minimumDepthZ: finiteNumberEnv(env.RULE_MIN_DEPTH_Z, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.minimumDepthZ),
-    minimumDepthNotional: numberEnv(env.RULE_MIN_DEPTH_NOTIONAL, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.minimumDepthNotional),
     maximumImpactBps: numberEnv(env.RULE_MAX_IMPACT_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.maximumImpactBps),
     microEdgeBps: numberEnv(env.RULE_MICRO_EDGE_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microEdgeBps),
     qi1: numberEnv(env.RULE_QI1, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.qi1), qiK: numberEnv(env.RULE_QIK, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.qiK),
@@ -395,30 +387,35 @@ function loadDeterministicSignalConfig(env: NodeJS.ProcessEnv, mode: SignalMode,
     maximumImpulseZ: numberEnv(env.RULE_MAX_IMPULSE_Z, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.maximumImpulseZ),
     maximumChaseBps: numberEnv(env.RULE_MAX_CHASE_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.maximumChaseBps),
     maximumAnchorZ: numberEnv(env.RULE_MAX_ANCHOR_Z, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.maximumAnchorZ),
-    expectedLatencyMs: numberEnv(env.RULE_EXPECTED_LATENCY_MS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.expectedLatencyMs),
-    holdHorizonMs: numberEnv(env.RULE_HOLD_HORIZON_MS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.holdHorizonMs),
-    ruleDecayTauMs: numberEnv(env.RULE_DECAY_TAU_MS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.ruleDecayTauMs),
-    kinematicSigmaCap: numberEnv(env.RULE_KINEMATIC_SIGMA_CAP, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.kinematicSigmaCap),
-    flowSigmaScale: numberEnv(env.RULE_FLOW_SIGMA_SCALE, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.flowSigmaScale),
-    impulseSigmaCap: numberEnv(env.RULE_IMPULSE_SIGMA_CAP, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.impulseSigmaCap),
-    totalSigmaCap: numberEnv(env.RULE_TOTAL_SIGMA_CAP, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.totalSigmaCap),
-    opportunityWeights: {
-      micro: numberEnv(env.RULE_OPPORTUNITY_WEIGHT_MICRO, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.opportunityWeights.micro),
-      kinematic: numberEnv(env.RULE_OPPORTUNITY_WEIGHT_KINEMATIC, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.opportunityWeights.kinematic),
-      flow: numberEnv(env.RULE_OPPORTUNITY_WEIGHT_FLOW, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.opportunityWeights.flow),
-      impulse: numberEnv(env.RULE_OPPORTUNITY_WEIGHT_IMPULSE, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.opportunityWeights.impulse),
-    },
-    efficiencyExponent: numberEnv(env.RULE_EFFICIENCY_EXPONENT, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.efficiencyExponent),
-    persistenceExponent: numberEnv(env.RULE_PERSISTENCE_EXPONENT, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.persistenceExponent),
-    disagreementPenalty: numberEnv(env.RULE_DISAGREEMENT_PENALTY, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.disagreementPenalty),
-    latencyVolatilityPenalty: numberEnv(env.RULE_LATENCY_VOLATILITY_PENALTY, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.latencyVolatilityPenalty),
-    spreadStressPenaltyBps: numberEnv(env.RULE_SPREAD_STRESS_PENALTY_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.spreadStressPenaltyBps),
-    flipPenaltyBps: numberEnv(env.RULE_FLIP_PENALTY_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.flipPenaltyBps),
-    opposingAccelerationPenaltyBps: numberEnv(env.RULE_OPPOSING_ACCELERATION_PENALTY_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.opposingAccelerationPenaltyBps),
     costSafetyFactor: numberEnv(env.COST_SAFETY_FACTOR, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.costSafetyFactor),
     minimumNetEdgeBps: numberEnv(env.RULE_MIN_NET_EDGE_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.minimumNetEdgeBps),
     fullQualityEdgeBps: numberEnv(env.RULE_FULL_QUALITY_EDGE_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.fullQualityEdgeBps),
+    edgeSourceMode: parseEdgeSourceMode(env.RULE_EDGE_SOURCE_MODE),
+    analyticEdge: {
+      economicHorizonMs: numberEnv(env.RULE_ECONOMIC_HORIZON_MS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.analyticEdge.economicHorizonMs),
+      qiKScale: numberEnv(env.RULE_EDGE_QIK_SCALE, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.analyticEdge.qiKScale),
+      ofiScale: numberEnv(env.RULE_EDGE_OFI_SCALE, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.analyticEdge.ofiScale),
+      tfiScale: numberEnv(env.RULE_EDGE_TFI_SCALE, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.analyticEdge.tfiScale),
+      velocityScale: numberEnv(env.RULE_EDGE_VELOCITY_SCALE, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.analyticEdge.velocityScale),
+      microEdgeScaleBps: numberEnv(env.RULE_EDGE_MICRO_BPS_SCALE, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.analyticEdge.microEdgeScaleBps),
+      breakoutScaleBps: numberEnv(env.RULE_EDGE_BREAKOUT_BPS_SCALE, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.analyticEdge.breakoutScaleBps),
+      sigmaCaptureFraction: numberEnv(env.RULE_EDGE_SIGMA_CAPTURE_FRACTION, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.analyticEdge.sigmaCaptureFraction),
+      breakoutWeight: numberEnv(env.RULE_EDGE_BREAKOUT_WEIGHT, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.analyticEdge.breakoutWeight),
+      maximumGrossBps: numberEnv(env.RULE_EDGE_MAX_GROSS_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.analyticEdge.maximumGrossBps),
+      baseUncertaintyBps: numberEnv(env.RULE_EDGE_BASE_UNCERTAINTY_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.analyticEdge.baseUncertaintyBps),
+      sigmaUncertaintyFraction: numberEnv(env.RULE_EDGE_SIGMA_UNCERTAINTY_FRACTION, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.analyticEdge.sigmaUncertaintyFraction),
+      spreadUncertaintyWeight: numberEnv(env.RULE_EDGE_SPREAD_UNCERTAINTY_WEIGHT, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.analyticEdge.spreadUncertaintyWeight),
+      flipUncertaintyWeight: numberEnv(env.RULE_EDGE_FLIP_UNCERTAINTY_WEIGHT, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.analyticEdge.flipUncertaintyWeight),
+    },
   };
+}
+
+function parseEdgeSourceMode(value: string | undefined): EdgeSourceMode {
+  const normalized = (value ?? DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.edgeSourceMode).toUpperCase();
+  if (!["CALIBRATED_REQUIRED", "CALIBRATED_OR_ANALYTIC", "ANALYTIC_ONLY"].includes(normalized)) {
+    throw new Error(`Unknown RULE_EDGE_SOURCE_MODE: ${value}`);
+  }
+  return normalized as EdgeSourceMode;
 }
 function loadDeterministicHoldConfig(env: NodeJS.ProcessEnv): DeterministicHoldConfig {
   return {

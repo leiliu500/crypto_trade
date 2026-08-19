@@ -456,15 +456,24 @@ export class TradingEngine extends EventEmitter {
     }
     if (!features.warmedUp) {
       runtime.liquidity.observe(features.spreadBps);
+      runtime.entryAudit.pass("LIQUIDITY_OBSERVATION");
       this.rejectEntry(runtime, "FEATURES_READY", "FEATURE_WARMUP", features.receiveTsMs);
       return;
     }
     runtime.entryAudit.pass("FEATURES_READY");
     this.riskState.setHealth({ riskRecomputed: true });
     this.riskState.resumeAfterReconciliation();
+    const smallQty = runtime.asset?.minOrderSize ?? 0;
+    const longCost = runtime.asset ? runtime.planner.preliminaryCost(features, book, 1, smallQty) : null;
+    const shortCost = runtime.asset ? runtime.planner.preliminaryCost(features, book, -1, smallQty) : null;
+    const longLiquidity = longCost ? runtime.liquidity.evaluate(liquidityInput(features, longCost.impactBps)) : null;
+    const shortLiquidity = shortCost ? runtime.liquidity.evaluate(liquidityInput(features, shortCost.impactBps)) : null;
+    runtime.liquidity.observe(features.spreadBps);
+    runtime.entryAudit.pass("LIQUIDITY_OBSERVATION");
+    if (longLiquidity && shortLiquidity) runtime.latestLiquidity = { long: longLiquidity, short: shortLiquidity };
     if (this.cfg.mode === "record") return;
 
-    // Preserve order/exposure lifecycle priority; candidate evaluation starts only when no entry is already active.
+    // Observe liquidity first, then preserve order/exposure lifecycle priority over new entries.
     if (runtime.position && runtime.position.qty > 0) { this.managePosition(runtime, book, features); return; }
     const pending = this.pendingForSymbol(book.symbol);
     if (pending) { this.reevaluatePending(runtime, pending, book, features); return; }
@@ -473,25 +482,16 @@ export class TradingEngine extends EventEmitter {
       this.rejectEntry(runtime, "VENUE_DIRECTION_PASS", "ASSET_RULES_UNAVAILABLE", features.receiveTsMs);
       return;
     }
-    const smallQty = runtime.asset?.minOrderSize ?? 0;
-    const longCost = runtime.planner.preliminaryCost(features, book, 1, smallQty);
-    const shortCost = runtime.planner.preliminaryCost(features, book, -1, smallQty);
-    if (!longCost || !shortCost) {
+    if (!longCost || !shortCost || !longLiquidity || !shortLiquidity) {
       this.rejectEntry(runtime, "PRELIMINARY_COST_PASS", "COST_ESTIMATE_UNAVAILABLE", features.receiveTsMs);
-      if (runtime.position && runtime.position.qty > 0) this.managePosition(runtime, book, features);
       return;
     }
-    const longLiquidity = runtime.liquidity.evaluate(liquidityInput(features, longCost.impactBps));
-    const shortLiquidity = runtime.liquidity.evaluate(liquidityInput(features, shortCost.impactBps));
-    runtime.liquidity.observe(features.spreadBps);
-    runtime.latestLiquidity = { long: longLiquidity, short: shortLiquidity };
-    const expectedLatencyMs = Math.max(1, this.latency.p95Total(this.now()) || 250);
-    const regime = runtime.regimeEngine.classify(features, longLiquidity.stress || shortLiquidity.stress);
+    const regime = runtime.regimeEngine.classify(features);
     runtime.latestRegime = regime;
     const deterministicIntent = runtime.entryEngine.evaluate({
       symbol: book.symbol, sequence: book.sequence, nowMs: features.receiveTsMs, features, regime,
       system: this.systemGates(runtime), bestBid: book.bids[0]!.px, bestAsk: book.asks[0]!.px,
-      expectedLatencyMs, longCost, shortCost, longLiquidity, shortLiquidity,
+      longCost, shortCost, longLiquidity, shortLiquidity,
     });
     const evaluation = runtime.entryEngine.latestEvaluation();
     if (evaluation) runtime.latestRuleEvaluation = evaluation;
@@ -585,8 +585,6 @@ export class TradingEngine extends EventEmitter {
       return;
     }
     runtime.entryAudit.pass("LIQUIDITY_PASS");
-    if (!diagnostics.antiChasePass) { this.rejectEntry(runtime, "ANTI_CHASE_PASS", "ANTI_CHASE_GATE", atMs); return; }
-    runtime.entryAudit.pass("ANTI_CHASE_PASS");
     const venuePass = candidate.side === 1 || runtime.asset?.shortable === true;
     if (!venuePass) { this.rejectEntry(runtime, "VENUE_DIRECTION_PASS", "SPOT_SHORT_UNAVAILABLE", atMs); return; }
     runtime.entryAudit.pass("VENUE_DIRECTION_PASS");
@@ -594,14 +592,19 @@ export class TradingEngine extends EventEmitter {
     runtime.entryAudit.pass("EXPOSURE_PASS");
     if (!diagnostics.cooldownPass) { this.rejectEntry(runtime, "COOLDOWN_PASS", "COOLDOWN_OR_RESET_GATE", atMs); return; }
     runtime.entryAudit.pass("COOLDOWN_PASS");
+    if (!diagnostics.edgeResolvedPass) { this.rejectEntry(runtime, "EDGE_RESOLVED", "EDGE_NOT_RESOLVED", atMs); return; }
+    runtime.entryAudit.pass("EDGE_RESOLVED");
     if (!diagnostics.costPass) {
       this.rejectEntry(runtime, "PRELIMINARY_COST_PASS", "COST_GATE", atMs, {
+        edgeSource: diagnostics.edgeSource, edgeHorizonMs: diagnostics.edgeHorizonMs, edgeQuality: diagnostics.edgeQuality,
         grossOpportunityBps: diagnostics.grossOpportunityBps, uncertaintyReserveBps: diagnostics.uncertaintyReserveBps,
         roundTripCostBps: diagnostics.roundTripCostBps, lowerBoundNetBps: diagnostics.lowerBoundNetBps,
       });
       return;
     }
     runtime.entryAudit.pass("PRELIMINARY_COST_PASS");
+    if (!diagnostics.antiChasePass) { this.rejectEntry(runtime, "ANTI_CHASE_PASS", "ANTI_CHASE_GATE", atMs); return; }
+    runtime.entryAudit.pass("ANTI_CHASE_PASS");
   }
 
   private rejectEntry(runtime: SymbolRuntime, stage: EntryPipelineStage, reason: string, atMs: number,
@@ -879,7 +882,7 @@ function cloneLiquidity(value: { long: LiquidityDecision; short: LiquidityDecisi
 function liquidityInput(features: DeterministicFeatures, impactBps: number) {
   return {
     spreadBps: features.spreadBps, spreadZ: features.spreadZ, depthZ: features.depthZ,
-    usableDepthNotional: features.usableDepthNotional, impactBps, providerAgeMs: features.providerAgeMs,
+    impactBps, providerAgeMs: features.providerAgeMs,
     stale: features.stale,
   };
 }
