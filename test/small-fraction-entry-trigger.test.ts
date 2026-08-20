@@ -72,8 +72,33 @@ test("arm-anchored chase blocks a candidate that arrives too late", () => {
 test("a continuous episode produces only one candidate", () => {
   const trigger = new SmallFractionEntryTrigger(triggerConfig());
   let count = 0;
-  for (let index = 0; index < 100; index += 1) if (trigger.update(bullish(index * 20)).candidate) count += 1;
+  for (let index = 0; index < 100; index += 1) {
+    const candidate = trigger.update(bullish(index * 20)).candidate;
+    if (candidate) { count += 1; trigger.commitCandidate(candidate.side, candidate.createdMs); }
+  }
   assert.equal(count, 1);
+});
+
+test("a downstream-rejected episode can retry, while an accepted episode cannot", () => {
+  const cfg = { ...triggerConfig(), candidateRetryMs: 200 };
+  const trigger = new SmallFractionEntryTrigger(cfg);
+  let first: SmallFractionCandidate | null = null;
+  let retry: SmallFractionCandidate | null = null;
+  for (let index = 0; index < 80; index += 1) {
+    const candidate = trigger.update(bullish(index * 20)).candidate;
+    first ??= candidate;
+    if (first && candidate && candidate.createdMs >= first.createdMs + cfg.candidateRetryMs) {
+      retry = candidate;
+      break;
+    }
+  }
+  assert.ok(first);
+  assert.ok(retry);
+  assert.ok(retry.evidence >= first.evidence);
+  trigger.commitCandidate(retry.side, retry.createdMs);
+  for (let index = 0; index < 80; index += 1) {
+    assert.equal(trigger.update(bullish(retry.createdMs + 20 + index * 20)).candidate, null);
+  }
 });
 
 test("an excessive event gap resets accumulated episode state", () => {

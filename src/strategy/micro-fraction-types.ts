@@ -68,6 +68,8 @@ export interface SmallFractionTriggerConfig {
   readonly strongConfirmationEvents: number;
   readonly maximumChaseBps: number;
   readonly arbitrationMargin: number;
+  /** Minimum delay before a downstream-rejected episode may propose a stronger candidate. */
+  readonly candidateRetryMs: number;
   readonly cooldownMs: number;
   readonly maximumEventGapMs: number;
 }

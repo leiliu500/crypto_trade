@@ -12,7 +12,7 @@ import { estimateSweep } from "../execution/book-walk.js";
 import { PortfolioRiskEngine } from "../risk/portfolio.js";
 import { RiskState } from "../risk/risk-state.js";
 import { RiskSizer, type RiskApproval } from "../risk/sizing.js";
-import { CostModel } from "../strategy/cost.js";
+import { CostModel, incrementalHoldCostBps } from "../strategy/cost.js";
 import { ForecastEngine } from "../strategy/forecast.js";
 import { PositionManager, type Position } from "../strategy/position-manager.js";
 import type { TradeIntent } from "../strategy/signal.js";
@@ -706,14 +706,18 @@ export class TradingEngine extends EventEmitter {
     const regime = runtime.regimeEngine.classify(features);
     runtime.latestRegime = regime;
     const exitCost = runtime.cost.estimate(features, book, -1, position.qty, false);
-    const expectedDelayAndExitCostBps = exitCost ? exitCost.spreadBps / 2 + exitCost.feeBps / 2 + exitCost.impactBps
-      + exitCost.latencyBps + exitCost.adverseSelectionBps + exitCost.fundingBps + exitCost.borrowBps : Number.POSITIVE_INFINITY;
-    const hold = runtime.holdEngine.evaluate(position.side, features, expectedDelayAndExitCostBps);
+    // Fees, current spread, and exit impact are unavoidable exit costs, not
+    // incremental costs of holding for one more decision interval.
+    const expectedIncrementalDelayCostBps = exitCost ? incrementalHoldCostBps(exitCost) : Number.POSITIVE_INFINITY;
+    const hold = runtime.holdEngine.evaluate(position.side, features, expectedIncrementalDelayCostBps);
     const executableExit = book.bids[0]!.px;
-    const decision = runtime.positionManager.update(position, executableExit, this.now(), features, hold.holdLowerBoundBps, hold.reversalScore, Math.max(0, -hold.holdLowerBoundBps));
+    const nowMs = this.now();
+    const decision = runtime.positionManager.update(position, executableExit, nowMs, features, hold.holdLowerBoundBps, hold.reversalScore, Math.max(0, -hold.holdLowerBoundBps));
     this.emit("positionDecision", { configurationVersion: runtime.config.configurationVersion, position: { ...position }, decision, hold, regime });
-    if (hold.exitEvidence) void this.submitExit(runtime, position.qty, "DETERMINISTIC_HOLD_EVIDENCE", book, features);
-    else if (decision.action === "EXIT") void this.submitExit(runtime, position.qty, decision.reason, book, features);
+    if (decision.action === "EXIT") void this.submitExit(runtime, position.qty, decision.reason, book, features);
+    else if (hold.exitEvidence && nowMs - position.openedMs >= runtime.config.position.minimumHoldMs) {
+      void this.submitExit(runtime, position.qty, "DETERMINISTIC_HOLD_EVIDENCE", book, features);
+    }
     else if (decision.action === "REDUCE") void this.submitExit(runtime, position.qty * decision.fraction, decision.reason, book, features);
   }
 

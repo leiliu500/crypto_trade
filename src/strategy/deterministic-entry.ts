@@ -95,6 +95,7 @@ export class DeterministicEntryEngine {
       ? this.directionalCandidate(context, trigger.candidate, selectedDiagnostics) : null;
     const intent = selectedDiagnostics && this.commonPass(selectedDiagnostics)
       ? this.tradeIntent(context, selectedDiagnostics) : null;
+    if (intent) this.microTrigger.commitCandidate(intent.side, context.nowMs);
     this.lastEvaluation = { long, short, candidate, intent };
     return intent;
   }

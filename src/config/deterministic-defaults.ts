@@ -14,7 +14,7 @@ export const DEFAULT_DETERMINISTIC_REGIME_CONFIG: DeterministicRegimeConfig = {
   hysteresisResetRatio: .75,
 };
 export const DEFAULT_DETERMINISTIC_SIGNAL_CONFIG: DeterministicSignalConfig = {
-  mode: "DETERMINISTIC_ONLY", configurationVersion: "deterministic-micro-v1.1",
+  mode: "DETERMINISTIC_ONLY", configurationVersion: "deterministic-micro-v1.2",
   maximumSpreadBps: 30, maximumSpreadZ: 3, minimumDepthZ: -2.5, maximumImpactBps: 1.5,
   microEdgeBps: .2, qi1: .15, qiK: .1, ofi: .3, tfi: .15, replenishment: .1, velocityZ: .25,
   maximumOpposingAccelerationZ: .3, impulseBps: .4, breakoutBps: .5, cusum: 2.5, efficiency: .45, maximumFlipRate: .45,
@@ -48,7 +48,8 @@ export const DEFAULT_DETERMINISTIC_SIGNAL_CONFIG: DeterministicSignalConfig = {
     fireEvidenceScoreSeconds: .025, occupancyTauMs: 300, minimumOccupancy: .52,
     minimumConfirmationMs: 40, strongConfirmationMs: 20,
     minimumConfirmationEvents: 3, strongConfirmationEvents: 2,
-    maximumChaseBps: 2, arbitrationMargin: .08, cooldownMs: 750, maximumEventGapMs: 1_500,
+    maximumChaseBps: 2, arbitrationMargin: .08, candidateRetryMs: 250,
+    cooldownMs: 750, maximumEventGapMs: 1_500,
   },
 };
 export const DEFAULT_DETERMINISTIC_HOLD_CONFIG: DeterministicHoldConfig = {

@@ -189,6 +189,23 @@ test("an uneconomic micro candidate never becomes an order intent", () => {
   assert.equal(engine.latestEvaluation()!.long.costPass, false);
 });
 
+test("a cost-rejected episode is reconsidered after its evidence and economics improve", () => {
+  const engine = new DeterministicEntryEngine({ ...testConfig(), minimumNetEdgeBps: .5,
+    microTrigger: { ...testConfig().microTrigger, candidateRetryMs: 200 } });
+  let sawRejectedCandidate = false;
+  let intent = null;
+  for (let index = 0; index < 60; index += 1) {
+    const value = context(1, 1_000 + index * 50);
+    const rejected = !sawRejectedCandidate;
+    value.longCost = cost(rejected ? 100 : .2);
+    value.shortCost = cost(rejected ? 100 : .2);
+    intent ??= engine.evaluate(value);
+    if (engine.latestEvaluation()?.candidate && !engine.latestEvaluation()?.intent) sawRejectedCandidate = true;
+  }
+  assert.equal(sawRejectedCandidate, true);
+  assert.equal(intent?.side, 1);
+});
+
 test("a continuous signal fires once and needs both cooldown and reset before re-arming", () => {
   const engine = new DeterministicEntryEngine(testConfig());
   const first = persistentIntent(engine)!;

@@ -15,6 +15,7 @@ interface DirectionState {
   firstSupportMs?: number;
   anchorMid?: number;
   consecutiveEvents: number;
+  nextCandidateAtMs: number;
   cooldownUntilMs: number;
 }
 
@@ -68,6 +69,15 @@ export class SmallFractionEntryTrigger {
     this.microNoise.update(deltaMicroBps, f.nowMs);
     this.previousMicroprice = f.microprice;
     return { long, short, candidate: this.arbitrate(f.symbol, f.nowMs, long, short) };
+  }
+
+  /** Commits an economically accepted candidate so a continuous episode can create only one order intent. */
+  public commitCandidate(side: Direction, nowMs: number): void {
+    const state = this.mustState(side);
+    if (!state.armed) throw new Error(`Cannot commit an unarmed micro-trigger candidate for side ${side}`);
+    state.firedInEpisode = true;
+    state.nextCandidateAtMs = Number.POSITIVE_INFINITY;
+    state.cooldownUntilMs = Math.max(state.cooldownUntilMs, nowMs + this.cfg.cooldownMs);
   }
 
   private evaluateSide(input: SideInput): SideTriggerDiagnostics {
@@ -125,12 +135,14 @@ export class SmallFractionEntryTrigger {
     if (state.consecutiveEvents < requiredEvents) reasons.push("CONFIRMATION_EVENTS_FALSE");
     if (chaseBps > this.cfg.maximumChaseBps) reasons.push("MAXIMUM_CHASE_EXCEEDED");
     if (nowMs < state.cooldownUntilMs) reasons.push("COOLDOWN_ACTIVE");
+    if (nowMs < state.nextCandidateAtMs) reasons.push("CANDIDATE_RETRY_ACTIVE");
     if (state.firedInEpisode) reasons.push("ALREADY_FIRED_IN_EPISODE");
     if (eventGapExceeded) reasons.push("EVENT_GAP_RESET");
     const fire = state.armed && !state.firedInEpisode && groupQuorum && score >= this.cfg.armScore
       && state.occupancy >= this.cfg.minimumOccupancy && state.evidence >= this.cfg.fireEvidenceScoreSeconds
       && confirmationMs >= requiredTimeMs && state.consecutiveEvents >= requiredEvents
-      && chaseBps <= this.cfg.maximumChaseBps && nowMs >= state.cooldownUntilMs;
+      && chaseBps <= this.cfg.maximumChaseBps && nowMs >= state.cooldownUntilMs
+      && nowMs >= state.nextCandidateAtMs;
     return {
       side, score, microPressure: input.microPressure, bookPass, flowPass, motionPass, groupCount, groupQuorum,
       sensorThresholdBps: input.sensorThresholdBps, deltaMicroBps: input.deltaMicroBps, microNoiseBps: input.microNoiseBps,
@@ -149,8 +161,11 @@ export class SmallFractionEntryTrigger {
     }
     if (!selected) return null;
     const state = this.mustState(selected.side);
-    state.firedInEpisode = true;
-    state.cooldownUntilMs = nowMs + this.cfg.cooldownMs;
+    // Proposal is not consumption. Downstream health, liquidity, venue, cost, and
+    // execution gates may reject it; a strengthening episode must then be allowed
+    // to retry after a bounded delay. DeterministicEntryEngine commits only an
+    // economically accepted proposal.
+    state.nextCandidateAtMs = nowMs + this.cfg.candidateRetryMs;
     return {
       source: "DETERMINISTIC_MICRO", symbol, side: selected.side, createdMs: nowMs, score: selected.score,
       occupancy: selected.occupancy, evidence: selected.evidence, confirmationMs: selected.confirmationMs,
@@ -164,6 +179,7 @@ export class SmallFractionEntryTrigger {
     state.evidence = 0;
     state.armed = false;
     state.firedInEpisode = false;
+    state.nextCandidateAtMs = 0;
     delete state.firstSupportMs;
     delete state.anchorMid;
     state.consecutiveEvents = 0;
@@ -177,7 +193,8 @@ export class SmallFractionEntryTrigger {
 }
 
 function freshState(): DirectionState {
-  return { occupancy: 0, evidence: 0, armed: false, firedInEpisode: false, consecutiveEvents: 0, cooldownUntilMs: 0 };
+  return { occupancy: 0, evidence: 0, armed: false, firedInEpisode: false, consecutiveEvents: 0,
+    nextCandidateAtMs: 0, cooldownUntilMs: 0 };
 }
 
 function invalidDiagnostics(side: Direction, reason: string): SideTriggerDiagnostics {
@@ -215,6 +232,6 @@ export function validateSmallFractionTriggerConfig(cfg: SmallFractionTriggerConf
   const nonnegative = [cfg.minimumMicroPressure, cfg.minimumQiK, cfg.minimumOfi, cfg.minimumTfi, cfg.minimumReplenishment,
     cfg.minimumVelocityZ, cfg.minimumBreakoutBps, cfg.minimumCusum, cfg.minimumMicroMoveBps, cfg.noiseMovementMultiplier,
     cfg.evidenceDriftAllowance, cfg.opposingEvidencePenalty, cfg.fireEvidenceScoreSeconds, cfg.minimumConfirmationMs,
-    cfg.strongConfirmationMs, cfg.maximumChaseBps, cfg.arbitrationMargin, cfg.cooldownMs];
+    cfg.strongConfirmationMs, cfg.maximumChaseBps, cfg.arbitrationMargin, cfg.candidateRetryMs, cfg.cooldownMs];
   if (nonnegative.some((value) => value < 0)) throw new Error("Micro-trigger nonnegative thresholds cannot be negative");
 }

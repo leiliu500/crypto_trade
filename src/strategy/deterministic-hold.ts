@@ -14,7 +14,7 @@ export interface DeterministicHoldDecision {
 }
 export class DeterministicHoldEngine {
   public constructor(private readonly cfg: DeterministicHoldConfig) { validateHoldConfig(cfg); }
-  public evaluate(side: Direction, f: DeterministicFeatures, expectedDelayAndExitCostBps: number): DeterministicHoldDecision {
+  public evaluate(side: Direction, f: DeterministicFeatures, expectedIncrementalDelayCostBps: number): DeterministicHoldDecision {
     const horizonSec = this.cfg.holdHorizonMs / 1_000;
     const sigmaHBps = 10_000 * Math.sqrt(Math.max(f.varianceRate * horizonSec, 1e-16));
     const directionalFlow = clamp((side * f.qiK + side * f.ofi + side * f.tfi + side * f.replenishmentPressure) / 4, -1, 1);
@@ -29,7 +29,10 @@ export class DeterministicHoldEngine {
       + Number(side * f.replenishmentPressure <= -this.cfg.opposingReplenishment) + Number(directionalCusumAgainst >= this.cfg.opposingCusum);
     const reversalScore = clamp(reversalVotes / 5, 0, 1);
     const uncertaintyBps = this.cfg.uncertaintySpreadPenaltyBps * Math.max(0, f.spreadZ) + this.cfg.uncertaintyFlipPenaltyBps * f.flowFlipRate;
-    const holdLowerBoundBps = holdGrossBps - uncertaintyBps - expectedDelayAndExitCostBps;
+    // Entry fees are sunk and an exit fee/spread is unavoidable whether the
+    // position exits now or after this hold interval. Subtract only incremental
+    // delay costs here so every market event does not charge the round trip again.
+    const holdLowerBoundBps = holdGrossBps - uncertaintyBps - expectedIncrementalDelayCostBps;
     const exitEvidence = continuationScore < this.cfg.minimumContinuationScore || reversalVotes >= this.cfg.reversalVoteThreshold || holdLowerBoundBps < this.cfg.minimumHoldEdgeBps;
     return { continuationScore, reversalScore, holdGrossBps, uncertaintyBps, holdLowerBoundBps, exitEvidence, reversalVotes };
   }

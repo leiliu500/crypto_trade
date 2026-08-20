@@ -6,6 +6,7 @@ import { SignalEngine } from "../src/strategy/signal.js";
 import { RiskSizer } from "../src/risk/sizing.js";
 import { PositionManager, type Position } from "../src/strategy/position-manager.js";
 import { RiskState } from "../src/risk/risk-state.js";
+import { incrementalHoldCostBps } from "../src/strategy/cost.js";
 
 const features = (patch: Partial<Features> = {}): Features => ({
   symbol: "BTC/USD", mid: 100, spread: 1, spreadBps: 100, microprice: 100.5, visibleDepth: 10,
@@ -38,6 +39,14 @@ test("risk sizing cannot exceed its modeled maximum-loss budget", () => {
   });
   assert.ok(approval);
   assert.ok(approval.modeledMaximumLoss <= approval.riskBudget + 1e-8);
+});
+
+test("incremental hold cost excludes unavoidable round-trip execution charges", () => {
+  const incremental = incrementalHoldCostBps({
+    roundTripBps: 60, spreadBps: 8, feeBps: 40, impactBps: 3, latencyBps: 2,
+    adverseSelectionBps: 5, fundingBps: .25, borrowBps: .5,
+  });
+  assert.equal(incremental, 2.75);
 });
 
 test("profit floor never loosens and recovery arms break-even", () => {

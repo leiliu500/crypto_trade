@@ -23,6 +23,11 @@ export interface CostEstimate {
   worstEntryPx?: number;
 }
 
+/** Costs added by waiting one more hold interval; unavoidable entry/exit costs are excluded. */
+export function incrementalHoldCostBps(cost: CostEstimate): number {
+  return cost.latencyBps + cost.fundingBps + cost.borrowBps;
+}
+
 export class CostModel {
   public constructor(private readonly cfg: CostConfig) {}
   public estimate(features: Features, book: BookState, direction: Direction, qty: number, makerEntry = false): CostEstimate | null {

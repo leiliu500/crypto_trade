@@ -233,7 +233,7 @@ function loadSymbolConfig(symbol: string, env: NodeJS.ProcessEnv, mode: TradingM
   const signalMode = parseSignalMode(env.SIGNAL_MODE ?? env.ENTRY_MODE);
   if (signalMode !== "DETERMINISTIC_ONLY" && !env.MODEL_CONFIG_JSON) throw new Error(`${signalMode} requires MODEL_CONFIG_JSON; optional model modes fail closed without a model`);
   const model = signalMode === "DETERMINISTIC_ONLY" ? parseModel(undefined) : parseModel(env.MODEL_CONFIG_JSON);
-  const configurationVersion = env.DETERMINISTIC_CONFIG_VERSION ?? "deterministic-micro-v1.1";
+  const configurationVersion = env.DETERMINISTIC_CONFIG_VERSION ?? "deterministic-micro-v1.2";
   const deterministicExtension = loadExtensionConfig(env);
   const deterministicRegime = loadDeterministicRegimeConfig(env);
   const deterministicSignal = loadDeterministicSignalConfig(env, signalMode, configurationVersion);
@@ -253,23 +253,34 @@ function loadSymbolConfig(symbol: string, env: NodeJS.ProcessEnv, mode: TradingM
     minimumDepthZ: deterministicSignal.minimumDepthZ,
     maximumImpactBps: deterministicSignal.maximumImpactBps,
   };
+  const forecast: ForecastConfig = {
+    alphaDecayTauMs: numberEnv(env.ALPHA_DECAY_TAU_MS, 4_000),
+    intendedHoldMs: numberEnv(env.INTENDED_HOLD_MS, 30 * 60_000),
+    residualWindowMs: 86_400_000,
+    fallbackResidualQ95Bps: numberEnv(env.RESIDUAL_Q95_BPS, 8),
+  };
+  const position = defaultPositionConfig(env);
+  validateStrategyHorizons(deterministicSignal.analyticEdge.economicHorizonMs, forecast.intendedHoldMs, position.maximumHoldMs);
   return {
     symbol,
     maximumNotional: numberEnv(env.MAXIMUM_NOTIONAL, 1_000), initialStopSigma: numberEnv(env.INITIAL_STOP_SIGMA, 3),
     minimumStopSpreadMultiple: numberEnv(env.MINIMUM_STOP_SPREAD_MULTIPLE, 3), jumpSigma: numberEnv(env.JUMP_SIGMA, 5),
     strategyVersion: env.STRATEGY_VERSION ?? "1.0.0", modelVersion: signalMode === "DETERMINISTIC_ONLY" ? "none" : model.version,
     configurationVersion, signalMode, feature, deterministicExtension, deterministicRegime, deterministicSignal, deterministicHold, dynamicLiquidity,
-    forecast: { alphaDecayTauMs: numberEnv(env.ALPHA_DECAY_TAU_MS, 4_000), intendedHoldMs: numberEnv(env.INTENDED_HOLD_MS, 12_000), residualWindowMs: 86_400_000, fallbackResidualQ95Bps: numberEnv(env.RESIDUAL_Q95_BPS, 8) },
+    forecast,
     probabilityHead: model.probabilityHead, returnHead: model.returnHead,
     signal: { costSafetyFactor: 1.75, minimumDirectionProbability: .62, minimumNetEdgeBps: 1, fullQualityEdgeBps: 20 },
     cost: { makerFeeBps: numberEnv(env.MAKER_FEE_BPS, 15), takerFeeBps: numberEnv(env.TAKER_FEE_BPS, 25), expectedExitTaker: true, latencyAdverseFraction: .25, adverseSelectionBps: 1, fundingBps: 0, borrowBps: 0 },
     sizing: { baseRiskFraction: .001, maximumDrawdown: .05, maximumBookParticipation: .01, fractionalKelly: .1, maximumKellyFraction: .05, targetSigmaHBps: 20, minimumQualityScale: .1 },
-    position: defaultPositionConfig(), planner: defaultPlannerConfig(),
+    position, planner: defaultPlannerConfig(),
   };
 }
 
-function defaultPositionConfig(): PositionConfig {
-  return { recoveryArmR: .5, trailActivationR: .75, minimumProgressR: .25, minimumHoldMs: 1_000, maximumHoldMs: 20_000, evidenceConfirmationMs: 750,
+function defaultPositionConfig(env: NodeJS.ProcessEnv): PositionConfig {
+  return { recoveryArmR: .5, trailActivationR: .75, minimumProgressR: .25,
+    minimumHoldMs: integerEnv(env.POSITION_MINIMUM_HOLD_MS, 1_000, 0, 2_147_483_647),
+    maximumHoldMs: integerEnv(env.POSITION_MAXIMUM_HOLD_MS, 30 * 60_000, 1, 2_147_483_647),
+    evidenceConfirmationMs: 750,
     lockMin: .1, lockMax: .85, lockMaturityRate: .8, lockReversalWeight: .3, lockTrendDiscount: .15,
     baseVolatilityMultiple: 2, trendVolatilityBonus: 1, reversalVolatilityPenalty: 1.25, minimumVolatilityMultiple: .5, maximumVolatilityMultiple: 4,
     partialExitThreshold: .7, maximumPartialExitFraction: .5, minimumPartialExitBenefitBps: 2 };
@@ -282,6 +293,15 @@ function defaultPlannerConfig(): PlannerConfig {
 function parseMode(value: string): TradingMode {
   if (!["record", "replay", "shadow", "paper", "live"].includes(value)) throw new Error(`Unknown trading mode: ${value}`);
   return value as TradingMode;
+}
+
+function validateStrategyHorizons(economicHorizonMs: number, intendedHoldMs: number, maximumHoldMs: number): void {
+  if (economicHorizonMs !== intendedHoldMs) {
+    throw new Error(`RULE_ECONOMIC_HORIZON_MS (${economicHorizonMs}) must equal INTENDED_HOLD_MS (${intendedHoldMs})`);
+  }
+  if (maximumHoldMs < intendedHoldMs) {
+    throw new Error(`POSITION_MAXIMUM_HOLD_MS (${maximumHoldMs}) must cover INTENDED_HOLD_MS (${intendedHoldMs})`);
+  }
 }
 function parseSignalMode(value: string | undefined): SignalMode {
   if (value === undefined || value.toLowerCase() === "rules") return "DETERMINISTIC_ONLY";
@@ -449,6 +469,7 @@ function loadDeterministicSignalConfig(env: NodeJS.ProcessEnv, mode: SignalMode,
       strongConfirmationEvents: integerEnv(env.MICRO_STRONG_CONFIRMATION_EVENTS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.strongConfirmationEvents, 1, 10_000),
       maximumChaseBps: numberEnv(env.MICRO_MAX_CHASE_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.maximumChaseBps),
       arbitrationMargin: numberEnv(env.MICRO_ARBITRATION_MARGIN, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.arbitrationMargin),
+      candidateRetryMs: integerEnv(env.MICRO_CANDIDATE_RETRY_MS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.candidateRetryMs, 0, 60_000),
       cooldownMs: numberEnv(env.MICRO_COOLDOWN_MS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.cooldownMs),
       maximumEventGapMs: numberEnv(env.MICRO_MAX_EVENT_GAP_MS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.microTrigger.maximumEventGapMs),
     },
