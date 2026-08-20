@@ -13,7 +13,7 @@ function bullish(nowMs: number, overrides: Partial<SmallFractionFeatures> = {}):
     microprice: mid + .001, qiK: .30, ofi: .40, tfi: .20, replenishmentPressure: .15,
     velocityZ: .25, accelerationZ: 0, breakoutUpBps: .10, breakoutDownBps: 0,
     cusumUp: 1, cusumDown: 0, efficiency: .8, flowFlipRate: .1, varianceRate: 1e-8,
-    providerAgeMs: 10, stale: false, bookReady: true, ...overrides,
+    providerAgeMs: 10, kinematicsReady: true, stale: false, bookReady: true, ...overrides,
   };
 }
 
@@ -39,6 +39,15 @@ test("one isolated microprice spike cannot bypass occupancy and evidence confirm
   const trigger = new SmallFractionEntryTrigger(triggerConfig());
   assert.equal(trigger.update(bullish(0, { qiK: 0, ofi: 0, tfi: 0, velocityZ: 0, breakoutUpBps: 0, cusumUp: 0 })).candidate, null);
   assert.equal(trigger.update(bullish(20, { microprice: 100.01, qiK: .5, ofi: .6 })).candidate, null);
+});
+
+test("a kinematics reset blocks motion evidence without invalidating market data", () => {
+  const trigger = new SmallFractionEntryTrigger(triggerConfig());
+  const result = trigger.update(bullish(0, { kinematicsReady: false }));
+  assert.equal(result.candidate, null);
+  assert.equal(result.long.motionPass, false);
+  assert.ok(result.long.reasons.includes("KINEMATICS_NOT_READY"));
+  assert.ok(!result.long.reasons.includes("MARKET_STATE_INVALID"));
 });
 
 test("the current movement is measured against prior noise before the estimator observes it", () => {

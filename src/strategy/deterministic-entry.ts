@@ -116,7 +116,7 @@ export class DeterministicEntryEngine {
   }
 
   public signalStillValid(side: Direction, features: DeterministicFeatures, _regime: RegimeDecision): boolean {
-    if (features.stale) return false;
+    if (features.stale || !features.kinematicsReady) return false;
     const halfSpread = Math.max(features.spread / 2, 1e-12);
     const pressure = clamp((features.microprice - features.mid) / halfSpread, -1, 1);
     const cfg = this.cfg.microTrigger;
@@ -239,7 +239,7 @@ export class DeterministicEntryEngine {
       breakoutUpBps: f.breakoutUpBps, breakoutDownBps: f.breakoutDownBps,
       cusumUp: f.cusumUpScore, cusumDown: f.cusumDownScore, efficiency: f.efficiency,
       flowFlipRate: f.flowFlipRate, varianceRate: f.varianceRate, providerAgeMs: f.providerAgeMs,
-      stale: f.stale, bookReady: context.system.bookValid,
+      kinematicsReady: f.kinematicsReady, stale: f.stale, bookReady: context.system.bookValid,
     };
   }
 

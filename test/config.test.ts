@@ -30,7 +30,9 @@ test("JSON baseline wins over legacy tunable environment values and symbol overl
     assert.equal(cfg.symbolConfigs["XRP/USD"]?.deterministicSignal.scoreEnter, 0.3);
     assert.equal(cfg.symbolConfigs["DOGE/USD"]?.deterministicSignal.scoreEnter, 0.3);
     assert.equal(cfg.feature.maximumProviderFutureSkewMs, 250);
+    assert.equal(cfg.feature.maximumKinematicsGapMs, 5_000);
     assert.equal(cfg.symbolConfigs["BTC/USD"]?.feature.maximumProviderFutureSkewMs, 250);
+    assert.equal(cfg.symbolConfigs["BTC/USD"]?.feature.maximumKinematicsGapMs, 5_000);
     assert.equal(cfg.deterministicSignal.microTrigger.minimumMicroMoveBps, 0.01);
     assert.equal(cfg.deterministicSignal.microTrigger.candidateRetryMs, 250);
     assert.equal(cfg.forecast.intendedHoldMs, 1_800_000);

@@ -21,6 +21,7 @@ export interface FeatureConfig {
   cusumThreshold: number;
   minimumWarmupEvents: number;
   minimumWarmupMs: number;
+  maximumKinematicsGapMs: number;
 }
 
 export const DEFAULT_FEATURE_CONFIG: FeatureConfig = {
@@ -42,11 +43,13 @@ export const DEFAULT_FEATURE_CONFIG: FeatureConfig = {
   cusumThreshold: 5,
   minimumWarmupEvents: 30,
   minimumWarmupMs: 10_000,
+  maximumKinematicsGapMs: 5_000,
 };
+
+type KinematicsStatus = "READY" | "RESET" | "INVALID";
 
 class AlphaBetaGamma {
   private static readonly MINIMUM_DT_SECONDS = .001;
-  private static readonly MAXIMUM_GAP_MS = 5_000;
   private static readonly MAXIMUM_ABSOLUTE_VELOCITY = 1;
   private static readonly MAXIMUM_ABSOLUTE_ACCELERATION = 100;
   private initialized = false;
@@ -54,17 +57,18 @@ class AlphaBetaGamma {
   public x = 0;
   public v = 0;
   public a = 0;
-  public constructor(private readonly alpha = .35, private readonly beta = .08, private readonly gamma = .01) {}
-  public update(measurement: number, nowMs: number): boolean {
-    if (!Number.isFinite(measurement) || !Number.isFinite(nowMs)) return false;
-    if (!this.initialized) { this.reset(measurement, nowMs); return true; }
+  public constructor(private readonly maximumGapMs: number, private readonly alpha = .35,
+    private readonly beta = .08, private readonly gamma = .01) {}
+  public update(measurement: number, nowMs: number): KinematicsStatus {
+    if (!Number.isFinite(measurement) || !Number.isFinite(nowMs)) return "INVALID";
+    if (!this.initialized) { this.reset(measurement, nowMs); return "READY"; }
     const elapsedMs = nowMs - this.lastMs;
     if (elapsedMs <= 0) {
       this.x += this.alpha * (measurement - this.x);
-      if (!Number.isFinite(this.x)) { this.reset(measurement, nowMs); return false; }
-      return true;
+      if (!Number.isFinite(this.x)) { this.reset(measurement, nowMs); return "INVALID"; }
+      return "READY";
     }
-    if (elapsedMs > AlphaBetaGamma.MAXIMUM_GAP_MS) { this.reset(measurement, nowMs); return false; }
+    if (elapsedMs > this.maximumGapMs) { this.reset(measurement, nowMs); return "RESET"; }
     const dt = Math.max(elapsedMs / 1000, AlphaBetaGamma.MINIMUM_DT_SECONDS);
     const predictedX = this.x + this.v * dt + .5 * this.a * dt * dt;
     const predictedV = this.v + this.a * dt;
@@ -73,11 +77,12 @@ class AlphaBetaGamma {
     this.v = predictedV + (this.beta / dt) * residual;
     this.a += (2 * this.gamma / (dt * dt)) * residual;
     this.lastMs = nowMs;
-    const stable = [this.x, this.v, this.a].every(Number.isFinite)
-      && Math.abs(this.v) <= AlphaBetaGamma.MAXIMUM_ABSOLUTE_VELOCITY
+    const finite = [this.x, this.v, this.a].every(Number.isFinite);
+    const bounded = finite && Math.abs(this.v) <= AlphaBetaGamma.MAXIMUM_ABSOLUTE_VELOCITY
       && Math.abs(this.a) <= AlphaBetaGamma.MAXIMUM_ABSOLUTE_ACCELERATION;
-    if (!stable) this.reset(measurement, nowMs);
-    return stable;
+    if (!finite) { this.reset(measurement, nowMs); return "INVALID"; }
+    if (!bounded) { this.reset(measurement, nowMs); return "RESET"; }
+    return "READY";
   }
   private reset(measurement: number, nowMs: number): void {
     this.initialized = true;
@@ -146,12 +151,13 @@ export class FeatureEngine {
   private readonly spreadStats: TimeEwma;
   private readonly depthStats: TimeEwma;
   private readonly replenishmentStats: TimeEwma;
-  private readonly trend = new AlphaBetaGamma();
+  private readonly trend: AlphaBetaGamma;
   private readonly efficiency: EfficiencyWindow;
   private readonly cusum: CusumDetector;
   private readonly ageGate: RobustAgeGate;
 
   public constructor(private readonly cfg: FeatureConfig = DEFAULT_FEATURE_CONFIG) {
+    this.trend = new AlphaBetaGamma(cfg.maximumKinematicsGapMs);
     this.ofi = new DecayedValue(cfg.ofiTauMs);
     this.tradeFlow = new DecayedSignedFlow(cfg.tradeFlowTauMs);
     this.bidAdds = new DecayedValue(cfg.bookFlowTauMs);
@@ -206,7 +212,8 @@ export class FeatureEngine {
     this.updateOfi(book, bid, ask);
 
     const logMicro = Math.log(microprice);
-    const kinematicsValid = this.trend.update(logMicro, book.receiveTsMs);
+    const kinematicsStatus = this.trend.update(logMicro, book.receiveTsMs);
+    const kinematicsReady = kinematicsStatus === "READY";
     let cusumState = { up: false, down: false };
     if (this.previousLogMicro !== undefined && this.previousReceiveMs !== undefined) {
       const dtSec = Math.max((book.receiveTsMs - this.previousReceiveMs) / 1000, 1e-4);
@@ -250,7 +257,7 @@ export class FeatureEngine {
       && book.receiveTsMs - this.firstReceiveMs >= this.cfg.minimumWarmupMs
       && this.varianceRate.ready && this.spreadStats.ready && this.depthStats.ready;
     const staleReason: FeatureStaleReason | null = !book.valid ? "BOOK_INVALID"
-      : age.reason ?? (!kinematicsValid ? "KINEMATICS_RESET" : null);
+      : age.reason ?? (kinematicsStatus === "INVALID" ? "NON_FINITE_FEATURE" : null);
     const stale = staleReason !== null;
 
     this.previousBook = book;
@@ -264,8 +271,9 @@ export class FeatureEngine {
       velocity, acceleration, varianceRate, sigmaHBps,
       microEdgeZ: clamp(microEdgeZ, -8, 8), velocityZ: clamp(velocityZ, -8, 8), accelerationZ: clamp(accelerationZ, -8, 8),
       efficiency, cusumUp: cusumState.up, cusumDown: cusumState.down, spreadZ, depthZ, signalFlipRate,
-      providerAgeMs, staleThresholdMs: age.thresholdMs, warmedUp, stale, staleReason, receiveTsMs: book.receiveTsMs,
-    }, kinematicsValid);
+      providerAgeMs, staleThresholdMs: age.thresholdMs, warmedUp, kinematicsReady, stale, staleReason,
+      receiveTsMs: book.receiveTsMs,
+    }, kinematicsStatus !== "INVALID");
   }
 
   private persistenceAdjusted(qty: number, ageMs = 0, cancellationHazard = 0): number {

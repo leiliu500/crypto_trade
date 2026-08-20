@@ -23,6 +23,7 @@ export interface SmallFractionFeatures {
   readonly flowFlipRate: number;
   readonly varianceRate: number;
   readonly providerAgeMs: number;
+  readonly kinematicsReady: boolean;
   readonly stale: boolean;
   readonly bookReady: boolean;
 }

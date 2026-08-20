@@ -13,7 +13,8 @@ const features: Features = {
   velocity: 0, acceleration: 0, varianceRate: 1e-8, sigmaHBps: 1,
   microEdgeZ: 0, velocityZ: 0, accelerationZ: 0, efficiency: 1,
   cusumUp: true, cusumDown: false, spreadZ: 0, depthZ: 0, signalFlipRate: 0,
-  providerAgeMs: 5, staleThresholdMs: 100, warmedUp: true, stale: false, staleReason: null, receiveTsMs: 1_000,
+  providerAgeMs: 5, staleThresholdMs: 100, warmedUp: true, kinematicsReady: true,
+  stale: false, staleReason: null, receiveTsMs: 1_000,
 };
 
 const book: BookState = {

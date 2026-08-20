@@ -105,6 +105,7 @@ export interface DashboardMarketCard {
   providerAgeMs: number | null;
   staleThresholdMs: number | null;
   warmedUp: boolean;
+  kinematicsReady: boolean;
   stale: boolean;
   staleReason: FeatureStaleReason | null;
   sequence: string;

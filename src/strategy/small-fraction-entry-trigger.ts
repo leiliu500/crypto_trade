@@ -89,8 +89,9 @@ export class SmallFractionEntryTrigger {
       || side * f.replenishmentPressure >= this.cfg.minimumReplenishment;
     const directionalBreakoutBps = side === 1 ? f.breakoutUpBps : f.breakoutDownBps;
     const directionalCusum = side === 1 ? f.cusumUp : -f.cusumDown;
-    const motionPass = side * input.deltaMicroBps >= input.sensorThresholdBps || side * f.velocityZ >= this.cfg.minimumVelocityZ
-      || directionalBreakoutBps >= this.cfg.minimumBreakoutBps || directionalCusum >= this.cfg.minimumCusum;
+    const motionPass = f.kinematicsReady && (side * input.deltaMicroBps >= input.sensorThresholdBps
+      || side * f.velocityZ >= this.cfg.minimumVelocityZ
+      || directionalBreakoutBps >= this.cfg.minimumBreakoutBps || directionalCusum >= this.cfg.minimumCusum);
     const groupCount = Number(bookPass) + Number(flowPass) + Number(motionPass);
     const groupQuorum = groupCount >= 2 && motionPass;
     const rawGapMs = state.lastMs === undefined ? 0 : nowMs - state.lastMs;
@@ -126,6 +127,7 @@ export class SmallFractionEntryTrigger {
     const reasons: string[] = [];
     if (!bookPass) reasons.push("BOOK_GROUP_FALSE");
     if (!flowPass) reasons.push("FLOW_GROUP_FALSE");
+    if (!f.kinematicsReady) reasons.push("KINEMATICS_NOT_READY");
     if (!motionPass) reasons.push("MOTION_GROUP_FALSE");
     if (!groupQuorum) reasons.push("GROUP_QUORUM_FALSE");
     if (score < this.cfg.armScore) reasons.push("ARM_SCORE_FALSE");

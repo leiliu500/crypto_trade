@@ -128,6 +128,7 @@ export class OperationsMonitor extends EventEmitter {
         providerAgeMs: features?.providerAgeMs ?? null,
         staleThresholdMs: features?.staleThresholdMs ?? null,
         warmedUp: features?.warmedUp ?? false,
+        kinematicsReady: features?.kinematicsReady ?? false,
         stale: features?.stale ?? !market.bookValid,
         staleReason: features?.staleReason ?? (!market.bookValid ? "BOOK_INVALID" : null),
         sequence: market.sequence,

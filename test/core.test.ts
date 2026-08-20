@@ -113,7 +113,7 @@ test("kinematic features remain finite under bursty and irregular event timestam
   assert.ok(freshSamples > 0);
 });
 
-test("a long observation gap resets kinematics and fails closed for that event", () => {
+test("a long observation gap resets only kinematics and keeps valid market data healthy", () => {
   const engine = new FeatureEngine();
   let features;
   for (let i = 0; i < 40; i += 1) {
@@ -125,12 +125,25 @@ test("a long observation gap resets kinematics and fails closed for that event",
   const gapMs = 30_000;
   const afterGap = engine.onBook({ symbol: "TEST/USD", bids: [{ px: 100.005, qty: 10 }], asks: [{ px: 100.015, qty: 10 }],
     sequence: 41n, exchangeTsMs: gapMs, receiveTsMs: gapMs, valid: true, sourceReset: true });
-  assert.equal(afterGap?.stale, true);
-  assert.equal(afterGap?.staleReason, "KINEMATICS_RESET");
-  assert.equal(afterGap?.warmedUp, false);
+  assert.equal(afterGap?.stale, false);
+  assert.equal(afterGap?.staleReason, null);
+  assert.equal(afterGap?.warmedUp, true);
+  assert.equal(afterGap?.kinematicsReady, false);
   assert.equal(Number.isFinite(afterGap?.velocityZ ?? Number.NaN), true);
   const recovered = engine.onBook({ symbol: "TEST/USD", bids: [{ px: 100.006, qty: 10 }], asks: [{ px: 100.016, qty: 10 }],
     sequence: 42n, exchangeTsMs: gapMs + 100, receiveTsMs: gapMs + 100, valid: true, sourceReset: true });
   assert.equal(recovered?.stale, false);
   assert.equal(recovered?.staleReason, null);
+  assert.equal(recovered?.kinematicsReady, true);
+});
+
+test("an implausibly fast finite move resets only kinematics rather than data health", () => {
+  const engine = new FeatureEngine();
+  engine.onBook({ symbol: "TEST/USD", bids: [{ px: 99.995, qty: 10 }], asks: [{ px: 100.005, qty: 10 }],
+    sequence: 1n, exchangeTsMs: 0, receiveTsMs: 0, valid: true, sourceReset: true });
+  const reset = engine.onBook({ symbol: "TEST/USD", bids: [{ px: 199.995, qty: 10 }], asks: [{ px: 200.005, qty: 10 }],
+    sequence: 2n, exchangeTsMs: 1, receiveTsMs: 1, valid: true, sourceReset: true });
+  assert.equal(reset?.stale, false);
+  assert.equal(reset?.staleReason, null);
+  assert.equal(reset?.kinematicsReady, false);
 });

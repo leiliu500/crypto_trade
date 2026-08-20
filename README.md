@@ -35,7 +35,7 @@ The main contracts are:
 - Models: `SIGNAL_MODE=DETERMINISTIC_ONLY` is the default. An optional model may only veto, rank, or reduce an already-valid deterministic intent; it cannot create exposure.
 - Risk: `quantity × maximum modeled loss per unit <= current risk budget`.
 - Protection: `profitFloor[t] >= profitFloor[t−1]`.
-- Data: a stale, crossed, pre-reset, timestamp-reversed, or disconnected book cannot create exposure. A provider timestamp may lead the local clock by at most `MAX_PROVIDER_FUTURE_SKEW_MS` (250 ms by default); accepted leads are conservatively clamped to zero age. Operational rejections distinguish future clock skew, genuinely old provider data, invalid books, kinematic gap resets, and non-finite features.
+- Data: a stale, crossed, pre-reset, timestamp-reversed, or disconnected book cannot create exposure. A provider timestamp may lead the local clock by at most `MAX_PROVIDER_FUTURE_SKEW_MS` (250 ms by default); accepted leads are conservatively clamped to zero age. A gap beyond `MAX_KINEMATICS_GAP_MS` (5 seconds by default) resets only motion evidence for that event and does not mislabel otherwise valid data as stale.
 - State: a send timeout is `UNKNOWN`; it is reconciled by account/orders/positions before another entry.
 - Priority: existing exposure is managed before pending orders, and pending orders before new entries.
 
@@ -120,7 +120,7 @@ The default deterministic configuration in `config/base.json` is:
 
 ```text
 SIGNAL_MODE=DETERMINISTIC_ONLY
-DETERMINISTIC_CONFIG_VERSION=deterministic-micro-v1.2
+DETERMINISTIC_CONFIG_VERSION=deterministic-micro-v1.3
 ```
 
 `record` appends raw order-book and trade events to `data/events.jsonl`. Paper, shadow, and live modes also continuously append independently compressed gzip batches to `data/continuous-events.jsonl.gz` when `CONTINUOUS_RECORDING_ENABLED` is true. The batched writer keeps compression off the market-data hot path and makes completed batches replayable while the engine remains online. Run `npm run recall -- data/continuous-events.jsonl.gz` to analyze that capture.

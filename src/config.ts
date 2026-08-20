@@ -229,11 +229,12 @@ function loadSymbolConfig(symbol: string, env: NodeJS.ProcessEnv, mode: TradingM
     forecastHorizonMs: numberEnv(env.FORECAST_HORIZON_MS, 5_000),
     absoluteMaxProviderAgeMs: numberEnv(env.MAX_PROVIDER_AGE_MS, 2_000),
     maximumProviderFutureSkewMs: numberEnv(env.MAX_PROVIDER_FUTURE_SKEW_MS, DEFAULT_FEATURE_CONFIG.maximumProviderFutureSkewMs),
+    maximumKinematicsGapMs: integerEnv(env.MAX_KINEMATICS_GAP_MS, DEFAULT_FEATURE_CONFIG.maximumKinematicsGapMs, 1, 3_600_000),
   };
   const signalMode = parseSignalMode(env.SIGNAL_MODE ?? env.ENTRY_MODE);
   if (signalMode !== "DETERMINISTIC_ONLY" && !env.MODEL_CONFIG_JSON) throw new Error(`${signalMode} requires MODEL_CONFIG_JSON; optional model modes fail closed without a model`);
   const model = signalMode === "DETERMINISTIC_ONLY" ? parseModel(undefined) : parseModel(env.MODEL_CONFIG_JSON);
-  const configurationVersion = env.DETERMINISTIC_CONFIG_VERSION ?? "deterministic-micro-v1.2";
+  const configurationVersion = env.DETERMINISTIC_CONFIG_VERSION ?? "deterministic-micro-v1.3";
   const deterministicExtension = loadExtensionConfig(env);
   const deterministicRegime = loadDeterministicRegimeConfig(env);
   const deterministicSignal = loadDeterministicSignalConfig(env, signalMode, configurationVersion);

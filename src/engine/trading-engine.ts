@@ -475,9 +475,17 @@ export class TradingEngine extends EventEmitter {
     if (this.cfg.mode === "record") return;
 
     // Observe liquidity first, then preserve order/exposure lifecycle priority over new entries.
-    if (runtime.position && runtime.position.qty > 0) { this.managePosition(runtime, book, features); return; }
+    if (runtime.position && runtime.position.qty > 0) {
+      if (!features.kinematicsReady) return;
+      this.managePosition(runtime, book, features);
+      return;
+    }
     const pending = this.pendingForSymbol(book.symbol);
-    if (pending) { this.reevaluatePending(runtime, pending, book, features); return; }
+    if (pending) {
+      if (!features.kinematicsReady) void this.cancelTracked(pending);
+      else this.reevaluatePending(runtime, pending, book, features);
+      return;
+    }
 
     if (!runtime.asset) {
       this.rejectEntry(runtime, "VENUE_DIRECTION_PASS", "ASSET_RULES_UNAVAILABLE", features.receiveTsMs);
@@ -562,7 +570,8 @@ export class TradingEngine extends EventEmitter {
     const scoreFocus = evaluation.long.score >= evaluation.short.score ? evaluation.long : evaluation.short;
     if (!evaluation.long.rawDirectionalPass && !evaluation.short.rawDirectionalPass) {
       const focus = scoreFocus;
-      const reason = !focus.votes.quorum ? "RULE_QUORUM"
+      const reason = focus.reasons.includes("KINEMATICS_NOT_READY") ? "MOTION_NOT_READY"
+        : !focus.votes.quorum ? "RULE_QUORUM"
         : !focus.scorePass ? "SCORE_GATE" : "ARBITRATION_GATE";
       this.rejectEntry(runtime, "DIRECTIONAL_RAW_PASS", reason, atMs, {
         side: focus.side, score: focus.score, oppositeScore: focus.oppositeScore,

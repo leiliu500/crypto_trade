@@ -21,10 +21,17 @@ test("operations monitor derives liveness, fill progress, exit dynamics, and red
   assert.equal(snapshot.orders[0]?.remainingQty, .5);
   assert.equal(snapshot.positions[0]?.currentPx, 101);
   assert.equal(snapshot.positions[0]?.unrealizedPnl, 1);
+  assert.equal(snapshot.markets[0]?.kinematicsReady, false);
   const payload = snapshot.events[0]?.payload as { apiKey: string; nested: { password: string } };
   assert.equal(payload.apiKey, "[REDACTED]");
   assert.equal(payload.nested.password, "[REDACTED]");
   monitor.stop();
+});
+
+test("dashboard distinguishes a motion reset from invalid market data", async () => {
+  const app = await readFile("src/dashboard/public/app.js", "utf8");
+  assert.match(app, /MOTION RESET/);
+  assert.match(app, /motion evidence unavailable until the next valid update/);
 });
 
 test("dashboard server serves the read-only API, health probe, and local UI", async () => {

@@ -81,6 +81,7 @@ export interface Features {
   providerAgeMs: number;
   staleThresholdMs: number;
   warmedUp: boolean;
+  kinematicsReady: boolean;
   stale: boolean;
   staleReason: FeatureStaleReason | null;
   receiveTsMs: number;
