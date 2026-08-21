@@ -150,7 +150,14 @@ export interface DashboardRuleDiagnostics {
   grossOpportunityBps: number;
   uncertaintyReserveBps: number;
   roundTripCostBps: number;
+  robustCostBps: number;
   lowerBoundNetBps: number;
+  costShortfallBps: number;
+  continuationQuality: number;
+  requiredContinuationQuality: number | null;
+  economicSizeScale: number;
+  edgeHorizonMs: number;
+  executionPath: string | null;
   scorePass: boolean;
   rawDirectionalPass: boolean;
   candidatePass: boolean;
@@ -174,6 +181,7 @@ export interface DashboardSnapshot {
   generatedAtMs: number;
   mode: string;
   paper: boolean;
+  paperEntryExercise?: boolean;
   strategyVersion: string;
   modelVersion: string;
   configurationVersion: string;

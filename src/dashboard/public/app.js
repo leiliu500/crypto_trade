@@ -24,7 +24,7 @@ function connect(){
 function applySnapshot(snapshot){state.snapshot=snapshot;render(snapshot);}
 function render(s){
   const score=s.overall==="healthy"?"100%":s.overall==="degraded"?"68%":"24%";
-  const mode=String(s.mode).toUpperCase();el("mode-badge").textContent=`${mode}${s.paper&&mode!=="PAPER"?" · PAPER":""}`;
+  const mode=String(s.mode).toUpperCase();el("mode-badge").textContent=`${mode}${s.paper&&mode!=="PAPER"?" · PAPER":""}${s.paperEntryExercise?" · EXERCISE":""}`;
   el("health-title").textContent=s.overall==="healthy"?"All systems operational":s.overall==="degraded"?"System warming or degraded":"Trading gates are closed";
   el("health-description").textContent=s.entriesAllowed?"All causal data, account, order-book, and risk invariants currently permit new entries.":"The engine remains fail-closed until every execution invariant is healthy.";
   el("health-score").textContent=score;el("health-orbit").className=`health-orbit ${s.overall}`;el("health-pulse").style.background=s.overall==="critical"?"var(--red)":s.overall==="degraded"?"var(--amber)":"var(--cyan)";
@@ -41,10 +41,10 @@ function renderMarkets(items){const grid=el("market-grid");if(!items.length){gri
   const seed=[m.qi1,m.ofi,m.tfi,m.efficiency,m.velocityZ,m.sigmaHBps,1-m.providerAgeMs/(m.staleThresholdMs||1000),m.spreadBps].map((v,i)=>Math.max(3,Math.min(33,6+Math.abs(Number(v)||0)*(i<3?10:4))));
   const focus=Number(m.longScore)>=Number(m.shortScore)?m.longRule:m.shortRule;
   const gateText=(m.blockReasons||[]).slice(0,3).join(", ")||"All deterministic gates ready";
-  const ruleDetail=focus?`LCB ${num(focus.lowerBoundNetBps,2)} bp · gross ${num(focus.grossOpportunityBps,2)} · cost ${num(focus.roundTripCostBps,2)} · votes ${focus.bookVotes}/${focus.flowVotes}/${focus.kinematicVotes}`:"";
+  const ruleDetail=focus?`LCB ${num(focus.lowerBoundNetBps,2)} bp · gross ${num(focus.grossOpportunityBps,2)} · robust cost ${num(focus.robustCostBps,2)} · continuation ${num(100*focus.continuationQuality,0)}% · ${focus.executionPath||"no path"} @ ${num(focus.edgeHorizonMs/60000,0)}m · votes ${focus.bookVotes}/${focus.flowVotes}/${focus.kinematicVotes}`:"";
   const rejection=m.entryPipeline&&m.entryPipeline.lastRejection?`${m.entryPipeline.lastRejection.stage}: ${m.entryPipeline.lastRejection.reason}`:"";
   const counts=m.entryPipeline&&m.entryPipeline.counts?m.entryPipeline.counts:{};
-  const pipeline=`micro ${counts.MICRO_EVENT||0} · armed ${counts.MICRO_ARMED||0} · candidates ${counts.MICRO_CANDIDATE||0} · cost ${counts.PRELIMINARY_COST_PASS||0} · sends ${counts.ORDER_SEND_ATTEMPT||0}`;
+  const pipeline=`micro ${counts.MICRO_EVENT||0} · armed ${counts.MICRO_ARMED||0} · candidates ${counts.MICRO_CANDIDATE||0} · cost-qualified ${counts.COST_QUALITY_PASS||0} · sends ${counts.ORDER_SEND_ATTEMPT||0}`;
   const liquidity=`spread limit ${num(m.liquidityTradeThresholdBps,2)} bp · stress ${num(m.liquidityStressThresholdBps,2)} bp`;
   const dataValid=m.bookValid&&!m.stale;
   const motionReady=m.kinematicsReady!==false;

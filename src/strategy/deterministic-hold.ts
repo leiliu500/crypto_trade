@@ -14,8 +14,9 @@ export interface DeterministicHoldDecision {
 }
 export class DeterministicHoldEngine {
   public constructor(private readonly cfg: DeterministicHoldConfig) { validateHoldConfig(cfg); }
-  public evaluate(side: Direction, f: DeterministicFeatures, expectedIncrementalDelayCostBps: number): DeterministicHoldDecision {
-    const horizonSec = this.cfg.holdHorizonMs / 1_000;
+  public evaluate(side: Direction, f: DeterministicFeatures, expectedIncrementalDelayCostBps: number,
+    remainingEconomicHorizonMs = this.cfg.holdHorizonMs): DeterministicHoldDecision {
+    const horizonSec = Math.max(1, remainingEconomicHorizonMs) / 1_000;
     const sigmaHBps = 10_000 * Math.sqrt(Math.max(f.varianceRate * horizonSec, 1e-16));
     const directionalFlow = clamp((side * f.qiK + side * f.ofi + side * f.tfi + side * f.replenishmentPressure) / 4, -1, 1);
     const directionalKinematic = clamp((side * f.velocityZ + .5 * side * f.accelerationZ) / 1.5, -1, 1);

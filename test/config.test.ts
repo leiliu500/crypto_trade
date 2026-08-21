@@ -37,7 +37,8 @@ test("JSON baseline wins over legacy tunable environment values and symbol overl
     assert.equal(cfg.deterministicSignal.microTrigger.candidateRetryMs, 250);
     assert.equal(cfg.forecast.intendedHoldMs, 1_800_000);
     assert.equal(cfg.deterministicSignal.analyticEdge.economicHorizonMs, cfg.forecast.intendedHoldMs);
-    assert.equal(cfg.position.maximumHoldMs, cfg.forecast.intendedHoldMs);
+    assert.equal(cfg.position.maximumHoldMs, 3_600_000);
+    assert.deepEqual(cfg.deterministicSignal.analyticHorizons.map((item) => item.horizonMs), [300_000, 900_000, 1_800_000, 3_600_000]);
     assert.equal(cfg.recall.opportunityHorizonMs, cfg.forecast.intendedHoldMs);
     assert.equal(cfg.symbolConfigs["BTC/USD"]?.deterministicSignal.microTrigger.minimumMicroMoveBps, 0.008);
   } finally { rmSync(directory, { recursive: true, force: true }); }
@@ -72,4 +73,28 @@ test("wide per-symbol spread caps are restricted to shadow and replay verificati
   });
   assert.equal(paper.symbolConfigs["BTC/USD"]?.dynamicLiquidity.absoluteTradeCapBps, 30);
   assert.equal(paper.symbolConfigs["DOGE/USD"]?.dynamicLiquidity.absoluteTradeCapBps, 30);
+});
+
+test("paper entry exercise is isolated, capped, labeled, and rejected outside paper", () => {
+  const paper = loadConfig({
+    TRADING_MODE: "paper", ALPACA_PAPER: "true", ALPACA_API_KEY: "paper-key", ALPACA_API_SECRET: "paper-secret",
+    PAPER_ENTRY_EXERCISE: "true",
+  });
+  assert.equal(paper.paperEntryExercise, true);
+  assert.match(paper.configurationVersion, /paper-entry-exercise$/);
+  assert.equal(paper.maximumNotional, 25);
+  assert.equal(paper.cost.makerFeeBps, 0);
+  assert.equal(paper.cost.takerFeeBps, 0);
+  assert.equal(paper.cost.latencyAdverseFraction, 0);
+  assert.equal(paper.cost.adverseSelectionBps, 0);
+  assert.equal(paper.deterministicSignal.costSafetyFactor, 1);
+  assert.equal(paper.deterministicSignal.minimumNetEdgeBps, 0);
+  assert.equal(paper.deterministicSignal.minimumMakerFillProbability, 1);
+  assert.equal(paper.planner.takerLimitBufferBps, 5);
+  assert.equal(paper.deterministicSignal.positiveCostErrorP95Bps, 0);
+  assert.ok(paper.deterministicSignal.analyticHorizons.every((horizon) => horizon.sigmaCaptureFraction === 1
+    && horizon.breakoutWeight === 1 && horizon.baseUncertaintyBps === 0 && horizon.sigmaUncertaintyFraction === 0));
+  assert.equal(paper.deterministicSignal.analyticEdge.spreadUncertaintyWeight, 0);
+  assert.equal(paper.deterministicSignal.analyticEdge.flipUncertaintyWeight, 0);
+  assert.throws(() => loadConfig({ TRADING_MODE: "replay", PAPER_ENTRY_EXERCISE: "true" }), /restricted to the Alpaca paper endpoint/);
 });

@@ -65,6 +65,20 @@ test("profit floor never loosens and recovery arms break-even", () => {
   assert.ok(position.floorPx >= protectedFloor);
 });
 
+test("a selected economic horizon bounds the position time stop", () => {
+  const manager = new PositionManager({ recoveryArmR: .5, trailActivationR: .5, minimumProgressR: .2,
+    minimumHoldMs: 0, maximumHoldMs: 10_000, evidenceConfirmationMs: 100,
+    lockMin: .2, lockMax: .8, lockMaturityRate: 1, lockReversalWeight: .3, lockTrendDiscount: .1,
+    baseVolatilityMultiple: 2, trendVolatilityBonus: 1, reversalVolatilityPenalty: 1,
+    minimumVolatilityMultiple: .5, maximumVolatilityMultiple: 4,
+    partialExitThreshold: .9, maximumPartialExitFraction: .5, minimumPartialExitBenefitBps: 1 });
+  const position: Position = { symbol: "BTC/USD", side: 1, qty: 1, entryPx: 100, openedMs: 0,
+    initialRiskPx: 2, roundTripCostPx: .2, mfePx: 0, maePx: 0, floorPx: -2,
+    breakEvenArmed: false, phase: "OPEN", selectedHorizonMs: 100 };
+  const decision = manager.update(position, 100, 101, features({ sigmaHBps: 1 }), 1, 0);
+  assert.deepEqual(decision, { action: "EXIT", reason: "TIME_STOP" });
+});
+
 test("halt resume clears operational failures only after reconciliation, never drawdown", () => {
   const risk = new RiskState(.01, .01, .05);
   risk.setHealth({ publicStream: true, privateStream: true, accountReconciled: true, bookValid: true, clockValid: true, riskRecomputed: true });

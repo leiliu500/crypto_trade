@@ -4,6 +4,7 @@ import type { CostEstimate, CostModel } from "../strategy/cost.js";
 import type { TradeIntent } from "../strategy/signal.js";
 import type { RiskApproval, RiskContext, RiskSizer } from "../risk/sizing.js";
 import { estimateSweep } from "./book-walk.js";
+import type { CostBreakdown, ExecutionPath } from "../economics/types.js";
 
 export type ExecutionStyle = "maker" | "taker";
 export interface AssetRules { symbol: string; minOrderSize: number; minTradeIncrement: number; priceIncrement: number; maximumOrderQty: number; shortable: boolean; }
@@ -11,6 +12,8 @@ export interface PlannerConfig {
   makerTtlMs: number;
   alphaHalfLifeMs: number;
   minimumFillProbability: number;
+  /** Extra limit-price protection for marketable IOC orders. Zero preserves exact book-walk pricing. */
+  takerLimitBufferBps: number;
   cancelAheadFraction: number;
   fillHazardIntercept: number;
   fillHazardAggressiveWeight: number;
@@ -43,6 +46,8 @@ export interface ExecutionPlan {
   fillProbability: number;
   expectedValue: number;
   reduceOnlyIntent: boolean;
+  economicHorizonMs?: number;
+  executionPath?: ExecutionPath;
 }
 export interface PlannerBuildOptions {
   /** Re-runs the deterministic net-edge gate against the cost at the current candidate quantity. */
@@ -51,6 +56,8 @@ export interface PlannerBuildOptions {
   quantityMultiplier?: number;
   decisionId?: string;
   createdMs?: number;
+  executionPath?: ExecutionPath;
+  economicHorizonMs?: number;
 }
 
 interface ExecutionCandidate {
@@ -71,21 +78,28 @@ export class ExecutionPlanner {
     private readonly costModel: CostModel,
     private readonly strategyVersion: string,
     private readonly modelVersion: string,
-  ) {}
+  ) {
+    if (!Number.isFinite(cfg.takerLimitBufferBps) || cfg.takerLimitBufferBps < 0) {
+      throw new Error("Planner takerLimitBufferBps must be finite and non-negative");
+    }
+  }
 
   public build(intent: TradeIntent, features: Features, book: BookState, asset: AssetRules, baseRisk: Omit<RiskContext, "price" | "visibleLiquidityQty" | "sigmaHBps" | "estimatedExitCostBps" | "maximumExchangeQty">, closingExistingLong = false, options: PlannerBuildOptions = {}): ExecutionPlan | null {
     if (!book.valid || features.stale) return null;
     if (intent.side === -1 && !asset.shortable && !closingExistingLong) return null;
     const quantityMultiplier = Math.max(0, Math.min(1, options.quantityMultiplier ?? 1));
     if (!(quantityMultiplier > 0)) return null;
-    const taker = this.buildCandidate("taker", intent, features, book, asset, baseRisk, quantityMultiplier, options);
-    const makerCandidate = this.buildCandidate("maker", intent, features, book, asset, baseRisk, quantityMultiplier, options);
+    if (options.executionPath === "MAKER_MAKER") return null;
+    const allowTaker = options.executionPath === undefined || options.executionPath === "TAKER_TAKER";
+    const allowMaker = options.executionPath === undefined || options.executionPath === "MAKER_TAKER";
+    const taker = allowTaker ? this.buildCandidate("taker", intent, features, book, asset, baseRisk, quantityMultiplier, options) : null;
+    const makerCandidate = allowMaker ? this.buildCandidate("maker", intent, features, book, asset, baseRisk, quantityMultiplier, options) : null;
     const maker = makerCandidate && makerCandidate.fillProbability >= this.cfg.minimumFillProbability ? makerCandidate : null;
     const selected = maker && (!taker || maker.expectedValue > taker.expectedValue) ? maker : taker;
     if (!selected) return null;
     const limitRaw = selected.style === "maker"
       ? (intent.side === 1 ? book.bids[0]!.px : book.asks[0]!.px)
-      : selected.worstPx!;
+      : selected.worstPx! * (1 + intent.side * this.cfg.takerLimitBufferBps / 10_000);
     const limitPx = this.roundPrice(limitRaw, asset.priceIncrement, intent.side, selected.style === "taker");
     const createdMs = options.createdMs ?? Date.now();
     const ttl = selected.style === "maker" ? Math.min(this.cfg.makerTtlMs, this.cfg.alphaHalfLifeMs / 2) : 1_000;
@@ -99,6 +113,8 @@ export class ExecutionPlanner {
       strategyVersion: this.strategyVersion, modelVersion: this.modelVersion,
       expectedCost: selected.cost, risk: selected.risk, fillProbability: selected.fillProbability,
       expectedValue: selected.expectedValue, reduceOnlyIntent: closingExistingLong,
+      ...(options.economicHorizonMs === undefined ? {} : { economicHorizonMs: options.economicHorizonMs }),
+      ...(options.executionPath === undefined ? {} : { executionPath: options.executionPath }),
     };
   }
 
@@ -110,6 +126,14 @@ export class ExecutionPlanner {
     if (!taker) return maker;
     if (!maker) return taker;
     return maker.roundTripBps < taker.roundTripBps ? maker : taker;
+  }
+
+  public economicCosts(features: Features, book: BookState, side: Direction, qty: number): CostBreakdown[] {
+    return this.costModel.pathEstimates(features, book, side, qty, this.makerFillProbability(features, book, side));
+  }
+
+  public makerFillProbability(features: Features, book: BookState, side: Direction): number {
+    return this.fillProbability(features, book, side);
   }
 
   private buildCandidate(style: ExecutionStyle, intent: TradeIntent, features: Features, book: BookState, asset: AssetRules,

@@ -28,7 +28,8 @@ async function main(): Promise<void> {
     monitor.setDatabaseHealth(candidate.health());
     try {
       const migrations = await candidate.start({ mode: cfg.mode, paper: cfg.paper, strategyVersion: cfg.strategyVersion, modelVersion: cfg.modelVersion,
-        symbols: cfg.symbols, metadata: { configurationVersion: cfg.configurationVersion, signalMode: cfg.signalMode } });
+        symbols: cfg.symbols, metadata: { configurationVersion: cfg.configurationVersion, signalMode: cfg.signalMode,
+          paperEntryExercise: cfg.paperEntryExercise } });
       process.stdout.write(`${JSON.stringify({ type: "database-ready", migrations })}\n`);
     } catch (error) {
       await candidate.close().catch(() => undefined);
@@ -60,7 +61,8 @@ async function main(): Promise<void> {
     if (activeStore) await activeStore.close().catch(() => undefined);
     throw error;
   }
-  process.stdout.write(`${JSON.stringify({ type: "started", mode: cfg.mode, symbols: cfg.symbols, paper: cfg.paper })}\n`);
+  process.stdout.write(`${JSON.stringify({ type: "started", mode: cfg.mode, symbols: cfg.symbols, paper: cfg.paper,
+    paperEntryExercise: cfg.paperEntryExercise })}\n`);
   if (paperDemoSymbol !== null) {
     void submitPaperDemoWhenReady(engine, paperDemoSymbol || "BTC/USD").then((plan) => {
       process.stdout.write(`${JSON.stringify({ type: "paper-demo-entry-submitted", symbol: plan.symbol, clientOrderId: plan.clientOrderId,

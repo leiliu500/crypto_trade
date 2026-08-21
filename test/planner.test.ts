@@ -26,9 +26,9 @@ const intent: TradeIntent = {
   side: 1, probability: .8, predictedGrossBps: 20, lowerBoundNetBps: 10, quality: 1, decisionTsMs: 1_000,
 };
 
-function planner(): ExecutionPlanner {
+function planner(takerLimitBufferBps = 0): ExecutionPlanner {
   return new ExecutionPlanner({
-    makerTtlMs: 1_500, alphaHalfLifeMs: 4_000, minimumFillProbability: .65, cancelAheadFraction: .5,
+    makerTtlMs: 1_500, alphaHalfLifeMs: 4_000, minimumFillProbability: .65, takerLimitBufferBps, cancelAheadFraction: .5,
     fillHazardIntercept: 5, fillHazardAggressiveWeight: 0, fillHazardFlowWeight: 0,
     fillHazardImbalanceWeight: 0, fillHazardSpreadWeight: 0,
     makerOpportunityCostBps: 0, staleOrderCostBps: 0, maximumImpactBps: 10, maximumIterations: 5,
@@ -64,4 +64,41 @@ test("maker planning remains possible when the exact taker cost gate rejects", (
   assert.equal(plan.style, "maker");
   assert.equal(plan.timeInForce, "gtc");
   assert.ok(plan.expectedCost.roundTripBps < 6);
+});
+
+test("the economic execution path constrains the final order style", () => {
+  const execution = planner();
+  const baseRisk = {
+    equity: 100_000, equityHighWater: 100_000, initialStopDistance: 1, jumpBuffer: 0,
+    maximumNotional: 1_000, lotSize: .001, regimeScale: 1, exposureCapacityQty: 10,
+  };
+  const asset = { symbol: "BTC/USD", minOrderSize: .001, minTradeIncrement: .001,
+    priceIncrement: .001, maximumOrderQty: 1_000, shortable: false };
+  const taker = execution.build(intent, features, book, asset, baseRisk, false,
+    { createdMs: 1_000, executionPath: "TAKER_TAKER", economicHorizonMs: 900_000 });
+  assert.equal(taker?.style, "taker");
+  assert.equal(taker?.executionPath, "TAKER_TAKER");
+  assert.equal(taker?.economicHorizonMs, 900_000);
+  const maker = execution.build(intent, features, book, asset, baseRisk, false,
+    { createdMs: 1_000, executionPath: "MAKER_TAKER", economicHorizonMs: 300_000 });
+  assert.equal(maker?.style, "maker");
+  assert.equal(maker?.executionPath, "MAKER_TAKER");
+  assert.equal(execution.build(intent, features, book, asset, baseRisk, false,
+    { createdMs: 1_000, executionPath: "MAKER_MAKER" }), null);
+});
+
+test("a configured IOC buffer widens only the taker limit-price cap", () => {
+  const execution = planner(5);
+  const baseRisk = {
+    equity: 100_000, equityHighWater: 100_000, initialStopDistance: 1, jumpBuffer: 0,
+    maximumNotional: 1_000, lotSize: .001, regimeScale: 1, exposureCapacityQty: 10,
+  };
+  const asset = { symbol: "BTC/USD", minOrderSize: .001, minTradeIncrement: .001,
+    priceIncrement: .001, maximumOrderQty: 1_000, shortable: false };
+  const taker = execution.build(intent, features, book, asset, baseRisk, false,
+    { createdMs: 1_000, executionPath: "TAKER_TAKER" });
+  const maker = execution.build(intent, features, book, asset, baseRisk, false,
+    { createdMs: 1_000, executionPath: "MAKER_TAKER" });
+  assert.equal(taker?.limitPx, 100.056);
+  assert.equal(maker?.limitPx, 99.995);
 });

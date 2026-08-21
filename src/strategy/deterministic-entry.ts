@@ -1,12 +1,19 @@
 import type { Direction } from "../core/market.js";
 import { clamp } from "../core/market.js";
-import type { CostEstimate } from "./cost.js";
-import { DeterministicEdgeResolver, type AnalyticEdgeConfig, type EdgeSourceMode } from "./deterministic-edge-resolver.js";
+import { exactCostBreakdown, type CostEstimate } from "./cost.js";
+import type { AnalyticEdgeConfig, EdgeSourceMode } from "./deterministic-edge-resolver.js";
 import type { DeterministicFeatures } from "./deterministic-features.js";
 import type { SideTriggerDiagnostics, SmallFractionCandidate, SmallFractionFeatures, SmallFractionTriggerConfig } from "./micro-fraction-types.js";
 import type { RegimeDecision } from "./deterministic-regime.js";
 import { SmallFractionEntryTrigger, validateSmallFractionTriggerConfig } from "./small-fraction-entry-trigger.js";
 import type { LiquidityDecision } from "./dynamic-liquidity.js";
+import type { AnalyticHorizonConfig, ContinuationQualityConfig, CostBreakdown, EconomicEdgeMode, ExecutionPath } from "../economics/types.js";
+import { MultiHorizonCostGate } from "../economics/multi-horizon-cost-gate.js";
+import { EconomicEdgeResolver } from "../economics/economic-edge-resolver.js";
+import { CalibratedEdgeTable } from "../calibration/calibrated-edge-table.js";
+import type { CalibratedEdgeBucket } from "../calibration/calibrated-edge-table.js";
+import { continuationQuality, validateContinuationQualityConfig } from "./continuation-quality.js";
+import { validateMultiHorizonAnalyticConfig } from "../economics/analytic-edge.js";
 
 export type SignalMode = "DETERMINISTIC_ONLY" | "DETERMINISTIC_WITH_MODEL_VETO" | "DETERMINISTIC_WITH_MODEL_RANKING";
 export interface SystemGateState {
@@ -30,11 +37,22 @@ export interface DeterministicSignalConfig {
   maximumImpulseZ: number; maximumChaseBps: number; maximumAnchorZ: number;
   costSafetyFactor: number; minimumNetEdgeBps: number; fullQualityEdgeBps: number;
   edgeSourceMode: EdgeSourceMode; analyticEdge: AnalyticEdgeConfig;
+  economicEdgeMode: EconomicEdgeMode;
+  analyticHorizons: AnalyticHorizonConfig[];
+  continuationQuality: ContinuationQualityConfig;
+  minimumEconomicSizeScale: number;
+  minimumMakerFillProbability: number;
+  minimumEffectiveSampleCount: number;
+  positiveCostErrorP95Bps: number;
+  maximumReasonableCostBps: number;
+  maximumReasonableGrossBps: number;
+  calibratedEdges: CalibratedEdgeBucket[];
   microTrigger: SmallFractionTriggerConfig;
 }
 export interface EntryContext {
   symbol: string; sequence: bigint; nowMs: number; features: DeterministicFeatures; regime: RegimeDecision; system: SystemGateState;
   bestBid: number; bestAsk: number; longCost: CostEstimate; shortCost: CostEstimate;
+  longEconomicCosts?: readonly CostBreakdown[]; shortEconomicCosts?: readonly CostBreakdown[];
   longLiquidity?: LiquidityDecision; shortLiquidity?: LiquidityDecision;
 }
 export interface RuleVoteVector {
@@ -53,6 +71,10 @@ export interface RuleDiagnostics {
   grossOpportunityBps: number; uncertaintyReserveBps: number; roundTripCostBps: number; lowerBoundNetBps: number;
   chaseBps: number; impulseZ: number; anchorZ: number;
   edgeSource: "CALIBRATED" | "ANALYTIC" | "UNRESOLVED"; edgeHorizonMs: number; edgeQuality: number;
+  edgeEffectiveSampleCount: number;
+  executionPath?: ExecutionPath; robustCostBps: number; costShortfallBps: number;
+  costBreakdown?: CostBreakdown;
+  requiredContinuationQuality: number | null; continuationQuality: number; economicSizeScale: number;
   scorePass: boolean; rawDirectionalPass: boolean; candidatePass: boolean; edgeResolvedPass: boolean;
   healthPass: boolean; liquidityPass: boolean; regimePass: boolean; persistencePass: boolean; antiChasePass: boolean;
   exposurePass: boolean; cooldownPass: boolean; costPass: boolean; arbitrationPass: boolean;
@@ -67,6 +89,7 @@ export interface DeterministicTradeIntent {
   source: "DETERMINISTIC_MICRO"; configurationVersion: string; decisionId: string; symbol: string; sequence: bigint; createdMs: number;
   side: Direction; deterministicScore: number; grossOpportunityBps: number; uncertaintyReserveBps: number; lowerBoundNetBps: number;
   quality: number; diagnostics: RuleDiagnostics;
+  selectedHorizonMs?: number; executionPath?: ExecutionPath; robustCostBps?: number;
 }
 export interface DeterministicEvaluation {
   long: RuleDiagnostics; short: RuleDiagnostics; candidate: DeterministicDirectionalCandidate | null; intent: DeterministicTradeIntent | null;
@@ -74,13 +97,27 @@ export interface DeterministicEvaluation {
 
 /** Converts a sensitive micro-move candidate into an order intent only after all conservative execution gates pass. */
 export class DeterministicEntryEngine {
-  private readonly edgeResolver: DeterministicEdgeResolver;
+  private readonly edgeResolver: EconomicEdgeResolver;
+  private readonly costGate: MultiHorizonCostGate;
   private readonly microTrigger: SmallFractionEntryTrigger;
   private lastEvaluation?: DeterministicEvaluation;
 
-  public constructor(private readonly cfg: DeterministicSignalConfig) {
+  public constructor(private readonly cfg: DeterministicSignalConfig,
+    calibrated = new CalibratedEdgeTable(cfg.calibratedEdges)) {
     validateDeterministicConfig(cfg);
-    this.edgeResolver = new DeterministicEdgeResolver(cfg.edgeSourceMode, cfg.analyticEdge);
+    this.edgeResolver = new EconomicEdgeResolver(cfg.economicEdgeMode, {
+      horizons: cfg.analyticHorizons,
+      spreadUncertaintyWeight: cfg.analyticEdge.spreadUncertaintyWeight,
+      flipUncertaintyWeight: cfg.analyticEdge.flipUncertaintyWeight,
+    }, calibrated);
+    this.costGate = new MultiHorizonCostGate({
+      costSafetyFactor: cfg.costSafetyFactor, minimumNetEdgeBps: cfg.minimumNetEdgeBps,
+      fullQualityEdgeBps: cfg.fullQualityEdgeBps, minimumEconomicSizeScale: cfg.minimumEconomicSizeScale,
+      minimumMakerFillProbability: cfg.minimumMakerFillProbability,
+      minimumEffectiveSampleCount: cfg.minimumEffectiveSampleCount,
+      maximumReasonableCostBps: cfg.maximumReasonableCostBps,
+      maximumReasonableGrossBps: cfg.maximumReasonableGrossBps,
+    }, cfg.economicEdgeMode);
     this.microTrigger = new SmallFractionEntryTrigger(cfg.microTrigger);
   }
 
@@ -103,13 +140,29 @@ export class DeterministicEntryEngine {
   public latestEvaluation(): DeterministicEvaluation | undefined { return this.lastEvaluation; }
 
   public revalidateExactCost(intent: DeterministicTradeIntent, exactCost: CostEstimate): DeterministicTradeIntent | null {
-    const lowerBoundNetBps = intent.grossOpportunityBps - intent.uncertaintyReserveBps - this.cfg.costSafetyFactor * exactCost.roundTripBps;
-    const tolerance = Math.max(1e-9, Math.abs(this.cfg.minimumNetEdgeBps) * 1e-12);
-    if (lowerBoundNetBps + tolerance < this.cfg.minimumNetEdgeBps) return null;
+    const path = intent.executionPath ?? "TAKER_TAKER";
+    const exact = exactCostBreakdown(exactCost, path,
+      path === "TAKER_TAKER" ? 1 : this.cfg.minimumMakerFillProbability,
+      this.cfg.positiveCostErrorP95Bps);
+    if (intent.diagnostics.edgeSource === "UNRESOLVED") return null;
+    const decision = this.costGate.evaluate([{
+      source: intent.diagnostics.edgeSource, side: intent.side, horizonMs: intent.selectedHorizonMs ?? intent.diagnostics.edgeHorizonMs,
+      grossBeforeUncertaintyBps: intent.grossOpportunityBps + intent.uncertaintyReserveBps,
+      signalUncertaintyBps: intent.uncertaintyReserveBps, conservativeGrossBps: intent.grossOpportunityBps,
+      quality: intent.diagnostics.edgeQuality, effectiveSampleCount: intent.diagnostics.edgeEffectiveSampleCount,
+      executionPath: path,
+    }], [exact]);
+    const selected = decision.selected;
+    if (!selected) return null;
+    const lowerBoundNetBps = selected.lowerBoundNetBps;
+    const robustCost = selected.robustCostBps;
+    const quality = decision.sizeScale;
     return {
-      ...intent, lowerBoundNetBps, quality: clamp(lowerBoundNetBps / this.cfg.fullQualityEdgeBps, 0, 1),
+      ...intent, lowerBoundNetBps, quality, robustCostBps: robustCost,
       diagnostics: {
-        ...intent.diagnostics, roundTripCostBps: exactCost.roundTripBps, lowerBoundNetBps, costPass: true,
+        ...intent.diagnostics, roundTripCostBps: exactCost.roundTripBps, robustCostBps: robustCost,
+        lowerBoundNetBps, costShortfallBps: 0, economicSizeScale: quality, costPass: true,
+        costBreakdown: exact,
         reasons: intent.diagnostics.reasons.filter((reason) => reason !== "COST_GATE"),
       },
     };
@@ -157,16 +210,20 @@ export class DeterministicEntryEngine {
       && trigger.confirmationMs >= requiredTimeMs && trigger.consecutiveEvents >= requiredEvents;
     const antiChasePass = trigger.chaseBps <= this.cfg.microTrigger.maximumChaseBps;
     const cooldownPass = !trigger.reasons.includes("COOLDOWN_ACTIVE") && !trigger.reasons.includes("ALREADY_FIRED_IN_EPISODE");
-    const edge = this.edgeResolver.resolve({
-      side: direction, score: trigger.score, scoreReset: this.cfg.microTrigger.releaseScore,
-      persistence: trigger.occupancy, evidence: trigger.evidence,
-      features: f,
-    });
-    const grossOpportunityBps = edge?.grossOpportunityBps ?? 0;
-    const uncertaintyReserveBps = edge?.uncertaintyBps ?? 0;
-    const lowerBoundNetBps = grossOpportunityBps - uncertaintyReserveBps - this.cfg.costSafetyFactor * cost.roundTripBps;
-    const edgeResolvedPass = edge !== null;
-    const costPass = edgeResolvedPass && lowerBoundNetBps >= this.cfg.minimumNetEdgeBps;
+    const continuation = continuationQuality(direction, f, context.regime, this.cfg.continuationQuality);
+    const edges = this.edgeResolver.resolve({ symbol: context.symbol, side: direction, features: f,
+      regime: context.regime, continuation });
+    const suppliedCosts = direction === 1 ? context.longEconomicCosts : context.shortEconomicCosts;
+    const costs = suppliedCosts && suppliedCosts.length > 0 ? suppliedCosts
+      : [exactCostBreakdown(cost, "TAKER_TAKER", 1, this.cfg.positiveCostErrorP95Bps)];
+    const decision = this.costGate.evaluate(edges, costs);
+    const economic = decision.selected ?? decision.bestRejected;
+    // Signal uncertainty is already incorporated in conservativeGrossBps and is not charged again.
+    const grossOpportunityBps = economic?.edge.conservativeGrossBps ?? 0;
+    const uncertaintyReserveBps = economic?.edge.signalUncertaintyBps ?? 0;
+    const lowerBoundNetBps = economic?.lowerBoundNetBps ?? Number.NEGATIVE_INFINITY;
+    const edgeResolvedPass = edges.length > 0;
+    const costPass = decision.pass;
     const exposurePass = context.system.noExistingPosition && context.system.noPendingEntry;
     const impulseZ = direction * f.impulseBps / Math.max(f.sigmaImpulseBps, 1e-6);
     const anchorZ = direction * f.anchorDistanceBps / Math.max(f.sigmaHBps, 1e-6);
@@ -184,15 +241,24 @@ export class DeterministicEntryEngine {
       persistence: trigger.occupancy, evidence: trigger.evidence, confirmationMs: trigger.confirmationMs,
       confirmationEvents: trigger.consecutiveEvents, deltaMicroBps: trigger.deltaMicroBps,
       sensorThresholdBps: trigger.sensorThresholdBps, microNoiseBps: trigger.microNoiseBps, microPressure: trigger.microPressure,
-      grossOpportunityBps, uncertaintyReserveBps, roundTripCostBps: cost.roundTripBps, lowerBoundNetBps,
+      grossOpportunityBps, uncertaintyReserveBps,
+      roundTripCostBps: economic?.cost.estimatedCostBps ?? cost.roundTripBps,
+      robustCostBps: economic?.robustCostBps ?? this.cfg.costSafetyFactor * cost.roundTripBps,
+      costShortfallBps: economic?.shortfallBps ?? Number.POSITIVE_INFINITY,
+      requiredContinuationQuality: economic?.requiredQuality ?? null,
+      continuationQuality: continuation.score, economicSizeScale: decision.sizeScale,
+      ...(economic ? { executionPath: economic.cost.path } : {}), lowerBoundNetBps,
+      ...(economic ? { costBreakdown: economic.cost } : {}),
       chaseBps: trigger.chaseBps, impulseZ, anchorZ,
-      edgeSource: edge?.source ?? "UNRESOLVED", edgeHorizonMs: edge?.horizonMs ?? 0, edgeQuality: edge?.quality ?? 0,
+      edgeSource: economic?.edge.source ?? "UNRESOLVED", edgeHorizonMs: economic?.edge.horizonMs ?? 0,
+      edgeQuality: economic?.edge.quality ?? continuation.score,
+      edgeEffectiveSampleCount: economic?.edge.effectiveSampleCount ?? 0,
       scorePass, rawDirectionalPass, candidatePass, edgeResolvedPass, healthPass, liquidityPass, regimePass,
       persistencePass, antiChasePass, exposurePass, cooldownPass, costPass, arbitrationPass,
       liquidityReasons: dynamicLiquidity?.reasons ?? (liquidityPass ? [] : ["STATIC_LIQUIDITY_LIMIT"]),
       tradeThresholdBps: dynamicLiquidity?.tradeThresholdBps ?? this.cfg.maximumSpreadBps,
       stressThresholdBps: dynamicLiquidity?.stressThresholdBps ?? this.cfg.maximumSpreadBps,
-      reasons: [...new Set(reasons)],
+      reasons: [...new Set([...reasons, ...(economic?.rejectionReasons ?? [])])],
     };
   }
 
@@ -203,7 +269,10 @@ export class DeterministicEntryEngine {
       symbol: context.symbol, sequence: context.sequence, createdMs: context.nowMs, side: selected.side,
       deterministicScore: selected.score, grossOpportunityBps: selected.grossOpportunityBps,
       uncertaintyReserveBps: selected.uncertaintyReserveBps, lowerBoundNetBps: selected.lowerBoundNetBps,
-      quality: clamp(selected.lowerBoundNetBps / this.cfg.fullQualityEdgeBps, 0, 1), diagnostics: selected,
+      quality: selected.economicSizeScale, diagnostics: selected,
+      selectedHorizonMs: selected.edgeHorizonMs,
+      ...(selected.executionPath === undefined ? {} : { executionPath: selected.executionPath }),
+      robustCostBps: selected.robustCostBps,
     };
   }
 
@@ -273,6 +342,7 @@ export class DeterministicEntryEngine {
     const qualityVotes = Number(f.efficiency >= this.cfg.efficiency) + Number(f.flowFlipRate <= this.cfg.maximumFlipRate);
     return { book, flow, kinematic, activeGroups: d.groupCount, qualityVotes, quality: true, quorum: d.groupQuorum, vector };
   }
+
 }
 
 export function validateDeterministicConfig(cfg: DeterministicSignalConfig): void {
@@ -280,6 +350,7 @@ export function validateDeterministicConfig(cfg: DeterministicSignalConfig): voi
   if (!cfg.configurationVersion) fail("configurationVersion is required");
   if (!["DETERMINISTIC_ONLY", "DETERMINISTIC_WITH_MODEL_VETO", "DETERMINISTIC_WITH_MODEL_RANKING"].includes(cfg.mode)) fail("unknown signal mode");
   if (!["CALIBRATED_REQUIRED", "CALIBRATED_OR_ANALYTIC", "ANALYTIC_ONLY"].includes(cfg.edgeSourceMode)) fail("unknown edge source mode");
+  if (!["ANALYTIC_SHADOW", "ANALYTIC_PAPER", "CALIBRATED_PAPER", "CALIBRATED_LIVE"].includes(cfg.economicEdgeMode)) fail("unknown economic edge mode");
   if (flattenNumbers(cfg).some((value) => !Number.isFinite(value))) fail("all numeric configuration values must be finite");
   if (!(cfg.scoreEnter > cfg.scoreReset)) fail("scoreEnter must be greater than scoreReset");
   if (cfg.scoreEnter < -1 || cfg.scoreEnter > 1 || cfg.scoreReset < -1 || cfg.scoreReset > 1) fail("score thresholds must be in [-1,1]");
@@ -287,6 +358,9 @@ export function validateDeterministicConfig(cfg: DeterministicSignalConfig): voi
   if (cfg.minimumPersistence < 0 || cfg.minimumPersistence > 1) fail("minimumPersistence must be in [0,1]");
   if (cfg.efficiency < 0 || cfg.efficiency > 1 || cfg.maximumFlipRate <= 0 || cfg.maximumFlipRate > 1) fail("quality thresholds must be in [0,1]");
   if (!(cfg.costSafetyFactor >= 1)) fail("costSafetyFactor must be at least 1");
+  if (!(cfg.minimumEconomicSizeScale > 0 && cfg.minimumEconomicSizeScale <= 1)) fail("minimumEconomicSizeScale must be in (0,1]");
+  if (!(cfg.minimumMakerFillProbability >= 0 && cfg.minimumMakerFillProbability <= 1)) fail("minimumMakerFillProbability must be in [0,1]");
+  if (!(cfg.minimumEffectiveSampleCount >= 0)) fail("minimumEffectiveSampleCount cannot be negative");
   if (!(cfg.minimumConfirmationMs >= 0) || !(cfg.cooldownMs >= cfg.minimumConfirmationMs)) fail("cooldown must cover confirmation time");
   if (!Number.isInteger(cfg.minimumConfirmationEvents) || cfg.minimumConfirmationEvents < 1) fail("minimumConfirmationEvents must be a positive integer");
   for (const [value, maximum, name] of [[cfg.minimumBookVotes, 3, "minimumBookVotes"], [cfg.minimumFlowVotes, 3, "minimumFlowVotes"], [cfg.minimumKinematicVotes, 5, "minimumKinematicVotes"]] as const) {
@@ -301,6 +375,10 @@ export function validateDeterministicConfig(cfg: DeterministicSignalConfig): voi
     cfg.breakoutBps, cfg.cusum, cfg.minimumConfirmationMs, cfg.cooldownMs, cfg.resetMs, cfg.maximumImpulseZ,
     cfg.maximumChaseBps, cfg.maximumAnchorZ];
   if (nonnegative.some((value) => value < 0)) fail("nonnegative thresholds cannot be negative");
+  validateContinuationQualityConfig(cfg.continuationQuality);
+  validateMultiHorizonAnalyticConfig({ horizons: cfg.analyticHorizons,
+    spreadUncertaintyWeight: cfg.analyticEdge.spreadUncertaintyWeight,
+    flipUncertaintyWeight: cfg.analyticEdge.flipUncertaintyWeight });
   validateSmallFractionTriggerConfig(cfg.microTrigger);
 }
 
