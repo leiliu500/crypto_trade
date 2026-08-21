@@ -41,6 +41,30 @@ export interface OrderTimelineEntry {
   severity: EventSeverity;
 }
 
+export interface DashboardPnlPoint {
+  atMs: number;
+  currentPx: number;
+  unrealizedPnl: number;
+  unrealizedPnlBps: number;
+  changePnl: number | null;
+}
+
+export interface DashboardLivePosition {
+  active: boolean;
+  closedAtMs: number | null;
+  openedMs: number;
+  ageMs: number;
+  qty: number;
+  entryPx: number;
+  currentPx: number;
+  unrealizedPnl: number;
+  unrealizedPnlBps: number;
+  phase: string;
+  latestAction: string;
+  latestReason: string | null;
+  pnlHistory: readonly DashboardPnlPoint[];
+}
+
 export interface DashboardOrderCard {
   clientOrderId: string;
   alpacaOrderId: string | null;
@@ -67,6 +91,7 @@ export interface DashboardOrderCard {
   expiresInMs: number;
   error: string | null;
   timeline: readonly OrderTimelineEntry[];
+  livePosition: DashboardLivePosition | null;
 }
 
 export interface DashboardPositionCard {

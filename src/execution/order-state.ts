@@ -2,6 +2,14 @@ import type { ExecutionPlan } from "./planner.js";
 
 export type LocalOrderStatus = "RESERVED" | "SENDING" | "OPEN" | "PARTIALLY_FILLED" | "FILLED" | "CANCEL_PENDING" | "CANCELED" | "REJECTED" | "EXPIRED" | "UNKNOWN";
 export interface TrackedOrder { plan: ExecutionPlan; alpacaOrderId?: string; status: LocalOrderStatus; filledQty: number; averageFillPx: number; lastUpdateMs: number; error?: string; }
+export interface RemoteOrderSnapshot {
+  id: string;
+  clientOrderId: string;
+  filledQty: number;
+  averageFillPx?: number;
+  status: string;
+  updatedMs?: number;
+}
 export interface PrivateOrderEvent { id: string; event: string; orderId: string; clientOrderId: string; symbol: string; filledQty: number; eventQty: number; eventPx: number; timestampMs: number; positionQty?: number; }
 export interface FillDelta { symbol: string; side: 1 | -1; qty: number; price: number; clientOrderId: string; final: boolean; positionQty?: number; }
 
@@ -22,7 +30,13 @@ export class OrderStateReconciler {
     order.lastUpdateMs = Math.max(order.lastUpdateMs, nowMs);
   }
   public markSendUnknown(clientOrderId: string, error: unknown): void { const order = this.must(clientOrderId); order.status = "UNKNOWN"; order.error = error instanceof Error ? error.message : String(error); order.lastUpdateMs = Date.now(); }
-  public requestCancel(clientOrderId: string): void { const order = this.must(clientOrderId); if (["OPEN", "PARTIALLY_FILLED"].includes(order.status)) order.status = "CANCEL_PENDING"; }
+  public requestCancel(clientOrderId: string, nowMs = Date.now()): void {
+    const order = this.must(clientOrderId);
+    if (["OPEN", "PARTIALLY_FILLED"].includes(order.status)) {
+      order.status = "CANCEL_PENDING";
+      order.lastUpdateMs = Math.max(order.lastUpdateMs, nowMs);
+    }
+  }
   public apply(event: PrivateOrderEvent): FillDelta | null {
     if (this.privateEventIds.has(event.id)) return null;
     this.privateEventIds.add(event.id);
@@ -40,12 +54,26 @@ export class OrderStateReconciler {
     return { symbol: event.symbol, side: order.plan.side, qty: deltaQty, price: event.eventPx, clientOrderId: event.clientOrderId,
       final: event.event === "fill", ...(event.positionQty !== undefined ? { positionQty: event.positionQty } : {}) };
   }
-  public reconcile(openOrders: readonly { id: string; clientOrderId: string; filledQty: number; status: string }[]): void {
+  public reconcileOrder(remote: RemoteOrderSnapshot): TrackedOrder | undefined {
+    const tracked = this.orders.get(remote.clientOrderId);
+    if (!tracked) return undefined;
+    tracked.alpacaOrderId = remote.id;
+    tracked.filledQty = Math.max(tracked.filledQty, remote.filledQty);
+    if (remote.averageFillPx !== undefined && remote.averageFillPx > 0) tracked.averageFillPx = remote.averageFillPx;
+    tracked.status = this.mapStatus(remote.status, tracked.filledQty, tracked.plan.qty);
+    if (remote.updatedMs !== undefined && Number.isFinite(remote.updatedMs)) {
+      tracked.lastUpdateMs = Math.max(tracked.lastUpdateMs, remote.updatedMs);
+    }
+    return tracked;
+  }
+  public reconcile(openOrders: readonly RemoteOrderSnapshot[]): void {
     const byClient = new Map(openOrders.map((order) => [order.clientOrderId, order]));
     for (const [clientId, tracked] of this.orders) {
       const remote = byClient.get(clientId);
-      if (remote) { tracked.alpacaOrderId = remote.id; tracked.filledQty = remote.filledQty; tracked.status = this.mapStatus(remote.status, remote.filledQty, tracked.plan.qty); }
-      else if (["UNKNOWN", "SENDING", "OPEN", "CANCEL_PENDING"].includes(tracked.status)) tracked.status = tracked.filledQty >= tracked.plan.qty ? "FILLED" : "CANCELED";
+      if (remote) this.reconcileOrder(remote);
+      else if (["UNKNOWN", "SENDING", "OPEN", "PARTIALLY_FILLED", "CANCEL_PENDING"].includes(tracked.status)) {
+        tracked.status = tracked.filledQty >= tracked.plan.qty ? "FILLED" : "CANCELED";
+      }
     }
   }
   public hasPendingEntry(symbol: string): boolean {
@@ -55,13 +83,13 @@ export class OrderStateReconciler {
   public all(): readonly TrackedOrder[] { return [...this.orders.values()]; }
   private must(clientOrderId: string): TrackedOrder { const order = this.orders.get(clientOrderId); if (!order) throw new Error(`Unknown client order ${clientOrderId}`); return order; }
   private mapStatus(event: string, filled: number, requested: number): LocalOrderStatus {
-    if (event === "fill" || filled >= requested) return "FILLED";
-    if (event === "partial_fill" || filled > 0) return "PARTIALLY_FILLED";
-    if (["new", "accepted", "pending_new", "replaced"].includes(event)) return "OPEN";
-    if (["pending_cancel", "pending_replace"].includes(event)) return "CANCEL_PENDING";
+    if (["fill", "filled"].includes(event) || filled >= requested) return "FILLED";
     if (event === "canceled") return "CANCELED";
     if (event === "expired") return "EXPIRED";
     if (["rejected", "order_replace_rejected", "order_cancel_rejected", "suspended"].includes(event)) return "REJECTED";
+    if (["partial_fill", "partially_filled"].includes(event) || filled > 0) return "PARTIALLY_FILLED";
+    if (["new", "accepted", "pending_new", "replaced"].includes(event)) return "OPEN";
+    if (["pending_cancel", "pending_replace"].includes(event)) return "CANCEL_PENDING";
     return "UNKNOWN";
   }
 }

@@ -42,6 +42,47 @@ test("private fills retain Alpaca's fee-adjusted authoritative position quantity
   assert.equal(fill?.qty, 1);
 });
 
+test("a cancellation after a partial fill is terminal and releases the symbol", () => {
+  const state = new OrderStateReconciler();
+  state.reserve(plan());
+  state.markSending("client-1");
+  state.markAccepted("client-1", "order-1", 10);
+  state.apply({ id: "partial", event: "partial_fill", orderId: "order-1", clientOrderId: "client-1", symbol: "BTC/USD",
+    filledQty: .4, eventQty: .4, eventPx: 100, timestampMs: 11 });
+  state.requestCancel("client-1", 12);
+  state.apply({ id: "canceled", event: "canceled", orderId: "order-1", clientOrderId: "client-1", symbol: "BTC/USD",
+    filledQty: .4, eventQty: 0, eventPx: 0, timestampMs: 13 });
+  assert.equal(state.get("client-1")?.status, "CANCELED");
+  assert.equal(state.hasPendingEntry("BTC/USD"), false);
+});
+
+test("authoritative REST cancellation clears a stuck partially filled order", () => {
+  const state = new OrderStateReconciler();
+  state.reserve(plan());
+  state.markSending("client-1");
+  state.markAccepted("client-1", "order-1", 10);
+  state.apply({ id: "partial", event: "partial_fill", orderId: "order-1", clientOrderId: "client-1", symbol: "BTC/USD",
+    filledQty: .4, eventQty: .4, eventPx: 100, timestampMs: 11 });
+  state.requestCancel("client-1", 12);
+  state.reconcileOrder({ id: "order-1", clientOrderId: "client-1", filledQty: .4, averageFillPx: 100,
+    status: "canceled", updatedMs: 13 });
+  assert.equal(state.get("client-1")?.status, "CANCELED");
+  assert.equal(state.get("client-1")?.lastUpdateMs, 13);
+  assert.equal(state.hasPendingEntry("BTC/USD"), false);
+});
+
+test("open-order reconciliation releases an absent partial fill", () => {
+  const state = new OrderStateReconciler();
+  state.reserve(plan());
+  state.markSending("client-1");
+  state.markAccepted("client-1", "order-1", 10);
+  state.apply({ id: "partial", event: "partial_fill", orderId: "order-1", clientOrderId: "client-1", symbol: "BTC/USD",
+    filledQty: .4, eventQty: .4, eventPx: 100, timestampMs: 11 });
+  state.reconcile([]);
+  assert.equal(state.get("client-1")?.status, "CANCELED");
+  assert.equal(state.hasPendingEntry("BTC/USD"), false);
+});
+
 test("REST client uses Alpaca auth, crypto endpoints, and request IDs without exposing credentials", async () => {
   const calls: Array<{ url: string; init?: RequestInit }> = [];
   const fakeFetch: typeof fetch = async (input, init) => {

@@ -6,7 +6,7 @@ import { LatencyTracker } from "../core/latency.js";
 import type { BookState, Features, MarketTrade } from "../core/market.js";
 import { LocalOrderBook, type BookDelta } from "../core/order-book.js";
 import { EventRecorder } from "../recorder.js";
-import { ExecutionPlanner, type AssetRules, type ExecutionPlan } from "../execution/planner.js";
+import { bufferedTakerLimitPrice, ExecutionPlanner, type AssetRules, type ExecutionPlan } from "../execution/planner.js";
 import { OrderStateReconciler, type FillDelta, type PrivateOrderEvent } from "../execution/order-state.js";
 import { estimateSweep } from "../execution/book-walk.js";
 import { PortfolioRiskEngine } from "../risk/portfolio.js";
@@ -31,6 +31,7 @@ import { EntryPipelineAudit, type EntryPipelineSnapshot, type EntryPipelineStage
 import { HealthWatchdog, type WatchdogFault } from "./watchdog.js";
 
 const PAPER_DEMO_TARGET_NOTIONAL = 11;
+const CANCEL_PENDING_RECONCILE_DELAY_MS = 2_000;
 
 export interface EngineMarketSnapshot {
   symbol: string;
@@ -117,6 +118,8 @@ export class TradingEngine extends EventEmitter {
   private readonly watchdog: HealthWatchdog;
   private readonly recorder?: EventRecorder;
   private readonly reportedPositionDust = new Map<string, number>();
+  private readonly cancelReconcileInFlight = new Set<string>();
+  private readonly cancelReconcileLastAttemptMs = new Map<string, number>();
   private equity = 0;
   private equityHighWater = 0;
   private realizedSessionPnl = 0;
@@ -756,7 +759,9 @@ export class TradingEngine extends EventEmitter {
     const nowMs = this.now();
     const plan: ExecutionPlan = {
       clientOrderId: `mlce-exit-${nowMs}-${randomUUID().slice(0, 8)}`, decisionId: randomUUID(), riskApprovalId: randomUUID(),
-      symbol: runtime.position.symbol, side: -1, qty, limitPx: floorPrice(sweep.worstPx, runtime.asset.priceIncrement), style: "taker", timeInForce: "ioc",
+      symbol: runtime.position.symbol, side: -1, qty,
+      limitPx: bufferedTakerLimitPrice(sweep.worstPx, runtime.asset.priceIncrement, -1, runtime.config.planner.takerLimitBufferBps),
+      style: "taker", timeInForce: "ioc",
       createdMs: nowMs, expiresMs: nowMs + 1_000, originatingSequence: book.sequence,
       featureHash: createHash("sha256").update(JSON.stringify(features)).digest("hex").slice(0, 24), strategyVersion: runtime.config.strategyVersion,
       modelVersion: runtime.config.modelVersion, expectedCost: cost, risk, fillProbability: 1,
@@ -846,9 +851,71 @@ export class TradingEngine extends EventEmitter {
     return this.orderState.all().find((order) => order.plan.symbol === symbol && ["RESERVED", "SENDING", "OPEN", "PARTIALLY_FILLED", "CANCEL_PENDING", "UNKNOWN"].includes(order.status));
   }
   private async cancelTracked(tracked: ReturnType<OrderStateReconciler["all"]>[number]): Promise<void> {
-    if (!tracked.alpacaOrderId || tracked.status === "CANCEL_PENDING") return;
-    this.orderState.requestCancel(tracked.plan.clientOrderId);
-    try { await this.gateway.cancel(tracked.alpacaOrderId); } catch (error) { this.riskState.halt("ORDER_SEND_UNKNOWN"); this.emit("engineError", error); await this.reconcileAccount(); }
+    if (!tracked.alpacaOrderId) return;
+    if (tracked.status === "CANCEL_PENDING") {
+      await this.reconcilePendingCancellation(tracked);
+      return;
+    }
+    this.orderState.requestCancel(tracked.plan.clientOrderId, this.now());
+    try {
+      await this.gateway.cancel(tracked.alpacaOrderId);
+      await this.reconcilePendingCancellation(tracked, true);
+    } catch (error) {
+      this.riskState.halt("ORDER_SEND_UNKNOWN");
+      this.emit("engineError", error);
+      await this.reconcileAccount();
+    }
+  }
+  private async reconcilePendingCancellation(tracked: ReturnType<OrderStateReconciler["all"]>[number], force = false): Promise<void> {
+    const clientOrderId = tracked.plan.clientOrderId;
+    const orderId = tracked.alpacaOrderId;
+    if (!orderId || this.cancelReconcileInFlight.has(clientOrderId)) return;
+    const nowMs = this.now();
+    const lastAttemptMs = this.cancelReconcileLastAttemptMs.get(clientOrderId) ?? tracked.lastUpdateMs;
+    if (!force && nowMs - lastAttemptMs < CANCEL_PENDING_RECONCILE_DELAY_MS) return;
+    this.cancelReconcileLastAttemptMs.set(clientOrderId, nowMs);
+    this.cancelReconcileInFlight.add(clientOrderId);
+    try {
+      const previousFilledQty = tracked.filledQty;
+      const response = await this.rest.getOrder(orderId);
+      const remote = response.data;
+      const remoteFilledQty = Number(remote.filled_qty ?? 0);
+      const remoteAverageFillPx = Number(remote.filled_avg_price ?? 0);
+      const parsedUpdatedMs = Date.parse(remote.updated_at);
+      const reconciled = this.orderState.reconcileOrder({
+        id: remote.id,
+        clientOrderId: remote.client_order_id,
+        filledQty: remoteFilledQty,
+        ...(remoteAverageFillPx > 0 ? { averageFillPx: remoteAverageFillPx } : {}),
+        status: remote.status,
+        updatedMs: Number.isFinite(parsedUpdatedMs) ? parsedUpdatedMs : nowMs,
+      });
+      if (reconciled) {
+        const event: PrivateOrderEvent = {
+          id: `rest-reconcile-${remote.id}-${remote.updated_at}`,
+          event: `rest_reconcile_${remote.status}`,
+          orderId: remote.id,
+          clientOrderId: remote.client_order_id,
+          symbol: normalizeSymbol(remote.symbol),
+          filledQty: remoteFilledQty,
+          eventQty: 0,
+          eventPx: remoteAverageFillPx,
+          timestampMs: Number.isFinite(parsedUpdatedMs) ? parsedUpdatedMs : nowMs,
+        };
+        this.emit("orderUpdate", { event, order: reconciled, source: "rest-cancel-reconciliation" });
+        if (!["RESERVED", "SENDING", "OPEN", "PARTIALLY_FILLED", "CANCEL_PENDING", "UNKNOWN"].includes(reconciled.status)) {
+          this.cancelReconcileLastAttemptMs.delete(clientOrderId);
+        }
+      }
+      // A missed fill changes authoritative exposure and must use the full
+      // account reconciliation path rather than inferring fee-adjusted quantity.
+      if (remoteFilledQty > previousFilledQty + 1e-12) await this.reconcileAccount();
+    } catch (error) {
+      this.emit("engineError", error);
+      await this.reconcileAccount();
+    } finally {
+      this.cancelReconcileInFlight.delete(clientOrderId);
+    }
   }
   private async cancelAllSafely(): Promise<void> { if (this.cfg.mode === "paper" || this.cfg.mode === "live") try { await this.gateway.cancelAll(); } catch (error) { this.emit("engineError", error); } }
   private onPublicDisconnect(): void {
@@ -890,7 +957,6 @@ function normalizeSymbol(symbol: string): string { return symbol.includes("/") ?
 function cfgPriceSigma(features: Features, multiple: number): number { return features.mid * features.sigmaHBps / 10_000 * multiple; }
 function ceilQuantity(quantity: number, increment: number): number { return Math.ceil(quantity / increment - 1e-12) * increment; }
 function ceilPrice(price: number, increment: number): number { return Math.ceil(price / increment - 1e-12) * increment; }
-function floorPrice(price: number, increment: number): number { return Math.floor(price / increment + 1e-12) * increment; }
 function plannerIntent(intent: DeterministicTradeIntent, sizeMultiplier: number): TradeIntent {
   return {
     side: intent.side, probability: 1, predictedGrossBps: intent.grossOpportunityBps,

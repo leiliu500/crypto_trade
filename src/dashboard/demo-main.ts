@@ -6,6 +6,7 @@ import { OperationsMonitor } from "./operations-monitor.js";
 import { DashboardServer } from "./server.js";
 
 const startedAtMs = Date.now() - 2_847_000;
+const positionOpenedAtMs = Date.now() - 128_000;
 const monitor = new OperationsMonitor({ pollIntervalMs: 500, marketSampleMs: 1_000 });
 monitor.setDatabaseHealth({ connected: true, status: "connected", queuedRecords: 4, droppedRecords: 0, lastPersistedAtMs: Date.now() - 180, lastError: null });
 const port = Number(process.env.DASHBOARD_PORT ?? 8_787);
@@ -49,7 +50,7 @@ function demoSnapshot(nowMs: number, sequence: number): EngineOperationalSnapsho
     symbols: ["BTC/USD", "ETH/USD", "SOL/USD"], equity: 102_483.76, equityHighWater: 102_511.04, realizedSessionPnl: 184.62,
     risk: { health: { publicStream: true, privateStream: true, accountReconciled: true, bookValid: true, clockValid: true, riskRecomputed: true }, reasons: [], equity: 102_483.76, equityHighWater: 102_511.04 },
     orders,
-    positions: [{ symbol: "BTC/USD", side: 1, qty: .0824, entryPx: 67_912.2, openedMs: nowMs - 128_000, initialRiskPx: 410,
+    positions: [{ symbol: "BTC/USD", side: 1, qty: .0824, entryPx: 67_912.2, openedMs: positionOpenedAtMs, initialRiskPx: 410,
       roundTripCostPx: 34.1, mfePx: 442 + Math.sin(sequence / 6) * 14, maePx: 96, floorPx: -61.2 + Math.min(180, sequence * 2.5), breakEvenArmed: true, phase: "TREND_HOLD" }],
     markets: [market("BTC/USD", btc, 1.4, sequence, nowMs, 12.8), market("ETH/USD", eth, .12, sequence + 7, nowMs, 15.1), market("SOL/USD", sol, .018, sequence + 13, nowMs, 19.4)],
     latency: { feed: { ...healthSummary, p95: 18 }, compute: { ...healthSummary, p95: 2.4 }, send: { ...healthSummary, p95: .8 },

@@ -97,10 +97,9 @@ export class ExecutionPlanner {
     const maker = makerCandidate && makerCandidate.fillProbability >= this.cfg.minimumFillProbability ? makerCandidate : null;
     const selected = maker && (!taker || maker.expectedValue > taker.expectedValue) ? maker : taker;
     if (!selected) return null;
-    const limitRaw = selected.style === "maker"
-      ? (intent.side === 1 ? book.bids[0]!.px : book.asks[0]!.px)
-      : selected.worstPx! * (1 + intent.side * this.cfg.takerLimitBufferBps / 10_000);
-    const limitPx = this.roundPrice(limitRaw, asset.priceIncrement, intent.side, selected.style === "taker");
+    const limitPx = selected.style === "maker"
+      ? this.roundPrice(intent.side === 1 ? book.bids[0]!.px : book.asks[0]!.px, asset.priceIncrement, intent.side, false)
+      : bufferedTakerLimitPrice(selected.worstPx!, asset.priceIncrement, intent.side, this.cfg.takerLimitBufferBps);
     const createdMs = options.createdMs ?? Date.now();
     const ttl = selected.style === "maker" ? Math.min(this.cfg.makerTtlMs, this.cfg.alphaHalfLifeMs / 2) : 1_000;
     const decisionId = options.decisionId ?? randomUUID();
@@ -193,4 +192,14 @@ export class ExecutionPlanner {
     const units = price / increment;
     return (side === 1 ? (marketable ? Math.ceil(units) : Math.floor(units)) : (marketable ? Math.floor(units) : Math.ceil(units))) * increment;
   }
+}
+
+/** Produces a directionally marketable, price-capped IOC limit with an explicit latency buffer. */
+export function bufferedTakerLimitPrice(worstPx: number, increment: number, side: Direction, bufferBps: number): number {
+  if (!(worstPx > 0) || !(increment > 0) || !Number.isFinite(bufferBps) || bufferBps < 0) {
+    throw new Error("Buffered taker limit inputs must be positive with a finite non-negative buffer");
+  }
+  const raw = worstPx * (1 + side * bufferBps / 10_000);
+  const units = raw / increment;
+  return (side === 1 ? Math.ceil(units) : Math.floor(units)) * increment;
 }
