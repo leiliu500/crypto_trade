@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { BookState, Features } from "../src/core/market.js";
-import { ExecutionPlanner } from "../src/execution/planner.js";
+import { bufferedTakerLimitPrice, ExecutionPlanner } from "../src/execution/planner.js";
 import { RiskSizer } from "../src/risk/sizing.js";
 import { CostModel } from "../src/strategy/cost.js";
 import type { TradeIntent } from "../src/strategy/signal.js";
@@ -101,4 +101,8 @@ test("a configured IOC buffer widens only the taker limit-price cap", () => {
     { createdMs: 1_000, executionPath: "MAKER_TAKER" });
   assert.equal(taker?.limitPx, 100.056);
   assert.equal(maker?.limitPx, 99.995);
+});
+
+test("the IOC buffer is symmetric for a sell exit", () => {
+  assert.equal(bufferedTakerLimitPrice(100, .001, -1, 5), 99.95);
 });

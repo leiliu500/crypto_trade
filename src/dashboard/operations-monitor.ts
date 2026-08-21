@@ -3,8 +3,8 @@ import { EventEmitter } from "node:events";
 import type { EngineMarketSnapshot, EngineOperationalSnapshot, TradingEngine } from "../engine/trading-engine.js";
 import type { PositionDecision } from "../strategy/position-manager.js";
 import type {
-  DashboardEvent, DashboardMarketCard, DashboardOrderCard, DashboardPositionCard, DashboardSnapshot,
-  DatabaseHealth, EventSeverity, OrderTimelineEntry, TelemetryRecord,
+  DashboardEvent, DashboardLivePosition, DashboardMarketCard, DashboardOrderCard, DashboardPnlPoint,
+  DashboardPositionCard, DashboardSnapshot, DatabaseHealth, EventSeverity, OrderTimelineEntry, TelemetryRecord,
 } from "./types.js";
 import { disabledDatabaseHealth } from "./types.js";
 
@@ -19,6 +19,8 @@ interface MonitorOptions {
   pollIntervalMs?: number;
   marketSampleMs?: number;
   maximumEvents?: number;
+  pnlSampleMs?: number;
+  maximumPnlHistory?: number;
 }
 
 interface LatestPositionDecision {
@@ -28,15 +30,25 @@ interface LatestPositionDecision {
   reversalProbability: number | null;
 }
 
+interface PositionPnlSeries {
+  openedMs: number;
+  points: DashboardPnlPoint[];
+  lastAppendMs: number | null;
+}
+
 /** Read-only projection of engine state for UI and durable telemetry. */
 export class OperationsMonitor extends EventEmitter {
   private readonly pollIntervalMs: number;
   private readonly marketSampleMs: number;
   private readonly maximumEvents: number;
+  private readonly pnlSampleMs: number;
+  private readonly maximumPnlHistory: number;
   private readonly events: DashboardEvent[] = [];
   private readonly orderTimelines = new Map<string, OrderTimelineEntry[]>();
   private readonly orderStatuses = new Map<string, string>();
   private readonly positionDecisions = new Map<string, LatestPositionDecision>();
+  private readonly positionPnlHistories = new Map<string, PositionPnlSeries>();
+  private readonly orderPositionPnl = new Map<string, DashboardLivePosition>();
   private readonly boundListeners = new Map<string, (...args: unknown[]) => void>();
   private engine?: TradingEngine;
   private timer?: NodeJS.Timeout;
@@ -49,6 +61,8 @@ export class OperationsMonitor extends EventEmitter {
     this.pollIntervalMs = options.pollIntervalMs ?? 500;
     this.marketSampleMs = options.marketSampleMs ?? 1_000;
     this.maximumEvents = options.maximumEvents ?? 200;
+    this.pnlSampleMs = Math.max(0, options.pnlSampleMs ?? 1_000);
+    this.maximumPnlHistory = Math.max(1, options.maximumPnlHistory ?? Number.POSITIVE_INFINITY);
   }
 
   public attach(engine: TradingEngine): void {
@@ -164,9 +178,85 @@ export class OperationsMonitor extends EventEmitter {
       };
     });
     const marketBySymbol = new Map(markets.map((market) => [market.symbol, market]));
+    const livePositionOrderIds = new Map<string, string>();
+    for (const position of state.positions) {
+      let nearestOrderId: string | null = null;
+      let nearestFillDistanceMs = Number.POSITIVE_INFINITY;
+      for (const order of state.orders) {
+        if (order.plan.symbol !== position.symbol || order.plan.side !== position.side
+          || order.plan.reduceOnlyIntent || order.filledQty <= 0) continue;
+        const distanceMs = Math.abs(order.lastUpdateMs - position.openedMs);
+        if (distanceMs < nearestFillDistanceMs) {
+          nearestFillDistanceMs = distanceMs;
+          nearestOrderId = order.plan.clientOrderId;
+        }
+      }
+      if (nearestOrderId) livePositionOrderIds.set(position.symbol, nearestOrderId);
+    }
+
+    const activePositionSymbols = new Set<string>();
+    const activePnlOrderIds = new Set<string>();
+    const positions = state.positions.map((position): DashboardPositionCard => {
+      activePositionSymbols.add(position.symbol);
+      const market = marketBySymbol.get(position.symbol);
+      const currentPx = position.side > 0
+        ? market?.bestBid ?? market?.mid ?? null
+        : market?.bestAsk ?? market?.mid ?? null;
+      const unrealizedPnl = currentPx === null ? null : position.side * position.qty * (currentPx - position.entryPx);
+      const unrealizedPnlBps = currentPx === null ? null : position.side * (currentPx / position.entryPx - 1) * 10_000;
+      const latest = this.positionDecisions.get(position.symbol);
+      const ageMs = Math.max(0, nowMs - position.openedMs);
+      if (currentPx !== null && unrealizedPnl !== null && unrealizedPnlBps !== null) {
+        const orderId = livePositionOrderIds.get(position.symbol);
+        const positionPnl: DashboardLivePosition = {
+          active: true,
+          closedAtMs: null,
+          openedMs: position.openedMs,
+          ageMs,
+          qty: position.qty,
+          entryPx: position.entryPx,
+          currentPx,
+          unrealizedPnl,
+          unrealizedPnlBps,
+          phase: position.phase,
+          latestAction: latest?.action ?? "MONITOR",
+          latestReason: latest?.reason ?? null,
+          pnlHistory: [...this.trackPositionPnl(position.symbol, position.openedMs, nowMs, currentPx, unrealizedPnl, unrealizedPnlBps)],
+        };
+        if (orderId) {
+          activePnlOrderIds.add(orderId);
+          this.orderPositionPnl.set(orderId, positionPnl);
+        }
+      }
+      return {
+        symbol: position.symbol, side: position.side, qty: position.qty, entryPx: position.entryPx, currentPx,
+        marketValue: currentPx === null ? null : currentPx * position.qty,
+        unrealizedPnl,
+        unrealizedPnlBps,
+        phase: position.phase, openedMs: position.openedMs, ageMs,
+        initialRiskPx: position.initialRiskPx, floorPx: position.floorPx,
+        stopPx: position.entryPx + position.side * position.floorPx,
+        mfePx: position.mfePx, maePx: position.maePx, breakEvenArmed: position.breakEvenArmed,
+        latestAction: latest?.action ?? "MONITOR", latestReason: latest?.reason ?? null,
+        holdEdgeBps: latest?.holdEdgeBps ?? null, reversalProbability: latest?.reversalProbability ?? null,
+      };
+    });
+    this.prunePositionPnlHistories(activePositionSymbols);
+    for (const [orderId, positionPnl] of this.orderPositionPnl) {
+      if (!activePnlOrderIds.has(orderId) && positionPnl.active) {
+        this.orderPositionPnl.set(orderId, {
+          ...positionPnl,
+          active: false,
+          closedAtMs: nowMs,
+          ageMs: Math.max(0, nowMs - positionPnl.openedMs),
+        });
+      }
+    }
+
     const orders = state.orders.map((order): DashboardOrderCard => {
       this.trackOrderStatus(order.plan.clientOrderId, order.status, order.lastUpdateMs, order.error ?? null);
       const remainingQty = Math.max(0, order.plan.qty - order.filledQty);
+      const livePosition = this.orderPositionPnl.get(order.plan.clientOrderId) ?? null;
       return {
         clientOrderId: order.plan.clientOrderId,
         alpacaOrderId: order.alpacaOrderId ?? null,
@@ -193,26 +283,9 @@ export class OperationsMonitor extends EventEmitter {
         expiresInMs: order.plan.expiresMs - nowMs,
         error: order.error ?? null,
         timeline: [...(this.orderTimelines.get(order.plan.clientOrderId) ?? [])],
+        livePosition,
       };
     }).sort((a, b) => b.updatedMs - a.updatedMs);
-    const positions = state.positions.map((position): DashboardPositionCard => {
-      const market = marketBySymbol.get(position.symbol);
-      const currentPx = market?.bestBid ?? market?.mid ?? null;
-      const unrealizedPnl = currentPx === null ? null : position.side * position.qty * (currentPx - position.entryPx);
-      const latest = this.positionDecisions.get(position.symbol);
-      return {
-        symbol: position.symbol, side: position.side, qty: position.qty, entryPx: position.entryPx, currentPx,
-        marketValue: currentPx === null ? null : currentPx * position.qty,
-        unrealizedPnl,
-        unrealizedPnlBps: currentPx === null ? null : position.side * (currentPx / position.entryPx - 1) * 10_000,
-        phase: position.phase, openedMs: position.openedMs, ageMs: Math.max(0, nowMs - position.openedMs),
-        initialRiskPx: position.initialRiskPx, floorPx: position.floorPx,
-        stopPx: position.entryPx + position.side * position.floorPx,
-        mfePx: position.mfePx, maePx: position.maePx, breakEvenArmed: position.breakEvenArmed,
-        latestAction: latest?.action ?? "MONITOR", latestReason: latest?.reason ?? null,
-        holdEdgeBps: latest?.holdEdgeBps ?? null, reversalProbability: latest?.reversalProbability ?? null,
-      };
-    });
     const health = state.risk.health;
     const liveness: DashboardSnapshot["liveness"] = [
       check("engine", "Engine process", state.started, state.started ? `Up ${formatDuration(state.uptimeMs)}` : "Not started", nowMs),
@@ -241,6 +314,48 @@ export class OperationsMonitor extends EventEmitter {
     };
   }
 
+  private trackPositionPnl(symbol: string, openedMs: number, atMs: number, currentPx: number,
+    unrealizedPnl: number, unrealizedPnlBps: number): readonly DashboardPnlPoint[] {
+    let series = this.positionPnlHistories.get(symbol);
+    if (!series || series.openedMs !== openedMs) {
+      series = { openedMs, points: [], lastAppendMs: null };
+      this.positionPnlHistories.set(symbol, series);
+    }
+
+    const last = series.points.at(-1);
+    if (last?.currentPx === currentPx && last.unrealizedPnl === unrealizedPnl) return series.points;
+
+    if (last && series.lastAppendMs !== null && atMs - series.lastAppendMs < this.pnlSampleMs) {
+      const previous = series.points.at(-2);
+      series.points[series.points.length - 1] = {
+        atMs,
+        currentPx,
+        unrealizedPnl,
+        unrealizedPnlBps,
+        changePnl: previous ? unrealizedPnl - previous.unrealizedPnl : null,
+      };
+    } else {
+      series.points.push({
+        atMs,
+        currentPx,
+        unrealizedPnl,
+        unrealizedPnlBps,
+        changePnl: last ? unrealizedPnl - last.unrealizedPnl : null,
+      });
+      series.lastAppendMs = atMs;
+    }
+    if (series.points.length > this.maximumPnlHistory) {
+      series.points.splice(0, series.points.length - this.maximumPnlHistory);
+    }
+    return series.points;
+  }
+
+  private prunePositionPnlHistories(activeSymbols: ReadonlySet<string>): void {
+    for (const symbol of this.positionPnlHistories.keys()) {
+      if (!activeSymbols.has(symbol)) this.positionPnlHistories.delete(symbol);
+    }
+  }
+
   private trackOrderStatus(clientOrderId: string, status: string, atMs: number, error: string | null): void {
     if (this.orderStatuses.get(clientOrderId) === status) return;
     this.orderStatuses.set(clientOrderId, status);
@@ -262,7 +377,7 @@ export class OperationsMonitor extends EventEmitter {
     if (type !== "positionDecision" && type !== "exitDecision") return;
     const symbol = findString(payload, ["position.symbol", "symbol"]);
     if (!symbol) return;
-    const action = findString(payload, ["decision.action", "action"]) ?? "MONITOR";
+    const action = findString(payload, ["decision.action", "action"]) ?? (type === "exitDecision" ? "EXIT" : "MONITOR");
     const reason = findString(payload, ["decision.reason", "reason"]);
     this.positionDecisions.set(symbol, {
       action, reason,
