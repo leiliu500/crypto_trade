@@ -61,6 +61,91 @@ test("operations monitor retains an order's full P&L history after the position 
   monitor.stop();
 });
 
+test("filled reduce-only exit cards inherit complete history and actual realized P&L", () => {
+  const monitor = new OperationsMonitor({ pnlSampleMs: 0 });
+  const opened = engineState();
+  opened.orders[0]!.status = "FILLED";
+  opened.orders[0]!.filledQty = 1;
+  opened.orders[0]!.averageFillPx = 100;
+  monitor.ingestEngineSnapshot(opened);
+
+  const marked = engineState();
+  marked.generatedAtMs += 1_500;
+  marked.markets[0]!.bestBid = 102;
+  marked.orders[0]!.status = "FILLED";
+  marked.orders[0]!.filledQty = 1;
+  marked.orders[0]!.averageFillPx = 100;
+  monitor.ingestEngineSnapshot(marked);
+
+  const closed = engineState();
+  closed.generatedAtMs += 2_000;
+  closed.markets[0]!.bestBid = 99;
+  closed.positions[0]!.qty = 1e-9;
+  closed.orders[0]!.status = "FILLED";
+  closed.orders[0]!.filledQty = 1;
+  closed.orders[0]!.averageFillPx = 100;
+  const entryOrder = closed.orders[0]!;
+  closed.orders = [...closed.orders, {
+    ...entryOrder,
+    plan: {
+      ...entryOrder.plan,
+      clientOrderId: "exit-1",
+      side: -1,
+      qty: .999999999,
+      reduceOnlyIntent: true,
+      createdMs: closed.generatedAtMs - 500,
+      expiresMs: closed.generatedAtMs + 500,
+    },
+    alpacaOrderId: "alpaca-exit-1",
+    status: "FILLED",
+    filledQty: .999999999,
+    averageFillPx: 99,
+    lastUpdateMs: closed.generatedAtMs,
+  }];
+  monitor.ingestEngineSnapshot(closed);
+
+  const snapshot = monitor.snapshot();
+  const exitCard = snapshot.orders.find((order) => order.clientOrderId === "exit-1")!;
+  const entryCard = snapshot.orders.find((order) => order.clientOrderId === "client-1")!;
+  assert.equal(exitCard.livePosition?.active, false);
+  assert.equal(exitCard.livePosition?.entryOrderId, "client-1");
+  assert.equal(exitCard.livePosition?.exitOrderId, "exit-1");
+  assert.equal(exitCard.livePosition?.closePx, 99);
+  assert.ok(Math.abs((exitCard.livePosition?.realizedPnl ?? 0) + .999999999) < 1e-12);
+  assert.equal(exitCard.livePosition?.pnlHistory.length, 3);
+  assert.equal(exitCard.livePosition?.pnlHistory.at(-1)?.kind, "close");
+  assert.ok(Math.abs((exitCard.livePosition?.pnlHistory.at(-1)?.changePnl ?? 0) + 2.999999999) < 1e-12);
+  assert.deepEqual(entryCard.livePosition, exitCard.livePosition);
+
+  const legacyEntry = structuredClone(entryCard);
+  const legacyExit = structuredClone(exitCard);
+  legacyExit.livePosition = null;
+  legacyEntry.livePosition = {
+    ...legacyEntry.livePosition!,
+    active: false,
+    qty: 1e-9,
+    currentPx: 99.5,
+    unrealizedPnl: -5e-10,
+    unrealizedPnlBps: -50,
+    realizedPnl: null,
+    realizedPnlBps: null,
+    closePx: null,
+    exitOrderId: null,
+    pnlHistory: [
+      ...legacyEntry.livePosition!.pnlHistory.slice(0, -1),
+      { atMs: closed.generatedAtMs - 1, currentPx: 99.5, unrealizedPnl: -5e-10, unrealizedPnlBps: -50, changePnl: -2.0000000005, kind: "mark" },
+    ],
+  };
+  const afterReboot = new OperationsMonitor();
+  afterReboot.hydrateOrders([legacyExit, legacyEntry]);
+  const repairedExit = afterReboot.snapshot().orders.find((order) => order.clientOrderId === "exit-1")!;
+  assert.ok(Math.abs((repairedExit.livePosition?.realizedPnl ?? 0) + .999999999) < 1e-12);
+  assert.equal(repairedExit.livePosition?.pnlHistory.length, 3);
+  assert.equal(repairedExit.livePosition?.pnlHistory.at(-1)?.kind, "close");
+  monitor.stop();
+  afterReboot.stop();
+});
+
 test("dashboard distinguishes a motion reset from invalid market data", async () => {
   const app = await readFile("src/dashboard/public/app.js", "utf8");
   assert.match(app, /MOTION RESET/);
@@ -152,7 +237,7 @@ test("dashboard server serves the read-only API, health probe, and local UI", as
     assert.match(htmlText, /Orders and live P&amp;L/);
     assert.doesNotMatch(htmlText, /Exit dynamics/);
     const appText = await app.text();
-    assert.match(appText, /Closed position P&amp;L history/);
+    assert.match(appText, /Realized trade P&amp;L/);
     assert.match(appText, /All P&amp;L changes/);
     assert.match(appText, /order\.livePosition\|\|state\.orderFilter/);
     assert.match(appText, /o\.statusLabel/);

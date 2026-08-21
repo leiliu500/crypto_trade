@@ -91,11 +91,15 @@ export class OperationsMonitor extends EventEmitter {
   public snapshot(): DashboardSnapshot { return safeClone(this.snapshotValue) as DashboardSnapshot; }
 
   public hydrateOrders(orders: readonly DashboardOrderCard[]): void {
+    const restoredOrders: DashboardOrderCard[] = [];
     for (const order of orders) {
       const restored = safeClone({ ...order, historical: true }) as DashboardOrderCard;
-      this.historicalOrders.set(restored.clientOrderId, restored);
+      restoredOrders.push(restored);
       this.orderStatuses.set(restored.clientOrderId, `${restored.status}:${restored.cancellationReason ?? restored.cancelRequestReason ?? ""}`);
       this.orderTimelines.set(restored.clientOrderId, [...restored.timeline]);
+    }
+    for (const restored of this.linkExitOrderPnl(restoredOrders)) {
+      this.historicalOrders.set(restored.clientOrderId, restored);
     }
     this.snapshotValue = {
       ...this.snapshotValue,
@@ -192,8 +196,20 @@ export class OperationsMonitor extends EventEmitter {
       };
     });
     const marketBySymbol = new Map(markets.map((market) => [market.symbol, market]));
+    const completedExitBySymbol = new Map<string, EngineOperationalSnapshot["orders"][number]>();
+    for (const order of state.orders) {
+      if (!order.plan.reduceOnlyIntent || order.status !== "FILLED" || order.filledQty <= 0) continue;
+      const previous = completedExitBySymbol.get(order.plan.symbol);
+      if (!previous || order.lastUpdateMs > previous.lastUpdateMs) completedExitBySymbol.set(order.plan.symbol, order);
+    }
+    const exitedDustSymbols = new Set(state.positions.flatMap((position) => {
+      const exit = completedExitBySymbol.get(position.symbol);
+      if (!exit || exit.lastUpdateMs < position.openedMs) return [];
+      return position.qty <= quantityTolerance(exit.filledQty) ? [position.symbol] : [];
+    }));
     const livePositionOrderIds = new Map<string, string>();
     for (const position of state.positions) {
+      if (exitedDustSymbols.has(position.symbol)) continue;
       let nearestOrderId: string | null = null;
       let nearestFillDistanceMs = Number.POSITIVE_INFINITY;
       for (const order of state.orders) {
@@ -211,7 +227,8 @@ export class OperationsMonitor extends EventEmitter {
     const activePositionSymbols = new Set<string>();
     const activePnlOrderIds = new Set<string>();
     const positions = state.positions.map((position): DashboardPositionCard => {
-      activePositionSymbols.add(position.symbol);
+      const exitedAsDust = exitedDustSymbols.has(position.symbol);
+      if (!exitedAsDust) activePositionSymbols.add(position.symbol);
       const market = marketBySymbol.get(position.symbol);
       const currentPx = position.side > 0
         ? market?.bestBid ?? market?.mid ?? null
@@ -220,7 +237,7 @@ export class OperationsMonitor extends EventEmitter {
       const unrealizedPnlBps = currentPx === null ? null : position.side * (currentPx / position.entryPx - 1) * 10_000;
       const latest = this.positionDecisions.get(position.symbol);
       const ageMs = Math.max(0, nowMs - position.openedMs);
-      if (currentPx !== null && unrealizedPnl !== null && unrealizedPnlBps !== null) {
+      if (!exitedAsDust && currentPx !== null && unrealizedPnl !== null && unrealizedPnlBps !== null) {
         const orderId = livePositionOrderIds.get(position.symbol);
         const positionPnl: DashboardLivePosition = {
           active: true,
@@ -232,6 +249,11 @@ export class OperationsMonitor extends EventEmitter {
           currentPx,
           unrealizedPnl,
           unrealizedPnlBps,
+          realizedPnl: null,
+          realizedPnlBps: null,
+          closePx: null,
+          entryOrderId: orderId ?? null,
+          exitOrderId: null,
           phase: position.phase,
           latestAction: latest?.action ?? "MONITOR",
           latestReason: latest?.reason ?? null,
@@ -306,10 +328,15 @@ export class OperationsMonitor extends EventEmitter {
       };
     });
     const currentOrderIds = new Set(orders.map((order) => order.clientOrderId));
-    const visibleOrders = sortOrders([
+    const visibleOrders = sortOrders(this.linkExitOrderPnl([
       ...orders,
       ...[...this.historicalOrders.values()].filter((order) => !currentOrderIds.has(order.clientOrderId)),
-    ]);
+    ]));
+    for (const order of visibleOrders) {
+      if (currentOrderIds.has(order.clientOrderId) && order.livePosition) {
+        this.orderPositionPnl.set(order.clientOrderId, cloneLivePosition(order.livePosition));
+      }
+    }
     const health = state.risk.health;
     const liveness: DashboardSnapshot["liveness"] = [
       check("engine", "Engine process", state.started, state.started ? `Up ${formatDuration(state.uptimeMs)}` : "Not started", nowMs),
@@ -357,6 +384,7 @@ export class OperationsMonitor extends EventEmitter {
         unrealizedPnl,
         unrealizedPnlBps,
         changePnl: previous ? unrealizedPnl - previous.unrealizedPnl : null,
+        kind: "mark",
       };
     } else {
       series.points.push({
@@ -365,6 +393,7 @@ export class OperationsMonitor extends EventEmitter {
         unrealizedPnl,
         unrealizedPnlBps,
         changePnl: last ? unrealizedPnl - last.unrealizedPnl : null,
+        kind: "mark",
       });
       series.lastAppendMs = atMs;
     }
@@ -372,6 +401,69 @@ export class OperationsMonitor extends EventEmitter {
       series.points.splice(0, series.points.length - this.maximumPnlHistory);
     }
     return series.points;
+  }
+
+  private linkExitOrderPnl(orders: DashboardOrderCard[]): DashboardOrderCard[] {
+    const linked = orders.map((order) => ({
+      ...order,
+      livePosition: order.livePosition ? cloneLivePosition(order.livePosition) : null,
+    }));
+    const latestEntryBySymbol = new Map<string, DashboardOrderCard>();
+    for (const order of [...linked].sort((a, b) => a.createdMs - b.createdMs || a.updatedMs - b.updatedMs)) {
+      if (!order.reduceOnlyIntent) {
+        if (order.filledQty > 0) latestEntryBySymbol.set(order.symbol, order);
+        continue;
+      }
+      if (order.filledQty <= 0 || !(order.averageFillPx > 0)) continue;
+      const entry = latestEntryBySymbol.get(order.symbol);
+      if (!entry?.livePosition || entry.side === order.side) continue;
+      const closedPnl = this.closedTradePnl(entry, order);
+      order.livePosition = closedPnl;
+      if (!entry.livePosition.active) entry.livePosition = cloneLivePosition(closedPnl);
+    }
+    return linked;
+  }
+
+  private closedTradePnl(entry: DashboardOrderCard, exit: DashboardOrderCard): DashboardLivePosition {
+    const source = entry.livePosition!;
+    if (source.exitOrderId === exit.clientOrderId && source.realizedPnl !== null) return cloneLivePosition(source);
+    const closeQty = exit.filledQty;
+    const closePx = exit.averageFillPx;
+    const realizedPnl = entry.side * closeQty * (closePx - source.entryPx);
+    const realizedPnlBps = entry.side * (closePx / source.entryPx - 1) * 10_000;
+    const history = source.pnlHistory.map((point) => ({ ...point }));
+    if (!source.active && source.qty <= quantityTolerance(closeQty) && history.at(-1)?.kind !== "close") history.pop();
+    const previous = history.at(-1);
+    const closePoint: DashboardPnlPoint = {
+      atMs: exit.updatedMs,
+      currentPx: closePx,
+      unrealizedPnl: realizedPnl,
+      unrealizedPnlBps: realizedPnlBps,
+      changePnl: previous ? realizedPnl - previous.unrealizedPnl : null,
+      kind: "close",
+    };
+    if (previous?.kind === "close") history[history.length - 1] = closePoint;
+    else history.push(closePoint);
+    if (history.length > this.maximumPnlHistory) history.splice(0, history.length - this.maximumPnlHistory);
+    return {
+      ...source,
+      active: false,
+      closedAtMs: exit.updatedMs,
+      ageMs: Math.max(0, exit.updatedMs - source.openedMs),
+      qty: closeQty,
+      currentPx: closePx,
+      unrealizedPnl: realizedPnl,
+      unrealizedPnlBps: realizedPnlBps,
+      realizedPnl,
+      realizedPnlBps,
+      closePx,
+      entryOrderId: entry.clientOrderId,
+      exitOrderId: exit.clientOrderId,
+      phase: "CLOSED",
+      latestAction: "EXIT",
+      latestReason: source.latestReason ?? "FILLED_REDUCE_ONLY_EXIT",
+      pnlHistory: history,
+    };
   }
 
   private prunePositionPnlHistories(activeSymbols: ReadonlySet<string>): void {
@@ -468,6 +560,10 @@ function sortOrders(orders: DashboardOrderCard[]): DashboardOrderCard[] {
     || b.updatedMs - a.updatedMs
     || b.clientOrderId.localeCompare(a.clientOrderId));
 }
+function cloneLivePosition(position: DashboardLivePosition): DashboardLivePosition {
+  return { ...position, pnlHistory: position.pnlHistory.map((point) => ({ ...point })) };
+}
+function quantityTolerance(qty: number): number { return Math.max(1e-8, Math.abs(qty) * 1e-6); }
 function statusLabel(status: string): string { return status.toLowerCase().replaceAll("_", " ").replace(/^./, (value) => value.toUpperCase()); }
 function orderStatusLabel(status: string, cancellationReason: string | null): string {
   if (status === "CANCELED" && cancellationReason) return statusLabel(cancellationReason);
