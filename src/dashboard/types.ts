@@ -48,6 +48,7 @@ export interface DashboardPnlPoint {
   unrealizedPnl: number;
   unrealizedPnlBps: number;
   changePnl: number | null;
+  kind?: "mark" | "close";
 }
 
 export interface DashboardLivePosition {
@@ -60,6 +61,11 @@ export interface DashboardLivePosition {
   currentPx: number;
   unrealizedPnl: number;
   unrealizedPnlBps: number;
+  realizedPnl: number | null;
+  realizedPnlBps: number | null;
+  closePx: number | null;
+  entryOrderId: string | null;
+  exitOrderId: string | null;
   phase: string;
   latestAction: string;
   latestReason: string | null;
