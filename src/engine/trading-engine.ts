@@ -7,7 +7,9 @@ import type { BookState, Features, MarketTrade } from "../core/market.js";
 import { LocalOrderBook, type BookDelta } from "../core/order-book.js";
 import { EventRecorder } from "../recorder.js";
 import { bufferedTakerLimitPrice, ExecutionPlanner, type AssetRules, type ExecutionPlan } from "../execution/planner.js";
-import { OrderStateReconciler, type FillDelta, type PrivateOrderEvent } from "../execution/order-state.js";
+import {
+  OrderStateReconciler, type FillDelta, type OrderCancelRequestReason, type PrivateOrderEvent, type TrackedOrder,
+} from "../execution/order-state.js";
 import { estimateSweep } from "../execution/book-walk.js";
 import { PortfolioRiskEngine } from "../risk/portfolio.js";
 import { RiskState } from "../risk/risk-state.js";
@@ -404,7 +406,7 @@ export class TradingEngine extends EventEmitter {
     });
     this.tradeStream.on("order", (event: PrivateOrderEvent) => this.onPrivateEvent(event));
     this.tradeStream.on("heartbeat", () => this.watchdog.markPrivate());
-    this.tradeStream.on("disconnect", () => { this.riskState.setHealth({ privateStream: false }); this.riskState.halt("PRIVATE_STREAM_DOWN"); void this.cancelAllSafely(); });
+    this.tradeStream.on("disconnect", () => { this.riskState.setHealth({ privateStream: false }); this.riskState.halt("PRIVATE_STREAM_DOWN"); void this.cancelAllSafely("PRIVATE_STREAM_DOWN"); });
     this.tradeStream.on("streamError", (error) => this.emit("engineError", error));
   }
 
@@ -419,7 +421,7 @@ export class TradingEngine extends EventEmitter {
     if (!result.accepted || !result.state) {
       this.riskState.setHealth({ bookValid: false });
       this.riskState.halt("BOOK_INVALID");
-      void this.cancelAllSafely();
+      void this.cancelAllSafely("BOOK_INVALID");
       return;
     }
     const baseFeatures = runtime.features.onBook(result.state, result.flow);
@@ -437,7 +439,7 @@ export class TradingEngine extends EventEmitter {
       this.riskState.setHealth({ bookValid: false });
       this.riskState.halt("BOOK_INVALID");
       this.emit("engineError", new Error(`Non-finite feature state for ${book.symbol}`));
-      void this.cancelAllSafely();
+      void this.cancelAllSafely("NON_FINITE_FEATURES");
       return;
     }
     runtime.latestFeatures = features;
@@ -451,7 +453,10 @@ export class TradingEngine extends EventEmitter {
         staleThresholdMs: features.staleThresholdMs,
       });
       const pending = this.pendingForSymbol(book.symbol);
-      if (pending) void this.cancelTracked(pending);
+      if (pending) void this.cancelTracked(pending, "STALE_BOOK", {
+        staleReason: features.staleReason, providerAgeMs: features.providerAgeMs,
+        staleThresholdMs: features.staleThresholdMs,
+      });
       // An idle symbol may go stale without disabling unrelated symbols. Existing exposure still fails closed globally.
       if (runtime.position || pending) {
         this.riskState.halt("BOOK_INVALID");
@@ -487,7 +492,7 @@ export class TradingEngine extends EventEmitter {
     }
     const pending = this.pendingForSymbol(book.symbol);
     if (pending) {
-      if (!features.kinematicsReady) void this.cancelTracked(pending);
+      if (!features.kinematicsReady) void this.cancelTracked(pending, "KINEMATICS_UNAVAILABLE");
       else this.reevaluatePending(runtime, pending, book, features);
       return;
     }
@@ -717,14 +722,25 @@ export class TradingEngine extends EventEmitter {
     const exactCostValid = cost !== null && sourceIntent?.side === pending.plan.side
       && runtime.entryEngine.revalidateExactCost(sourceIntent, cost) !== null;
     const adverse = pending.plan.side * features.tfi < -.5 || pending.plan.side * features.ofi < -2;
-    if (this.now() >= pending.plan.expiresMs || !stillValid || !exactCostValid || adverse || features.stale) void this.cancelTracked(pending);
+    const nowMs = this.now();
+    const reason: OrderCancelRequestReason | null = nowMs >= pending.plan.expiresMs ? "TTL_EXPIRED"
+      : features.stale ? "STALE_BOOK"
+        : adverse ? "ADVERSE_FLOW"
+          : !stillValid ? "SIGNAL_INVALIDATED"
+            : !exactCostValid ? "COST_INVALIDATED" : null;
+    if (reason) void this.cancelTracked(pending, reason, {
+      nowMs, expiresMs: pending.plan.expiresMs, stillValid, exactCostValid, adverse,
+      stale: features.stale, tfi: features.tfi, ofi: features.ofi,
+      remainingQty: Math.max(pending.plan.qty - pending.filledQty, 0),
+      roundTripCostBps: cost?.roundTripBps ?? null,
+    });
   }
 
   private managePosition(runtime: SymbolRuntime, book: ReturnType<LocalOrderBook["snapshot"]>, features: DeterministicFeatures): void {
     const position = runtime.position!;
     const pending = this.pendingForSymbol(position.symbol);
     if (pending) {
-      if (pending.plan.side === 1) void this.cancelTracked(pending);
+      if (pending.plan.side === 1) void this.cancelTracked(pending, "POSITION_ALREADY_OPEN");
       return;
     }
     const regime = runtime.regimeEngine.classify(features);
@@ -850,13 +866,24 @@ export class TradingEngine extends EventEmitter {
   private pendingForSymbol(symbol: string): ReturnType<OrderStateReconciler["all"]>[number] | undefined {
     return this.orderState.all().find((order) => order.plan.symbol === symbol && ["RESERVED", "SENDING", "OPEN", "PARTIALLY_FILLED", "CANCEL_PENDING", "UNKNOWN"].includes(order.status));
   }
-  private async cancelTracked(tracked: ReturnType<OrderStateReconciler["all"]>[number]): Promise<void> {
+  private async cancelTracked(tracked: TrackedOrder, reason: OrderCancelRequestReason, details: Record<string, unknown> = {}): Promise<void> {
     if (!tracked.alpacaOrderId) return;
     if (tracked.status === "CANCEL_PENDING") {
       await this.reconcilePendingCancellation(tracked);
       return;
     }
-    this.orderState.requestCancel(tracked.plan.clientOrderId, this.now());
+    const requestedAtMs = this.now();
+    this.orderState.requestCancel(tracked.plan.clientOrderId, reason, requestedAtMs);
+    this.emit("orderCancelRequested", {
+      symbol: tracked.plan.symbol,
+      clientOrderId: tracked.plan.clientOrderId,
+      alpacaOrderId: tracked.alpacaOrderId,
+      reason,
+      requestedAtMs,
+      filledQty: tracked.filledQty,
+      requestedQty: tracked.plan.qty,
+      details,
+    });
     try {
       await this.gateway.cancel(tracked.alpacaOrderId);
       await this.reconcilePendingCancellation(tracked, true);
@@ -917,13 +944,32 @@ export class TradingEngine extends EventEmitter {
       this.cancelReconcileInFlight.delete(clientOrderId);
     }
   }
-  private async cancelAllSafely(): Promise<void> { if (this.cfg.mode === "paper" || this.cfg.mode === "live") try { await this.gateway.cancelAll(); } catch (error) { this.emit("engineError", error); } }
+  private async cancelAllSafely(reason: OrderCancelRequestReason): Promise<void> {
+    if (this.cfg.mode !== "paper" && this.cfg.mode !== "live") return;
+    const requestedAtMs = this.now();
+    for (const tracked of this.orderState.all()) {
+      if (!["RESERVED", "SENDING", "OPEN", "PARTIALLY_FILLED", "CANCEL_PENDING", "UNKNOWN"].includes(tracked.status)) continue;
+      const firstRequest = tracked.cancelRequestReason === undefined;
+      this.orderState.requestCancel(tracked.plan.clientOrderId, reason, requestedAtMs);
+      if (firstRequest) this.emit("orderCancelRequested", {
+        symbol: tracked.plan.symbol,
+        clientOrderId: tracked.plan.clientOrderId,
+        alpacaOrderId: tracked.alpacaOrderId ?? null,
+        reason,
+        requestedAtMs,
+        filledQty: tracked.filledQty,
+        requestedQty: tracked.plan.qty,
+        details: { scope: "all-open-orders" },
+      });
+    }
+    try { await this.gateway.cancelAll(); } catch (error) { this.emit("engineError", error); }
+  }
   private onPublicDisconnect(): void {
     this.recorder?.write({ kind: "DISCONNECT", receiveTsMs: this.now(), stream: "public" });
     this.riskState.setHealth({ publicStream: false, bookValid: false });
     this.riskState.halt("PUBLIC_STREAM_DOWN");
     for (const runtime of this.runtimes.values()) runtime.book.invalidate();
-    void this.cancelAllSafely();
+    void this.cancelAllSafely("PUBLIC_STREAM_DOWN");
   }
 
   private onWatchdogFault(fault: WatchdogFault): void {
@@ -936,10 +982,10 @@ export class TradingEngine extends EventEmitter {
     else if (fault === "PRIVATE_SILENCE" && this.cfg.mode !== "record") {
       this.riskState.setHealth({ privateStream: false });
       this.riskState.halt("PRIVATE_STREAM_DOWN");
-      void this.cancelAllSafely();
+      void this.cancelAllSafely("PRIVATE_STREAM_DOWN");
     } else if (fault === "PROCESS_STALL") {
       this.riskState.halt("PROCESS_STALL");
-      void this.cancelAllSafely();
+      void this.cancelAllSafely("PROCESS_STALL");
     }
     this.emit("watchdogFault", fault);
   }

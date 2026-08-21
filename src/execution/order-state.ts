@@ -1,7 +1,35 @@
 import type { ExecutionPlan } from "./planner.js";
 
 export type LocalOrderStatus = "RESERVED" | "SENDING" | "OPEN" | "PARTIALLY_FILLED" | "FILLED" | "CANCEL_PENDING" | "CANCELED" | "REJECTED" | "EXPIRED" | "UNKNOWN";
-export interface TrackedOrder { plan: ExecutionPlan; alpacaOrderId?: string; status: LocalOrderStatus; filledQty: number; averageFillPx: number; lastUpdateMs: number; error?: string; }
+export type OrderCancelRequestReason =
+  | "TTL_EXPIRED"
+  | "SIGNAL_INVALIDATED"
+  | "COST_INVALIDATED"
+  | "ADVERSE_FLOW"
+  | "STALE_BOOK"
+  | "KINEMATICS_UNAVAILABLE"
+  | "POSITION_ALREADY_OPEN"
+  | "BOOK_INVALID"
+  | "NON_FINITE_FEATURES"
+  | "PUBLIC_STREAM_DOWN"
+  | "PRIVATE_STREAM_DOWN"
+  | "PROCESS_STALL";
+export type OrderCancellationReason = OrderCancelRequestReason
+  | "IOC_NO_FILL"
+  | "PARTIAL_REMAINDER_CANCELED"
+  | "VENUE_CANCELED"
+  | "RECONCILIATION_ABSENT";
+export interface TrackedOrder {
+  plan: ExecutionPlan;
+  alpacaOrderId?: string;
+  status: LocalOrderStatus;
+  filledQty: number;
+  averageFillPx: number;
+  lastUpdateMs: number;
+  error?: string;
+  cancelRequestReason?: OrderCancelRequestReason;
+  cancellationReason?: OrderCancellationReason;
+}
 export interface RemoteOrderSnapshot {
   id: string;
   clientOrderId: string;
@@ -30,8 +58,9 @@ export class OrderStateReconciler {
     order.lastUpdateMs = Math.max(order.lastUpdateMs, nowMs);
   }
   public markSendUnknown(clientOrderId: string, error: unknown): void { const order = this.must(clientOrderId); order.status = "UNKNOWN"; order.error = error instanceof Error ? error.message : String(error); order.lastUpdateMs = Date.now(); }
-  public requestCancel(clientOrderId: string, nowMs = Date.now()): void {
+  public requestCancel(clientOrderId: string, reason: OrderCancelRequestReason, nowMs = Date.now()): void {
     const order = this.must(clientOrderId);
+    order.cancelRequestReason ??= reason;
     if (["OPEN", "PARTIALLY_FILLED"].includes(order.status)) {
       order.status = "CANCEL_PENDING";
       order.lastUpdateMs = Math.max(order.lastUpdateMs, nowMs);
@@ -49,6 +78,7 @@ export class OrderStateReconciler {
     order.filledQty = Math.max(order.filledQty, event.filledQty);
     if (event.eventPx > 0 && order.filledQty > 0) order.averageFillPx = event.eventPx;
     order.status = this.mapStatus(event.event, order.filledQty, order.plan.qty);
+    if (order.status === "CANCELED") order.cancellationReason = this.classifyCancellation(order, "VENUE_CANCELED");
     const deltaQty = event.eventQty > 0 ? event.eventQty : Math.max(0, order.filledQty - previousFilled);
     if (deltaQty <= 0 || !["partial_fill", "fill"].includes(event.event)) return null;
     return { symbol: event.symbol, side: order.plan.side, qty: deltaQty, price: event.eventPx, clientOrderId: event.clientOrderId,
@@ -61,6 +91,7 @@ export class OrderStateReconciler {
     tracked.filledQty = Math.max(tracked.filledQty, remote.filledQty);
     if (remote.averageFillPx !== undefined && remote.averageFillPx > 0) tracked.averageFillPx = remote.averageFillPx;
     tracked.status = this.mapStatus(remote.status, tracked.filledQty, tracked.plan.qty);
+    if (tracked.status === "CANCELED") tracked.cancellationReason = this.classifyCancellation(tracked, "VENUE_CANCELED");
     if (remote.updatedMs !== undefined && Number.isFinite(remote.updatedMs)) {
       tracked.lastUpdateMs = Math.max(tracked.lastUpdateMs, remote.updatedMs);
     }
@@ -73,6 +104,7 @@ export class OrderStateReconciler {
       if (remote) this.reconcileOrder(remote);
       else if (["UNKNOWN", "SENDING", "OPEN", "PARTIALLY_FILLED", "CANCEL_PENDING"].includes(tracked.status)) {
         tracked.status = tracked.filledQty >= tracked.plan.qty ? "FILLED" : "CANCELED";
+        if (tracked.status === "CANCELED") tracked.cancellationReason = this.classifyCancellation(tracked, "RECONCILIATION_ABSENT");
       }
     }
   }
@@ -82,6 +114,12 @@ export class OrderStateReconciler {
   public get(clientOrderId: string): TrackedOrder | undefined { return this.orders.get(clientOrderId); }
   public all(): readonly TrackedOrder[] { return [...this.orders.values()]; }
   private must(clientOrderId: string): TrackedOrder { const order = this.orders.get(clientOrderId); if (!order) throw new Error(`Unknown client order ${clientOrderId}`); return order; }
+  private classifyCancellation(order: TrackedOrder, fallback: OrderCancellationReason): OrderCancellationReason {
+    if (order.filledQty > 0 && order.filledQty < order.plan.qty) return "PARTIAL_REMAINDER_CANCELED";
+    if (order.cancelRequestReason) return order.cancelRequestReason;
+    if (order.plan.timeInForce === "ioc") return "IOC_NO_FILL";
+    return fallback;
+  }
   private mapStatus(event: string, filled: number, requested: number): LocalOrderStatus {
     if (["fill", "filled"].includes(event) || filled >= requested) return "FILLED";
     if (event === "canceled") return "CANCELED";

@@ -49,11 +49,38 @@ test("a cancellation after a partial fill is terminal and releases the symbol", 
   state.markAccepted("client-1", "order-1", 10);
   state.apply({ id: "partial", event: "partial_fill", orderId: "order-1", clientOrderId: "client-1", symbol: "BTC/USD",
     filledQty: .4, eventQty: .4, eventPx: 100, timestampMs: 11 });
-  state.requestCancel("client-1", 12);
+  state.requestCancel("client-1", "TTL_EXPIRED", 12);
   state.apply({ id: "canceled", event: "canceled", orderId: "order-1", clientOrderId: "client-1", symbol: "BTC/USD",
     filledQty: .4, eventQty: 0, eventPx: 0, timestampMs: 13 });
   assert.equal(state.get("client-1")?.status, "CANCELED");
+  assert.equal(state.get("client-1")?.cancelRequestReason, "TTL_EXPIRED");
+  assert.equal(state.get("client-1")?.cancellationReason, "PARTIAL_REMAINDER_CANCELED");
   assert.equal(state.hasPendingEntry("BTC/USD"), false);
+});
+
+test("an unfilled IOC receives a distinct terminal cancellation reason", () => {
+  const state = new OrderStateReconciler();
+  state.reserve(plan());
+  state.markSending("client-1");
+  state.markAccepted("client-1", "order-1", 10);
+  state.apply({ id: "canceled", event: "canceled", orderId: "order-1", clientOrderId: "client-1", symbol: "BTC/USD",
+    filledQty: 0, eventQty: 0, eventPx: 0, timestampMs: 11 });
+  assert.equal(state.get("client-1")?.status, "CANCELED");
+  assert.equal(state.get("client-1")?.cancelRequestReason, undefined);
+  assert.equal(state.get("client-1")?.cancellationReason, "IOC_NO_FILL");
+});
+
+test("an engine cancellation retains its strategy reason", () => {
+  const state = new OrderStateReconciler();
+  const maker = { ...plan(), style: "maker" as const, timeInForce: "gtc" as const };
+  state.reserve(maker);
+  state.markSending("client-1");
+  state.markAccepted("client-1", "order-1", 10);
+  state.requestCancel("client-1", "SIGNAL_INVALIDATED", 12);
+  state.apply({ id: "canceled", event: "canceled", orderId: "order-1", clientOrderId: "client-1", symbol: "BTC/USD",
+    filledQty: 0, eventQty: 0, eventPx: 0, timestampMs: 13 });
+  assert.equal(state.get("client-1")?.cancelRequestReason, "SIGNAL_INVALIDATED");
+  assert.equal(state.get("client-1")?.cancellationReason, "SIGNAL_INVALIDATED");
 });
 
 test("authoritative REST cancellation clears a stuck partially filled order", () => {
@@ -63,10 +90,12 @@ test("authoritative REST cancellation clears a stuck partially filled order", ()
   state.markAccepted("client-1", "order-1", 10);
   state.apply({ id: "partial", event: "partial_fill", orderId: "order-1", clientOrderId: "client-1", symbol: "BTC/USD",
     filledQty: .4, eventQty: .4, eventPx: 100, timestampMs: 11 });
-  state.requestCancel("client-1", 12);
+  state.requestCancel("client-1", "COST_INVALIDATED", 12);
   state.reconcileOrder({ id: "order-1", clientOrderId: "client-1", filledQty: .4, averageFillPx: 100,
     status: "canceled", updatedMs: 13 });
   assert.equal(state.get("client-1")?.status, "CANCELED");
+  assert.equal(state.get("client-1")?.cancelRequestReason, "COST_INVALIDATED");
+  assert.equal(state.get("client-1")?.cancellationReason, "PARTIAL_REMAINDER_CANCELED");
   assert.equal(state.get("client-1")?.lastUpdateMs, 13);
   assert.equal(state.hasPendingEntry("BTC/USD"), false);
 });
@@ -80,6 +109,7 @@ test("open-order reconciliation releases an absent partial fill", () => {
     filledQty: .4, eventQty: .4, eventPx: 100, timestampMs: 11 });
   state.reconcile([]);
   assert.equal(state.get("client-1")?.status, "CANCELED");
+  assert.equal(state.get("client-1")?.cancellationReason, "PARTIAL_REMAINDER_CANCELED");
   assert.equal(state.hasPendingEntry("BTC/USD"), false);
 });
 
