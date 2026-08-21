@@ -55,6 +55,7 @@ export interface EngineOperationalSnapshot {
   uptimeMs: number;
   mode: EngineConfig["mode"];
   paper: boolean;
+  paperEntryExercise: boolean;
   strategyVersion: string;
   modelVersion: string;
   configurationVersion?: string;
@@ -312,6 +313,7 @@ export class TradingEngine extends EventEmitter {
       uptimeMs: this.startedAtMs === null ? 0 : Math.max(0, generatedAtMs - this.startedAtMs),
       mode: this.cfg.mode,
       paper: this.cfg.paper,
+      paperEntryExercise: this.cfg.paperEntryExercise,
       strategyVersion: this.cfg.strategyVersion,
       modelVersion: this.cfg.modelVersion,
       configurationVersion: this.cfg.configurationVersion,
@@ -333,11 +335,9 @@ export class TradingEngine extends EventEmitter {
     return {
       evaluate: (features, intent) => {
         const forecast = forecastEngine.evaluate(features, Math.max(1, this.latency.p95Total(this.now()) || 250));
-        const modelLowerBoundBps = forecast.grossAtArrivalBps - forecast.residualQ95Bps
-          - cfg.signal.costSafetyFactor * intent.diagnostics.roundTripCostBps;
+        const modelLowerBoundBps = forecast.grossAtArrivalBps - forecast.residualQ95Bps;
         const accept = !forecast.expired && forecast.side === intent.side
-          && forecast.probability >= cfg.signal.minimumDirectionProbability
-          && modelLowerBoundBps >= cfg.signal.minimumNetEdgeBps;
+          && forecast.probability >= cfg.signal.minimumDirectionProbability;
         return {
           accept, rankingScore: modelLowerBoundBps,
           sizeMultiplier: Math.max(0, Math.min(1, modelLowerBoundBps / Math.max(cfg.signal.fullQualityEdgeBps, 1e-9))),
@@ -467,6 +467,8 @@ export class TradingEngine extends EventEmitter {
     const smallQty = runtime.asset?.minOrderSize ?? 0;
     const longCost = runtime.asset ? runtime.planner.preliminaryCost(features, book, 1, smallQty) : null;
     const shortCost = runtime.asset ? runtime.planner.preliminaryCost(features, book, -1, smallQty) : null;
+    const longEconomicCosts = runtime.asset ? runtime.planner.economicCosts(features, book, 1, smallQty) : [];
+    const shortEconomicCosts = runtime.asset ? runtime.planner.economicCosts(features, book, -1, smallQty) : [];
     const longLiquidity = longCost ? runtime.liquidity.evaluate(liquidityInput(features, longCost.impactBps)) : null;
     const shortLiquidity = shortCost ? runtime.liquidity.evaluate(liquidityInput(features, shortCost.impactBps)) : null;
     runtime.liquidity.observe(features.spreadBps);
@@ -500,7 +502,7 @@ export class TradingEngine extends EventEmitter {
     const deterministicIntent = runtime.entryEngine.evaluate({
       symbol: book.symbol, sequence: book.sequence, nowMs: features.receiveTsMs, features, regime,
       system: this.systemGates(runtime), bestBid: book.bids[0]!.px, bestAsk: book.asks[0]!.px,
-      longCost, shortCost, longLiquidity, shortLiquidity,
+      longCost, shortCost, longEconomicCosts, shortEconomicCosts, longLiquidity, shortLiquidity,
     });
     const evaluation = runtime.entryEngine.latestEvaluation();
     if (evaluation) runtime.latestRuleEvaluation = evaluation;
@@ -531,6 +533,8 @@ export class TradingEngine extends EventEmitter {
     }, false, {
       createdMs: features.receiveTsMs, decisionId: routed.intent.decisionId,
       quantityMultiplier: routed.sizeMultiplier,
+      ...(routed.intent.executionPath === undefined ? {} : { executionPath: routed.intent.executionPath }),
+      ...(routed.intent.selectedHorizonMs === undefined ? {} : { economicHorizonMs: routed.intent.selectedHorizonMs }),
       revalidateCost: (exactCost) => {
         const exact = runtime.entryEngine.revalidateExactCost(routed.intent, exactCost);
         return exact ? plannerIntent(exact, 1) : null;
@@ -545,6 +549,7 @@ export class TradingEngine extends EventEmitter {
     runtime.entryAudit.pass("SIZE_PASS");
     runtime.entryAudit.pass("EXECUTION_PLAN_PASS");
     runtime.entryAudit.pass("FINAL_COST_PASS");
+    runtime.entryAudit.pass("FINAL_COST_QUALITY_PASS");
     const candidate = { symbol: plan.symbol, notional: plan.qty * features.mid * plan.side, cluster: runtime.cluster, stressedLoss: plan.risk.modeledMaximumLoss };
     if (!this.portfolio.canAdd(candidate, this.equity, Math.max(0, -this.realizedSessionPnl))) {
       this.rejectEntry(runtime, "PORTFOLIO_PASS", "PORTFOLIO_CAPACITY_BLOCK", features.receiveTsMs);
@@ -595,6 +600,7 @@ export class TradingEngine extends EventEmitter {
     const candidate = evaluation.candidate;
     const diagnostics = candidate.diagnostics;
     runtime.entryAudit.pass("DIRECTIONAL_CANDIDATE");
+    runtime.entryAudit.pass("CONTINUATION_FEATURES_READY");
     if (!diagnostics.healthPass) { this.rejectEntry(runtime, "HEALTH_PASS", "HEALTH_GATE", atMs); return; }
     runtime.entryAudit.pass("HEALTH_PASS");
     if (!diagnostics.liquidityPass) {
@@ -614,15 +620,21 @@ export class TradingEngine extends EventEmitter {
     runtime.entryAudit.pass("COOLDOWN_PASS");
     if (!diagnostics.edgeResolvedPass) { this.rejectEntry(runtime, "EDGE_RESOLVED", "EDGE_NOT_RESOLVED", atMs); return; }
     runtime.entryAudit.pass("EDGE_RESOLVED");
+    runtime.entryAudit.pass("COST_PATHS_RESOLVED");
     if (!diagnostics.costPass) {
       this.rejectEntry(runtime, "PRELIMINARY_COST_PASS", "COST_GATE", atMs, {
         edgeSource: diagnostics.edgeSource, edgeHorizonMs: diagnostics.edgeHorizonMs, edgeQuality: diagnostics.edgeQuality,
         grossOpportunityBps: diagnostics.grossOpportunityBps, uncertaintyReserveBps: diagnostics.uncertaintyReserveBps,
-        roundTripCostBps: diagnostics.roundTripCostBps, lowerBoundNetBps: diagnostics.lowerBoundNetBps,
+        roundTripCostBps: diagnostics.roundTripCostBps, robustCostBps: diagnostics.robustCostBps,
+        lowerBoundNetBps: diagnostics.lowerBoundNetBps, costShortfallBps: diagnostics.costShortfallBps,
+        continuationQuality: diagnostics.continuationQuality,
+        requiredContinuationQuality: diagnostics.requiredContinuationQuality,
+        executionPath: diagnostics.executionPath ?? "UNRESOLVED",
       });
       return;
     }
     runtime.entryAudit.pass("PRELIMINARY_COST_PASS");
+    runtime.entryAudit.pass("COST_QUALITY_PASS");
     if (!diagnostics.antiChasePass) { this.rejectEntry(runtime, "ANTI_CHASE_PASS", "ANTI_CHASE_GATE", atMs); return; }
     runtime.entryAudit.pass("ANTI_CHASE_PASS");
   }
@@ -718,7 +730,9 @@ export class TradingEngine extends EventEmitter {
     // Fees, current spread, and exit impact are unavoidable exit costs, not
     // incremental costs of holding for one more decision interval.
     const expectedIncrementalDelayCostBps = exitCost ? incrementalHoldCostBps(exitCost) : Number.POSITIVE_INFINITY;
-    const hold = runtime.holdEngine.evaluate(position.side, features, expectedIncrementalDelayCostBps);
+    const remainingEconomicHorizonMs = position.selectedHorizonMs === undefined ? runtime.config.deterministicHold.holdHorizonMs
+      : Math.max(1, position.selectedHorizonMs - (this.now() - position.openedMs));
+    const hold = runtime.holdEngine.evaluate(position.side, features, expectedIncrementalDelayCostBps, remainingEconomicHorizonMs);
     const executableExit = book.bids[0]!.px;
     const nowMs = this.now();
     const decision = runtime.positionManager.update(position, executableExit, nowMs, features, hold.holdLowerBoundBps, hold.reversalScore, Math.max(0, -hold.holdLowerBoundBps));
@@ -763,7 +777,9 @@ export class TradingEngine extends EventEmitter {
         const initialRiskPx = tracked?.plan.risk.maximumLossPerUnit || Math.max(fill.price * .005, runtime.asset?.priceIncrement ?? 0);
         runtime.position = { symbol: fill.symbol, side: 1, qty: positionQty, entryPx: fill.price, openedMs: fill.final ? this.now() : (tracked?.plan.createdMs ?? this.now()),
           initialRiskPx, roundTripCostPx: fill.price * (tracked?.plan.expectedCost.roundTripBps ?? 0) / 10_000,
-          mfePx: 0, maePx: 0, floorPx: -initialRiskPx, breakEvenArmed: false, phase: "OPEN" };
+          mfePx: 0, maePx: 0, floorPx: -initialRiskPx, breakEvenArmed: false, phase: "OPEN",
+          ...(tracked?.plan.economicHorizonMs === undefined ? {} : { selectedHorizonMs: tracked.plan.economicHorizonMs }),
+          ...(tracked?.plan.executionPath === undefined ? {} : { executionPath: tracked.plan.executionPath }) };
       } else if (tracked && runtime.position.symbol === tracked.plan.symbol) {
         const previous = runtime.position.qty;
         const total = fill.positionQty !== undefined && fill.positionQty >= previous ? fill.positionQty : previous + fill.qty;
@@ -888,6 +904,7 @@ function assetRulesVersion(asset: AssetRules): string {
 function cloneEvaluation(value: DeterministicEvaluation): DeterministicEvaluation {
   const cloneDiagnostics = (diagnostics: DeterministicEvaluation["long"]): DeterministicEvaluation["long"] => ({
     ...diagnostics, reasons: [...diagnostics.reasons], liquidityReasons: [...diagnostics.liquidityReasons],
+    ...(diagnostics.costBreakdown === undefined ? {} : { costBreakdown: { ...diagnostics.costBreakdown } }),
     votes: { ...diagnostics.votes, vector: { ...diagnostics.votes.vector } },
   });
   return {

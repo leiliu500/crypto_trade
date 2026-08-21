@@ -170,7 +170,8 @@ test("exact quantity cost is inclusive at the threshold and rejects one incremen
   const engine = new DeterministicEntryEngine(cfg);
   const intent = persistentIntent(engine)!;
   assert.ok(intent);
-  const thresholdCost = (intent.grossOpportunityBps - intent.uncertaintyReserveBps - cfg.minimumNetEdgeBps) / cfg.costSafetyFactor;
+  // grossOpportunityBps is already conservative of signal uncertainty, so exact revalidation charges only robust execution cost.
+  const thresholdCost = (intent.grossOpportunityBps - cfg.minimumNetEdgeBps) / cfg.costSafetyFactor;
   assert.ok(engine.revalidateExactCost(intent, cost(thresholdCost)));
   assert.equal(engine.revalidateExactCost(intent, cost(thresholdCost + 1e-9)), null);
 });

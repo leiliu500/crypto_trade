@@ -230,7 +230,7 @@ export class OperationsMonitor extends EventEmitter {
     const overall = state.risk.reasons.length > 0 || (!health.publicStream && state.started) ? "critical"
       : !coreHealthy || (this.databaseHealth.status !== "disabled" && !this.databaseHealth.connected) ? "degraded" : "healthy";
     return {
-      version: 1, generatedAtMs: nowMs, mode: state.mode, paper: state.paper,
+      version: 1, generatedAtMs: nowMs, mode: state.mode, paper: state.paper, paperEntryExercise: state.paperEntryExercise,
       strategyVersion: state.strategyVersion, modelVersion: state.modelVersion,
       configurationVersion: state.configurationVersion ?? "-", signalMode: state.signalMode ?? "DETERMINISTIC_ONLY",
       started: state.started, uptimeMs: state.uptimeMs, overall, entriesAllowed,
@@ -292,7 +292,11 @@ function projectRule(rule: NonNullable<EngineMarketSnapshot["ruleEvaluation"]>["
     deltaMicroBps: rule.deltaMicroBps, sensorThresholdBps: rule.sensorThresholdBps,
     microNoiseBps: rule.microNoiseBps, chaseBps: rule.chaseBps,
     grossOpportunityBps: rule.grossOpportunityBps, uncertaintyReserveBps: rule.uncertaintyReserveBps,
-    roundTripCostBps: rule.roundTripCostBps, lowerBoundNetBps: rule.lowerBoundNetBps,
+    roundTripCostBps: rule.roundTripCostBps, robustCostBps: rule.robustCostBps,
+    lowerBoundNetBps: rule.lowerBoundNetBps, costShortfallBps: rule.costShortfallBps,
+    continuationQuality: rule.continuationQuality, requiredContinuationQuality: rule.requiredContinuationQuality,
+    economicSizeScale: rule.economicSizeScale, edgeHorizonMs: rule.edgeHorizonMs,
+    executionPath: rule.executionPath ?? null,
     scorePass: rule.scorePass, rawDirectionalPass: rule.rawDirectionalPass, candidatePass: rule.candidatePass,
     healthPass: rule.healthPass, liquidityPass: rule.liquidityPass, regimePass: rule.regimePass,
     persistencePass: rule.persistencePass, antiChasePass: rule.antiChasePass, exposurePass: rule.exposurePass,

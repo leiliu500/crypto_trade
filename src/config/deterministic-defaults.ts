@@ -14,7 +14,7 @@ export const DEFAULT_DETERMINISTIC_REGIME_CONFIG: DeterministicRegimeConfig = {
   hysteresisResetRatio: .75,
 };
 export const DEFAULT_DETERMINISTIC_SIGNAL_CONFIG: DeterministicSignalConfig = {
-  mode: "DETERMINISTIC_ONLY", configurationVersion: "deterministic-micro-v1.3",
+  mode: "DETERMINISTIC_ONLY", configurationVersion: "deterministic-micro-v1.4",
   maximumSpreadBps: 30, maximumSpreadZ: 3, minimumDepthZ: -2.5, maximumImpactBps: 1.5,
   microEdgeBps: .2, qi1: .15, qiK: .1, ofi: .3, tfi: .15, replenishment: .1, velocityZ: .25,
   maximumOpposingAccelerationZ: .3, impulseBps: .4, breakoutBps: .5, cusum: 2.5, efficiency: .45, maximumFlipRate: .45,
@@ -26,6 +26,25 @@ export const DEFAULT_DETERMINISTIC_SIGNAL_CONFIG: DeterministicSignalConfig = {
   maximumImpulseZ: 2.5, maximumChaseBps: 1.5, maximumAnchorZ: 3,
   costSafetyFactor: 1.75, minimumNetEdgeBps: .5, fullQualityEdgeBps: 3,
   edgeSourceMode: "CALIBRATED_OR_ANALYTIC",
+  economicEdgeMode: "ANALYTIC_PAPER",
+  minimumEconomicSizeScale: .20,
+  minimumMakerFillProbability: .40,
+  minimumEffectiveSampleCount: 100,
+  positiveCostErrorP95Bps: 2,
+  maximumReasonableCostBps: 1_000,
+  maximumReasonableGrossBps: 2_000,
+  calibratedEdges: [],
+  continuationQuality: {
+    efficiencyWeight: .25, flowPersistenceWeight: .20, velocityWeight: .20,
+    breakoutHoldWeight: .15, regimeStabilityWeight: .10, volatilitySuitabilityWeight: .10,
+    velocityScale: .50, breakoutScaleBps: 5, volatilityTargetBps: 20, volatilityToleranceBps: 20,
+  },
+  analyticHorizons: [
+    { horizonMs: 5 * 60_000, sigmaCaptureFraction: .45, breakoutWeight: .15, maximumGrossBps: 150, baseUncertaintyBps: 2, sigmaUncertaintyFraction: .25 },
+    { horizonMs: 15 * 60_000, sigmaCaptureFraction: .50, breakoutWeight: .20, maximumGrossBps: 225, baseUncertaintyBps: 2, sigmaUncertaintyFraction: .22 },
+    { horizonMs: 30 * 60_000, sigmaCaptureFraction: .55, breakoutWeight: .25, maximumGrossBps: 300, baseUncertaintyBps: 2, sigmaUncertaintyFraction: .20 },
+    { horizonMs: 60 * 60_000, sigmaCaptureFraction: .50, breakoutWeight: .20, maximumGrossBps: 400, baseUncertaintyBps: 3, sigmaUncertaintyFraction: .22 },
+  ],
   analyticEdge: {
     economicHorizonMs: 30 * 60_000,
     qiKScale: .20, ofiScale: .50, tfiScale: .25, velocityScale: .50,

@@ -11,6 +11,8 @@ import type { ForecastConfig, LinearHead } from "./strategy/forecast.js";
 import type { SignalConfig } from "./strategy/signal.js";
 import type { DeterministicSignalConfig, SignalMode } from "./strategy/deterministic-entry.js";
 import type { EdgeSourceMode } from "./strategy/deterministic-edge-resolver.js";
+import type { AnalyticHorizonConfig, EconomicEdgeMode } from "./economics/types.js";
+import type { CalibratedEdgeBucket } from "./calibration/calibrated-edge-table.js";
 import type { ExtensionConfig } from "./strategy/deterministic-features.js";
 import type { DeterministicRegimeConfig } from "./strategy/deterministic-regime.js";
 import type { DeterministicHoldConfig } from "./strategy/deterministic-hold.js";
@@ -48,6 +50,7 @@ export interface EngineConfig extends Omit<SymbolConfig, "symbol"> {
   mode: TradingMode;
   credentials: { keyId: string; secretKey: string };
   paper: boolean;
+  paperEntryExercise: boolean;
   symbols: string[];
   symbolConfigs: Readonly<Record<string, SymbolConfig>>;
   cryptoLocation: string;
@@ -85,7 +88,7 @@ interface SymbolParameterFile { schemaVersion: number; symbol: string; parameter
 
 const RUNTIME_ONLY_KEYS = new Set([
   "ALPACA_API_KEY", "ALPACA_API_SECRET", "APCA_API_KEY_ID", "APCA_API_SECRET_KEY", "ALPACA_PAPER",
-  "TRADING_MODE", "ALLOW_LIVE_TRADING", "LIVE_TRADING_CONFIRMATION", "DATABASE_URL",
+  "TRADING_MODE", "ALLOW_LIVE_TRADING", "LIVE_TRADING_CONFIRMATION", "PAPER_ENTRY_EXERCISE", "DATABASE_URL",
   "POSTGRES_DB", "POSTGRES_USER", "POSTGRES_PASSWORD", "POSTGRES_HOST", "POSTGRES_PORT", "CONFIG_DIR",
 ]);
 const GLOBAL_PARAMETER_KEYS = new Set([
@@ -103,7 +106,11 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env, modeOverride?: 
   const keyId = env.ALPACA_API_KEY ?? env.APCA_API_KEY_ID ?? "";
   const secretKey = env.ALPACA_API_SECRET ?? env.APCA_API_SECRET_KEY ?? "";
   const paper = parseBoolean(env.ALPACA_PAPER, true);
+  const paperEntryExercise = parseBoolean(env.PAPER_ENTRY_EXERCISE, false);
   if (mode === "paper" && !paper) throw new Error("Paper mode requires ALPACA_PAPER=true; refusing to route paper-mode orders to the live endpoint");
+  if (paperEntryExercise && (mode !== "paper" || !paper)) {
+    throw new Error("PAPER_ENTRY_EXERCISE is restricted to the Alpaca paper endpoint");
+  }
   if (["record", "shadow", "paper", "live"].includes(mode) && (!keyId || !secretKey)) {
     throw new Error("Alpaca credentials are required via ALPACA_API_KEY/ALPACA_API_SECRET or APCA_API_KEY_ID/APCA_API_SECRET_KEY");
   }
@@ -123,7 +130,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env, modeOverride?: 
   const { symbol: _baselineSymbol, ...baselineConfig } = baseline;
   return {
     ...baselineConfig,
-    mode, credentials: { keyId, secretKey }, paper, symbols: [...files.base.symbols], symbolConfigs,
+    mode, credentials: { keyId, secretKey }, paper, paperEntryExercise, symbols: [...files.base.symbols], symbolConfigs,
     cryptoLocation: configuredEnv.ALPACA_CRYPTO_LOCATION ?? "us", recordFile: configuredEnv.RECORD_FILE ?? "data/events.jsonl", replayFile: configuredEnv.REPLAY_FILE ?? "data/events.jsonl",
     continuousRecordingEnabled: parseBoolean(configuredEnv.CONTINUOUS_RECORDING_ENABLED, false),
     continuousRecordFile: configuredEnv.CONTINUOUS_RECORD_FILE ?? "data/continuous-events.jsonl.gz",
@@ -224,6 +231,7 @@ function assertOnlyKeys(value: Record<string, unknown>, allowed: readonly string
 function isObject(value: unknown): value is Record<string, unknown> { return typeof value === "object" && value !== null && !Array.isArray(value); }
 
 function loadSymbolConfig(symbol: string, env: NodeJS.ProcessEnv, mode: TradingMode): SymbolConfig {
+  const paperEntryExercise = mode === "paper" && parseBoolean(env.PAPER_ENTRY_EXERCISE, false);
   const feature: FeatureConfig = {
     ...DEFAULT_FEATURE_CONFIG,
     forecastHorizonMs: numberEnv(env.FORECAST_HORIZON_MS, 5_000),
@@ -234,10 +242,34 @@ function loadSymbolConfig(symbol: string, env: NodeJS.ProcessEnv, mode: TradingM
   const signalMode = parseSignalMode(env.SIGNAL_MODE ?? env.ENTRY_MODE);
   if (signalMode !== "DETERMINISTIC_ONLY" && !env.MODEL_CONFIG_JSON) throw new Error(`${signalMode} requires MODEL_CONFIG_JSON; optional model modes fail closed without a model`);
   const model = signalMode === "DETERMINISTIC_ONLY" ? parseModel(undefined) : parseModel(env.MODEL_CONFIG_JSON);
-  const configurationVersion = env.DETERMINISTIC_CONFIG_VERSION ?? "deterministic-micro-v1.3";
+  const baseConfigurationVersion = env.DETERMINISTIC_CONFIG_VERSION ?? "deterministic-micro-v1.4";
+  const configurationVersion = paperEntryExercise ? `${baseConfigurationVersion}-paper-entry-exercise` : baseConfigurationVersion;
   const deterministicExtension = loadExtensionConfig(env);
   const deterministicRegime = loadDeterministicRegimeConfig(env);
-  const deterministicSignal = loadDeterministicSignalConfig(env, signalMode, configurationVersion);
+  const configuredDeterministicSignal = loadDeterministicSignalConfig(env, signalMode, configurationVersion, mode);
+  const deterministicSignal: DeterministicSignalConfig = paperEntryExercise ? {
+    ...configuredDeterministicSignal,
+    costSafetyFactor: 1,
+    minimumNetEdgeBps: 0,
+    minimumMakerFillProbability: 1,
+    positiveCostErrorP95Bps: 0,
+    analyticHorizons: configuredDeterministicSignal.analyticHorizons.map((horizon) => ({
+      ...horizon,
+      sigmaCaptureFraction: 1,
+      breakoutWeight: 1,
+      baseUncertaintyBps: 0,
+      sigmaUncertaintyFraction: 0,
+    })),
+    analyticEdge: {
+      ...configuredDeterministicSignal.analyticEdge,
+      sigmaCaptureFraction: 1,
+      breakoutWeight: 1,
+      baseUncertaintyBps: 0,
+      sigmaUncertaintyFraction: 0,
+      spreadUncertaintyWeight: 0,
+      flipUncertaintyWeight: 0,
+    },
+  } : configuredDeterministicSignal;
   const deterministicHold = loadDeterministicHoldConfig(env);
   const shadowTradeCapBps = numberEnv(env.DYNAMIC_SHADOW_TRADE_CAP_BPS, deterministicSignal.maximumSpreadBps);
   const absoluteTradeCapBps = ["shadow", "replay"].includes(mode)
@@ -261,19 +293,22 @@ function loadSymbolConfig(symbol: string, env: NodeJS.ProcessEnv, mode: TradingM
     fallbackResidualQ95Bps: numberEnv(env.RESIDUAL_Q95_BPS, 8),
   };
   const position = defaultPositionConfig(env);
-  validateStrategyHorizons(deterministicSignal.analyticEdge.economicHorizonMs, forecast.intendedHoldMs, position.maximumHoldMs);
+  validateStrategyHorizons(deterministicSignal.analyticHorizons.map((item) => item.horizonMs), position.maximumHoldMs);
   return {
     symbol,
-    maximumNotional: numberEnv(env.MAXIMUM_NOTIONAL, 1_000), initialStopSigma: numberEnv(env.INITIAL_STOP_SIGMA, 3),
+    maximumNotional: paperEntryExercise ? Math.min(25, numberEnv(env.MAXIMUM_NOTIONAL, 1_000)) : numberEnv(env.MAXIMUM_NOTIONAL, 1_000),
+    initialStopSigma: numberEnv(env.INITIAL_STOP_SIGMA, 3),
     minimumStopSpreadMultiple: numberEnv(env.MINIMUM_STOP_SPREAD_MULTIPLE, 3), jumpSigma: numberEnv(env.JUMP_SIGMA, 5),
     strategyVersion: env.STRATEGY_VERSION ?? "1.0.0", modelVersion: signalMode === "DETERMINISTIC_ONLY" ? "none" : model.version,
     configurationVersion, signalMode, feature, deterministicExtension, deterministicRegime, deterministicSignal, deterministicHold, dynamicLiquidity,
     forecast,
     probabilityHead: model.probabilityHead, returnHead: model.returnHead,
     signal: { costSafetyFactor: 1.75, minimumDirectionProbability: .62, minimumNetEdgeBps: 1, fullQualityEdgeBps: 20 },
-    cost: { makerFeeBps: numberEnv(env.MAKER_FEE_BPS, 15), takerFeeBps: numberEnv(env.TAKER_FEE_BPS, 25), expectedExitTaker: true, latencyAdverseFraction: .25, adverseSelectionBps: 1, fundingBps: 0, borrowBps: 0 },
+    cost: { makerFeeBps: paperEntryExercise ? 0 : numberEnv(env.MAKER_FEE_BPS, 15), takerFeeBps: paperEntryExercise ? 0 : numberEnv(env.TAKER_FEE_BPS, 25), expectedExitTaker: true,
+      latencyAdverseFraction: paperEntryExercise ? 0 : .25, adverseSelectionBps: paperEntryExercise ? 0 : 1, fundingBps: 0, borrowBps: 0,
+      positiveCostErrorP95Bps: deterministicSignal.positiveCostErrorP95Bps },
     sizing: { baseRiskFraction: .001, maximumDrawdown: .05, maximumBookParticipation: .01, fractionalKelly: .1, maximumKellyFraction: .05, targetSigmaHBps: 20, minimumQualityScale: .1 },
-    position, planner: defaultPlannerConfig(),
+    position, planner: defaultPlannerConfig(deterministicSignal.minimumMakerFillProbability, paperEntryExercise ? 5 : 0),
   };
 }
 
@@ -286,8 +321,8 @@ function defaultPositionConfig(env: NodeJS.ProcessEnv): PositionConfig {
     baseVolatilityMultiple: 2, trendVolatilityBonus: 1, reversalVolatilityPenalty: 1.25, minimumVolatilityMultiple: .5, maximumVolatilityMultiple: 4,
     partialExitThreshold: .7, maximumPartialExitFraction: .5, minimumPartialExitBenefitBps: 2 };
 }
-function defaultPlannerConfig(): PlannerConfig {
-  return { makerTtlMs: 1_500, alphaHalfLifeMs: 2_772, minimumFillProbability: .65, cancelAheadFraction: .5,
+function defaultPlannerConfig(minimumFillProbability: number, takerLimitBufferBps: number): PlannerConfig {
+  return { makerTtlMs: 1_500, alphaHalfLifeMs: 2_772, minimumFillProbability, takerLimitBufferBps, cancelAheadFraction: .5,
     fillHazardIntercept: -1, fillHazardAggressiveWeight: .1, fillHazardFlowWeight: 1, fillHazardImbalanceWeight: .5, fillHazardSpreadWeight: .05,
     makerOpportunityCostBps: 2, staleOrderCostBps: 1, maximumImpactBps: 10, maximumIterations: 5 };
 }
@@ -296,12 +331,10 @@ function parseMode(value: string): TradingMode {
   return value as TradingMode;
 }
 
-function validateStrategyHorizons(economicHorizonMs: number, intendedHoldMs: number, maximumHoldMs: number): void {
-  if (economicHorizonMs !== intendedHoldMs) {
-    throw new Error(`RULE_ECONOMIC_HORIZON_MS (${economicHorizonMs}) must equal INTENDED_HOLD_MS (${intendedHoldMs})`);
-  }
-  if (maximumHoldMs < intendedHoldMs) {
-    throw new Error(`POSITION_MAXIMUM_HOLD_MS (${maximumHoldMs}) must cover INTENDED_HOLD_MS (${intendedHoldMs})`);
+function validateStrategyHorizons(economicHorizonsMs: readonly number[], maximumHoldMs: number): void {
+  const maximumEconomicHorizonMs = Math.max(...economicHorizonsMs);
+  if (maximumHoldMs < maximumEconomicHorizonMs) {
+    throw new Error(`POSITION_MAXIMUM_HOLD_MS (${maximumHoldMs}) must cover the largest economic horizon (${maximumEconomicHorizonMs})`);
   }
 }
 function parseSignalMode(value: string | undefined): SignalMode {
@@ -361,7 +394,8 @@ function loadDeterministicRegimeConfig(env: NodeJS.ProcessEnv): DeterministicReg
     hysteresisResetRatio: numberEnv(env.RULE_REGIME_RESET_RATIO, DEFAULT_DETERMINISTIC_REGIME_CONFIG.hysteresisResetRatio),
   };
 }
-function loadDeterministicSignalConfig(env: NodeJS.ProcessEnv, mode: SignalMode, configurationVersion: string): DeterministicSignalConfig {
+function loadDeterministicSignalConfig(env: NodeJS.ProcessEnv, mode: SignalMode, configurationVersion: string,
+  tradingMode: TradingMode): DeterministicSignalConfig {
   return {
     ...DEFAULT_DETERMINISTIC_SIGNAL_CONFIG, mode, configurationVersion,
     maximumSpreadBps: numberEnv(env.RULE_MAX_SPREAD_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.maximumSpreadBps),
@@ -411,6 +445,22 @@ function loadDeterministicSignalConfig(env: NodeJS.ProcessEnv, mode: SignalMode,
     costSafetyFactor: numberEnv(env.COST_SAFETY_FACTOR, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.costSafetyFactor),
     minimumNetEdgeBps: numberEnv(env.RULE_MIN_NET_EDGE_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.minimumNetEdgeBps),
     fullQualityEdgeBps: numberEnv(env.RULE_FULL_QUALITY_EDGE_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.fullQualityEdgeBps),
+    economicEdgeMode: parseEconomicEdgeMode(env.RULE_ECONOMIC_EDGE_MODE, tradingMode),
+    minimumEconomicSizeScale: numberEnv(env.RULE_MIN_ECONOMIC_SIZE_SCALE, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.minimumEconomicSizeScale),
+    minimumMakerFillProbability: numberEnv(env.RULE_MIN_MAKER_FILL_PROBABILITY, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.minimumMakerFillProbability),
+    minimumEffectiveSampleCount: numberEnv(env.RULE_MIN_EFFECTIVE_SAMPLES, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.minimumEffectiveSampleCount),
+    positiveCostErrorP95Bps: numberEnv(env.COST_POSITIVE_ERROR_P95_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.positiveCostErrorP95Bps),
+    maximumReasonableCostBps: numberEnv(env.COST_MAXIMUM_REASONABLE_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.maximumReasonableCostBps),
+    maximumReasonableGrossBps: numberEnv(env.RULE_MAXIMUM_REASONABLE_GROSS_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.maximumReasonableGrossBps),
+    analyticHorizons: parseAnalyticHorizons(env.RULE_ANALYTIC_HORIZONS_JSON),
+    calibratedEdges: parseCalibratedEdges(env.RULE_CALIBRATED_EDGE_TABLE_JSON),
+    continuationQuality: {
+      ...DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.continuationQuality,
+      velocityScale: numberEnv(env.RULE_CONTINUATION_VELOCITY_SCALE, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.continuationQuality.velocityScale),
+      breakoutScaleBps: numberEnv(env.RULE_CONTINUATION_BREAKOUT_SCALE_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.continuationQuality.breakoutScaleBps),
+      volatilityTargetBps: numberEnv(env.RULE_CONTINUATION_VOLATILITY_TARGET_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.continuationQuality.volatilityTargetBps),
+      volatilityToleranceBps: numberEnv(env.RULE_CONTINUATION_VOLATILITY_TOLERANCE_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.continuationQuality.volatilityToleranceBps),
+    },
     edgeSourceMode: parseEdgeSourceMode(env.RULE_EDGE_SOURCE_MODE),
     analyticEdge: {
       economicHorizonMs: numberEnv(env.RULE_ECONOMIC_HORIZON_MS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.analyticEdge.economicHorizonMs),
@@ -483,6 +533,51 @@ function parseEdgeSourceMode(value: string | undefined): EdgeSourceMode {
     throw new Error(`Unknown RULE_EDGE_SOURCE_MODE: ${value}`);
   }
   return normalized as EdgeSourceMode;
+}
+function parseEconomicEdgeMode(value: string | undefined, tradingMode: TradingMode): EconomicEdgeMode {
+  const fallback: EconomicEdgeMode = tradingMode === "live" ? "CALIBRATED_LIVE"
+    : tradingMode === "paper" ? "ANALYTIC_PAPER" : "ANALYTIC_SHADOW";
+  const normalized = (value ?? fallback).toUpperCase();
+  if (!["ANALYTIC_SHADOW", "ANALYTIC_PAPER", "CALIBRATED_PAPER", "CALIBRATED_LIVE"].includes(normalized)) {
+    throw new Error(`Unknown RULE_ECONOMIC_EDGE_MODE: ${value}`);
+  }
+  const parsed = normalized as EconomicEdgeMode;
+  if (tradingMode === "live" && parsed !== "CALIBRATED_LIVE") {
+    throw new Error("Live trading requires RULE_ECONOMIC_EDGE_MODE=CALIBRATED_LIVE");
+  }
+  if (tradingMode !== "live" && parsed === "CALIBRATED_LIVE") {
+    throw new Error("CALIBRATED_LIVE economic mode is reserved for live trading");
+  }
+  return parsed;
+}
+function parseAnalyticHorizons(value: string | undefined): AnalyticHorizonConfig[] {
+  if (value === undefined) return DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.analyticHorizons.map((item) => ({ ...item }));
+  let parsed: unknown;
+  try { parsed = JSON.parse(value); } catch (error) {
+    throw new Error(`RULE_ANALYTIC_HORIZONS_JSON must be valid JSON: ${error instanceof Error ? error.message : String(error)}`);
+  }
+  if (!Array.isArray(parsed)) throw new Error("RULE_ANALYTIC_HORIZONS_JSON must be an array");
+  return parsed.map((item, index) => {
+    if (!isObject(item)) throw new Error(`RULE_ANALYTIC_HORIZONS_JSON[${index}] must be an object`);
+    assertOnlyKeys(item, ["horizonMs", "sigmaCaptureFraction", "breakoutWeight", "maximumGrossBps", "baseUncertaintyBps", "sigmaUncertaintyFraction"], `RULE_ANALYTIC_HORIZONS_JSON[${index}]`);
+    const numeric = (key: keyof AnalyticHorizonConfig): number => {
+      const candidate = item[key];
+      if (typeof candidate !== "number" || !Number.isFinite(candidate)) throw new Error(`RULE_ANALYTIC_HORIZONS_JSON[${index}].${key} must be finite`);
+      return candidate;
+    };
+    return { horizonMs: numeric("horizonMs"), sigmaCaptureFraction: numeric("sigmaCaptureFraction"),
+      breakoutWeight: numeric("breakoutWeight"), maximumGrossBps: numeric("maximumGrossBps"),
+      baseUncertaintyBps: numeric("baseUncertaintyBps"), sigmaUncertaintyFraction: numeric("sigmaUncertaintyFraction") };
+  });
+}
+function parseCalibratedEdges(value: string | undefined): CalibratedEdgeBucket[] {
+  if (value === undefined) return [];
+  let parsed: unknown;
+  try { parsed = JSON.parse(value); } catch (error) {
+    throw new Error(`RULE_CALIBRATED_EDGE_TABLE_JSON must be valid JSON: ${error instanceof Error ? error.message : String(error)}`);
+  }
+  if (!Array.isArray(parsed)) throw new Error("RULE_CALIBRATED_EDGE_TABLE_JSON must be an array");
+  return parsed as CalibratedEdgeBucket[];
 }
 function loadDeterministicHoldConfig(env: NodeJS.ProcessEnv): DeterministicHoldConfig {
   return {

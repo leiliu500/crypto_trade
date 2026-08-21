@@ -1,5 +1,6 @@
 import type { Direction, Features } from "../core/market.js";
 import { clamp } from "../core/market.js";
+import type { ExecutionPath } from "../economics/types.js";
 
 export type PositionPhase = "OPEN" | "RECOVERY" | "PROTECTED" | "TREND_HOLD" | "EXITING";
 export interface Position {
@@ -15,6 +16,8 @@ export interface Position {
   floorPx: number;
   breakEvenArmed: boolean;
   phase: PositionPhase;
+  selectedHorizonMs?: number;
+  executionPath?: ExecutionPath;
   adverseEvidenceSinceMs?: number;
   lastReductionProbability?: number;
 }
@@ -92,7 +95,8 @@ export class PositionManager {
         p.phase = "EXITING"; return { action: "EXIT", reason: "EVIDENCE_EXIT" };
       }
     } else delete p.adverseEvidenceSinceMs;
-    if (elapsedMs >= this.cfg.maximumHoldMs && p.mfePx < this.cfg.minimumProgressR * risk) {
+    const maximumHoldMs = Math.min(this.cfg.maximumHoldMs, p.selectedHorizonMs ?? this.cfg.maximumHoldMs);
+    if (elapsedMs >= maximumHoldMs && p.mfePx < this.cfg.minimumProgressR * risk) {
       p.phase = "EXITING"; return { action: "EXIT", reason: "TIME_STOP" };
     }
     if (protectedTrade && reversalProbability > this.cfg.partialExitThreshold

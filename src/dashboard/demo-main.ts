@@ -45,7 +45,7 @@ function demoSnapshot(nowMs: number, sequence: number): EngineOperationalSnapsho
   const healthSummary = { p50: 12, p90: 31, p95: 38 + Math.sin(sequence / 7) * 3, p99: 52, max: 71 };
   return {
     generatedAtMs: nowMs, started: true, startedAtMs, uptimeMs: nowMs - startedAtMs,
-    mode: "paper", paper: true, strategyVersion: "2.4.1", modelVersion: "micro-alpha-2026.08",
+    mode: "paper", paper: true, paperEntryExercise: false, strategyVersion: "2.4.1", modelVersion: "micro-alpha-2026.08",
     symbols: ["BTC/USD", "ETH/USD", "SOL/USD"], equity: 102_483.76, equityHighWater: 102_511.04, realizedSessionPnl: 184.62,
     risk: { health: { publicStream: true, privateStream: true, accountReconciled: true, bookValid: true, clockValid: true, riskRecomputed: true }, reasons: [], equity: 102_483.76, equityHighWater: 102_511.04 },
     orders,
