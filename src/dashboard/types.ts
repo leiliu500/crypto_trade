@@ -1,6 +1,7 @@
 import type { CostEstimate } from "../strategy/cost.js";
 import type { EntryPipelineSnapshot } from "../engine/entry-pipeline-audit.js";
 import type { FeatureStaleReason } from "../core/market.js";
+import type { OrderCancellationReason, OrderCancelRequestReason } from "../execution/order-state.js";
 
 export type HealthTone = "healthy" | "degraded" | "critical";
 export type EventSeverity = "info" | "warning" | "critical";
@@ -68,11 +69,13 @@ export interface DashboardLivePosition {
 export interface DashboardOrderCard {
   clientOrderId: string;
   alpacaOrderId: string | null;
+  historical: boolean;
   symbol: string;
   side: 1 | -1;
   style: string;
   timeInForce: string;
   status: string;
+  statusLabel: string;
   terminal: boolean;
   requestedQty: number;
   filledQty: number;
@@ -90,6 +93,8 @@ export interface DashboardOrderCard {
   ageMs: number;
   expiresInMs: number;
   error: string | null;
+  cancelRequestReason: OrderCancelRequestReason | null;
+  cancellationReason: OrderCancellationReason | null;
   timeline: readonly OrderTimelineEntry[];
   livePosition: DashboardLivePosition | null;
 }

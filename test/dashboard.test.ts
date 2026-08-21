@@ -67,6 +67,76 @@ test("dashboard distinguishes a motion reset from invalid market data", async ()
   assert.match(app, /motion evidence unavailable until the next valid update/);
 });
 
+test("operations monitor exposes structured cancellation reasons in order cards and timelines", () => {
+  const monitor = new OperationsMonitor();
+  const state = engineState();
+  state.positions = [];
+  state.orders[0]!.status = "CANCELED";
+  state.orders[0]!.filledQty = 0;
+  state.orders[0]!.cancelRequestReason = "SIGNAL_INVALIDATED";
+  state.orders[0]!.cancellationReason = "SIGNAL_INVALIDATED";
+  monitor.recordEvent("orderCancelRequested", {
+    symbol: "BTC/USD", clientOrderId: "client-1", reason: "SIGNAL_INVALIDATED",
+  }, state.generatedAtMs - 1);
+  monitor.ingestEngineSnapshot(state);
+  const order = monitor.snapshot().orders[0];
+  assert.equal(order?.statusLabel, "Signal invalidated");
+  assert.equal(order?.cancelRequestReason, "SIGNAL_INVALIDATED");
+  assert.equal(order?.cancellationReason, "SIGNAL_INVALIDATED");
+  assert.equal(order?.timeline.some((item) => item.label.includes("SIGNAL_INVALIDATED")), true);
+  monitor.stop();
+});
+
+test("order cards stay in reverse creation-time order when an older order updates later", () => {
+  const monitor = new OperationsMonitor();
+  const state = engineState();
+  state.positions = [];
+  const template = state.orders[0]!;
+  state.orders = [
+    {
+      ...template,
+      plan: { ...template.plan, clientOrderId: "older-order", createdMs: state.generatedAtMs - 5_000 },
+      lastUpdateMs: state.generatedAtMs + 1_000,
+    },
+    {
+      ...template,
+      plan: { ...template.plan, clientOrderId: "newest-order", createdMs: state.generatedAtMs - 1_000 },
+      lastUpdateMs: state.generatedAtMs,
+    },
+  ];
+  monitor.ingestEngineSnapshot(state);
+  assert.deepEqual(monitor.snapshot().orders.map((order) => order.clientOrderId), ["newest-order", "older-order"]);
+  monitor.stop();
+});
+
+test("hydrated database orders retain their full card details after an engine reboot", () => {
+  const beforeReboot = new OperationsMonitor();
+  beforeReboot.ingestEngineSnapshot(engineState());
+  const persisted = beforeReboot.snapshot().orders[0]!;
+
+  const afterReboot = new OperationsMonitor();
+  afterReboot.hydrateOrders([persisted]);
+  let rewrittenHistoricalOrders = 0;
+  afterReboot.on("telemetry", (record: { kind: string }) => {
+    if (record.kind === "order") rewrittenHistoricalOrders += 1;
+  });
+  const rebootedState = engineState();
+  rebootedState.orders = [];
+  rebootedState.positions = [];
+  afterReboot.ingestEngineSnapshot(rebootedState);
+
+  const restored = afterReboot.snapshot().orders[0];
+  assert.equal(restored?.clientOrderId, persisted.clientOrderId);
+  assert.equal(restored?.historical, true);
+  assert.equal(restored?.status, persisted.status);
+  assert.deepEqual(restored?.expectedCost, persisted.expectedCost);
+  assert.deepEqual(restored?.timeline, persisted.timeline);
+  assert.deepEqual(restored?.livePosition?.pnlHistory, persisted.livePosition?.pnlHistory);
+  assert.equal(rewrittenHistoricalOrders, 0);
+  beforeReboot.stop();
+  afterReboot.stop();
+});
+
 test("dashboard server serves the read-only API, health probe, and local UI", async () => {
   const monitor = new OperationsMonitor();
   monitor.ingestEngineSnapshot(engineState());
@@ -85,6 +155,8 @@ test("dashboard server serves the read-only API, health probe, and local UI", as
     assert.match(appText, /Closed position P&amp;L history/);
     assert.match(appText, /All P&amp;L changes/);
     assert.match(appText, /order\.livePosition\|\|state\.orderFilter/);
+    assert.match(appText, /o\.statusLabel/);
+    assert.match(appText, /o\.cancelRequestReason/);
     assert.doesNotMatch(appText, /slice\(-8\)/);
   } finally { await server.stop(); monitor.stop(); }
 });
@@ -94,6 +166,9 @@ test("PostgreSQL migration defines the complete operational record set", async (
   for (const table of ["engine_runs", "system_events", "health_snapshots", "orders", "order_events", "fills", "positions", "position_events", "decisions", "market_snapshots"]) {
     assert.match(sql, new RegExp(`CREATE TABLE IF NOT EXISTS ${table}`));
   }
+  const cancellationSql = await readFile("database/migrations/002_order_cancellation_reasons.sql", "utf8");
+  assert.match(cancellationSql, /cancel_request_reason text/);
+  assert.match(cancellationSql, /cancellation_reason text/);
 });
 
 function engineState(): EngineOperationalSnapshot {

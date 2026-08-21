@@ -10,7 +10,7 @@ import { disabledDatabaseHealth } from "./types.js";
 
 const ENGINE_EVENTS = [
   "reconciled", "engineError", "preflight", "publicStreamReady", "privateStreamReady", "decision",
-  "orderReserved", "orderSending", "orderAccepted", "orderUpdate", "orderRejected",
+  "orderReserved", "orderSending", "orderAccepted", "orderCancelRequested", "orderUpdate", "orderRejected",
   "positionDecision", "positionDust", "exitDecision", "fill", "watchdogFault", "entryBlocked",
 ] as const;
 const TERMINAL_ORDER_STATES = new Set(["FILLED", "CANCELED", "REJECTED", "EXPIRED"]);
@@ -49,6 +49,7 @@ export class OperationsMonitor extends EventEmitter {
   private readonly positionDecisions = new Map<string, LatestPositionDecision>();
   private readonly positionPnlHistories = new Map<string, PositionPnlSeries>();
   private readonly orderPositionPnl = new Map<string, DashboardLivePosition>();
+  private readonly historicalOrders = new Map<string, DashboardOrderCard>();
   private readonly boundListeners = new Map<string, (...args: unknown[]) => void>();
   private engine?: TradingEngine;
   private timer?: NodeJS.Timeout;
@@ -88,6 +89,19 @@ export class OperationsMonitor extends EventEmitter {
 
   public stop(): void { this.detach(); }
   public snapshot(): DashboardSnapshot { return safeClone(this.snapshotValue) as DashboardSnapshot; }
+
+  public hydrateOrders(orders: readonly DashboardOrderCard[]): void {
+    for (const order of orders) {
+      const restored = safeClone({ ...order, historical: true }) as DashboardOrderCard;
+      this.historicalOrders.set(restored.clientOrderId, restored);
+      this.orderStatuses.set(restored.clientOrderId, `${restored.status}:${restored.cancellationReason ?? restored.cancelRequestReason ?? ""}`);
+      this.orderTimelines.set(restored.clientOrderId, [...restored.timeline]);
+    }
+    this.snapshotValue = {
+      ...this.snapshotValue,
+      orders: sortOrders([...this.historicalOrders.values()]),
+    };
+  }
 
   public setDatabaseHealth(health: DatabaseHealth): void {
     this.databaseHealth = { ...health };
@@ -254,17 +268,20 @@ export class OperationsMonitor extends EventEmitter {
     }
 
     const orders = state.orders.map((order): DashboardOrderCard => {
-      this.trackOrderStatus(order.plan.clientOrderId, order.status, order.lastUpdateMs, order.error ?? null);
+      const cancellationReason = order.cancellationReason ?? order.cancelRequestReason ?? null;
+      this.trackOrderStatus(order.plan.clientOrderId, order.status, order.lastUpdateMs, order.error ?? null, cancellationReason);
       const remainingQty = Math.max(0, order.plan.qty - order.filledQty);
       const livePosition = this.orderPositionPnl.get(order.plan.clientOrderId) ?? null;
       return {
         clientOrderId: order.plan.clientOrderId,
         alpacaOrderId: order.alpacaOrderId ?? null,
+        historical: false,
         symbol: order.plan.symbol,
         side: order.plan.side,
         style: order.plan.style,
         timeInForce: order.plan.timeInForce,
         status: order.status,
+        statusLabel: orderStatusLabel(order.status, cancellationReason),
         terminal: TERMINAL_ORDER_STATES.has(order.status),
         requestedQty: order.plan.qty,
         filledQty: order.filledQty,
@@ -282,10 +299,17 @@ export class OperationsMonitor extends EventEmitter {
         ageMs: Math.max(0, nowMs - order.plan.createdMs),
         expiresInMs: order.plan.expiresMs - nowMs,
         error: order.error ?? null,
+        cancelRequestReason: order.cancelRequestReason ?? null,
+        cancellationReason: order.cancellationReason ?? null,
         timeline: [...(this.orderTimelines.get(order.plan.clientOrderId) ?? [])],
         livePosition,
       };
-    }).sort((a, b) => b.updatedMs - a.updatedMs);
+    });
+    const currentOrderIds = new Set(orders.map((order) => order.clientOrderId));
+    const visibleOrders = sortOrders([
+      ...orders,
+      ...[...this.historicalOrders.values()].filter((order) => !currentOrderIds.has(order.clientOrderId)),
+    ]);
     const health = state.risk.health;
     const liveness: DashboardSnapshot["liveness"] = [
       check("engine", "Engine process", state.started, state.started ? `Up ${formatDuration(state.uptimeMs)}` : "Not started", nowMs),
@@ -309,7 +333,7 @@ export class OperationsMonitor extends EventEmitter {
       started: state.started, uptimeMs: state.uptimeMs, overall, entriesAllowed,
       haltReasons: [...state.risk.reasons], equity: state.equity, equityHighWater: state.equityHighWater,
       realizedSessionPnl: state.realizedSessionPnl, latencyP95Ms: state.latency.total?.p95 ?? 0,
-      liveness, database: { ...this.databaseHealth }, markets, positions, orders,
+      liveness, database: { ...this.databaseHealth }, markets, positions, orders: visibleOrders,
       events: [...this.events],
     };
   }
@@ -356,11 +380,16 @@ export class OperationsMonitor extends EventEmitter {
     }
   }
 
-  private trackOrderStatus(clientOrderId: string, status: string, atMs: number, error: string | null): void {
-    if (this.orderStatuses.get(clientOrderId) === status) return;
-    this.orderStatuses.set(clientOrderId, status);
+  private trackOrderStatus(clientOrderId: string, status: string, atMs: number, error: string | null, cancellationReason: string | null): void {
+    const stateKey = `${status}:${cancellationReason ?? ""}`;
+    if (this.orderStatuses.get(clientOrderId) === stateKey) return;
+    this.orderStatuses.set(clientOrderId, stateKey);
     const timeline = this.orderTimelines.get(clientOrderId) ?? [];
-    timeline.push({ id: randomUUID(), status, label: error ? `${status}: ${error}` : statusLabel(status), atMs, severity: statusSeverity(status) });
+    timeline.push({
+      id: randomUUID(), status,
+      label: error ? `${status}: ${error}` : orderStatusLabel(status, cancellationReason),
+      atMs, severity: statusSeverity(status),
+    });
     if (timeline.length > 20) timeline.splice(0, timeline.length - 20);
     this.orderTimelines.set(clientOrderId, timeline);
   }
@@ -389,7 +418,9 @@ export class OperationsMonitor extends EventEmitter {
   private emitTelemetry(state: EngineOperationalSnapshot): void {
     const nowMs = state.generatedAtMs;
     this.emit("telemetry", { kind: "health", atMs: nowMs, payload: this.snapshotValue } satisfies TelemetryRecord);
-    for (const order of this.snapshotValue.orders) this.emit("telemetry", { kind: "order", atMs: nowMs, payload: order } satisfies TelemetryRecord);
+    for (const order of this.snapshotValue.orders) {
+      if (!order.historical) this.emit("telemetry", { kind: "order", atMs: nowMs, payload: order } satisfies TelemetryRecord);
+    }
     for (const position of this.snapshotValue.positions) this.emit("telemetry", { kind: "position", atMs: nowMs, payload: position } satisfies TelemetryRecord);
     if (nowMs - this.lastMarketTelemetryMs >= this.marketSampleMs) {
       this.lastMarketTelemetryMs = nowMs;
@@ -432,9 +463,19 @@ function midpoint(bid: number | null, ask: number | null): number | null { retur
 function difference(a: number | null, b: number | null): number | null { return a === null || b === null ? null : a - b; }
 function spreadBps(bid: number | null, ask: number | null): number | null { const mid = midpoint(bid, ask); return mid === null || mid <= 0 ? null : (ask! - bid!) / mid * 10_000; }
 function formatDuration(ms: number): string { const total = Math.floor(ms / 1_000); const hours = Math.floor(total / 3_600); const minutes = Math.floor(total % 3_600 / 60); const seconds = total % 60; return hours ? `${hours}h ${minutes}m` : minutes ? `${minutes}m ${seconds}s` : `${seconds}s`; }
+function sortOrders(orders: DashboardOrderCard[]): DashboardOrderCard[] {
+  return orders.sort((a, b) => b.createdMs - a.createdMs
+    || b.updatedMs - a.updatedMs
+    || b.clientOrderId.localeCompare(a.clientOrderId));
+}
 function statusLabel(status: string): string { return status.toLowerCase().replaceAll("_", " ").replace(/^./, (value) => value.toUpperCase()); }
+function orderStatusLabel(status: string, cancellationReason: string | null): string {
+  if (status === "CANCELED" && cancellationReason) return statusLabel(cancellationReason);
+  if (status === "CANCEL_PENDING" && cancellationReason) return `Cancel pending: ${statusLabel(cancellationReason)}`;
+  return statusLabel(status);
+}
 function statusSeverity(status: string): EventSeverity { return ["REJECTED", "UNKNOWN"].includes(status) ? "critical" : ["CANCELED", "EXPIRED", "CANCEL_PENDING"].includes(status) ? "warning" : "info"; }
-function severityFor(type: string): EventSeverity { const value = type.toLowerCase(); return value.includes("error") || value.includes("fault") || value.includes("rejected") ? "critical" : value.includes("exit") || value.includes("disconnect") ? "warning" : "info"; }
+function severityFor(type: string): EventSeverity { const value = type.toLowerCase(); return value.includes("error") || value.includes("fault") || value.includes("rejected") ? "critical" : value.includes("cancel") || value.includes("exit") || value.includes("disconnect") ? "warning" : "info"; }
 function summarize(type: string, payload: unknown, symbol: string | null): string {
   const reason = findString(payload, ["reason", "decision.reason", "message"]);
   const action = findString(payload, ["decision.action", "action", "event"]);

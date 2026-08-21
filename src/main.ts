@@ -30,7 +30,9 @@ async function main(): Promise<void> {
       const migrations = await candidate.start({ mode: cfg.mode, paper: cfg.paper, strategyVersion: cfg.strategyVersion, modelVersion: cfg.modelVersion,
         symbols: cfg.symbols, metadata: { configurationVersion: cfg.configurationVersion, signalMode: cfg.signalMode,
           paperEntryExercise: cfg.paperEntryExercise } });
-      process.stdout.write(`${JSON.stringify({ type: "database-ready", migrations })}\n`);
+      const restoredOrders = await candidate.loadOrders();
+      monitor.hydrateOrders(restoredOrders);
+      process.stdout.write(`${JSON.stringify({ type: "database-ready", migrations, restoredOrders: restoredOrders.length })}\n`);
     } catch (error) {
       await candidate.close().catch(() => undefined);
       store = undefined;
