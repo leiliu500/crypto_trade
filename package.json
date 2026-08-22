@@ -12,6 +12,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "tsx --test test/*.test.ts",
     "start": "tsx src/main.ts",
+    "start:production": "node --enable-source-maps dist/src/main.js",
     "shadow": "tsx src/main.ts shadow",
     "paper": "tsx src/main.ts paper",
     "paper:demo-trade": "tsx src/main.ts paper --paper-demo-entry",
@@ -20,6 +21,8 @@
     "recall": "tsx src/backtest/opportunity-recall-main.ts",
     "dashboard": "tsx src/dashboard/demo-main.ts",
     "dashboard:demo": "tsx src/dashboard/demo-main.ts",
+    "docker:up": "docker-compose up -d --build",
+    "docker:logs": "docker-compose logs -f engine",
     "db:migrate": "tsx src/database/migrate-main.ts",
     "db:verify": "tsx src/database/verify-main.ts",
     "db:smoke": "tsx src/database/smoke-main.ts"

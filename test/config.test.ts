@@ -5,6 +5,24 @@ import { join } from "node:path";
 import test from "node:test";
 import { loadConfig } from "../src/config.js";
 
+test("dashboard defaults are ready for the EC2 container endpoint", () => {
+  const cfg = loadConfig({ TRADING_MODE: "replay" });
+  assert.equal(cfg.dashboardHost, "0.0.0.0");
+  assert.equal(cfg.dashboardPort, 3_001);
+});
+
+test("empty custom credential variables fall back to standard Alpaca aliases", () => {
+  const cfg = loadConfig({
+    TRADING_MODE: "paper",
+    ALPACA_PAPER: "true",
+    ALPACA_API_KEY: "",
+    ALPACA_API_SECRET: "",
+    APCA_API_KEY_ID: "paper-key",
+    APCA_API_SECRET_KEY: "paper-secret",
+  });
+  assert.deepEqual(cfg.credentials, { keyId: "paper-key", secretKey: "paper-secret" });
+});
+
 test("JSON baseline wins over legacy tunable environment values and symbol overlays stay isolated", () => {
   const directory = mkdtempSync(join(tmpdir(), "crypto-trade-config-"));
   try {
@@ -35,11 +53,14 @@ test("JSON baseline wins over legacy tunable environment values and symbol overl
     assert.equal(cfg.symbolConfigs["BTC/USD"]?.feature.maximumKinematicsGapMs, 5_000);
     assert.equal(cfg.deterministicSignal.microTrigger.minimumMicroMoveBps, 0.01);
     assert.equal(cfg.deterministicSignal.microTrigger.candidateRetryMs, 250);
-    assert.equal(cfg.forecast.intendedHoldMs, 1_800_000);
+    assert.equal(cfg.forecast.intendedHoldMs, 7_200_000);
     assert.equal(cfg.deterministicSignal.analyticEdge.economicHorizonMs, cfg.forecast.intendedHoldMs);
-    assert.equal(cfg.position.maximumHoldMs, 3_600_000);
-    assert.deepEqual(cfg.deterministicSignal.analyticHorizons.map((item) => item.horizonMs), [300_000, 900_000, 1_800_000, 3_600_000]);
-    assert.equal(cfg.recall.opportunityHorizonMs, cfg.forecast.intendedHoldMs);
+    assert.equal(cfg.position.maximumHoldMs, 14_400_000);
+    assert.deepEqual(cfg.deterministicSignal.analyticHorizons.map((item) => item.horizonMs), [3_600_000, 7_200_000, 14_400_000]);
+    assert.equal(cfg.deterministicSignal.requireMakerEntry, true);
+    assert.equal(cfg.deterministicExtension.trendSlowWindowMs, 3_600_000);
+    assert.equal(cfg.deterministicSignal.continuationQuality.volatilityTargetBps, 75);
+    assert.equal(cfg.recall.opportunityHorizonMs, cfg.position.maximumHoldMs);
     assert.equal(cfg.symbolConfigs["BTC/USD"]?.deterministicSignal.microTrigger.minimumMicroMoveBps, 0.008);
   } finally { rmSync(directory, { recursive: true, force: true }); }
 });

@@ -9,6 +9,7 @@ import { DeterministicRegimeEngine } from "../src/strategy/deterministic-regime.
 import { DeterministicHoldEngine } from "../src/strategy/deterministic-hold.js";
 import { DEFAULT_DETERMINISTIC_HOLD_CONFIG, DEFAULT_DETERMINISTIC_REGIME_CONFIG, DEFAULT_EXTENSION_CONFIG } from "../src/config/deterministic-defaults.js";
 import { SignalRouter } from "../src/strategy/signal-router.js";
+import { analyticEdges } from "../src/economics/analytic-edge.js";
 
 const cost = (roundTripBps = .2) => ({
   roundTripBps, spreadBps: .1, feeBps: .05, impactBps: .02, latencyBps: .01,
@@ -32,6 +33,8 @@ function alignedFeatures(side: 1 | -1 = 1, nowMs = 1_000): DeterministicFeatures
     breakoutDownBps: side === -1 ? .8 : 0, anchorDistanceBps: side * 1.2,
     sigmaImpulseBps: 1, cusumUpScore: side === 1 ? 4 : 0, cusumDownScore: side === -1 ? -4 : 0,
     flowFlipRate: .05, usableDepthQty: 100, usableDepthNotional: 1_000_000,
+    slowTrendReady: true, trendFastBps: side * 20, trendMediumBps: side * 35, trendSlowBps: side * 60,
+    slowTrendAlignment: side * .7, slowTrendEfficiency: .5, slowVarianceRate: 4e-8, slowSigmaBps: 60,
   };
 }
 
@@ -51,7 +54,7 @@ function context(side: 1 | -1 = 1, nowMs = 1_000): EntryContext {
   };
 }
 
-const testConfig = () => ({ ...DEFAULT_DETERMINISTIC_SIGNAL_CONFIG, minimumNetEdgeBps: -10 });
+const testConfig = () => ({ ...DEFAULT_DETERMINISTIC_SIGNAL_CONFIG, minimumNetEdgeBps: -10, requireMakerEntry: false });
 
 function persistentIntent(engine: DeterministicEntryEngine, side: 1 | -1 = 1, startMs = 1_000) {
   let intent = null;
@@ -93,6 +96,57 @@ test("stale, unwarmed, and unhealthy data always block entry", () => {
     for (let index = 0; index < 8; index += 1) { const value = context(1, 1_000 + index * 50); mutate(value); result = engine.evaluate(value); }
     assert.equal(result, null);
   }
+});
+
+test("slow trend warm-up and direction alignment fail closed", () => {
+  for (const mutate of [
+    (value: EntryContext) => { value.features.slowTrendReady = false; },
+    (value: EntryContext) => { value.features.slowTrendAlignment = -.7; },
+    (value: EntryContext) => { value.features.trendFastBps = -20; },
+  ]) {
+    const engine = new DeterministicEntryEngine(testConfig());
+    let result = null;
+    for (let index = 0; index < 20; index += 1) {
+      const value = context(1, 1_000 + index * 50); mutate(value); result ??= engine.evaluate(value);
+    }
+    assert.equal(result, null);
+    assert.equal(engine.latestEvaluation()!.long.slowTrendPass, false);
+  }
+});
+
+test("maker-first entries exclude the taker entry path", () => {
+  const engine = new DeterministicEntryEngine({ ...testConfig(), requireMakerEntry: true });
+  const pathCost = (path: "MAKER_TAKER" | "TAKER_TAKER", amount: number) => ({
+    path, supported: true, entryExecutionBps: 0, exitExecutionBps: 0, entryFeeBps: amount / 2,
+    exitFeeBps: amount / 2, marketImpactBps: 0, latencyBps: 0, adverseSelectionBps: 0,
+    fundingBps: 0, borrowBps: 0, estimatedCostBps: amount, positiveCostErrorP95Bps: 0,
+    fillProbability: path === "MAKER_TAKER" ? .9 : 1,
+  } as const);
+  let intent = null;
+  for (let index = 0; index < 20; index += 1) {
+    const value = context(1, 1_000 + index * 50);
+    value.longEconomicCosts = [pathCost("TAKER_TAKER", .01), pathCost("MAKER_TAKER", .2)];
+    intent ??= engine.evaluate(value);
+  }
+  assert.equal(intent?.executionPath, "MAKER_TAKER");
+});
+
+test("long-horizon analytical edge uses slow sampled variance and fails closed before trend warm-up", () => {
+  const cfg = { horizons: DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.analyticHorizons,
+    spreadUncertaintyWeight: 0, flipUncertaintyWeight: 0 };
+  const continuation = {
+    score: .8, efficiency: .8, flowPersistence: .8, velocity: .8, breakoutHold: .8,
+    regimeStability: 1, volatilitySuitability: 1, slowTrendAlignment: .8, slowTrendEfficiency: .5,
+  };
+  const baseline = alignedFeatures(1);
+  const first = analyticEdges({ side: 1, features: baseline, continuation }, cfg);
+  const fastVarianceChanged = analyticEdges({ side: 1,
+    features: { ...baseline, varianceRate: baseline.varianceRate * 10_000 }, continuation }, cfg);
+  const slowVarianceChanged = analyticEdges({ side: 1,
+    features: { ...baseline, slowVarianceRate: baseline.slowVarianceRate * 4 }, continuation }, cfg);
+  assert.deepEqual(fastVarianceChanged, first);
+  assert.ok(slowVarianceChanged[0]!.grossBeforeUncertaintyBps > first[0]!.grossBeforeUncertaintyBps);
+  assert.deepEqual(analyticEdges({ side: 1, features: { ...baseline, slowTrendReady: false }, continuation }, cfg), []);
 });
 
 test("account health blocks execution without suppressing directional candidates", () => {
@@ -314,6 +368,22 @@ test("deterministic feature windows use only prior and current events", () => {
   assert.deepEqual(first, second);
   assert.equal(first[0]!.breakoutUpBps, 0);
   assert.ok(first[2]!.breakoutUpBps > 0);
+  assert.equal(first[2]!.slowTrendReady, false);
+});
+
+test("sampled slow trend becomes ready only after causal window coverage", () => {
+  const extension = new DeterministicFeatureExtensions({ ...DEFAULT_EXTENSION_CONFIG,
+    trendSampleIntervalMs: 1_000, trendFastWindowMs: 1_000, trendMediumWindowMs: 2_000,
+    trendSlowWindowMs: 3_000, trendMinimumCoverage: 1 });
+  const output = [100, 100.1, 100.2, 100.3].map((mid, index) => {
+    const base = alignedFeatures(1, 1_000 + index * 1_000);
+    base.mid = mid; base.microprice = mid;
+    return extension.update(base, { providerAgeMs: 5, usableDepthQty: 100, usableDepthNotional: 1_000_000,
+      replenishmentPressure: .2, bidAdditionQty: 1, askAdditionQty: 0, bidRemovalQty: 0, askRemovalQty: 0 });
+  });
+  assert.deepEqual(output.map((item) => item.slowTrendReady), [false, false, false, true]);
+  assert.ok(output[3]!.trendFastBps > 0 && output[3]!.trendMediumBps > 0 && output[3]!.trendSlowBps > 0);
+  assert.ok(output[3]!.slowTrendAlignment > 0);
 });
 
 test("deterministic extensions preserve the clock-adjusted provider age", () => {

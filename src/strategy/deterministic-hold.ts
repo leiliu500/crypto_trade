@@ -17,13 +17,18 @@ export class DeterministicHoldEngine {
   public evaluate(side: Direction, f: DeterministicFeatures, expectedIncrementalDelayCostBps: number,
     remainingEconomicHorizonMs = this.cfg.holdHorizonMs): DeterministicHoldDecision {
     const horizonSec = Math.max(1, remainingEconomicHorizonMs) / 1_000;
-    const sigmaHBps = 10_000 * Math.sqrt(Math.max(f.varianceRate * horizonSec, 1e-16));
+    const sigmaHBps = 10_000 * Math.sqrt(Math.max(f.slowVarianceRate, 1e-16) * horizonSec);
     const directionalFlow = clamp((side * f.qiK + side * f.ofi + side * f.tfi + side * f.replenishmentPressure) / 4, -1, 1);
     const directionalKinematic = clamp((side * f.velocityZ + .5 * side * f.accelerationZ) / 1.5, -1, 1);
-    const continuationScore = clamp(.35 * directionalFlow + .35 * directionalKinematic + .2 * (2 * f.efficiency - 1) + .1 * (1 - 2 * f.flowFlipRate), -1, 1);
+    const directionalSlowTrend = f.slowTrendReady ? side * f.slowTrendAlignment : -1;
+    const continuationScore = clamp(.15 * directionalFlow + .10 * directionalKinematic + .10 * (2 * f.efficiency - 1)
+      + .05 * (1 - 2 * f.flowFlipRate) + .60 * directionalSlowTrend, -1, 1);
     const kinematicBps = clamp(10_000 * side * (f.velocity * horizonSec + .5 * f.acceleration * horizonSec * horizonSec), 0, this.cfg.kinematicSigmaCap * sigmaHBps);
     const flowBps = this.cfg.flowSigmaScale * sigmaHBps * Math.max(0, directionalFlow);
-    const holdGrossBps = Math.max(0, continuationScore) * Math.min(this.cfg.totalSigmaCap * sigmaHBps, .6 * kinematicBps + .4 * flowBps);
+    const slowTrendBps = f.slowTrendReady
+      ? .10 * Math.max(0, side * f.trendSlowBps) * f.slowTrendEfficiency : 0;
+    const holdGrossBps = Math.max(0, continuationScore)
+      * Math.min(this.cfg.totalSigmaCap * sigmaHBps, .6 * kinematicBps + .4 * flowBps + slowTrendBps);
     const directionalCusumAgainst = side === 1 ? -f.cusumDownScore : f.cusumUpScore;
     const reversalVotes = Number(side * f.accelerationZ <= -this.cfg.opposingAccelerationZ)
       + Number(side * f.ofi <= -this.cfg.opposingOfi) + Number(side * f.tfi <= -this.cfg.opposingTfi)

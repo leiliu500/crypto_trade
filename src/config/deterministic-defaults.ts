@@ -6,6 +6,8 @@ import type { DeterministicRegimeConfig } from "../strategy/deterministic-regime
 export const DEFAULT_EXTENSION_CONFIG: ExtensionConfig = {
   impulseWindowMs: 500, breakoutWindowMs: 2_000, anchorWindowMs: 5_000, flipWindowMs: 2_000,
   maximumStoredWindowMs: 10_000, cusumDrift: .15, cusumCap: 12, alignmentDeadband: .2,
+  trendSampleIntervalMs: 5_000, trendFastWindowMs: 5 * 60_000, trendMediumWindowMs: 15 * 60_000,
+  trendSlowWindowMs: 60 * 60_000, trendMinimumCoverage: .9,
 };
 export const DEFAULT_DETERMINISTIC_REGIME_CONFIG: DeterministicRegimeConfig = {
   trendEfficiency: .6, chopEfficiency: .35, maximumTrendFlipRate: .3, chopFlipRate: .55,
@@ -14,7 +16,7 @@ export const DEFAULT_DETERMINISTIC_REGIME_CONFIG: DeterministicRegimeConfig = {
   hysteresisResetRatio: .75,
 };
 export const DEFAULT_DETERMINISTIC_SIGNAL_CONFIG: DeterministicSignalConfig = {
-  mode: "DETERMINISTIC_ONLY", configurationVersion: "deterministic-micro-v1.4",
+  mode: "DETERMINISTIC_ONLY", configurationVersion: "deterministic-slow-trend-v2.0",
   maximumSpreadBps: 30, maximumSpreadZ: 3, minimumDepthZ: -2.5, maximumImpactBps: 1.5,
   microEdgeBps: .2, qi1: .15, qiK: .1, ofi: .3, tfi: .15, replenishment: .1, velocityZ: .25,
   maximumOpposingAccelerationZ: .3, impulseBps: .4, breakoutBps: .5, cusum: 2.5, efficiency: .45, maximumFlipRate: .45,
@@ -29,21 +31,28 @@ export const DEFAULT_DETERMINISTIC_SIGNAL_CONFIG: DeterministicSignalConfig = {
   economicEdgeMode: "ANALYTIC_PAPER",
   minimumEconomicSizeScale: .20,
   minimumMakerFillProbability: .40,
+  requireMakerEntry: true,
+  minimumSlowTrendAlignment: .15,
+  minimumSlowTrendEfficiency: .08,
+  minimumSlowTrendMoveBps: 10,
   minimumEffectiveSampleCount: 100,
   positiveCostErrorP95Bps: 2,
   maximumReasonableCostBps: 1_000,
   maximumReasonableGrossBps: 2_000,
   calibratedEdges: [],
   continuationQuality: {
-    efficiencyWeight: .25, flowPersistenceWeight: .20, velocityWeight: .20,
-    breakoutHoldWeight: .15, regimeStabilityWeight: .10, volatilitySuitabilityWeight: .10,
-    velocityScale: .50, breakoutScaleBps: 5, volatilityTargetBps: 20, volatilityToleranceBps: 20,
+    efficiencyWeight: .10, flowPersistenceWeight: .15, velocityWeight: .10,
+    breakoutHoldWeight: .05, regimeStabilityWeight: .10, volatilitySuitabilityWeight: .10,
+    slowTrendAlignmentWeight: .25, slowTrendEfficiencyWeight: .15,
+    velocityScale: .50, breakoutScaleBps: 5, volatilityTargetBps: 75, volatilityToleranceBps: 75,
   },
   analyticHorizons: [
-    { horizonMs: 5 * 60_000, sigmaCaptureFraction: .45, breakoutWeight: .15, maximumGrossBps: 150, baseUncertaintyBps: 2, sigmaUncertaintyFraction: .25 },
-    { horizonMs: 15 * 60_000, sigmaCaptureFraction: .50, breakoutWeight: .20, maximumGrossBps: 225, baseUncertaintyBps: 2, sigmaUncertaintyFraction: .22 },
-    { horizonMs: 30 * 60_000, sigmaCaptureFraction: .55, breakoutWeight: .25, maximumGrossBps: 300, baseUncertaintyBps: 2, sigmaUncertaintyFraction: .20 },
-    { horizonMs: 60 * 60_000, sigmaCaptureFraction: .50, breakoutWeight: .20, maximumGrossBps: 400, baseUncertaintyBps: 3, sigmaUncertaintyFraction: .22 },
+    { horizonMs: 60 * 60_000, sigmaCaptureFraction: .35, breakoutWeight: .10, maximumGrossBps: 300,
+      baseUncertaintyBps: 3, sigmaUncertaintyFraction: .30, trendCaptureFraction: .20, trendUncertaintyFraction: .12 },
+    { horizonMs: 2 * 60 * 60_000, sigmaCaptureFraction: .40, breakoutWeight: .10, maximumGrossBps: 450,
+      baseUncertaintyBps: 4, sigmaUncertaintyFraction: .28, trendCaptureFraction: .25, trendUncertaintyFraction: .12 },
+    { horizonMs: 4 * 60 * 60_000, sigmaCaptureFraction: .45, breakoutWeight: .10, maximumGrossBps: 600,
+      baseUncertaintyBps: 5, sigmaUncertaintyFraction: .25, trendCaptureFraction: .30, trendUncertaintyFraction: .12 },
   ],
   analyticEdge: {
     economicHorizonMs: 30 * 60_000,

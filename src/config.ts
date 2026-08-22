@@ -103,8 +103,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env, modeOverride?: 
   const files = loadParameterFiles(env.CONFIG_DIR ?? "config");
   const configuredEnv = applyParameters(env, files.base.parameters);
   const mode = parseMode(modeOverride ?? env.TRADING_MODE ?? "shadow");
-  const keyId = env.ALPACA_API_KEY ?? env.APCA_API_KEY_ID ?? "";
-  const secretKey = env.ALPACA_API_SECRET ?? env.APCA_API_SECRET_KEY ?? "";
+  const keyId = firstNonBlank(env.ALPACA_API_KEY, env.APCA_API_KEY_ID);
+  const secretKey = firstNonBlank(env.ALPACA_API_SECRET, env.APCA_API_SECRET_KEY);
   const paper = parseBoolean(env.ALPACA_PAPER, true);
   const paperEntryExercise = parseBoolean(env.PAPER_ENTRY_EXERCISE, false);
   if (mode === "paper" && !paper) throw new Error("Paper mode requires ALPACA_PAPER=true; refusing to route paper-mode orders to the live endpoint");
@@ -137,8 +137,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env, modeOverride?: 
     portfolio: { maximumVariance: Number.POSITIVE_INFINITY, maximumClusterPositions: 1, maximumGrossNotional: numberEnv(configuredEnv.MAXIMUM_GROSS_NOTIONAL, 5_000), rollingLossBudgetFraction: .0075 },
     rollingLossFraction: .0075, sessionLossFraction: .0075,
     dashboardEnabled: parseBoolean(configuredEnv.DASHBOARD_ENABLED, true),
-    dashboardHost: configuredEnv.DASHBOARD_HOST ?? "127.0.0.1",
-    dashboardPort: integerEnv(configuredEnv.DASHBOARD_PORT, 8_787, 1, 65_535),
+    dashboardHost: configuredEnv.DASHBOARD_HOST ?? "0.0.0.0",
+    dashboardPort: integerEnv(configuredEnv.DASHBOARD_PORT, 3_001, 1, 65_535),
     databaseEnabled: parseBoolean(configuredEnv.DATABASE_ENABLED, true),
     databaseRequired: parseBoolean(configuredEnv.DATABASE_REQUIRED, false),
     databaseUrl: env.DATABASE_URL ?? buildDatabaseUrl(env),
@@ -242,7 +242,7 @@ function loadSymbolConfig(symbol: string, env: NodeJS.ProcessEnv, mode: TradingM
   const signalMode = parseSignalMode(env.SIGNAL_MODE ?? env.ENTRY_MODE);
   if (signalMode !== "DETERMINISTIC_ONLY" && !env.MODEL_CONFIG_JSON) throw new Error(`${signalMode} requires MODEL_CONFIG_JSON; optional model modes fail closed without a model`);
   const model = signalMode === "DETERMINISTIC_ONLY" ? parseModel(undefined) : parseModel(env.MODEL_CONFIG_JSON);
-  const baseConfigurationVersion = env.DETERMINISTIC_CONFIG_VERSION ?? "deterministic-micro-v1.4";
+  const baseConfigurationVersion = env.DETERMINISTIC_CONFIG_VERSION ?? DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.configurationVersion;
   const configurationVersion = paperEntryExercise ? `${baseConfigurationVersion}-paper-entry-exercise` : baseConfigurationVersion;
   const deterministicExtension = loadExtensionConfig(env);
   const deterministicRegime = loadDeterministicRegimeConfig(env);
@@ -345,6 +345,9 @@ function parseSignalMode(value: string | undefined): SignalMode {
   throw new Error(`Unknown SIGNAL_MODE: ${value}`);
 }
 function parseBoolean(value: string | undefined, fallback: boolean): boolean { return value === undefined ? fallback : value.toLowerCase() === "true"; }
+function firstNonBlank(...values: (string | undefined)[]): string {
+  return values.find((value) => value?.trim())?.trim() ?? "";
+}
 function numberEnv(value: string | undefined, fallback: number): number { const n = value === undefined ? fallback : Number(value); if (!Number.isFinite(n) || n < 0) throw new Error(`Invalid numeric configuration: ${value}`); return n; }
 function finiteNumberEnv(value: string | undefined, fallback: number): number { const n = value === undefined ? fallback : Number(value); if (!Number.isFinite(n)) throw new Error(`Invalid finite numeric configuration: ${value}`); return n; }
 function integerEnv(value: string | undefined, fallback: number, minimum: number, maximum: number): number {
@@ -370,6 +373,11 @@ function loadExtensionConfig(env: NodeJS.ProcessEnv): ExtensionConfig {
     cusumDrift: numberEnv(env.RULE_CUSUM_DRIFT, DEFAULT_EXTENSION_CONFIG.cusumDrift),
     cusumCap: numberEnv(env.RULE_CUSUM_CAP, DEFAULT_EXTENSION_CONFIG.cusumCap),
     alignmentDeadband: numberEnv(env.RULE_ALIGNMENT_DEADBAND, DEFAULT_EXTENSION_CONFIG.alignmentDeadband),
+    trendSampleIntervalMs: numberEnv(env.RULE_TREND_SAMPLE_INTERVAL_MS, DEFAULT_EXTENSION_CONFIG.trendSampleIntervalMs),
+    trendFastWindowMs: numberEnv(env.RULE_TREND_FAST_WINDOW_MS, DEFAULT_EXTENSION_CONFIG.trendFastWindowMs),
+    trendMediumWindowMs: numberEnv(env.RULE_TREND_MEDIUM_WINDOW_MS, DEFAULT_EXTENSION_CONFIG.trendMediumWindowMs),
+    trendSlowWindowMs: numberEnv(env.RULE_TREND_SLOW_WINDOW_MS, DEFAULT_EXTENSION_CONFIG.trendSlowWindowMs),
+    trendMinimumCoverage: numberEnv(env.RULE_TREND_MINIMUM_COVERAGE, DEFAULT_EXTENSION_CONFIG.trendMinimumCoverage),
   };
 }
 function loadDeterministicRegimeConfig(env: NodeJS.ProcessEnv): DeterministicRegimeConfig {
@@ -448,6 +456,10 @@ function loadDeterministicSignalConfig(env: NodeJS.ProcessEnv, mode: SignalMode,
     economicEdgeMode: parseEconomicEdgeMode(env.RULE_ECONOMIC_EDGE_MODE, tradingMode),
     minimumEconomicSizeScale: numberEnv(env.RULE_MIN_ECONOMIC_SIZE_SCALE, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.minimumEconomicSizeScale),
     minimumMakerFillProbability: numberEnv(env.RULE_MIN_MAKER_FILL_PROBABILITY, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.minimumMakerFillProbability),
+    requireMakerEntry: parseBoolean(env.RULE_REQUIRE_MAKER_ENTRY, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.requireMakerEntry),
+    minimumSlowTrendAlignment: numberEnv(env.RULE_MIN_SLOW_TREND_ALIGNMENT, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.minimumSlowTrendAlignment),
+    minimumSlowTrendEfficiency: numberEnv(env.RULE_MIN_SLOW_TREND_EFFICIENCY, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.minimumSlowTrendEfficiency),
+    minimumSlowTrendMoveBps: numberEnv(env.RULE_MIN_SLOW_TREND_MOVE_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.minimumSlowTrendMoveBps),
     minimumEffectiveSampleCount: numberEnv(env.RULE_MIN_EFFECTIVE_SAMPLES, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.minimumEffectiveSampleCount),
     positiveCostErrorP95Bps: numberEnv(env.COST_POSITIVE_ERROR_P95_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.positiveCostErrorP95Bps),
     maximumReasonableCostBps: numberEnv(env.COST_MAXIMUM_REASONABLE_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.maximumReasonableCostBps),
@@ -559,7 +571,8 @@ function parseAnalyticHorizons(value: string | undefined): AnalyticHorizonConfig
   if (!Array.isArray(parsed)) throw new Error("RULE_ANALYTIC_HORIZONS_JSON must be an array");
   return parsed.map((item, index) => {
     if (!isObject(item)) throw new Error(`RULE_ANALYTIC_HORIZONS_JSON[${index}] must be an object`);
-    assertOnlyKeys(item, ["horizonMs", "sigmaCaptureFraction", "breakoutWeight", "maximumGrossBps", "baseUncertaintyBps", "sigmaUncertaintyFraction"], `RULE_ANALYTIC_HORIZONS_JSON[${index}]`);
+    assertOnlyKeys(item, ["horizonMs", "sigmaCaptureFraction", "breakoutWeight", "maximumGrossBps", "baseUncertaintyBps", "sigmaUncertaintyFraction",
+      "trendCaptureFraction", "trendUncertaintyFraction"], `RULE_ANALYTIC_HORIZONS_JSON[${index}]`);
     const numeric = (key: keyof AnalyticHorizonConfig): number => {
       const candidate = item[key];
       if (typeof candidate !== "number" || !Number.isFinite(candidate)) throw new Error(`RULE_ANALYTIC_HORIZONS_JSON[${index}].${key} must be finite`);
@@ -567,7 +580,8 @@ function parseAnalyticHorizons(value: string | undefined): AnalyticHorizonConfig
     };
     return { horizonMs: numeric("horizonMs"), sigmaCaptureFraction: numeric("sigmaCaptureFraction"),
       breakoutWeight: numeric("breakoutWeight"), maximumGrossBps: numeric("maximumGrossBps"),
-      baseUncertaintyBps: numeric("baseUncertaintyBps"), sigmaUncertaintyFraction: numeric("sigmaUncertaintyFraction") };
+      baseUncertaintyBps: numeric("baseUncertaintyBps"), sigmaUncertaintyFraction: numeric("sigmaUncertaintyFraction"),
+      trendCaptureFraction: numeric("trendCaptureFraction"), trendUncertaintyFraction: numeric("trendUncertaintyFraction") };
   });
 }
 function parseCalibratedEdges(value: string | undefined): CalibratedEdgeBucket[] {

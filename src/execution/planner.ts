@@ -58,6 +58,8 @@ export interface PlannerBuildOptions {
   createdMs?: number;
   executionPath?: ExecutionPath;
   economicHorizonMs?: number;
+  /** Slow-horizon volatility used only for risk sizing; execution latency retains fast feature volatility. */
+  riskSigmaHBps?: number;
 }
 
 interface ExecutionCandidate {
@@ -150,7 +152,8 @@ export class ExecutionPlanner {
       if (!exactIntent) return null;
       const approval = this.riskSizer.size(exactIntent, {
         ...baseRisk, price: features.mid, visibleLiquidityQty: this.relevantDepth(book, intent.side),
-        sigmaHBps: features.sigmaHBps, estimatedExitCostBps: cost.spreadBps / 2 + cost.feeBps / 2,
+        sigmaHBps: options.riskSigmaHBps ?? features.sigmaHBps,
+        estimatedExitCostBps: cost.spreadBps / 2 + cost.feeBps / 2,
         maximumExchangeQty: asset.maximumOrderQty,
       });
       if (!approval) return null;

@@ -1,6 +1,56 @@
 name: crypto-trade
 
 services:
+  engine:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: crypto-trade-engine:latest
+    container_name: crypto-trade-engine
+    restart: unless-stopped
+    init: true
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      TZ: UTC
+      CONFIG_DIR: /app/config
+      TRADING_MODE: ${TRADING_MODE:-shadow}
+      ALPACA_API_KEY: ${ALPACA_API_KEY:-}
+      ALPACA_API_SECRET: ${ALPACA_API_SECRET:-}
+      APCA_API_KEY_ID: ${APCA_API_KEY_ID:-}
+      APCA_API_SECRET_KEY: ${APCA_API_SECRET_KEY:-}
+      ALPACA_PAPER: ${ALPACA_PAPER:-true}
+      PAPER_ENTRY_EXERCISE: ${PAPER_ENTRY_EXERCISE:-false}
+      ALLOW_LIVE_TRADING: ${ALLOW_LIVE_TRADING:-false}
+      LIVE_TRADING_CONFIRMATION: ${LIVE_TRADING_CONFIRMATION:-}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-crypto_trade}
+      POSTGRES_USER: ${POSTGRES_USER:-crypto_trade}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-crypto_trade_dev}
+    ports:
+      - "3001:3001"
+    volumes:
+      - crypto_trade_event_data:/app/data
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3001/healthz').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 30s
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    stop_grace_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
   postgres:
     image: postgres:16-alpine
     container_name: crypto-trade-postgres
@@ -29,3 +79,5 @@ services:
 volumes:
   crypto_trade_postgres_data:
     name: crypto_trade_postgres_data
+  crypto_trade_event_data:
+    name: crypto_trade_event_data

@@ -43,7 +43,7 @@ export interface EngineMarketSnapshot {
   sequence: string;
   exchangeTsMs: number;
   receiveTsMs: number;
-  features: Features | null;
+  features: DeterministicFeatures | null;
   regime?: RegimeDecision | null;
   ruleEvaluation?: DeterministicEvaluation | null;
   entryReady?: boolean;
@@ -527,8 +527,10 @@ export class TradingEngine extends EventEmitter {
       return;
     }
     const intent = plannerIntent(routed.intent, 1);
+    const riskSigmaHBps = routed.intent.selectedHorizonMs === undefined ? features.sigmaHBps
+      : 10_000 * Math.sqrt(Math.max(features.slowVarianceRate, 1e-16) * routed.intent.selectedHorizonMs / 1_000);
     const initialStopDistance = Math.max(
-      cfgPriceSigma(features, runtime.config.initialStopSigma),
+      features.mid * riskSigmaHBps / 10_000 * runtime.config.initialStopSigma,
       runtime.config.minimumStopSpreadMultiple * features.spread,
       runtime.asset.priceIncrement,
     );
@@ -541,6 +543,7 @@ export class TradingEngine extends EventEmitter {
     }, false, {
       createdMs: features.receiveTsMs, decisionId: routed.intent.decisionId,
       quantityMultiplier: routed.sizeMultiplier,
+      riskSigmaHBps,
       ...(routed.intent.executionPath === undefined ? {} : { executionPath: routed.intent.executionPath }),
       ...(routed.intent.selectedHorizonMs === undefined ? {} : { economicHorizonMs: routed.intent.selectedHorizonMs }),
       revalidateCost: (exactCost) => {
@@ -608,7 +611,25 @@ export class TradingEngine extends EventEmitter {
     const candidate = evaluation.candidate;
     const diagnostics = candidate.diagnostics;
     runtime.entryAudit.pass("DIRECTIONAL_CANDIDATE");
+    if (!runtime.latestFeatures?.slowTrendReady) {
+      this.rejectEntry(runtime, "CONTINUATION_FEATURES_READY", "SLOW_TREND_WARMUP", atMs, {
+        slowTrendReady: false,
+      });
+      return;
+    }
     runtime.entryAudit.pass("CONTINUATION_FEATURES_READY");
+    if (!diagnostics.slowTrendPass) {
+      this.rejectEntry(runtime, "SLOW_TREND_PASS", "SLOW_TREND_GATE", atMs, {
+        side: diagnostics.side,
+        trendFastBps: runtime.latestFeatures.trendFastBps,
+        trendMediumBps: runtime.latestFeatures.trendMediumBps,
+        trendSlowBps: runtime.latestFeatures.trendSlowBps,
+        slowTrendAlignment: runtime.latestFeatures.slowTrendAlignment,
+        slowTrendEfficiency: runtime.latestFeatures.slowTrendEfficiency,
+      });
+      return;
+    }
+    runtime.entryAudit.pass("SLOW_TREND_PASS");
     if (!diagnostics.healthPass) { this.rejectEntry(runtime, "HEALTH_PASS", "HEALTH_GATE", atMs); return; }
     runtime.entryAudit.pass("HEALTH_PASS");
     if (!diagnostics.liquidityPass) {
