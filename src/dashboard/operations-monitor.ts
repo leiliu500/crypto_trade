@@ -157,6 +157,12 @@ export class OperationsMonitor extends EventEmitter {
         spread: features?.spread ?? difference(market.bestAsk, market.bestBid),
         spreadBps: features?.spreadBps ?? spreadBps(market.bestBid, market.bestAsk),
         sigmaHBps: features?.sigmaHBps ?? null,
+        slowTrendReady: features?.slowTrendReady ?? false,
+        trendFastBps: features?.trendFastBps ?? null,
+        trendMediumBps: features?.trendMediumBps ?? null,
+        trendSlowBps: features?.trendSlowBps ?? null,
+        slowTrendAlignment: features?.slowTrendAlignment ?? null,
+        slowTrendEfficiency: features?.slowTrendEfficiency ?? null,
         providerAgeMs: features?.providerAgeMs ?? null,
         staleThresholdMs: features?.staleThresholdMs ?? null,
         warmedUp: features?.warmedUp ?? false,
@@ -539,7 +545,8 @@ function projectRule(rule: NonNullable<EngineMarketSnapshot["ruleEvaluation"]>["
     healthPass: rule.healthPass, liquidityPass: rule.liquidityPass, regimePass: rule.regimePass,
     persistencePass: rule.persistencePass, antiChasePass: rule.antiChasePass, exposurePass: rule.exposurePass,
     cooldownPass: rule.cooldownPass, costPass: rule.costPass,
-    arbitrationPass: rule.arbitrationPass, tradeThresholdBps: rule.tradeThresholdBps,
+    arbitrationPass: rule.arbitrationPass, slowTrendPass: rule.slowTrendPass,
+    tradeThresholdBps: rule.tradeThresholdBps,
     stressThresholdBps: rule.stressThresholdBps, liquidityReasons: [...rule.liquidityReasons], reasons: [...rule.reasons],
   };
 }

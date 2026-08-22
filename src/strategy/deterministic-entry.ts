@@ -42,6 +42,10 @@ export interface DeterministicSignalConfig {
   continuationQuality: ContinuationQualityConfig;
   minimumEconomicSizeScale: number;
   minimumMakerFillProbability: number;
+  requireMakerEntry: boolean;
+  minimumSlowTrendAlignment: number;
+  minimumSlowTrendEfficiency: number;
+  minimumSlowTrendMoveBps: number;
   minimumEffectiveSampleCount: number;
   positiveCostErrorP95Bps: number;
   maximumReasonableCostBps: number;
@@ -77,7 +81,7 @@ export interface RuleDiagnostics {
   requiredContinuationQuality: number | null; continuationQuality: number; economicSizeScale: number;
   scorePass: boolean; rawDirectionalPass: boolean; candidatePass: boolean; edgeResolvedPass: boolean;
   healthPass: boolean; liquidityPass: boolean; regimePass: boolean; persistencePass: boolean; antiChasePass: boolean;
-  exposurePass: boolean; cooldownPass: boolean; costPass: boolean; arbitrationPass: boolean;
+  exposurePass: boolean; cooldownPass: boolean; costPass: boolean; arbitrationPass: boolean; slowTrendPass: boolean;
   liquidityReasons: readonly string[]; tradeThresholdBps: number; stressThresholdBps: number; reasons: string[];
 }
 export interface DeterministicDirectionalCandidate {
@@ -170,6 +174,7 @@ export class DeterministicEntryEngine {
 
   public signalStillValid(side: Direction, features: DeterministicFeatures, _regime: RegimeDecision): boolean {
     if (features.stale || !features.kinematicsReady) return false;
+    if (!this.slowTrendPass(side, features)) return false;
     const halfSpread = Math.max(features.spread / 2, 1e-12);
     const pressure = clamp((features.microprice - features.mid) / halfSpread, -1, 1);
     const cfg = this.cfg.microTrigger;
@@ -186,7 +191,7 @@ export class DeterministicEntryEngine {
 
   private commonPass(d: RuleDiagnostics): boolean {
     return d.candidatePass && d.healthPass && d.liquidityPass && d.antiChasePass && d.exposurePass
-      && d.cooldownPass && d.edgeResolvedPass && d.costPass;
+      && d.cooldownPass && d.edgeResolvedPass && d.costPass && d.slowTrendPass;
   }
 
   private diagnostics(trigger: SideTriggerDiagnostics, oppositeScore: number, context: EntryContext,
@@ -211,11 +216,14 @@ export class DeterministicEntryEngine {
     const antiChasePass = trigger.chaseBps <= this.cfg.microTrigger.maximumChaseBps;
     const cooldownPass = !trigger.reasons.includes("COOLDOWN_ACTIVE") && !trigger.reasons.includes("ALREADY_FIRED_IN_EPISODE");
     const continuation = continuationQuality(direction, f, context.regime, this.cfg.continuationQuality);
+    const slowTrendPass = this.slowTrendPass(direction, f);
     const edges = this.edgeResolver.resolve({ symbol: context.symbol, side: direction, features: f,
       regime: context.regime, continuation });
     const suppliedCosts = direction === 1 ? context.longEconomicCosts : context.shortEconomicCosts;
-    const costs = suppliedCosts && suppliedCosts.length > 0 ? suppliedCosts
+    const availableCosts = suppliedCosts && suppliedCosts.length > 0 ? suppliedCosts
       : [exactCostBreakdown(cost, "TAKER_TAKER", 1, this.cfg.positiveCostErrorP95Bps)];
+    const costs = this.cfg.requireMakerEntry
+      ? availableCosts.filter((item) => item.path === "MAKER_TAKER") : availableCosts;
     const decision = this.costGate.evaluate(edges, costs);
     const economic = decision.selected ?? decision.bestRejected;
     // Signal uncertainty is already incorporated in conservativeGrossBps and is not charged again.
@@ -236,6 +244,7 @@ export class DeterministicEntryEngine {
     if (!edgeResolvedPass) reasons.push("EDGE_NOT_RESOLVED");
     if (edgeResolvedPass && !costPass) reasons.push("COST_GATE");
     if (!arbitrationPass) reasons.push("ARBITRATION_GATE");
+    if (!slowTrendPass) reasons.push(f.slowTrendReady ? "SLOW_TREND_GATE" : "SLOW_TREND_WARMUP");
     return {
       side: direction, phase, score: trigger.score, oppositeScore, scoreMargin: trigger.score - oppositeScore, votes,
       persistence: trigger.occupancy, evidence: trigger.evidence, confirmationMs: trigger.confirmationMs,
@@ -255,6 +264,7 @@ export class DeterministicEntryEngine {
       edgeEffectiveSampleCount: economic?.edge.effectiveSampleCount ?? 0,
       scorePass, rawDirectionalPass, candidatePass, edgeResolvedPass, healthPass, liquidityPass, regimePass,
       persistencePass, antiChasePass, exposurePass, cooldownPass, costPass, arbitrationPass,
+      slowTrendPass,
       liquidityReasons: dynamicLiquidity?.reasons ?? (liquidityPass ? [] : ["STATIC_LIQUIDITY_LIMIT"]),
       tradeThresholdBps: dynamicLiquidity?.tradeThresholdBps ?? this.cfg.maximumSpreadBps,
       stressThresholdBps: dynamicLiquidity?.stressThresholdBps ?? this.cfg.maximumSpreadBps,
@@ -323,6 +333,14 @@ export class DeterministicEntryEngine {
       + cfg.breakoutWeight * Math.tanh((f.breakoutUpBps - f.breakoutDownBps) / cfg.breakoutScaleBps);
   }
 
+  private slowTrendPass(side: Direction, f: DeterministicFeatures): boolean {
+    return f.slowTrendReady
+      && side * f.slowTrendAlignment >= this.cfg.minimumSlowTrendAlignment
+      && f.slowTrendEfficiency >= this.cfg.minimumSlowTrendEfficiency
+      && side * f.trendSlowBps >= this.cfg.minimumSlowTrendMoveBps
+      && side * f.trendFastBps > 0 && side * f.trendMediumBps > 0;
+  }
+
   private microVotes(direction: Direction, f: DeterministicFeatures, d: SideTriggerDiagnostics): RuleVotes {
     const cfg = this.cfg.microTrigger;
     const directionalBreakout = direction === 1 ? f.breakoutUpBps : f.breakoutDownBps;
@@ -360,6 +378,9 @@ export function validateDeterministicConfig(cfg: DeterministicSignalConfig): voi
   if (!(cfg.costSafetyFactor >= 1)) fail("costSafetyFactor must be at least 1");
   if (!(cfg.minimumEconomicSizeScale > 0 && cfg.minimumEconomicSizeScale <= 1)) fail("minimumEconomicSizeScale must be in (0,1]");
   if (!(cfg.minimumMakerFillProbability >= 0 && cfg.minimumMakerFillProbability <= 1)) fail("minimumMakerFillProbability must be in [0,1]");
+  if (!(cfg.minimumSlowTrendAlignment >= 0 && cfg.minimumSlowTrendAlignment <= 1)) fail("minimumSlowTrendAlignment must be in [0,1]");
+  if (!(cfg.minimumSlowTrendEfficiency >= 0 && cfg.minimumSlowTrendEfficiency <= 1)) fail("minimumSlowTrendEfficiency must be in [0,1]");
+  if (!(cfg.minimumSlowTrendMoveBps >= 0)) fail("minimumSlowTrendMoveBps cannot be negative");
   if (!(cfg.minimumEffectiveSampleCount >= 0)) fail("minimumEffectiveSampleCount cannot be negative");
   if (!(cfg.minimumConfirmationMs >= 0) || !(cfg.cooldownMs >= cfg.minimumConfirmationMs)) fail("cooldown must cover confirmation time");
   if (!Number.isInteger(cfg.minimumConfirmationEvents) || cfg.minimumConfirmationEvents < 1) fail("minimumConfirmationEvents must be a positive integer");

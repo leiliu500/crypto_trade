@@ -16,6 +16,8 @@ const features: DeterministicFeatures = {
   microEdgeBps: .3, impulseBps: 1, breakoutUpBps: .8, breakoutDownBps: 0, anchorDistanceBps: 1.2,
   sigmaImpulseBps: 1, cusumUpScore: 4, cusumDownScore: 0, flowFlipRate: .05,
   usableDepthQty: 100, usableDepthNotional: 1_000_000,
+  slowTrendReady: true, trendFastBps: 20, trendMediumBps: 35, trendSlowBps: 60,
+  slowTrendAlignment: .7, slowTrendEfficiency: .5, slowVarianceRate: 4e-8, slowSigmaBps: 60,
 };
 
 test("missing calibrated edge falls back to a finite deterministic analytical estimate", () => {

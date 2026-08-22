@@ -11,7 +11,7 @@ The hot path is:
 ```text
 Alpaca crypto WebSocket
   -> reset/delta L2 book validation
-  -> causal deterministic feature extensions
+  -> causal microstructure + sampled 5/15/60-minute trend state
   -> prior-event adaptive microprice-noise threshold
   -> bounded micro/book/flow/motion score + mandatory motion quorum
   -> decayed occupancy/evidence + hysteresis + arm-anchored anti-chasing
@@ -19,7 +19,7 @@ Alpaca crypto WebSocket
   -> calibrated-or-analytic edge - uncertainty - exact walked cost
   -> anti-chasing + quantity-aware execution planning
   -> risk, correlation, and liquidity sizing
-  -> maker/taker EV comparison
+  -> maker-only entry planning (taker exits remain available)
   -> capped Alpaca limit order
   -> private trade_updates reconciliation
   -> deterministic hold/reversal + recovery/time/profit-floor exits
@@ -30,7 +30,8 @@ The main contracts are:
 - Candidate: a bounded directional score, two-of-three book/flow/motion quorum with motion mandatory, decayed occupancy, leaky evidence, confirmation time/events, arbitration, cooldown, and midpoint-at-arm chase limit must pass. A directional regime is still reported but cannot suppress a micro candidate.
 - Entry: every health, dynamic-liquidity, venue, exposure, edge, cost, sizing, execution-plan, and portfolio gate must then pass. Candidate sensitivity never bypasses order economics.
 - Cost: `deterministic opportunity − uncertainty reserve − 1.75 × exact quantity-dependent round-trip cost >= minimum edge`.
-- Horizon: the causal trigger uses short feature windows, while analytical edge uses a separately configured economic horizon (`RULE_ECONOMIC_HORIZON_MS`).
+- Horizon: microstructure selects entry timing, while a bounded five-second sampler supplies causal 5/15/60-minute trend returns, slow efficiency, and slow realized variance to the 1/2/4-hour economic horizons.
+- Trend warm-up: new processes fail closed until at least 90% of the 60-minute slow window is observed. The dashboard reports `SLOW_TREND_WARMUP` and then `SLOW_TREND_GATE` when alignment is insufficient.
 - State: one continuous episode produces at most one candidate. Re-arming requires release hysteresis or an excessive event-gap reset, and the configured cooldown must have elapsed.
 - Models: `SIGNAL_MODE=DETERMINISTIC_ONLY` is the default. An optional model may only veto, rank, or reduce an already-valid deterministic intent; it cannot create exposure.
 - Risk: `quantity × maximum modeled loss per unit <= current risk budget`.
@@ -57,7 +58,7 @@ Startup preflight reads all latest crypto resources, account configuration, and 
 Alpaca venue constraints are enforced:
 
 - This engine trades Alpaca **spot crypto**. Assets currently report `shortable=false`, so deterministic short intents are evaluated symmetrically for audit/replay but cannot open short exposure.
-- Alpaca crypto supports market, limit, and stop-limit orders with GTC/IOC. The engine deliberately emits only price-capped limit orders: GTC for makers and marketable IOC for takers/exits. Maker and taker candidates are independently sized and exact-cost revalidated, so a rejected taker candidate cannot incorrectly suppress an economically valid maker candidate.
+- Alpaca crypto supports market, limit, and stop-limit orders with GTC/IOC. The strategy entry path is explicitly `MAKER_TAKER`: a non-marketable GTC entry followed by a taker-capable safety exit. Every final quantity is exact-cost revalidated, and a taker entry cannot silently replace an unfilled or uneconomic maker entry.
 - There are no perpetuals, leverage, liquidation, funding, or native reduce-only flags on this venue. Funding/borrow are therefore zero, and exits are client-side clamped to the known long position.
 - Alpaca's documented order-book schema exposes reset and price-level deltas, but no exchange sequence number or checksum. The engine requires a reset after connection, rejects timestamp reversal/crossed books/duplicates, and never misrepresents its local counter as an exchange sequence guarantee.
 - Minimum size, quantity increment, and price increment come from the live Alpaca Assets resource rather than hard-coded symbol rules.
@@ -120,7 +121,7 @@ The default deterministic configuration in `config/base.json` is:
 
 ```text
 SIGNAL_MODE=DETERMINISTIC_ONLY
-DETERMINISTIC_CONFIG_VERSION=deterministic-micro-v1.3
+DETERMINISTIC_CONFIG_VERSION=deterministic-slow-trend-v2.0
 ```
 
 `record` appends raw order-book and trade events to `data/events.jsonl`. Paper, shadow, and live modes also continuously append independently compressed gzip batches to `data/continuous-events.jsonl.gz` when `CONTINUOUS_RECORDING_ENABLED` is true. The batched writer keeps compression off the market-data hot path and makes completed batches replayable while the engine remains online. Run `npm run recall -- data/continuous-events.jsonl.gz` to analyze that capture.
@@ -143,14 +144,42 @@ ALLOW_LIVE_TRADING=true
 LIVE_TRADING_CONFIRMATION=I_UNDERSTAND_LIVE_ORDERS_USE_REAL_MONEY
 ```
 
+## AWS EC2 deployment with Docker Compose
+
+The Compose stack builds and runs the trading engine and PostgreSQL together. The dashboard listens on port `3001`, PostgreSQL remains bound only to EC2 loopback, and named volumes preserve database and recorded event data across container replacements.
+
+On an EC2 instance with Docker Engine and the Compose plugin installed:
+
+```bash
+cp .env.example .env
+# Add the Alpaca credentials to .env and keep TRADING_MODE=shadow for the first run.
+docker-compose up -d --build
+docker-compose ps
+docker-compose logs -f engine
+```
+
+Open `http://EC2_PUBLIC_IP:3001`. In the EC2 security group, allow inbound TCP port `3001` only from trusted operator IP addresses; do not expose PostgreSQL port `5433` publicly. The dashboard has no authentication, so use a private subnet, VPN, SSH tunnel, or an authenticated reverse proxy when source-IP restriction is insufficient.
+
+The services use `restart: unless-stopped`, so they return after Docker starts following an instance reboot. Enable Docker itself at boot with the command appropriate for the EC2 image (for example, `sudo systemctl enable --now docker`). Deploy an updated checkout with `docker-compose up -d --build`; Compose replaces the engine container without deleting its named volumes. If your Docker installation provides Compose only as a CLI plugin, use `docker compose` in place of `docker-compose`.
+
+Useful checks:
+
+```bash
+curl --fail http://127.0.0.1:3001/healthz
+docker-compose exec engine node dist/src/database/verify-main.js
+docker-compose exec engine node dist/src/database/smoke-main.js
+```
+
+Stop the stack with `docker-compose down`. This preserves named volumes; adding `--volumes` permanently removes the database and event-data volumes.
+
 ## Operations dashboard and PostgreSQL
 
-The local dashboard is enabled by default at `http://127.0.0.1:8787`. It shows execution-gate liveness, Alpaca public/private stream state, reconciliation and book validity, micro score/phase/block reasons, occupancy, evidence, adaptive noise and movement threshold, arm-anchored chase, per-direction groups, gross opportunity, uncertainty, round-trip cost and lower-bound edge, risk halts, latency, hold/reversal exit dynamics, order fill progression, lifecycle timelines, and the operational audit stream. Its pipeline counters expose `MICRO_EVENT`, `MICRO_ARMED`, and `MICRO_CANDIDATE` separately from cost qualification and order sends. It is read-only, binds to loopback by default, uses no third-party browser assets, and redacts credential-shaped event fields.
+The dashboard is enabled by default at `http://127.0.0.1:3001` for a local process, or `http://EC2_PUBLIC_IP:3001` for the Compose deployment. It shows execution-gate liveness, Alpaca public/private stream state, reconciliation and book validity, micro score/phase/block reasons, occupancy, evidence, adaptive noise and movement threshold, arm-anchored chase, per-direction groups, gross opportunity, uncertainty, round-trip cost and lower-bound edge, risk halts, latency, hold/reversal exit dynamics, order fill progression, lifecycle timelines, and the operational audit stream. Its pipeline counters expose `MICRO_EVENT`, `MICRO_ARMED`, and `MICRO_CANDIDATE` separately from cost qualification and order sends. It is read-only, uses no third-party browser assets, and redacts credential-shaped event fields.
 
 Start the PostgreSQL 16 service and validate its schema:
 
 ```powershell
-docker compose up -d postgres
+docker-compose up -d postgres
 npm run db:migrate
 npm run db:verify
 npm run db:smoke
@@ -168,7 +197,7 @@ npm run dashboard:demo
 
 ## Validation
 
-The test suite enforces exact decimal conversion, reset/delta and duplicate behavior, crossed-book rejection, causal feature replay equality, mandatory warm-up/staleness/health gates, adaptive prior-noise decisions, independent evidence quorums, tiny persistent movement detection, spike rejection, opposing-evidence decay, event-gap reset, one candidate per episode, arm-anchored anti-chasing, long/short symmetry, inclusive exact-cost thresholds, model non-creation, deterministic hold/reversal, maximum-loss sizing, monotone floors, operational reconciliation, private-event idempotence, and non-retry of order POSTs.
+The test suite enforces exact decimal conversion, reset/delta and duplicate behavior, crossed-book rejection, causal feature replay equality, slow-window warm-up and trend alignment, maker-only entry-path enforcement, mandatory staleness/health gates, adaptive prior-noise decisions, independent evidence quorums, tiny persistent movement detection, spike rejection, opposing-evidence decay, event-gap reset, one candidate per episode, arm-anchored anti-chasing, long/short symmetry, inclusive exact-cost thresholds, model non-creation, deterministic hold/reversal, maximum-loss sizing, monotone floors, operational reconciliation, private-event idempotence, and non-retry of order POSTs.
 
 The replay package includes event validation, opportunity-recall analysis, arrival-time IOC/maker fill simulation primitives, chronological walk-forward fold construction with purge/embargo, conservative stress profiles, and reusable trade-metric calculations. A complete fill-to-P&L walk-forward runner still requires a sufficiently long recorded dataset; the software does not present short smoke-test output as validated performance.
 

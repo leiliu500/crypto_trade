@@ -1,4 +1,4 @@
-import type { Features } from "../core/market.js";
+import type { DeterministicFeatures } from "../strategy/deterministic-features.js";
 import type { EngineOperationalSnapshot } from "../engine/trading-engine.js";
 import type { TrackedOrder } from "../execution/order-state.js";
 import type { ExecutionPlan } from "../execution/planner.js";
@@ -9,8 +9,9 @@ const startedAtMs = Date.now() - 2_847_000;
 const positionOpenedAtMs = Date.now() - 128_000;
 const monitor = new OperationsMonitor({ pollIntervalMs: 500, marketSampleMs: 1_000 });
 monitor.setDatabaseHealth({ connected: true, status: "connected", queuedRecords: 4, droppedRecords: 0, lastPersistedAtMs: Date.now() - 180, lastError: null });
-const port = Number(process.env.DASHBOARD_PORT ?? 8_787);
-const server = new DashboardServer(monitor, { host: "127.0.0.1", port: Number.isInteger(port) ? port : 8_787 });
+const port = Number(process.env.DASHBOARD_PORT ?? 3_001);
+const host = process.env.DASHBOARD_HOST ?? "0.0.0.0";
+const server = new DashboardServer(monitor, { host, port: Number.isInteger(port) ? port : 3_001 });
 const url = await server.start();
 
 monitor.recordEvent("publicStreamReady", { feed: "Alpaca crypto v1beta3", symbols: ["BTC/USD", "ETH/USD", "SOL/USD"] }, Date.now() - 20_000);
@@ -63,14 +64,19 @@ function market(symbol: string, mid: number, spread: number, sequence: number, n
   return { symbol, bookValid: true, bestBid: bid, bestAsk: ask, sequence: String(980_000 + sequence), exchangeTsMs: nowMs - 22, receiveTsMs: nowMs - 14,
     features: features(symbol, mid, spread, nowMs, sigma, sequence) };
 }
-function features(symbol: string, mid: number, spread: number, nowMs: number, sigma: number, sequence: number): Features {
+function features(symbol: string, mid: number, spread: number, nowMs: number, sigma: number, sequence: number): DeterministicFeatures {
   return { symbol, mid, spread, spreadBps: spread / mid * 10_000, microprice: mid + Math.sin(sequence) * spread / 5, visibleDepth: 32.4,
     qi1: .22 + Math.sin(sequence / 4) * .16, qiK: .18, persistentQiK: .14, ofi: .42 + Math.sin(sequence / 3) * .2,
     tfi: .31 + Math.sin(sequence / 5) * .18, bidCancellationRatio: .12, askCancellationRatio: .18, replenishmentPressure: .24,
     velocity: .003, acceleration: .0001, varianceRate: .00002, sigmaHBps: sigma, microEdgeZ: .8, velocityZ: .46 + Math.sin(sequence / 4) * .22, accelerationZ: .12,
     efficiency: .74, cusumUp: true, cusumDown: false, spreadZ: -.24, depthZ: .82, signalFlipRate: .08,
     providerAgeMs: 18 + sequence % 9, staleThresholdMs: 2_000, warmedUp: true, kinematicsReady: true,
-    stale: false, staleReason: null, receiveTsMs: nowMs - 14 };
+    stale: false, staleReason: null, receiveTsMs: nowMs - 14,
+    microEdgeBps: .3, impulseBps: 1.2, breakoutUpBps: .8, breakoutDownBps: 0,
+    anchorDistanceBps: 12, sigmaImpulseBps: 1.5, cusumUpScore: 4, cusumDownScore: 0,
+    flowFlipRate: .08, usableDepthQty: 32.4, usableDepthNotional: 2_000_000,
+    slowTrendReady: true, trendFastBps: 18, trendMediumBps: 34, trendSlowBps: 72,
+    slowTrendAlignment: .68, slowTrendEfficiency: .42, slowVarianceRate: 4e-8, slowSigmaBps: 120 };
 }
 
 function demoOrders(nowMs: number, progress: number, btc: number): readonly TrackedOrder[] {

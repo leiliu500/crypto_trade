@@ -25,6 +25,15 @@ export interface DeterministicFeatures extends Features {
   flowFlipRate: number;
   usableDepthQty: number;
   usableDepthNotional: number;
+  /** Sampled multi-minute state. It is unavailable until the slow window has causal coverage. */
+  slowTrendReady: boolean;
+  trendFastBps: number;
+  trendMediumBps: number;
+  trendSlowBps: number;
+  slowTrendAlignment: number;
+  slowTrendEfficiency: number;
+  slowVarianceRate: number;
+  slowSigmaBps: number;
 }
 
 export interface ExtensionConfig {
@@ -36,6 +45,11 @@ export interface ExtensionConfig {
   cusumDrift: number;
   cusumCap: number;
   alignmentDeadband: number;
+  trendSampleIntervalMs: number;
+  trendFastWindowMs: number;
+  trendMediumWindowMs: number;
+  trendSlowWindowMs: number;
+  trendMinimumCoverage: number;
 }
 
 interface PricePoint { t: number; logMid: number; }
@@ -121,6 +135,9 @@ export class DeterministicFeatureExtensions {
   private previousMs?: number;
   private readonly cusum: CausalCusum;
   private readonly flips: FlipRateTracker;
+  private slowPoints: PricePoint[] = [];
+  private slowHead = 0;
+  private slowState = emptySlowTrendState();
 
   public constructor(private readonly cfg: ExtensionConfig) {
     validateExtensionConfig(cfg);
@@ -149,6 +166,7 @@ export class DeterministicFeatureExtensions {
     const sigmaImpulseBps = 10_000 * Math.sqrt(Math.max(features.varianceRate * (this.cfg.impulseWindowMs / 1_000), 1e-16));
     this.points.push({ t: nowMs, logMid });
     this.previousLogMid = logMid; this.previousMs = nowMs; this.trim(nowMs);
+    this.updateSlowTrend(nowMs, logMid);
     return {
       ...features,
       microEdgeBps: 10_000 * Math.log(features.microprice / features.mid),
@@ -159,7 +177,56 @@ export class DeterministicFeatureExtensions {
       providerAgeMs: features.providerAgeMs,
       usableDepthQty: pressure.usableDepthQty,
       usableDepthNotional: pressure.usableDepthNotional,
+      ...this.slowState,
     };
+  }
+
+  private updateSlowTrend(nowMs: number, logMid: number): void {
+    const last = this.slowPoints.at(-1);
+    if (last && nowMs - last.t < this.cfg.trendSampleIntervalMs) return;
+    this.slowPoints.push({ t: nowMs, logMid });
+    const cutoff = nowMs - this.cfg.trendSlowWindowMs;
+    while (this.slowHead + 1 < this.slowPoints.length && this.slowPoints[this.slowHead + 1]!.t < cutoff) {
+      this.slowHead += 1;
+    }
+    if (this.slowHead > 1_024) { this.slowPoints = this.slowPoints.slice(this.slowHead); this.slowHead = 0; }
+
+    const fast = this.slowReturnBps(nowMs, logMid, this.cfg.trendFastWindowMs);
+    const medium = this.slowReturnBps(nowMs, logMid, this.cfg.trendMediumWindowMs);
+    const slow = this.slowReturnBps(nowMs, logMid, this.cfg.trendSlowWindowMs);
+    let squaredReturn = 0, elapsedSec = 0, pathLength = 0;
+    for (let index = this.slowHead + 1; index < this.slowPoints.length; index += 1) {
+      const previous = this.slowPoints[index - 1]!, current = this.slowPoints[index]!;
+      const dtSec = Math.max((current.t - previous.t) / 1_000, 1e-6);
+      const change = current.logMid - previous.logMid;
+      squaredReturn += change * change;
+      elapsedSec += dtSec;
+      pathLength += Math.abs(change);
+    }
+    const slowVarianceRate = elapsedSec > 0 ? Math.max(squaredReturn / elapsedSec, 1e-16) : 1e-16;
+    const windowSigma = (windowMs: number): number => 10_000 * Math.sqrt(slowVarianceRate * windowMs / 1_000);
+    const normalized = (returnBps: number, windowMs: number): number => Math.tanh(returnBps / Math.max(windowSigma(windowMs), 1));
+    const first = this.slowPoints[this.slowHead];
+    const coverageMs = first ? nowMs - first.t : 0;
+    const slowTrendReady = coverageMs >= this.cfg.trendSlowWindowMs * this.cfg.trendMinimumCoverage
+      && this.slowPoints.length - this.slowHead >= 2;
+    this.slowState = {
+      slowTrendReady,
+      trendFastBps: fast,
+      trendMediumBps: medium,
+      trendSlowBps: slow,
+      slowTrendAlignment: clamp((normalized(fast, this.cfg.trendFastWindowMs)
+        + normalized(medium, this.cfg.trendMediumWindowMs)
+        + normalized(slow, this.cfg.trendSlowWindowMs)) / 3, -1, 1),
+      slowTrendEfficiency: pathLength > 0 ? clamp(Math.abs(slow / 10_000) / pathLength, 0, 1) : 0,
+      slowVarianceRate,
+      slowSigmaBps: windowSigma(this.cfg.trendSlowWindowMs),
+    };
+  }
+
+  private slowReturnBps(nowMs: number, logMid: number, windowMs: number): number {
+    const reference = referenceLogPrice(this.slowPoints, this.slowHead, nowMs - windowMs);
+    return reference === undefined ? 0 : 10_000 * (logMid - reference);
   }
 
   private trim(nowMs: number): void {
@@ -198,4 +265,34 @@ function validateExtensionConfig(cfg: ExtensionConfig): void {
   for (const [name, value] of Object.entries(cfg)) if (!Number.isFinite(value) || value < 0) throw new Error(`Invalid deterministic extension configuration: ${name}`);
   if (!(cfg.impulseWindowMs > 0 && cfg.breakoutWindowMs > 0 && cfg.anchorWindowMs > 0 && cfg.flipWindowMs > 0 && cfg.cusumCap > 0)) throw new Error("Deterministic feature windows and CUSUM cap must be positive");
   if (!(cfg.maximumStoredWindowMs >= Math.max(cfg.impulseWindowMs, cfg.breakoutWindowMs, cfg.anchorWindowMs, cfg.flipWindowMs))) throw new Error("maximumStoredWindowMs must cover every deterministic feature window");
+  if (!(cfg.trendSampleIntervalMs > 0 && cfg.trendFastWindowMs > 0
+    && cfg.trendFastWindowMs < cfg.trendMediumWindowMs && cfg.trendMediumWindowMs < cfg.trendSlowWindowMs)) {
+    throw new Error("slow trend windows must be positive and strictly increasing");
+  }
+  if (!(cfg.trendMinimumCoverage > 0 && cfg.trendMinimumCoverage <= 1)) throw new Error("trendMinimumCoverage must be in (0,1]");
+}
+
+interface SlowTrendState {
+  slowTrendReady: boolean;
+  trendFastBps: number;
+  trendMediumBps: number;
+  trendSlowBps: number;
+  slowTrendAlignment: number;
+  slowTrendEfficiency: number;
+  slowVarianceRate: number;
+  slowSigmaBps: number;
+}
+
+function emptySlowTrendState(): SlowTrendState {
+  return { slowTrendReady: false, trendFastBps: 0, trendMediumBps: 0, trendSlowBps: 0,
+    slowTrendAlignment: 0, slowTrendEfficiency: 0, slowVarianceRate: 1e-16, slowSigmaBps: 0 };
+}
+
+function referenceLogPrice(points: readonly PricePoint[], head: number, targetMs: number): number | undefined {
+  if (points.length <= head) return undefined;
+  let lo = head, hi = points.length;
+  while (lo < hi) { const mid = (lo + hi) >>> 1; if (points[mid]!.t < targetMs) lo = mid + 1; else hi = mid; }
+  if (lo <= head) return points[head]?.logMid;
+  if (lo >= points.length) return points.at(-1)?.logMid;
+  return points[lo - 1]?.logMid;
 }

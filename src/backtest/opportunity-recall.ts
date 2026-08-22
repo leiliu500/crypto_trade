@@ -27,7 +27,7 @@ export interface EconomicCandidateAudit {
 interface DirectionCandidateCounts {
   evaluations: number; regimePass: number; quorumPass: number; scorePass: number; arbitrationPass: number;
   antiChasePass: number; rawDirectionalPass: number; persistencePass: number; candidatePass: number;
-  liquidityPass: number; edgeResolvedPass: number; preliminaryCostPass: number;
+  liquidityPass: number; slowTrendPass: number; edgeResolvedPass: number; preliminaryCostPass: number;
   maximumPersistence: number; maximumConfirmationMs: number; maximumConfirmationEvents: number;
 }
 interface OfflineRuntime {
@@ -331,7 +331,8 @@ function allNumbersFinite(value: object): boolean {
 }
 function emptyDirectionCounts(): DirectionCandidateCounts {
   return { evaluations: 0, regimePass: 0, quorumPass: 0, scorePass: 0, arbitrationPass: 0, antiChasePass: 0,
-    rawDirectionalPass: 0, persistencePass: 0, candidatePass: 0, liquidityPass: 0, edgeResolvedPass: 0, preliminaryCostPass: 0,
+    rawDirectionalPass: 0, persistencePass: 0, candidatePass: 0, liquidityPass: 0, slowTrendPass: 0,
+    edgeResolvedPass: 0, preliminaryCostPass: 0,
     maximumPersistence: 0, maximumConfirmationMs: 0, maximumConfirmationEvents: 0 };
 }
 function incrementDirection(counts: DirectionCandidateCounts, diagnostics: DeterministicEvaluation["long"]): void {
@@ -345,6 +346,7 @@ function incrementDirection(counts: DirectionCandidateCounts, diagnostics: Deter
   if (diagnostics.persistencePass) counts.persistencePass += 1;
   if (diagnostics.candidatePass) counts.candidatePass += 1;
   if (diagnostics.liquidityPass) counts.liquidityPass += 1;
+  if (diagnostics.slowTrendPass) counts.slowTrendPass += 1;
   if (diagnostics.edgeResolvedPass) counts.edgeResolvedPass += 1;
   if (diagnostics.costPass) counts.preliminaryCostPass += 1;
   counts.maximumPersistence = Math.max(counts.maximumPersistence, diagnostics.persistence);

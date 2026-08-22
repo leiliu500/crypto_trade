@@ -16,14 +16,19 @@ export interface AnalyticEdgeInput {
 
 /** Analytical paper/shadow edge estimates. Signal uncertainty is incorporated once in conservativeGrossBps. */
 export function analyticEdges(input: AnalyticEdgeInput, cfg: MultiHorizonAnalyticConfig): ConservativeEdge[] {
+  if (!input.features.slowTrendReady) return [];
   const directionalBreakoutBps = input.side === 1 ? input.features.breakoutUpBps : input.features.breakoutDownBps;
+  const directionalTrendBps = Math.max(0, input.side * input.features.trendSlowBps);
   return cfg.horizons.map((horizon) => {
-    const economicSigmaBps = 10_000 * Math.sqrt(Math.max(input.features.varianceRate, 1e-16) * horizon.horizonMs / 1_000);
+    const economicSigmaBps = 10_000 * Math.sqrt(Math.max(input.features.slowVarianceRate, 1e-16) * horizon.horizonMs / 1_000);
+    const trendContributionBps = horizon.trendCaptureFraction * input.continuation.slowTrendAlignment
+      * input.continuation.slowTrendEfficiency * directionalTrendBps;
     const grossBeforeUncertaintyBps = Math.min(horizon.maximumGrossBps,
       horizon.sigmaCaptureFraction * input.continuation.score * economicSigmaBps
-        + horizon.breakoutWeight * directionalBreakoutBps);
+        + horizon.breakoutWeight * directionalBreakoutBps + trendContributionBps);
     const signalUncertaintyBps = horizon.baseUncertaintyBps
       + horizon.sigmaUncertaintyFraction * (1 - input.continuation.score) * economicSigmaBps
+      + horizon.trendUncertaintyFraction * (1 - input.continuation.slowTrendEfficiency) * directionalTrendBps
       + cfg.spreadUncertaintyWeight * input.features.spreadBps
       + cfg.flipUncertaintyWeight * input.features.flowFlipRate * economicSigmaBps;
     return {
@@ -42,7 +47,8 @@ export function validateMultiHorizonAnalyticConfig(cfg: MultiHorizonAnalyticConf
     if (seen.has(horizon.horizonMs)) throw new Error("analytical horizons must be unique");
     seen.add(horizon.horizonMs);
     if (!(horizon.horizonMs > 0 && horizon.maximumGrossBps > 0)
-      || [horizon.sigmaCaptureFraction, horizon.breakoutWeight, horizon.baseUncertaintyBps, horizon.sigmaUncertaintyFraction]
+      || [horizon.sigmaCaptureFraction, horizon.breakoutWeight, horizon.baseUncertaintyBps, horizon.sigmaUncertaintyFraction,
+        horizon.trendCaptureFraction, horizon.trendUncertaintyFraction]
         .some((value) => !Number.isFinite(value) || value < 0)) throw new Error("invalid analytical horizon configuration");
   }
   if ([cfg.spreadUncertaintyWeight, cfg.flipUncertaintyWeight].some((value) => !Number.isFinite(value) || value < 0)) {

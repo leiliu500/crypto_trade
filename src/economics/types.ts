@@ -80,6 +80,8 @@ export interface ContinuationQuality {
   breakoutHold: number;
   regimeStability: number;
   volatilitySuitability: number;
+  slowTrendAlignment: number;
+  slowTrendEfficiency: number;
 }
 
 export interface ContinuationQualityConfig {
@@ -89,6 +91,8 @@ export interface ContinuationQualityConfig {
   breakoutHoldWeight: number;
   regimeStabilityWeight: number;
   volatilitySuitabilityWeight: number;
+  slowTrendAlignmentWeight: number;
+  slowTrendEfficiencyWeight: number;
   velocityScale: number;
   breakoutScaleBps: number;
   volatilityTargetBps: number;
@@ -102,4 +106,6 @@ export interface AnalyticHorizonConfig {
   maximumGrossBps: number;
   baseUncertaintyBps: number;
   sigmaUncertaintyFraction: number;
+  trendCaptureFraction: number;
+  trendUncertaintyFraction: number;
 }

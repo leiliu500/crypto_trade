@@ -138,6 +138,12 @@ export interface DashboardMarketCard {
   spread: number | null;
   spreadBps: number | null;
   sigmaHBps: number | null;
+  slowTrendReady: boolean;
+  trendFastBps: number | null;
+  trendMediumBps: number | null;
+  trendSlowBps: number | null;
+  slowTrendAlignment: number | null;
+  slowTrendEfficiency: number | null;
   providerAgeMs: number | null;
   staleThresholdMs: number | null;
   warmedUp: boolean;
@@ -206,6 +212,7 @@ export interface DashboardRuleDiagnostics {
   cooldownPass: boolean;
   costPass: boolean;
   arbitrationPass: boolean;
+  slowTrendPass: boolean;
   tradeThresholdBps: number;
   stressThresholdBps: number;
   liquidityReasons: readonly string[];
