@@ -34,6 +34,19 @@ export interface DeterministicFeatures extends Features {
   slowTrendEfficiency: number;
   slowVarianceRate: number;
   slowSigmaBps: number;
+  /** Causal, ordered structural-extreme -> counter-extreme -> recovery state. */
+  longPullback: PullbackRecoveryState;
+  shortPullback: PullbackRecoveryState;
+}
+
+export interface PullbackRecoveryState {
+  ready: boolean;
+  structuralMoveBps: number;
+  pullbackDepthBps: number;
+  recoveryBps: number;
+  remainingRoomBps: number;
+  structuralExtremeAgeMs: number;
+  reversalExtremeAgeMs: number;
 }
 
 export interface ExtensionConfig {
@@ -50,10 +63,23 @@ export interface ExtensionConfig {
   trendMediumWindowMs: number;
   trendSlowWindowMs: number;
   trendMinimumCoverage: number;
+  pullbackWindowMs: number;
+  pullbackMinimumCoverage: number;
+  pullbackSampleIntervalMs: number;
 }
 
 interface PricePoint { t: number; logMid: number; }
 interface SignPoint { t: number; sign: -1 | 0 | 1; }
+
+export interface SlowTrendObservation { atMs: number; mid: number; }
+export interface SlowTrendRestoreResult {
+  acceptedPoints: number;
+  firstAtMs: number | null;
+  lastAtMs: number | null;
+  coverageMs: number;
+  ready: boolean;
+  reason: "RESTORED" | "NO_VALID_HISTORY" | "HISTORY_STALE";
+}
 
 export class BookPressureTracker {
   private previousBids = new Map<number, number>();
@@ -137,6 +163,8 @@ export class DeterministicFeatureExtensions {
   private readonly flips: FlipRateTracker;
   private slowPoints: PricePoint[] = [];
   private slowHead = 0;
+  private pullbackPoints: PricePoint[] = [];
+  private pullbackHead = 0;
   private slowState = emptySlowTrendState();
 
   public constructor(private readonly cfg: ExtensionConfig) {
@@ -181,11 +209,61 @@ export class DeterministicFeatureExtensions {
     };
   }
 
+  /**
+   * Restores only the sampled, multi-minute trend state. Fast microstructure
+   * features deliberately remain cold so persisted observations cannot leak
+   * into the entry trigger or CUSUM state.
+   */
+  public restoreSlowTrend(observations: readonly SlowTrendObservation[], asOfMs: number): SlowTrendRestoreResult {
+    this.slowPoints = [];
+    this.slowHead = 0;
+    this.pullbackPoints = [];
+    this.pullbackHead = 0;
+    this.slowState = emptySlowTrendState();
+    if (!Number.isFinite(asOfMs)) return emptyRestoreResult("NO_VALID_HISTORY");
+    const validHistory = observations
+      .filter((point) => Number.isFinite(point.atMs) && Number.isFinite(point.mid) && point.mid > 0 && point.atMs <= asOfMs)
+      .sort((left, right) => left.atMs - right.atMs);
+    const newest = validHistory.at(-1);
+    if (!newest) return emptyRestoreResult("NO_VALID_HISTORY");
+    const maximumFreshnessGapMs = Math.max(30_000, this.cfg.trendSampleIntervalMs * 3);
+    if (asOfMs - newest.atMs > maximumFreshnessGapMs) return emptyRestoreResult("HISTORY_STALE");
+    const earliestMs = asOfMs - Math.max(this.cfg.trendSlowWindowMs, this.cfg.pullbackWindowMs)
+      - this.cfg.trendSampleIntervalMs;
+    const normalized = validHistory.filter((point) => point.atMs >= earliestMs);
+    for (const point of normalized) this.updateSlowTrend(point.atMs, Math.log(point.mid));
+    const active = this.slowPoints.slice(this.slowHead);
+    const first = active[0], last = active.at(-1);
+    if (!first || !last) return emptyRestoreResult("NO_VALID_HISTORY");
+    return {
+      acceptedPoints: active.length,
+      firstAtMs: first.t,
+      lastAtMs: last.t,
+      coverageMs: Math.max(0, last.t - first.t),
+      ready: this.slowState.slowTrendReady,
+      reason: "RESTORED",
+    };
+  }
+
   private updateSlowTrend(nowMs: number, logMid: number): void {
     const last = this.slowPoints.at(-1);
     if (last && nowMs - last.t < this.cfg.trendSampleIntervalMs) return;
     this.slowPoints.push({ t: nowMs, logMid });
-    const cutoff = nowMs - this.cfg.trendSlowWindowMs;
+    const lastPullback = this.pullbackPoints.at(-1);
+    let pullbackSampled = false;
+    if (!lastPullback || nowMs - lastPullback.t >= this.cfg.pullbackSampleIntervalMs) {
+      pullbackSampled = true;
+      this.pullbackPoints.push({ t: nowMs, logMid });
+      const pullbackCutoff = nowMs - this.cfg.pullbackWindowMs;
+      while (this.pullbackHead + 1 < this.pullbackPoints.length
+        && this.pullbackPoints[this.pullbackHead + 1]!.t < pullbackCutoff) this.pullbackHead += 1;
+      if (this.pullbackHead > 1_024) {
+        this.pullbackPoints = this.pullbackPoints.slice(this.pullbackHead);
+        this.pullbackHead = 0;
+      }
+    }
+    const retainedWindowMs = Math.max(this.cfg.trendSlowWindowMs, this.cfg.pullbackWindowMs);
+    const cutoff = nowMs - retainedWindowMs;
     while (this.slowHead + 1 < this.slowPoints.length && this.slowPoints[this.slowHead + 1]!.t < cutoff) {
       this.slowHead += 1;
     }
@@ -194,8 +272,9 @@ export class DeterministicFeatureExtensions {
     const fast = this.slowReturnBps(nowMs, logMid, this.cfg.trendFastWindowMs);
     const medium = this.slowReturnBps(nowMs, logMid, this.cfg.trendMediumWindowMs);
     const slow = this.slowReturnBps(nowMs, logMid, this.cfg.trendSlowWindowMs);
+    const trendHead = windowHead(this.slowPoints, this.slowHead, nowMs - this.cfg.trendSlowWindowMs);
     let squaredReturn = 0, elapsedSec = 0, pathLength = 0;
-    for (let index = this.slowHead + 1; index < this.slowPoints.length; index += 1) {
+    for (let index = trendHead + 1; index < this.slowPoints.length; index += 1) {
       const previous = this.slowPoints[index - 1]!, current = this.slowPoints[index]!;
       const dtSec = Math.max((current.t - previous.t) / 1_000, 1e-6);
       const change = current.logMid - previous.logMid;
@@ -206,7 +285,7 @@ export class DeterministicFeatureExtensions {
     const slowVarianceRate = elapsedSec > 0 ? Math.max(squaredReturn / elapsedSec, 1e-16) : 1e-16;
     const windowSigma = (windowMs: number): number => 10_000 * Math.sqrt(slowVarianceRate * windowMs / 1_000);
     const normalized = (returnBps: number, windowMs: number): number => Math.tanh(returnBps / Math.max(windowSigma(windowMs), 1));
-    const first = this.slowPoints[this.slowHead];
+    const first = this.slowPoints[trendHead];
     const coverageMs = first ? nowMs - first.t : 0;
     const slowTrendReady = coverageMs >= this.cfg.trendSlowWindowMs * this.cfg.trendMinimumCoverage
       && this.slowPoints.length - this.slowHead >= 2;
@@ -221,6 +300,39 @@ export class DeterministicFeatureExtensions {
       slowTrendEfficiency: pathLength > 0 ? clamp(Math.abs(slow / 10_000) / pathLength, 0, 1) : 0,
       slowVarianceRate,
       slowSigmaBps: windowSigma(this.cfg.trendSlowWindowMs),
+      longPullback: pullbackSampled ? this.pullbackRecoveryState(1, nowMs) : this.slowState.longPullback,
+      shortPullback: pullbackSampled ? this.pullbackRecoveryState(-1, nowMs) : this.slowState.shortPullback,
+    };
+  }
+
+  private pullbackRecoveryState(side: 1 | -1, nowMs: number): PullbackRecoveryState {
+    const head = windowHead(this.pullbackPoints, this.pullbackHead, nowMs - this.cfg.pullbackWindowMs);
+    const points = this.pullbackPoints;
+    const first = points[head];
+    const last = points.at(-1);
+    if (!first || !last) return emptyPullbackRecoveryState();
+    const coverageMs = nowMs - first.t;
+    let baseIndex = head, structuralIndex = head;
+    let structuralMoveBps = 0;
+    for (let index = head + 1; index < points.length; index += 1) {
+      const moveBps = 10_000 * side * (points[index]!.logMid - points[baseIndex]!.logMid);
+      if (moveBps > structuralMoveBps) { structuralMoveBps = moveBps; structuralIndex = index; }
+      if (side * points[index]!.logMid < side * points[baseIndex]!.logMid) baseIndex = index;
+    }
+    let reversalIndex = structuralIndex;
+    for (let index = structuralIndex + 1; index < points.length; index += 1) {
+      if (side * points[index]!.logMid < side * points[reversalIndex]!.logMid) reversalIndex = index;
+    }
+    const structural = points[structuralIndex]!, reversal = points[reversalIndex]!;
+    const pullbackDepthBps = Math.max(0, 10_000 * side * (structural.logMid - reversal.logMid));
+    const recoveryBps = Math.max(0, 10_000 * side * (last.logMid - reversal.logMid));
+    const remainingRoomBps = Math.max(0, 10_000 * side * (structural.logMid - last.logMid));
+    return {
+      ready: coverageMs >= this.cfg.pullbackWindowMs * this.cfg.pullbackMinimumCoverage
+        && structuralMoveBps > 0 && reversalIndex > structuralIndex && reversalIndex < points.length - 1,
+      structuralMoveBps, pullbackDepthBps, recoveryBps, remainingRoomBps,
+      structuralExtremeAgeMs: Math.max(0, nowMs - structural.t),
+      reversalExtremeAgeMs: Math.max(0, nowMs - reversal.t),
     };
   }
 
@@ -270,6 +382,15 @@ function validateExtensionConfig(cfg: ExtensionConfig): void {
     throw new Error("slow trend windows must be positive and strictly increasing");
   }
   if (!(cfg.trendMinimumCoverage > 0 && cfg.trendMinimumCoverage <= 1)) throw new Error("trendMinimumCoverage must be in (0,1]");
+  if (!(cfg.pullbackWindowMs > cfg.trendMediumWindowMs)) throw new Error("pullbackWindowMs must exceed the medium trend window");
+  if (!(cfg.pullbackMinimumCoverage > 0 && cfg.pullbackMinimumCoverage <= 1)) throw new Error("pullbackMinimumCoverage must be in (0,1]");
+  if (!(cfg.pullbackSampleIntervalMs >= cfg.trendSampleIntervalMs && cfg.pullbackSampleIntervalMs < cfg.pullbackWindowMs)) {
+    throw new Error("pullbackSampleIntervalMs must cover at least one trend sample and remain below its window");
+  }
+}
+
+function emptyRestoreResult(reason: SlowTrendRestoreResult["reason"]): SlowTrendRestoreResult {
+  return { acceptedPoints: 0, firstAtMs: null, lastAtMs: null, coverageMs: 0, ready: false, reason };
 }
 
 interface SlowTrendState {
@@ -281,11 +402,25 @@ interface SlowTrendState {
   slowTrendEfficiency: number;
   slowVarianceRate: number;
   slowSigmaBps: number;
+  longPullback: PullbackRecoveryState;
+  shortPullback: PullbackRecoveryState;
 }
 
 function emptySlowTrendState(): SlowTrendState {
   return { slowTrendReady: false, trendFastBps: 0, trendMediumBps: 0, trendSlowBps: 0,
-    slowTrendAlignment: 0, slowTrendEfficiency: 0, slowVarianceRate: 1e-16, slowSigmaBps: 0 };
+    slowTrendAlignment: 0, slowTrendEfficiency: 0, slowVarianceRate: 1e-16, slowSigmaBps: 0,
+    longPullback: emptyPullbackRecoveryState(), shortPullback: emptyPullbackRecoveryState() };
+}
+
+function emptyPullbackRecoveryState(): PullbackRecoveryState {
+  return { ready: false, structuralMoveBps: 0, pullbackDepthBps: 0, recoveryBps: 0, remainingRoomBps: 0,
+    structuralExtremeAgeMs: 0, reversalExtremeAgeMs: 0 };
+}
+
+function windowHead(points: readonly PricePoint[], head: number, cutoffMs: number): number {
+  let index = head;
+  while (index + 1 < points.length && points[index + 1]!.t < cutoffMs) index += 1;
+  return index;
 }
 
 function referenceLogPrice(points: readonly PricePoint[], head: number, targetMs: number): number | undefined {

@@ -163,6 +163,10 @@ export class OperationsMonitor extends EventEmitter {
         trendSlowBps: features?.trendSlowBps ?? null,
         slowTrendAlignment: features?.slowTrendAlignment ?? null,
         slowTrendEfficiency: features?.slowTrendEfficiency ?? null,
+        longPullbackReady: features?.longPullback.ready ?? false,
+        longPullbackDepthBps: features?.longPullback.pullbackDepthBps ?? null,
+        longPullbackRecoveryBps: features?.longPullback.recoveryBps ?? null,
+        longPullbackRemainingRoomBps: features?.longPullback.remainingRoomBps ?? null,
         providerAgeMs: features?.providerAgeMs ?? null,
         staleThresholdMs: features?.staleThresholdMs ?? null,
         warmedUp: features?.warmedUp ?? false,
@@ -529,7 +533,7 @@ export class OperationsMonitor extends EventEmitter {
 
 function projectRule(rule: NonNullable<EngineMarketSnapshot["ruleEvaluation"]>["long"]): DashboardMarketCard["longRule"] {
   return {
-    side: rule.side, phase: rule.phase, score: rule.score,
+    family: rule.family, side: rule.side, phase: rule.phase, score: rule.score,
     bookVotes: rule.votes.book, flowVotes: rule.votes.flow, kinematicVotes: rule.votes.kinematic, quorumPass: rule.votes.quorum,
     persistence: rule.persistence, evidence: rule.evidence,
     confirmationMs: rule.confirmationMs, confirmationEvents: rule.confirmationEvents,
@@ -546,6 +550,7 @@ function projectRule(rule: NonNullable<EngineMarketSnapshot["ruleEvaluation"]>["
     persistencePass: rule.persistencePass, antiChasePass: rule.antiChasePass, exposurePass: rule.exposurePass,
     cooldownPass: rule.cooldownPass, costPass: rule.costPass,
     arbitrationPass: rule.arbitrationPass, slowTrendPass: rule.slowTrendPass,
+    continuationTrendPass: rule.continuationTrendPass, pullbackRecoveryPass: rule.pullbackRecoveryPass,
     tradeThresholdBps: rule.tradeThresholdBps,
     stressThresholdBps: rule.stressThresholdBps, liquidityReasons: [...rule.liquidityReasons], reasons: [...rule.reasons],
   };

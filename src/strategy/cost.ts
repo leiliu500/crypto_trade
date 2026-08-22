@@ -6,7 +6,10 @@ import type { CostBreakdown, ExecutionPath } from "../economics/types.js";
 export interface CostConfig {
   makerFeeBps: number;
   takerFeeBps: number;
-  expectedExitTaker: boolean;
+  /** Probability that a bounded resting exit fills before its taker fallback. */
+  makerExitFillProbability: number;
+  /** Additional adverse move expected only on the unfilled maker-exit branch. */
+  makerExitFallbackAdverseBps: number;
   latencyAdverseFraction: number;
   adverseSelectionBps: number;
   fundingBps: number;
@@ -35,6 +38,12 @@ export class CostModel {
   public constructor(private readonly cfg: CostConfig) {
     validateFeeBps(cfg.makerFeeBps, "makerFeeBps");
     validateFeeBps(cfg.takerFeeBps, "takerFeeBps");
+    if (!(cfg.makerExitFillProbability >= 0 && cfg.makerExitFillProbability <= 1)) {
+      throw new Error("makerExitFillProbability must be in [0,1]");
+    }
+    if (!Number.isFinite(cfg.makerExitFallbackAdverseBps) || cfg.makerExitFallbackAdverseBps < 0) {
+      throw new Error("makerExitFallbackAdverseBps must be finite and non-negative");
+    }
   }
   public estimate(features: Features, book: BookState, direction: Direction, qty: number, makerEntry = false): CostEstimate | null {
     const levels = direction === 1 ? book.asks : book.bids;
@@ -43,28 +52,35 @@ export class CostModel {
     const reference = features.mid;
     const top = direction === 1 ? book.asks[0]!.px : book.bids[0]!.px;
     const oneWayCrossBps = Math.max(0, direction * (top - reference) / reference * 10_000);
-    const expectedExitSpreadBps = features.spreadBps / 2;
-    const spreadBps = makerEntry ? expectedExitSpreadBps : oneWayCrossBps + expectedExitSpreadBps;
+    const makerFirstExit = makerEntry;
+    const fallbackProbability = makerFirstExit ? 1 - this.cfg.makerExitFillProbability : 1;
+    const expectedExitSpreadBps = fallbackProbability * features.spreadBps / 2;
+    const spreadBps = (makerEntry ? 0 : oneWayCrossBps) + expectedExitSpreadBps;
     const entryFee = makerEntry ? this.cfg.makerFeeBps : this.cfg.takerFeeBps;
-    const exitFee = this.cfg.expectedExitTaker ? this.cfg.takerFeeBps : this.cfg.makerFeeBps;
+    const exitFee = makerFirstExit ? this.cfg.makerFeeBps : this.cfg.takerFeeBps;
     const feeBps = entryFee + exitFee;
     const impactBps = sweep ? Math.max(0, direction * (sweep.vwap - top) / reference * 10_000) : 0;
     const latencyBps = Math.max(0, Math.abs(features.velocityZ) * features.sigmaHBps * this.cfg.latencyAdverseFraction);
-    const roundTripBps = spreadBps + feeBps + impactBps + latencyBps + this.cfg.adverseSelectionBps + this.cfg.fundingBps + this.cfg.borrowBps;
+    const fallbackPremiumBps = makerFirstExit ? fallbackProbability * (Math.max(0, this.cfg.takerFeeBps - this.cfg.makerFeeBps)
+      + this.cfg.makerExitFallbackAdverseBps) : 0;
+    const adverseSelectionBps = this.cfg.adverseSelectionBps + fallbackPremiumBps;
+    const roundTripBps = spreadBps + feeBps + impactBps + latencyBps + adverseSelectionBps + this.cfg.fundingBps + this.cfg.borrowBps;
     const result: CostEstimate = {
       roundTripBps, spreadBps, feeBps, impactBps, latencyBps,
-      adverseSelectionBps: this.cfg.adverseSelectionBps,
+      adverseSelectionBps,
       fundingBps: this.cfg.fundingBps, borrowBps: this.cfg.borrowBps,
     };
     if (sweep) { result.entryVwap = sweep.vwap; result.worstEntryPx = sweep.worstPx; }
     return result;
   }
 
-  /** Evaluates all execution paths using one component ledger. Maker/maker remains visible but unsupported until exits can rest. */
+  public makerExitFillProbability(): number { return this.cfg.makerExitFillProbability; }
+
+  /** Evaluates all execution paths using one component ledger. Pure maker/maker has no bounded completion and remains unsupported. */
   public pathEstimates(features: Features, book: BookState, direction: Direction, qty: number,
     makerFillProbability: number): CostBreakdown[] {
     const result: CostBreakdown[] = [];
-    for (const path of ["MAKER_MAKER", "MAKER_TAKER", "TAKER_TAKER"] as const) {
+    for (const path of ["MAKER_MAKER", "MAKER_TAKER", "MAKER_MAKER_TAKER_FALLBACK", "TAKER_TAKER"] as const) {
       const estimate = this.estimatePath(features, book, direction, qty, path, makerFillProbability);
       if (estimate) result.push(estimate);
     }
@@ -75,23 +91,27 @@ export class CostModel {
     path: ExecutionPath, makerFillProbability: number): CostBreakdown | null {
     const entryMaker = path !== "TAKER_TAKER";
     const exitMaker = path === "MAKER_MAKER";
+    const makerExitWithFallback = path === "MAKER_MAKER_TAKER_FALLBACK";
+    const fallbackProbability = makerExitWithFallback ? 1 - this.cfg.makerExitFillProbability : 0;
     const levels = direction === 1 ? book.asks : book.bids;
     const sweep = !entryMaker && qty > 0 ? estimateSweep(levels, qty) : undefined;
     if (!entryMaker && qty > 0 && !sweep) return null;
     const top = direction === 1 ? book.asks[0]!.px : book.bids[0]!.px;
     const entryExecutionBps = entryMaker ? 0 : Math.max(0, direction * (top - features.mid) / features.mid * 10_000);
-    const exitExecutionBps = exitMaker ? 0 : features.spreadBps / 2;
+    const exitExecutionBps = exitMaker ? 0 : makerExitWithFallback ? fallbackProbability * features.spreadBps / 2 : features.spreadBps / 2;
     const marketImpactBps = sweep ? Math.max(0, direction * (sweep.vwap - top) / features.mid * 10_000) : 0;
     const latencyBps = Math.max(0, Math.abs(features.velocityZ) * features.sigmaHBps * this.cfg.latencyAdverseFraction);
     const entryFeeBps = entryMaker ? this.cfg.makerFeeBps : this.cfg.takerFeeBps;
-    const exitFeeBps = exitMaker ? this.cfg.makerFeeBps : this.cfg.takerFeeBps;
+    const exitFeeBps = exitMaker || makerExitWithFallback ? this.cfg.makerFeeBps : this.cfg.takerFeeBps;
+    const adverseSelectionBps = this.cfg.adverseSelectionBps + (makerExitWithFallback
+      ? fallbackProbability * (Math.max(0, this.cfg.takerFeeBps - this.cfg.makerFeeBps) + this.cfg.makerExitFallbackAdverseBps) : 0);
     const components = [entryExecutionBps, exitExecutionBps, entryFeeBps, exitFeeBps, marketImpactBps,
-      latencyBps, this.cfg.adverseSelectionBps, this.cfg.fundingBps, this.cfg.borrowBps];
+      latencyBps, adverseSelectionBps, this.cfg.fundingBps, this.cfg.borrowBps];
     const estimatedCostBps = components.reduce((sum, value) => sum + value, 0);
     return {
       path, supported: path !== "MAKER_MAKER", entryExecutionBps, exitExecutionBps,
       entryFeeBps, exitFeeBps, marketImpactBps, latencyBps,
-      adverseSelectionBps: this.cfg.adverseSelectionBps, fundingBps: this.cfg.fundingBps, borrowBps: this.cfg.borrowBps,
+      adverseSelectionBps, fundingBps: this.cfg.fundingBps, borrowBps: this.cfg.borrowBps,
       estimatedCostBps, positiveCostErrorP95Bps: this.cfg.positiveCostErrorP95Bps ?? 0,
       fillProbability: path === "TAKER_TAKER" ? 1 : makerFillProbability,
     };

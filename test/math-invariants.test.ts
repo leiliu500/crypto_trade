@@ -51,7 +51,7 @@ test("incremental hold cost excludes unavoidable round-trip execution charges", 
 });
 
 test("profit floor never loosens and recovery arms break-even", () => {
-  const manager = new PositionManager({ recoveryArmR: .5, trailActivationR: .5, minimumProgressR: .2, minimumHoldMs: 0, maximumHoldMs: 10_000, evidenceConfirmationMs: 100,
+  const manager = new PositionManager({ recoveryArmR: .5, trailActivationR: .5, minimumProgressR: .2, minimumHoldMs: 0, maximumHoldMs: 10_000, makerExitTtlMs: 30_000, evidenceConfirmationMs: 100,
     lockMin: .2, lockMax: .8, lockMaturityRate: 1, lockReversalWeight: .3, lockTrendDiscount: .1,
     baseVolatilityMultiple: 2, trendVolatilityBonus: 1, reversalVolatilityPenalty: 1, minimumVolatilityMultiple: .5, maximumVolatilityMultiple: 4,
     partialExitThreshold: .9, maximumPartialExitFraction: .5, minimumPartialExitBenefitBps: 1 });
@@ -67,7 +67,7 @@ test("profit floor never loosens and recovery arms break-even", () => {
 
 test("a selected economic horizon bounds the position time stop", () => {
   const manager = new PositionManager({ recoveryArmR: .5, trailActivationR: .5, minimumProgressR: .2,
-    minimumHoldMs: 0, maximumHoldMs: 10_000, evidenceConfirmationMs: 100,
+    minimumHoldMs: 0, maximumHoldMs: 10_000, makerExitTtlMs: 30_000, evidenceConfirmationMs: 100,
     lockMin: .2, lockMax: .8, lockMaturityRate: 1, lockReversalWeight: .3, lockTrendDiscount: .1,
     baseVolatilityMultiple: 2, trendVolatilityBonus: 1, reversalVolatilityPenalty: 1,
     minimumVolatilityMultiple: .5, maximumVolatilityMultiple: 4,

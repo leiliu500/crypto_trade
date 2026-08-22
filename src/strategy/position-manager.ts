@@ -27,6 +27,7 @@ export interface PositionConfig {
   minimumProgressR: number;
   minimumHoldMs: number;
   maximumHoldMs: number;
+  makerExitTtlMs: number;
   evidenceConfirmationMs: number;
   lockMin: number;
   lockMax: number;

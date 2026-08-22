@@ -58,15 +58,37 @@ test("JSON baseline wins over legacy tunable environment values and symbol overl
     assert.equal(cfg.position.maximumHoldMs, 14_400_000);
     assert.deepEqual(cfg.deterministicSignal.analyticHorizons.map((item) => item.horizonMs), [3_600_000, 7_200_000, 14_400_000]);
     assert.equal(cfg.deterministicSignal.requireMakerEntry, true);
-    assert.equal(cfg.configurationVersion, "deterministic-slow-trend-v2.1");
+    assert.equal(cfg.configurationVersion, "pullback-recovery-v4.0");
     assert.equal(cfg.deterministicSignal.minimumSlowTrendAlignment, 0.1);
     assert.equal(cfg.deterministicSignal.minimumSlowTrendEfficiency, 0.05);
     assert.equal(cfg.deterministicSignal.minimumSlowTrendMoveBps, 7.5);
     assert.equal(cfg.symbolConfigs["BTC/USD"]?.dynamicLiquidity.tradeQuantile, 0.65);
     assert.equal(cfg.deterministicExtension.trendSlowWindowMs, 3_600_000);
+    assert.equal(cfg.deterministicExtension.pullbackWindowMs, 14_400_000);
+    assert.equal(cfg.deterministicExtension.pullbackSampleIntervalMs, 30_000);
+    assert.equal(cfg.deterministicSignal.pullbackRecovery.minimumPullbackDepthBps, 45);
     assert.equal(cfg.deterministicSignal.continuationQuality.volatilityTargetBps, 75);
     assert.equal(cfg.recall.opportunityHorizonMs, cfg.position.maximumHoldMs);
     assert.equal(cfg.symbolConfigs["BTC/USD"]?.deterministicSignal.microTrigger.minimumMicroMoveBps, 0.008);
+  } finally { rmSync(directory, { recursive: true, force: true }); }
+});
+
+test("legacy calibrated buckets are scoped to continuation and cannot authorize pullback entries", () => {
+  const bucket = {
+    symbol: "BTC/USD", side: 1, regime: "TREND_UP", minimumQuality: 0, maximumQuality: 1,
+    minimumSpreadBps: 0, maximumSpreadBps: 10, horizonMs: 3_600_000, path: "MAKER_TAKER",
+    meanGrossReturnBps: 20, lowerConfidenceGrossReturnBps: 10, effectiveSampleCount: 100,
+  };
+  const directory = mkdtempSync(join(tmpdir(), "crypto-trade-config-"));
+  try {
+    const base = JSON.parse(readFileSync("config/base.json", "utf8")) as { parameters: Record<string, unknown> };
+    base.parameters.RULE_CALIBRATED_EDGE_TABLE_JSON = JSON.stringify([bucket]);
+    writeFileSync(join(directory, "base.json"), JSON.stringify(base));
+    for (const stem of ["btc_usd", "eth_usd", "link_usd", "sol_usd", "xrp_usd", "doge_usd"]) {
+      writeFileSync(join(directory, `${stem}.json`), readFileSync(`config/${stem}.json`, "utf8"));
+    }
+    const cfg = loadConfig({ TRADING_MODE: "replay", CONFIG_DIR: directory });
+    assert.equal(cfg.deterministicSignal.calibratedEdges[0]?.family, "CONTINUATION");
   } finally { rmSync(directory, { recursive: true, force: true }); }
 });
 

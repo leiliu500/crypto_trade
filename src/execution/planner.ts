@@ -48,6 +48,8 @@ export interface ExecutionPlan {
   reduceOnlyIntent: boolean;
   economicHorizonMs?: number;
   executionPath?: ExecutionPath;
+  exitReason?: string;
+  fallbackFromClientOrderId?: string;
 }
 export interface PlannerBuildOptions {
   /** Re-runs the deterministic net-edge gate against the cost at the current candidate quantity. */
@@ -93,7 +95,8 @@ export class ExecutionPlanner {
     if (!(quantityMultiplier > 0)) return null;
     if (options.executionPath === "MAKER_MAKER") return null;
     const allowTaker = options.executionPath === undefined || options.executionPath === "TAKER_TAKER";
-    const allowMaker = options.executionPath === undefined || options.executionPath === "MAKER_TAKER";
+    const allowMaker = options.executionPath === undefined || options.executionPath === "MAKER_TAKER"
+      || options.executionPath === "MAKER_MAKER_TAKER_FALLBACK";
     const taker = allowTaker ? this.buildCandidate("taker", intent, features, book, asset, baseRisk, quantityMultiplier, options) : null;
     const makerCandidate = allowMaker ? this.buildCandidate("maker", intent, features, book, asset, baseRisk, quantityMultiplier, options) : null;
     const maker = makerCandidate && makerCandidate.fillProbability >= this.cfg.minimumFillProbability ? makerCandidate : null;

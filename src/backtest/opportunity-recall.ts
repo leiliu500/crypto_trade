@@ -10,6 +10,9 @@ import { BookPressureTracker, DeterministicFeatureExtensions, type Deterministic
 import { DeterministicRegimeEngine } from "../strategy/deterministic-regime.js";
 import { DynamicLiquidityPolicy } from "../strategy/dynamic-liquidity.js";
 import { readRecordedEvents } from "./replay.js";
+import type { CalibratedEdgeBucket } from "../calibration/calibrated-edge-table.js";
+import type { EntryFamily, ExecutionPath } from "../economics/types.js";
+import type { RegimeName } from "../strategy/deterministic-regime.js";
 
 interface RecallPoint {
   atMs: number;
@@ -17,10 +20,17 @@ interface RecallPoint {
   ask: number;
   evaluation: DeterministicEvaluation;
 }
-interface RecallSignal { atMs: number; side: Direction; bid: number; ask: number }
+interface RecallSignal {
+  atMs: number; side: Direction; family: EntryFamily | null; bid: number; ask: number;
+  horizonMs: number; robustCostBps: number; executionPath: ExecutionPath | null;
+}
 interface OpportunityWindow { startMs: number; endMs: number; peakNetBps: number }
+interface ForwardCalibrationCandidate {
+  atMs: number; side: Direction; bid: number; ask: number; regime: RegimeName;
+  family: EntryFamily; quality: number; spreadBps: number; horizonMs: number; executionPath: ExecutionPath;
+}
 export interface EconomicCandidateAudit {
-  side: Direction; lowerBoundNetBps: number; grossOpportunityBps: number; uncertaintyReserveBps: number;
+  family: EntryFamily; side: Direction; lowerBoundNetBps: number; grossOpportunityBps: number; uncertaintyReserveBps: number;
   estimatedCostBps: number; robustCostBps: number; shortfallBps: number; continuationQuality: number;
   requiredContinuationQuality: number | null; horizonMs: number; executionPath: string | null; edgeSource: string;
 }
@@ -28,6 +38,7 @@ interface DirectionCandidateCounts {
   evaluations: number; regimePass: number; quorumPass: number; scorePass: number; arbitrationPass: number;
   antiChasePass: number; rawDirectionalPass: number; persistencePass: number; candidatePass: number;
   liquidityPass: number; slowTrendPass: number; edgeResolvedPass: number; preliminaryCostPass: number;
+  pullbackRecoveryPass: number;
   maximumPersistence: number; maximumConfirmationMs: number; maximumConfirmationEvents: number;
 }
 interface OfflineRuntime {
@@ -44,6 +55,7 @@ interface OfflineRuntime {
   signals: RecallSignal[];
   rawSignals: RecallSignal[];
   candidateSignals: RecallSignal[];
+  calibrationCandidates: ForwardCalibrationCandidate[];
   blockReasons: Map<string, number>;
   lastSampleMs: number;
   staleEvents: number;
@@ -64,6 +76,8 @@ export interface DirectionRecallReport {
   maximumNetMoveBps: number;
   signalCount: number;
   profitableSignals: number;
+  pullbackSignalCount: number;
+  profitablePullbackSignals: number;
   precision: number;
   rawSignalCount: number;
   rawCapturedWindows: number;
@@ -93,6 +107,8 @@ export interface OpportunityRecallReport {
   assumptions: { sampleIntervalMs: number; opportunityHorizonMs: number; minimumNetMoveBps: number; label: string };
   symbols: Record<string, SymbolRecallReport>;
   tuning: { ready: boolean; observedDurationMs: number; requiredDurationMs: number; opportunityWindows: number; requiredOpportunityWindows: number; reason: string | null };
+  calibration: { ready: boolean; buckets: CalibratedEdgeBucket[]; deployableBuckets: number; reason: string | null };
+  acceptance: { passed: boolean; longIntentSignals: number; profitableAfterCostLongSignals: number; reason: string | null };
 }
 
 export async function analyzeOpportunityRecall(path: string, cfg: EngineConfig,
@@ -112,7 +128,7 @@ export async function analyzeOpportunityRecall(path: string, cfg: EngineConfig,
       entry: new DeterministicEntryEngine(symbolCfg.deterministicSignal),
       liquidity: new DynamicLiquidityPolicy(symbolCfg.dynamicLiquidity),
       planner: new ExecutionPlanner(symbolCfg.planner, new RiskSizer(symbolCfg.sizing), cost, symbolCfg.strategyVersion, symbolCfg.modelVersion),
-      points: [], signals: [], rawSignals: [], candidateSignals: [], blockReasons: new Map(), lastSampleMs: Number.NEGATIVE_INFINITY,
+      points: [], signals: [], rawSignals: [], candidateSignals: [], calibrationCandidates: [], blockReasons: new Map(), lastSampleMs: Number.NEGATIVE_INFINITY,
       staleEvents: 0, nonFiniteEvents: 0, evaluationEvents: 0, rawDirectionalEvents: 0,
       directionalCandidateEvents: 0, costQualifiedIntentEvents: 0,
       directionCounters: { long: emptyDirectionCounts(), short: emptyDirectionCounts() },
@@ -154,8 +170,12 @@ export async function analyzeOpportunityRecall(path: string, cfg: EngineConfig,
   const symbols: Record<string, SymbolRecallReport> = {};
   let opportunityWindows = 0;
   for (const [symbol, runtime] of runtimes) {
-    const long = options.economicOnly ? emptyDirectionReport(true, runtime.signals.length) : directionReport(runtime, 1, cfg);
-    const shortAuditOnly = options.economicOnly ? emptyDirectionReport(false, runtime.signals.length) : directionReport(runtime, -1, cfg);
+    const longSignals = runtime.signals.filter((signal) => signal.side === 1);
+    const shortSignals = runtime.signals.filter((signal) => signal.side === -1);
+    const long = options.economicOnly ? emptyDirectionReport(true, longSignals.length,
+      longSignals.filter((signal) => signal.family === "PULLBACK_RECOVERY").length) : directionReport(runtime, 1, cfg);
+    const shortAuditOnly = options.economicOnly ? emptyDirectionReport(false, shortSignals.length,
+      shortSignals.filter((signal) => signal.family === "PULLBACK_RECOVERY").length) : directionReport(runtime, -1, cfg);
     opportunityWindows += long.opportunityWindows;
     const finiteLongScores = runtime.points.map((point) => point.evaluation.long.score).filter(Number.isFinite);
     const modeledCosts = runtime.points.flatMap((point) => [point.evaluation.long.roundTripCostBps, point.evaluation.short.roundTripCostBps]).filter(Number.isFinite);
@@ -178,6 +198,18 @@ export async function analyzeOpportunityRecall(path: string, cfg: EngineConfig,
   const reason = ready ? null : !durationReady
     ? `Recording duration is below ${cfg.recall.minimumTuningDurationMs} ms`
     : `Only ${opportunityWindows} eligible opportunity windows were observed`;
+  const calibrationBuckets = options.economicOnly ? [] : forwardCalibrationBuckets(runtimes, cfg);
+  const deployableBuckets = ready ? calibrationBuckets.filter((bucket) => bucket.effectiveSampleCount >= cfg.deterministicSignal.minimumEffectiveSampleCount
+    && bucket.lowerConfidenceGrossReturnBps > 0).length : 0;
+  const calibrationReady = ready && deployableBuckets > 0;
+  const calibrationReason = calibrationReady ? null : !ready ? reason
+    : `No forward-return bucket has ${cfg.deterministicSignal.minimumEffectiveSampleCount} independent samples and a positive lower confidence bound`;
+  const longIntentSignals = Object.values(symbols).reduce((sum, symbol) => sum + symbol.long.signalCount, 0);
+  const profitableAfterCostLongSignals = Object.values(symbols).reduce((sum, symbol) => sum + symbol.long.profitableSignals, 0);
+  const acceptancePassed = !options.economicOnly && longIntentSignals > 0 && profitableAfterCostLongSignals > 0;
+  const acceptanceReason = acceptancePassed ? null : longIntentSignals === 0 ? "Replay produced no cost-qualified long intents"
+    : options.economicOnly ? "Profitability acceptance requires a full replay; economic-only mode does not label forward returns"
+      : "Replay produced no long intent with a profitable forward move after its robust modeled cost";
   return {
     recording: { path, events, books, trades, firstTsMs, lastTsMs, durationMs },
     assumptions: {
@@ -189,6 +221,8 @@ export async function analyzeOpportunityRecall(path: string, cfg: EngineConfig,
     symbols,
     tuning: { ready, observedDurationMs: durationMs, requiredDurationMs: cfg.recall.minimumTuningDurationMs,
       opportunityWindows, requiredOpportunityWindows: cfg.recall.minimumTuningOpportunities, reason },
+    calibration: { ready: calibrationReady, buckets: calibrationBuckets, deployableBuckets, reason: calibrationReason },
+    acceptance: { passed: acceptancePassed, longIntentSignals, profitableAfterCostLongSignals, reason: acceptanceReason },
   };
 }
 
@@ -217,7 +251,10 @@ function processState(runtime: OfflineRuntime, book: BookState, base: Features, 
     longCost, shortCost, longEconomicCosts, shortEconomicCosts, longLiquidity, shortLiquidity,
   });
   if (intent) {
-    runtime.signals.push({ atMs: features.receiveTsMs, side: intent.side, bid: book.bids[0]!.px, ask: book.asks[0]!.px });
+    runtime.signals.push({ atMs: features.receiveTsMs, side: intent.side, family: intent.diagnostics.family,
+      bid: book.bids[0]!.px, ask: book.asks[0]!.px,
+      horizonMs: intent.selectedHorizonMs ?? intent.diagnostics.edgeHorizonMs,
+      robustCostBps: intent.robustCostBps ?? intent.diagnostics.robustCostBps, executionPath: intent.executionPath ?? null });
   }
   const latest = runtime.entry.latestEvaluation();
   if (latest) {
@@ -227,13 +264,13 @@ function processState(runtime: OfflineRuntime, book: BookState, base: Features, 
     if (latest.intent) runtime.costQualifiedIntentEvents += 1;
     incrementDirection(runtime.directionCounters.long, latest.long);
     incrementDirection(runtime.directionCounters.short, latest.short);
-    if (latest.long.rawDirectionalPass) runtime.rawSignals.push({ atMs: features.receiveTsMs, side: 1, bid: book.bids[0]!.px, ask: book.asks[0]!.px });
-    if (latest.short.rawDirectionalPass) runtime.rawSignals.push({ atMs: features.receiveTsMs, side: -1, bid: book.bids[0]!.px, ask: book.asks[0]!.px });
-    if (latest.candidate) runtime.candidateSignals.push({ atMs: features.receiveTsMs, side: latest.candidate.side, bid: book.bids[0]!.px, ask: book.asks[0]!.px });
+    if (latest.long.rawDirectionalPass) runtime.rawSignals.push(auditSignal(features.receiveTsMs, 1, book));
+    if (latest.short.rawDirectionalPass) runtime.rawSignals.push(auditSignal(features.receiveTsMs, -1, book));
+    if (latest.candidate) runtime.candidateSignals.push(auditSignal(features.receiveTsMs, latest.candidate.side, book));
     if (latest.candidate) {
       const diagnostics = latest.candidate.diagnostics;
       const candidate: EconomicCandidateAudit = {
-        side: latest.candidate.side, lowerBoundNetBps: diagnostics.lowerBoundNetBps,
+        family: diagnostics.family, side: latest.candidate.side, lowerBoundNetBps: diagnostics.lowerBoundNetBps,
         grossOpportunityBps: diagnostics.grossOpportunityBps,
         uncertaintyReserveBps: diagnostics.uncertaintyReserveBps,
         estimatedCostBps: diagnostics.roundTripCostBps, robustCostBps: diagnostics.robustCostBps,
@@ -244,6 +281,13 @@ function processState(runtime: OfflineRuntime, book: BookState, base: Features, 
       };
       if (!runtime.bestCandidateEconomics || candidate.lowerBoundNetBps > runtime.bestCandidateEconomics.lowerBoundNetBps) {
         runtime.bestCandidateEconomics = candidate;
+      }
+      if (Number.isFinite(diagnostics.edgeHorizonMs) && diagnostics.edgeHorizonMs > 0) {
+        runtime.calibrationCandidates.push({
+          atMs: features.receiveTsMs, side: latest.candidate.side, bid: book.bids[0]!.px, ask: book.asks[0]!.px,
+          regime: classified.name, family: diagnostics.family, quality: diagnostics.edgeQuality, spreadBps: features.spreadBps,
+          horizonMs: diagnostics.edgeHorizonMs, executionPath: "MAKER_MAKER_TAKER_FALLBACK",
+        });
       }
     }
     for (const reason of [...latest.long.reasons, ...latest.short.reasons]) {
@@ -260,7 +304,7 @@ function processState(runtime: OfflineRuntime, book: BookState, base: Features, 
 function directionReport(runtime: OfflineRuntime, side: Direction, cfg: EngineConfig): DirectionRecallReport {
   const feesAndFixedCosts = 2 * runtime.config.cost.takerFeeBps + runtime.config.cost.adverseSelectionBps
     + runtime.config.cost.fundingBps + runtime.config.cost.borrowBps;
-  const labels = runtime.points.map((point, index) => bestNetMove(runtime.points, index, side, cfg.recall.opportunityHorizonMs, feesAndFixedCosts));
+  const labels = bestNetMoves(runtime.points, side, cfg.recall.opportunityHorizonMs, feesAndFixedCosts);
   const windows = groupWindows(runtime.points, labels, cfg.recall.minimumNetMoveBps, cfg.recall.sampleIntervalMs);
   const signals = runtime.signals.filter((signal) => signal.side === side);
   const rawSignals = runtime.rawSignals.filter((signal) => signal.side === side);
@@ -268,43 +312,120 @@ function directionReport(runtime: OfflineRuntime, side: Direction, cfg: EngineCo
   const captured = windows.filter((window) => signals.some((signal) => signal.atMs >= window.startMs && signal.atMs <= window.endMs + cfg.recall.sampleIntervalMs)).length;
   const rawCaptured = windows.filter((window) => rawSignals.some((signal) => signal.atMs >= window.startMs && signal.atMs <= window.endMs + cfg.recall.sampleIntervalMs)).length;
   const candidateCaptured = windows.filter((window) => candidateSignals.some((signal) => signal.atMs >= window.startMs && signal.atMs <= window.endMs + cfg.recall.sampleIntervalMs)).length;
-  const profitableSignals = signals.filter((signal) => bestNetForSignal(signal, runtime.points, cfg.recall.opportunityHorizonMs, feesAndFixedCosts) >= cfg.recall.minimumNetMoveBps).length;
+  const profitableSignals = signals.filter((signal) => bestNetForSignal(signal, runtime.points) >= cfg.recall.minimumNetMoveBps).length;
+  const pullbackSignals = signals.filter((signal) => signal.family === "PULLBACK_RECOVERY");
+  const profitablePullbackSignals = pullbackSignals.filter((signal) => bestNetForSignal(signal, runtime.points)
+    >= cfg.recall.minimumNetMoveBps).length;
   return {
     venueEligible: side === 1,
     opportunityWindows: windows.length, capturedWindows: captured, recall: ratio(captured, windows.length),
     maximumNetMoveBps: labels.length ? Math.max(0, ...labels.filter(Number.isFinite)) : 0,
-    signalCount: signals.length, profitableSignals, precision: ratio(profitableSignals, signals.length),
+    signalCount: signals.length, profitableSignals,
+    pullbackSignalCount: pullbackSignals.length, profitablePullbackSignals,
+    precision: ratio(profitableSignals, signals.length),
     rawSignalCount: rawSignals.length, rawCapturedWindows: rawCaptured, rawRecall: ratio(rawCaptured, windows.length),
     candidateSignalCount: candidateSignals.length, candidateCapturedWindows: candidateCaptured,
     candidateRecall: ratio(candidateCaptured, windows.length),
   };
 }
 
-function emptyDirectionReport(venueEligible: boolean, signalCount: number): DirectionRecallReport {
+function emptyDirectionReport(venueEligible: boolean, signalCount: number, pullbackSignalCount: number): DirectionRecallReport {
   return { venueEligible, opportunityWindows: 0, capturedWindows: 0, recall: 0, maximumNetMoveBps: 0,
-    signalCount, profitableSignals: 0, precision: 0, rawSignalCount: 0, rawCapturedWindows: 0,
+    signalCount, profitableSignals: 0, pullbackSignalCount, profitablePullbackSignals: 0,
+    precision: 0, rawSignalCount: 0, rawCapturedWindows: 0,
     rawRecall: 0, candidateSignalCount: 0, candidateCapturedWindows: 0, candidateRecall: 0 };
 }
 
-function bestNetMove(points: readonly RecallPoint[], index: number, side: Direction, horizonMs: number, costsBps: number): number {
-  const entry = points[index]!;
+function bestNetMoves(points: readonly RecallPoint[], side: Direction, horizonMs: number, costsBps: number): number[] {
+  const labels = Array.from({ length: points.length }, () => Number.NEGATIVE_INFINITY);
+  const deque: number[] = [];
+  let head = 0, end = 1;
+  const executable = (index: number): number => side === 1 ? points[index]!.bid : points[index]!.ask;
+  const dominates = (left: number, right: number): boolean => side === 1 ? left >= right : left <= right;
+  for (let index = 0; index < points.length; index += 1) {
+    while (head < deque.length && deque[head]! <= index) head += 1;
+    end = Math.max(end, index + 1);
+    while (end < points.length && points[end]!.atMs <= points[index]!.atMs + horizonMs) {
+      const value = executable(end);
+      while (deque.length > head && dominates(value, executable(deque.at(-1)!))) deque.pop();
+      deque.push(end);
+      end += 1;
+    }
+    const bestIndex = deque[head];
+    if (bestIndex !== undefined) {
+      const entry = points[index]!, bestPx = executable(bestIndex);
+      const gross = side === 1 ? (bestPx / entry.ask - 1) * 10_000 : (entry.bid / bestPx - 1) * 10_000;
+      labels[index] = gross - costsBps;
+    }
+    if (head > 1_024) { deque.splice(0, head); head = 0; }
+  }
+  return labels;
+}
+
+function bestNetForSignal(signal: RecallSignal, points: readonly RecallPoint[]): number {
   let best = Number.NEGATIVE_INFINITY;
-  for (let cursor = index + 1; cursor < points.length && points[cursor]!.atMs <= entry.atMs + horizonMs; cursor += 1) {
-    const future = points[cursor]!;
-    const gross = side === 1 ? (future.bid / entry.ask - 1) * 10_000 : (entry.bid / future.ask - 1) * 10_000;
-    best = Math.max(best, gross - costsBps);
+  for (const point of points) {
+    if (point.atMs <= signal.atMs || point.atMs > signal.atMs + signal.horizonMs) continue;
+    const makerEntry = signal.executionPath !== "TAKER_TAKER";
+    const entryPx = signal.side === 1 ? (makerEntry ? signal.bid : signal.ask) : (makerEntry ? signal.ask : signal.bid);
+    const gross = signal.side === 1 ? (point.bid / entryPx - 1) * 10_000 : (entryPx / point.ask - 1) * 10_000;
+    best = Math.max(best, gross - signal.robustCostBps);
   }
   return best;
 }
 
-function bestNetForSignal(signal: RecallSignal, points: readonly RecallPoint[], horizonMs: number, costsBps: number): number {
-  let best = Number.NEGATIVE_INFINITY;
-  for (const point of points) {
-    if (point.atMs <= signal.atMs || point.atMs > signal.atMs + horizonMs) continue;
-    const gross = signal.side === 1 ? (point.bid / signal.ask - 1) * 10_000 : (signal.bid / point.ask - 1) * 10_000;
-    best = Math.max(best, gross - costsBps);
+function auditSignal(atMs: number, side: Direction, book: BookState): RecallSignal {
+  return { atMs, side, family: null, bid: book.bids[0]!.px, ask: book.asks[0]!.px,
+    horizonMs: 0, robustCostBps: Number.POSITIVE_INFINITY, executionPath: null };
+}
+
+function forwardCalibrationBuckets(runtimes: ReadonlyMap<string, OfflineRuntime>, cfg: EngineConfig): CalibratedEdgeBucket[] {
+  const buckets: CalibratedEdgeBucket[] = [];
+  for (const [symbol, runtime] of runtimes) {
+    const groups = new Map<string, ForwardCalibrationCandidate[]>();
+    for (const candidate of runtime.calibrationCandidates.filter((item) => item.side === 1)) {
+      const key = `${candidate.family}|${candidate.regime}|${candidate.horizonMs}|${candidate.executionPath}`;
+      const values = groups.get(key) ?? [];
+      values.push(candidate);
+      groups.set(key, values);
+    }
+    for (const candidates of groups.values()) {
+      const independent: ForwardCalibrationCandidate[] = [];
+      for (const candidate of candidates.sort((left, right) => left.atMs - right.atMs)) {
+        if (independent.length === 0 || candidate.atMs - independent.at(-1)!.atMs >= candidate.horizonMs) independent.push(candidate);
+      }
+      const returns = independent.flatMap((candidate) => {
+        const future = pointAtOrAfter(runtime.points, candidate.atMs + candidate.horizonMs, Math.max(5_000, cfg.recall.sampleIntervalMs * 2));
+        return future ? [(future.bid / candidate.bid - 1) * 10_000] : [];
+      });
+      if (returns.length < 2) continue;
+      const template = independent[0]!;
+      const meanGrossReturnBps = mean(returns);
+      const standardError = sampleStandardDeviation(returns) / Math.sqrt(returns.length);
+      buckets.push({
+        symbol, family: template.family, side: 1, regime: template.regime, minimumQuality: 0, maximumQuality: 1,
+        minimumSpreadBps: 0, maximumSpreadBps: runtime.config.deterministicSignal.maximumSpreadBps,
+        horizonMs: template.horizonMs, path: template.executionPath,
+        meanGrossReturnBps, lowerConfidenceGrossReturnBps: meanGrossReturnBps - 1.645 * standardError,
+        effectiveSampleCount: returns.length,
+      });
+    }
   }
-  return best;
+  return buckets;
+}
+
+function pointAtOrAfter(points: readonly RecallPoint[], targetMs: number, toleranceMs: number): RecallPoint | undefined {
+  let lo = 0, hi = points.length;
+  while (lo < hi) { const middle = (lo + hi) >>> 1; if (points[middle]!.atMs < targetMs) lo = middle + 1; else hi = middle; }
+  const point = points[lo];
+  return point && point.atMs - targetMs <= toleranceMs ? point : undefined;
+}
+
+function mean(values: readonly number[]): number { return values.reduce((sum, value) => sum + value, 0) / values.length; }
+function sampleStandardDeviation(values: readonly number[]): number {
+  if (values.length < 2) return 0;
+  const average = mean(values);
+  return Math.sqrt(values.reduce((sum, value) => sum + (value - average) ** 2, 0) / (values.length - 1));
 }
 
 function groupWindows(points: readonly RecallPoint[], labels: readonly number[], thresholdBps: number, sampleIntervalMs: number): OpportunityWindow[] {
@@ -325,14 +446,15 @@ function groupWindows(points: readonly RecallPoint[], labels: readonly number[],
   return windows;
 }
 
-function allNumbersFinite(value: object): boolean {
-  for (const item of Object.values(value)) if (typeof item === "number" && !Number.isFinite(item)) return false;
-  return true;
+function allNumbersFinite(value: unknown): boolean {
+  if (typeof value === "number") return Number.isFinite(value);
+  if (!value || typeof value !== "object") return true;
+  return Object.values(value as Record<string, unknown>).every(allNumbersFinite);
 }
 function emptyDirectionCounts(): DirectionCandidateCounts {
   return { evaluations: 0, regimePass: 0, quorumPass: 0, scorePass: 0, arbitrationPass: 0, antiChasePass: 0,
     rawDirectionalPass: 0, persistencePass: 0, candidatePass: 0, liquidityPass: 0, slowTrendPass: 0,
-    edgeResolvedPass: 0, preliminaryCostPass: 0,
+    edgeResolvedPass: 0, preliminaryCostPass: 0, pullbackRecoveryPass: 0,
     maximumPersistence: 0, maximumConfirmationMs: 0, maximumConfirmationEvents: 0 };
 }
 function incrementDirection(counts: DirectionCandidateCounts, diagnostics: DeterministicEvaluation["long"]): void {
@@ -347,6 +469,7 @@ function incrementDirection(counts: DirectionCandidateCounts, diagnostics: Deter
   if (diagnostics.candidatePass) counts.candidatePass += 1;
   if (diagnostics.liquidityPass) counts.liquidityPass += 1;
   if (diagnostics.slowTrendPass) counts.slowTrendPass += 1;
+  if (diagnostics.pullbackRecoveryPass) counts.pullbackRecoveryPass += 1;
   if (diagnostics.edgeResolvedPass) counts.edgeResolvedPass += 1;
   if (diagnostics.costPass) counts.preliminaryCostPass += 1;
   counts.maximumPersistence = Math.max(counts.maximumPersistence, diagnostics.persistence);

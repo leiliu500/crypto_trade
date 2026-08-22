@@ -79,6 +79,25 @@ A_t = max(0, exp(-dt/tau_A) A_(t-1)
 
 Candidate firing requires quorum, arm score, minimum occupancy and evidence, confirmation time/events, cooldown, and chase distance from the midpoint captured when the episode armed. Strong scores use the shorter strong-confirmation thresholds. Release hysteresis resets an episode below `releaseScore`; a long event gap also resets it. One episode emits at most one candidate. Long/short arbitration is symmetric, and a conflict inside the configured margin produces no candidate. Regime classification remains diagnostic and may inform position analysis, but it is not a micro-candidate or sizing gate.
 
+The structural gate has two independent entry families. The continuation family retains the aligned 5/15/60-minute trend requirements. The pullback/recovery family scans a causal four-hour path sampled every 30 seconds in order: a directional base precedes the structural extreme, the counter-extreme occurs after that structural extreme, and the current sample recovers after the counter-extreme. For direction `d`, best prior base `p_b`, structural extreme `p_s`, counter-extreme `p_c`, and current price `p_t` in log-price units:
+
+```text
+structuralMove_d = 10000 d (p_s - p_b)
+pullbackDepth_d  = 10000 d (p_s - p_c)
+recovery_d       = 10000 d (p_t - p_c)
+remainingRoom_d  = 10000 d (p_s - p_t)
+```
+
+All four quantities must satisfy their configured structural bounds, and `recovery/pullbackDepth` must remain below the anti-chase fraction. The analytical pullback edge credits only still-unrealized room:
+
+```text
+grossPullback_d = min(maxGross, captureFraction quality remainingRoom_d)
+uncertainty_d   = baseUncertainty + roomUncertaintyFraction (1-quality) remainingRoom_d
+conservativeGross_d = max(0, grossPullback_d - uncertainty_d)
+```
+
+The prior trend, pullback depth, and already-realized recovery affect confirmation quality but are never counted as future profit. This family then passes through the same liquidity, health, exposure, maker-fill, robust-cost, exact-quantity, sizing, and portfolio gates as continuation. Calibration buckets include the family key so continuation returns cannot authorize pullback entries or vice versa.
+
 `src/strategy/deterministic-edge-resolver.ts` first requests calibrated edge when configured and falls back to a deterministic analytical estimate when calibration is absent. For economic horizon `H_E`:
 
 ```text
@@ -92,7 +111,7 @@ grossDet_d = min(maxGrossBps,
 
 The analytical uncertainty reserve contains a base reserve plus weak-quality volatility, spread, and flow-flip penalties. The edge source and horizon are included in gate diagnostics.
 
-`src/strategy/cost.ts` adds:
+`src/strategy/cost.ts` adds every component once:
 
 ```text
 C_roundTrip = spread + maker/taker fees + walked impact
@@ -102,7 +121,11 @@ C_roundTrip = spread + maker/taker fees + walked impact
 For Alpaca spot, funding and borrow are zero. `src/strategy/deterministic-entry.ts` applies:
 
 ```text
-LCB_d = grossDet_d - uncertaintyReserve_d - 1.75 roundTripBps(q)
+fixedCost = entryFee + exitFee + funding + borrow
+variableCost = entryExecution + exitExecution + impact + latency + adverseSelection
+robustCost = fixedCost + max(1.75 variableCost,
+                             variableCost + positiveCostErrorP95)
+LCB_d = conservativeGross_d - robustCost
 ```
 
 The cost gate is run first at minimum quantity and again during every sizing iteration and final exact book walk. Equality with the configured minimum edge passes; a value below it fails. The micro trigger's chase distance is measured from the midpoint at arm time, so a late candidate cannot use its current microprice as a moving anchor. Candidate detection is separate from health, liquidity, venue direction, exposure, economic edge, exact cost, size, execution plan, portfolio capacity, risk reservation, and send/acknowledgment lifecycle gates.
@@ -123,7 +146,9 @@ EV_maker = P_fill notional (predictedGrossBps - makerCostBps) / 10000
          - staleOrderCost
 ```
 
-Fill probability uses `1-exp(-lambda TTL)` and a log hazard driven by aggressive volume versus queue ahead, flow, imbalance, and spread. Maker TTL cannot exceed half the configured alpha half-life. Takers and exits walk every visible price level and emit the worst walked price as an IOC limit cap.
+Fill probability uses `1-exp(-lambda TTL)` and a log hazard driven by aggressive volume versus queue ahead, flow, imbalance, and spread. Maker entry TTL cannot exceed half the configured alpha half-life. Non-urgent exits selected by `MAKER_MAKER_TAKER_FALLBACK` rest at the ask for a bounded TTL; after cancellation is authoritatively reconciled, any remainder walks the bid and uses the worst walked price as an IOC limit cap. Hard-stop, data-invalid, recovery-no-edge, and profit-floor exits bypass the maker attempt.
+
+The fallback path fixes the maker exit fee in the ledger and adds `(1-P_exitFill)` times the taker-minus-maker fee, half spread, and configured fallback adverse move to stressable variable cost. Exit completion therefore does not depend on an indefinite maker fill, and the economic gate does not pretend the fallback branch is free.
 
 Maker and taker are independent execution candidates. Each candidate iterates quantity, style-specific cost, deterministic LCB revalidation, and risk sizing to stability. A candidate that fails its exact cost gate is discarded without suppressing the other style; the surviving candidates are compared by expected value, subject to the maker fill-probability floor.
 

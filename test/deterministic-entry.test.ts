@@ -35,6 +35,10 @@ function alignedFeatures(side: 1 | -1 = 1, nowMs = 1_000): DeterministicFeatures
     flowFlipRate: .05, usableDepthQty: 100, usableDepthNotional: 1_000_000,
     slowTrendReady: true, trendFastBps: side * 20, trendMediumBps: side * 35, trendSlowBps: side * 60,
     slowTrendAlignment: side * .7, slowTrendEfficiency: .5, slowVarianceRate: 4e-8, slowSigmaBps: 60,
+    longPullback: { ready: false, structuralMoveBps: 0, pullbackDepthBps: 0, recoveryBps: 0, remainingRoomBps: 0,
+      structuralExtremeAgeMs: 0, reversalExtremeAgeMs: 0 },
+    shortPullback: { ready: false, structuralMoveBps: 0, pullbackDepthBps: 0, recoveryBps: 0, remainingRoomBps: 0,
+      structuralExtremeAgeMs: 0, reversalExtremeAgeMs: 0 },
   };
 }
 
@@ -112,6 +116,93 @@ test("slow trend warm-up and direction alignment fail closed", () => {
     assert.equal(result, null);
     assert.equal(engine.latestEvaluation()!.long.slowTrendPass, false);
   }
+});
+
+test("pullback recovery is a distinct entry family and does not require continuation alignment", () => {
+  const engine = new DeterministicEntryEngine(testConfig());
+  let result = null;
+  for (let index = 0; index < 20; index += 1) {
+    const value = context(1, 1_000 + index * 50);
+    value.features.trendFastBps = -12;
+    value.features.trendMediumBps = -5;
+    value.features.slowTrendAlignment = -.15;
+    value.features.longPullback = {
+      ready: true, structuralMoveBps: 150, pullbackDepthBps: 100, recoveryBps: 20,
+      remainingRoomBps: 80, structuralExtremeAgeMs: 3_600_000, reversalExtremeAgeMs: 300_000,
+    };
+    result ??= engine.evaluate(value);
+  }
+  assert.equal(result?.source, "DETERMINISTIC_PULLBACK_RECOVERY");
+  assert.equal(result?.diagnostics.family, "PULLBACK_RECOVERY");
+  assert.equal(result?.diagnostics.continuationTrendPass, false);
+  assert.equal(result?.diagnostics.pullbackRecoveryPass, true);
+  assert.equal(result?.selectedHorizonMs, testConfig().pullbackRecovery.horizonMs);
+});
+
+test("pending signal validity cannot cross from pullback into continuation or vice versa", () => {
+  const engine = new DeterministicEntryEngine(testConfig());
+  const value = context(1);
+  value.features.trendFastBps = -12;
+  value.features.trendMediumBps = -5;
+  value.features.slowTrendAlignment = -.15;
+  value.features.longPullback = {
+    ready: true, structuralMoveBps: 150, pullbackDepthBps: 100, recoveryBps: 20,
+    remainingRoomBps: 80, structuralExtremeAgeMs: 3_600_000, reversalExtremeAgeMs: 300_000,
+  };
+  assert.equal(engine.signalStillValid(1, value.features, value.regime, "PULLBACK_RECOVERY"), true);
+  assert.equal(engine.signalStillValid(1, value.features, value.regime, "CONTINUATION"), false);
+  value.features.longPullback.ready = false;
+  value.features.trendFastBps = 20;
+  value.features.trendMediumBps = 35;
+  value.features.slowTrendAlignment = .7;
+  assert.equal(engine.signalStillValid(1, value.features, value.regime, "PULLBACK_RECOVERY"), false);
+  assert.equal(engine.signalStillValid(1, value.features, value.regime, "CONTINUATION"), true);
+});
+
+test("partial pullbacks do not bypass structural or exact economic gates", () => {
+  const engine = new DeterministicEntryEngine(testConfig());
+  let result = null;
+  for (let index = 0; index < 20; index += 1) {
+    const value = context(1, 1_000 + index * 50);
+    value.features.trendFastBps = -12;
+    value.features.trendMediumBps = -5;
+    value.features.slowTrendAlignment = -.15;
+    value.features.longPullback = {
+      ready: true, structuralMoveBps: 150, pullbackDepthBps: 100, recoveryBps: 20,
+      remainingRoomBps: 20, structuralExtremeAgeMs: 3_600_000, reversalExtremeAgeMs: 300_000,
+    };
+    result ??= engine.evaluate(value);
+  }
+  assert.equal(result, null);
+  assert.equal(engine.latestEvaluation()?.long.pullbackRecoveryPass, false);
+  assert.ok(engine.latestEvaluation()?.long.reasons.includes("STRUCTURAL_SETUP_GATE"));
+});
+
+test("fee-sized pullback room must still clear the unchanged robust cost gate", () => {
+  const run = (roundTripBps: number) => {
+    const engine = new DeterministicEntryEngine({ ...testConfig(), minimumNetEdgeBps: .5 });
+    let result = null;
+    for (let index = 0; index < 20; index += 1) {
+      const value = context(1, 1_000 + index * 50);
+      value.features.trendFastBps = -12;
+      value.features.trendMediumBps = -5;
+      value.features.slowTrendAlignment = -.15;
+      value.features.longPullback = {
+        ready: true, structuralMoveBps: 150, pullbackDepthBps: 100, recoveryBps: 20,
+        remainingRoomBps: 80, structuralExtremeAgeMs: 3_600_000, reversalExtremeAgeMs: 300_000,
+      };
+      value.longCost = cost(roundTripBps);
+      result ??= engine.evaluate(value);
+    }
+    return { result, diagnostics: engine.latestEvaluation()!.long };
+  };
+  const affordable = run(20);
+  const expensive = run(60);
+  assert.equal(affordable.result?.source, "DETERMINISTIC_PULLBACK_RECOVERY");
+  assert.equal(affordable.diagnostics.costPass, true);
+  assert.equal(expensive.result, null);
+  assert.equal(expensive.diagnostics.costPass, false);
+  assert.ok(expensive.diagnostics.reasons.includes("COST_GATE"));
 });
 
 test("maker-first entries exclude the taker entry path", () => {
@@ -390,6 +481,60 @@ test("sampled slow trend becomes ready only after causal window coverage", () =>
   assert.deepEqual(output.map((item) => item.slowTrendReady), [false, false, false, true]);
   assert.ok(output[3]!.trendFastBps > 0 && output[3]!.trendMediumBps > 0 && output[3]!.trendSlowBps > 0);
   assert.ok(output[3]!.slowTrendAlignment > 0);
+});
+
+test("sampled multi-hour state detects an ordered rise, pullback, and recovery causally", () => {
+  const extension = new DeterministicFeatureExtensions({ ...DEFAULT_EXTENSION_CONFIG,
+    trendSampleIntervalMs: 1_000, trendFastWindowMs: 1_000, trendMediumWindowMs: 2_000,
+    trendSlowWindowMs: 3_000, trendMinimumCoverage: 1,
+    pullbackWindowMs: 5_000, pullbackMinimumCoverage: 1, pullbackSampleIntervalMs: 1_000 });
+  const output = [100, 101, 102, 101, 100.5, 101].map((mid, index) => {
+    const base = alignedFeatures(1, 1_000 + index * 1_000);
+    base.mid = mid; base.microprice = mid;
+    return extension.update(base, { providerAgeMs: 5, usableDepthQty: 100, usableDepthNotional: 1_000_000,
+      replenishmentPressure: .2, bidAdditionQty: 1, askAdditionQty: 0, bidRemovalQty: 0, askRemovalQty: 0 });
+  });
+  assert.deepEqual(output.map((item) => item.longPullback.ready), [false, false, false, false, false, true]);
+  const state = output.at(-1)!.longPullback;
+  assert.ok(state.structuralMoveBps > 190);
+  assert.ok(state.pullbackDepthBps > 140);
+  assert.ok(state.recoveryBps > 49);
+  assert.ok(state.remainingRoomBps > 98);
+  assert.equal(state.structuralExtremeAgeMs, 3_000);
+  assert.equal(state.reversalExtremeAgeMs, 1_000);
+});
+
+test("persisted slow trend restores restart readiness without hydrating fast microstructure state", () => {
+  const extension = new DeterministicFeatureExtensions({ ...DEFAULT_EXTENSION_CONFIG,
+    trendSampleIntervalMs: 1_000, trendFastWindowMs: 1_000, trendMediumWindowMs: 2_000,
+    trendSlowWindowMs: 3_000, trendMinimumCoverage: .9 });
+  const asOfMs = 10_000;
+  const restored = extension.restoreSlowTrend([
+    { atMs: 7_000, mid: 100 }, { atMs: 8_000, mid: 100.1 },
+    { atMs: 9_000, mid: 100.2 }, { atMs: 10_000, mid: 100.3 },
+    { atMs: 11_000, mid: 500 }, { atMs: Number.NaN, mid: 100 },
+  ], asOfMs);
+  assert.equal(restored.reason, "RESTORED");
+  assert.equal(restored.ready, true);
+  const base = alignedFeatures(1, 10_100);
+  base.mid = 100.31; base.microprice = 100.31;
+  const output = extension.update(base, { providerAgeMs: 5, usableDepthQty: 100, usableDepthNotional: 1_000_000,
+    replenishmentPressure: .2, bidAdditionQty: 1, askAdditionQty: 0, bidRemovalQty: 0, askRemovalQty: 0 });
+  assert.equal(output.slowTrendReady, true);
+  assert.ok(output.trendSlowBps > 0 && output.trendSlowBps < 100);
+  assert.equal(output.impulseBps, 0);
+  assert.equal(output.anchorDistanceBps, 0);
+});
+
+test("stale persisted slow trend fails closed", () => {
+  const extension = new DeterministicFeatureExtensions({ ...DEFAULT_EXTENSION_CONFIG,
+    trendSampleIntervalMs: 1_000, trendFastWindowMs: 1_000, trendMediumWindowMs: 2_000,
+    trendSlowWindowMs: 3_000, trendMinimumCoverage: .9 });
+  const restored = extension.restoreSlowTrend([
+    { atMs: 1_000, mid: 100 }, { atMs: 2_000, mid: 101 }, { atMs: 3_000, mid: 102 }, { atMs: 4_000, mid: 103 },
+  ], 100_000);
+  assert.equal(restored.reason, "HISTORY_STALE");
+  assert.equal(restored.ready, false);
 });
 
 test("deterministic extensions preserve the clock-adjusted provider age", () => {
