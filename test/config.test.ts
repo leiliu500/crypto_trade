@@ -58,6 +58,11 @@ test("JSON baseline wins over legacy tunable environment values and symbol overl
     assert.equal(cfg.position.maximumHoldMs, 14_400_000);
     assert.deepEqual(cfg.deterministicSignal.analyticHorizons.map((item) => item.horizonMs), [3_600_000, 7_200_000, 14_400_000]);
     assert.equal(cfg.deterministicSignal.requireMakerEntry, true);
+    assert.equal(cfg.configurationVersion, "deterministic-slow-trend-v2.1");
+    assert.equal(cfg.deterministicSignal.minimumSlowTrendAlignment, 0.1);
+    assert.equal(cfg.deterministicSignal.minimumSlowTrendEfficiency, 0.05);
+    assert.equal(cfg.deterministicSignal.minimumSlowTrendMoveBps, 7.5);
+    assert.equal(cfg.symbolConfigs["BTC/USD"]?.dynamicLiquidity.tradeQuantile, 0.65);
     assert.equal(cfg.deterministicExtension.trendSlowWindowMs, 3_600_000);
     assert.equal(cfg.deterministicSignal.continuationQuality.volatilityTargetBps, 75);
     assert.equal(cfg.recall.opportunityHorizonMs, cfg.position.maximumHoldMs);

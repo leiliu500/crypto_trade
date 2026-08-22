@@ -29,7 +29,7 @@ The main contracts are:
 
 - Candidate: a bounded directional score, two-of-three book/flow/motion quorum with motion mandatory, decayed occupancy, leaky evidence, confirmation time/events, arbitration, cooldown, and midpoint-at-arm chase limit must pass. A directional regime is still reported but cannot suppress a micro candidate.
 - Entry: every health, dynamic-liquidity, venue, exposure, edge, cost, sizing, execution-plan, and portfolio gate must then pass. Candidate sensitivity never bypasses order economics.
-- Cost: `deterministic opportunity − uncertainty reserve − 1.75 × exact quantity-dependent round-trip cost >= minimum edge`.
+- Cost: `deterministic opportunity − uncertainty reserve − (exact fixed fees + stressed variable execution cost) >= minimum edge`. The `1.75` safety factor applies only to uncertain execution, impact, latency, and adverse-selection components; known venue fees remain exact.
 - Horizon: microstructure selects entry timing, while a bounded five-second sampler supplies causal 5/15/60-minute trend returns, slow efficiency, and slow realized variance to the 1/2/4-hour economic horizons.
 - Trend warm-up: new processes fail closed until at least 90% of the 60-minute slow window is observed. The dashboard reports `SLOW_TREND_WARMUP` and then `SLOW_TREND_GATE` when alignment is insufficient.
 - State: one continuous episode produces at most one candidate. Re-arming requires release hysteresis or an excessive event-gap reset, and the configured cooldown must have elapsed.
@@ -121,7 +121,7 @@ The default deterministic configuration in `config/base.json` is:
 
 ```text
 SIGNAL_MODE=DETERMINISTIC_ONLY
-DETERMINISTIC_CONFIG_VERSION=deterministic-slow-trend-v2.0
+DETERMINISTIC_CONFIG_VERSION=deterministic-slow-trend-v2.1
 ```
 
 `record` appends raw order-book and trade events to `data/events.jsonl`. Paper, shadow, and live modes also continuously append independently compressed gzip batches to `data/continuous-events.jsonl.gz` when `CONTINUOUS_RECORDING_ENABLED` is true. The batched writer keeps compression off the market-data hot path and makes completed batches replayable while the engine remains online. Run `npm run recall -- data/continuous-events.jsonl.gz` to analyze that capture.

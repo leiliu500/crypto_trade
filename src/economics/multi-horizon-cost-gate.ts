@@ -2,7 +2,14 @@ import { clamp } from "../core/market.js";
 import type { ConservativeEdge, CostBreakdown, CostGateConfig, CostGateDecision, CostPathEvaluation, EconomicEdgeMode } from "./types.js";
 
 export function robustCostBps(cost: CostBreakdown, safetyFactor: number): number {
-  return Math.max(safetyFactor * cost.estimatedCostBps, cost.estimatedCostBps + cost.positiveCostErrorP95Bps);
+  const fixedCostBps = cost.entryFeeBps + cost.exitFeeBps + cost.fundingBps + cost.borrowBps;
+  const variableCostBps = cost.entryExecutionBps + cost.exitExecutionBps + cost.marketImpactBps
+    + cost.latencyBps + cost.adverseSelectionBps;
+  const stressedVariableCostBps = Math.max(
+    safetyFactor * variableCostBps,
+    variableCostBps + cost.positiveCostErrorP95Bps,
+  );
+  return fixedCostBps + stressedVariableCostBps;
 }
 
 /** The sole binary economic gate. All costs and signal uncertainty are already consolidated before this point. */

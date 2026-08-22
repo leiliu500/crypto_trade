@@ -277,7 +277,7 @@ function loadSymbolConfig(symbol: string, env: NodeJS.ProcessEnv, mode: TradingM
   const dynamicLiquidity: DynamicLiquidityConfig = {
     maximumSamples: integerEnv(env.DYNAMIC_SPREAD_MAX_SAMPLES, 512, 10, 100_000),
     minimumSamples: integerEnv(env.DYNAMIC_SPREAD_MIN_SAMPLES, 30, 2, 100_000),
-    tradeQuantile: numberEnv(env.DYNAMIC_SPREAD_TRADE_QUANTILE, .5),
+    tradeQuantile: numberEnv(env.DYNAMIC_SPREAD_TRADE_QUANTILE, .65),
     tradeMadMultiple: numberEnv(env.DYNAMIC_SPREAD_TRADE_MAD_MULTIPLE, 3),
     stressMadMultiple: numberEnv(env.DYNAMIC_SPREAD_STRESS_MAD_MULTIPLE, 6),
     absoluteTradeCapBps,
