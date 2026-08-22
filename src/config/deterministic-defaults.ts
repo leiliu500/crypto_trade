@@ -16,7 +16,7 @@ export const DEFAULT_DETERMINISTIC_REGIME_CONFIG: DeterministicRegimeConfig = {
   hysteresisResetRatio: .75,
 };
 export const DEFAULT_DETERMINISTIC_SIGNAL_CONFIG: DeterministicSignalConfig = {
-  mode: "DETERMINISTIC_ONLY", configurationVersion: "deterministic-slow-trend-v2.0",
+  mode: "DETERMINISTIC_ONLY", configurationVersion: "deterministic-slow-trend-v2.1",
   maximumSpreadBps: 30, maximumSpreadZ: 3, minimumDepthZ: -2.5, maximumImpactBps: 1.5,
   microEdgeBps: .2, qi1: .15, qiK: .1, ofi: .3, tfi: .15, replenishment: .1, velocityZ: .25,
   maximumOpposingAccelerationZ: .3, impulseBps: .4, breakoutBps: .5, cusum: 2.5, efficiency: .45, maximumFlipRate: .45,
@@ -32,9 +32,9 @@ export const DEFAULT_DETERMINISTIC_SIGNAL_CONFIG: DeterministicSignalConfig = {
   minimumEconomicSizeScale: .20,
   minimumMakerFillProbability: .40,
   requireMakerEntry: true,
-  minimumSlowTrendAlignment: .15,
-  minimumSlowTrendEfficiency: .08,
-  minimumSlowTrendMoveBps: 10,
+  minimumSlowTrendAlignment: .10,
+  minimumSlowTrendEfficiency: .05,
+  minimumSlowTrendMoveBps: 7.5,
   minimumEffectiveSampleCount: 100,
   positiveCostErrorP95Bps: 2,
   maximumReasonableCostBps: 1_000,

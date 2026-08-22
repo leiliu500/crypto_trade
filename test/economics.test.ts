@@ -66,15 +66,27 @@ test("multi-horizon gate selects the best executable path and applies robust cos
   assert.equal(decision.pass, true);
   assert.equal(decision.selected?.cost.path, "MAKER_TAKER");
   assert.equal(decision.selected?.edge.horizonMs, 900_000);
-  assert.equal(decision.selected?.robustCostBps, 37.5);
-  assert.equal(decision.selected?.lowerBoundNetBps, 7.5);
+  assert.equal(decision.selected?.robustCostBps, 26);
+  assert.equal(decision.selected?.lowerBoundNetBps, 19);
   assert.ok(decision.sizeScale >= .2 && decision.sizeScale < 1);
-  assert.equal(robustCostBps(cost("TAKER_TAKER", 10), 1.5), 15);
+  assert.equal(robustCostBps(cost("TAKER_TAKER", 10), 1.5), 11);
   const inconsistent = { ...cost("TAKER_TAKER", 10), estimatedCostBps: 9 };
   assert.ok(gate.evaluate([edge()], [inconsistent]).bestRejected?.rejectionReasons.includes("INVALID_ECONOMICS"));
   const rejected = gate.evaluate([{ ...edge(), conservativeGrossBps: 5 }],
     [cost("MAKER_MAKER", 1, false, .9), cost("MAKER_TAKER", 10, true, .8)]);
   assert.equal(rejected.bestRejected?.cost.path, "MAKER_TAKER");
+});
+
+test("robust cost keeps known fees exact and stresses only uncertain execution components", () => {
+  const observed: CostBreakdown = {
+    path: "MAKER_TAKER", supported: true,
+    entryExecutionBps: 1, exitExecutionBps: 1,
+    entryFeeBps: 15, exitFeeBps: 25,
+    marketImpactBps: 2, latencyBps: 1, adverseSelectionBps: 1,
+    fundingBps: 0, borrowBps: 0,
+    estimatedCostBps: 46, positiveCostErrorP95Bps: 2, fillProbability: .8,
+  };
+  assert.equal(robustCostBps(observed, 1.75), 50.5);
 });
 
 test("live economics require calibrated policy returns and sufficient effective samples", () => {

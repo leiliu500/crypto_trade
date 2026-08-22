@@ -225,7 +225,13 @@ test("exact quantity cost is inclusive at the threshold and rejects one incremen
   const intent = persistentIntent(engine)!;
   assert.ok(intent);
   // grossOpportunityBps is already conservative of signal uncertainty, so exact revalidation charges only robust execution cost.
-  const thresholdCost = (intent.grossOpportunityBps - cfg.minimumNetEdgeBps) / cfg.costSafetyFactor;
+  const fixedFeeBps = cost().feeBps;
+  const robustBudgetBps = intent.grossOpportunityBps - cfg.minimumNetEdgeBps - fixedFeeBps;
+  const variableBudgetBps = Math.min(
+    robustBudgetBps / cfg.costSafetyFactor,
+    robustBudgetBps - cfg.positiveCostErrorP95Bps,
+  );
+  const thresholdCost = fixedFeeBps + variableBudgetBps;
   assert.ok(engine.revalidateExactCost(intent, cost(thresholdCost)));
   assert.equal(engine.revalidateExactCost(intent, cost(thresholdCost + 1e-9)), null);
 });
