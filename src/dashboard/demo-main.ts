@@ -76,7 +76,11 @@ function features(symbol: string, mid: number, spread: number, nowMs: number, si
     anchorDistanceBps: 12, sigmaImpulseBps: 1.5, cusumUpScore: 4, cusumDownScore: 0,
     flowFlipRate: .08, usableDepthQty: 32.4, usableDepthNotional: 2_000_000,
     slowTrendReady: true, trendFastBps: 18, trendMediumBps: 34, trendSlowBps: 72,
-    slowTrendAlignment: .68, slowTrendEfficiency: .42, slowVarianceRate: 4e-8, slowSigmaBps: 120 };
+    slowTrendAlignment: .68, slowTrendEfficiency: .42, slowVarianceRate: 4e-8, slowSigmaBps: 120,
+    longPullback: { ready: false, structuralMoveBps: 0, pullbackDepthBps: 0, recoveryBps: 0, remainingRoomBps: 0,
+      structuralExtremeAgeMs: 0, reversalExtremeAgeMs: 0 },
+    shortPullback: { ready: false, structuralMoveBps: 0, pullbackDepthBps: 0, recoveryBps: 0, remainingRoomBps: 0,
+      structuralExtremeAgeMs: 0, reversalExtremeAgeMs: 0 } };
 }
 
 function demoOrders(nowMs: number, progress: number, btc: number): readonly TrackedOrder[] {

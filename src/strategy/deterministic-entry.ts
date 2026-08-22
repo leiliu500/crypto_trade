@@ -7,13 +7,15 @@ import type { SideTriggerDiagnostics, SmallFractionCandidate, SmallFractionFeatu
 import type { RegimeDecision } from "./deterministic-regime.js";
 import { SmallFractionEntryTrigger, validateSmallFractionTriggerConfig } from "./small-fraction-entry-trigger.js";
 import type { LiquidityDecision } from "./dynamic-liquidity.js";
-import type { AnalyticHorizonConfig, ContinuationQualityConfig, CostBreakdown, EconomicEdgeMode, ExecutionPath } from "../economics/types.js";
+import type { AnalyticHorizonConfig, ContinuationQualityConfig, CostBreakdown, EconomicEdgeMode, EntryFamily, ExecutionPath } from "../economics/types.js";
 import { MultiHorizonCostGate } from "../economics/multi-horizon-cost-gate.js";
 import { EconomicEdgeResolver } from "../economics/economic-edge-resolver.js";
 import { CalibratedEdgeTable } from "../calibration/calibrated-edge-table.js";
 import type { CalibratedEdgeBucket } from "../calibration/calibrated-edge-table.js";
 import { continuationQuality, validateContinuationQualityConfig } from "./continuation-quality.js";
 import { validateMultiHorizonAnalyticConfig } from "../economics/analytic-edge.js";
+import { pullbackRecoveryPass, pullbackState, validatePullbackRecoveryConfig,
+  type PullbackRecoveryConfig } from "./pullback-recovery.js";
 
 export type SignalMode = "DETERMINISTIC_ONLY" | "DETERMINISTIC_WITH_MODEL_VETO" | "DETERMINISTIC_WITH_MODEL_RANKING";
 export interface SystemGateState {
@@ -51,6 +53,7 @@ export interface DeterministicSignalConfig {
   maximumReasonableCostBps: number;
   maximumReasonableGrossBps: number;
   calibratedEdges: CalibratedEdgeBucket[];
+  pullbackRecovery: PullbackRecoveryConfig;
   microTrigger: SmallFractionTriggerConfig;
 }
 export interface EntryContext {
@@ -69,7 +72,7 @@ export interface RuleVotes {
 }
 export type DirectionPhase = "IDLE" | "ARMED" | "COOLDOWN";
 export interface RuleDiagnostics {
-  side: Direction; phase: DirectionPhase; score: number; oppositeScore: number; scoreMargin: number; votes: RuleVotes;
+  family: EntryFamily; side: Direction; phase: DirectionPhase; score: number; oppositeScore: number; scoreMargin: number; votes: RuleVotes;
   persistence: number; evidence: number; confirmationMs: number; confirmationEvents: number;
   deltaMicroBps: number; sensorThresholdBps: number; microNoiseBps: number; microPressure: number;
   grossOpportunityBps: number; uncertaintyReserveBps: number; roundTripCostBps: number; lowerBoundNetBps: number;
@@ -82,15 +85,17 @@ export interface RuleDiagnostics {
   scorePass: boolean; rawDirectionalPass: boolean; candidatePass: boolean; edgeResolvedPass: boolean;
   healthPass: boolean; liquidityPass: boolean; regimePass: boolean; persistencePass: boolean; antiChasePass: boolean;
   exposurePass: boolean; cooldownPass: boolean; costPass: boolean; arbitrationPass: boolean; slowTrendPass: boolean;
+  continuationTrendPass: boolean; pullbackRecoveryPass: boolean;
+  pullbackStructuralMoveBps: number; pullbackDepthBps: number; pullbackRecoveryBps: number; pullbackRemainingRoomBps: number;
   liquidityReasons: readonly string[]; tradeThresholdBps: number; stressThresholdBps: number; reasons: string[];
 }
 export interface DeterministicDirectionalCandidate {
-  source: "DETERMINISTIC_MICRO"; configurationVersion: string; decisionId: string; symbol: string; sequence: bigint; createdMs: number;
+  source: "DETERMINISTIC_MICRO" | "DETERMINISTIC_PULLBACK_RECOVERY"; configurationVersion: string; decisionId: string; symbol: string; sequence: bigint; createdMs: number;
   side: Direction; deterministicScore: number; occupancy: number; evidence: number; deltaMicroBps: number;
   sensorThresholdBps: number; chaseBps: number; diagnostics: RuleDiagnostics;
 }
 export interface DeterministicTradeIntent {
-  source: "DETERMINISTIC_MICRO"; configurationVersion: string; decisionId: string; symbol: string; sequence: bigint; createdMs: number;
+  source: "DETERMINISTIC_MICRO" | "DETERMINISTIC_PULLBACK_RECOVERY"; configurationVersion: string; decisionId: string; symbol: string; sequence: bigint; createdMs: number;
   side: Direction; deterministicScore: number; grossOpportunityBps: number; uncertaintyReserveBps: number; lowerBoundNetBps: number;
   quality: number; diagnostics: RuleDiagnostics;
   selectedHorizonMs?: number; executionPath?: ExecutionPath; robustCostBps?: number;
@@ -113,7 +118,7 @@ export class DeterministicEntryEngine {
       horizons: cfg.analyticHorizons,
       spreadUncertaintyWeight: cfg.analyticEdge.spreadUncertaintyWeight,
       flipUncertaintyWeight: cfg.analyticEdge.flipUncertaintyWeight,
-    }, calibrated);
+    }, cfg.pullbackRecovery, calibrated);
     this.costGate = new MultiHorizonCostGate({
       costSafetyFactor: cfg.costSafetyFactor, minimumNetEdgeBps: cfg.minimumNetEdgeBps,
       fullQualityEdgeBps: cfg.fullQualityEdgeBps, minimumEconomicSizeScale: cfg.minimumEconomicSizeScale,
@@ -154,6 +159,7 @@ export class DeterministicEntryEngine {
       grossBeforeUncertaintyBps: intent.grossOpportunityBps + intent.uncertaintyReserveBps,
       signalUncertaintyBps: intent.uncertaintyReserveBps, conservativeGrossBps: intent.grossOpportunityBps,
       quality: intent.diagnostics.edgeQuality, effectiveSampleCount: intent.diagnostics.edgeEffectiveSampleCount,
+      family: intent.diagnostics.family,
       executionPath: path,
     }], [exact]);
     const selected = decision.selected;
@@ -172,9 +178,12 @@ export class DeterministicEntryEngine {
     };
   }
 
-  public signalStillValid(side: Direction, features: DeterministicFeatures, _regime: RegimeDecision): boolean {
+  public signalStillValid(side: Direction, features: DeterministicFeatures, _regime: RegimeDecision,
+    family?: EntryFamily): boolean {
     if (features.stale || !features.kinematicsReady) return false;
-    if (!this.slowTrendPass(side, features)) return false;
+    const structure = this.structuralSetup(side, features);
+    if (family === "CONTINUATION" ? !structure.continuationPass
+      : family === "PULLBACK_RECOVERY" ? !structure.pullbackPass : !structure.pass) return false;
     const halfSpread = Math.max(features.spread / 2, 1e-12);
     const pressure = clamp((features.microprice - features.mid) / halfSpread, -1, 1);
     const cfg = this.cfg.microTrigger;
@@ -216,14 +225,17 @@ export class DeterministicEntryEngine {
     const antiChasePass = trigger.chaseBps <= this.cfg.microTrigger.maximumChaseBps;
     const cooldownPass = !trigger.reasons.includes("COOLDOWN_ACTIVE") && !trigger.reasons.includes("ALREADY_FIRED_IN_EPISODE");
     const continuation = continuationQuality(direction, f, context.regime, this.cfg.continuationQuality);
-    const slowTrendPass = this.slowTrendPass(direction, f);
-    const edges = this.edgeResolver.resolve({ symbol: context.symbol, side: direction, features: f,
-      regime: context.regime, continuation });
+    const structure = this.structuralSetup(direction, f);
+    const slowTrendPass = structure.pass;
+    const confirmationQuality = clamp((trigger.score - this.cfg.microTrigger.releaseScore)
+      / Math.max(this.cfg.microTrigger.strongScore - this.cfg.microTrigger.releaseScore, 1e-9), 0, 1);
+    const edges = this.edgeResolver.resolve({ symbol: context.symbol, family: structure.family, side: direction, features: f,
+      regime: context.regime, continuation, confirmationQuality });
     const suppliedCosts = direction === 1 ? context.longEconomicCosts : context.shortEconomicCosts;
     const availableCosts = suppliedCosts && suppliedCosts.length > 0 ? suppliedCosts
       : [exactCostBreakdown(cost, "TAKER_TAKER", 1, this.cfg.positiveCostErrorP95Bps)];
     const costs = this.cfg.requireMakerEntry
-      ? availableCosts.filter((item) => item.path === "MAKER_TAKER") : availableCosts;
+      ? availableCosts.filter((item) => item.path === "MAKER_TAKER" || item.path === "MAKER_MAKER_TAKER_FALLBACK") : availableCosts;
     const decision = this.costGate.evaluate(edges, costs);
     const economic = decision.selected ?? decision.bestRejected;
     // Signal uncertainty is already incorporated in conservativeGrossBps and is not charged again.
@@ -244,9 +256,13 @@ export class DeterministicEntryEngine {
     if (!edgeResolvedPass) reasons.push("EDGE_NOT_RESOLVED");
     if (edgeResolvedPass && !costPass) reasons.push("COST_GATE");
     if (!arbitrationPass) reasons.push("ARBITRATION_GATE");
-    if (!slowTrendPass) reasons.push(f.slowTrendReady ? "SLOW_TREND_GATE" : "SLOW_TREND_WARMUP");
+    const pullback = pullbackState(direction, f);
+    if (!slowTrendPass) reasons.push(!f.slowTrendReady && !pullback.ready
+      ? "STRUCTURAL_HISTORY_WARMUP" : "STRUCTURAL_SETUP_GATE");
+    if (!structure.continuationPass) reasons.push("CONTINUATION_TREND_GATE");
+    if (!structure.pullbackPass) reasons.push("PULLBACK_RECOVERY_GATE");
     return {
-      side: direction, phase, score: trigger.score, oppositeScore, scoreMargin: trigger.score - oppositeScore, votes,
+      family: structure.family, side: direction, phase, score: trigger.score, oppositeScore, scoreMargin: trigger.score - oppositeScore, votes,
       persistence: trigger.occupancy, evidence: trigger.evidence, confirmationMs: trigger.confirmationMs,
       confirmationEvents: trigger.consecutiveEvents, deltaMicroBps: trigger.deltaMicroBps,
       sensorThresholdBps: trigger.sensorThresholdBps, microNoiseBps: trigger.microNoiseBps, microPressure: trigger.microPressure,
@@ -265,6 +281,9 @@ export class DeterministicEntryEngine {
       scorePass, rawDirectionalPass, candidatePass, edgeResolvedPass, healthPass, liquidityPass, regimePass,
       persistencePass, antiChasePass, exposurePass, cooldownPass, costPass, arbitrationPass,
       slowTrendPass,
+      continuationTrendPass: structure.continuationPass, pullbackRecoveryPass: structure.pullbackPass,
+      pullbackStructuralMoveBps: pullback.structuralMoveBps, pullbackDepthBps: pullback.pullbackDepthBps,
+      pullbackRecoveryBps: pullback.recoveryBps, pullbackRemainingRoomBps: pullback.remainingRoomBps,
       liquidityReasons: dynamicLiquidity?.reasons ?? (liquidityPass ? [] : ["STATIC_LIQUIDITY_LIMIT"]),
       tradeThresholdBps: dynamicLiquidity?.tradeThresholdBps ?? this.cfg.maximumSpreadBps,
       stressThresholdBps: dynamicLiquidity?.stressThresholdBps ?? this.cfg.maximumSpreadBps,
@@ -273,9 +292,10 @@ export class DeterministicEntryEngine {
   }
 
   private tradeIntent(context: EntryContext, selected: RuleDiagnostics): DeterministicTradeIntent {
+    const source = selected.family === "PULLBACK_RECOVERY" ? "DETERMINISTIC_PULLBACK_RECOVERY" : "DETERMINISTIC_MICRO";
     return {
-      source: "DETERMINISTIC_MICRO", configurationVersion: this.cfg.configurationVersion,
-      decisionId: `${context.symbol}:${context.sequence.toString()}:${selected.side}:${context.nowMs}`,
+      source, configurationVersion: this.cfg.configurationVersion,
+      decisionId: `${context.symbol}:${context.sequence.toString()}:${selected.side}:${selected.family}:${context.nowMs}`,
       symbol: context.symbol, sequence: context.sequence, createdMs: context.nowMs, side: selected.side,
       deterministicScore: selected.score, grossOpportunityBps: selected.grossOpportunityBps,
       uncertaintyReserveBps: selected.uncertaintyReserveBps, lowerBoundNetBps: selected.lowerBoundNetBps,
@@ -288,9 +308,10 @@ export class DeterministicEntryEngine {
 
   private directionalCandidate(context: EntryContext, micro: SmallFractionCandidate,
     selected: RuleDiagnostics): DeterministicDirectionalCandidate {
+    const source = selected.family === "PULLBACK_RECOVERY" ? "DETERMINISTIC_PULLBACK_RECOVERY" : "DETERMINISTIC_MICRO";
     return {
-      source: "DETERMINISTIC_MICRO", configurationVersion: this.cfg.configurationVersion,
-      decisionId: `${context.symbol}:${context.sequence.toString()}:${selected.side}:${context.nowMs}`,
+      source, configurationVersion: this.cfg.configurationVersion,
+      decisionId: `${context.symbol}:${context.sequence.toString()}:${selected.side}:${selected.family}:${context.nowMs}`,
       symbol: context.symbol, sequence: context.sequence, createdMs: context.nowMs, side: selected.side,
       deterministicScore: selected.score, occupancy: micro.occupancy, evidence: micro.evidence,
       deltaMicroBps: micro.deltaMicroBps, sensorThresholdBps: micro.sensorThresholdBps,
@@ -333,12 +354,21 @@ export class DeterministicEntryEngine {
       + cfg.breakoutWeight * Math.tanh((f.breakoutUpBps - f.breakoutDownBps) / cfg.breakoutScaleBps);
   }
 
-  private slowTrendPass(side: Direction, f: DeterministicFeatures): boolean {
+  private continuationTrendPass(side: Direction, f: DeterministicFeatures): boolean {
     return f.slowTrendReady
       && side * f.slowTrendAlignment >= this.cfg.minimumSlowTrendAlignment
       && f.slowTrendEfficiency >= this.cfg.minimumSlowTrendEfficiency
       && side * f.trendSlowBps >= this.cfg.minimumSlowTrendMoveBps
       && side * f.trendFastBps > 0 && side * f.trendMediumBps > 0;
+  }
+
+  private structuralSetup(side: Direction, f: DeterministicFeatures): {
+    family: EntryFamily; pass: boolean; continuationPass: boolean; pullbackPass: boolean;
+  } {
+    const continuationPass = this.continuationTrendPass(side, f);
+    const pullbackPass = pullbackRecoveryPass(side, f, this.cfg.pullbackRecovery);
+    return { family: pullbackPass ? "PULLBACK_RECOVERY" : "CONTINUATION",
+      pass: continuationPass || pullbackPass, continuationPass, pullbackPass };
   }
 
   private microVotes(direction: Direction, f: DeterministicFeatures, d: SideTriggerDiagnostics): RuleVotes {
@@ -401,6 +431,7 @@ export function validateDeterministicConfig(cfg: DeterministicSignalConfig): voi
     spreadUncertaintyWeight: cfg.analyticEdge.spreadUncertaintyWeight,
     flipUncertaintyWeight: cfg.analyticEdge.flipUncertaintyWeight });
   validateSmallFractionTriggerConfig(cfg.microTrigger);
+  validatePullbackRecoveryConfig(cfg.pullbackRecovery);
 }
 
 function flattenNumbers(value: unknown): number[] {

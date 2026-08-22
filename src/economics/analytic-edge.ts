@@ -32,7 +32,7 @@ export function analyticEdges(input: AnalyticEdgeInput, cfg: MultiHorizonAnalyti
       + cfg.spreadUncertaintyWeight * input.features.spreadBps
       + cfg.flipUncertaintyWeight * input.features.flowFlipRate * economicSigmaBps;
     return {
-      source: "ANALYTIC", side: input.side, horizonMs: horizon.horizonMs,
+      source: "ANALYTIC", family: "CONTINUATION", side: input.side, horizonMs: horizon.horizonMs,
       grossBeforeUncertaintyBps, signalUncertaintyBps,
       conservativeGrossBps: Math.max(0, grossBeforeUncertaintyBps - signalUncertaintyBps),
       quality: input.continuation.score, effectiveSampleCount: 0,

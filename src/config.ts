@@ -304,7 +304,9 @@ function loadSymbolConfig(symbol: string, env: NodeJS.ProcessEnv, mode: TradingM
     forecast,
     probabilityHead: model.probabilityHead, returnHead: model.returnHead,
     signal: { costSafetyFactor: 1.75, minimumDirectionProbability: .62, minimumNetEdgeBps: 1, fullQualityEdgeBps: 20 },
-    cost: { makerFeeBps: paperEntryExercise ? 0 : numberEnv(env.MAKER_FEE_BPS, 15), takerFeeBps: paperEntryExercise ? 0 : numberEnv(env.TAKER_FEE_BPS, 25), expectedExitTaker: true,
+    cost: { makerFeeBps: paperEntryExercise ? 0 : numberEnv(env.MAKER_FEE_BPS, 15), takerFeeBps: paperEntryExercise ? 0 : numberEnv(env.TAKER_FEE_BPS, 25),
+      makerExitFillProbability: paperEntryExercise ? 0 : fractionEnv(env.MAKER_EXIT_FILL_PROBABILITY, .65),
+      makerExitFallbackAdverseBps: paperEntryExercise ? 0 : numberEnv(env.MAKER_EXIT_FALLBACK_ADVERSE_BPS, 2),
       latencyAdverseFraction: paperEntryExercise ? 0 : .25, adverseSelectionBps: paperEntryExercise ? 0 : 1, fundingBps: 0, borrowBps: 0,
       positiveCostErrorP95Bps: deterministicSignal.positiveCostErrorP95Bps },
     sizing: { baseRiskFraction: .001, maximumDrawdown: .05, maximumBookParticipation: .01, fractionalKelly: .1, maximumKellyFraction: .05, targetSigmaHBps: 20, minimumQualityScale: .1 },
@@ -316,6 +318,7 @@ function defaultPositionConfig(env: NodeJS.ProcessEnv): PositionConfig {
   return { recoveryArmR: .5, trailActivationR: .75, minimumProgressR: .25,
     minimumHoldMs: integerEnv(env.POSITION_MINIMUM_HOLD_MS, 1_000, 0, 2_147_483_647),
     maximumHoldMs: integerEnv(env.POSITION_MAXIMUM_HOLD_MS, 30 * 60_000, 1, 2_147_483_647),
+    makerExitTtlMs: integerEnv(env.MAKER_EXIT_TTL_MS, 30_000, 1_000, 300_000),
     evidenceConfirmationMs: 750,
     lockMin: .1, lockMax: .85, lockMaturityRate: .8, lockReversalWeight: .3, lockTrendDiscount: .15,
     baseVolatilityMultiple: 2, trendVolatilityBonus: 1, reversalVolatilityPenalty: 1.25, minimumVolatilityMultiple: .5, maximumVolatilityMultiple: 4,
@@ -349,6 +352,7 @@ function firstNonBlank(...values: (string | undefined)[]): string {
   return values.find((value) => value?.trim())?.trim() ?? "";
 }
 function numberEnv(value: string | undefined, fallback: number): number { const n = value === undefined ? fallback : Number(value); if (!Number.isFinite(n) || n < 0) throw new Error(`Invalid numeric configuration: ${value}`); return n; }
+function fractionEnv(value: string | undefined, fallback: number): number { const n = numberEnv(value, fallback); if (n > 1) throw new Error(`Invalid fractional configuration: ${value}`); return n; }
 function finiteNumberEnv(value: string | undefined, fallback: number): number { const n = value === undefined ? fallback : Number(value); if (!Number.isFinite(n)) throw new Error(`Invalid finite numeric configuration: ${value}`); return n; }
 function integerEnv(value: string | undefined, fallback: number, minimum: number, maximum: number): number {
   const parsed = value === undefined ? fallback : Number(value);
@@ -378,6 +382,9 @@ function loadExtensionConfig(env: NodeJS.ProcessEnv): ExtensionConfig {
     trendMediumWindowMs: numberEnv(env.RULE_TREND_MEDIUM_WINDOW_MS, DEFAULT_EXTENSION_CONFIG.trendMediumWindowMs),
     trendSlowWindowMs: numberEnv(env.RULE_TREND_SLOW_WINDOW_MS, DEFAULT_EXTENSION_CONFIG.trendSlowWindowMs),
     trendMinimumCoverage: numberEnv(env.RULE_TREND_MINIMUM_COVERAGE, DEFAULT_EXTENSION_CONFIG.trendMinimumCoverage),
+    pullbackWindowMs: numberEnv(env.RULE_PULLBACK_WINDOW_MS, DEFAULT_EXTENSION_CONFIG.pullbackWindowMs),
+    pullbackMinimumCoverage: numberEnv(env.RULE_PULLBACK_MINIMUM_COVERAGE, DEFAULT_EXTENSION_CONFIG.pullbackMinimumCoverage),
+    pullbackSampleIntervalMs: numberEnv(env.RULE_PULLBACK_SAMPLE_INTERVAL_MS, DEFAULT_EXTENSION_CONFIG.pullbackSampleIntervalMs),
   };
 }
 function loadDeterministicRegimeConfig(env: NodeJS.ProcessEnv): DeterministicRegimeConfig {
@@ -466,6 +473,20 @@ function loadDeterministicSignalConfig(env: NodeJS.ProcessEnv, mode: SignalMode,
     maximumReasonableGrossBps: numberEnv(env.RULE_MAXIMUM_REASONABLE_GROSS_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.maximumReasonableGrossBps),
     analyticHorizons: parseAnalyticHorizons(env.RULE_ANALYTIC_HORIZONS_JSON),
     calibratedEdges: parseCalibratedEdges(env.RULE_CALIBRATED_EDGE_TABLE_JSON),
+    pullbackRecovery: {
+      enabled: parseBoolean(env.RULE_PULLBACK_ENABLED, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.pullbackRecovery.enabled),
+      horizonMs: numberEnv(env.RULE_PULLBACK_HORIZON_MS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.pullbackRecovery.horizonMs),
+      minimumStructuralMoveBps: numberEnv(env.RULE_PULLBACK_MIN_STRUCTURAL_MOVE_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.pullbackRecovery.minimumStructuralMoveBps),
+      minimumPullbackDepthBps: numberEnv(env.RULE_PULLBACK_MIN_DEPTH_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.pullbackRecovery.minimumPullbackDepthBps),
+      minimumRecoveryBps: numberEnv(env.RULE_PULLBACK_MIN_RECOVERY_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.pullbackRecovery.minimumRecoveryBps),
+      minimumRetainedTrendBps: numberEnv(env.RULE_PULLBACK_MIN_RETAINED_TREND_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.pullbackRecovery.minimumRetainedTrendBps),
+      minimumRemainingRoomBps: numberEnv(env.RULE_PULLBACK_MIN_REMAINING_ROOM_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.pullbackRecovery.minimumRemainingRoomBps),
+      maximumRecoveryFraction: fractionEnv(env.RULE_PULLBACK_MAX_RECOVERY_FRACTION, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.pullbackRecovery.maximumRecoveryFraction),
+      captureFraction: fractionEnv(env.RULE_PULLBACK_CAPTURE_FRACTION, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.pullbackRecovery.captureFraction),
+      baseUncertaintyBps: numberEnv(env.RULE_PULLBACK_BASE_UNCERTAINTY_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.pullbackRecovery.baseUncertaintyBps),
+      roomUncertaintyFraction: fractionEnv(env.RULE_PULLBACK_ROOM_UNCERTAINTY_FRACTION, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.pullbackRecovery.roomUncertaintyFraction),
+      maximumGrossBps: numberEnv(env.RULE_PULLBACK_MAX_GROSS_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.pullbackRecovery.maximumGrossBps),
+    },
     continuationQuality: {
       ...DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.continuationQuality,
       velocityScale: numberEnv(env.RULE_CONTINUATION_VELOCITY_SCALE, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.continuationQuality.velocityScale),
@@ -591,7 +612,8 @@ function parseCalibratedEdges(value: string | undefined): CalibratedEdgeBucket[]
     throw new Error(`RULE_CALIBRATED_EDGE_TABLE_JSON must be valid JSON: ${error instanceof Error ? error.message : String(error)}`);
   }
   if (!Array.isArray(parsed)) throw new Error("RULE_CALIBRATED_EDGE_TABLE_JSON must be an array");
-  return parsed as CalibratedEdgeBucket[];
+  return parsed.map((item) => isObject(item) && item.family === undefined
+    ? { ...item, family: "CONTINUATION" } : item) as CalibratedEdgeBucket[];
 }
 function loadDeterministicHoldConfig(env: NodeJS.ProcessEnv): DeterministicHoldConfig {
   return {

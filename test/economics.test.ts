@@ -45,16 +45,20 @@ test("fee units are explicit and implausible per-leg fees fail closed", () => {
 });
 
 test("taker book walking counts top-of-book crossing and incremental impact once", () => {
-  const model = new CostModel({ makerFeeBps: 15, takerFeeBps: 25, expectedExitTaker: true,
+  const model = new CostModel({ makerFeeBps: 15, takerFeeBps: 25, makerExitFillProbability: .65, makerExitFallbackAdverseBps: 2,
     latencyAdverseFraction: 0, adverseSelectionBps: 0, fundingBps: 0, borrowBps: 0 });
   const estimate = model.estimate(features, book, 1, 2, false)!;
   assert.ok(Math.abs(estimate.spreadBps - 1) < 1e-6);
   assert.ok(Math.abs(estimate.impactBps - .5) < 1e-6);
   assert.ok(Math.abs(estimate.roundTripBps - 51.5) < 1e-6);
   const paths = model.pathEstimates(features, book, 1, 2, .8);
-  assert.equal(paths.length, 3);
+  assert.equal(paths.length, 4);
   assert.equal(paths.find((item) => item.path === "MAKER_MAKER")?.supported, false);
   assert.ok(Math.abs(paths.find((item) => item.path === "TAKER_TAKER")!.estimatedCostBps - 51.5) < 1e-6);
+  const boundedExit = paths.find((item) => item.path === "MAKER_MAKER_TAKER_FALLBACK")!;
+  assert.equal(boundedExit.supported, true);
+  assert.ok(boundedExit.estimatedCostBps > 30 && boundedExit.estimatedCostBps < 40);
+  assert.ok(boundedExit.estimatedCostBps < paths.find((item) => item.path === "MAKER_TAKER")!.estimatedCostBps);
 });
 
 test("multi-horizon gate selects the best executable path and applies robust cost once", () => {
@@ -99,11 +103,11 @@ test("live economics require calibrated policy returns and sufficient effective 
 });
 
 test("calibrated edge buckets remain execution-path specific", () => {
-  const table = new CalibratedEdgeTable([{ symbol: "BTC/USD", side: 1, regime: "TREND_UP",
+  const table = new CalibratedEdgeTable([{ symbol: "BTC/USD", family: "CONTINUATION", side: 1, regime: "TREND_UP",
     minimumQuality: .5, maximumQuality: 1, minimumSpreadBps: 0, maximumSpreadBps: 5,
     horizonMs: 900_000, path: "MAKER_TAKER", meanGrossReturnBps: 30,
     lowerConfidenceGrossReturnBps: 20, effectiveSampleCount: 150 }]);
-  const resolved = table.resolve({ symbol: "BTC/USD", side: 1, regime: "TREND_UP", quality: .7, spreadBps: 1 });
+  const resolved = table.resolve({ symbol: "BTC/USD", family: "CONTINUATION", side: 1, regime: "TREND_UP", quality: .7, spreadBps: 1 });
   assert.equal(resolved[0]?.executionPath, "MAKER_TAKER");
   assert.equal(resolved[0]?.conservativeGrossBps, 20);
 });

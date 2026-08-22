@@ -36,7 +36,7 @@ function planner(takerLimitBufferBps = 0): ExecutionPlanner {
     baseRiskFraction: .001, maximumDrawdown: .05, maximumBookParticipation: .1,
     fractionalKelly: .1, maximumKellyFraction: .05, targetSigmaHBps: 20, minimumQualityScale: .1,
   }), new CostModel({
-    makerFeeBps: 0, takerFeeBps: 4, expectedExitTaker: true, latencyAdverseFraction: 0,
+    makerFeeBps: 0, takerFeeBps: 4, makerExitFillProbability: .65, makerExitFallbackAdverseBps: 1, latencyAdverseFraction: 0,
     adverseSelectionBps: 0, fundingBps: 0, borrowBps: 0,
   }), "test-strategy", "none");
 }
@@ -83,6 +83,10 @@ test("the economic execution path constrains the final order style", () => {
     { createdMs: 1_000, executionPath: "MAKER_TAKER", economicHorizonMs: 300_000 });
   assert.equal(maker?.style, "maker");
   assert.equal(maker?.executionPath, "MAKER_TAKER");
+  const boundedMakerExit = execution.build(intent, features, book, asset, baseRisk, false,
+    { createdMs: 1_000, executionPath: "MAKER_MAKER_TAKER_FALLBACK", economicHorizonMs: 300_000 });
+  assert.equal(boundedMakerExit?.style, "maker");
+  assert.equal(boundedMakerExit?.executionPath, "MAKER_MAKER_TAKER_FALLBACK");
   assert.equal(execution.build(intent, features, book, asset, baseRisk, false,
     { createdMs: 1_000, executionPath: "MAKER_MAKER" }), null);
 });

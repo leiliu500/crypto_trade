@@ -19,6 +19,12 @@ export interface EngineRunMetadata {
   metadata?: Record<string, unknown>;
 }
 
+export interface PersistedMarketMid {
+  symbol: string;
+  atMs: number;
+  mid: number;
+}
+
 /** Bounded, batched writer: enqueue never performs network I/O on strategy callbacks. */
 export class PostgresTelemetryStore extends EventEmitter {
   private readonly pool: Pool;
@@ -80,6 +86,26 @@ export class PostgresTelemetryStore extends EventEmitter {
     return result.rows.flatMap((row) => {
       const restored = restoreOrder(row);
       return restored ? [restored] : [];
+    });
+  }
+
+  public async loadRecentMarketMids(symbols: readonly string[], sinceMs: number, untilMs: number): Promise<readonly PersistedMarketMid[]> {
+    if (symbols.length === 0) return [];
+    if (!Number.isFinite(sinceMs) || !Number.isFinite(untilMs) || sinceMs > untilMs) {
+      throw new Error("Invalid persisted market-history interval");
+    }
+    const result = await this.pool.query<PersistedMarketMidRow>(
+      `SELECT symbol,captured_at,mid
+       FROM market_snapshots
+       WHERE symbol = ANY($1::text[]) AND captured_at >= $2 AND captured_at <= $3 AND mid > 0
+       ORDER BY symbol,captured_at,id`,
+      [[...symbols], date(sinceMs), date(untilMs)],
+    );
+    return result.rows.flatMap((row) => {
+      const atMs = new Date(row.captured_at).getTime();
+      const mid = Number(row.mid);
+      return Number.isFinite(atMs) && Number.isFinite(mid) && mid > 0
+        ? [{ symbol: row.symbol, atMs, mid }] : [];
     });
   }
 
@@ -225,6 +251,12 @@ interface PersistedOrderRow {
   created_at: Date | string;
   updated_at: Date | string;
   plan: unknown;
+}
+
+interface PersistedMarketMidRow {
+  symbol: string;
+  captured_at: Date | string;
+  mid: string | number;
 }
 
 function restoreOrder(row: PersistedOrderRow): DashboardOrderCard | null {

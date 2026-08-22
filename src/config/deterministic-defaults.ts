@@ -8,6 +8,7 @@ export const DEFAULT_EXTENSION_CONFIG: ExtensionConfig = {
   maximumStoredWindowMs: 10_000, cusumDrift: .15, cusumCap: 12, alignmentDeadband: .2,
   trendSampleIntervalMs: 5_000, trendFastWindowMs: 5 * 60_000, trendMediumWindowMs: 15 * 60_000,
   trendSlowWindowMs: 60 * 60_000, trendMinimumCoverage: .9,
+  pullbackWindowMs: 4 * 60 * 60_000, pullbackMinimumCoverage: .75, pullbackSampleIntervalMs: 30_000,
 };
 export const DEFAULT_DETERMINISTIC_REGIME_CONFIG: DeterministicRegimeConfig = {
   trendEfficiency: .6, chopEfficiency: .35, maximumTrendFlipRate: .3, chopFlipRate: .55,
@@ -40,6 +41,12 @@ export const DEFAULT_DETERMINISTIC_SIGNAL_CONFIG: DeterministicSignalConfig = {
   maximumReasonableCostBps: 1_000,
   maximumReasonableGrossBps: 2_000,
   calibratedEdges: [],
+  pullbackRecovery: {
+    enabled: true, horizonMs: 2 * 60 * 60_000,
+    minimumStructuralMoveBps: 60, minimumPullbackDepthBps: 45, minimumRecoveryBps: 8,
+    minimumRetainedTrendBps: 7.5, minimumRemainingRoomBps: 40, maximumRecoveryFraction: .70,
+    captureFraction: .75, baseUncertaintyBps: 5, roomUncertaintyFraction: .20, maximumGrossBps: 450,
+  },
   continuationQuality: {
     efficiencyWeight: .10, flowPersistenceWeight: .15, velocityWeight: .10,
     breakoutHoldWeight: .05, regimeStabilityWeight: .10, volatilitySuitabilityWeight: .10,

@@ -32,7 +32,26 @@ async function main(): Promise<void> {
           paperEntryExercise: cfg.paperEntryExercise } });
       const restoredOrders = await candidate.loadOrders();
       monitor.hydrateOrders(restoredOrders);
-      process.stdout.write(`${JSON.stringify({ type: "database-ready", migrations, restoredOrders: restoredOrders.length })}\n`);
+      const hydrationAtMs = Date.now();
+      let slowTrendHistory: Readonly<Record<string, unknown>> | null = null;
+      try {
+        const maximumLookbackMs = Math.max(...cfg.symbols.map((symbol) => {
+          const symbolCfg = cfg.symbolConfigs[symbol]!;
+          return Math.max(symbolCfg.deterministicExtension.trendSlowWindowMs,
+            symbolCfg.deterministicExtension.pullbackWindowMs) + symbolCfg.deterministicExtension.trendSampleIntervalMs;
+        }));
+        const observations = await candidate.loadRecentMarketMids(cfg.symbols, hydrationAtMs - maximumLookbackMs, hydrationAtMs);
+        const bySymbol = new Map<string, { atMs: number; mid: number }[]>();
+        for (const observation of observations) {
+          const values = bySymbol.get(observation.symbol) ?? [];
+          values.push({ atMs: observation.atMs, mid: observation.mid });
+          bySymbol.set(observation.symbol, values);
+        }
+        slowTrendHistory = engine.restoreSlowTrendHistory(bySymbol, hydrationAtMs);
+      } catch (error) {
+        process.stderr.write(`${JSON.stringify({ type: "slow-trend-history-degraded", message: error instanceof Error ? error.message : String(error) })}\n`);
+      }
+      process.stdout.write(`${JSON.stringify({ type: "database-ready", migrations, restoredOrders: restoredOrders.length, slowTrendHistory })}\n`);
     } catch (error) {
       await candidate.close().catch(() => undefined);
       store = undefined;

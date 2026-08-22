@@ -18,6 +18,10 @@ const features: DeterministicFeatures = {
   usableDepthQty: 100, usableDepthNotional: 1_000_000,
   slowTrendReady: true, trendFastBps: 20, trendMediumBps: 35, trendSlowBps: 60,
   slowTrendAlignment: .7, slowTrendEfficiency: .5, slowVarianceRate: 4e-8, slowSigmaBps: 60,
+  longPullback: { ready: false, structuralMoveBps: 0, pullbackDepthBps: 0, recoveryBps: 0, remainingRoomBps: 0,
+    structuralExtremeAgeMs: 0, reversalExtremeAgeMs: 0 },
+  shortPullback: { ready: false, structuralMoveBps: 0, pullbackDepthBps: 0, recoveryBps: 0, remainingRoomBps: 0,
+    structuralExtremeAgeMs: 0, reversalExtremeAgeMs: 0 },
 };
 
 test("missing calibrated edge falls back to a finite deterministic analytical estimate", () => {

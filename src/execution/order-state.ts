@@ -3,6 +3,7 @@ import type { ExecutionPlan } from "./planner.js";
 export type LocalOrderStatus = "RESERVED" | "SENDING" | "OPEN" | "PARTIALLY_FILLED" | "FILLED" | "CANCEL_PENDING" | "CANCELED" | "REJECTED" | "EXPIRED" | "UNKNOWN";
 export type OrderCancelRequestReason =
   | "TTL_EXPIRED"
+  | "MAKER_EXIT_FALLBACK"
   | "SIGNAL_INVALIDATED"
   | "COST_INVALIDATED"
   | "ADVERSE_FLOW"

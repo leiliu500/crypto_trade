@@ -18,7 +18,7 @@ import { CostModel, incrementalHoldCostBps } from "../strategy/cost.js";
 import { ForecastEngine } from "../strategy/forecast.js";
 import { PositionManager, type Position } from "../strategy/position-manager.js";
 import type { TradeIntent } from "../strategy/signal.js";
-import { BookPressureTracker, DeterministicFeatureExtensions, type DeterministicFeatures } from "../strategy/deterministic-features.js";
+import { BookPressureTracker, DeterministicFeatureExtensions, type DeterministicFeatures, type SlowTrendObservation, type SlowTrendRestoreResult } from "../strategy/deterministic-features.js";
 import { DeterministicRegimeEngine, type RegimeDecision } from "../strategy/deterministic-regime.js";
 import { DeterministicEntryEngine, type DeterministicEvaluation, type DeterministicTradeIntent, type SystemGateState } from "../strategy/deterministic-entry.js";
 import { DeterministicHoldEngine } from "../strategy/deterministic-hold.js";
@@ -93,6 +93,8 @@ interface SymbolRuntime {
   latestFeatures?: DeterministicFeatures;
   latestRegime?: RegimeDecision;
   latestRuleEvaluation?: DeterministicEvaluation;
+  /** Exact accepted intent retained only while its maker entry is pending. */
+  pendingEntryIntent?: DeterministicTradeIntent;
   latestLiquidity?: { long: LiquidityDecision; short: LiquidityDecision };
   position?: Position;
   cluster: string;
@@ -122,6 +124,7 @@ export class TradingEngine extends EventEmitter {
   private readonly reportedPositionDust = new Map<string, number>();
   private readonly cancelReconcileInFlight = new Set<string>();
   private readonly cancelReconcileLastAttemptMs = new Map<string, number>();
+  private readonly makerExitFallbackInFlight = new Set<string>();
   private equity = 0;
   private equityHighWater = 0;
   private realizedSessionPnl = 0;
@@ -176,6 +179,14 @@ export class TradingEngine extends EventEmitter {
     this.marketStream.connect();
     if (this.cfg.mode !== "record") this.tradeStream.connect();
     this.watchdog.start();
+  }
+
+  public restoreSlowTrendHistory(history: ReadonlyMap<string, readonly SlowTrendObservation[]>, asOfMs = this.now()): Readonly<Record<string, SlowTrendRestoreResult>> {
+    const restored: Record<string, SlowTrendRestoreResult> = {};
+    for (const [symbol, runtime] of this.runtimes) {
+      restored[symbol] = runtime.deterministicFeatures.restoreSlowTrend(history.get(symbol) ?? [], asOfMs);
+    }
+    return restored;
   }
 
   public async stop(): Promise<void> {
@@ -572,7 +583,12 @@ export class TradingEngine extends EventEmitter {
       adapterVersion: "alpaca-v1", symbolRulesetVersion: assetRulesVersion(runtime.asset),
       regime, deterministicIntent: routed.intent, routing: routed, features, plan, mode: this.cfg.mode,
     });
-    if (this.cfg.mode !== "shadow") void this.submit(plan);
+    if (this.cfg.mode !== "shadow") {
+      runtime.pendingEntryIntent = routed.intent;
+      void this.submit(plan).then((submitted) => {
+        if (!submitted && runtime.pendingEntryIntent?.decisionId === plan.decisionId) delete runtime.pendingEntryIntent;
+      });
+    }
   }
 
   private auditEvaluation(runtime: SymbolRuntime, evaluation: DeterministicEvaluation, atMs: number): void {
@@ -698,6 +714,10 @@ export class TradingEngine extends EventEmitter {
     const tracked = this.orderState.get(event.clientOrderId);
     if (tracked) this.emit("orderUpdate", { event, order: tracked });
     if (fill) this.applyFill(fill);
+    if (tracked && !["RESERVED", "SENDING", "OPEN", "PARTIALLY_FILLED", "CANCEL_PENDING", "UNKNOWN"].includes(tracked.status)) {
+      const runtime = this.runtimes.get(tracked.plan.symbol);
+      if (runtime?.pendingEntryIntent?.decisionId === tracked.plan.decisionId) delete runtime.pendingEntryIntent;
+    }
     if (["rejected", "order_replace_rejected", "order_cancel_rejected"].includes(event.event)) this.emit("orderRejected", event);
   }
 
@@ -738,8 +758,10 @@ export class TradingEngine extends EventEmitter {
     const cost = runtime.cost.estimate(features, book, pending.plan.side, Math.max(pending.plan.qty - pending.filledQty, 0), pending.plan.style === "maker");
     const regime = runtime.regimeEngine.classify(features);
     runtime.latestRegime = regime;
-    const stillValid = runtime.entryEngine.signalStillValid(pending.plan.side, features, regime);
-    const sourceIntent = runtime.latestRuleEvaluation?.intent;
+    const sourceIntent = runtime.pendingEntryIntent?.decisionId === pending.plan.decisionId
+      ? runtime.pendingEntryIntent : undefined;
+    const stillValid = sourceIntent !== undefined
+      && runtime.entryEngine.signalStillValid(pending.plan.side, features, regime, sourceIntent.diagnostics.family);
     const exactCostValid = cost !== null && sourceIntent?.side === pending.plan.side
       && runtime.entryEngine.revalidateExactCost(sourceIntent, cost) !== null;
     const adverse = pending.plan.side * features.tfi < -.5 || pending.plan.side * features.ofi < -2;
@@ -762,6 +784,14 @@ export class TradingEngine extends EventEmitter {
     const pending = this.pendingForSymbol(position.symbol);
     if (pending) {
       if (pending.plan.side === 1) void this.cancelTracked(pending, "POSITION_ALREADY_OPEN");
+      else if (pending.plan.reduceOnlyIntent && pending.plan.style === "maker") {
+        const executableExit = book.bids[0]!.px;
+        const signedMovePx = position.side * (executableExit - position.entryPx);
+        const riskFloorBreached = signedMovePx <= Math.max(position.floorPx, -position.initialRiskPx);
+        if (this.now() >= pending.plan.expiresMs || riskFloorBreached) {
+          void this.fallbackMakerExit(runtime, pending, riskFloorBreached ? "RISK_FLOOR_BREACHED" : "TTL_EXPIRED");
+        }
+      }
       return;
     }
     const regime = runtime.regimeEngine.classify(features);
@@ -784,28 +814,58 @@ export class TradingEngine extends EventEmitter {
     else if (decision.action === "REDUCE") void this.submitExit(runtime, position.qty * decision.fraction, decision.reason, book, features);
   }
 
-  private async submitExit(runtime: SymbolRuntime, desiredQty: number, reason: string, book: ReturnType<LocalOrderBook["snapshot"]>, features: Features): Promise<void> {
+  private async submitExit(runtime: SymbolRuntime, desiredQty: number, reason: string, book: ReturnType<LocalOrderBook["snapshot"]>, features: Features,
+    forcedStyle?: "maker" | "taker", fallbackFromClientOrderId?: string): Promise<void> {
     if (!runtime.asset || !runtime.position) return;
     if (this.pendingForSymbol(runtime.position.symbol)) return;
     const qty = Math.min(runtime.position.qty, Math.floor(desiredQty / runtime.asset.minTradeIncrement + 1e-12) * runtime.asset.minTradeIncrement);
     if (qty < runtime.asset.minOrderSize) return;
-    const sweep = estimateSweep(book.bids, qty);
-    const cost = runtime.cost.estimate(features, book, -1, qty, false);
-    if (!sweep || !cost) { this.riskState.halt("BOOK_INVALID"); return; }
+    const makerEligible = runtime.position.executionPath === "MAKER_MAKER_TAKER_FALLBACK" && makerExitEligible(reason);
+    const style = forcedStyle ?? (makerEligible ? "maker" : "taker");
+    const sweep = style === "taker" ? estimateSweep(book.bids, qty) : null;
+    const cost = runtime.cost.estimate(features, book, -1, qty, style === "maker");
+    if ((style === "taker" && !sweep) || !cost) { this.riskState.halt("BOOK_INVALID"); return; }
     const risk: RiskApproval = { qty, riskBudget: 0, maximumLossPerUnit: 0, modeledMaximumLoss: 0, drawdownScale: 1, qualityScale: 1, volatilityScale: 1, bindingLimit: "exposure" };
     const nowMs = this.now();
     const plan: ExecutionPlan = {
       clientOrderId: `mlce-exit-${nowMs}-${randomUUID().slice(0, 8)}`, decisionId: randomUUID(), riskApprovalId: randomUUID(),
       symbol: runtime.position.symbol, side: -1, qty,
-      limitPx: bufferedTakerLimitPrice(sweep.worstPx, runtime.asset.priceIncrement, -1, runtime.config.planner.takerLimitBufferBps),
-      style: "taker", timeInForce: "ioc",
-      createdMs: nowMs, expiresMs: nowMs + 1_000, originatingSequence: book.sequence,
+      limitPx: style === "maker" ? ceilPrice(book.asks[0]!.px, runtime.asset.priceIncrement)
+        : bufferedTakerLimitPrice(sweep!.worstPx, runtime.asset.priceIncrement, -1, runtime.config.planner.takerLimitBufferBps),
+      style, timeInForce: style === "maker" ? "gtc" : "ioc",
+      createdMs: nowMs, expiresMs: nowMs + (style === "maker" ? runtime.config.position.makerExitTtlMs : 1_000), originatingSequence: book.sequence,
       featureHash: createHash("sha256").update(JSON.stringify(features)).digest("hex").slice(0, 24), strategyVersion: runtime.config.strategyVersion,
-      modelVersion: runtime.config.modelVersion, expectedCost: cost, risk, fillProbability: 1,
+      modelVersion: runtime.config.modelVersion, expectedCost: cost, risk,
+      fillProbability: style === "maker" ? runtime.cost.makerExitFillProbability() : 1,
       expectedValue: -qty * features.mid * cost.roundTripBps / 10_000, reduceOnlyIntent: true,
+      exitReason: reason,
+      ...(runtime.position.executionPath === undefined ? {} : { executionPath: runtime.position.executionPath }),
+      ...(fallbackFromClientOrderId === undefined ? {} : { fallbackFromClientOrderId }),
     };
     this.emit("exitDecision", { reason, plan });
     await this.submit(plan);
+  }
+
+  private async fallbackMakerExit(runtime: SymbolRuntime, tracked: TrackedOrder, trigger: string): Promise<void> {
+    const clientOrderId = tracked.plan.clientOrderId;
+    if (this.makerExitFallbackInFlight.has(clientOrderId)) return;
+    this.makerExitFallbackInFlight.add(clientOrderId);
+    try {
+      await this.cancelTracked(tracked, "MAKER_EXIT_FALLBACK", {
+        trigger, expiresMs: tracked.plan.expiresMs,
+        requestedQty: tracked.plan.qty, filledQty: tracked.filledQty,
+      });
+      const reconciled = this.orderState.get(clientOrderId);
+      if (reconciled && ["RESERVED", "SENDING", "OPEN", "PARTIALLY_FILLED", "CANCEL_PENDING", "UNKNOWN"].includes(reconciled.status)) return;
+      const position = runtime.position;
+      const features = runtime.latestFeatures;
+      const book = runtime.book.snapshot();
+      if (!position || !features || features.stale || !book.valid) return;
+      const remainingPlannedQty = Math.max(0, tracked.plan.qty - (reconciled?.filledQty ?? tracked.filledQty));
+      await this.submitExit(runtime, Math.min(position.qty, remainingPlannedQty), "MAKER_EXIT_TAKER_FALLBACK", book, features, "taker", clientOrderId);
+    } finally {
+      this.makerExitFallbackInFlight.delete(clientOrderId);
+    }
   }
 
   private applyFill(fill: FillDelta): void {
@@ -953,6 +1013,8 @@ export class TradingEngine extends EventEmitter {
         this.emit("orderUpdate", { event, order: reconciled, source: "rest-cancel-reconciliation" });
         if (!["RESERVED", "SENDING", "OPEN", "PARTIALLY_FILLED", "CANCEL_PENDING", "UNKNOWN"].includes(reconciled.status)) {
           this.cancelReconcileLastAttemptMs.delete(clientOrderId);
+          const runtime = this.runtimes.get(reconciled.plan.symbol);
+          if (runtime?.pendingEntryIntent?.decisionId === reconciled.plan.decisionId) delete runtime.pendingEntryIntent;
         }
       }
       // A missed fill changes authoritative exposure and must use the full
@@ -1024,6 +1086,9 @@ function normalizeSymbol(symbol: string): string { return symbol.includes("/") ?
 function cfgPriceSigma(features: Features, multiple: number): number { return features.mid * features.sigmaHBps / 10_000 * multiple; }
 function ceilQuantity(quantity: number, increment: number): number { return Math.ceil(quantity / increment - 1e-12) * increment; }
 function ceilPrice(price: number, increment: number): number { return Math.ceil(price / increment - 1e-12) * increment; }
+function makerExitEligible(reason: string): boolean {
+  return ["TIME_STOP", "EVIDENCE_EXIT", "DETERMINISTIC_HOLD_EVIDENCE", "REVERSAL_RISK"].includes(reason);
+}
 function plannerIntent(intent: DeterministicTradeIntent, sizeMultiplier: number): TradeIntent {
   return {
     side: intent.side, probability: 1, predictedGrossBps: intent.grossOpportunityBps,
@@ -1060,7 +1125,12 @@ function liquidityInput(features: DeterministicFeatures, impactBps: number) {
   };
 }
 function featureNumbersAreFinite(features: DeterministicFeatures): boolean {
-  return Object.values(features).every((value) => typeof value !== "number" || Number.isFinite(value));
+  return nestedNumbersAreFinite(features);
+}
+function nestedNumbersAreFinite(value: unknown): boolean {
+  if (typeof value === "number") return Number.isFinite(value);
+  if (!value || typeof value !== "object") return true;
+  return Object.values(value as Record<string, unknown>).every(nestedNumbersAreFinite);
 }
 function rollingLossFromPortfolioHistory(value: unknown): number {
   if (!value || typeof value !== "object") return 0;

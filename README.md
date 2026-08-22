@@ -19,7 +19,7 @@ Alpaca crypto WebSocket
   -> calibrated-or-analytic edge - uncertainty - exact walked cost
   -> anti-chasing + quantity-aware execution planning
   -> risk, correlation, and liquidity sizing
-  -> maker-only entry planning (taker exits remain available)
+  -> maker-only entry planning + maker-first non-urgent exits with bounded IOC fallback
   -> capped Alpaca limit order
   -> private trade_updates reconciliation
   -> deterministic hold/reversal + recovery/time/profit-floor exits
@@ -30,8 +30,9 @@ The main contracts are:
 - Candidate: a bounded directional score, two-of-three book/flow/motion quorum with motion mandatory, decayed occupancy, leaky evidence, confirmation time/events, arbitration, cooldown, and midpoint-at-arm chase limit must pass. A directional regime is still reported but cannot suppress a micro candidate.
 - Entry: every health, dynamic-liquidity, venue, exposure, edge, cost, sizing, execution-plan, and portfolio gate must then pass. Candidate sensitivity never bypasses order economics.
 - Cost: `deterministic opportunity − uncertainty reserve − (exact fixed fees + stressed variable execution cost) >= minimum edge`. The `1.75` safety factor applies only to uncertain execution, impact, latency, and adverse-selection components; known venue fees remain exact.
-- Horizon: microstructure selects entry timing, while a bounded five-second sampler supplies causal 5/15/60-minute trend returns, slow efficiency, and slow realized variance to the 1/2/4-hour economic horizons.
-- Trend warm-up: new processes fail closed until at least 90% of the 60-minute slow window is observed. The dashboard reports `SLOW_TREND_WARMUP` and then `SLOW_TREND_GATE` when alignment is insufficient.
+- Horizon: microstructure selects entry timing. A bounded five-second sampler supplies causal 5/15/60-minute trend returns, slow efficiency, and slow realized variance; a separate 30-second sampler supplies the ordered four-hour pullback/recovery state to the 1/2/4-hour economic horizons.
+- Entry families: continuation keeps its existing aligned 5/15/60-minute gate. Pullback/recovery separately requires a prior structural move, a fee-scale retracement, a confirmed rebound, retained trend, and unrecovered room; it does not relax continuation thresholds.
+- Trend warm-up: PostgreSQL restores recent one-second mids into only the sampled slow-trend state after a short restart. Missing, future, invalid, or stale history fails closed; without usable history a process must causally observe at least 90% of the 60-minute window. Fast microstructure, CUSUM, and trigger state are never hydrated.
 - State: one continuous episode produces at most one candidate. Re-arming requires release hysteresis or an excessive event-gap reset, and the configured cooldown must have elapsed.
 - Models: `SIGNAL_MODE=DETERMINISTIC_ONLY` is the default. An optional model may only veto, rank, or reduce an already-valid deterministic intent; it cannot create exposure.
 - Risk: `quantity × maximum modeled loss per unit <= current risk budget`.
@@ -58,7 +59,7 @@ Startup preflight reads all latest crypto resources, account configuration, and 
 Alpaca venue constraints are enforced:
 
 - This engine trades Alpaca **spot crypto**. Assets currently report `shortable=false`, so deterministic short intents are evaluated symmetrically for audit/replay but cannot open short exposure.
-- Alpaca crypto supports market, limit, and stop-limit orders with GTC/IOC. The strategy entry path is explicitly `MAKER_TAKER`: a non-marketable GTC entry followed by a taker-capable safety exit. Every final quantity is exact-cost revalidated, and a taker entry cannot silently replace an unfilled or uneconomic maker entry.
+- Alpaca crypto supports market, limit, and stop-limit orders with GTC/IOC. Entries remain non-marketable GTC limits. Non-urgent exits may rest at the ask for up to 30 seconds and then cancel/reconcile before a price-capped IOC submits the remainder; hard stops and profit-floor exits use IOC immediately. The `MAKER_MAKER_TAKER_FALLBACK` ledger charges maker exit fees plus stressed, probability-weighted fallback fee/spread/adverse costs. Every final quantity is exact-cost revalidated, and a taker entry cannot silently replace an unfilled or uneconomic maker entry.
 - There are no perpetuals, leverage, liquidation, funding, or native reduce-only flags on this venue. Funding/borrow are therefore zero, and exits are client-side clamped to the known long position.
 - Alpaca's documented order-book schema exposes reset and price-level deltas, but no exchange sequence number or checksum. The engine requires a reset after connection, rejects timestamp reversal/crossed books/duplicates, and never misrepresents its local counter as an exchange sequence guarantee.
 - Minimum size, quantity increment, and price increment come from the live Alpaca Assets resource rather than hard-coded symbol rules.
@@ -121,7 +122,7 @@ The default deterministic configuration in `config/base.json` is:
 
 ```text
 SIGNAL_MODE=DETERMINISTIC_ONLY
-DETERMINISTIC_CONFIG_VERSION=deterministic-slow-trend-v2.1
+DETERMINISTIC_CONFIG_VERSION=pullback-recovery-v4.0
 ```
 
 `record` appends raw order-book and trade events to `data/events.jsonl`. Paper, shadow, and live modes also continuously append independently compressed gzip batches to `data/continuous-events.jsonl.gz` when `CONTINUOUS_RECORDING_ENABLED` is true. The batched writer keeps compression off the market-data hot path and makes completed batches replayable while the engine remains online. Run `npm run recall -- data/continuous-events.jsonl.gz` to analyze that capture.
@@ -197,8 +198,8 @@ npm run dashboard:demo
 
 ## Validation
 
-The test suite enforces exact decimal conversion, reset/delta and duplicate behavior, crossed-book rejection, causal feature replay equality, slow-window warm-up and trend alignment, maker-only entry-path enforcement, mandatory staleness/health gates, adaptive prior-noise decisions, independent evidence quorums, tiny persistent movement detection, spike rejection, opposing-evidence decay, event-gap reset, one candidate per episode, arm-anchored anti-chasing, long/short symmetry, inclusive exact-cost thresholds, model non-creation, deterministic hold/reversal, maximum-loss sizing, monotone floors, operational reconciliation, private-event idempotence, and non-retry of order POSTs.
+The test suite enforces exact decimal conversion, reset/delta and duplicate behavior, crossed-book rejection, causal feature replay equality, slow-window warm-up and trend alignment, ordered pullback/recovery detection, fee-sized recovery economics, maker-only entry-path enforcement, mandatory staleness/health gates, adaptive prior-noise decisions, independent evidence quorums, tiny persistent movement detection, spike rejection, opposing-evidence decay, event-gap reset, one candidate per episode, arm-anchored anti-chasing, long/short symmetry, inclusive exact-cost thresholds, model non-creation, deterministic hold/reversal, maximum-loss sizing, monotone floors, operational reconciliation, private-event idempotence, and non-retry of order POSTs.
 
-The replay package includes event validation, opportunity-recall analysis, arrival-time IOC/maker fill simulation primitives, chronological walk-forward fold construction with purge/embargo, conservative stress profiles, and reusable trade-metric calculations. A complete fill-to-P&L walk-forward runner still requires a sufficiently long recorded dataset; the software does not present short smoke-test output as validated performance.
+The replay package includes event validation, opportunity-recall analysis, forward-return calibration candidates, a profitable-after-robust-cost long-intent acceptance gate, arrival-time IOC/maker fill simulation primitives, chronological walk-forward fold construction with purge/embargo, conservative stress profiles, and reusable trade-metric calculations. Set `RECALL_REQUIRE_PROFITABLE_LONG=true` to make `npm run recall` exit nonzero unless a full replay contains at least one cost-qualified long intent with a profitable labeled forward move. Calibration remains non-deployable until the configured duration and independent-sample requirements pass; short recordings are reported as provisional evidence only.
 
 Start with recorder → replay → shadow → paper → minimum-size live. Do not scale until live fill quality, latency, costs, and calibration agree with conservative out-of-sample results.

@@ -144,6 +144,10 @@ export interface DashboardMarketCard {
   trendSlowBps: number | null;
   slowTrendAlignment: number | null;
   slowTrendEfficiency: number | null;
+  longPullbackReady: boolean;
+  longPullbackDepthBps: number | null;
+  longPullbackRecoveryBps: number | null;
+  longPullbackRemainingRoomBps: number | null;
   providerAgeMs: number | null;
   staleThresholdMs: number | null;
   warmedUp: boolean;
@@ -174,6 +178,7 @@ export interface DashboardMarketCard {
 }
 
 export interface DashboardRuleDiagnostics {
+  family: string;
   side: number;
   phase: string;
   score: number;
@@ -213,6 +218,8 @@ export interface DashboardRuleDiagnostics {
   costPass: boolean;
   arbitrationPass: boolean;
   slowTrendPass: boolean;
+  continuationTrendPass: boolean;
+  pullbackRecoveryPass: boolean;
   tradeThresholdBps: number;
   stressThresholdBps: number;
   liquidityReasons: readonly string[];
