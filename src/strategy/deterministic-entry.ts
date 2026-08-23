@@ -60,6 +60,7 @@ export interface EntryContext {
   symbol: string; sequence: bigint; nowMs: number; features: DeterministicFeatures; regime: RegimeDecision; system: SystemGateState;
   bestBid: number; bestAsk: number; longCost: CostEstimate; shortCost: CostEstimate;
   longEconomicCosts?: readonly CostBreakdown[]; shortEconomicCosts?: readonly CostBreakdown[];
+  longPullbackEconomicCosts?: readonly CostBreakdown[]; shortPullbackEconomicCosts?: readonly CostBreakdown[];
   longLiquidity?: LiquidityDecision; shortLiquidity?: LiquidityDecision;
 }
 export interface RuleVoteVector {
@@ -231,7 +232,9 @@ export class DeterministicEntryEngine {
       / Math.max(this.cfg.microTrigger.strongScore - this.cfg.microTrigger.releaseScore, 1e-9), 0, 1);
     const edges = this.edgeResolver.resolve({ symbol: context.symbol, family: structure.family, side: direction, features: f,
       regime: context.regime, continuation, confirmationQuality });
-    const suppliedCosts = direction === 1 ? context.longEconomicCosts : context.shortEconomicCosts;
+    const suppliedCosts = structure.family === "PULLBACK_RECOVERY"
+      ? direction === 1 ? context.longPullbackEconomicCosts : context.shortPullbackEconomicCosts
+      : direction === 1 ? context.longEconomicCosts : context.shortEconomicCosts;
     const availableCosts = suppliedCosts && suppliedCosts.length > 0 ? suppliedCosts
       : [exactCostBreakdown(cost, "TAKER_TAKER", 1, this.cfg.positiveCostErrorP95Bps)];
     const costs = this.cfg.requireMakerEntry

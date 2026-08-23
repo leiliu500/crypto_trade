@@ -236,8 +236,10 @@ function processState(runtime: OfflineRuntime, book: BookState, base: Features, 
   }
   const longCost = runtime.planner.preliminaryCost(features, book, 1, 0);
   const shortCost = runtime.planner.preliminaryCost(features, book, -1, 0);
-  const longEconomicCosts = runtime.planner.economicCosts(features, book, 1, 0);
-  const shortEconomicCosts = runtime.planner.economicCosts(features, book, -1, 0);
+  const longEconomicCosts = runtime.planner.economicCosts(features, book, 1, 0, "CONTINUATION");
+  const shortEconomicCosts = runtime.planner.economicCosts(features, book, -1, 0, "CONTINUATION");
+  const longPullbackEconomicCosts = runtime.planner.economicCosts(features, book, 1, 0, "PULLBACK_RECOVERY");
+  const shortPullbackEconomicCosts = runtime.planner.economicCosts(features, book, -1, 0, "PULLBACK_RECOVERY");
   if (!longCost || !shortCost) { runtime.liquidity.observe(features.spreadBps); return; }
   const longLiquidity = runtime.liquidity.evaluate(liquidityInput(features, longCost.impactBps));
   const shortLiquidity = runtime.liquidity.evaluate(liquidityInput(features, shortCost.impactBps));
@@ -248,7 +250,8 @@ function processState(runtime: OfflineRuntime, book: BookState, base: Features, 
     system: { bookValid: true, sequenceValid: true, checksumValid: true, publicStreamHealthy: true, privateStreamHealthy: true,
       accountReconciled: true, clockHealthy: true, entriesAllowed: true, noExistingPosition: true, noPendingEntry: true },
     bestBid: book.bids[0]!.px, bestAsk: book.asks[0]!.px,
-    longCost, shortCost, longEconomicCosts, shortEconomicCosts, longLiquidity, shortLiquidity,
+    longCost, shortCost, longEconomicCosts, shortEconomicCosts,
+    longPullbackEconomicCosts, shortPullbackEconomicCosts, longLiquidity, shortLiquidity,
   });
   if (intent) {
     runtime.signals.push({ atMs: features.receiveTsMs, side: intent.side, family: intent.diagnostics.family,

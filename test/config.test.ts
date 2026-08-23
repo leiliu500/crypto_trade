@@ -58,7 +58,10 @@ test("JSON baseline wins over legacy tunable environment values and symbol overl
     assert.equal(cfg.position.maximumHoldMs, 14_400_000);
     assert.deepEqual(cfg.deterministicSignal.analyticHorizons.map((item) => item.horizonMs), [3_600_000, 7_200_000, 14_400_000]);
     assert.equal(cfg.deterministicSignal.requireMakerEntry, true);
-    assert.equal(cfg.configurationVersion, "pullback-recovery-v4.0");
+    assert.equal(cfg.configurationVersion, "pullback-execution-v4.1.0");
+    assert.equal(cfg.planner.pullbackMakerTtlMs, 20_000);
+    assert.equal(cfg.planner.pullbackKinematicsGraceMs, 5_000);
+    assert.equal(cfg.planner.pullbackKinematicsGraceEvents, 2);
     assert.equal(cfg.deterministicSignal.minimumSlowTrendAlignment, 0.1);
     assert.equal(cfg.deterministicSignal.minimumSlowTrendEfficiency, 0.05);
     assert.equal(cfg.deterministicSignal.minimumSlowTrendMoveBps, 7.5);

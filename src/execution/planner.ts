@@ -4,13 +4,16 @@ import type { CostEstimate, CostModel } from "../strategy/cost.js";
 import type { TradeIntent } from "../strategy/signal.js";
 import type { RiskApproval, RiskContext, RiskSizer } from "../risk/sizing.js";
 import { estimateSweep } from "./book-walk.js";
-import type { CostBreakdown, ExecutionPath } from "../economics/types.js";
+import type { CostBreakdown, EntryFamily, ExecutionPath } from "../economics/types.js";
 
 export type ExecutionStyle = "maker" | "taker";
 export interface AssetRules { symbol: string; minOrderSize: number; minTradeIncrement: number; priceIncrement: number; maximumOrderQty: number; shortable: boolean; }
 export interface PlannerConfig {
   makerTtlMs: number;
   alphaHalfLifeMs: number;
+  pullbackMakerTtlMs: number;
+  pullbackKinematicsGraceMs: number;
+  pullbackKinematicsGraceEvents: number;
   minimumFillProbability: number;
   /** Extra limit-price protection for marketable IOC orders. Zero preserves exact book-walk pricing. */
   takerLimitBufferBps: number;
@@ -47,6 +50,7 @@ export interface ExecutionPlan {
   expectedValue: number;
   reduceOnlyIntent: boolean;
   economicHorizonMs?: number;
+  entryFamily?: EntryFamily;
   executionPath?: ExecutionPath;
   exitReason?: string;
   fallbackFromClientOrderId?: string;
@@ -60,6 +64,7 @@ export interface PlannerBuildOptions {
   createdMs?: number;
   executionPath?: ExecutionPath;
   economicHorizonMs?: number;
+  entryFamily?: EntryFamily;
   /** Slow-horizon volatility used only for risk sizing; execution latency retains fast feature volatility. */
   riskSigmaHBps?: number;
 }
@@ -86,6 +91,16 @@ export class ExecutionPlanner {
     if (!Number.isFinite(cfg.takerLimitBufferBps) || cfg.takerLimitBufferBps < 0) {
       throw new Error("Planner takerLimitBufferBps must be finite and non-negative");
     }
+    const positiveDurations = [cfg.makerTtlMs, cfg.alphaHalfLifeMs, cfg.pullbackMakerTtlMs, cfg.pullbackKinematicsGraceMs];
+    if (positiveDurations.some((value) => !Number.isFinite(value) || value <= 0)) {
+      throw new Error("Planner order lifetimes and kinematics grace must be finite and positive");
+    }
+    if (!Number.isInteger(cfg.pullbackKinematicsGraceEvents) || cfg.pullbackKinematicsGraceEvents < 2) {
+      throw new Error("Planner pullbackKinematicsGraceEvents must be an integer of at least two");
+    }
+    if (cfg.pullbackKinematicsGraceMs >= cfg.pullbackMakerTtlMs) {
+      throw new Error("Planner pullback kinematics grace must be shorter than its maker TTL");
+    }
   }
 
   public build(intent: TradeIntent, features: Features, book: BookState, asset: AssetRules, baseRisk: Omit<RiskContext, "price" | "visibleLiquidityQty" | "sigmaHBps" | "estimatedExitCostBps" | "maximumExchangeQty">, closingExistingLong = false, options: PlannerBuildOptions = {}): ExecutionPlan | null {
@@ -97,8 +112,9 @@ export class ExecutionPlanner {
     const allowTaker = options.executionPath === undefined || options.executionPath === "TAKER_TAKER";
     const allowMaker = options.executionPath === undefined || options.executionPath === "MAKER_TAKER"
       || options.executionPath === "MAKER_MAKER_TAKER_FALLBACK";
-    const taker = allowTaker ? this.buildCandidate("taker", intent, features, book, asset, baseRisk, quantityMultiplier, options) : null;
-    const makerCandidate = allowMaker ? this.buildCandidate("maker", intent, features, book, asset, baseRisk, quantityMultiplier, options) : null;
+    const makerTtlMs = this.makerEntryTtlMs(options.entryFamily);
+    const taker = allowTaker ? this.buildCandidate("taker", intent, features, book, asset, baseRisk, quantityMultiplier, options, makerTtlMs) : null;
+    const makerCandidate = allowMaker ? this.buildCandidate("maker", intent, features, book, asset, baseRisk, quantityMultiplier, options, makerTtlMs) : null;
     const maker = makerCandidate && makerCandidate.fillProbability >= this.cfg.minimumFillProbability ? makerCandidate : null;
     const selected = maker && (!taker || maker.expectedValue > taker.expectedValue) ? maker : taker;
     if (!selected) return null;
@@ -106,7 +122,7 @@ export class ExecutionPlanner {
       ? this.roundPrice(intent.side === 1 ? book.bids[0]!.px : book.asks[0]!.px, asset.priceIncrement, intent.side, false)
       : bufferedTakerLimitPrice(selected.worstPx!, asset.priceIncrement, intent.side, this.cfg.takerLimitBufferBps);
     const createdMs = options.createdMs ?? Date.now();
-    const ttl = selected.style === "maker" ? Math.min(this.cfg.makerTtlMs, this.cfg.alphaHalfLifeMs / 2) : 1_000;
+    const ttl = selected.style === "maker" ? makerTtlMs : 1_000;
     const decisionId = options.decisionId ?? randomUUID();
     return {
       clientOrderId: `mlce-${createdMs}-${randomUUID().slice(0, 12)}`,
@@ -118,31 +134,34 @@ export class ExecutionPlanner {
       expectedCost: selected.cost, risk: selected.risk, fillProbability: selected.fillProbability,
       expectedValue: selected.expectedValue, reduceOnlyIntent: closingExistingLong,
       ...(options.economicHorizonMs === undefined ? {} : { economicHorizonMs: options.economicHorizonMs }),
+      ...(options.entryFamily === undefined ? {} : { entryFamily: options.entryFamily }),
       ...(options.executionPath === undefined ? {} : { executionPath: options.executionPath }),
     };
   }
 
   /** Cheapest execution style that is currently eligible for a preliminary deterministic cost gate. */
-  public preliminaryCost(features: Features, book: BookState, side: Direction, qty: number): CostEstimate | null {
+  public preliminaryCost(features: Features, book: BookState, side: Direction, qty: number,
+    entryFamily?: EntryFamily): CostEstimate | null {
     const taker = this.costModel.estimate(features, book, side, qty, false);
-    const maker = this.fillProbability(features, book, side) >= this.cfg.minimumFillProbability
+    const maker = this.fillProbability(features, book, side, this.makerEntryTtlMs(entryFamily)) >= this.cfg.minimumFillProbability
       ? this.costModel.estimate(features, book, side, qty, true) : null;
     if (!taker) return maker;
     if (!maker) return taker;
     return maker.roundTripBps < taker.roundTripBps ? maker : taker;
   }
 
-  public economicCosts(features: Features, book: BookState, side: Direction, qty: number): CostBreakdown[] {
-    return this.costModel.pathEstimates(features, book, side, qty, this.makerFillProbability(features, book, side));
+  public economicCosts(features: Features, book: BookState, side: Direction, qty: number,
+    entryFamily?: EntryFamily): CostBreakdown[] {
+    return this.costModel.pathEstimates(features, book, side, qty, this.makerFillProbability(features, book, side, entryFamily));
   }
 
-  public makerFillProbability(features: Features, book: BookState, side: Direction): number {
-    return this.fillProbability(features, book, side);
+  public makerFillProbability(features: Features, book: BookState, side: Direction, entryFamily?: EntryFamily): number {
+    return this.fillProbability(features, book, side, this.makerEntryTtlMs(entryFamily));
   }
 
   private buildCandidate(style: ExecutionStyle, intent: TradeIntent, features: Features, book: BookState, asset: AssetRules,
     baseRisk: Omit<RiskContext, "price" | "visibleLiquidityQty" | "sigmaHBps" | "estimatedExitCostBps" | "maximumExchangeQty">,
-    quantityMultiplier: number, options: PlannerBuildOptions): ExecutionCandidate | null {
+    quantityMultiplier: number, options: PlannerBuildOptions, makerTtlMs: number): ExecutionCandidate | null {
     const makerEntry = style === "maker";
     let qty = asset.minOrderSize;
     let cost: CostEstimate | null = null;
@@ -172,7 +191,7 @@ export class ExecutionPlanner {
     if (!exactIntent) return null;
     const sweep = style === "taker" ? estimateSweep(intent.side === 1 ? book.asks : book.bids, qty) : null;
     if (style === "taker" && !sweep) return null;
-    const fillProbability = makerEntry ? this.fillProbability(features, book, intent.side) : 1;
+    const fillProbability = makerEntry ? this.fillProbability(features, book, intent.side, makerTtlMs) : 1;
     const grossValue = qty * features.mid * (exactIntent.predictedGrossBps - cost.roundTripBps) / 10_000;
     const expectedValue = makerEntry
       ? fillProbability * grossValue
@@ -185,14 +204,18 @@ export class ExecutionPlanner {
   private relevantDepth(book: BookState, side: Direction): number {
     return (side === 1 ? book.asks : book.bids).slice(0, 10).reduce((sum, level) => sum + level.qty, 0);
   }
-  private fillProbability(f: Features, book: BookState, side: Direction): number {
+  private makerEntryTtlMs(entryFamily?: EntryFamily): number {
+    return entryFamily === "PULLBACK_RECOVERY"
+      ? this.cfg.pullbackMakerTtlMs : Math.min(this.cfg.makerTtlMs, this.cfg.alphaHalfLifeMs / 2);
+  }
+  private fillProbability(f: Features, book: BookState, side: Direction, ttlMs: number): number {
     const ahead = side === 1 ? book.bids[0]!.qty : book.asks[0]!.qty;
     const aggressiveRatio = Math.max(0, side * f.tfi) / Math.max(ahead, 1e-12);
     const logHazard = this.cfg.fillHazardIntercept + this.cfg.fillHazardAggressiveWeight * aggressiveRatio
       + this.cfg.fillHazardFlowWeight * side * f.tfi + this.cfg.fillHazardImbalanceWeight * side * f.qi1
       - this.cfg.fillHazardSpreadWeight * f.spreadBps;
     const hazardPerSecond = Math.exp(Math.max(-20, Math.min(20, logHazard)));
-    return 1 - Math.exp(-hazardPerSecond * this.cfg.makerTtlMs / 1000);
+    return 1 - Math.exp(-hazardPerSecond * ttlMs / 1000);
   }
   private roundPrice(price: number, increment: number, side: Direction, marketable: boolean): number {
     const units = price / increment;

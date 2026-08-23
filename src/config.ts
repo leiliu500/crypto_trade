@@ -310,7 +310,7 @@ function loadSymbolConfig(symbol: string, env: NodeJS.ProcessEnv, mode: TradingM
       latencyAdverseFraction: paperEntryExercise ? 0 : .25, adverseSelectionBps: paperEntryExercise ? 0 : 1, fundingBps: 0, borrowBps: 0,
       positiveCostErrorP95Bps: deterministicSignal.positiveCostErrorP95Bps },
     sizing: { baseRiskFraction: .001, maximumDrawdown: .05, maximumBookParticipation: .01, fractionalKelly: .1, maximumKellyFraction: .05, targetSigmaHBps: 20, minimumQualityScale: .1 },
-    position, planner: defaultPlannerConfig(deterministicSignal.minimumMakerFillProbability, paperEntryExercise ? 5 : 0),
+    position, planner: defaultPlannerConfig(env, deterministicSignal.minimumMakerFillProbability, paperEntryExercise ? 5 : 0),
   };
 }
 
@@ -324,8 +324,12 @@ function defaultPositionConfig(env: NodeJS.ProcessEnv): PositionConfig {
     baseVolatilityMultiple: 2, trendVolatilityBonus: 1, reversalVolatilityPenalty: 1.25, minimumVolatilityMultiple: .5, maximumVolatilityMultiple: 4,
     partialExitThreshold: .7, maximumPartialExitFraction: .5, minimumPartialExitBenefitBps: 2 };
 }
-function defaultPlannerConfig(minimumFillProbability: number, takerLimitBufferBps: number): PlannerConfig {
-  return { makerTtlMs: 1_500, alphaHalfLifeMs: 2_772, minimumFillProbability, takerLimitBufferBps, cancelAheadFraction: .5,
+function defaultPlannerConfig(env: NodeJS.ProcessEnv, minimumFillProbability: number, takerLimitBufferBps: number): PlannerConfig {
+  return { makerTtlMs: 1_500, alphaHalfLifeMs: 2_772,
+    pullbackMakerTtlMs: integerEnv(env.PULLBACK_MAKER_TTL_MS, 20_000, 1_000, 300_000),
+    pullbackKinematicsGraceMs: integerEnv(env.PULLBACK_KINEMATICS_GRACE_MS, 5_000, 1, 299_999),
+    pullbackKinematicsGraceEvents: integerEnv(env.PULLBACK_KINEMATICS_GRACE_EVENTS, 2, 2, 100),
+    minimumFillProbability, takerLimitBufferBps, cancelAheadFraction: .5,
     fillHazardIntercept: -1, fillHazardAggressiveWeight: .1, fillHazardFlowWeight: 1, fillHazardImbalanceWeight: .5, fillHazardSpreadWeight: .05,
     makerOpportunityCostBps: 2, staleOrderCostBps: 1, maximumImpactBps: 10, maximumIterations: 5 };
 }

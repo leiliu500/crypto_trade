@@ -26,10 +26,11 @@ const intent: TradeIntent = {
   side: 1, probability: .8, predictedGrossBps: 20, lowerBoundNetBps: 10, quality: 1, decisionTsMs: 1_000,
 };
 
-function planner(takerLimitBufferBps = 0): ExecutionPlanner {
+function planner(takerLimitBufferBps = 0, fillHazardIntercept = 5): ExecutionPlanner {
   return new ExecutionPlanner({
     makerTtlMs: 1_500, alphaHalfLifeMs: 4_000, minimumFillProbability: .65, takerLimitBufferBps, cancelAheadFraction: .5,
-    fillHazardIntercept: 5, fillHazardAggressiveWeight: 0, fillHazardFlowWeight: 0,
+    pullbackMakerTtlMs: 20_000, pullbackKinematicsGraceMs: 5_000, pullbackKinematicsGraceEvents: 2,
+    fillHazardIntercept, fillHazardAggressiveWeight: 0, fillHazardFlowWeight: 0,
     fillHazardImbalanceWeight: 0, fillHazardSpreadWeight: 0,
     makerOpportunityCostBps: 0, staleOrderCostBps: 0, maximumImpactBps: 10, maximumIterations: 5,
   }, new RiskSizer({
@@ -89,6 +90,26 @@ test("the economic execution path constrains the final order style", () => {
   assert.equal(boundedMakerExit?.executionPath, "MAKER_MAKER_TAKER_FALLBACK");
   assert.equal(execution.build(intent, features, book, asset, baseRisk, false,
     { createdMs: 1_000, executionPath: "MAKER_MAKER" }), null);
+});
+
+test("pullback maker orders use the family TTL and the same TTL in fill modeling", () => {
+  const execution = planner(0, -3);
+  const continuationProbability = execution.makerFillProbability(features, book, 1, "CONTINUATION");
+  const pullbackProbability = execution.makerFillProbability(features, book, 1, "PULLBACK_RECOVERY");
+  assert.ok(Math.abs(continuationProbability - (1 - Math.exp(-Math.exp(-3) * 1.5))) < 1e-12);
+  assert.ok(Math.abs(pullbackProbability - (1 - Math.exp(-Math.exp(-3) * 20))) < 1e-12);
+  assert.ok(pullbackProbability > continuationProbability);
+
+  const executable = planner();
+  const plan = executable.build(intent, features, book, {
+    symbol: "BTC/USD", minOrderSize: .001, minTradeIncrement: .001, priceIncrement: .001,
+    maximumOrderQty: 1_000, shortable: false,
+  }, {
+    equity: 100_000, equityHighWater: 100_000, initialStopDistance: 1, jumpBuffer: 0,
+    maximumNotional: 1_000, lotSize: .001, regimeScale: 1, exposureCapacityQty: 10,
+  }, false, { createdMs: 1_000, executionPath: "MAKER_TAKER", entryFamily: "PULLBACK_RECOVERY" });
+  assert.equal(plan?.entryFamily, "PULLBACK_RECOVERY");
+  assert.equal(plan?.expiresMs, 21_000);
 });
 
 test("a configured IOC buffer widens only the taker limit-price cap", () => {

@@ -46,6 +46,8 @@ export type FeatureStaleReason =
   | "KINEMATICS_RESET"
   | "NON_FINITE_FEATURE";
 
+export type KinematicsResetReason = "EVENT_GAP" | "FILTER_BOUNDS";
+
 export interface Features {
   symbol: string;
   mid: number;
@@ -82,6 +84,7 @@ export interface Features {
   staleThresholdMs: number;
   warmedUp: boolean;
   kinematicsReady: boolean;
+  kinematicsResetReason?: KinematicsResetReason | null;
   stale: boolean;
   staleReason: FeatureStaleReason | null;
   receiveTsMs: number;

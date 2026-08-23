@@ -11,7 +11,7 @@ import { disabledDatabaseHealth } from "./types.js";
 const ENGINE_EVENTS = [
   "reconciled", "engineError", "preflight", "publicStreamReady", "privateStreamReady", "decision",
   "orderReserved", "orderSending", "orderAccepted", "orderCancelRequested", "orderUpdate", "orderRejected",
-  "positionDecision", "positionDust", "exitDecision", "fill", "watchdogFault", "entryBlocked",
+  "positionDecision", "positionDust", "exitDecision", "fill", "watchdogFault", "entryBlocked", "pendingKinematicsGrace",
 ] as const;
 const TERMINAL_ORDER_STATES = new Set(["FILLED", "CANCELED", "REJECTED", "EXPIRED"]);
 
@@ -171,6 +171,7 @@ export class OperationsMonitor extends EventEmitter {
         staleThresholdMs: features?.staleThresholdMs ?? null,
         warmedUp: features?.warmedUp ?? false,
         kinematicsReady: features?.kinematicsReady ?? false,
+        kinematicsResetReason: features?.kinematicsResetReason ?? null,
         stale: features?.stale ?? !market.bookValid,
         staleReason: features?.staleReason ?? (!market.bookValid ? "BOOK_INVALID" : null),
         sequence: market.sequence,
@@ -311,6 +312,7 @@ export class OperationsMonitor extends EventEmitter {
         symbol: order.plan.symbol,
         side: order.plan.side,
         style: order.plan.style,
+        entryFamily: order.plan.entryFamily ?? null,
         timeInForce: order.plan.timeInForce,
         status: order.status,
         statusLabel: orderStatusLabel(order.status, cancellationReason),
