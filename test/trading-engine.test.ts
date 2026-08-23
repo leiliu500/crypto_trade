@@ -135,6 +135,117 @@ test("hard stops bypass maker exit optimization", async () => {
   assert.equal(plans[0]?.timeInForce, "ioc");
 });
 
+test("a pullback maker entry survives one transient kinematics reset and cancels only after the configured grace", async () => {
+  let nowMs = 2_000;
+  const canceledOrderIds: string[] = [];
+  const plan = pullbackEntryPlan();
+  const gateway: OrderGateway = {
+    send: async () => ({ id: "pullback-order" }) as never,
+    cancel: async (orderId) => { canceledOrderIds.push(orderId); },
+    cancelAll: async () => undefined,
+  };
+  const rest = { getOrder: async () => ({ data: {
+    id: "pullback-order", client_order_id: plan.clientOrderId, symbol: "BTCUSD",
+    filled_qty: "0", filled_avg_price: null, status: "canceled", updated_at: new Date(nowMs).toISOString(),
+  } }) };
+  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", ALPACA_PAPER: "true",
+    ALPACA_API_KEY: "test", ALPACA_API_SECRET: "test", CONFIG_DIR: "config" }), {
+    gateway, rest: rest as never, now: () => nowMs,
+  });
+  const internals = engine as unknown as {
+    runtimes: Map<string, unknown>;
+    orderState: {
+      reserve: (value: ExecutionPlan) => void;
+      markAccepted: (clientOrderId: string, alpacaOrderId: string, atMs: number) => void;
+      get: (clientOrderId: string) => TrackedOrder | undefined;
+    };
+    handlePendingKinematicsUnavailable: (runtime: unknown, tracked: TrackedOrder, features: Features) => Promise<void>;
+  };
+  internals.orderState.reserve(plan);
+  internals.orderState.markAccepted(plan.clientOrderId, "pullback-order", nowMs);
+  const tracked = internals.orderState.get(plan.clientOrderId)!;
+  const graceEvents: Array<{ details?: { kinematicsResetReason?: string; consecutiveEvents?: number } }> = [];
+  engine.on("pendingKinematicsGrace", (event) => graceEvents.push(event));
+  const unavailable = { ...basicFeatures(nowMs), kinematicsReady: false,
+    kinematicsResetReason: "FILTER_BOUNDS" as const };
+
+  await internals.handlePendingKinematicsUnavailable(internals.runtimes.get("BTC/USD")!, tracked, unavailable);
+  assert.equal(canceledOrderIds.length, 0);
+  assert.equal(tracked.status, "OPEN");
+  assert.equal(graceEvents.length, 1);
+  assert.equal(graceEvents[0]?.details?.kinematicsResetReason, "FILTER_BOUNDS");
+  assert.equal(graceEvents[0]?.details?.consecutiveEvents, 1);
+
+  nowMs = 7_000;
+  await internals.handlePendingKinematicsUnavailable(internals.runtimes.get("BTC/USD")!, tracked,
+    { ...unavailable, receiveTsMs: nowMs });
+  assert.deepEqual(canceledOrderIds, ["pullback-order"]);
+  assert.equal(tracked.status, "CANCELED");
+  assert.equal(tracked.cancellationReason, "KINEMATICS_UNAVAILABLE");
+});
+
+test("an expired pullback maker order reports TTL before a simultaneous kinematics reset", async () => {
+  let nowMs = 21_001;
+  const plan = pullbackEntryPlan();
+  const gateway: OrderGateway = {
+    send: async () => ({ id: "expired-pullback-order" }) as never,
+    cancel: async () => undefined,
+    cancelAll: async () => undefined,
+  };
+  const rest = { getOrder: async () => ({ data: {
+    id: "expired-pullback-order", client_order_id: plan.clientOrderId, symbol: "BTCUSD",
+    filled_qty: "0", filled_avg_price: null, status: "canceled", updated_at: new Date(nowMs).toISOString(),
+  } }) };
+  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", ALPACA_PAPER: "true",
+    ALPACA_API_KEY: "test", ALPACA_API_SECRET: "test", CONFIG_DIR: "config" }), {
+    gateway, rest: rest as never, now: () => nowMs,
+  });
+  const internals = engine as unknown as {
+    runtimes: Map<string, unknown>;
+    orderState: {
+      reserve: (value: ExecutionPlan) => void;
+      markAccepted: (clientOrderId: string, alpacaOrderId: string, atMs: number) => void;
+      get: (clientOrderId: string) => TrackedOrder | undefined;
+    };
+    handlePendingKinematicsUnavailable: (runtime: unknown, tracked: TrackedOrder, features: Features) => Promise<void>;
+  };
+  internals.orderState.reserve(plan);
+  internals.orderState.markAccepted(plan.clientOrderId, "expired-pullback-order", nowMs);
+  const tracked = internals.orderState.get(plan.clientOrderId)!;
+  await internals.handlePendingKinematicsUnavailable(internals.runtimes.get("BTC/USD")!, tracked,
+    { ...basicFeatures(nowMs), kinematicsReady: false, kinematicsResetReason: "EVENT_GAP" });
+  assert.equal(tracked.status, "CANCELED");
+  assert.equal(tracked.cancellationReason, "TTL_EXPIRED");
+});
+
+function pullbackEntryPlan(): ExecutionPlan {
+  return {
+    clientOrderId: "pullback-entry", decisionId: "pullback-decision", riskApprovalId: "pullback-risk",
+    symbol: "BTC/USD", side: 1, qty: .01, limitPx: 99.99, style: "maker", timeInForce: "gtc",
+    createdMs: 1_000, expiresMs: 21_000, originatingSequence: 1n, featureHash: "test",
+    strategyVersion: "test", modelVersion: "none",
+    expectedCost: { roundTripBps: 30, spreadBps: 0, feeBps: 30, impactBps: 0, latencyBps: 0,
+      adverseSelectionBps: 0, fundingBps: 0, borrowBps: 0 },
+    risk: { qty: .01, riskBudget: 1, maximumLossPerUnit: 1, modeledMaximumLoss: .01,
+      drawdownScale: 1, qualityScale: 1, volatilityScale: 1, bindingLimit: "risk" },
+    fillProbability: .5, expectedValue: .01, reduceOnlyIntent: false,
+    economicHorizonMs: 7_200_000, entryFamily: "PULLBACK_RECOVERY",
+    executionPath: "MAKER_MAKER_TAKER_FALLBACK",
+  };
+}
+
+function basicFeatures(nowMs: number): Features {
+  return {
+    symbol: "BTC/USD", mid: 100, spread: .02, spreadBps: 2, microprice: 100, visibleDepth: 2,
+    qi1: 0, qiK: 0, persistentQiK: 0, ofi: 0, tfi: 0, bidCancellationRatio: 0, askCancellationRatio: 0,
+    replenishmentPressure: 0, velocity: 0, acceleration: 0, varianceRate: 1e-8, sigmaHBps: 1,
+    microEdgeZ: 0, velocityZ: 0, accelerationZ: 0, efficiency: .5, cusumUp: false, cusumDown: false,
+    spreadZ: 0, depthZ: 0, signalFlipRate: 0, providerAgeMs: 0, staleThresholdMs: 1_000,
+    warmedUp: true, kinematicsReady: true, kinematicsResetReason: null,
+    stale: false, staleReason: null, receiveTsMs: nowMs,
+  };
+}
+
 async function within<T>(operation: Promise<T>, label: string): Promise<T> {
   let timer: NodeJS.Timeout | undefined;
   try {

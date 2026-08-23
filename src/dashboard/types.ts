@@ -1,7 +1,8 @@
 import type { CostEstimate } from "../strategy/cost.js";
 import type { EntryPipelineSnapshot } from "../engine/entry-pipeline-audit.js";
-import type { FeatureStaleReason } from "../core/market.js";
+import type { FeatureStaleReason, KinematicsResetReason } from "../core/market.js";
 import type { OrderCancellationReason, OrderCancelRequestReason } from "../execution/order-state.js";
+import type { EntryFamily } from "../economics/types.js";
 
 export type HealthTone = "healthy" | "degraded" | "critical";
 export type EventSeverity = "info" | "warning" | "critical";
@@ -79,6 +80,7 @@ export interface DashboardOrderCard {
   symbol: string;
   side: 1 | -1;
   style: string;
+  entryFamily?: EntryFamily | null;
   timeInForce: string;
   status: string;
   statusLabel: string;
@@ -152,6 +154,7 @@ export interface DashboardMarketCard {
   staleThresholdMs: number | null;
   warmedUp: boolean;
   kinematicsReady: boolean;
+  kinematicsResetReason: KinematicsResetReason | null;
   stale: boolean;
   staleReason: FeatureStaleReason | null;
   sequence: string;

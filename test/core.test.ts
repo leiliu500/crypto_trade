@@ -129,12 +129,14 @@ test("a long observation gap resets only kinematics and keeps valid market data 
   assert.equal(afterGap?.staleReason, null);
   assert.equal(afterGap?.warmedUp, true);
   assert.equal(afterGap?.kinematicsReady, false);
+  assert.equal(afterGap?.kinematicsResetReason, "EVENT_GAP");
   assert.equal(Number.isFinite(afterGap?.velocityZ ?? Number.NaN), true);
   const recovered = engine.onBook({ symbol: "TEST/USD", bids: [{ px: 100.006, qty: 10 }], asks: [{ px: 100.016, qty: 10 }],
     sequence: 42n, exchangeTsMs: gapMs + 100, receiveTsMs: gapMs + 100, valid: true, sourceReset: true });
   assert.equal(recovered?.stale, false);
   assert.equal(recovered?.staleReason, null);
   assert.equal(recovered?.kinematicsReady, true);
+  assert.equal(recovered?.kinematicsResetReason, null);
 });
 
 test("an implausibly fast finite move resets only kinematics rather than data health", () => {
@@ -146,4 +148,5 @@ test("an implausibly fast finite move resets only kinematics rather than data he
   assert.equal(reset?.stale, false);
   assert.equal(reset?.staleReason, null);
   assert.equal(reset?.kinematicsReady, false);
+  assert.equal(reset?.kinematicsResetReason, "FILTER_BOUNDS");
 });

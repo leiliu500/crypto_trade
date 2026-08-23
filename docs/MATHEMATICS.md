@@ -12,7 +12,7 @@ Optional model-overlay modes additionally use `src/strategy/forecast.ts` and exp
 A_max = max(A_absolute, median(A) + 6 MAD(A))
 ```
 
-Provider timestamps up to the configured 250 ms future-skew tolerance are clamped to zero age. A larger future lead, excessive positive age, timestamp reversal, missing reset, crossed book, kinematic gap reset, or stream/account uncertainty blocks entries. Operational diagnostics preserve the specific cause instead of collapsing every condition into a generic stale-data reason.
+Provider timestamps up to the configured 250 ms future-skew tolerance are clamped to zero age. A larger future lead, excessive positive age, timestamp reversal, missing reset, crossed book, kinematic gap reset, or stream/account uncertainty blocks entries. Operational diagnostics preserve the specific cause, including `EVENT_GAP` versus `FILTER_BOUNDS` kinematics resets, instead of collapsing every condition into a generic stale-data reason.
 
 ## Causal microstructure features
 
@@ -146,7 +146,7 @@ EV_maker = P_fill notional (predictedGrossBps - makerCostBps) / 10000
          - staleOrderCost
 ```
 
-Fill probability uses `1-exp(-lambda TTL)` and a log hazard driven by aggressive volume versus queue ahead, flow, imbalance, and spread. Maker entry TTL cannot exceed half the configured alpha half-life. Non-urgent exits selected by `MAKER_MAKER_TAKER_FALLBACK` rest at the ask for a bounded TTL; after cancellation is authoritatively reconciled, any remainder walks the bid and uses the worst walked price as an IOC limit cap. Hard-stop, data-invalid, recovery-no-edge, and profit-floor exits bypass the maker attempt.
+Fill probability uses `1-exp(-lambda TTL)` and a log hazard driven by aggressive volume versus queue ahead, flow, imbalance, and spread. The same actual TTL is used by both fill modeling and the resulting order plan. Continuation maker TTL cannot exceed half the configured micro-alpha half-life. The independent multi-hour pullback/recovery family instead uses `PULLBACK_MAKER_TTL_MS` (20 seconds by default), so micro-alpha expiry cannot force a structurally valid order to disappear before a plausible maker fill. Non-urgent exits selected by `MAKER_MAKER_TAKER_FALLBACK` rest at the ask for a bounded TTL; after cancellation is authoritatively reconciled, any remainder walks the bid and uses the worst walked price as an IOC limit cap. Hard-stop, data-invalid, recovery-no-edge, and profit-floor exits bypass the maker attempt.
 
 The fallback path fixes the maker exit fee in the ledger and adds `(1-P_exitFill)` times the taker-minus-maker fee, half spread, and configured fallback adverse move to stressable variable cost. Exit completion therefore does not depend on an indefinite maker fill, and the economic gate does not pretend the fallback branch is free.
 
@@ -194,5 +194,7 @@ It exits on hard risk, floor breach, confirmed non-positive incremental hold edg
 ## Order and failure state
 
 `src/execution/order-state.ts` idempotently handles all Alpaca private events. Any partial fill immediately produces position exposure. A network/send timeout never triggers automatic POST retry; it becomes unknown state and forces REST reconciliation. GETs alone use bounded retries for 429/5xx.
+
+A resting pullback/recovery entry treats a single non-stale kinematics reset as temporary estimator unavailability. It remains eligible only until its normal TTL and only while structural signal, exact cost, flow, and book-health checks remain valid. `KINEMATICS_UNAVAILABLE` cancellation requires both `PULLBACK_KINEMATICS_GRACE_MS` elapsed and `PULLBACK_KINEMATICS_GRACE_EVENTS` consecutive reset events. TTL is evaluated first so cancellation telemetry reflects the binding cause.
 
 Alpaca does not expose a dead-man switch, exchange checksum, or sequence in the documented crypto stream. The implementation cancels all orders on data/private-stream failure, invalidates the book, waits for a new `r=true` reset, reconciles account/orders/positions, recomputes risk, and only then clears operational halts.

@@ -100,6 +100,13 @@ interface SymbolRuntime {
   cluster: string;
 }
 
+interface PendingKinematicsFault {
+  firstAtMs: number;
+  lastAtMs: number;
+  consecutiveEvents: number;
+  resetReason: Features["kinematicsResetReason"];
+}
+
 export interface EngineDependencies {
   rest?: AlpacaRestClient;
   gateway?: OrderGateway;
@@ -125,6 +132,7 @@ export class TradingEngine extends EventEmitter {
   private readonly cancelReconcileInFlight = new Set<string>();
   private readonly cancelReconcileLastAttemptMs = new Map<string, number>();
   private readonly makerExitFallbackInFlight = new Set<string>();
+  private readonly pendingKinematicsFaults = new Map<string, PendingKinematicsFault>();
   private equity = 0;
   private equityHighWater = 0;
   private realizedSessionPnl = 0;
@@ -486,8 +494,10 @@ export class TradingEngine extends EventEmitter {
     const smallQty = runtime.asset?.minOrderSize ?? 0;
     const longCost = runtime.asset ? runtime.planner.preliminaryCost(features, book, 1, smallQty) : null;
     const shortCost = runtime.asset ? runtime.planner.preliminaryCost(features, book, -1, smallQty) : null;
-    const longEconomicCosts = runtime.asset ? runtime.planner.economicCosts(features, book, 1, smallQty) : [];
-    const shortEconomicCosts = runtime.asset ? runtime.planner.economicCosts(features, book, -1, smallQty) : [];
+    const longEconomicCosts = runtime.asset ? runtime.planner.economicCosts(features, book, 1, smallQty, "CONTINUATION") : [];
+    const shortEconomicCosts = runtime.asset ? runtime.planner.economicCosts(features, book, -1, smallQty, "CONTINUATION") : [];
+    const longPullbackEconomicCosts = runtime.asset ? runtime.planner.economicCosts(features, book, 1, smallQty, "PULLBACK_RECOVERY") : [];
+    const shortPullbackEconomicCosts = runtime.asset ? runtime.planner.economicCosts(features, book, -1, smallQty, "PULLBACK_RECOVERY") : [];
     const longLiquidity = longCost ? runtime.liquidity.evaluate(liquidityInput(features, longCost.impactBps)) : null;
     const shortLiquidity = shortCost ? runtime.liquidity.evaluate(liquidityInput(features, shortCost.impactBps)) : null;
     runtime.liquidity.observe(features.spreadBps);
@@ -503,8 +513,11 @@ export class TradingEngine extends EventEmitter {
     }
     const pending = this.pendingForSymbol(book.symbol);
     if (pending) {
-      if (!features.kinematicsReady) void this.cancelTracked(pending, "KINEMATICS_UNAVAILABLE");
-      else this.reevaluatePending(runtime, pending, book, features);
+      if (!features.kinematicsReady) void this.handlePendingKinematicsUnavailable(runtime, pending, features);
+      else {
+        this.pendingKinematicsFaults.delete(pending.plan.clientOrderId);
+        this.reevaluatePending(runtime, pending, book, features);
+      }
       return;
     }
 
@@ -521,7 +534,8 @@ export class TradingEngine extends EventEmitter {
     const deterministicIntent = runtime.entryEngine.evaluate({
       symbol: book.symbol, sequence: book.sequence, nowMs: features.receiveTsMs, features, regime,
       system: this.systemGates(runtime), bestBid: book.bids[0]!.px, bestAsk: book.asks[0]!.px,
-      longCost, shortCost, longEconomicCosts, shortEconomicCosts, longLiquidity, shortLiquidity,
+      longCost, shortCost, longEconomicCosts, shortEconomicCosts,
+      longPullbackEconomicCosts, shortPullbackEconomicCosts, longLiquidity, shortLiquidity,
     });
     const evaluation = runtime.entryEngine.latestEvaluation();
     if (evaluation) runtime.latestRuleEvaluation = evaluation;
@@ -557,6 +571,7 @@ export class TradingEngine extends EventEmitter {
       riskSigmaHBps,
       ...(routed.intent.executionPath === undefined ? {} : { executionPath: routed.intent.executionPath }),
       ...(routed.intent.selectedHorizonMs === undefined ? {} : { economicHorizonMs: routed.intent.selectedHorizonMs }),
+      entryFamily: routed.intent.diagnostics.family,
       revalidateCost: (exactCost) => {
         const exact = runtime.entryEngine.revalidateExactCost(routed.intent, exactCost);
         return exact ? plannerIntent(exact, 1) : null;
@@ -609,6 +624,7 @@ export class TradingEngine extends EventEmitter {
         side: focus.side, score: focus.score, oppositeScore: focus.oppositeScore,
         bookVotes: focus.votes.book, flowVotes: focus.votes.flow, kinematicVotes: focus.votes.kinematic,
         deltaMicroBps: focus.deltaMicroBps, sensorThresholdBps: focus.sensorThresholdBps,
+        kinematicsResetReason: runtime.latestFeatures?.kinematicsResetReason ?? null,
       });
       return;
     }
@@ -715,6 +731,7 @@ export class TradingEngine extends EventEmitter {
     if (tracked) this.emit("orderUpdate", { event, order: tracked });
     if (fill) this.applyFill(fill);
     if (tracked && !["RESERVED", "SENDING", "OPEN", "PARTIALLY_FILLED", "CANCEL_PENDING", "UNKNOWN"].includes(tracked.status)) {
+      this.pendingKinematicsFaults.delete(tracked.plan.clientOrderId);
       const runtime = this.runtimes.get(tracked.plan.symbol);
       if (runtime?.pendingEntryIntent?.decisionId === tracked.plan.decisionId) delete runtime.pendingEntryIntent;
     }
@@ -777,6 +794,58 @@ export class TradingEngine extends EventEmitter {
       remainingQty: Math.max(pending.plan.qty - pending.filledQty, 0),
       roundTripCostBps: cost?.roundTripBps ?? null,
     });
+  }
+
+  private async handlePendingKinematicsUnavailable(runtime: SymbolRuntime, pending: TrackedOrder,
+    features: DeterministicFeatures): Promise<void> {
+    const clientOrderId = pending.plan.clientOrderId;
+    const nowMs = this.now();
+    const family = pending.plan.entryFamily ?? (runtime.pendingEntryIntent?.decisionId === pending.plan.decisionId
+      ? runtime.pendingEntryIntent.diagnostics.family : undefined);
+    const resetReason = features.kinematicsResetReason ?? null;
+    if (nowMs >= pending.plan.expiresMs) {
+      this.pendingKinematicsFaults.delete(clientOrderId);
+      await this.cancelTracked(pending, "TTL_EXPIRED", {
+        nowMs, expiresMs: pending.plan.expiresMs, family: family ?? null,
+        kinematicsReady: false, kinematicsResetReason: resetReason,
+      });
+      return;
+    }
+    if (family !== "PULLBACK_RECOVERY") {
+      this.pendingKinematicsFaults.delete(clientOrderId);
+      await this.cancelTracked(pending, "KINEMATICS_UNAVAILABLE", {
+        nowMs, expiresMs: pending.plan.expiresMs, family: family ?? null,
+        kinematicsReady: false, kinematicsResetReason: resetReason,
+      });
+      return;
+    }
+    const previous = this.pendingKinematicsFaults.get(clientOrderId);
+    const fault: PendingKinematicsFault = {
+      firstAtMs: previous?.firstAtMs ?? nowMs,
+      lastAtMs: nowMs,
+      consecutiveEvents: (previous?.consecutiveEvents ?? 0) + 1,
+      resetReason,
+    };
+    this.pendingKinematicsFaults.set(clientOrderId, fault);
+    const graceElapsedMs = nowMs - fault.firstAtMs;
+    const graceComplete = graceElapsedMs >= runtime.config.planner.pullbackKinematicsGraceMs
+      && fault.consecutiveEvents >= runtime.config.planner.pullbackKinematicsGraceEvents;
+    const details = {
+      nowMs, expiresMs: pending.plan.expiresMs, family,
+      kinematicsReady: false, kinematicsResetReason: resetReason,
+      firstUnavailableAtMs: fault.firstAtMs, graceElapsedMs,
+      graceMs: runtime.config.planner.pullbackKinematicsGraceMs,
+      consecutiveEvents: fault.consecutiveEvents,
+      requiredConsecutiveEvents: runtime.config.planner.pullbackKinematicsGraceEvents,
+    };
+    if (graceComplete) {
+      this.pendingKinematicsFaults.delete(clientOrderId);
+      await this.cancelTracked(pending, "KINEMATICS_UNAVAILABLE", details);
+    } else {
+      this.emit("pendingKinematicsGrace", {
+        symbol: pending.plan.symbol, clientOrderId, reason: "KINEMATICS_UNAVAILABLE", details,
+      });
+    }
   }
 
   private managePosition(runtime: SymbolRuntime, book: ReturnType<LocalOrderBook["snapshot"]>, features: DeterministicFeatures): void {
@@ -948,6 +1017,7 @@ export class TradingEngine extends EventEmitter {
     return this.orderState.all().find((order) => order.plan.symbol === symbol && ["RESERVED", "SENDING", "OPEN", "PARTIALLY_FILLED", "CANCEL_PENDING", "UNKNOWN"].includes(order.status));
   }
   private async cancelTracked(tracked: TrackedOrder, reason: OrderCancelRequestReason, details: Record<string, unknown> = {}): Promise<void> {
+    this.pendingKinematicsFaults.delete(tracked.plan.clientOrderId);
     if (!tracked.alpacaOrderId) return;
     if (tracked.status === "CANCEL_PENDING") {
       await this.reconcilePendingCancellation(tracked);

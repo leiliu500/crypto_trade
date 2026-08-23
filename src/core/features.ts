@@ -1,4 +1,4 @@
-import type { BookFlow, BookState, Features, FeatureStaleReason, MarketTrade } from "./market.js";
+import type { BookFlow, BookState, Features, FeatureStaleReason, KinematicsResetReason, MarketTrade } from "./market.js";
 import { clamp } from "./market.js";
 import { DecayedSignedFlow, DecayedValue, RobustAgeGate, TimeEwma } from "./statistics.js";
 
@@ -46,7 +46,7 @@ export const DEFAULT_FEATURE_CONFIG: FeatureConfig = {
   maximumKinematicsGapMs: 5_000,
 };
 
-type KinematicsStatus = "READY" | "RESET" | "INVALID";
+type KinematicsStatus = "READY" | "RESET_EVENT_GAP" | "RESET_FILTER_BOUNDS" | "INVALID";
 
 class AlphaBetaGamma {
   private static readonly MINIMUM_DT_SECONDS = .001;
@@ -68,7 +68,7 @@ class AlphaBetaGamma {
       if (!Number.isFinite(this.x)) { this.reset(measurement, nowMs); return "INVALID"; }
       return "READY";
     }
-    if (elapsedMs > this.maximumGapMs) { this.reset(measurement, nowMs); return "RESET"; }
+    if (elapsedMs > this.maximumGapMs) { this.reset(measurement, nowMs); return "RESET_EVENT_GAP"; }
     const dt = Math.max(elapsedMs / 1000, AlphaBetaGamma.MINIMUM_DT_SECONDS);
     const predictedX = this.x + this.v * dt + .5 * this.a * dt * dt;
     const predictedV = this.v + this.a * dt;
@@ -81,7 +81,7 @@ class AlphaBetaGamma {
     const bounded = finite && Math.abs(this.v) <= AlphaBetaGamma.MAXIMUM_ABSOLUTE_VELOCITY
       && Math.abs(this.a) <= AlphaBetaGamma.MAXIMUM_ABSOLUTE_ACCELERATION;
     if (!finite) { this.reset(measurement, nowMs); return "INVALID"; }
-    if (!bounded) { this.reset(measurement, nowMs); return "RESET"; }
+    if (!bounded) { this.reset(measurement, nowMs); return "RESET_FILTER_BOUNDS"; }
     return "READY";
   }
   private reset(measurement: number, nowMs: number): void {
@@ -214,6 +214,8 @@ export class FeatureEngine {
     const logMicro = Math.log(microprice);
     const kinematicsStatus = this.trend.update(logMicro, book.receiveTsMs);
     const kinematicsReady = kinematicsStatus === "READY";
+    const kinematicsResetReason: KinematicsResetReason | null = kinematicsStatus === "RESET_EVENT_GAP" ? "EVENT_GAP"
+      : kinematicsStatus === "RESET_FILTER_BOUNDS" ? "FILTER_BOUNDS" : null;
     let cusumState = { up: false, down: false };
     if (this.previousLogMicro !== undefined && this.previousReceiveMs !== undefined) {
       const dtSec = Math.max((book.receiveTsMs - this.previousReceiveMs) / 1000, 1e-4);
@@ -271,7 +273,7 @@ export class FeatureEngine {
       velocity, acceleration, varianceRate, sigmaHBps,
       microEdgeZ: clamp(microEdgeZ, -8, 8), velocityZ: clamp(velocityZ, -8, 8), accelerationZ: clamp(accelerationZ, -8, 8),
       efficiency, cusumUp: cusumState.up, cusumDown: cusumState.down, spreadZ, depthZ, signalFlipRate,
-      providerAgeMs, staleThresholdMs: age.thresholdMs, warmedUp, kinematicsReady, stale, staleReason,
+      providerAgeMs, staleThresholdMs: age.thresholdMs, warmedUp, kinematicsReady, kinematicsResetReason, stale, staleReason,
       receiveTsMs: book.receiveTsMs,
     }, kinematicsStatus !== "INVALID");
   }
