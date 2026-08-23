@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
+import { runInNewContext } from "node:vm";
 import { OperationsMonitor } from "../src/dashboard/operations-monitor.js";
 import { DashboardServer } from "../src/dashboard/server.js";
 import type { EngineOperationalSnapshot } from "../src/engine/trading-engine.js";
@@ -152,6 +153,31 @@ test("dashboard distinguishes a motion reset from invalid market data", async ()
   assert.match(app, /motion evidence unavailable until the next valid update/);
 });
 
+test("dashboard uses adaptive price precision for micro-priced assets", async () => {
+  const app = await readFile("src/dashboard/public/app.js", "utf8");
+  const utilitySource = app.slice(0, app.indexOf("function setConnection"));
+  assert.equal(runInNewContext(`${utilitySource}\nJSON.stringify([priceDigits(76808),priceDigits(78.5),priceDigits(.22),priceDigits(.000004025)])`), "[2,4,4,8]");
+  const pepe = runInNewContext(`${utilitySource}\npriceMoney(.000004025)`) as string;
+  assert.match(pepe, /0\.00000403/);
+  assert.match(app, /priceMoney\(m\.mid\)/);
+  assert.doesNotMatch(app, /m\.mid>1000\?2:4/);
+});
+
+test("dashboard assets provide a phone-safe layout", async () => {
+  const [html, styles, app] = await Promise.all([
+    readFile("src/dashboard/public/index.html", "utf8"),
+    readFile("src/dashboard/public/styles.css", "utf8"),
+    readFile("src/dashboard/public/app.js", "utf8"),
+  ]);
+  assert.match(html, /viewport-fit=cover/);
+  assert.match(html, /name="theme-color"/);
+  assert.match(styles, /@media\(max-width:600px\)/);
+  assert.match(styles, /safe-area-inset-left/);
+  assert.match(styles, /\.event-table thead\{display:none\}/);
+  assert.match(styles, /\.orders-grid\{grid-template-columns:minmax\(0,1fr\)\}/);
+  assert.match(app, /data-label="Context"/);
+});
+
 test("operations monitor exposes structured cancellation reasons in order cards and timelines", () => {
   const monitor = new OperationsMonitor();
   const state = engineState();
@@ -222,13 +248,22 @@ test("hydrated database orders retain their full card details after an engine re
   afterReboot.stop();
 });
 
-test("dashboard server serves the read-only API, health probe, and local UI", async () => {
+test("dashboard server serves the read-only API, health probe, and browser routes", async () => {
   const monitor = new OperationsMonitor();
   monitor.ingestEngineSnapshot(engineState());
   const server = new DashboardServer(monitor, { host: "127.0.0.1", port: 0 });
   const url = await server.start();
   try {
-    const [api, health, html, app] = await Promise.all([fetch(`${url}/api/dashboard`), fetch(`${url}/healthz`), fetch(url), fetch(`${url}/app.js`)]);
+    const [api, health, html, dashboardAlias, browserRoute, app, missingApi, missingAsset] = await Promise.all([
+      fetch(`${url}/api/dashboard`),
+      fetch(`${url}/healthz`),
+      fetch(url),
+      fetch(`${url}/dashboard`),
+      fetch(`${url}/phone`, { headers: { accept: "text/html" } }),
+      fetch(`${url}/app.js`),
+      fetch(`${url}/api/missing`, { headers: { accept: "text/html" } }),
+      fetch(`${url}/missing.js`, { headers: { accept: "text/html" } }),
+    ]);
     assert.equal(api.status, 200);
     assert.equal((await api.json() as { orders: unknown[] }).orders.length, 1);
     assert.equal(health.status, 200);
@@ -236,6 +271,12 @@ test("dashboard server serves the read-only API, health probe, and local UI", as
     assert.match(htmlText, /data-testid="dashboard-root"/);
     assert.match(htmlText, /Orders and live P&amp;L/);
     assert.doesNotMatch(htmlText, /Exit dynamics/);
+    assert.equal(dashboardAlias.status, 200);
+    assert.match(await dashboardAlias.text(), /data-testid="dashboard-root"/);
+    assert.equal(browserRoute.status, 200);
+    assert.match(await browserRoute.text(), /data-testid="dashboard-root"/);
+    assert.equal(missingApi.status, 404);
+    assert.equal(missingAsset.status, 404);
     const appText = await app.text();
     assert.match(appText, /Realized trade P&amp;L/);
     assert.match(appText, /All P&amp;L changes/);

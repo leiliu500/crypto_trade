@@ -95,7 +95,10 @@ export class DashboardServer {
       return;
     }
     if (url.pathname === "/api/dashboard") { this.json(response, 200, this.monitor.snapshot()); return; }
-    const file = url.pathname === "/" ? "index.html" : url.pathname === "/app.js" ? "app.js" : url.pathname === "/styles.css" ? "styles.css" : null;
+    const dashboardPaths = new Set(["/", "/index.html", "/dashboard", "/dashboard/"]);
+    const acceptsHtml = (request.headers.accept ?? "").includes("text/html");
+    const isBrowserNavigation = acceptsHtml && !url.pathname.startsWith("/api/") && !url.pathname.split("/").at(-1)?.includes(".");
+    const file = dashboardPaths.has(url.pathname) || isBrowserNavigation ? "index.html" : url.pathname === "/app.js" ? "app.js" : url.pathname === "/styles.css" ? "styles.css" : null;
     if (!file) { this.json(response, 404, { error: "not_found" }); return; }
     const path = join(publicDirectory, file);
     try { await access(path); }
