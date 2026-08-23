@@ -118,11 +118,13 @@ npm run build
 npm test
 ```
 
-The default deterministic configuration in `config/base.json` is:
+The default USD market universe is `BTC`, `ETH`, `LINK`, `SOL`, `XRP`, `DOGE`, `ADA`, `LTC`, `AVAX`, `HYPE`, and `PEPE`. Each pair must pass the same causal feature, liquidity, cost, risk, and maker-fill gates; expanding the universe does not relax entry economics.
+
+The default deterministic configuration in `config/base.json` includes:
 
 ```text
 SIGNAL_MODE=DETERMINISTIC_ONLY
-DETERMINISTIC_CONFIG_VERSION=pullback-execution-v4.1.0
+DETERMINISTIC_CONFIG_VERSION=expanded-universe-v4.2.0
 PULLBACK_MAKER_TTL_MS=20000
 PULLBACK_KINEMATICS_GRACE_MS=5000
 PULLBACK_KINEMATICS_GRACE_EVENTS=2
