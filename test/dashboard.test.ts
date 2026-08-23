@@ -178,6 +178,20 @@ test("dashboard assets provide a phone-safe layout", async () => {
   assert.match(app, /data-label="Context"/);
 });
 
+test("dashboard order filters remain strict when filled orders retain P&L", async () => {
+  const app = await readFile("src/dashboard/public/app.js", "utf8");
+  const utilitySource = app.slice(0, app.indexOf("function setConnection"));
+  const matches = runInNewContext(`${utilitySource}\nJSON.stringify({
+    openWorking: orderMatchesFilter({terminal:false,livePosition:{active:true}}, "open"),
+    openFilled: orderMatchesFilter({terminal:true,livePosition:{active:true}}, "open"),
+    terminalWorking: orderMatchesFilter({terminal:false,livePosition:{active:true}}, "terminal"),
+    terminalFilled: orderMatchesFilter({terminal:true,livePosition:{active:true}}, "terminal"),
+    allFilled: orderMatchesFilter({terminal:true,livePosition:{active:true}}, "all")
+  })`) as string;
+  assert.equal(matches, '{"openWorking":true,"openFilled":false,"terminalWorking":false,"terminalFilled":true,"allFilled":true}');
+  assert.doesNotMatch(app, /order\.livePosition\|\|state\.orderFilter/);
+});
+
 test("operations monitor exposes structured cancellation reasons in order cards and timelines", () => {
   const monitor = new OperationsMonitor();
   const state = engineState();
@@ -280,7 +294,7 @@ test("dashboard server serves the read-only API, health probe, and browser route
     const appText = await app.text();
     assert.match(appText, /Realized trade P&amp;L/);
     assert.match(appText, /All P&amp;L changes/);
-    assert.match(appText, /order\.livePosition\|\|state\.orderFilter/);
+    assert.match(appText, /orderMatchesFilter\(order,state\.orderFilter\)/);
     assert.match(appText, /o\.statusLabel/);
     assert.match(appText, /o\.cancelRequestReason/);
     assert.doesNotMatch(appText, /slice\(-8\)/);

@@ -5,6 +5,7 @@ const num=(value,digits=2)=>value==null||!Number.isFinite(Number(value))?"—":N
 const money=(value,digits=2)=>value==null||!Number.isFinite(Number(value))?"—":Number(value).toLocaleString(undefined,{style:"currency",currency:"USD",minimumFractionDigits:digits,maximumFractionDigits:digits});
 const priceDigits=(value)=>{const absolute=Math.abs(Number(value));if(!Number.isFinite(absolute)||absolute===0)return 4;if(absolute>=1000)return 2;if(absolute>=1)return 4;return Math.min(10,Math.max(4,Math.ceil(-Math.log10(absolute))+2));};
 const priceMoney=(value)=>money(value,priceDigits(value));
+const orderMatchesFilter=(order,filter)=>filter==="all"||(filter==="open"?!order.terminal:filter==="terminal"&&order.terminal);
 const signed=(value,suffix="")=>value==null?"—":`${value>=0?"+":""}${num(value,2)}${suffix}`;
 const duration=(ms)=>{const s=Math.max(0,Math.floor(ms/1000));const h=Math.floor(s/3600),m=Math.floor(s%3600/60);return h?`${h}h ${m}m`:m?`${m}m ${s%60}s`:`${s}s`};
 const time=(ms)=>new Date(ms).toLocaleTimeString([],{hour12:false,hour:"2-digit",minute:"2-digit",second:"2-digit"});
@@ -75,7 +76,7 @@ function renderLivePnl(position){
   return `<section class="order-live-pnl ${position.active?"active":"closed"}" data-testid="order-live-pnl" aria-live="polite"><div class="live-pnl-head"><div><span>${title}</span><strong class="${pnlClass(totalPnl)}">${signedMoney(totalPnl)}</strong></div><div><span class="pnl-position-state">${stateLabel}</span><strong class="${pnlClass(totalPnlBps)}">${signed(totalPnlBps," bp")}</strong></div></div><div class="live-pnl-meta"><span>Entry ${priceMoney(position.entryPx)}</span><span>${priceLabel} ${priceMoney(displayPx)}</span><span>${ageLabel} ${duration(position.ageMs)}</span></div><div class="pnl-history"><div class="pnl-history-title"><span>All P&amp;L changes</span><span>mark / total / change</span></div>${history||"<div class='pnl-history-empty'>Waiting for the next price change…</div>"}</div><div class="live-pnl-action"><b>${esc(position.latestAction)}</b><span title="${esc(context)}">${esc(context)}</span></div></section>`;
 }
 function renderOrders(items){
-  items=items.filter(order=>order.livePosition||state.orderFilter==="all"||(state.orderFilter==="open"?!order.terminal:order.terminal));
+  items=items.filter(order=>orderMatchesFilter(order,state.orderFilter));
   const grid=el("orders-grid");
   if(!items.length){grid.className="orders-grid empty-grid";grid.innerHTML="<p>No orders match this view.</p>";return;}
   grid.className="orders-grid";
