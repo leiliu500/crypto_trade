@@ -37,8 +37,15 @@ test("JSON baseline wins over legacy tunable environment values and symbol overl
     writeFileSync(join(directory, "sol_usd.json"), JSON.stringify({ schemaVersion: 1, symbol: "SOL/USD", parameters: {} }));
     writeFileSync(join(directory, "xrp_usd.json"), JSON.stringify({ schemaVersion: 1, symbol: "XRP/USD", parameters: {} }));
     writeFileSync(join(directory, "doge_usd.json"), JSON.stringify({ schemaVersion: 1, symbol: "DOGE/USD", parameters: {} }));
+    writeFileSync(join(directory, "ada_usd.json"), JSON.stringify({ schemaVersion: 1, symbol: "ADA/USD", parameters: {} }));
+    writeFileSync(join(directory, "ltc_usd.json"), JSON.stringify({ schemaVersion: 1, symbol: "LTC/USD", parameters: {} }));
+    writeFileSync(join(directory, "avax_usd.json"), JSON.stringify({ schemaVersion: 1, symbol: "AVAX/USD", parameters: {} }));
+    writeFileSync(join(directory, "hype_usd.json"), JSON.stringify({ schemaVersion: 1, symbol: "HYPE/USD", parameters: {} }));
+    writeFileSync(join(directory, "pepe_usd.json"), JSON.stringify({ schemaVersion: 1, symbol: "PEPE/USD", parameters: {} }));
 
     const cfg = loadConfig({ TRADING_MODE: "replay", CONFIG_DIR: directory, RULE_SCORE_ENTER: "9" });
+    assert.deepEqual(cfg.symbols, ["BTC/USD", "ETH/USD", "LINK/USD", "SOL/USD", "XRP/USD", "DOGE/USD",
+      "ADA/USD", "LTC/USD", "AVAX/USD", "HYPE/USD", "PEPE/USD"]);
     assert.equal(cfg.deterministicSignal.scoreEnter, 0.3);
     assert.equal(cfg.symbolConfigs["BTC/USD"]?.deterministicSignal.scoreEnter, 0.9);
     assert.equal(cfg.symbolConfigs["BTC/USD"]?.maximumNotional, 250);
@@ -47,6 +54,11 @@ test("JSON baseline wins over legacy tunable environment values and symbol overl
     assert.equal(cfg.symbolConfigs["SOL/USD"]?.deterministicSignal.scoreEnter, 0.3);
     assert.equal(cfg.symbolConfigs["XRP/USD"]?.deterministicSignal.scoreEnter, 0.3);
     assert.equal(cfg.symbolConfigs["DOGE/USD"]?.deterministicSignal.scoreEnter, 0.3);
+    assert.equal(cfg.symbolConfigs["ADA/USD"]?.deterministicSignal.scoreEnter, 0.3);
+    assert.equal(cfg.symbolConfigs["LTC/USD"]?.deterministicSignal.scoreEnter, 0.3);
+    assert.equal(cfg.symbolConfigs["AVAX/USD"]?.deterministicSignal.scoreEnter, 0.3);
+    assert.equal(cfg.symbolConfigs["HYPE/USD"]?.deterministicSignal.scoreEnter, 0.3);
+    assert.equal(cfg.symbolConfigs["PEPE/USD"]?.deterministicSignal.scoreEnter, 0.3);
     assert.equal(cfg.feature.maximumProviderFutureSkewMs, 250);
     assert.equal(cfg.feature.maximumKinematicsGapMs, 5_000);
     assert.equal(cfg.symbolConfigs["BTC/USD"]?.feature.maximumProviderFutureSkewMs, 250);
@@ -58,7 +70,7 @@ test("JSON baseline wins over legacy tunable environment values and symbol overl
     assert.equal(cfg.position.maximumHoldMs, 14_400_000);
     assert.deepEqual(cfg.deterministicSignal.analyticHorizons.map((item) => item.horizonMs), [3_600_000, 7_200_000, 14_400_000]);
     assert.equal(cfg.deterministicSignal.requireMakerEntry, true);
-    assert.equal(cfg.configurationVersion, "pullback-execution-v4.1.0");
+    assert.equal(cfg.configurationVersion, "expanded-universe-v4.2.0");
     assert.equal(cfg.planner.pullbackMakerTtlMs, 20_000);
     assert.equal(cfg.planner.pullbackKinematicsGraceMs, 5_000);
     assert.equal(cfg.planner.pullbackKinematicsGraceEvents, 2);
@@ -87,7 +99,8 @@ test("legacy calibrated buckets are scoped to continuation and cannot authorize 
     const base = JSON.parse(readFileSync("config/base.json", "utf8")) as { parameters: Record<string, unknown> };
     base.parameters.RULE_CALIBRATED_EDGE_TABLE_JSON = JSON.stringify([bucket]);
     writeFileSync(join(directory, "base.json"), JSON.stringify(base));
-    for (const stem of ["btc_usd", "eth_usd", "link_usd", "sol_usd", "xrp_usd", "doge_usd"]) {
+    for (const stem of ["btc_usd", "eth_usd", "link_usd", "sol_usd", "xrp_usd", "doge_usd",
+      "ada_usd", "ltc_usd", "avax_usd", "hype_usd", "pepe_usd"]) {
       writeFileSync(join(directory, `${stem}.json`), readFileSync(`config/${stem}.json`, "utf8"));
     }
     const cfg = loadConfig({ TRADING_MODE: "replay", CONFIG_DIR: directory });
@@ -107,6 +120,11 @@ test("symbol files cannot override global or runtime-only parameters", () => {
     writeFileSync(join(directory, "sol_usd.json"), JSON.stringify({ schemaVersion: 1, symbol: "SOL/USD", parameters: {} }));
     writeFileSync(join(directory, "xrp_usd.json"), JSON.stringify({ schemaVersion: 1, symbol: "XRP/USD", parameters: {} }));
     writeFileSync(join(directory, "doge_usd.json"), JSON.stringify({ schemaVersion: 1, symbol: "DOGE/USD", parameters: {} }));
+    writeFileSync(join(directory, "ada_usd.json"), JSON.stringify({ schemaVersion: 1, symbol: "ADA/USD", parameters: {} }));
+    writeFileSync(join(directory, "ltc_usd.json"), JSON.stringify({ schemaVersion: 1, symbol: "LTC/USD", parameters: {} }));
+    writeFileSync(join(directory, "avax_usd.json"), JSON.stringify({ schemaVersion: 1, symbol: "AVAX/USD", parameters: {} }));
+    writeFileSync(join(directory, "hype_usd.json"), JSON.stringify({ schemaVersion: 1, symbol: "HYPE/USD", parameters: {} }));
+    writeFileSync(join(directory, "pepe_usd.json"), JSON.stringify({ schemaVersion: 1, symbol: "PEPE/USD", parameters: {} }));
     assert.throws(() => loadConfig({ TRADING_MODE: "replay", CONFIG_DIR: directory }), /DASHBOARD_PORT is global/);
   } finally { rmSync(directory, { recursive: true, force: true }); }
 });

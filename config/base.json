@@ -6,11 +6,16 @@
     "LINK/USD",
     "SOL/USD",
     "XRP/USD",
-    "DOGE/USD"
+    "DOGE/USD",
+    "ADA/USD",
+    "LTC/USD",
+    "AVAX/USD",
+    "HYPE/USD",
+    "PEPE/USD"
   ],
   "parameters": {
     "SIGNAL_MODE": "DETERMINISTIC_ONLY",
-    "DETERMINISTIC_CONFIG_VERSION": "pullback-execution-v4.1.0",
+    "DETERMINISTIC_CONFIG_VERSION": "expanded-universe-v4.2.0",
     "STRATEGY_VERSION": "1.0.0",
     "MAXIMUM_NOTIONAL": 1000,
     "MAXIMUM_GROSS_NOTIONAL": 5000,
