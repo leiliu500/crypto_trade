@@ -2,7 +2,7 @@ import type { CostEstimate } from "../strategy/cost.js";
 import type { EntryPipelineSnapshot } from "../engine/entry-pipeline-audit.js";
 import type { FeatureStaleReason, KinematicsResetReason } from "../core/market.js";
 import type { OrderCancellationReason, OrderCancelRequestReason } from "../execution/order-state.js";
-import type { EntryFamily } from "../economics/types.js";
+import type { EntryFamily, ExecutionPath } from "../economics/types.js";
 
 export type HealthTone = "healthy" | "degraded" | "critical";
 export type EventSeverity = "info" | "warning" | "critical";
@@ -75,12 +75,17 @@ export interface DashboardLivePosition {
 
 export interface DashboardOrderCard {
   clientOrderId: string;
+  decisionId?: string | null;
   alpacaOrderId: string | null;
   historical: boolean;
   symbol: string;
   side: 1 | -1;
   style: string;
   entryFamily?: EntryFamily | null;
+  economicHorizonMs?: number | null;
+  executionPath?: ExecutionPath | null;
+  exitReason?: string | null;
+  fallbackFromClientOrderId?: string | null;
   timeInForce: string;
   status: string;
   statusLabel: string;

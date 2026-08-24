@@ -78,7 +78,12 @@ export class OrderStateReconciler {
     const previousFilled = order.filledQty;
     order.filledQty = Math.max(order.filledQty, event.filledQty);
     if (event.eventPx > 0 && order.filledQty > 0) order.averageFillPx = event.eventPx;
-    order.status = this.mapStatus(event.event, order.filledQty, order.plan.qty);
+    // A cancel/replace rejection describes the attempted mutation, not the
+    // underlying order. Preserve the last authoritative order state until the
+    // fill stream or REST reconciliation supplies a newer one.
+    if (!["order_cancel_rejected", "order_replace_rejected"].includes(event.event)) {
+      order.status = this.mapStatus(event.event, order.filledQty, order.plan.qty);
+    }
     if (order.status === "CANCELED") order.cancellationReason = this.classifyCancellation(order, "VENUE_CANCELED");
     const deltaQty = event.eventQty > 0 ? event.eventQty : Math.max(0, order.filledQty - previousFilled);
     if (deltaQty <= 0 || !["partial_fill", "fill"].includes(event.event)) return null;

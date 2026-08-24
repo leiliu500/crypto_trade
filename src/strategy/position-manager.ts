@@ -27,8 +27,10 @@ export interface PositionConfig {
   minimumProgressR: number;
   minimumHoldMs: number;
   maximumHoldMs: number;
+  reentryCooldownMs: number;
   makerExitTtlMs: number;
   evidenceConfirmationMs: number;
+  profitActivationCostMultiple: number;
   lockMin: number;
   lockMax: number;
   lockMaturityRate: number;
@@ -65,7 +67,10 @@ export class PositionManager {
       if (holdLowerBoundBps <= 0) { p.phase = "EXITING"; return { action: "EXIT", reason: "RECOVERY_NO_EDGE" }; }
       p.breakEvenArmed = true;
     }
-    const protectedTrade = p.mfePx >= this.cfg.trailActivationR * risk;
+    const costBasedActivation = p.roundTripCostPx > 0
+      ? this.cfg.profitActivationCostMultiple * p.roundTripCostPx : Number.POSITIVE_INFINITY;
+    const protectionActivationPx = Math.min(this.cfg.trailActivationR * risk, costBasedActivation);
+    const protectedTrade = p.mfePx >= protectionActivationPx;
     let candidateFloor = -risk;
     if (p.breakEvenArmed) candidateFloor = Math.max(candidateFloor, p.roundTripCostPx);
     if (protectedTrade) {

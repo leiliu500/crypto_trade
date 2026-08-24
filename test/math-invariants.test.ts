@@ -51,7 +51,7 @@ test("incremental hold cost excludes unavoidable round-trip execution charges", 
 });
 
 test("profit floor never loosens and recovery arms break-even", () => {
-  const manager = new PositionManager({ recoveryArmR: .5, trailActivationR: .5, minimumProgressR: .2, minimumHoldMs: 0, maximumHoldMs: 10_000, makerExitTtlMs: 30_000, evidenceConfirmationMs: 100,
+  const manager = new PositionManager({ recoveryArmR: .5, trailActivationR: .5, minimumProgressR: .2, minimumHoldMs: 0, maximumHoldMs: 10_000, reentryCooldownMs: 0, makerExitTtlMs: 30_000, evidenceConfirmationMs: 100, profitActivationCostMultiple: 1.25,
     lockMin: .2, lockMax: .8, lockMaturityRate: 1, lockReversalWeight: .3, lockTrendDiscount: .1,
     baseVolatilityMultiple: 2, trendVolatilityBonus: 1, reversalVolatilityPenalty: 1, minimumVolatilityMultiple: .5, maximumVolatilityMultiple: 4,
     partialExitThreshold: .9, maximumPartialExitFraction: .5, minimumPartialExitBenefitBps: 1 });
@@ -67,7 +67,7 @@ test("profit floor never loosens and recovery arms break-even", () => {
 
 test("a selected economic horizon bounds the position time stop", () => {
   const manager = new PositionManager({ recoveryArmR: .5, trailActivationR: .5, minimumProgressR: .2,
-    minimumHoldMs: 0, maximumHoldMs: 10_000, makerExitTtlMs: 30_000, evidenceConfirmationMs: 100,
+    minimumHoldMs: 0, maximumHoldMs: 10_000, reentryCooldownMs: 0, makerExitTtlMs: 30_000, evidenceConfirmationMs: 100, profitActivationCostMultiple: 1.25,
     lockMin: .2, lockMax: .8, lockMaturityRate: 1, lockReversalWeight: .3, lockTrendDiscount: .1,
     baseVolatilityMultiple: 2, trendVolatilityBonus: 1, reversalVolatilityPenalty: 1,
     minimumVolatilityMultiple: .5, maximumVolatilityMultiple: 4,
@@ -77,6 +77,23 @@ test("a selected economic horizon bounds the position time stop", () => {
     breakEvenArmed: false, phase: "OPEN", selectedHorizonMs: 100 };
   const decision = manager.update(position, 100, 101, features({ sigmaHBps: 1 }), 1, 0);
   assert.deepEqual(decision, { action: "EXIT", reason: "TIME_STOP" });
+});
+
+test("modeled trading costs arm profit protection before a wide volatility stop", () => {
+  const manager = new PositionManager({ recoveryArmR: .5, trailActivationR: .75, minimumProgressR: .2,
+    minimumHoldMs: 0, maximumHoldMs: 10_000, reentryCooldownMs: 0, makerExitTtlMs: 30_000,
+    evidenceConfirmationMs: 100, profitActivationCostMultiple: 1.25,
+    lockMin: .2, lockMax: .8, lockMaturityRate: 1, lockReversalWeight: .3, lockTrendDiscount: .1,
+    baseVolatilityMultiple: 2, trendVolatilityBonus: 1, reversalVolatilityPenalty: 1,
+    minimumVolatilityMultiple: .5, maximumVolatilityMultiple: 4,
+    partialExitThreshold: .9, maximumPartialExitFraction: .5, minimumPartialExitBenefitBps: 1 });
+  const position: Position = { symbol: "BTC/USD", side: 1, qty: 1, entryPx: 100, openedMs: 0,
+    initialRiskPx: 10, roundTripCostPx: 1, mfePx: 0, maePx: 0, floorPx: -10,
+    breakEvenArmed: false, phase: "OPEN" };
+
+  manager.update(position, 101.3, 100, features({ sigmaHBps: 1 }), 1, .1);
+
+  assert.ok(position.floorPx >= position.roundTripCostPx);
 });
 
 test("halt resume clears operational failures only after reconciliation, never drawdown", () => {

@@ -307,12 +307,17 @@ export class OperationsMonitor extends EventEmitter {
       const livePosition = this.orderPositionPnl.get(order.plan.clientOrderId) ?? null;
       return {
         clientOrderId: order.plan.clientOrderId,
+        decisionId: order.plan.decisionId,
         alpacaOrderId: order.alpacaOrderId ?? null,
         historical: false,
         symbol: order.plan.symbol,
         side: order.plan.side,
         style: order.plan.style,
         entryFamily: order.plan.entryFamily ?? null,
+        economicHorizonMs: order.plan.economicHorizonMs ?? null,
+        executionPath: order.plan.executionPath ?? null,
+        exitReason: order.plan.exitReason ?? null,
+        fallbackFromClientOrderId: order.plan.fallbackFromClientOrderId ?? null,
         timeInForce: order.plan.timeInForce,
         status: order.status,
         statusLabel: orderStatusLabel(order.status, cancellationReason),
@@ -441,8 +446,13 @@ export class OperationsMonitor extends EventEmitter {
     if (source.exitOrderId === exit.clientOrderId && source.realizedPnl !== null) return cloneLivePosition(source);
     const closeQty = exit.filledQty;
     const closePx = exit.averageFillPx;
-    const realizedPnl = entry.side * closeQty * (closePx - source.entryPx);
-    const realizedPnlBps = entry.side * (closePx / source.entryPx - 1) * 10_000;
+    const positionFraction = source.qty > 0 ? Math.min(1, closeQty / source.qty) : 1;
+    const grossEntryQty = entry.filledQty * positionFraction;
+    const entryNotional = grossEntryQty * source.entryPx;
+    const entryFee = entryNotional * legFeeBps(entry) / 10_000;
+    const exitFee = closeQty * closePx * legFeeBps(exit) / 10_000;
+    const realizedPnl = entry.side * closeQty * (closePx - source.entryPx) - entryFee - exitFee;
+    const realizedPnlBps = entryNotional > 0 ? realizedPnl / entryNotional * 10_000 : 0;
     const history = source.pnlHistory.map((point) => ({ ...point }));
     if (!source.active && source.qty <= quantityTolerance(closeQty) && history.at(-1)?.kind !== "close") history.pop();
     const previous = history.at(-1);
@@ -576,6 +586,9 @@ function sortOrders(orders: DashboardOrderCard[]): DashboardOrderCard[] {
 }
 function cloneLivePosition(position: DashboardLivePosition): DashboardLivePosition {
   return { ...position, pnlHistory: position.pnlHistory.map((point) => ({ ...point })) };
+}
+function legFeeBps(order: DashboardOrderCard): number {
+  return Number.isFinite(order.expectedCost.feeBps) ? Math.max(0, order.expectedCost.feeBps / 2) : 0;
 }
 function quantityTolerance(qty: number): number { return Math.max(1e-8, Math.abs(qty) * 1e-6); }
 function statusLabel(status: string): string { return status.toLowerCase().replaceAll("_", " ").replace(/^./, (value) => value.toUpperCase()); }

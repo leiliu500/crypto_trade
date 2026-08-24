@@ -95,6 +95,7 @@ interface SymbolRuntime {
   latestRuleEvaluation?: DeterministicEvaluation;
   /** Exact accepted intent retained only while its maker entry is pending. */
   pendingEntryIntent?: DeterministicTradeIntent;
+  reentryBlockedUntilMs?: number;
   latestLiquidity?: { long: LiquidityDecision; short: LiquidityDecision };
   position?: Position;
   cluster: string;
@@ -507,7 +508,15 @@ export class TradingEngine extends EventEmitter {
 
     // Observe liquidity first, then preserve order/exposure lifecycle priority over new entries.
     if (runtime.position && runtime.position.qty > 0) {
-      if (!features.kinematicsReady) return;
+      const pending = this.pendingForSymbol(book.symbol);
+      if (pending) {
+        void this.handlePendingWithPosition(runtime, pending, book, features);
+        return;
+      }
+      if (!features.kinematicsReady) {
+        void this.enforceProtectiveExitWithoutKinematics(runtime, book, features);
+        return;
+      }
       this.managePosition(runtime, book, features);
       return;
     }
@@ -518,6 +527,12 @@ export class TradingEngine extends EventEmitter {
         this.pendingKinematicsFaults.delete(pending.plan.clientOrderId);
         this.reevaluatePending(runtime, pending, book, features);
       }
+      return;
+    }
+    if (features.receiveTsMs < (runtime.reentryBlockedUntilMs ?? 0)) {
+      this.rejectEntry(runtime, "COOLDOWN_PASS", "POST_EXIT_COOLDOWN", features.receiveTsMs, {
+        remainingMs: (runtime.reentryBlockedUntilMs ?? features.receiveTsMs) - features.receiveTsMs,
+      });
       return;
     }
 
@@ -852,15 +867,7 @@ export class TradingEngine extends EventEmitter {
     const position = runtime.position!;
     const pending = this.pendingForSymbol(position.symbol);
     if (pending) {
-      if (pending.plan.side === 1) void this.cancelTracked(pending, "POSITION_ALREADY_OPEN");
-      else if (pending.plan.reduceOnlyIntent && pending.plan.style === "maker") {
-        const executableExit = book.bids[0]!.px;
-        const signedMovePx = position.side * (executableExit - position.entryPx);
-        const riskFloorBreached = signedMovePx <= Math.max(position.floorPx, -position.initialRiskPx);
-        if (this.now() >= pending.plan.expiresMs || riskFloorBreached) {
-          void this.fallbackMakerExit(runtime, pending, riskFloorBreached ? "RISK_FLOOR_BREACHED" : "TTL_EXPIRED");
-        }
-      }
+      void this.handlePendingWithPosition(runtime, pending, book, features);
       return;
     }
     const regime = runtime.regimeEngine.classify(features);
@@ -877,10 +884,42 @@ export class TradingEngine extends EventEmitter {
     const decision = runtime.positionManager.update(position, executableExit, nowMs, features, hold.holdLowerBoundBps, hold.reversalScore, Math.max(0, -hold.holdLowerBoundBps));
     this.emit("positionDecision", { configurationVersion: runtime.config.configurationVersion, position: { ...position }, decision, hold, regime });
     if (decision.action === "EXIT") void this.submitExit(runtime, position.qty, decision.reason, book, features);
-    else if (hold.exitEvidence && nowMs - position.openedMs >= runtime.config.position.minimumHoldMs) {
-      void this.submitExit(runtime, position.qty, "DETERMINISTIC_HOLD_EVIDENCE", book, features);
-    }
     else if (decision.action === "REDUCE") void this.submitExit(runtime, position.qty * decision.fraction, decision.reason, book, features);
+  }
+
+  private async handlePendingWithPosition(runtime: SymbolRuntime, pending: TrackedOrder,
+    book: ReturnType<LocalOrderBook["snapshot"]>, features: DeterministicFeatures): Promise<void> {
+    const position = runtime.position;
+    if (!position) return;
+    const nowMs = this.now();
+    if (pending.plan.side === 1) {
+      const reason: OrderCancelRequestReason = nowMs >= pending.plan.expiresMs ? "TTL_EXPIRED" : "POSITION_ALREADY_OPEN";
+      await this.cancelTracked(pending, reason, {
+        nowMs, expiresMs: pending.plan.expiresMs, kinematicsReady: features.kinematicsReady,
+        filledQty: pending.filledQty, remainingQty: Math.max(0, pending.plan.qty - pending.filledQty),
+      });
+      return;
+    }
+    if (!pending.plan.reduceOnlyIntent || pending.plan.style !== "maker") return;
+    const executableExit = book.bids[0]!.px;
+    const signedMovePx = position.side * (executableExit - position.entryPx);
+    const riskFloorBreached = signedMovePx <= Math.max(position.floorPx, -position.initialRiskPx);
+    if (nowMs >= pending.plan.expiresMs || riskFloorBreached) {
+      await this.fallbackMakerExit(runtime, pending, riskFloorBreached ? "RISK_FLOOR_BREACHED" : "TTL_EXPIRED");
+    }
+  }
+
+  private async enforceProtectiveExitWithoutKinematics(runtime: SymbolRuntime,
+    book: ReturnType<LocalOrderBook["snapshot"]>, features: DeterministicFeatures): Promise<void> {
+    const position = runtime.position;
+    if (!position) return;
+    const executableExit = book.bids[0]!.px;
+    const signedMovePx = position.side * (executableExit - position.entryPx);
+    const reason = signedMovePx <= -position.initialRiskPx ? "HARD_STOP"
+      : signedMovePx <= position.floorPx ? "PROFIT_FLOOR" : null;
+    if (!reason) return;
+    position.phase = "EXITING";
+    await this.submitExit(runtime, position.qty, reason, book, features);
   }
 
   private async submitExit(runtime: SymbolRuntime, desiredQty: number, reason: string, book: ReturnType<LocalOrderBook["snapshot"]>, features: Features,
@@ -941,8 +980,12 @@ export class TradingEngine extends EventEmitter {
     const runtime = this.runtimes.get(fill.symbol);
     if (!runtime) return;
     const tracked = this.orderState.get(fill.clientOrderId);
+    const feeBps = tracked?.plan.style === "maker" ? runtime.config.cost.makerFeeBps
+      : tracked ? runtime.config.cost.takerFeeBps : 0;
+    const executionFee = fill.qty * fill.price * feeBps / 10_000;
     runtime.entryAudit.pass(fill.final ? "FULL_FILL" : "PARTIAL_FILL");
     if (fill.side === 1) {
+      this.realizedSessionPnl -= executionFee;
       if (!runtime.position) {
         const positionQty = fill.positionQty !== undefined && fill.positionQty > 0 ? fill.positionQty : fill.qty;
         const initialRiskPx = tracked?.plan.risk.maximumLossPerUnit || Math.max(fill.price * .005, runtime.asset?.priceIncrement ?? 0);
@@ -961,12 +1004,13 @@ export class TradingEngine extends EventEmitter {
     } else if (runtime.position) {
       const remainingQty = fill.positionQty !== undefined ? Math.max(0, fill.positionQty) : Math.max(0, runtime.position.qty - fill.qty);
       const closeQty = Math.max(0, runtime.position.qty - remainingQty);
-      this.realizedSessionPnl += closeQty * (fill.price - runtime.position.entryPx);
+      this.realizedSessionPnl += closeQty * (fill.price - runtime.position.entryPx) - executionFee;
       runtime.position.qty = remainingQty;
       const minimumTradableQty = runtime.asset?.minOrderSize ?? runtime.asset?.minTradeIncrement ?? 1e-12;
       if (runtime.position.qty < minimumTradableQty) {
         if (runtime.position.qty > 0) this.reportPositionDust(fill.symbol, runtime.position.qty);
         else this.reportedPositionDust.delete(fill.symbol);
+        this.armReentryCooldown(runtime);
         delete runtime.position;
       }
     }
@@ -976,6 +1020,8 @@ export class TradingEngine extends EventEmitter {
   }
 
   private reconcilePositions(positions: readonly AlpacaPosition[]): void {
+    const previouslyOpen = new Set([...this.runtimes.entries()]
+      .filter(([, runtime]) => Boolean(runtime.position)).map(([symbol]) => symbol));
     const observedDustSymbols = new Set<string>();
     for (const runtime of this.runtimes.values()) delete runtime.position;
     for (const remote of positions) {
@@ -992,6 +1038,10 @@ export class TradingEngine extends EventEmitter {
       runtime.position = { symbol: runtime.book.symbol, side: 1, qty, entryPx, openedMs: this.now(), initialRiskPx: risk, roundTripCostPx: 0,
         mfePx: 0, maePx: 0, floorPx: -risk, breakEvenArmed: false, phase: "OPEN" };
     }
+    for (const symbol of previouslyOpen) {
+      const runtime = this.runtimes.get(symbol);
+      if (runtime && !runtime.position) this.armReentryCooldown(runtime);
+    }
     for (const symbol of this.reportedPositionDust.keys()) {
       if (!observedDustSymbols.has(symbol)) this.reportedPositionDust.delete(symbol);
     }
@@ -1001,6 +1051,11 @@ export class TradingEngine extends EventEmitter {
     if (this.reportedPositionDust.get(symbol) === qty) return;
     this.reportedPositionDust.set(symbol, qty);
     this.emit("positionDust", { symbol, qty, reason: "BELOW_MINIMUM_ORDER_SIZE" });
+  }
+
+  private armReentryCooldown(runtime: SymbolRuntime): void {
+    runtime.reentryBlockedUntilMs = Math.max(runtime.reentryBlockedUntilMs ?? 0,
+      this.now() + runtime.config.position.reentryCooldownMs);
   }
 
   private recomputePortfolioRisk(): void {
@@ -1039,6 +1094,10 @@ export class TradingEngine extends EventEmitter {
       await this.gateway.cancel(tracked.alpacaOrderId);
       await this.reconcilePendingCancellation(tracked, true);
     } catch (error) {
+      if (error instanceof AlpacaApiError && [404, 422].includes(error.status)) {
+        await this.reconcilePendingCancellation(tracked, true);
+        return;
+      }
       this.riskState.halt("ORDER_SEND_UNKNOWN");
       this.emit("engineError", error);
       await this.reconcileAccount();

@@ -106,16 +106,18 @@ test("filled reduce-only exit cards inherit complete history and actual realized
   monitor.ingestEngineSnapshot(closed);
 
   const snapshot = monitor.snapshot();
+  monitor.stop();
   const exitCard = snapshot.orders.find((order) => order.clientOrderId === "exit-1")!;
   const entryCard = snapshot.orders.find((order) => order.clientOrderId === "client-1")!;
   assert.equal(exitCard.livePosition?.active, false);
   assert.equal(exitCard.livePosition?.entryOrderId, "client-1");
   assert.equal(exitCard.livePosition?.exitOrderId, "exit-1");
   assert.equal(exitCard.livePosition?.closePx, 99);
-  assert.ok(Math.abs((exitCard.livePosition?.realizedPnl ?? 0) + .999999999) < 1e-12);
+  assert.ok(Math.abs((exitCard.livePosition?.realizedPnl ?? 0) + 1.00994999899505) < 1e-10,
+    `realized P&L was ${exitCard.livePosition?.realizedPnl}`);
   assert.equal(exitCard.livePosition?.pnlHistory.length, 3);
   assert.equal(exitCard.livePosition?.pnlHistory.at(-1)?.kind, "close");
-  assert.ok(Math.abs((exitCard.livePosition?.pnlHistory.at(-1)?.changePnl ?? 0) + 2.999999999) < 1e-12);
+  assert.ok(Math.abs((exitCard.livePosition?.pnlHistory.at(-1)?.changePnl ?? 0) + 3.00994999899505) < 1e-10);
   assert.deepEqual(entryCard.livePosition, exitCard.livePosition);
 
   const legacyEntry = structuredClone(entryCard);
@@ -140,11 +142,10 @@ test("filled reduce-only exit cards inherit complete history and actual realized
   const afterReboot = new OperationsMonitor();
   afterReboot.hydrateOrders([legacyExit, legacyEntry]);
   const repairedExit = afterReboot.snapshot().orders.find((order) => order.clientOrderId === "exit-1")!;
-  assert.ok(Math.abs((repairedExit.livePosition?.realizedPnl ?? 0) + .999999999) < 1e-12);
+  afterReboot.stop();
+  assert.ok(Math.abs((repairedExit.livePosition?.realizedPnl ?? 0) + 1.00994999899505) < 1e-10);
   assert.equal(repairedExit.livePosition?.pnlHistory.length, 3);
   assert.equal(repairedExit.livePosition?.pnlHistory.at(-1)?.kind, "close");
-  monitor.stop();
-  afterReboot.stop();
 });
 
 test("dashboard distinguishes a motion reset from invalid market data", async () => {

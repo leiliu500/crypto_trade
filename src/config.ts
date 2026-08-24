@@ -318,8 +318,10 @@ function defaultPositionConfig(env: NodeJS.ProcessEnv): PositionConfig {
   return { recoveryArmR: .5, trailActivationR: .75, minimumProgressR: .25,
     minimumHoldMs: integerEnv(env.POSITION_MINIMUM_HOLD_MS, 1_000, 0, 2_147_483_647),
     maximumHoldMs: integerEnv(env.POSITION_MAXIMUM_HOLD_MS, 30 * 60_000, 1, 2_147_483_647),
+    reentryCooldownMs: integerEnv(env.POSITION_REENTRY_COOLDOWN_MS, 0, 0, 2_147_483_647),
     makerExitTtlMs: integerEnv(env.MAKER_EXIT_TTL_MS, 30_000, 1_000, 300_000),
-    evidenceConfirmationMs: 750,
+    evidenceConfirmationMs: integerEnv(env.POSITION_EVIDENCE_CONFIRMATION_MS, 750, 0, 2_147_483_647),
+    profitActivationCostMultiple: numberEnv(env.POSITION_PROFIT_ACTIVATION_COST_MULTIPLE, 1.25),
     lockMin: .1, lockMax: .85, lockMaturityRate: .8, lockReversalWeight: .3, lockTrendDiscount: .15,
     baseVolatilityMultiple: 2, trendVolatilityBonus: 1, reversalVolatilityPenalty: 1.25, minimumVolatilityMultiple: .5, maximumVolatilityMultiple: 4,
     partialExitThreshold: .7, maximumPartialExitFraction: .5, minimumPartialExitBenefitBps: 2 };
