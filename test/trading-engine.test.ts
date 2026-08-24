@@ -298,6 +298,85 @@ test("a pullback maker entry survives one transient kinematics reset and cancels
   assert.equal(tracked.cancellationReason, "KINEMATICS_UNAVAILABLE");
 });
 
+test("a pullback maker entry requires persistent signal invalidation before cancellation", async () => {
+  let nowMs = 2_000;
+  let signalValid = false;
+  const canceledOrderIds: string[] = [];
+  const plan = pullbackEntryPlan();
+  const gateway: OrderGateway = {
+    send: async () => ({ id: "pullback-signal-order" }) as never,
+    cancel: async (orderId) => { canceledOrderIds.push(orderId); },
+    cancelAll: async () => undefined,
+  };
+  const rest = { getOrder: async () => ({ data: {
+    id: "pullback-signal-order", client_order_id: plan.clientOrderId, symbol: "BTCUSD",
+    filled_qty: "0", filled_avg_price: null, status: "canceled", updated_at: new Date(nowMs).toISOString(),
+  } }) };
+  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", ALPACA_PAPER: "true",
+    ALPACA_API_KEY: "test", ALPACA_API_SECRET: "test", CONFIG_DIR: "config" }), {
+    gateway, rest: rest as never, now: () => nowMs,
+  });
+  const internals = engine as unknown as {
+    runtimes: Map<string, {
+      pendingEntryIntent?: unknown;
+      entryEngine: unknown;
+      regimeEngine: unknown;
+      cost: unknown;
+    }>;
+    orderState: {
+      reserve: (value: ExecutionPlan) => void;
+      markAccepted: (clientOrderId: string, alpacaOrderId: string, atMs: number) => void;
+      get: (clientOrderId: string) => TrackedOrder | undefined;
+    };
+    reevaluatePending: (runtime: unknown, tracked: TrackedOrder, book: BookState, features: Features) => void;
+  };
+  const runtime = internals.runtimes.get("BTC/USD")!;
+  runtime.pendingEntryIntent = {
+    decisionId: plan.decisionId, side: 1, diagnostics: { family: "PULLBACK_RECOVERY" },
+  };
+  runtime.entryEngine = {
+    signalStillValid: () => signalValid,
+    revalidateExactCost: (intent: unknown) => intent,
+  };
+  runtime.regimeEngine = { classify: () => ({ name: "TREND_UP", allowLong: true, allowShort: false, riskScale: 1 }) };
+  runtime.cost = { estimate: () => plan.expectedCost };
+  internals.orderState.reserve(plan);
+  internals.orderState.markAccepted(plan.clientOrderId, "pullback-signal-order", nowMs);
+  const tracked = internals.orderState.get(plan.clientOrderId)!;
+  const book = { symbol: "BTC/USD", bids: [{ px: 99.99, qty: 1 }], asks: [{ px: 100.01, qty: 1 }],
+    exchangeTsMs: nowMs, receiveTsMs: nowMs, sequence: 1n, valid: true, sourceReset: true } satisfies BookState;
+  const graceEvents: unknown[] = [];
+  const recoveredEvents: unknown[] = [];
+  engine.on("pendingSignalGrace", (event) => graceEvents.push(event));
+  engine.on("pendingSignalRecovered", (event) => recoveredEvents.push(event));
+
+  internals.reevaluatePending(runtime, tracked, book, basicFeatures(nowMs));
+  await new Promise<void>((resolve) => setImmediate(resolve));
+  assert.equal(canceledOrderIds.length, 0);
+  assert.equal(graceEvents.length, 1);
+
+  signalValid = true;
+  nowMs = 3_000;
+  internals.reevaluatePending(runtime, tracked, book, basicFeatures(nowMs));
+  assert.equal(recoveredEvents.length, 1);
+
+  signalValid = false;
+  nowMs = 6_000;
+  internals.reevaluatePending(runtime, tracked, book, basicFeatures(nowMs));
+  nowMs = 10_999;
+  internals.reevaluatePending(runtime, tracked, book, basicFeatures(nowMs));
+  await new Promise<void>((resolve) => setImmediate(resolve));
+  assert.equal(canceledOrderIds.length, 0);
+  assert.equal(graceEvents.length, 2);
+
+  nowMs = 11_000;
+  internals.reevaluatePending(runtime, tracked, book, basicFeatures(nowMs));
+  await new Promise<void>((resolve) => setImmediate(resolve));
+  assert.deepEqual(canceledOrderIds, ["pullback-signal-order"]);
+  assert.equal(tracked.status, "CANCELED");
+  assert.equal(tracked.cancellationReason, "SIGNAL_INVALIDATED");
+});
+
 test("an expired pullback maker order reports TTL before a simultaneous kinematics reset", async () => {
   let nowMs = 21_001;
   const plan = pullbackEntryPlan();

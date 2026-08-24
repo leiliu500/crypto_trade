@@ -108,6 +108,12 @@ interface PendingKinematicsFault {
   resetReason: Features["kinematicsResetReason"];
 }
 
+interface PendingSignalFault {
+  firstAtMs: number;
+  lastAtMs: number;
+  consecutiveEvents: number;
+}
+
 export interface EngineDependencies {
   rest?: AlpacaRestClient;
   gateway?: OrderGateway;
@@ -134,6 +140,7 @@ export class TradingEngine extends EventEmitter {
   private readonly cancelReconcileLastAttemptMs = new Map<string, number>();
   private readonly makerExitFallbackInFlight = new Set<string>();
   private readonly pendingKinematicsFaults = new Map<string, PendingKinematicsFault>();
+  private readonly pendingSignalFaults = new Map<string, PendingSignalFault>();
   private equity = 0;
   private equityHighWater = 0;
   private realizedSessionPnl = 0;
@@ -747,6 +754,7 @@ export class TradingEngine extends EventEmitter {
     if (fill) this.applyFill(fill);
     if (tracked && !["RESERVED", "SENDING", "OPEN", "PARTIALLY_FILLED", "CANCEL_PENDING", "UNKNOWN"].includes(tracked.status)) {
       this.pendingKinematicsFaults.delete(tracked.plan.clientOrderId);
+      this.pendingSignalFaults.delete(tracked.plan.clientOrderId);
       const runtime = this.runtimes.get(tracked.plan.symbol);
       if (runtime?.pendingEntryIntent?.decisionId === tracked.plan.decisionId) delete runtime.pendingEntryIntent;
     }
@@ -798,10 +806,11 @@ export class TradingEngine extends EventEmitter {
       && runtime.entryEngine.revalidateExactCost(sourceIntent, cost) !== null;
     const adverse = pending.plan.side * features.tfi < -.5 || pending.plan.side * features.ofi < -2;
     const nowMs = this.now();
+    const signalInvalidationConfirmed = this.confirmPendingSignalInvalidation(runtime, pending, stillValid, nowMs);
     const reason: OrderCancelRequestReason | null = nowMs >= pending.plan.expiresMs ? "TTL_EXPIRED"
       : features.stale ? "STALE_BOOK"
         : adverse ? "ADVERSE_FLOW"
-          : !stillValid ? "SIGNAL_INVALIDATED"
+          : signalInvalidationConfirmed ? "SIGNAL_INVALIDATED"
             : !exactCostValid ? "COST_INVALIDATED" : null;
     if (reason) void this.cancelTracked(pending, reason, {
       nowMs, expiresMs: pending.plan.expiresMs, stillValid, exactCostValid, adverse,
@@ -811,9 +820,50 @@ export class TradingEngine extends EventEmitter {
     });
   }
 
+  private confirmPendingSignalInvalidation(runtime: SymbolRuntime, pending: TrackedOrder,
+    stillValid: boolean, nowMs: number): boolean {
+    const clientOrderId = pending.plan.clientOrderId;
+    const family = pending.plan.entryFamily;
+    if (stillValid) {
+      const previous = this.pendingSignalFaults.get(clientOrderId);
+      this.pendingSignalFaults.delete(clientOrderId);
+      if (previous) this.emit("pendingSignalRecovered", {
+        symbol: pending.plan.symbol, clientOrderId, family: family ?? null,
+        invalidForMs: nowMs - previous.firstAtMs, invalidEvents: previous.consecutiveEvents,
+      });
+      return false;
+    }
+    if (family !== "PULLBACK_RECOVERY") {
+      this.pendingSignalFaults.delete(clientOrderId);
+      return true;
+    }
+    const previous = this.pendingSignalFaults.get(clientOrderId);
+    const fault: PendingSignalFault = {
+      firstAtMs: previous?.firstAtMs ?? nowMs,
+      lastAtMs: nowMs,
+      consecutiveEvents: (previous?.consecutiveEvents ?? 0) + 1,
+    };
+    this.pendingSignalFaults.set(clientOrderId, fault);
+    const graceElapsedMs = nowMs - fault.firstAtMs;
+    const confirmed = graceElapsedMs >= runtime.config.planner.pullbackSignalInvalidationGraceMs
+      && fault.consecutiveEvents >= runtime.config.planner.pullbackSignalInvalidationGraceEvents;
+    if (!confirmed && !previous) this.emit("pendingSignalGrace", {
+      symbol: pending.plan.symbol, clientOrderId, reason: "SIGNAL_INVALIDATED",
+      details: {
+        nowMs, expiresMs: pending.plan.expiresMs, family,
+        firstInvalidAtMs: fault.firstAtMs, graceElapsedMs,
+        graceMs: runtime.config.planner.pullbackSignalInvalidationGraceMs,
+        consecutiveEvents: fault.consecutiveEvents,
+        requiredConsecutiveEvents: runtime.config.planner.pullbackSignalInvalidationGraceEvents,
+      },
+    });
+    return confirmed;
+  }
+
   private async handlePendingKinematicsUnavailable(runtime: SymbolRuntime, pending: TrackedOrder,
     features: DeterministicFeatures): Promise<void> {
     const clientOrderId = pending.plan.clientOrderId;
+    this.pendingSignalFaults.delete(clientOrderId);
     const nowMs = this.now();
     const family = pending.plan.entryFamily ?? (runtime.pendingEntryIntent?.decisionId === pending.plan.decisionId
       ? runtime.pendingEntryIntent.diagnostics.family : undefined);
@@ -1073,6 +1123,7 @@ export class TradingEngine extends EventEmitter {
   }
   private async cancelTracked(tracked: TrackedOrder, reason: OrderCancelRequestReason, details: Record<string, unknown> = {}): Promise<void> {
     this.pendingKinematicsFaults.delete(tracked.plan.clientOrderId);
+    this.pendingSignalFaults.delete(tracked.plan.clientOrderId);
     if (!tracked.alpacaOrderId) return;
     if (tracked.status === "CANCEL_PENDING") {
       await this.reconcilePendingCancellation(tracked);
