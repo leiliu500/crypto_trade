@@ -139,6 +139,58 @@ test("pullback recovery is a distinct entry family and does not require continua
   assert.equal(result?.selectedHorizonMs, testConfig().pullbackRecovery.horizonMs);
 });
 
+test("an uncalibrated pullback cannot enter against the active regime", () => {
+  const engine = new DeterministicEntryEngine(testConfig());
+  let result = null;
+  for (let index = 0; index < 20; index += 1) {
+    const value = context(1, 1_000 + index * 50);
+    value.regime = { name: "CHOP", allowLong: false, allowShort: false, riskScale: 0 };
+    value.features.trendFastBps = -12;
+    value.features.trendMediumBps = -5;
+    value.features.slowTrendAlignment = -.15;
+    value.features.longPullback = {
+      ready: true, structuralMoveBps: 150, pullbackDepthBps: 100, recoveryBps: 20,
+      remainingRoomBps: 80, structuralExtremeAgeMs: 3_600_000, reversalExtremeAgeMs: 300_000,
+    };
+    result ??= engine.evaluate(value);
+  }
+  assert.equal(result, null);
+  const diagnostics = engine.latestEvaluation()!.long;
+  assert.equal(diagnostics.family, "PULLBACK_RECOVERY");
+  assert.equal(diagnostics.regimePass, false);
+  assert.equal(diagnostics.edgeSource, "ANALYTIC");
+  assert.equal(diagnostics.edgeEffectiveSampleCount, 0);
+  assert.equal(diagnostics.counterRegimeCalibrationPass, false);
+  assert.ok(diagnostics.reasons.includes("COUNTER_REGIME_UNCALIBRATED"));
+});
+
+test("a sufficiently sampled calibrated pullback may enter against the active regime", () => {
+  const cfg = testConfig();
+  cfg.calibratedEdges = [{
+    symbol: "BTC/USD", family: "PULLBACK_RECOVERY", side: 1, regime: "CHOP",
+    minimumQuality: 0, maximumQuality: 1, minimumSpreadBps: 0, maximumSpreadBps: 10,
+    horizonMs: cfg.pullbackRecovery.horizonMs, path: "TAKER_TAKER",
+    meanGrossReturnBps: 20, lowerConfidenceGrossReturnBps: 15, effectiveSampleCount: 200,
+  }];
+  const engine = new DeterministicEntryEngine(cfg);
+  let result = null;
+  for (let index = 0; index < 20; index += 1) {
+    const value = context(1, 1_000 + index * 50);
+    value.regime = { name: "CHOP", allowLong: false, allowShort: false, riskScale: 0 };
+    value.features.trendFastBps = -12;
+    value.features.trendMediumBps = -5;
+    value.features.slowTrendAlignment = -.15;
+    value.features.longPullback = {
+      ready: true, structuralMoveBps: 150, pullbackDepthBps: 100, recoveryBps: 20,
+      remainingRoomBps: 80, structuralExtremeAgeMs: 3_600_000, reversalExtremeAgeMs: 300_000,
+    };
+    result ??= engine.evaluate(value);
+  }
+  assert.equal(result?.diagnostics.edgeSource, "CALIBRATED");
+  assert.equal(result?.diagnostics.edgeEffectiveSampleCount, 200);
+  assert.equal(result?.diagnostics.counterRegimeCalibrationPass, true);
+});
+
 test("pending signal validity cannot cross from pullback into continuation or vice versa", () => {
   const engine = new DeterministicEntryEngine(testConfig());
   const value = context(1);
@@ -151,6 +203,9 @@ test("pending signal validity cannot cross from pullback into continuation or vi
   };
   assert.equal(engine.signalStillValid(1, value.features, value.regime, "PULLBACK_RECOVERY"), true);
   assert.equal(engine.signalStillValid(1, value.features, value.regime, "CONTINUATION"), false);
+  value.regime = { name: "CHOP", allowLong: false, allowShort: false, riskScale: 0 };
+  assert.equal(engine.signalStillValid(1, value.features, value.regime, "PULLBACK_RECOVERY", "ANALYTIC"), false);
+  assert.equal(engine.signalStillValid(1, value.features, value.regime, "PULLBACK_RECOVERY", "CALIBRATED"), true);
   value.features.longPullback.ready = false;
   value.features.trendFastBps = 20;
   value.features.trendMediumBps = 35;
