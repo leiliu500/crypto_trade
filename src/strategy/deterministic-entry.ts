@@ -85,6 +85,7 @@ export interface RuleDiagnostics {
   requiredContinuationQuality: number | null; continuationQuality: number; economicSizeScale: number;
   scorePass: boolean; rawDirectionalPass: boolean; candidatePass: boolean; edgeResolvedPass: boolean;
   healthPass: boolean; liquidityPass: boolean; regimePass: boolean; persistencePass: boolean; antiChasePass: boolean;
+  counterRegimeCalibrationPass: boolean;
   exposurePass: boolean; cooldownPass: boolean; costPass: boolean; arbitrationPass: boolean; slowTrendPass: boolean;
   continuationTrendPass: boolean; pullbackRecoveryPass: boolean;
   pullbackStructuralMoveBps: number; pullbackDepthBps: number; pullbackRecoveryBps: number; pullbackRemainingRoomBps: number;
@@ -179,9 +180,11 @@ export class DeterministicEntryEngine {
     };
   }
 
-  public signalStillValid(side: Direction, features: DeterministicFeatures, _regime: RegimeDecision,
-    family?: EntryFamily): boolean {
+  public signalStillValid(side: Direction, features: DeterministicFeatures, regime: RegimeDecision,
+    family?: EntryFamily, edgeSource?: RuleDiagnostics["edgeSource"]): boolean {
     if (features.stale || !features.kinematicsReady) return false;
+    const regimePass = side === 1 ? regime.allowLong : regime.allowShort;
+    if (family === "PULLBACK_RECOVERY" && !regimePass && edgeSource !== "CALIBRATED") return false;
     const structure = this.structuralSetup(side, features);
     if (family === "CONTINUATION" ? !structure.continuationPass
       : family === "PULLBACK_RECOVERY" ? !structure.pullbackPass : !structure.pass) return false;
@@ -201,7 +204,7 @@ export class DeterministicEntryEngine {
 
   private commonPass(d: RuleDiagnostics): boolean {
     return d.candidatePass && d.healthPass && d.liquidityPass && d.antiChasePass && d.exposurePass
-      && d.cooldownPass && d.edgeResolvedPass && d.costPass && d.slowTrendPass;
+      && d.cooldownPass && d.edgeResolvedPass && d.costPass && d.slowTrendPass && d.counterRegimeCalibrationPass;
   }
 
   private diagnostics(trigger: SideTriggerDiagnostics, oppositeScore: number, context: EntryContext,
@@ -241,6 +244,9 @@ export class DeterministicEntryEngine {
       ? availableCosts.filter((item) => item.path === "MAKER_TAKER" || item.path === "MAKER_MAKER_TAKER_FALLBACK") : availableCosts;
     const decision = this.costGate.evaluate(edges, costs);
     const economic = decision.selected ?? decision.bestRejected;
+    const counterRegimeCalibrationPass = structure.family !== "PULLBACK_RECOVERY" || regimePass
+      || (economic?.edge.source === "CALIBRATED"
+        && economic.edge.effectiveSampleCount >= this.cfg.minimumEffectiveSampleCount);
     // Signal uncertainty is already incorporated in conservativeGrossBps and is not charged again.
     const grossOpportunityBps = economic?.edge.conservativeGrossBps ?? 0;
     const uncertaintyReserveBps = economic?.edge.signalUncertaintyBps ?? 0;
@@ -264,6 +270,7 @@ export class DeterministicEntryEngine {
       ? "STRUCTURAL_HISTORY_WARMUP" : "STRUCTURAL_SETUP_GATE");
     if (!structure.continuationPass) reasons.push("CONTINUATION_TREND_GATE");
     if (!structure.pullbackPass) reasons.push("PULLBACK_RECOVERY_GATE");
+    if (!counterRegimeCalibrationPass) reasons.push("COUNTER_REGIME_UNCALIBRATED");
     return {
       family: structure.family, side: direction, phase, score: trigger.score, oppositeScore, scoreMargin: trigger.score - oppositeScore, votes,
       persistence: trigger.occupancy, evidence: trigger.evidence, confirmationMs: trigger.confirmationMs,
@@ -282,7 +289,7 @@ export class DeterministicEntryEngine {
       edgeQuality: economic?.edge.quality ?? continuation.score,
       edgeEffectiveSampleCount: economic?.edge.effectiveSampleCount ?? 0,
       scorePass, rawDirectionalPass, candidatePass, edgeResolvedPass, healthPass, liquidityPass, regimePass,
-      persistencePass, antiChasePass, exposurePass, cooldownPass, costPass, arbitrationPass,
+      counterRegimeCalibrationPass, persistencePass, antiChasePass, exposurePass, cooldownPass, costPass, arbitrationPass,
       slowTrendPass,
       continuationTrendPass: structure.continuationPass, pullbackRecoveryPass: structure.pullbackPass,
       pullbackStructuralMoveBps: pullback.structuralMoveBps, pullbackDepthBps: pullback.pullbackDepthBps,

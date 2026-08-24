@@ -830,7 +830,8 @@ export class TradingEngine extends EventEmitter {
     const sourceIntent = runtime.pendingEntryIntent?.decisionId === pending.plan.decisionId
       ? runtime.pendingEntryIntent : undefined;
     const stillValid = sourceIntent !== undefined
-      && runtime.entryEngine.signalStillValid(pending.plan.side, features, regime, sourceIntent.diagnostics.family);
+      && runtime.entryEngine.signalStillValid(pending.plan.side, features, regime,
+        sourceIntent.diagnostics.family, sourceIntent.diagnostics.edgeSource);
     const exactCostValid = cost !== null && sourceIntent?.side === pending.plan.side
       && runtime.entryEngine.revalidateExactCost(sourceIntent, cost) !== null;
     const adverse = pending.plan.side * features.tfi < -.5 || pending.plan.side * features.ofi < -2;
