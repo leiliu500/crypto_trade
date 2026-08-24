@@ -252,7 +252,7 @@ export interface DashboardSnapshot {
   equity: number;
   equityHighWater: number;
   realizedSessionPnl: number;
-  latencyP95Ms: number;
+  latencyP95Ms: number | null;
   liveness: readonly LivenessCheck[];
   database: DatabaseHealth;
   markets: readonly DashboardMarketCard[];

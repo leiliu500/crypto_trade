@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { EventEmitter } from "node:events";
 import { Pool, type PoolClient } from "pg";
 import type { DashboardEvent, DashboardMarketCard, DashboardOrderCard, DashboardPositionCard, DashboardSnapshot, DatabaseHealth, TelemetryRecord } from "../dashboard/types.js";
+import type { Position } from "../strategy/position-manager.js";
 import { runMigrations } from "./migrations.js";
 
 export interface PostgresStoreOptions {
@@ -24,6 +25,8 @@ export interface PersistedMarketMid {
   atMs: number;
   mid: number;
 }
+
+export interface PersistedDecisionVenueLatency { atMs: number; milliseconds: number; }
 
 /** Bounded, batched writer: enqueue never performs network I/O on strategy callbacks. */
 export class PostgresTelemetryStore extends EventEmitter {
@@ -106,6 +109,63 @@ export class PostgresTelemetryStore extends EventEmitter {
       const mid = Number(row.mid);
       return Number.isFinite(atMs) && Number.isFinite(mid) && mid > 0
         ? [{ symbol: row.symbol, atMs, mid }] : [];
+    });
+  }
+
+  public async loadLatestPositionStates(symbols: readonly string[]): Promise<readonly Position[]> {
+    if (symbols.length === 0) return [];
+    const result = await this.pool.query<PersistedPositionStateRow>(
+      `SELECT position FROM (
+         SELECT DISTINCT ON (run_id,symbol) symbol,run_id,payload->'position' AS position,occurred_at
+         FROM system_events
+         WHERE event_type = 'positionDecision' AND symbol = ANY($1::text[])
+           AND occurred_at >= now() - interval '1 day' AND payload ? 'position'
+         ORDER BY run_id,symbol,occurred_at DESC,id DESC
+       ) latest_run_positions
+       ORDER BY symbol,occurred_at DESC`,
+      [[...symbols]],
+    );
+    return result.rows.flatMap((row) => {
+      const restored = restorePositionState(row.position);
+      return restored ? [restored] : [];
+    });
+  }
+
+  public async loadRealizedSessionPnl(sinceMs: number): Promise<number> {
+    if (!Number.isFinite(sinceMs) || sinceMs < 0) throw new Error("Invalid realized session P&L start time");
+    const result = await this.pool.query<PersistedSessionPnlRow>(
+      `SELECT COALESCE(sum(realized_pnl),0) AS realized_pnl FROM (
+         SELECT DISTINCT ON (plan#>>'{livePosition,entryOrderId}')
+           (plan#>>'{livePosition,realizedPnl}')::numeric AS realized_pnl
+         FROM orders
+         WHERE created_at >= $1 AND status = 'FILLED' AND plan->>'reduceOnlyIntent' = 'true'
+           AND plan#>>'{livePosition,entryOrderId}' IS NOT NULL
+           AND plan#>>'{livePosition,realizedPnl}' IS NOT NULL
+         ORDER BY plan#>>'{livePosition,entryOrderId}',updated_at DESC,client_order_id DESC
+       ) closed_trades`,
+      [date(sinceMs)],
+    );
+    return number(result.rows[0]?.realized_pnl, 0);
+  }
+
+  public async loadDecisionVenueLatencies(sinceMs: number, untilMs: number): Promise<readonly PersistedDecisionVenueLatency[]> {
+    if (!Number.isFinite(sinceMs) || !Number.isFinite(untilMs) || sinceMs > untilMs) {
+      throw new Error("Invalid decision-to-venue latency interval");
+    }
+    const result = await this.pool.query<PersistedDecisionVenueLatencyRow>(
+      `SELECT occurred_at,payload#>>'{plan,createdMs}' AS decision_ms
+       FROM system_events
+       WHERE event_type = 'orderAccepted' AND occurred_at >= $1 AND occurred_at <= $2
+         AND payload#>>'{plan,createdMs}' IS NOT NULL
+       ORDER BY occurred_at,id`,
+      [date(sinceMs), date(untilMs)],
+    );
+    return result.rows.flatMap((row) => {
+      const atMs = new Date(row.occurred_at).getTime();
+      const decisionMs = Number(row.decision_ms);
+      const milliseconds = atMs - decisionMs;
+      return Number.isFinite(atMs) && Number.isFinite(decisionMs) && Number.isFinite(milliseconds) && milliseconds >= 0
+        ? [{ atMs, milliseconds }] : [];
     });
   }
 
@@ -257,6 +317,40 @@ interface PersistedMarketMidRow {
   symbol: string;
   captured_at: Date | string;
   mid: string | number;
+}
+
+interface PersistedPositionStateRow { position: unknown; }
+interface PersistedSessionPnlRow { realized_pnl: string | number; }
+interface PersistedDecisionVenueLatencyRow { occurred_at: Date | string; decision_ms: string | number; }
+
+function restorePositionState(value: unknown): Position | null {
+  const position = object(value);
+  const symbol = typeof position.symbol === "string" ? position.symbol : "";
+  const side = Number(position.side);
+  const qty = Number(position.qty);
+  const entryPx = Number(position.entryPx);
+  const openedMs = Number(position.openedMs);
+  const initialRiskPx = Number(position.initialRiskPx);
+  const roundTripCostPx = Number(position.roundTripCostPx);
+  const mfePx = Number(position.mfePx);
+  const maePx = Number(position.maePx);
+  const floorPx = Number(position.floorPx);
+  if (!symbol || ![side, qty, entryPx, openedMs, initialRiskPx, roundTripCostPx, mfePx, maePx, floorPx].every(Number.isFinite)
+    || (side !== 1 && side !== -1) || qty <= 0 || entryPx <= 0 || openedMs <= 0 || initialRiskPx <= 0 || roundTripCostPx < 0) return null;
+  const phase = ["OPEN", "RECOVERY", "PROTECTED", "TREND_HOLD", "EXITING"].includes(String(position.phase))
+    ? position.phase as Position["phase"] : "OPEN";
+  const selectedHorizonMs = Number(position.selectedHorizonMs);
+  const lastReductionProbability = Number(position.lastReductionProbability);
+  const executionPath = typeof position.executionPath === "string"
+    && ["MAKER_MAKER", "MAKER_TAKER", "MAKER_MAKER_TAKER_FALLBACK", "TAKER_TAKER"].includes(position.executionPath)
+    ? position.executionPath as NonNullable<Position["executionPath"]> : null;
+  return {
+    symbol, side, qty, entryPx, openedMs, initialRiskPx, roundTripCostPx, mfePx, maePx, floorPx,
+    breakEvenArmed: Boolean(position.breakEvenArmed), phase,
+    ...(Number.isFinite(selectedHorizonMs) && selectedHorizonMs > 0 ? { selectedHorizonMs } : {}),
+    ...(executionPath === null ? {} : { executionPath }),
+    ...(Number.isFinite(lastReductionProbability) ? { lastReductionProbability } : {}),
+  };
 }
 
 function restoreOrder(row: PersistedOrderRow): DashboardOrderCard | null {

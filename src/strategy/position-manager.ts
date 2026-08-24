@@ -26,6 +26,7 @@ export interface PositionConfig {
   trailActivationR: number;
   minimumProgressR: number;
   minimumHoldMs: number;
+  unproductiveExitMs: number;
   maximumHoldMs: number;
   reentryCooldownMs: number;
   makerExitTtlMs: number;
@@ -93,6 +94,12 @@ export class PositionManager {
     p.floorPx = Math.max(p.floorPx, candidateFloor);
     if (p.floorPx < previousFloor) throw new Error("PROFIT_FLOOR_LOOSENED");
     if (u <= p.floorPx) { p.phase = "EXITING"; return { action: "EXIT", reason: "PROFIT_FLOOR" }; }
+
+    const meaningfulProgressPx = p.roundTripCostPx > 0
+      ? p.roundTripCostPx : this.cfg.minimumProgressR * risk;
+    if (elapsedMs >= this.cfg.unproductiveExitMs && p.mfePx < meaningfulProgressPx) {
+      p.phase = "EXITING"; return { action: "EXIT", reason: "UNPRODUCTIVE_TIME_STOP" };
+    }
 
     const adverseEvidence = holdLowerBoundBps <= 0 && reversalProbability >= .55;
     if (adverseEvidence) {

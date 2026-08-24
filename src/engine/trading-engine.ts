@@ -2,7 +2,7 @@ import { randomUUID, createHash } from "node:crypto";
 import { EventEmitter } from "node:events";
 import type { EngineConfig, SymbolConfig } from "../config.js";
 import { FeatureEngine } from "../core/features.js";
-import { LatencyTracker } from "../core/latency.js";
+import { LatencyTracker, type TimedLatencySample } from "../core/latency.js";
 import type { BookState, Features, MarketTrade } from "../core/market.js";
 import { LocalOrderBook, type BookDelta } from "../core/order-book.js";
 import { EventRecorder } from "../recorder.js";
@@ -141,6 +141,7 @@ export class TradingEngine extends EventEmitter {
   private readonly makerExitFallbackInFlight = new Set<string>();
   private readonly pendingKinematicsFaults = new Map<string, PendingKinematicsFault>();
   private readonly pendingSignalFaults = new Map<string, PendingSignalFault>();
+  private readonly restoredPositionCandidates = new Map<string, Position[]>();
   private equity = 0;
   private equityHighWater = 0;
   private realizedSessionPnl = 0;
@@ -203,6 +204,34 @@ export class TradingEngine extends EventEmitter {
       restored[symbol] = runtime.deterministicFeatures.restoreSlowTrend(history.get(symbol) ?? [], asOfMs);
     }
     return restored;
+  }
+
+  public restorePositionStates(positions: readonly Position[]): number {
+    if (this.started) throw new Error("Position state must be restored before the engine starts");
+    this.restoredPositionCandidates.clear();
+    let restored = 0;
+    for (const position of positions) {
+      const runtime = this.runtimes.get(position.symbol);
+      if (!runtime) continue;
+      const candidate = { ...position, phase: position.phase === "EXITING" ? "OPEN" as const : position.phase };
+      delete candidate.adverseEvidenceSinceMs;
+      const candidates = this.restoredPositionCandidates.get(position.symbol) ?? [];
+      candidates.push(candidate);
+      this.restoredPositionCandidates.set(position.symbol, candidates);
+      restored += 1;
+    }
+    return restored;
+  }
+
+  public restoreRealizedSessionPnl(value: number): void {
+    if (this.started) throw new Error("Session P&L must be restored before the engine starts");
+    if (!Number.isFinite(value)) throw new Error("Restored session P&L must be finite");
+    this.realizedSessionPnl = value;
+  }
+
+  public restoreDecisionVenueLatencies(samples: readonly TimedLatencySample[]): number {
+    if (this.started) throw new Error("Latency history must be restored before the engine starts");
+    return this.latency.restoreDecisionToVenue(samples);
   }
 
   public async stop(): Promise<void> {
@@ -303,7 +332,7 @@ export class TradingEngine extends EventEmitter {
       this.orderState.reconcile(ordersResponse.data.map((order) => ({ id: order.id, clientOrderId: order.client_order_id, filledQty: Number(order.filled_qty), status: order.status })));
       this.reconcilePositions(positionsResponse.data);
       const rollingLoss = rollingLossFromPortfolioHistory(historyResponse.data);
-      this.realizedSessionPnl = Math.min(this.realizedSessionPnl, -rollingLoss);
+      if (rollingLoss > 0) this.realizedSessionPnl = Math.min(this.realizedSessionPnl, -rollingLoss);
       this.recomputePortfolioRisk();
       this.riskState.setHealth({ accountReconciled: true, riskRecomputed: true });
       this.riskState.resumeAfterReconciliation();
@@ -976,6 +1005,8 @@ export class TradingEngine extends EventEmitter {
     forcedStyle?: "maker" | "taker", fallbackFromClientOrderId?: string): Promise<void> {
     if (!runtime.asset || !runtime.position) return;
     if (this.pendingForSymbol(runtime.position.symbol)) return;
+    if (!forcedStyle && [...this.makerExitFallbackInFlight].some((clientOrderId) =>
+      this.orderState.get(clientOrderId)?.plan.symbol === runtime.position?.symbol)) return;
     const qty = Math.min(runtime.position.qty, Math.floor(desiredQty / runtime.asset.minTradeIncrement + 1e-12) * runtime.asset.minTradeIncrement);
     if (qty < runtime.asset.minOrderSize) return;
     const makerEligible = runtime.position.executionPath === "MAKER_MAKER_TAKER_FALLBACK" && makerExitEligible(reason);
@@ -1070,8 +1101,9 @@ export class TradingEngine extends EventEmitter {
   }
 
   private reconcilePositions(positions: readonly AlpacaPosition[]): void {
-    const previouslyOpen = new Set([...this.runtimes.entries()]
-      .filter(([, runtime]) => Boolean(runtime.position)).map(([symbol]) => symbol));
+    const previousPositions = new Map([...this.runtimes.entries()]
+      .flatMap(([symbol, runtime]) => runtime.position ? [[symbol, runtime.position] as const] : []));
+    const previouslyOpen = new Set(previousPositions.keys());
     const observedDustSymbols = new Set<string>();
     for (const runtime of this.runtimes.values()) delete runtime.position;
     for (const remote of positions) {
@@ -1084,9 +1116,17 @@ export class TradingEngine extends EventEmitter {
         continue;
       }
       this.reportedPositionDust.delete(runtime.book.symbol);
-      const risk = Math.max(entryPx * .01, runtime.asset?.priceIncrement ?? 0);
-      runtime.position = { symbol: runtime.book.symbol, side: 1, qty, entryPx, openedMs: this.now(), initialRiskPx: risk, roundTripCostPx: 0,
-        mfePx: 0, maePx: 0, floorPx: -risk, breakEvenArmed: false, phase: "OPEN" };
+      const entryTolerance = Math.max(runtime.asset?.priceIncrement ?? 0, entryPx * 1e-6);
+      const previous = [previousPositions.get(runtime.book.symbol), ...(this.restoredPositionCandidates.get(runtime.book.symbol) ?? [])]
+        .filter((candidate): candidate is Position => candidate?.side === 1 && Math.abs(candidate.entryPx - entryPx) <= entryTolerance)
+        .sort((left, right) => left.openedMs - right.openedMs)[0];
+      if (previous) {
+        runtime.position = { ...previous, qty, entryPx };
+      } else {
+        const risk = Math.max(entryPx * .01, runtime.asset?.priceIncrement ?? 0);
+        runtime.position = { symbol: runtime.book.symbol, side: 1, qty, entryPx, openedMs: this.now(), initialRiskPx: risk, roundTripCostPx: 0,
+          mfePx: 0, maePx: 0, floorPx: -risk, breakEvenArmed: false, phase: "OPEN" };
+      }
     }
     for (const symbol of previouslyOpen) {
       const runtime = this.runtimes.get(symbol);
@@ -1095,6 +1135,7 @@ export class TradingEngine extends EventEmitter {
     for (const symbol of this.reportedPositionDust.keys()) {
       if (!observedDustSymbols.has(symbol)) this.reportedPositionDust.delete(symbol);
     }
+    this.restoredPositionCandidates.clear();
   }
 
   private reportPositionDust(symbol: string, qty: number): void {
@@ -1267,7 +1308,7 @@ function cfgPriceSigma(features: Features, multiple: number): number { return fe
 function ceilQuantity(quantity: number, increment: number): number { return Math.ceil(quantity / increment - 1e-12) * increment; }
 function ceilPrice(price: number, increment: number): number { return Math.ceil(price / increment - 1e-12) * increment; }
 function makerExitEligible(reason: string): boolean {
-  return ["TIME_STOP", "EVIDENCE_EXIT", "DETERMINISTIC_HOLD_EVIDENCE", "REVERSAL_RISK"].includes(reason);
+  return ["TIME_STOP", "UNPRODUCTIVE_TIME_STOP", "EVIDENCE_EXIT", "DETERMINISTIC_HOLD_EVIDENCE", "REVERSAL_RISK"].includes(reason);
 }
 function plannerIntent(intent: DeterministicTradeIntent, sizeMultiplier: number): TradeIntent {
   return {

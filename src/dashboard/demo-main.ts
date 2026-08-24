@@ -44,7 +44,7 @@ function demoSnapshot(nowMs: number, sequence: number): EngineOperationalSnapsho
   const sol = 178.42 + Math.sin(sequence / 5) * .44;
   const fillProgress = Math.min(.82, .27 + sequence * .013);
   const orders = demoOrders(nowMs, fillProgress, btc);
-  const healthSummary = { p50: 12, p90: 31, p95: 38 + Math.sin(sequence / 7) * 3, p99: 52, max: 71 };
+  const healthSummary = { count: 100, p50: 12, p90: 31, p95: 38 + Math.sin(sequence / 7) * 3, p99: 52, max: 71 };
   return {
     generatedAtMs: nowMs, started: true, startedAtMs, uptimeMs: nowMs - startedAtMs,
     mode: "paper", paper: true, paperEntryExercise: false, strategyVersion: "2.4.1", modelVersion: "micro-alpha-2026.08",
@@ -55,7 +55,8 @@ function demoSnapshot(nowMs: number, sequence: number): EngineOperationalSnapsho
       roundTripCostPx: 34.1, mfePx: 442 + Math.sin(sequence / 6) * 14, maePx: 96, floorPx: -61.2 + Math.min(180, sequence * 2.5), breakEvenArmed: true, phase: "TREND_HOLD" }],
     markets: [market("BTC/USD", btc, 1.4, sequence, nowMs, 12.8), market("ETH/USD", eth, .12, sequence + 7, nowMs, 15.1), market("SOL/USD", sol, .018, sequence + 13, nowMs, 19.4)],
     latency: { feed: { ...healthSummary, p95: 18 }, compute: { ...healthSummary, p95: 2.4 }, send: { ...healthSummary, p95: .8 },
-      acknowledgment: healthSummary, fill: { ...healthSummary, p95: 82 }, total: { ...healthSummary, p95: 41.7 } },
+      acknowledgment: healthSummary, decisionToVenue: { ...healthSummary, p95: 41.7 },
+      fill: { ...healthSummary, p95: 82 }, total: { ...healthSummary, p95: 41.7 } },
   };
 }
 
