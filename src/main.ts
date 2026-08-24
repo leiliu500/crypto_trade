@@ -32,7 +32,12 @@ async function main(): Promise<void> {
           paperEntryExercise: cfg.paperEntryExercise } });
       const restoredOrders = await candidate.loadOrders();
       monitor.hydrateOrders(restoredOrders);
+      const restoredPositionStates = engine.restorePositionStates(await candidate.loadLatestPositionStates(cfg.symbols));
       const hydrationAtMs = Date.now();
+      const restoredRealizedSessionPnl = await candidate.loadRealizedSessionPnl(utcDayStartMs(hydrationAtMs));
+      engine.restoreRealizedSessionPnl(restoredRealizedSessionPnl);
+      const restoredDecisionVenueLatencies = engine.restoreDecisionVenueLatencies(
+        await candidate.loadDecisionVenueLatencies(hydrationAtMs - 3_600_000, hydrationAtMs));
       let slowTrendHistory: Readonly<Record<string, unknown>> | null = null;
       try {
         const maximumLookbackMs = Math.max(...cfg.symbols.map((symbol) => {
@@ -51,7 +56,8 @@ async function main(): Promise<void> {
       } catch (error) {
         process.stderr.write(`${JSON.stringify({ type: "slow-trend-history-degraded", message: error instanceof Error ? error.message : String(error) })}\n`);
       }
-      process.stdout.write(`${JSON.stringify({ type: "database-ready", migrations, restoredOrders: restoredOrders.length, slowTrendHistory })}\n`);
+      process.stdout.write(`${JSON.stringify({ type: "database-ready", migrations, restoredOrders: restoredOrders.length,
+        restoredPositionStates, restoredRealizedSessionPnl, restoredDecisionVenueLatencies, slowTrendHistory })}\n`);
     } catch (error) {
       await candidate.close().catch(() => undefined);
       store = undefined;
@@ -107,6 +113,10 @@ async function main(): Promise<void> {
 }
 
 const bigintReplacer = (_key: string, value: unknown): unknown => typeof value === "bigint" ? value.toString() : value;
+const utcDayStartMs = (atMs: number): number => {
+  const value = new Date(atMs);
+  return Date.UTC(value.getUTCFullYear(), value.getUTCMonth(), value.getUTCDate());
+};
 
 function argumentValue(args: readonly string[], name: string): string | null {
   const index = args.indexOf(name);

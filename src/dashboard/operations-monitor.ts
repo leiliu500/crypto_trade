@@ -244,8 +244,10 @@ export class OperationsMonitor extends EventEmitter {
       const currentPx = position.side > 0
         ? market?.bestBid ?? market?.mid ?? null
         : market?.bestAsk ?? market?.mid ?? null;
-      const unrealizedPnl = currentPx === null ? null : position.side * position.qty * (currentPx - position.entryPx);
-      const unrealizedPnlBps = currentPx === null ? null : position.side * (currentPx / position.entryPx - 1) * 10_000;
+      const netMovePx = currentPx === null ? null
+        : position.side * (currentPx - position.entryPx) - Math.max(0, position.roundTripCostPx);
+      const unrealizedPnl = netMovePx === null ? null : position.qty * netMovePx;
+      const unrealizedPnlBps = netMovePx === null ? null : netMovePx / position.entryPx * 10_000;
       const latest = this.positionDecisions.get(position.symbol);
       const ageMs = Math.max(0, nowMs - position.openedMs);
       if (!exitedAsDust && currentPx !== null && unrealizedPnl !== null && unrealizedPnlBps !== null) {
@@ -376,7 +378,8 @@ export class OperationsMonitor extends EventEmitter {
       configurationVersion: state.configurationVersion ?? "-", signalMode: state.signalMode ?? "DETERMINISTIC_ONLY",
       started: state.started, uptimeMs: state.uptimeMs, overall, entriesAllowed,
       haltReasons: [...state.risk.reasons], equity: state.equity, equityHighWater: state.equityHighWater,
-      realizedSessionPnl: state.realizedSessionPnl, latencyP95Ms: state.latency.total?.p95 ?? 0,
+      realizedSessionPnl: state.realizedSessionPnl,
+      latencyP95Ms: state.latency.decisionToVenue?.count ? state.latency.decisionToVenue.p95 : null,
       liveness, database: { ...this.databaseHealth }, markets, positions, orders: visibleOrders,
       events: [...this.events],
     };
@@ -572,7 +575,7 @@ function emptySnapshot(): DashboardSnapshot {
   return { version: 1, generatedAtMs: Date.now(), mode: "offline", paper: true, strategyVersion: "-", modelVersion: "-",
     configurationVersion: "-", signalMode: "DETERMINISTIC_ONLY", started: false,
     uptimeMs: 0, overall: "degraded", entriesAllowed: false, haltReasons: [], equity: 0, equityHighWater: 0, realizedSessionPnl: 0,
-    latencyP95Ms: 0, liveness: [], database: disabledDatabaseHealth(), markets: [], positions: [], orders: [], events: [] };
+    latencyP95Ms: null, liveness: [], database: disabledDatabaseHealth(), markets: [], positions: [], orders: [], events: [] };
 }
 function check(id: string, label: string, healthy: boolean, detail: string, updatedAtMs: number) { return { id, label, healthy, detail, updatedAtMs }; }
 function midpoint(bid: number | null, ask: number | null): number | null { return bid === null || ask === null ? null : (bid + ask) / 2; }

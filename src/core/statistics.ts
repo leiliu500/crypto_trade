@@ -152,9 +152,12 @@ export class RobustAgeGate {
 export class LatencyHistogram {
   private readonly samples: RollingWindow;
   public constructor(windowMs = 3_600_000) { this.samples = new RollingWindow(windowMs, 100_000); }
-  public record(milliseconds: number, nowMs: number): void { if (milliseconds >= 0) this.samples.add(milliseconds, nowMs); }
-  public summary(nowMs: number): Record<"p50" | "p90" | "p95" | "p99" | "max", number> {
+  public record(milliseconds: number, nowMs: number): void {
+    if (Number.isFinite(milliseconds) && Number.isFinite(nowMs) && milliseconds >= 0) this.samples.add(milliseconds, nowMs);
+  }
+  public summary(nowMs: number): Record<"count" | "p50" | "p90" | "p95" | "p99" | "max", number> {
     const values = this.samples.snapshot(nowMs);
-    return { p50: quantile(values, .5), p90: quantile(values, .9), p95: quantile(values, .95), p99: quantile(values, .99), max: values.length ? Math.max(...values) : 0 };
+    return { count: values.length, p50: quantile(values, .5), p90: quantile(values, .9), p95: quantile(values, .95),
+      p99: quantile(values, .99), max: values.length ? Math.max(...values) : 0 };
   }
 }

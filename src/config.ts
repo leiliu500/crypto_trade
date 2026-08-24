@@ -293,6 +293,7 @@ function loadSymbolConfig(symbol: string, env: NodeJS.ProcessEnv, mode: TradingM
     fallbackResidualQ95Bps: numberEnv(env.RESIDUAL_Q95_BPS, 8),
   };
   const position = defaultPositionConfig(env);
+  validatePositionTiming(position);
   validateStrategyHorizons(deterministicSignal.analyticHorizons.map((item) => item.horizonMs), position.maximumHoldMs);
   return {
     symbol,
@@ -317,6 +318,7 @@ function loadSymbolConfig(symbol: string, env: NodeJS.ProcessEnv, mode: TradingM
 function defaultPositionConfig(env: NodeJS.ProcessEnv): PositionConfig {
   return { recoveryArmR: .5, trailActivationR: .75, minimumProgressR: .25,
     minimumHoldMs: integerEnv(env.POSITION_MINIMUM_HOLD_MS, 1_000, 0, 2_147_483_647),
+    unproductiveExitMs: integerEnv(env.POSITION_UNPRODUCTIVE_EXIT_MS, 20 * 60_000, 1, 2_147_483_647),
     maximumHoldMs: integerEnv(env.POSITION_MAXIMUM_HOLD_MS, 30 * 60_000, 1, 2_147_483_647),
     reentryCooldownMs: integerEnv(env.POSITION_REENTRY_COOLDOWN_MS, 0, 0, 2_147_483_647),
     makerExitTtlMs: integerEnv(env.MAKER_EXIT_TTL_MS, 30_000, 1_000, 300_000),
@@ -325,6 +327,15 @@ function defaultPositionConfig(env: NodeJS.ProcessEnv): PositionConfig {
     lockMin: .1, lockMax: .85, lockMaturityRate: .8, lockReversalWeight: .3, lockTrendDiscount: .15,
     baseVolatilityMultiple: 2, trendVolatilityBonus: 1, reversalVolatilityPenalty: 1.25, minimumVolatilityMultiple: .5, maximumVolatilityMultiple: 4,
     partialExitThreshold: .7, maximumPartialExitFraction: .5, minimumPartialExitBenefitBps: 2 };
+}
+
+function validatePositionTiming(position: PositionConfig): void {
+  if (position.unproductiveExitMs < position.minimumHoldMs) {
+    throw new Error(`POSITION_UNPRODUCTIVE_EXIT_MS (${position.unproductiveExitMs}) must be at least POSITION_MINIMUM_HOLD_MS (${position.minimumHoldMs})`);
+  }
+  if (position.unproductiveExitMs > position.maximumHoldMs) {
+    throw new Error(`POSITION_UNPRODUCTIVE_EXIT_MS (${position.unproductiveExitMs}) must not exceed POSITION_MAXIMUM_HOLD_MS (${position.maximumHoldMs})`);
+  }
 }
 function defaultPlannerConfig(env: NodeJS.ProcessEnv, minimumFillProbability: number, takerLimitBufferBps: number): PlannerConfig {
   return { makerTtlMs: 1_500, alphaHalfLifeMs: 2_772,

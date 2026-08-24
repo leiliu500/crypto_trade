@@ -34,7 +34,7 @@ function render(s){
   el("health-score").textContent=score;el("health-orbit").className=`health-orbit ${s.overall}`;el("health-pulse").style.background=s.overall==="critical"?"var(--red)":s.overall==="degraded"?"var(--amber)":"var(--cyan)";
   el("halt-reasons").innerHTML=(s.haltReasons||[]).map(reason=>`<span class="halt-chip">${esc(reason)}</span>`).join("");
   el("equity").textContent=money(s.equity);el("drawdown").textContent=`Peak ${money(s.equityHighWater)}`;el("session-pnl").textContent=signed(s.realizedSessionPnl," USD");el("session-pnl").className=pnlClass(s.realizedSessionPnl);
-  el("latency").textContent=`${num(s.latencyP95Ms,1)} ms`;el("uptime").textContent=duration(s.uptimeMs);el("strategy-version").textContent=`Strategy ${s.strategyVersion}`;el("last-update").textContent=`Updated ${relative(s.generatedAtMs)}`;
+  el("latency").textContent=s.latencyP95Ms==null?"—":`${num(s.latencyP95Ms,1)} ms`;el("uptime").textContent=duration(s.uptimeMs);el("strategy-version").textContent=`Strategy ${s.strategyVersion}`;el("last-update").textContent=`Updated ${relative(s.generatedAtMs)}`;
   renderLiveness(s.liveness||[]);syncSymbols(s.markets||[]);renderMarkets(filtered(s.markets||[]));renderOrders(filtered(s.orders||[]));renderEvents(s.events||[]);
   el("footer-detail").textContent=`DB ${s.database.status} · ${s.database.queuedRecords} queued · ${s.signalMode||"DETERMINISTIC_ONLY"} · config ${s.configurationVersion||"-"}${s.modelVersion&&s.modelVersion!=="none"?` · model ${s.modelVersion}`:""}`;
 }
@@ -68,12 +68,12 @@ function renderLivePnl(position){
   const totalPnlBps=!position.active&&Number.isFinite(position.realizedPnlBps)?position.realizedPnlBps:position.unrealizedPnlBps;
   const history=(position.pnlHistory||[]).slice().reverse().map(point=>`<div class="pnl-change-row"><time>${time(point.atMs)}</time><span>${priceMoney(point.currentPx)}${point.kind==="close"?" exit":""}</span><strong class="${pnlClass(point.unrealizedPnl)}">${signedMoney(point.unrealizedPnl)}</strong><em class="${pnlClass(point.changePnl)}">${point.changePnl==null?"initial":signedMoney(point.changePnl)}</em></div>`).join("");
   const stateLabel=position.active?"OPEN":"CLOSED";
-  const title=position.active?"Live position P&amp;L":"Realized trade P&amp;L";
+  const title=position.active?"Estimated net position P&amp;L":"Realized trade P&amp;L";
   const ageLabel=position.active?"Open":"Held";
   const context=position.latestReason||(position.active?"Position is open and monitored by the exit engine":"Position closed; retained P&amp;L samples are read-only history");
   const priceLabel=position.active?"Last mark":"Exit fill";
   const displayPx=position.closePx||position.currentPx;
-  return `<section class="order-live-pnl ${position.active?"active":"closed"}" data-testid="order-live-pnl" aria-live="polite"><div class="live-pnl-head"><div><span>${title}</span><strong class="${pnlClass(totalPnl)}">${signedMoney(totalPnl)}</strong></div><div><span class="pnl-position-state">${stateLabel}</span><strong class="${pnlClass(totalPnlBps)}">${signed(totalPnlBps," bp")}</strong></div></div><div class="live-pnl-meta"><span>Entry ${priceMoney(position.entryPx)}</span><span>${priceLabel} ${priceMoney(displayPx)}</span><span>${ageLabel} ${duration(position.ageMs)}</span></div><div class="pnl-history"><div class="pnl-history-title"><span>All P&amp;L changes</span><span>mark / total / change</span></div>${history||"<div class='pnl-history-empty'>Waiting for the next price change…</div>"}</div><div class="live-pnl-action"><b>${esc(position.latestAction)}</b><span title="${esc(context)}">${esc(context)}</span></div></section>`;
+  return `<section class="order-live-pnl ${position.active?"active":"closed"}" data-testid="order-live-pnl" aria-live="polite"><div class="live-pnl-head"><div><span>${title}</span><strong class="${pnlClass(totalPnl)}">${signedMoney(totalPnl)}</strong></div><div><span class="pnl-position-state">${stateLabel}</span><strong class="${pnlClass(totalPnlBps)}">${signed(totalPnlBps," bp")}</strong></div></div><div class="live-pnl-meta"><span>Entry ${priceMoney(position.entryPx)}</span><span>${priceLabel} ${priceMoney(displayPx)}</span><span>${ageLabel} ${duration(position.ageMs)}</span></div><div class="pnl-history"><div class="pnl-history-title"><span>All P&amp;L changes</span><span>mark / net / change</span></div>${history||"<div class='pnl-history-empty'>Waiting for the next price change…</div>"}</div><div class="live-pnl-action"><b>${esc(position.latestAction)}</b><span title="${esc(context)}">${esc(context)}</span></div></section>`;
 }
 function renderOrders(items){
   items=items.filter(order=>orderMatchesFilter(order,state.orderFilter));

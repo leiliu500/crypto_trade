@@ -22,10 +22,11 @@ test("operations monitor retains an order's full P&L history after the position 
   assert.equal(snapshot.orders[0]?.remainingQty, .5);
   assert.equal(snapshot.orders[0]?.livePosition?.active, true);
   assert.equal(snapshot.orders[0]?.livePosition?.closedAtMs, null);
-  assert.equal(snapshot.orders[0]?.livePosition?.unrealizedPnl, 1);
+  assert.equal(snapshot.orders[0]?.livePosition?.unrealizedPnl, .8);
+  assert.ok(Math.abs((snapshot.orders[0]?.livePosition?.unrealizedPnlBps ?? 0) - 80) < 1e-12);
   assert.equal(snapshot.orders[0]?.livePosition?.pnlHistory.length, 1);
   assert.equal(snapshot.positions[0]?.currentPx, 101);
-  assert.equal(snapshot.positions[0]?.unrealizedPnl, 1);
+  assert.equal(snapshot.positions[0]?.unrealizedPnl, .8);
   assert.equal(snapshot.markets[0]?.kinematicsReady, false);
   const payload = snapshot.events[0]?.payload as { apiKey: string; nested: { password: string } };
   assert.equal(payload.apiKey, "[REDACTED]");
@@ -41,7 +42,7 @@ test("operations monitor retains an order's full P&L history after the position 
   changed.markets[0]!.bestBid = 102;
   monitor.ingestEngineSnapshot(changed);
   const livePosition = monitor.snapshot().orders[0]?.livePosition;
-  assert.equal(livePosition?.unrealizedPnl, 2);
+  assert.equal(livePosition?.unrealizedPnl, 1.8);
   assert.equal(livePosition?.pnlHistory.length, 2);
   assert.equal(livePosition?.pnlHistory[1]?.changePnl, .5);
 
@@ -53,7 +54,7 @@ test("operations monitor retains an order's full P&L history after the position 
   const retained = monitor.snapshot().orders[0]?.livePosition;
   assert.equal(retained?.active, false);
   assert.equal(retained?.closedAtMs, closed.generatedAtMs);
-  assert.equal(retained?.unrealizedPnl, 2);
+  assert.equal(retained?.unrealizedPnl, 1.8);
   assert.equal(retained?.pnlHistory.length, 2);
 
   const stillClosed = { ...closed, generatedAtMs: closed.generatedAtMs + 5_000 };
@@ -117,7 +118,7 @@ test("filled reduce-only exit cards inherit complete history and actual realized
     `realized P&L was ${exitCard.livePosition?.realizedPnl}`);
   assert.equal(exitCard.livePosition?.pnlHistory.length, 3);
   assert.equal(exitCard.livePosition?.pnlHistory.at(-1)?.kind, "close");
-  assert.ok(Math.abs((exitCard.livePosition?.pnlHistory.at(-1)?.changePnl ?? 0) + 3.00994999899505) < 1e-10);
+  assert.ok(Math.abs((exitCard.livePosition?.pnlHistory.at(-1)?.changePnl ?? 0) + 2.80994999899505) < 1e-10);
   assert.deepEqual(entryCard.livePosition, exitCard.livePosition);
 
   const legacyEntry = structuredClone(entryCard);
@@ -150,8 +151,12 @@ test("filled reduce-only exit cards inherit complete history and actual realized
 
 test("dashboard distinguishes a motion reset from invalid market data", async () => {
   const app = await readFile("src/dashboard/public/app.js", "utf8");
+  const html = await readFile("src/dashboard/public/index.html", "utf8");
   assert.match(app, /MOTION RESET/);
   assert.match(app, /motion evidence unavailable until the next valid update/);
+  assert.match(app, /Estimated net position P&amp;L/);
+  assert.match(app, /mark \/ net \/ change/);
+  assert.match(html, /Realized · UTC day/);
 });
 
 test("dashboard uses adaptive price precision for micro-priced assets", async () => {
@@ -314,7 +319,7 @@ test("PostgreSQL migration defines the complete operational record set", async (
 
 function engineState(): EngineOperationalSnapshot {
   const now = 1_700_000_000_000;
-  const latency = { p50: 1, p90: 2, p95: 3, p99: 4, max: 5 };
+  const latency = { count: 5, p50: 1, p90: 2, p95: 3, p99: 4, max: 5 };
   return {
     generatedAtMs: now, started: true, startedAtMs: now - 10_000, uptimeMs: 10_000, mode: "paper", paper: true,
     paperEntryExercise: false,
@@ -331,6 +336,7 @@ function engineState(): EngineOperationalSnapshot {
         fillProbability: .8, expectedValue: 2, reduceOnlyIntent: false },
       alpacaOrderId: "alpaca-1", status: "PARTIALLY_FILLED", filledQty: .5, averageFillPx: 100.5, lastUpdateMs: now,
     }],
-    latency: { feed: latency, compute: latency, send: latency, acknowledgment: latency, fill: latency, total: latency },
+    latency: { feed: latency, compute: latency, send: latency, acknowledgment: latency,
+      decisionToVenue: latency, fill: latency, total: latency },
   };
 }
