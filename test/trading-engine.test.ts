@@ -6,7 +6,7 @@ import { loadConfig } from "../src/config.js";
 import type { OrderGateway } from "../src/alpaca/gateway.js";
 import type { AssetRules, ExecutionPlan } from "../src/execution/planner.js";
 import { TradingEngine } from "../src/engine/trading-engine.js";
-import type { TrackedOrder } from "../src/execution/order-state.js";
+import type { FillDelta, TrackedOrder } from "../src/execution/order-state.js";
 import type { Position } from "../src/strategy/position-manager.js";
 
 test("reconciliation emits a position-dust event once per distinct residual", () => {
@@ -40,7 +40,7 @@ test("reconciliation emits a position-dust event once per distinct residual", ()
   assert.equal(events.length, 2);
 });
 
-test("non-urgent exits rest first and a canceled maker exit falls back to a capped IOC", async () => {
+test("non-urgent exits fall back to a capped IOC at expiry even when kinematics are unavailable", async () => {
   let nowMs = 1_000;
   const plans: ExecutionPlan[] = [];
   const gateway: OrderGateway = {
@@ -68,7 +68,7 @@ test("non-urgent exits rest first and a canceled maker exit falls back to a capp
     }>;
     orderState: { get: (clientOrderId: string) => TrackedOrder | undefined };
     submitExit: (runtime: unknown, qty: number, reason: string, book: BookState, features: Features) => Promise<void>;
-    fallbackMakerExit: (runtime: unknown, tracked: TrackedOrder, trigger: string) => Promise<void>;
+    handlePendingWithPosition: (runtime: unknown, tracked: TrackedOrder, book: BookState, features: Features) => Promise<void>;
   };
   const runtime = internals.runtimes.get("BTC/USD")!;
   runtime.asset = { symbol: "BTC/USD", minOrderSize: .001, minTradeIncrement: .001,
@@ -96,7 +96,10 @@ test("non-urgent exits rest first and a canceled maker exit falls back to a capp
 
   const maker = internals.orderState.get(plans[0]!.clientOrderId)!;
   nowMs = 31_001;
-  await within(internals.fallbackMakerExit(runtime, maker, "TTL_EXPIRED"), "maker exit fallback");
+  const unavailable = { ...features, receiveTsMs: nowMs, kinematicsReady: false,
+    kinematicsResetReason: "EVENT_GAP" as const };
+  runtime.latestFeatures = unavailable;
+  await within(internals.handlePendingWithPosition(runtime, maker, book, unavailable), "maker exit fallback");
   assert.equal(maker.cancelRequestReason, "MAKER_EXIT_FALLBACK");
   assert.equal(plans[1]?.style, "taker");
   assert.equal(plans[1]?.timeInForce, "ioc");
@@ -133,6 +136,117 @@ test("hard stops bypass maker exit optimization", async () => {
   await within(internals.submitExit(runtime, .01, "HARD_STOP", book, features), "hard-stop exit submission");
   assert.equal(plans[0]?.style, "taker");
   assert.equal(plans[0]?.timeInForce, "ioc");
+});
+
+test("a partial entry cancels its remainder while kinematics are unavailable", async () => {
+  const canceledOrderIds: string[] = [];
+  const plan = pullbackEntryPlan();
+  const gateway: OrderGateway = {
+    send: async () => ({ id: "partial-entry" }) as never,
+    cancel: async (orderId) => { canceledOrderIds.push(orderId); },
+    cancelAll: async () => undefined,
+  };
+  const rest = { getOrder: async () => ({ data: {
+    id: "partial-entry", client_order_id: plan.clientOrderId, symbol: "BTCUSD",
+    filled_qty: "0.004", filled_avg_price: "100", status: "canceled", updated_at: new Date(2_000).toISOString(),
+  } }) };
+  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", ALPACA_PAPER: "true",
+    ALPACA_API_KEY: "test", ALPACA_API_SECRET: "test", CONFIG_DIR: "config" }), {
+    gateway, rest: rest as never, now: () => 2_000,
+  });
+  const internals = engine as unknown as {
+    runtimes: Map<string, { position?: Position }>;
+    orderState: {
+      reserve: (value: ExecutionPlan) => void;
+      markAccepted: (clientOrderId: string, alpacaOrderId: string, atMs: number) => void;
+      apply: (event: unknown) => unknown;
+      get: (clientOrderId: string) => TrackedOrder | undefined;
+    };
+    handlePendingWithPosition: (runtime: unknown, tracked: TrackedOrder, book: BookState, features: Features) => Promise<void>;
+  };
+  internals.orderState.reserve(plan);
+  internals.orderState.markAccepted(plan.clientOrderId, "partial-entry", 1_100);
+  internals.orderState.apply({ id: "partial-fill", event: "partial_fill", orderId: "partial-entry",
+    clientOrderId: plan.clientOrderId, symbol: "BTC/USD", filledQty: .004, eventQty: .004,
+    eventPx: 100, timestampMs: 1_500, positionQty: .003994 });
+  const runtime = internals.runtimes.get("BTC/USD")!;
+  runtime.position = { symbol: "BTC/USD", side: 1, qty: .003994, entryPx: 100, openedMs: 1_000,
+    initialRiskPx: 1, roundTripCostPx: .4, mfePx: 0, maePx: 0, floorPx: -1,
+    breakEvenArmed: false, phase: "OPEN", executionPath: "MAKER_MAKER_TAKER_FALLBACK" };
+  const book = { symbol: "BTC/USD", bids: [{ px: 99.99, qty: 1 }], asks: [{ px: 100.01, qty: 1 }],
+    exchangeTsMs: 2_000, receiveTsMs: 2_000, sequence: 1n, valid: true, sourceReset: true } satisfies BookState;
+  const unavailable = { ...basicFeatures(2_000), kinematicsReady: false,
+    kinematicsResetReason: "FILTER_BOUNDS" as const };
+
+  const tracked = internals.orderState.get(plan.clientOrderId)!;
+  await within(internals.handlePendingWithPosition(runtime, tracked, book, unavailable), "partial entry cancellation");
+  assert.deepEqual(canceledOrderIds, ["partial-entry"]);
+  assert.equal(tracked.cancelRequestReason, "POSITION_ALREADY_OPEN");
+  assert.equal(tracked.cancellationReason, "PARTIAL_REMAINDER_CANCELED");
+});
+
+test("hard stops remain active while kinematics are unavailable", async () => {
+  const plans: ExecutionPlan[] = [];
+  const gateway: OrderGateway = {
+    send: async (plan) => { plans.push(plan); return { id: "protective-exit" } as never; },
+    cancel: async () => undefined,
+    cancelAll: async () => undefined,
+  };
+  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", ALPACA_PAPER: "true",
+    ALPACA_API_KEY: "test", ALPACA_API_SECRET: "test", CONFIG_DIR: "config" }), { gateway, now: () => 2_000 });
+  const internals = engine as unknown as {
+    runtimes: Map<string, { asset?: AssetRules; position?: Position }>;
+    enforceProtectiveExitWithoutKinematics: (runtime: unknown, book: BookState, features: Features) => Promise<void>;
+  };
+  const runtime = internals.runtimes.get("BTC/USD")!;
+  runtime.asset = { symbol: "BTC/USD", minOrderSize: .001, minTradeIncrement: .001,
+    priceIncrement: .001, maximumOrderQty: 1_000, shortable: false };
+  runtime.position = { symbol: "BTC/USD", side: 1, qty: .01, entryPx: 100, openedMs: 0,
+    initialRiskPx: 1, roundTripCostPx: .4, mfePx: 0, maePx: 0, floorPx: -1,
+    breakEvenArmed: false, phase: "OPEN", executionPath: "MAKER_MAKER_TAKER_FALLBACK" };
+  const book = { symbol: "BTC/USD", bids: [{ px: 98.9, qty: 1 }], asks: [{ px: 98.92, qty: 1 }],
+    exchangeTsMs: 2_000, receiveTsMs: 2_000, sequence: 1n, valid: true, sourceReset: true } satisfies BookState;
+  const unavailable = { ...basicFeatures(2_000), mid: 98.91, kinematicsReady: false,
+    kinematicsResetReason: "FILTER_BOUNDS" as const };
+
+  await within(internals.enforceProtectiveExitWithoutKinematics(runtime, book, unavailable), "protective exit");
+  assert.equal(plans.length, 1);
+  assert.equal(plans[0]?.style, "taker");
+  assert.equal(plans[0]?.exitReason, "HARD_STOP");
+});
+
+test("session P&L includes credited-asset entry fees and quote-currency exit fees", () => {
+  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", ALPACA_PAPER: "true",
+    ALPACA_API_KEY: "test", ALPACA_API_SECRET: "test", CONFIG_DIR: "config" }));
+  const internals = engine as unknown as {
+    orderState: {
+      reserve: (value: ExecutionPlan) => void;
+      markAccepted: (clientOrderId: string, alpacaOrderId: string, atMs: number) => void;
+      apply: (event: unknown) => FillDelta | null;
+    };
+    applyFill: (fill: FillDelta) => void;
+  };
+  const entry = { ...pullbackEntryPlan(), clientOrderId: "fee-entry", qty: 1, limitPx: 100 };
+  internals.orderState.reserve(entry);
+  internals.orderState.markAccepted(entry.clientOrderId, "fee-entry-order", 1_001);
+  const entryFill = internals.orderState.apply({ id: "fee-entry-fill", event: "fill", orderId: "fee-entry-order",
+    clientOrderId: entry.clientOrderId, symbol: "BTC/USD", filledQty: 1, eventQty: 1,
+    eventPx: 100, timestampMs: 1_002, positionQty: .9985 });
+  assert.ok(entryFill);
+  internals.applyFill(entryFill!);
+  assert.ok(Math.abs(engine.state().realizedSessionPnl + .15) < 1e-12);
+
+  const exit: ExecutionPlan = { ...entry, clientOrderId: "fee-exit", decisionId: "fee-exit-decision",
+    riskApprovalId: "fee-exit-risk", side: -1, qty: .9985, limitPx: 101, style: "taker", timeInForce: "ioc",
+    reduceOnlyIntent: true, expectedCost: { ...entry.expectedCost, feeBps: 50 } };
+  internals.orderState.reserve(exit);
+  internals.orderState.markAccepted(exit.clientOrderId, "fee-exit-order", 1_003);
+  const exitFill = internals.orderState.apply({ id: "fee-exit-fill", event: "fill", orderId: "fee-exit-order",
+    clientOrderId: exit.clientOrderId, symbol: "BTC/USD", filledQty: .9985, eventQty: .9985,
+    eventPx: 101, timestampMs: 1_004, positionQty: 0 });
+  assert.ok(exitFill);
+  internals.applyFill(exitFill!);
+  assert.ok(Math.abs(engine.state().realizedSessionPnl - .59637875) < 1e-12);
 });
 
 test("a pullback maker entry survives one transient kinematics reset and cancels only after the configured grace", async () => {
@@ -216,6 +330,70 @@ test("an expired pullback maker order reports TTL before a simultaneous kinemati
     { ...basicFeatures(nowMs), kinematicsReady: false, kinematicsResetReason: "EVENT_GAP" });
   assert.equal(tracked.status, "CANCELED");
   assert.equal(tracked.cancellationReason, "TTL_EXPIRED");
+});
+
+test("transient hold evidence cannot bypass the position manager minimum hold", async () => {
+  const plans: ExecutionPlan[] = [];
+  const gateway: OrderGateway = {
+    send: async (plan) => { plans.push(plan); return { id: "unexpected-exit" } as never; },
+    cancel: async () => undefined,
+    cancelAll: async () => undefined,
+  };
+  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", ALPACA_PAPER: "true",
+    ALPACA_API_KEY: "test", ALPACA_API_SECRET: "test", CONFIG_DIR: "config" }), {
+    gateway, now: () => 61_000,
+  });
+  const internals = engine as unknown as {
+    runtimes: Map<string, {
+      asset?: AssetRules; position?: Position;
+      regimeEngine: { classify: (features: unknown) => unknown };
+      holdEngine: { evaluate: (...args: unknown[]) => unknown };
+      positionManager: { update: (...args: unknown[]) => unknown };
+      cost: { estimate: (...args: unknown[]) => unknown };
+    }>;
+    managePosition: (runtime: unknown, book: BookState, features: unknown) => void;
+  };
+  const runtime = internals.runtimes.get("BTC/USD")!;
+  runtime.asset = { symbol: "BTC/USD", minOrderSize: .001, minTradeIncrement: .001,
+    priceIncrement: .001, maximumOrderQty: 1_000, shortable: false };
+  runtime.position = { symbol: "BTC/USD", side: 1, qty: .01, entryPx: 100, openedMs: 0,
+    initialRiskPx: 10, roundTripCostPx: .4, mfePx: 0, maePx: 0, floorPx: -10,
+    breakEvenArmed: false, phase: "OPEN", selectedHorizonMs: 7_200_000,
+    executionPath: "MAKER_MAKER_TAKER_FALLBACK" };
+  runtime.regimeEngine = { classify: () => ({ name: "CHOP", allowLong: false, allowShort: false, riskScale: 0 }) };
+  runtime.holdEngine = { evaluate: () => ({ continuationScore: -1, reversalScore: 1, holdGrossBps: 0,
+    uncertaintyBps: 1, holdLowerBoundBps: -1, exitEvidence: true, reversalVotes: 5 }) };
+  runtime.positionManager = { update: () => ({ action: "HOLD", floorPx: -10, stopPx: 90, signedMovePx: 0 }) };
+  runtime.cost = { estimate: () => ({ roundTripBps: 30, spreadBps: 0, feeBps: 30,
+    impactBps: 0, latencyBps: 0, adverseSelectionBps: 0, fundingBps: 0, borrowBps: 0 }) };
+  const book = { symbol: "BTC/USD", bids: [{ px: 100, qty: 1 }], asks: [{ px: 100.01, qty: 1 }],
+    exchangeTsMs: 61_000, receiveTsMs: 61_000, sequence: 1n, valid: true, sourceReset: true } satisfies BookState;
+
+  internals.managePosition(runtime, book, basicFeatures(61_000));
+  await new Promise<void>((resolve) => setImmediate(resolve));
+
+  assert.equal(plans.length, 0);
+});
+
+test("closing a position arms the configured re-entry cooldown", () => {
+  const nowMs = 10_000;
+  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "replay", CONFIG_DIR: "config" }), { now: () => nowMs });
+  const internals = engine as unknown as {
+    runtimes: Map<string, { asset?: AssetRules; position?: Position; reentryBlockedUntilMs?: number }>;
+    applyFill: (fill: FillDelta) => void;
+  };
+  const runtime = internals.runtimes.get("BTC/USD")!;
+  runtime.asset = { symbol: "BTC/USD", minOrderSize: .001, minTradeIncrement: .001,
+    priceIncrement: .001, maximumOrderQty: 1_000, shortable: false };
+  runtime.position = { symbol: "BTC/USD", side: 1, qty: .01, entryPx: 100, openedMs: 0,
+    initialRiskPx: 10, roundTripCostPx: .4, mfePx: 0, maePx: 0, floorPx: -10,
+    breakEvenArmed: false, phase: "EXITING" };
+
+  internals.applyFill({ symbol: "BTC/USD", side: -1, qty: .01, price: 101,
+    clientOrderId: "exit", final: true, positionQty: 0 });
+
+  assert.equal(runtime.position, undefined);
+  assert.equal(runtime.reentryBlockedUntilMs, nowMs + 900_000);
 });
 
 function pullbackEntryPlan(): ExecutionPlan {

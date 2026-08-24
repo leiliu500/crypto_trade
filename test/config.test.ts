@@ -44,21 +44,11 @@ test("JSON baseline wins over legacy tunable environment values and symbol overl
     writeFileSync(join(directory, "pepe_usd.json"), JSON.stringify({ schemaVersion: 1, symbol: "PEPE/USD", parameters: {} }));
 
     const cfg = loadConfig({ TRADING_MODE: "replay", CONFIG_DIR: directory, RULE_SCORE_ENTER: "9" });
-    assert.deepEqual(cfg.symbols, ["BTC/USD", "ETH/USD", "LINK/USD", "SOL/USD", "XRP/USD", "DOGE/USD",
-      "ADA/USD", "LTC/USD", "AVAX/USD", "HYPE/USD", "PEPE/USD"]);
+    assert.deepEqual(cfg.symbols, ["BTC/USD", "ETH/USD"]);
     assert.equal(cfg.deterministicSignal.scoreEnter, 0.3);
     assert.equal(cfg.symbolConfigs["BTC/USD"]?.deterministicSignal.scoreEnter, 0.9);
     assert.equal(cfg.symbolConfigs["BTC/USD"]?.maximumNotional, 250);
     assert.equal(cfg.symbolConfigs["ETH/USD"]?.deterministicSignal.scoreEnter, 0.3);
-    assert.equal(cfg.symbolConfigs["LINK/USD"]?.deterministicSignal.scoreEnter, 0.3);
-    assert.equal(cfg.symbolConfigs["SOL/USD"]?.deterministicSignal.scoreEnter, 0.3);
-    assert.equal(cfg.symbolConfigs["XRP/USD"]?.deterministicSignal.scoreEnter, 0.3);
-    assert.equal(cfg.symbolConfigs["DOGE/USD"]?.deterministicSignal.scoreEnter, 0.3);
-    assert.equal(cfg.symbolConfigs["ADA/USD"]?.deterministicSignal.scoreEnter, 0.3);
-    assert.equal(cfg.symbolConfigs["LTC/USD"]?.deterministicSignal.scoreEnter, 0.3);
-    assert.equal(cfg.symbolConfigs["AVAX/USD"]?.deterministicSignal.scoreEnter, 0.3);
-    assert.equal(cfg.symbolConfigs["HYPE/USD"]?.deterministicSignal.scoreEnter, 0.3);
-    assert.equal(cfg.symbolConfigs["PEPE/USD"]?.deterministicSignal.scoreEnter, 0.3);
     assert.equal(cfg.feature.maximumProviderFutureSkewMs, 250);
     assert.equal(cfg.feature.maximumKinematicsGapMs, 5_000);
     assert.equal(cfg.symbolConfigs["BTC/USD"]?.feature.maximumProviderFutureSkewMs, 250);
@@ -70,7 +60,12 @@ test("JSON baseline wins over legacy tunable environment values and symbol overl
     assert.equal(cfg.position.maximumHoldMs, 14_400_000);
     assert.deepEqual(cfg.deterministicSignal.analyticHorizons.map((item) => item.horizonMs), [3_600_000, 7_200_000, 14_400_000]);
     assert.equal(cfg.deterministicSignal.requireMakerEntry, true);
-    assert.equal(cfg.configurationVersion, "expanded-universe-v4.2.0");
+    assert.equal(cfg.configurationVersion, "btc-eth-profit-protection-v4.3.0");
+    assert.equal(cfg.position.minimumHoldMs, 1_800_000);
+    assert.equal(cfg.position.reentryCooldownMs, 900_000);
+    assert.equal(cfg.position.evidenceConfirmationMs, 30_000);
+    assert.equal(cfg.position.profitActivationCostMultiple, 1.25);
+    assert.equal(cfg.deterministicSignal.microTrigger.cooldownMs, 60_000);
     assert.equal(cfg.planner.pullbackMakerTtlMs, 20_000);
     assert.equal(cfg.planner.pullbackKinematicsGraceMs, 5_000);
     assert.equal(cfg.planner.pullbackKinematicsGraceEvents, 2);
@@ -129,19 +124,19 @@ test("symbol files cannot override global or runtime-only parameters", () => {
   } finally { rmSync(directory, { recursive: true, force: true }); }
 });
 
-test("wide per-symbol spread caps are restricted to shadow and replay verification", () => {
+test("per-symbol spread caps are restricted to active symbols and paper safety limits", () => {
   const replay = loadConfig({ TRADING_MODE: "replay" });
   assert.equal(replay.symbolConfigs["BTC/USD"]?.dynamicLiquidity.absoluteTradeCapBps, 25);
-  assert.equal(replay.symbolConfigs["DOGE/USD"]?.dynamicLiquidity.absoluteTradeCapBps, 60);
+  assert.equal(replay.symbolConfigs["ETH/USD"]?.dynamicLiquidity.absoluteTradeCapBps, 25);
   assert.equal(replay.symbolConfigs["BTC/USD"]?.deterministicSignal.microTrigger.minimumMicroMoveBps, 0.008);
-  assert.equal(replay.symbolConfigs["LINK/USD"]?.deterministicSignal.microTrigger.maximumChaseBps, 3);
-  assert.equal(replay.symbolConfigs["DOGE/USD"]?.deterministicSignal.microTrigger.noiseMovementMultiplier, 0.4);
+  assert.equal(replay.symbolConfigs["DOGE/USD"], undefined);
+  assert.equal(replay.symbolConfigs["LINK/USD"], undefined);
 
   const paper = loadConfig({
     TRADING_MODE: "paper", ALPACA_PAPER: "true", ALPACA_API_KEY: "paper-key", ALPACA_API_SECRET: "paper-secret",
   });
   assert.equal(paper.symbolConfigs["BTC/USD"]?.dynamicLiquidity.absoluteTradeCapBps, 30);
-  assert.equal(paper.symbolConfigs["DOGE/USD"]?.dynamicLiquidity.absoluteTradeCapBps, 30);
+  assert.equal(paper.symbolConfigs["ETH/USD"]?.dynamicLiquidity.absoluteTradeCapBps, 30);
 });
 
 test("paper entry exercise is isolated, capped, labeled, and rejected outside paper", () => {

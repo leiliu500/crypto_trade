@@ -32,6 +32,20 @@ test("a late POST acknowledgment cannot regress an already filled IOC order", ()
   assert.equal(state.get("client-1")?.lastUpdateMs, 11);
 });
 
+test("a late cancel rejection cannot regress an already filled order", () => {
+  const state = new OrderStateReconciler();
+  state.reserve(plan());
+  state.markSending("client-1");
+  state.apply({ id: "execution-fast", event: "fill", orderId: "order-fast", clientOrderId: "client-1",
+    symbol: "BTC/USD", filledQty: 1, eventQty: 1, eventPx: 100, timestampMs: 11 });
+
+  state.apply({ id: "cancel-rejected", event: "order_cancel_rejected", orderId: "order-fast",
+    clientOrderId: "client-1", symbol: "BTC/USD", filledQty: 1, eventQty: 0, eventPx: 0,
+    timestampMs: 12 });
+
+  assert.equal(state.get("client-1")?.status, "FILLED");
+});
+
 test("private fills retain Alpaca's fee-adjusted authoritative position quantity", () => {
   const state = new OrderStateReconciler();
   state.reserve(plan());
