@@ -4,7 +4,8 @@ import type { EngineMarketSnapshot, EngineOperationalSnapshot, TradingEngine } f
 import type { PositionDecision } from "../strategy/position-manager.js";
 import type {
   DashboardEvent, DashboardLivePosition, DashboardMarketCard, DashboardOrderCard, DashboardPnlPoint,
-  DashboardPositionCard, DashboardSnapshot, DatabaseHealth, EventSeverity, OrderTimelineEntry, TelemetryRecord,
+  DashboardPositionCard, DashboardSessionPnlBreakdown, DashboardSnapshot, DatabaseHealth, EventSeverity,
+  OrderTimelineEntry, TelemetryRecord,
 } from "./types.js";
 import { disabledDatabaseHealth } from "./types.js";
 
@@ -264,6 +265,7 @@ export class OperationsMonitor extends EventEmitter {
           unrealizedPnlBps,
           realizedPnl: null,
           realizedPnlBps: null,
+          realizedBreakdown: null,
           closePx: null,
           entryOrderId: orderId ?? null,
           exitOrderId: null,
@@ -356,6 +358,7 @@ export class OperationsMonitor extends EventEmitter {
         this.orderPositionPnl.set(order.clientOrderId, cloneLivePosition(order.livePosition));
       }
     }
+    const realizedSessionBreakdown = aggregateRealizedSessionPnl(visibleOrders, nowMs);
     const health = state.risk.health;
     const liveness: DashboardSnapshot["liveness"] = [
       check("engine", "Engine process", state.started, state.started ? `Up ${formatDuration(state.uptimeMs)}` : "Not started", nowMs),
@@ -379,6 +382,7 @@ export class OperationsMonitor extends EventEmitter {
       started: state.started, uptimeMs: state.uptimeMs, overall, entriesAllowed,
       haltReasons: [...state.risk.reasons], equity: state.equity, equityHighWater: state.equityHighWater,
       realizedSessionPnl: state.realizedSessionPnl,
+      realizedSessionBreakdown,
       latencyP95Ms: state.latency.decisionToVenue?.count ? state.latency.decisionToVenue.p95 : null,
       liveness, database: { ...this.databaseHealth }, markets, positions, orders: visibleOrders,
       events: [...this.events],
@@ -446,7 +450,9 @@ export class OperationsMonitor extends EventEmitter {
 
   private closedTradePnl(entry: DashboardOrderCard, exit: DashboardOrderCard): DashboardLivePosition {
     const source = entry.livePosition!;
-    if (source.exitOrderId === exit.clientOrderId && source.realizedPnl !== null) return cloneLivePosition(source);
+    if (source.exitOrderId === exit.clientOrderId && source.realizedPnl !== null && source.realizedBreakdown) {
+      return cloneLivePosition(source);
+    }
     const closeQty = exit.filledQty;
     const closePx = exit.averageFillPx;
     const positionFraction = source.qty > 0 ? Math.min(1, closeQty / source.qty) : 1;
@@ -454,7 +460,8 @@ export class OperationsMonitor extends EventEmitter {
     const entryNotional = grossEntryQty * source.entryPx;
     const entryFee = entryNotional * legFeeBps(entry) / 10_000;
     const exitFee = closeQty * closePx * legFeeBps(exit) / 10_000;
-    const realizedPnl = entry.side * closeQty * (closePx - source.entryPx) - entryFee - exitFee;
+    const grossPricePnl = entry.side * closeQty * (closePx - source.entryPx);
+    const realizedPnl = grossPricePnl - entryFee - exitFee;
     const realizedPnlBps = entryNotional > 0 ? realizedPnl / entryNotional * 10_000 : 0;
     const history = source.pnlHistory.map((point) => ({ ...point }));
     if (!source.active && source.qty <= quantityTolerance(closeQty) && history.at(-1)?.kind !== "close") history.pop();
@@ -481,6 +488,14 @@ export class OperationsMonitor extends EventEmitter {
       unrealizedPnlBps: realizedPnlBps,
       realizedPnl,
       realizedPnlBps,
+      realizedBreakdown: {
+        grossPricePnl,
+        entryFee,
+        exitFee,
+        realizedPnl,
+        entryStyle: entry.style,
+        exitStyle: exit.style,
+      },
       closePx,
       entryOrderId: entry.clientOrderId,
       exitOrderId: exit.clientOrderId,
@@ -575,6 +590,7 @@ function emptySnapshot(): DashboardSnapshot {
   return { version: 1, generatedAtMs: Date.now(), mode: "offline", paper: true, strategyVersion: "-", modelVersion: "-",
     configurationVersion: "-", signalMode: "DETERMINISTIC_ONLY", started: false,
     uptimeMs: 0, overall: "degraded", entriesAllowed: false, haltReasons: [], equity: 0, equityHighWater: 0, realizedSessionPnl: 0,
+    realizedSessionBreakdown: null,
     latencyP95Ms: null, liveness: [], database: disabledDatabaseHealth(), markets: [], positions: [], orders: [], events: [] };
 }
 function check(id: string, label: string, healthy: boolean, detail: string, updatedAtMs: number) { return { id, label, healthy, detail, updatedAtMs }; }
@@ -588,8 +604,49 @@ function sortOrders(orders: DashboardOrderCard[]): DashboardOrderCard[] {
     || b.clientOrderId.localeCompare(a.clientOrderId));
 }
 function cloneLivePosition(position: DashboardLivePosition): DashboardLivePosition {
-  return { ...position, pnlHistory: position.pnlHistory.map((point) => ({ ...point })) };
+  return {
+    ...position,
+    realizedBreakdown: position.realizedBreakdown ? { ...position.realizedBreakdown } : null,
+    pnlHistory: position.pnlHistory.map((point) => ({ ...point })),
+  };
 }
+function aggregateRealizedSessionPnl(orders: readonly DashboardOrderCard[], atMs: number): DashboardSessionPnlBreakdown | null {
+  const utcDayStartMs = Math.floor(atMs / 86_400_000) * 86_400_000;
+  const closedTrades = new Map<string, DashboardRealizedTrade>();
+  for (const order of orders) {
+    const position = order.livePosition;
+    const breakdown = position?.realizedBreakdown;
+    if (!position || position.active || !breakdown || !position.exitOrderId || position.closedAtMs === null) continue;
+    if (position.closedAtMs < utcDayStartMs || position.closedAtMs >= utcDayStartMs + 86_400_000) continue;
+    const previous = closedTrades.get(position.exitOrderId);
+    if (!previous || order.clientOrderId === position.exitOrderId) closedTrades.set(position.exitOrderId, { breakdown });
+  }
+  if (closedTrades.size === 0) return null;
+  let grossPricePnl = 0;
+  let entryFee = 0;
+  let exitFee = 0;
+  let realizedPnl = 0;
+  const entryStyles = new Set<string>();
+  const exitStyles = new Set<string>();
+  for (const { breakdown } of closedTrades.values()) {
+    grossPricePnl += breakdown.grossPricePnl;
+    entryFee += breakdown.entryFee;
+    exitFee += breakdown.exitFee;
+    realizedPnl += breakdown.realizedPnl;
+    entryStyles.add(breakdown.entryStyle);
+    exitStyles.add(breakdown.exitStyle);
+  }
+  return {
+    grossPricePnl,
+    entryFee,
+    exitFee,
+    realizedPnl,
+    tradeCount: closedTrades.size,
+    entryStyle: entryStyles.size === 1 ? [...entryStyles][0]! : null,
+    exitStyle: exitStyles.size === 1 ? [...exitStyles][0]! : null,
+  };
+}
+interface DashboardRealizedTrade { breakdown: NonNullable<DashboardLivePosition["realizedBreakdown"]> }
 function legFeeBps(order: DashboardOrderCard): number {
   return Number.isFinite(order.expectedCost.feeBps) ? Math.max(0, order.expectedCost.feeBps / 2) : 0;
 }

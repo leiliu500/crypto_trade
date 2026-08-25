@@ -33,12 +33,19 @@ function render(s){
   el("health-description").textContent=s.entriesAllowed?"All causal data, account, order-book, and risk invariants currently permit new entries.":"The engine remains fail-closed until every execution invariant is healthy.";
   el("health-score").textContent=score;el("health-orbit").className=`health-orbit ${s.overall}`;el("health-pulse").style.background=s.overall==="critical"?"var(--red)":s.overall==="degraded"?"var(--amber)":"var(--cyan)";
   el("halt-reasons").innerHTML=(s.haltReasons||[]).map(reason=>`<span class="halt-chip">${esc(reason)}</span>`).join("");
-  el("equity").textContent=money(s.equity);el("drawdown").textContent=`Peak ${money(s.equityHighWater)}`;el("session-pnl").textContent=signed(s.realizedSessionPnl," USD");el("session-pnl").className=pnlClass(s.realizedSessionPnl);
+  el("equity").textContent=money(s.equity);el("drawdown").textContent=`Peak ${money(s.equityHighWater)}`;el("session-pnl").textContent=signedMoney(s.realizedSessionPnl,5);el("session-pnl").className=pnlClass(s.realizedSessionPnl);renderSessionPnlBreakdown(s.realizedSessionBreakdown);
   el("latency").textContent=s.latencyP95Ms==null?"—":`${num(s.latencyP95Ms,1)} ms`;el("uptime").textContent=duration(s.uptimeMs);el("strategy-version").textContent=`Strategy ${s.strategyVersion}`;el("last-update").textContent=`Updated ${relative(s.generatedAtMs)}`;
   renderLiveness(s.liveness||[]);syncSymbols(s.markets||[]);renderMarkets(filtered(s.markets||[]));renderOrders(filtered(s.orders||[]));renderEvents(s.events||[]);
   el("footer-detail").textContent=`DB ${s.database.status} · ${s.database.queuedRecords} queued · ${s.signalMode||"DETERMINISTIC_ONLY"} · config ${s.configurationVersion||"-"}${s.modelVersion&&s.modelVersion!=="none"?` · model ${s.modelVersion}`:""}`;
 }
 function filtered(items){return state.symbol==="all"?items:items.filter(item=>item.symbol===state.symbol);}
+function sessionPnlBreakdownHtml(breakdown){
+  if(!breakdown||![breakdown.grossPricePnl,breakdown.entryFee,breakdown.exitFee,breakdown.realizedPnl].every(Number.isFinite))return "";
+  const entryFeeLabel=breakdown.entryStyle?`Entry ${esc(String(breakdown.entryStyle).toLowerCase().replaceAll("_"," "))} fee`:"Entry fees";
+  const exitFeeLabel=breakdown.exitStyle?`Exit ${esc(String(breakdown.exitStyle).toLowerCase().replaceAll("_"," "))} fee`:"Exit fees";
+  return `<div class="session-pnl-row"><span>Gross price gain</span><strong class="${pnlClass(breakdown.grossPricePnl)}">${signedMoney(breakdown.grossPricePnl,5)}</strong></div><div class="session-pnl-row"><span>${entryFeeLabel}</span><strong class="negative">${signedMoney(-Math.abs(breakdown.entryFee),5)}</strong></div><div class="session-pnl-row"><span>${exitFeeLabel}</span><strong class="negative">${signedMoney(-Math.abs(breakdown.exitFee),5)}</strong></div><div class="session-pnl-row total"><span>Actual realized P&amp;L</span><strong class="${pnlClass(breakdown.realizedPnl)}">${signedMoney(breakdown.realizedPnl,5)}</strong></div>`;
+}
+function renderSessionPnlBreakdown(breakdown){const node=el("session-pnl-breakdown"),html=sessionPnlBreakdownHtml(breakdown);node.innerHTML=html;node.hidden=!html;}
 function renderLiveness(items){el("liveness-grid").className="liveness-grid";el("liveness-grid").innerHTML=items.map(item=>`<article class="live-card ${item.healthy?"":"bad"}"><span class="status-icon">${item.healthy?"✓":"!"}</span><div><b>${esc(item.label)}</b><small title="${esc(item.detail)}">${esc(item.detail)}</small></div><i class="live-dot"></i></article>`).join("");}
 function syncSymbols(markets){const select=el("symbol-filter"),current=select.value||state.symbol,values=[...new Set(markets.map(m=>m.symbol))];select.innerHTML=`<option value="all">All symbols</option>${values.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join("")}`;select.value=values.includes(current)||current==="all"?current:"all";state.symbol=select.value;}
 function renderMarkets(items){const grid=el("market-grid");if(!items.length){grid.className="market-grid empty-grid";grid.innerHTML="<p>Waiting for order books…</p>";return;}grid.className="market-grid";grid.innerHTML=items.map(m=>{
@@ -62,30 +69,100 @@ function renderMarkets(items){const grid=el("market-grid");if(!items.length){gri
   return `<article class="market-card"><div class="market-top"><div><div class="symbol">${esc(m.symbol)}</div><div class="venue">ALPACA · CRYPTO · ${esc(m.regime||"WARMING")}</div></div><span class="book-state ${bookStateClass}">${bookState}</span></div><div class="market-price">${priceMoney(m.mid)}</div><div class="market-spread">${priceMoney(m.bestBid)} bid · ${priceMoney(m.bestAsk)} ask</div><div class="micro-bars">${seed.map(h=>`<i style="height:${h}px"></i>`).join("")}</div><div class="market-metrics"><div class="metric"><span>Spread</span><strong>${num(m.spreadBps,2)} bp</strong></div><div class="metric"><span>Slow trend 5/15/60m</span><strong>${slowTrend}</strong></div><div class="metric"><span>Pullback depth/recovery/room</span><strong>${pullback}</strong></div><div class="metric"><span>Provider age</span><strong>${num(m.providerAgeMs,0)} ms</strong></div></div><div class="decision-strip"><div><small>Rule state</small><b>${stateLabel}</b></div><small title="${esc(blocks)}">${esc(pipeline)} · ${esc(rejection||gateText)}</small></div></article>`;}).join("");}
 function renderEvents(items){el("events-body").innerHTML=items.slice(0,25).map(e=>`<tr><td class="event-time" data-label="Time">${time(e.atMs)}</td><td data-label="Severity"><span class="severity ${esc(e.severity)}">${esc(e.severity)}</span></td><td class="event-type" data-label="Event">${esc(e.type)}</td><td data-label="Context" title="${esc(e.summary)}">${esc(e.summary)}</td></tr>`).join("")||"<tr><td colspan='4' class='empty-row'>Waiting for events…</td></tr>";}
 
+function completePnlHistory(position,checkpointMs=60000){
+  const source=(position?.pnlHistory||[]).filter(point=>Number.isFinite(point.atMs)&&Number.isFinite(point.currentPx)&&Number.isFinite(point.unrealizedPnl)).map(point=>({...point})).sort((a,b)=>a.atMs-b.atMs);
+  if(!source.length||!(checkpointMs>0))return source;
+  const openedMs=Number.isFinite(position.openedMs)?position.openedMs:source[0].atMs;
+  const endMs=position.closedAtMs!=null&&Number.isFinite(position.closedAtMs)?position.closedAtMs:openedMs+Math.max(0,Number(position.ageMs)||0);
+  const byTime=new Map(source.map(point=>[point.atMs,point]));
+  let sourceIndex=0,last=source[0];
+  for(let atMs=openedMs+checkpointMs;atMs<endMs;atMs+=checkpointMs){
+    while(sourceIndex+1<source.length&&source[sourceIndex+1].atMs<=atMs){sourceIndex+=1;last=source[sourceIndex];}
+    if(last.atMs>atMs||byTime.has(atMs))continue;
+    byTime.set(atMs,{...last,atMs,kind:"checkpoint",changePnl:0});
+  }
+  const completed=[...byTime.values()].sort((a,b)=>a.atMs-b.atMs);
+  return completed.map((point,index)=>({...point,changePnl:index?point.unrealizedPnl-completed[index-1].unrealizedPnl:null}));
+}
 function renderLivePnl(position){
   if(!position)return "";
   const totalPnl=!position.active&&Number.isFinite(position.realizedPnl)?position.realizedPnl:position.unrealizedPnl;
   const totalPnlBps=!position.active&&Number.isFinite(position.realizedPnlBps)?position.realizedPnlBps:position.unrealizedPnlBps;
-  const history=(position.pnlHistory||[]).slice().reverse().map(point=>`<div class="pnl-change-row"><time>${time(point.atMs)}</time><span>${priceMoney(point.currentPx)}${point.kind==="close"?" exit":""}</span><strong class="${pnlClass(point.unrealizedPnl)}">${signedMoney(point.unrealizedPnl)}</strong><em class="${pnlClass(point.changePnl)}">${point.changePnl==null?"initial":signedMoney(point.changePnl)}</em></div>`).join("");
+  const historyPoints=completePnlHistory(position);
+  const displayedHistory=position.active?historyPoints.slice().reverse():historyPoints;
+  const history=displayedHistory.map(point=>`<div class="pnl-change-row ${point.kind==="checkpoint"?"checkpoint":""}"><time title="${point.kind==="checkpoint"?"One-minute carry-forward checkpoint":"Observed P&amp;L change"}">${time(point.atMs)}${point.kind==="checkpoint"?" · 1m":""}</time><span>${priceMoney(point.currentPx)}${point.kind==="close"?" exit":""}</span><strong class="${pnlClass(point.unrealizedPnl)}">${signedMoney(point.unrealizedPnl)}</strong><em class="${pnlClass(point.changePnl)}">${point.changePnl==null?"initial":signedMoney(point.changePnl)}</em></div>`).join("");
+  const historyEndMs=position.closedAtMs!=null?position.closedAtMs:position.openedMs+Math.max(0,position.ageMs||0);
+  const historyCoverage=duration(Math.max(0,historyEndMs-position.openedMs));
   const stateLabel=position.active?"OPEN":"CLOSED";
   const title=position.active?"Estimated net position P&amp;L":"Realized trade P&amp;L";
   const ageLabel=position.active?"Open":"Held";
   const context=position.latestReason||(position.active?"Position is open and monitored by the exit engine":"Position closed; retained P&amp;L samples are read-only history");
   const priceLabel=position.active?"Last mark":"Exit fill";
   const displayPx=position.closePx||position.currentPx;
-  return `<section class="order-live-pnl ${position.active?"active":"closed"}" data-testid="order-live-pnl" aria-live="polite"><div class="live-pnl-head"><div><span>${title}</span><strong class="${pnlClass(totalPnl)}">${signedMoney(totalPnl)}</strong></div><div><span class="pnl-position-state">${stateLabel}</span><strong class="${pnlClass(totalPnlBps)}">${signed(totalPnlBps," bp")}</strong></div></div><div class="live-pnl-meta"><span>Entry ${priceMoney(position.entryPx)}</span><span>${priceLabel} ${priceMoney(displayPx)}</span><span>${ageLabel} ${duration(position.ageMs)}</span></div><div class="pnl-history"><div class="pnl-history-title"><span>All P&amp;L changes</span><span>mark / net / change</span></div>${history||"<div class='pnl-history-empty'>Waiting for the next price change…</div>"}</div><div class="live-pnl-action"><b>${esc(position.latestAction)}</b><span title="${esc(context)}">${esc(context)}</span></div></section>`;
+  const breakdown=renderRealizedPnlBreakdown(position);
+  return `<section class="order-live-pnl ${position.active?"active":"closed"}" data-testid="order-live-pnl" aria-live="polite"><div class="live-pnl-head"><div><span>${title}</span><strong class="${pnlClass(totalPnl)}">${signedMoney(totalPnl,position.active?4:5)}</strong></div><div><span class="pnl-position-state">${stateLabel}</span><strong class="${pnlClass(totalPnlBps)}">${signed(totalPnlBps," bp")}</strong></div></div><div class="live-pnl-meta"><span>Entry ${priceMoney(position.entryPx)}</span><span>${priceLabel} ${priceMoney(displayPx)}</span><span>${ageLabel} ${duration(position.ageMs)}</span></div>${breakdown}<div class="pnl-history"><div class="pnl-history-title" title="One-minute carry-forward checkpoints plus every observed P&amp;L change"><span>P&amp;L history · ${historyCoverage} covered</span><span>mark / net / change</span></div>${history||"<div class='pnl-history-empty'>Waiting for the first P&amp;L sample…</div>"}</div><div class="live-pnl-action"><b>${esc(position.latestAction)}</b><span title="${esc(context)}">${esc(context)}</span></div></section>`;
+}
+function renderRealizedPnlBreakdown(position){
+  const breakdown=position&&!position.active?position.realizedBreakdown:null;
+  if(!breakdown||![breakdown.grossPricePnl,breakdown.entryFee,breakdown.exitFee,breakdown.realizedPnl].every(Number.isFinite))return "";
+  const entryStyle=String(breakdown.entryStyle||"order").toLowerCase().replaceAll("_"," ");
+  const exitStyle=String(breakdown.exitStyle||"order").toLowerCase().replaceAll("_"," ");
+  return `<div class="realized-pnl-breakdown" data-testid="realized-pnl-breakdown"><div class="realized-pnl-row"><span>Gross price gain</span><strong class="${pnlClass(breakdown.grossPricePnl)}">${signedMoney(breakdown.grossPricePnl,5)}</strong></div><div class="realized-pnl-row"><span>Entry ${esc(entryStyle)} fee</span><strong class="negative">${signedMoney(-Math.abs(breakdown.entryFee),5)}</strong></div><div class="realized-pnl-row"><span>Exit ${esc(exitStyle)} fee</span><strong class="negative">${signedMoney(-Math.abs(breakdown.exitFee),5)}</strong></div><div class="realized-pnl-row total"><span>Actual realized P&amp;L</span><strong class="${pnlClass(breakdown.realizedPnl)}">${signedMoney(breakdown.realizedPnl,5)}</strong></div></div>`;
+}
+function groupOrderCards(items){
+  const byId=new Map(items.map(order=>[order.clientOrderId,order]));
+  const tradeByOrderId=new Map();
+  for(const order of items){
+    const position=order.livePosition;
+    if(!position?.entryOrderId)continue;
+    const entry=byId.get(position.entryOrderId);
+    if(!entry)continue;
+    const exit=position.exitOrderId?byId.get(position.exitOrderId)||null:null;
+    const trade={kind:"trade",entry,exit,position:exit?.livePosition||entry.livePosition||position};
+    tradeByOrderId.set(entry.clientOrderId,trade);
+    if(exit)tradeByOrderId.set(exit.clientOrderId,trade);
+  }
+  const seenTrades=new Set();
+  const grouped=[];
+  for(const order of items){
+    const trade=tradeByOrderId.get(order.clientOrderId);
+    if(!trade){grouped.push({kind:"order",order});continue;}
+    if(seenTrades.has(trade.entry.clientOrderId))continue;
+    seenTrades.add(trade.entry.clientOrderId);
+    grouped.push(trade);
+  }
+  return grouped;
+}
+function dashboardCardMatchesFilter(card,filter){
+  if(card.kind==="order")return orderMatchesFilter(card.order,filter);
+  const terminal=!card.position.active;
+  return filter==="all"||(filter==="open"?!terminal:filter==="terminal"&&terminal);
+}
+function renderOrderTimeline(o,label="Lifecycle"){
+  const timeline=(o.timeline||[]).slice(-5).map(t=>`<div class="timeline-item ${esc(t.severity)}" title="${esc(t.label)}">${esc(t.status.replaceAll("_"," "))}<br>${time(t.atMs)}</div>`).join("");
+  return `<div class="timeline"><div class="timeline-title">${esc(label)}</div><div class="timeline-items">${timeline||"<div class='timeline-item'>Created</div>"}</div></div>`;
+}
+function renderOrderLeg(o,label){
+  const side=o.side>0?"BUY":"SELL",cost=o.expectedCost||{},ttl=o.expiresInMs>0?`${duration(o.expiresInMs)} left`:o.terminal?"complete":"expired";
+  const statusText=o.statusLabel||o.status.replaceAll("_"," "),cancelTitle=o.cancelRequestReason?`Requested: ${o.cancelRequestReason.replaceAll("_"," ")}`:"";
+  return `<section class="trade-leg" data-testid="${label.toLowerCase()}-leg"><div class="trade-leg-head"><div><span class="trade-leg-label">${esc(label)} · ${side} · ${esc(o.style.toUpperCase())} · ${esc(o.timeInForce.toUpperCase())}</span><div class="order-id" title="${esc(o.clientOrderId)}">${esc(o.clientOrderId)}</div></div><span class="order-status ${esc(o.status)}" title="${esc(cancelTitle)}">${esc(statusText)}</span></div><div class="fill-row"><span>FILLED <strong>${num(o.filledQty,6)} / ${num(o.requestedQty,6)}</strong></span><span>${num(o.fillPercent,1)}%</span></div><div class="fill-bar"><i style="width:${Math.max(0,Math.min(100,o.fillPercent))}%"></i></div><div class="order-main"><div class="metric"><span>Limit</span><strong>${priceMoney(o.limitPx)}</strong></div><div class="metric"><span>Avg fill</span><strong>${o.averageFillPx?priceMoney(o.averageFillPx):"—"}</strong></div><div class="metric"><span>Expected value</span><strong class="${pnlClass(o.expectedValue)}">${money(o.expectedValue)}</strong></div><div class="metric"><span>TTL / age</span><strong>${ttl} · ${duration(o.ageMs)}</strong></div></div><div class="cost-grid"><div><span>Round trip</span><strong>${num(cost.roundTripBps,2)} bp</strong></div><div><span>Impact</span><strong>${num(cost.impactBps,2)} bp</strong></div><div><span>Fill probability</span><strong>${num(o.fillProbability*100,1)}%</strong></div></div>${renderOrderTimeline(o,`${label} lifecycle`)}</section>`;
+}
+function renderTradeCard(card){
+  const {entry,exit,position}=card,direction=entry.side>0?"LONG":"SHORT",stateLabel=position.active?"OPEN":"CLOSED";
+  const exitRef=exit?exit.clientOrderId:"exit pending";
+  return `<article class="order-card trade-card has-live-position" data-testid="trade-card"><div class="order-head"><div><span class="symbol">${esc(entry.symbol)}</span><span class="side-label ${entry.side<0?"sell":""}">TRADE · ${direction}</span><div class="order-id" title="${esc(`${entry.clientOrderId} → ${exitRef}`)}">${esc(entry.clientOrderId.slice(0,24))} → ${esc(exit?exit.clientOrderId.slice(0,24):"EXIT PENDING")}</div></div><span class="order-status ${position.active?"OPEN":"FILLED"}">${stateLabel}</span></div>${renderLivePnl(position)}<div class="trade-legs">${renderOrderLeg(entry,"Entry")}${exit?renderOrderLeg(exit,"Exit"):`<section class="trade-leg pending-leg" data-testid="exit-leg"><div class="trade-leg-head"><span class="trade-leg-label">Exit · pending</span><span class="order-status OPEN">MONITORING</span></div><p>The exit engine is monitoring this open position.</p></section>`}</div></article>`;
+}
+function renderOrderAttempt(o){
+  const side=o.side>0?"BUY":"SELL",cost=o.expectedCost||{},ttl=o.expiresInMs>0?`${duration(o.expiresInMs)} left`:o.terminal?"complete":"expired";
+  const statusText=o.statusLabel||o.status.replaceAll("_"," "),cancelTitle=o.cancelRequestReason?`Requested: ${o.cancelRequestReason.replaceAll("_"," ")}`:"";
+  return `<article class="order-card order-attempt-card ${o.livePosition?"has-live-position":""}" data-testid="order-attempt-card"><div class="order-head"><div><span class="symbol">${esc(o.symbol)}</span><span class="side-label ${o.side<0?"sell":""}">ORDER ATTEMPT · ${side} · ${esc(o.style.toUpperCase())} · ${esc(o.timeInForce.toUpperCase())}${o.historical?" · HISTORY":""}</span><div class="order-id" title="${esc(o.clientOrderId)}">${esc(o.clientOrderId.slice(0,32))}</div></div><span class="order-status ${esc(o.status)}" title="${esc(cancelTitle)}">${esc(statusText)}</span></div><div class="fill-row"><span>FILLED <strong>${num(o.filledQty,6)} / ${num(o.requestedQty,6)}</strong></span><span>${num(o.fillPercent,1)}%</span></div><div class="fill-bar"><i style="width:${Math.max(0,Math.min(100,o.fillPercent))}%"></i></div>${renderLivePnl(o.livePosition)}<div class="order-main"><div class="metric"><span>Limit</span><strong>${priceMoney(o.limitPx)}</strong></div><div class="metric"><span>Avg fill</span><strong>${o.averageFillPx?priceMoney(o.averageFillPx):"—"}</strong></div><div class="metric"><span>Expected value</span><strong class="${pnlClass(o.expectedValue)}">${money(o.expectedValue)}</strong></div><div class="metric"><span>TTL / age</span><strong>${ttl} · ${duration(o.ageMs)}</strong></div></div><div class="cost-grid"><div><span>Round trip</span><strong>${num(cost.roundTripBps,2)} bp</strong></div><div><span>Impact</span><strong>${num(cost.impactBps,2)} bp</strong></div><div><span>Fill probability</span><strong>${num(o.fillProbability*100,1)}%</strong></div></div>${renderOrderTimeline(o)}</article>`;
 }
 function renderOrders(items){
-  items=items.filter(order=>orderMatchesFilter(order,state.orderFilter));
+  const cards=groupOrderCards(items).filter(card=>dashboardCardMatchesFilter(card,state.orderFilter));
   const grid=el("orders-grid");
-  if(!items.length){grid.className="orders-grid empty-grid";grid.innerHTML="<p>No orders match this view.</p>";return;}
+  if(!cards.length){grid.className="orders-grid empty-grid";grid.innerHTML="<p>No trades or order attempts match this view.</p>";return;}
   grid.className="orders-grid";
-  grid.innerHTML=items.map(o=>{
-    const side=o.side>0?"BUY":"SELL",cost=o.expectedCost||{},ttl=o.expiresInMs>0?`${duration(o.expiresInMs)} left`:o.terminal?"complete":"expired";
-    const statusText=o.statusLabel||o.status.replaceAll("_"," "),cancelTitle=o.cancelRequestReason?`Requested: ${o.cancelRequestReason.replaceAll("_"," ")}`:"";
-    const timeline=(o.timeline||[]).slice(-5).map(t=>`<div class="timeline-item ${esc(t.severity)}" title="${esc(t.label)}">${esc(t.status.replaceAll("_"," "))}<br>${time(t.atMs)}</div>`).join("");
-    return `<article class="order-card ${o.livePosition?"has-live-position":""}"><div class="order-head"><div><span class="symbol">${esc(o.symbol)}</span><span class="side-label ${o.side<0?"sell":""}">${side} · ${esc(o.style.toUpperCase())} · ${esc(o.timeInForce.toUpperCase())}${o.historical?" · HISTORY":""}</span><div class="order-id" title="${esc(o.clientOrderId)}">${esc(o.clientOrderId.slice(0,32))}</div></div><span class="order-status ${esc(o.status)}" title="${esc(cancelTitle)}">${esc(statusText)}</span></div><div class="fill-row"><span>FILLED <strong>${num(o.filledQty,6)} / ${num(o.requestedQty,6)}</strong></span><span>${num(o.fillPercent,1)}%</span></div><div class="fill-bar"><i style="width:${Math.max(0,Math.min(100,o.fillPercent))}%"></i></div>${renderLivePnl(o.livePosition)}<div class="order-main"><div class="metric"><span>Limit</span><strong>${priceMoney(o.limitPx)}</strong></div><div class="metric"><span>Avg fill</span><strong>${o.averageFillPx?priceMoney(o.averageFillPx):"—"}</strong></div><div class="metric"><span>Expected value</span><strong class="${pnlClass(o.expectedValue)}">${money(o.expectedValue)}</strong></div><div class="metric"><span>TTL / age</span><strong>${ttl} · ${duration(o.ageMs)}</strong></div></div><div class="cost-grid"><div><span>Round trip</span><strong>${num(cost.roundTripBps,2)} bp</strong></div><div><span>Impact</span><strong>${num(cost.impactBps,2)} bp</strong></div><div><span>Fill probability</span><strong>${num(o.fillProbability*100,1)}%</strong></div></div><div class="timeline"><div class="timeline-title">Lifecycle</div><div class="timeline-items">${timeline||"<div class='timeline-item'>Created</div>"}</div></div></article>`;
-  }).join("");
+  grid.innerHTML=cards.map(card=>card.kind==="trade"?renderTradeCard(card):renderOrderAttempt(card.order)).join("");
 }
 
 el("symbol-filter").addEventListener("change",event=>{state.symbol=event.target.value;if(state.snapshot)render(state.snapshot);});

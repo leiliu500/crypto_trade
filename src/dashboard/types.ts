@@ -52,6 +52,25 @@ export interface DashboardPnlPoint {
   kind?: "mark" | "close";
 }
 
+export interface DashboardRealizedPnlBreakdown {
+  grossPricePnl: number;
+  entryFee: number;
+  exitFee: number;
+  realizedPnl: number;
+  entryStyle: string;
+  exitStyle: string;
+}
+
+export interface DashboardSessionPnlBreakdown {
+  grossPricePnl: number;
+  entryFee: number;
+  exitFee: number;
+  realizedPnl: number;
+  tradeCount: number;
+  entryStyle: string | null;
+  exitStyle: string | null;
+}
+
 export interface DashboardLivePosition {
   active: boolean;
   closedAtMs: number | null;
@@ -64,6 +83,7 @@ export interface DashboardLivePosition {
   unrealizedPnlBps: number;
   realizedPnl: number | null;
   realizedPnlBps: number | null;
+  realizedBreakdown: DashboardRealizedPnlBreakdown | null;
   closePx: number | null;
   entryOrderId: string | null;
   exitOrderId: string | null;
@@ -252,6 +272,7 @@ export interface DashboardSnapshot {
   equity: number;
   equityHighWater: number;
   realizedSessionPnl: number;
+  realizedSessionBreakdown: DashboardSessionPnlBreakdown | null;
   latencyP95Ms: number | null;
   liveness: readonly LivenessCheck[];
   database: DatabaseHealth;

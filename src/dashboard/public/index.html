@@ -6,7 +6,7 @@
   <meta name="color-scheme" content="dark">
   <meta name="theme-color" content="#080b10">
   <title>Northstar · Crypto Operations</title>
-  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/styles.css?v=20260825-pnl-history-4">
 </head>
 <body>
   <div class="ambient ambient-a"></div><div class="ambient ambient-b"></div>
@@ -35,7 +35,7 @@
       </div>
       <div class="hero-stats">
         <article><span>Equity</span><strong id="equity">—</strong><small id="drawdown">Peak —</small></article>
-        <article><span>Session P&amp;L</span><strong id="session-pnl">—</strong><small>Realized · UTC day</small></article>
+        <article class="session-pnl-stat"><span>Session P&amp;L</span><strong id="session-pnl">—</strong><small>Realized · UTC day</small><div id="session-pnl-breakdown" class="session-pnl-breakdown" data-testid="session-pnl-breakdown" hidden></div></article>
         <article><span>Latency P95</span><strong id="latency">—</strong><small>Decision → venue</small></article>
         <article><span>Uptime</span><strong id="uptime">—</strong><small id="strategy-version">Strategy —</small></article>
       </div>
@@ -53,7 +53,7 @@
 
     <section class="section orders-section" data-testid="orders-panel">
       <div class="section-head">
-        <div><span class="kicker">EXECUTION LEDGER</span><h2>Orders and live P&amp;L</h2></div>
+        <div><span class="kicker">EXECUTION LEDGER</span><h2>Trades and order attempts</h2></div>
         <div class="segmented" role="group" aria-label="Filter orders">
           <button class="active" data-order-filter="all" data-testid="filter-all">All</button>
           <button data-order-filter="open" data-testid="filter-open">Open</button>
@@ -72,6 +72,6 @@
 
     <footer><span>Northstar operations console</span><span id="footer-detail">Local read-only control plane</span></footer>
   </main>
-  <script type="module" src="/app.js"></script>
+  <script type="module" src="/app.js?v=20260825-pnl-history-4"></script>
 </body>
 </html>
