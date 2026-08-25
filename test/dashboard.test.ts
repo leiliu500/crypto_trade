@@ -178,7 +178,7 @@ test("dashboard distinguishes a motion reset from invalid market data", async ()
   assert.match(app, /signedMoney\(breakdown\.grossPricePnl,5\)/);
   assert.match(html, /Realized · UTC day/);
   assert.match(html, /id="session-pnl-breakdown"/);
-  assert.match(html, /app\.js\?v=20260825-trade-cards-2/);
+  assert.match(html, /app\.js\?v=20260825-pnl-history-4/);
 });
 
 test("dashboard formats the realized P&L reconciliation at five-decimal USD precision", async () => {
@@ -235,6 +235,38 @@ test("dashboard formats the realized P&L reconciliation at five-decimal USD prec
   ]) assert.ok(sessionRendered.includes(expected), `missing ${expected} from ${sessionRendered}`);
 });
 
+test("dashboard fills a complete twenty-minute P&L history with one-minute checkpoints", async () => {
+  const app = await readFile("src/dashboard/public/app.js", "utf8");
+  const completionSource = app.slice(
+    app.indexOf("function completePnlHistory"),
+    app.indexOf("function renderLivePnl"),
+  );
+  const result = runInNewContext(`${completionSource}\n(()=>{
+    const points=completePnlHistory({
+      openedMs:0,
+      closedAtMs:1216551,
+      ageMs:1216551,
+      pnlHistory:[
+        {atMs:0,currentPx:100,unrealizedPnl:0,unrealizedPnlBps:0,changePnl:null,kind:"mark"},
+        {atMs:1216551,currentPx:101,unrealizedPnl:1,unrealizedPnlBps:100,changePnl:1,kind:"close"}
+      ]
+    });
+    const gaps=points.slice(1).map((point,index)=>point.atMs-points[index].atMs);
+    return JSON.stringify({
+      pointCount:points.length,
+      checkpointCount:points.filter(point=>point.kind==="checkpoint").length,
+      firstAtMs:points[0].atMs,
+      lastAtMs:points.at(-1).atMs,
+      lastKind:points.at(-1).kind,
+      maximumGapMs:Math.max(...gaps)
+    });
+  })()`) as string;
+  assert.equal(result, '{"pointCount":22,"checkpointCount":20,"firstAtMs":0,"lastAtMs":1216551,"lastKind":"close","maximumGapMs":60000}');
+  assert.match(app, /One-minute carry-forward checkpoint/);
+  assert.match(app, /P&amp;L history · \$\{historyCoverage\} covered/);
+  assert.match(app, /position\.active\?historyPoints\.slice\(\)\.reverse\(\):historyPoints/);
+});
+
 test("dashboard uses adaptive price precision for micro-priced assets", async () => {
   const app = await readFile("src/dashboard/public/app.js", "utf8");
   const utilitySource = app.slice(0, app.indexOf("function setConnection"));
@@ -257,6 +289,7 @@ test("dashboard assets provide a phone-safe layout", async () => {
   assert.match(styles, /safe-area-inset-left/);
   assert.match(styles, /\.event-table thead\{display:none\}/);
   assert.match(styles, /\.orders-grid\{grid-template-columns:minmax\(0,1fr\)\}/);
+  assert.match(styles, /\.order-live-pnl\.closed \.pnl-history\{max-height:none;overflow:visible\}/);
   assert.match(app, /data-label="Context"/);
 });
 
@@ -393,7 +426,7 @@ test("dashboard server serves the read-only API, health probe, and browser route
     const htmlText = await html.text();
     assert.match(htmlText, /data-testid="dashboard-root"/);
     assert.match(htmlText, /Trades and order attempts/);
-    assert.match(htmlText, /app\.js\?v=20260825-trade-cards-2/);
+    assert.match(htmlText, /app\.js\?v=20260825-pnl-history-4/);
     assert.doesNotMatch(htmlText, /Exit dynamics/);
     assert.equal(dashboardAlias.status, 200);
     assert.match(await dashboardAlias.text(), /data-testid="dashboard-root"/);
@@ -403,7 +436,7 @@ test("dashboard server serves the read-only API, health probe, and browser route
     assert.equal(missingAsset.status, 404);
     const appText = await app.text();
     assert.match(appText, /Realized trade P&amp;L/);
-    assert.match(appText, /All P&amp;L changes/);
+    assert.match(appText, /P&amp;L history · \$\{historyCoverage\} covered/);
     assert.match(appText, /groupOrderCards\(items\)/);
     assert.match(appText, /data-testid="trade-card"/);
     assert.match(appText, /o\.statusLabel/);
