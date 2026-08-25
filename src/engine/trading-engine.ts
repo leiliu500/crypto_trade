@@ -34,6 +34,8 @@ import { HealthWatchdog, type WatchdogFault } from "./watchdog.js";
 
 const PAPER_DEMO_TARGET_NOTIONAL = 11;
 const CANCEL_PENDING_RECONCILE_DELAY_MS = 2_000;
+const ADVERSE_OFI_THRESHOLD = 2;
+const ADVERSE_TFI_THRESHOLD = .5;
 
 export interface EngineMarketSnapshot {
   symbol: string;
@@ -114,6 +116,22 @@ interface PendingSignalFault {
   consecutiveEvents: number;
 }
 
+interface PendingAdverseFlowFault extends PendingSignalFault {
+  opposingOfi: boolean;
+  opposingTfi: boolean;
+}
+
+interface PendingAdverseFlowAssessment {
+  adverse: boolean;
+  corroborated: boolean;
+  confirmed: boolean;
+  firstAdverseAtMs: number | null;
+  adverseForMs: number;
+  consecutiveEvents: number;
+  opposingOfi: boolean;
+  opposingTfi: boolean;
+}
+
 export interface EngineDependencies {
   rest?: AlpacaRestClient;
   gateway?: OrderGateway;
@@ -141,6 +159,7 @@ export class TradingEngine extends EventEmitter {
   private readonly makerExitFallbackInFlight = new Set<string>();
   private readonly pendingKinematicsFaults = new Map<string, PendingKinematicsFault>();
   private readonly pendingSignalFaults = new Map<string, PendingSignalFault>();
+  private readonly pendingAdverseFlowFaults = new Map<string, PendingAdverseFlowFault>();
   private readonly restoredPositionCandidates = new Map<string, Position[]>();
   private equity = 0;
   private equityHighWater = 0;
@@ -785,6 +804,7 @@ export class TradingEngine extends EventEmitter {
     if (tracked && !["RESERVED", "SENDING", "OPEN", "PARTIALLY_FILLED", "CANCEL_PENDING", "UNKNOWN"].includes(tracked.status)) {
       this.pendingKinematicsFaults.delete(tracked.plan.clientOrderId);
       this.pendingSignalFaults.delete(tracked.plan.clientOrderId);
+      this.pendingAdverseFlowFaults.delete(tracked.plan.clientOrderId);
       const runtime = this.runtimes.get(tracked.plan.symbol);
       if (runtime?.pendingEntryIntent?.decisionId === tracked.plan.decisionId) delete runtime.pendingEntryIntent;
     }
@@ -835,20 +855,72 @@ export class TradingEngine extends EventEmitter {
         sourceIntent.diagnostics.family, sourceIntent.diagnostics.edgeSource);
     const exactCostValid = cost !== null && sourceIntent?.side === pending.plan.side
       && runtime.entryEngine.revalidateExactCost(sourceIntent, cost) !== null;
-    const adverse = pending.plan.side * features.tfi < -.5 || pending.plan.side * features.ofi < -2;
     const nowMs = this.now();
+    const adverseFlow = this.confirmPendingAdverseFlow(runtime, pending, features, nowMs);
     const signalInvalidationConfirmed = this.confirmPendingSignalInvalidation(runtime, pending, stillValid, nowMs);
     const reason: OrderCancelRequestReason | null = nowMs >= pending.plan.expiresMs ? "TTL_EXPIRED"
       : features.stale ? "STALE_BOOK"
-        : adverse ? "ADVERSE_FLOW"
+        : adverseFlow.confirmed ? "ADVERSE_FLOW"
           : signalInvalidationConfirmed ? "SIGNAL_INVALIDATED"
             : !exactCostValid ? "COST_INVALIDATED" : null;
     if (reason) void this.cancelTracked(pending, reason, {
-      nowMs, expiresMs: pending.plan.expiresMs, stillValid, exactCostValid, adverse,
+      nowMs, expiresMs: pending.plan.expiresMs, stillValid, exactCostValid,
+      adverse: adverseFlow.adverse, adverseConfirmed: adverseFlow.confirmed,
+      adverseCorroborated: adverseFlow.corroborated,
+      firstAdverseAtMs: adverseFlow.firstAdverseAtMs, adverseForMs: adverseFlow.adverseForMs,
+      adverseConsecutiveEvents: adverseFlow.consecutiveEvents,
+      requiredAdverseEvents: runtime.config.planner.adverseFlowConfirmationEvents,
+      adverseConfirmationMs: runtime.config.planner.adverseFlowConfirmationMs,
+      opposingOfi: adverseFlow.opposingOfi, opposingTfi: adverseFlow.opposingTfi,
       stale: features.stale, tfi: features.tfi, ofi: features.ofi,
       remainingQty: Math.max(pending.plan.qty - pending.filledQty, 0),
       roundTripCostBps: cost?.roundTripBps ?? null,
     });
+  }
+
+  private confirmPendingAdverseFlow(runtime: SymbolRuntime, pending: TrackedOrder,
+    features: DeterministicFeatures, nowMs: number): PendingAdverseFlowAssessment {
+    const clientOrderId = pending.plan.clientOrderId;
+    const opposingOfi = pending.plan.side * features.ofi < -ADVERSE_OFI_THRESHOLD;
+    const opposingTfi = pending.plan.side * features.tfi < -ADVERSE_TFI_THRESHOLD;
+    const adverse = opposingOfi || opposingTfi;
+    const previous = this.pendingAdverseFlowFaults.get(clientOrderId);
+    if (!adverse) {
+      this.pendingAdverseFlowFaults.delete(clientOrderId);
+      if (previous) this.emit("pendingAdverseFlowRecovered", {
+        symbol: pending.plan.symbol, clientOrderId,
+        adverseForMs: nowMs - previous.firstAtMs, adverseEvents: previous.consecutiveEvents,
+        lastOpposingOfi: previous.opposingOfi, lastOpposingTfi: previous.opposingTfi,
+      });
+      return { adverse: false, corroborated: false, confirmed: false, firstAdverseAtMs: null,
+        adverseForMs: 0, consecutiveEvents: 0, opposingOfi: false, opposingTfi: false };
+    }
+    const fault: PendingAdverseFlowFault = {
+      firstAtMs: previous?.firstAtMs ?? nowMs,
+      lastAtMs: nowMs,
+      consecutiveEvents: (previous?.consecutiveEvents ?? 0) + 1,
+      opposingOfi,
+      opposingTfi,
+    };
+    this.pendingAdverseFlowFaults.set(clientOrderId, fault);
+    const corroborated = opposingOfi && opposingTfi;
+    const adverseForMs = nowMs - fault.firstAtMs;
+    const confirmed = corroborated || (adverseForMs >= runtime.config.planner.adverseFlowConfirmationMs
+      && fault.consecutiveEvents >= runtime.config.planner.adverseFlowConfirmationEvents);
+    if (!confirmed && !previous) this.emit("pendingAdverseFlowGrace", {
+      symbol: pending.plan.symbol, clientOrderId, reason: "ADVERSE_FLOW",
+      details: {
+        nowMs, expiresMs: pending.plan.expiresMs,
+        firstAdverseAtMs: fault.firstAtMs, adverseForMs,
+        confirmationMs: runtime.config.planner.adverseFlowConfirmationMs,
+        consecutiveEvents: fault.consecutiveEvents,
+        requiredConsecutiveEvents: runtime.config.planner.adverseFlowConfirmationEvents,
+        opposingOfi, opposingTfi, ofi: features.ofi, tfi: features.tfi,
+        ofiThreshold: ADVERSE_OFI_THRESHOLD, tfiThreshold: ADVERSE_TFI_THRESHOLD,
+      },
+    });
+    return { adverse, corroborated, confirmed, firstAdverseAtMs: fault.firstAtMs,
+      adverseForMs, consecutiveEvents: fault.consecutiveEvents, opposingOfi, opposingTfi };
   }
 
   private confirmPendingSignalInvalidation(runtime: SymbolRuntime, pending: TrackedOrder,
@@ -895,6 +967,7 @@ export class TradingEngine extends EventEmitter {
     features: DeterministicFeatures): Promise<void> {
     const clientOrderId = pending.plan.clientOrderId;
     this.pendingSignalFaults.delete(clientOrderId);
+    this.pendingAdverseFlowFaults.delete(clientOrderId);
     const nowMs = this.now();
     const family = pending.plan.entryFamily ?? (runtime.pendingEntryIntent?.decisionId === pending.plan.decisionId
       ? runtime.pendingEntryIntent.diagnostics.family : undefined);
@@ -1167,6 +1240,7 @@ export class TradingEngine extends EventEmitter {
   private async cancelTracked(tracked: TrackedOrder, reason: OrderCancelRequestReason, details: Record<string, unknown> = {}): Promise<void> {
     this.pendingKinematicsFaults.delete(tracked.plan.clientOrderId);
     this.pendingSignalFaults.delete(tracked.plan.clientOrderId);
+    this.pendingAdverseFlowFaults.delete(tracked.plan.clientOrderId);
     if (!tracked.alpacaOrderId) return;
     if (tracked.status === "CANCEL_PENDING") {
       await this.reconcilePendingCancellation(tracked);

@@ -455,6 +455,53 @@ test("a pullback maker entry requires persistent signal invalidation before canc
   assert.equal(tracked.cancellationReason, "SIGNAL_INVALIDATED");
 });
 
+test("the incident's transient OFI spike enters grace and recovers without canceling the maker order", async () => {
+  const harness = pendingEntryHarness("incident-adverse-flow", false);
+  const graceEvents: Array<{ details?: { opposingOfi?: boolean; opposingTfi?: boolean; confirmationMs?: number } }> = [];
+  const recoveredEvents: Array<{ adverseEvents?: number; lastOpposingOfi?: boolean }> = [];
+  harness.engine.on("pendingAdverseFlowGrace", (event) => graceEvents.push(event));
+  harness.engine.on("pendingAdverseFlowRecovered", (event) => recoveredEvents.push(event));
+
+  await harness.reevaluate(5_052, -2.3797440632776063, 1);
+  assert.equal(harness.canceledOrderIds.length, 0);
+  assert.equal(harness.tracked.status, "OPEN");
+  assert.equal(graceEvents.length, 1);
+  assert.equal(graceEvents[0]?.details?.opposingOfi, true);
+  assert.equal(graceEvents[0]?.details?.opposingTfi, false);
+  assert.equal(graceEvents[0]?.details?.confirmationMs, 2_000);
+
+  harness.setSignalValid(true);
+  await harness.reevaluate(6_345, .809751841482451, 1);
+  assert.equal(harness.canceledOrderIds.length, 0);
+  assert.equal(harness.tracked.status, "OPEN");
+  assert.equal(recoveredEvents.length, 1);
+  assert.equal(recoveredEvents[0]?.adverseEvents, 1);
+  assert.equal(recoveredEvents[0]?.lastOpposingOfi, true);
+});
+
+test("persistent single-sensor adverse flow cancels after both time and event confirmation", async () => {
+  const harness = pendingEntryHarness("persistent-adverse-flow", true);
+
+  await harness.reevaluate(2_000, -2.1, 1);
+  await harness.reevaluate(3_999, -2.4, 1);
+  assert.equal(harness.canceledOrderIds.length, 0);
+  assert.equal(harness.tracked.status, "OPEN");
+
+  await harness.reevaluate(4_000, -2.2, 1);
+  assert.deepEqual(harness.canceledOrderIds, ["persistent-adverse-flow-order"]);
+  assert.equal(harness.tracked.status, "CANCELED");
+  assert.equal(harness.tracked.cancellationReason, "ADVERSE_FLOW");
+});
+
+test("corroborated opposing OFI and trade flow cancel a pending maker order immediately", async () => {
+  const harness = pendingEntryHarness("corroborated-adverse-flow", true);
+
+  await harness.reevaluate(2_000, -2.1, -.6);
+  assert.deepEqual(harness.canceledOrderIds, ["corroborated-adverse-flow-order"]);
+  assert.equal(harness.tracked.status, "CANCELED");
+  assert.equal(harness.tracked.cancellationReason, "ADVERSE_FLOW");
+});
+
 test("an expired pullback maker order reports TTL before a simultaneous kinematics reset", async () => {
   let nowMs = 21_001;
   const plan = pullbackEntryPlan();
@@ -578,6 +625,67 @@ function basicFeatures(nowMs: number): Features {
     spreadZ: 0, depthZ: 0, signalFlipRate: 0, providerAgeMs: 0, staleThresholdMs: 1_000,
     warmedUp: true, kinematicsReady: true, kinematicsResetReason: null,
     stale: false, staleReason: null, receiveTsMs: nowMs,
+  };
+}
+
+function pendingEntryHarness(clientOrderId: string, initialSignalValid: boolean) {
+  let nowMs = 2_000;
+  let signalValid = initialSignalValid;
+  const canceledOrderIds: string[] = [];
+  const plan = { ...pullbackEntryPlan(), clientOrderId, decisionId: `${clientOrderId}-decision` };
+  const gateway: OrderGateway = {
+    send: async () => ({ id: `${clientOrderId}-order` }) as never,
+    cancel: async (orderId) => { canceledOrderIds.push(orderId); },
+    cancelAll: async () => undefined,
+  };
+  const rest = { getOrder: async () => ({ data: {
+    id: `${clientOrderId}-order`, client_order_id: plan.clientOrderId, symbol: "BTCUSD",
+    filled_qty: "0", filled_avg_price: null, status: "canceled", updated_at: new Date(nowMs).toISOString(),
+  } }) };
+  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", ALPACA_PAPER: "true",
+    ALPACA_API_KEY: "test", ALPACA_API_SECRET: "test", CONFIG_DIR: "config" }), {
+    gateway, rest: rest as never, now: () => nowMs,
+  });
+  const internals = engine as unknown as {
+    runtimes: Map<string, {
+      pendingEntryIntent?: unknown;
+      entryEngine: unknown;
+      regimeEngine: unknown;
+      cost: unknown;
+    }>;
+    orderState: {
+      reserve: (value: ExecutionPlan) => void;
+      markAccepted: (trackedClientOrderId: string, alpacaOrderId: string, atMs: number) => void;
+      get: (trackedClientOrderId: string) => TrackedOrder | undefined;
+    };
+    reevaluatePending: (runtime: unknown, tracked: TrackedOrder, book: BookState, features: Features) => void;
+  };
+  const runtime = internals.runtimes.get("BTC/USD")!;
+  runtime.pendingEntryIntent = {
+    decisionId: plan.decisionId, side: 1, diagnostics: { family: "PULLBACK_RECOVERY" },
+  };
+  runtime.entryEngine = {
+    signalStillValid: () => signalValid,
+    revalidateExactCost: (intent: unknown) => intent,
+  };
+  runtime.regimeEngine = { classify: () => ({ name: "TREND_UP", allowLong: true, allowShort: false, riskScale: 1 }) };
+  runtime.cost = { estimate: () => plan.expectedCost };
+  internals.orderState.reserve(plan);
+  internals.orderState.markAccepted(plan.clientOrderId, `${clientOrderId}-order`, nowMs);
+  const tracked = internals.orderState.get(plan.clientOrderId)!;
+  const book = { symbol: "BTC/USD", bids: [{ px: 99.99, qty: 1 }], asks: [{ px: 100.01, qty: 1 }],
+    exchangeTsMs: nowMs, receiveTsMs: nowMs, sequence: 1n, valid: true, sourceReset: true } satisfies BookState;
+  return {
+    engine,
+    tracked,
+    canceledOrderIds,
+    setSignalValid: (value: boolean) => { signalValid = value; },
+    reevaluate: async (atMs: number, ofi: number, tfi: number) => {
+      nowMs = atMs;
+      internals.reevaluatePending(runtime, tracked, { ...book, exchangeTsMs: atMs, receiveTsMs: atMs },
+        { ...basicFeatures(atMs), ofi, tfi });
+      await new Promise<void>((resolve) => setImmediate(resolve));
+    },
   };
 }
 
