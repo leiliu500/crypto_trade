@@ -8,7 +8,8 @@ import { LocalOrderBook, type BookDelta } from "../core/order-book.js";
 import { EventRecorder } from "../recorder.js";
 import { bufferedTakerLimitPrice, ExecutionPlanner, type AssetRules, type ExecutionPlan } from "../execution/planner.js";
 import {
-  OrderStateReconciler, type FillDelta, type OrderCancelRequestReason, type PrivateOrderEvent, type TrackedOrder,
+  OrderStateReconciler, type FillDelta, type OrderCancelRequestReason, type PrivateOrderEvent,
+  type RemoteOrderSnapshot, type TrackedOrder,
 } from "../execution/order-state.js";
 import { estimateSweep } from "../execution/book-walk.js";
 import { PortfolioRiskEngine } from "../risk/portfolio.js";
@@ -160,6 +161,7 @@ export class TradingEngine extends EventEmitter {
   private readonly pendingKinematicsFaults = new Map<string, PendingKinematicsFault>();
   private readonly pendingSignalFaults = new Map<string, PendingSignalFault>();
   private readonly pendingAdverseFlowFaults = new Map<string, PendingAdverseFlowFault>();
+  private readonly orderDeadlineTimers = new Map<string, NodeJS.Timeout>();
   private readonly restoredPositionCandidates = new Map<string, Position[]>();
   private equity = 0;
   private equityHighWater = 0;
@@ -254,6 +256,8 @@ export class TradingEngine extends EventEmitter {
   }
 
   public async stop(): Promise<void> {
+    for (const timer of this.orderDeadlineTimers.values()) clearTimeout(timer);
+    this.orderDeadlineTimers.clear();
     this.marketStream.close();
     this.tradeStream.close();
     this.watchdog.stop();
@@ -348,15 +352,17 @@ export class TradingEngine extends EventEmitter {
         const asset = assets.get(symbol) ?? (await this.rest.getAsset(symbol)).data;
         runtime.asset = assetRules(asset);
       }
-      this.orderState.reconcile(ordersResponse.data.map((order) => ({ id: order.id, clientOrderId: order.client_order_id, filledQty: Number(order.filled_qty), status: order.status })));
-      this.reconcilePositions(positionsResponse.data);
+      const fillAdvancedDuringOrderResolution = await this.reconcileTrackedOrders(ordersResponse.data);
+      const refreshedPositionsResponse = fillAdvancedDuringOrderResolution ? await this.rest.listPositions() : undefined;
+      this.reconcilePositions(refreshedPositionsResponse?.data ?? positionsResponse.data);
       const rollingLoss = rollingLossFromPortfolioHistory(historyResponse.data);
       if (rollingLoss > 0) this.realizedSessionPnl = Math.min(this.realizedSessionPnl, -rollingLoss);
       this.recomputePortfolioRisk();
       this.riskState.setHealth({ accountReconciled: true, riskRecomputed: true });
       this.riskState.resumeAfterReconciliation();
       this.emit("reconciled", { recentTradeActivities: activitiesResponse.data.length,
-        requestIds: [accountResponse.requestId, assetsResponse.requestId, ordersResponse.requestId, positionsResponse.requestId, historyResponse.requestId, activitiesResponse.requestId].filter(Boolean) });
+        requestIds: [accountResponse.requestId, assetsResponse.requestId, ordersResponse.requestId, positionsResponse.requestId,
+          refreshedPositionsResponse?.requestId, historyResponse.requestId, activitiesResponse.requestId].filter(Boolean) });
       return true;
     } catch (error) {
       this.riskState.halt("ACCOUNT_UNKNOWN");
@@ -802,6 +808,7 @@ export class TradingEngine extends EventEmitter {
     if (tracked) this.emit("orderUpdate", { event, order: tracked });
     if (fill) this.applyFill(fill);
     if (tracked && !["RESERVED", "SENDING", "OPEN", "PARTIALLY_FILLED", "CANCEL_PENDING", "UNKNOWN"].includes(tracked.status)) {
+      this.clearOrderDeadline(tracked.plan.clientOrderId);
       this.pendingKinematicsFaults.delete(tracked.plan.clientOrderId);
       this.pendingSignalFaults.delete(tracked.plan.clientOrderId);
       this.pendingAdverseFlowFaults.delete(tracked.plan.clientOrderId);
@@ -816,6 +823,7 @@ export class TradingEngine extends EventEmitter {
     if (this.cfg.mode !== "paper" && this.cfg.mode !== "live") return false;
     try {
       this.orderState.reserve(plan);
+      this.scheduleOrderDeadline(plan);
       this.runtimes.get(plan.symbol)?.entryAudit.pass("RISK_RESERVED");
       this.emit("orderReserved", { plan });
       this.orderState.markSending(plan.clientOrderId);
@@ -828,11 +836,18 @@ export class TradingEngine extends EventEmitter {
       this.runtimes.get(plan.symbol)?.entryAudit.pass("ORDER_ACK");
       this.latency.record({ localReceiptMs: plan.createdMs, decisionCompleteMs: plan.createdMs, sentMs, acknowledgedMs }, acknowledgedMs);
       this.emit("orderAccepted", { order, plan });
+      const accepted = this.orderState.get(plan.clientOrderId);
+      if (accepted?.cancelRequestReason && isPendingOrderStatus(accepted.status)) {
+        await this.cancelTracked(accepted, accepted.cancelRequestReason, {
+          latchedDuringSend: true, acknowledgedMs,
+        });
+      }
       return true;
     } catch (error) {
       const tracked = this.orderState.get(plan.clientOrderId);
       if (tracked && error instanceof AlpacaApiError && error.status >= 400) {
         this.orderState.apply({ id: randomUUID(), event: "rejected", orderId: "", clientOrderId: plan.clientOrderId, symbol: plan.symbol, filledQty: 0, eventQty: 0, eventPx: 0, timestampMs: this.now() });
+        this.clearOrderDeadline(plan.clientOrderId);
       } else if (tracked) {
         this.orderState.markSendUnknown(plan.clientOrderId, error);
         this.riskState.halt("ORDER_SEND_UNKNOWN");
@@ -1241,23 +1256,25 @@ export class TradingEngine extends EventEmitter {
     this.pendingKinematicsFaults.delete(tracked.plan.clientOrderId);
     this.pendingSignalFaults.delete(tracked.plan.clientOrderId);
     this.pendingAdverseFlowFaults.delete(tracked.plan.clientOrderId);
-    if (!tracked.alpacaOrderId) return;
+    if (!isPendingOrderStatus(tracked.status)) return;
     if (tracked.status === "CANCEL_PENDING") {
       await this.reconcilePendingCancellation(tracked);
       return;
     }
     const requestedAtMs = this.now();
+    const firstRequest = tracked.cancelRequestReason === undefined;
     this.orderState.requestCancel(tracked.plan.clientOrderId, reason, requestedAtMs);
-    this.emit("orderCancelRequested", {
+    if (firstRequest) this.emit("orderCancelRequested", {
       symbol: tracked.plan.symbol,
       clientOrderId: tracked.plan.clientOrderId,
-      alpacaOrderId: tracked.alpacaOrderId,
+      alpacaOrderId: tracked.alpacaOrderId ?? null,
       reason,
       requestedAtMs,
       filledQty: tracked.filledQty,
       requestedQty: tracked.plan.qty,
       details,
     });
+    if (!tracked.alpacaOrderId) return;
     try {
       await this.gateway.cancel(tracked.alpacaOrderId);
       await this.reconcilePendingCancellation(tracked, true);
@@ -1309,6 +1326,7 @@ export class TradingEngine extends EventEmitter {
         };
         this.emit("orderUpdate", { event, order: reconciled, source: "rest-cancel-reconciliation" });
         if (!["RESERVED", "SENDING", "OPEN", "PARTIALLY_FILLED", "CANCEL_PENDING", "UNKNOWN"].includes(reconciled.status)) {
+          this.clearOrderDeadline(clientOrderId);
           this.cancelReconcileLastAttemptMs.delete(clientOrderId);
           const runtime = this.runtimes.get(reconciled.plan.symbol);
           if (runtime?.pendingEntryIntent?.decisionId === reconciled.plan.decisionId) delete runtime.pendingEntryIntent;
@@ -1343,6 +1361,67 @@ export class TradingEngine extends EventEmitter {
       });
     }
     try { await this.gateway.cancelAll(); } catch (error) { this.emit("engineError", error); }
+  }
+
+  private scheduleOrderDeadline(plan: ExecutionPlan): void {
+    this.clearOrderDeadline(plan.clientOrderId);
+    const delayMs = Math.max(0, plan.expiresMs - this.now());
+    const timer = setTimeout(() => {
+      this.orderDeadlineTimers.delete(plan.clientOrderId);
+      void this.enforceOrderDeadline(plan.clientOrderId);
+    }, delayMs);
+    timer.unref();
+    this.orderDeadlineTimers.set(plan.clientOrderId, timer);
+  }
+
+  private clearOrderDeadline(clientOrderId: string): void {
+    const timer = this.orderDeadlineTimers.get(clientOrderId);
+    if (timer) clearTimeout(timer);
+    this.orderDeadlineTimers.delete(clientOrderId);
+  }
+
+  private async enforceOrderDeadline(clientOrderId: string): Promise<void> {
+    const tracked = this.orderState.get(clientOrderId);
+    if (!tracked || !isPendingOrderStatus(tracked.status)) return;
+    const nowMs = this.now();
+    if (nowMs < tracked.plan.expiresMs) {
+      this.scheduleOrderDeadline(tracked.plan);
+      return;
+    }
+    const runtime = this.runtimes.get(tracked.plan.symbol);
+    if (runtime?.position && tracked.plan.reduceOnlyIntent && tracked.plan.style === "maker") {
+      await this.fallbackMakerExit(runtime, tracked, "TTL_EXPIRED");
+      return;
+    }
+    await this.cancelTracked(tracked, "TTL_EXPIRED", {
+      source: "deadline-timer", nowMs, expiresMs: tracked.plan.expiresMs,
+      status: tracked.status, alpacaOrderIdAvailable: Boolean(tracked.alpacaOrderId),
+    });
+  }
+
+  private async reconcileTrackedOrders(openOrders: readonly AlpacaOrder[]): Promise<boolean> {
+    const previousFilledByClientId = new Map(this.orderState.all().map((tracked) =>
+      [tracked.plan.clientOrderId, tracked.filledQty] as const));
+    const snapshots = openOrders.map(remoteOrderSnapshot);
+    const openClientOrderIds = new Set(snapshots.map((order) => order.clientOrderId));
+    const absent = this.orderState.all().filter((tracked) =>
+      isPendingOrderStatus(tracked.status) && !openClientOrderIds.has(tracked.plan.clientOrderId));
+    const exact = await Promise.all(absent.map(async (tracked) => {
+      const response = tracked.alpacaOrderId
+        ? await this.rest.getOrder(tracked.alpacaOrderId)
+        : await this.rest.getOrderByClientId(tracked.plan.clientOrderId);
+      return remoteOrderSnapshot(response.data);
+    }));
+    this.orderState.reconcile([...snapshots, ...exact]);
+    let fillAdvanced = false;
+    for (const tracked of this.orderState.all()) {
+      if (tracked.filledQty > (previousFilledByClientId.get(tracked.plan.clientOrderId) ?? 0) + 1e-12) fillAdvanced = true;
+      if (isPendingOrderStatus(tracked.status)) continue;
+      this.clearOrderDeadline(tracked.plan.clientOrderId);
+      const runtime = this.runtimes.get(tracked.plan.symbol);
+      if (runtime?.pendingEntryIntent?.decisionId === tracked.plan.decisionId) delete runtime.pendingEntryIntent;
+    }
+    return fillAdvanced;
   }
   private onPublicDisconnect(): void {
     this.recorder?.write({ kind: "DISCONNECT", receiveTsMs: this.now(), stream: "public" });
@@ -1380,6 +1459,21 @@ function assetRules(asset: AlpacaAsset): AssetRules {
 }
 function baseAsset(symbol: string): string { return symbol.split("/")[0] ?? symbol; }
 function normalizeSymbol(symbol: string): string { return symbol.includes("/") ? symbol : symbol.replace(/(USD|USDT|USDC|BTC)$/, "/$1"); }
+function isPendingOrderStatus(status: TrackedOrder["status"]): boolean {
+  return ["RESERVED", "SENDING", "OPEN", "PARTIALLY_FILLED", "CANCEL_PENDING", "UNKNOWN"].includes(status);
+}
+function remoteOrderSnapshot(order: AlpacaOrder): RemoteOrderSnapshot {
+  const averageFillPx = Number(order.filled_avg_price ?? 0);
+  const updatedMs = Date.parse(order.updated_at);
+  return {
+    id: order.id,
+    clientOrderId: order.client_order_id,
+    filledQty: Number(order.filled_qty ?? 0),
+    ...(averageFillPx > 0 ? { averageFillPx } : {}),
+    status: order.status,
+    ...(Number.isFinite(updatedMs) ? { updatedMs } : {}),
+  };
+}
 function cfgPriceSigma(features: Features, multiple: number): number { return features.mid * features.sigmaHBps / 10_000 * multiple; }
 function ceilQuantity(quantity: number, increment: number): number { return Math.ceil(quantity / increment - 1e-12) * increment; }
 function ceilPrice(price: number, increment: number): number { return Math.ceil(price / increment - 1e-12) * increment; }
