@@ -60,7 +60,7 @@ test("JSON baseline wins over legacy tunable environment values and symbol overl
     assert.equal(cfg.position.maximumHoldMs, 14_400_000);
     assert.deepEqual(cfg.deterministicSignal.analyticHorizons.map((item) => item.horizonMs), [3_600_000, 7_200_000, 14_400_000]);
     assert.equal(cfg.deterministicSignal.requireMakerEntry, true);
-    assert.equal(cfg.configurationVersion, "btc-eth-profit-protection-v4.5.0");
+    assert.equal(cfg.configurationVersion, "btc-eth-sustained-continuation-v4.6.0");
     assert.equal(cfg.position.minimumHoldMs, 600_000);
     assert.equal(cfg.position.unproductiveExitMs, 1_200_000);
     assert.equal(cfg.position.reentryCooldownMs, 900_000);

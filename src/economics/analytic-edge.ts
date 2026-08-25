@@ -19,10 +19,18 @@ export function analyticEdges(input: AnalyticEdgeInput, cfg: MultiHorizonAnalyti
   if (!input.features.slowTrendReady) return [];
   const directionalBreakoutBps = input.side === 1 ? input.features.breakoutUpBps : input.features.breakoutDownBps;
   const directionalTrendBps = Math.max(0, input.side * input.features.trendSlowBps);
+  // Credit only trend already present in every sampled window. This catches a
+  // sustained continuation without extrapolating a stale 60-minute move after
+  // the 5- or 15-minute leg has rolled over.
+  const sustainedTrendBps = Math.max(0, Math.min(
+    input.side * input.features.trendFastBps,
+    input.side * input.features.trendMediumBps,
+    input.side * input.features.trendSlowBps,
+  ));
   return cfg.horizons.map((horizon) => {
     const economicSigmaBps = 10_000 * Math.sqrt(Math.max(input.features.slowVarianceRate, 1e-16) * horizon.horizonMs / 1_000);
     const trendContributionBps = horizon.trendCaptureFraction * input.continuation.slowTrendAlignment
-      * input.continuation.slowTrendEfficiency * directionalTrendBps;
+      * sustainedTrendBps;
     const grossBeforeUncertaintyBps = Math.min(horizon.maximumGrossBps,
       horizon.sigmaCaptureFraction * input.continuation.score * economicSigmaBps
         + horizon.breakoutWeight * directionalBreakoutBps + trendContributionBps);
@@ -50,6 +58,7 @@ export function validateMultiHorizonAnalyticConfig(cfg: MultiHorizonAnalyticConf
       || [horizon.sigmaCaptureFraction, horizon.breakoutWeight, horizon.baseUncertaintyBps, horizon.sigmaUncertaintyFraction,
         horizon.trendCaptureFraction, horizon.trendUncertaintyFraction]
         .some((value) => !Number.isFinite(value) || value < 0)) throw new Error("invalid analytical horizon configuration");
+    if (horizon.trendCaptureFraction > 1) throw new Error("analytical trend capture fraction cannot exceed one");
   }
   if ([cfg.spreadUncertaintyWeight, cfg.flipUncertaintyWeight].some((value) => !Number.isFinite(value) || value < 0)) {
     throw new Error("invalid analytical uncertainty weight");

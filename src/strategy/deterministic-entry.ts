@@ -215,7 +215,6 @@ export class DeterministicEntryEngine {
     const dynamicLiquidity = direction === 1 ? context.longLiquidity : context.shortLiquidity;
     const votes = this.microVotes(direction, f, trigger);
     const healthPass = this.healthPass(context.system);
-    const liquidityPass = dynamicLiquidity?.pass ?? this.staticLiquidityPass(f, cost);
     const regimePass = direction === 1 ? context.regime.allowLong : context.regime.allowShort;
     const candidatePass = candidate?.side === direction;
     const scorePass = trigger.score >= this.cfg.microTrigger.armScore;
@@ -230,6 +229,18 @@ export class DeterministicEntryEngine {
     const cooldownPass = !trigger.reasons.includes("COOLDOWN_ACTIVE") && !trigger.reasons.includes("ALREADY_FIRED_IN_EPISODE");
     const continuation = continuationQuality(direction, f, context.regime, this.cfg.continuationQuality);
     const structure = this.structuralSetup(direction, f);
+    // During a causally aligned continuation, a moderately widened spread may
+    // proceed to exact economics when it is still below the learned stress
+    // threshold and every non-spread liquidity check remains healthy. The
+    // robust cost gate below prices the observed spread and may still reject.
+    const costRevalidatedSpreadPass = dynamicLiquidity !== undefined
+      && structure.family === "CONTINUATION" && structure.continuationPass && !dynamicLiquidity.stress
+      && dynamicLiquidity.reasons.length === 1
+      && dynamicLiquidity.reasons[0] === "SPREAD_ABOVE_DYNAMIC_TRADE_THRESHOLD";
+    const liquidityPass = dynamicLiquidity?.pass === true || costRevalidatedSpreadPass
+      || (dynamicLiquidity === undefined && this.staticLiquidityPass(f, cost));
+    const liquidityReasons = liquidityPass ? []
+      : dynamicLiquidity?.reasons ?? ["STATIC_LIQUIDITY_LIMIT"];
     const slowTrendPass = structure.pass;
     const confirmationQuality = clamp((trigger.score - this.cfg.microTrigger.releaseScore)
       / Math.max(this.cfg.microTrigger.strongScore - this.cfg.microTrigger.releaseScore, 1e-9), 0, 1);
@@ -294,7 +305,7 @@ export class DeterministicEntryEngine {
       continuationTrendPass: structure.continuationPass, pullbackRecoveryPass: structure.pullbackPass,
       pullbackStructuralMoveBps: pullback.structuralMoveBps, pullbackDepthBps: pullback.pullbackDepthBps,
       pullbackRecoveryBps: pullback.recoveryBps, pullbackRemainingRoomBps: pullback.remainingRoomBps,
-      liquidityReasons: dynamicLiquidity?.reasons ?? (liquidityPass ? [] : ["STATIC_LIQUIDITY_LIMIT"]),
+      liquidityReasons,
       tradeThresholdBps: dynamicLiquidity?.tradeThresholdBps ?? this.cfg.maximumSpreadBps,
       stressThresholdBps: dynamicLiquidity?.stressThresholdBps ?? this.cfg.maximumSpreadBps,
       reasons: [...new Set([...reasons, ...(economic?.rejectionReasons ?? [])])],
