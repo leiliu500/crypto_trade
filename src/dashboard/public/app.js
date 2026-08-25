@@ -1,4 +1,4 @@
-const state={snapshot:null,paused:false,orderFilter:"all",symbol:"all",socket:null,retry:0};
+const state={snapshot:null,paused:false,orderFilter:"all",symbol:"all",view:"overview",socket:null,retry:0};
 const el=(id)=>document.getElementById(id);
 const esc=(value)=>String(value??"").replace(/[&<>'"]/g,(char)=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"})[char]);
 const num=(value,digits=2)=>value==null||!Number.isFinite(Number(value))?"—":Number(value).toLocaleString(undefined,{minimumFractionDigits:digits,maximumFractionDigits:digits});
@@ -35,7 +35,7 @@ function render(s){
   el("halt-reasons").innerHTML=(s.haltReasons||[]).map(reason=>`<span class="halt-chip">${esc(reason)}</span>`).join("");
   el("equity").textContent=money(s.equity);el("drawdown").textContent=`Peak ${money(s.equityHighWater)}`;el("session-pnl").textContent=signedMoney(s.realizedSessionPnl,5);el("session-pnl").className=pnlClass(s.realizedSessionPnl);renderSessionPnlBreakdown(s.realizedSessionBreakdown);
   el("latency").textContent=s.latencyP95Ms==null?"—":`${num(s.latencyP95Ms,1)} ms`;el("uptime").textContent=duration(s.uptimeMs);el("strategy-version").textContent=`Strategy ${s.strategyVersion}`;el("last-update").textContent=`Updated ${relative(s.generatedAtMs)}`;
-  renderLiveness(s.liveness||[]);syncSymbols(s.markets||[]);renderMarkets(filtered(s.markets||[]));renderOrders(filtered(s.orders||[]));renderEvents(s.events||[]);
+  renderLiveness(s.liveness||[]);syncSymbols(s.markets||[]);renderMarkets(filtered(s.markets||[]));renderOrders(filtered(s.orders||[]));renderOptionShort(s.optionShort||{});renderEvents(s.events||[]);
   el("footer-detail").textContent=`DB ${s.database.status} · ${s.database.queuedRecords} queued · ${s.signalMode||"DETERMINISTIC_ONLY"} · config ${s.configurationVersion||"-"}${s.modelVersion&&s.modelVersion!=="none"?` · model ${s.modelVersion}`:""}`;
 }
 function filtered(items){return state.symbol==="all"?items:items.filter(item=>item.symbol===state.symbol);}
@@ -47,6 +47,48 @@ function sessionPnlBreakdownHtml(breakdown){
 }
 function renderSessionPnlBreakdown(breakdown){const node=el("session-pnl-breakdown"),html=sessionPnlBreakdownHtml(breakdown);node.innerHTML=html;node.hidden=!html;}
 function renderLiveness(items){el("liveness-grid").className="liveness-grid";el("liveness-grid").innerHTML=items.map(item=>`<article class="live-card ${item.healthy?"":"bad"}"><span class="status-icon">${item.healthy?"✓":"!"}</span><div><b>${esc(item.label)}</b><small title="${esc(item.detail)}">${esc(item.detail)}</small></div><i class="live-dot"></i></article>`).join("");}
+function optionPlan(event){const payload=event&&event.payload&&typeof event.payload==="object"?event.payload:{};return payload.plan&&typeof payload.plan==="object"?payload.plan:payload;}
+function optionDecision(option,contractSymbol,purpose){return (option.recentActivity||[]).find(event=>{const plan=optionPlan(event);return plan.contractSymbol===contractSymbol&&plan.purpose===purpose;});}
+function optionStatusLabel(value){return String(value||"UNKNOWN").toUpperCase().replaceAll("_"," ");}
+function optionLeg(plan,label,status,fallback){
+  const ttl=plan.expiresInMs>0?`${duration(plan.expiresInMs)} left`:status==="MONITORING"?"managed":"complete";
+  const id=plan.clientOrderId||plan.alpacaOrderId||"Reconciled from Alpaca";
+  const fill=Number.isFinite(plan.filledQty)?`${num(plan.filledQty,0)} filled`:fallback;
+  return `<section class="trade-leg option-leg" data-testid="option-${label.toLowerCase()}-leg"><div class="trade-leg-head"><div><span class="trade-leg-label">${esc(label)} · ${esc(plan.positionIntent||fallback)}</span><div class="order-id" title="${esc(id)}">${esc(id)}</div></div><span class="order-status ${esc(status)}">${esc(optionStatusLabel(status))}</span></div><div class="order-main"><div class="metric"><span>Contracts</span><strong>${num(plan.qty??plan.filledQty,0)}</strong></div><div class="metric"><span>Premium</span><strong>${plan.limitPrice!=null?money(plan.limitPrice,2):plan.averageEntryPremium!=null?money(plan.averageEntryPremium,2):"—"}</strong></div><div class="metric"><span>Order state</span><strong>${esc(fill)}</strong></div><div class="metric"><span>TTL</span><strong>${esc(ttl)}</strong></div></div>${plan.reason?`<div class="decision-strip"><b>${esc(plan.purpose||label.toUpperCase())}</b><small>${esc(plan.reason)}</small></div>`:""}</section>`;
+}
+function optionPnlHtml(trade){
+  const points=completePnlHistory(trade).slice().reverse();
+  const history=points.map(point=>`<div class="pnl-change-row"><time>${time(point.atMs)}</time><span>${money(point.currentPx,2)} bid</span><strong class="${pnlClass(point.unrealizedPnl)}">${signedMoney(point.unrealizedPnl)}</strong><em class="${pnlClass(point.changePnl)}">${point.changePnl==null?"initial":signedMoney(point.changePnl)}</em></div>`).join("");
+  const title=trade.active?"Estimated option P&amp;L":"Final streamed option P&amp;L";
+  return `<section class="order-live-pnl ${trade.active?"active":"closed"}" data-testid="option-live-pnl"><div class="live-pnl-head"><div><span>${title}</span><strong class="${pnlClass(trade.unrealizedPnl)}">${signedMoney(trade.unrealizedPnl)}</strong></div><div><span class="pnl-position-state">${trade.active?"OPEN":"CLOSED"}</span><strong class="${pnlClass(trade.unrealizedPnlBps)}">${signed(trade.unrealizedPnlBps," bp")}</strong></div></div><div class="live-pnl-meta"><span>Entry ${money(trade.averageEntryPremium,2)}</span><span>WS bid ${money(trade.currentPremium,2)}</span><span>${trade.active?"Open":"Held"} ${duration(trade.ageMs)}</span><span>Quote age ${trade.quoteAgeMs==null?"—":`${num(trade.quoteAgeMs,0)} ms`}</span></div><div class="pnl-history"><div class="pnl-history-title" title="Every changed Alpaca WebSocket bid captured while the trade is open"><span>P&amp;L history · streamed bid changes</span><span>bid / net / change</span></div>${history||"<div class='pnl-history-empty'>Waiting for the first streamed option bid change…</div>"}</div></section>`;
+}
+function renderOptionTrade(trade,option){
+  const pending=(option.pendingOrders||[]).find(order=>order.contractSymbol===trade.contractSymbol&&order.purpose==="CLOSE_SHORT");
+  const entryEvent=optionDecision(option,trade.contractSymbol,"OPEN_SHORT"),entryPlan={...optionPlan(entryEvent),qty:trade.qty,averageEntryPremium:trade.averageEntryPremium};
+  const exitEvent=optionDecision(option,trade.contractSymbol,"CLOSE_SHORT"),exitPlan={...optionPlan(exitEvent),...(pending||{})};
+  const expiryClass=trade.currentDay?"FILLED":"UNKNOWN",expiryLabel=trade.currentDay?`0DTE · ${trade.expirationDate}`:`NON-CURRENT DAY · ${trade.expirationDate}`;
+  const exitLeg=pending?optionLeg(exitPlan,"Exit",pending.status,"SELL TO CLOSE")
+    :trade.active?optionLeg({qty:trade.qty,reason:"Stop, target, reversal, maximum hold, and mandatory session exit are monitored."},"Exit","MONITORING","SELL TO CLOSE")
+      :optionLeg(exitPlan,"Exit","FILLED","SELL TO CLOSE");
+  return `<article class="option-trade-card" data-testid="option-short-trade-card"><div class="order-head"><div><span class="symbol">${esc(trade.cryptoSymbol)}</span><span class="side-label sell">SHORT VIA LONG ${esc(trade.proxySymbol)} PUT</span><div class="order-id">${esc(trade.contractSymbol)}</div></div><span class="order-status ${expiryClass}">${esc(expiryLabel)}</span></div>${optionPnlHtml(trade)}<div class="trade-legs">${optionLeg(entryPlan,"Entry","FILLED","BUY TO OPEN")}${exitLeg}</div></article>`;
+}
+function renderPendingOptionEntry(order,option){const event=optionDecision(option,order.contractSymbol,"OPEN_SHORT"),plan={...optionPlan(event),...order};return `<article class="option-trade-card" data-testid="option-short-trade-card"><div class="order-head"><div><span class="symbol">${esc(order.cryptoSymbol)}</span><span class="side-label sell">0DTE PUT ENTRY</span><div class="order-id">${esc(order.contractSymbol)}</div></div><span class="order-status ${esc(order.status)}">${esc(optionStatusLabel(order.status))}</span></div><div class="trade-legs">${optionLeg(plan,"Entry",order.status,"BUY TO OPEN")}${optionLeg({reason:"Exit management starts after Alpaca reconciles the option position."},"Exit","MONITORING","SELL TO CLOSE")}</div></article>`;}
+function renderOptionShort(option){
+  const enabled=Boolean(option.enabled),ready=Boolean(option.ready),status=enabled?(ready?"READY":"DEGRADED"):"DISABLED";
+  const statusNode=el("option-short-status");statusNode.textContent=status;statusNode.className=`option-route-status ${status.toLowerCase()}`;
+  el("option-session-date").textContent=option.currentSessionDate&&option.currentSessionDate!=="-"?`${option.currentSessionDate} ET · current-day contracts only`:"Awaiting New York session date";
+  const checks=[
+    ["Options account",option.accountReady,"Level 2 buying permission reconciled"],
+    ["Proxy ETF WebSocket",option.stockStreamReady,"Alpaca stock quotes"],
+    ["Option WebSocket",option.optionStreamReady,"Alpaca MessagePack quotes"],
+    ["0DTE subscriptions",Number(option.subscribedContracts)>0,`${option.subscribedContracts||0} current-day contracts`],
+  ];
+  el("option-readiness-grid").innerHTML=checks.map(([label,healthy,detail])=>`<article class="option-readiness-card ${!enabled?"disabled":healthy?"good":"bad"}"><i></i><div><b>${esc(label)}</b><small>${esc(!enabled?"Route disabled":detail)}</small></div><span>${!enabled?"—":healthy?"READY":"BLOCKED"}</span></article>`).join("");
+  const trades=option.trades||[],opening=(option.pendingOrders||[]).filter(order=>order.purpose==="OPEN_SHORT"&&!trades.some(trade=>trade.contractSymbol===order.contractSymbol));
+  const cards=[...trades.map(trade=>renderOptionTrade(trade,option)),...opening.map(order=>renderPendingOptionEntry(order,option))];
+  const tradeGrid=el("option-trades-grid");tradeGrid.className=cards.length?"option-trades-grid":"option-trades-grid empty-grid";tradeGrid.innerHTML=cards.join("")||`<p>${enabled?"No option-short trades or pending entries in this session.":"The 0DTE option-short route is disabled."}</p>`;
+  const activity=option.recentActivity||[];el("option-activity").innerHTML=activity.map(event=>`<div class="option-activity-row"><time>${time(event.atMs)}</time><span class="severity ${esc(event.severity)}">${esc(event.severity)}</span><b>${esc(event.type)}</b><p title="${esc(event.summary)}">${esc(event.summary)}</p></div>`).join("")||"<p class='option-activity-empty'>No option-short lifecycle events yet.</p>";
+}
 function syncSymbols(markets){const select=el("symbol-filter"),current=select.value||state.symbol,values=[...new Set(markets.map(m=>m.symbol))];select.innerHTML=`<option value="all">All symbols</option>${values.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join("")}`;select.value=values.includes(current)||current==="all"?current:"all";state.symbol=select.value;}
 function renderMarkets(items){const grid=el("market-grid");if(!items.length){grid.className="market-grid empty-grid";grid.innerHTML="<p>Waiting for order books…</p>";return;}grid.className="market-grid";grid.innerHTML=items.map(m=>{
   const seed=[m.qi1,m.ofi,m.tfi,m.efficiency,m.velocityZ,m.sigmaHBps,1-m.providerAgeMs/(m.staleThresholdMs||1000),m.spreadBps].map((v,i)=>Math.max(3,Math.min(33,6+Math.abs(Number(v)||0)*(i<3?10:4))));
@@ -164,6 +206,9 @@ function renderOrders(items){
   grid.innerHTML=cards.map(card=>card.kind==="trade"?renderTradeCard(card):renderOrderAttempt(card.order)).join("");
 }
 
+function setDashboardView(view){state.view=view;document.querySelectorAll("[data-dashboard-view]").forEach(node=>{node.hidden=node.dataset.dashboardView!==view;});document.querySelectorAll("[data-dashboard-tab]").forEach(button=>{const active=button.dataset.dashboardTab===view;button.classList.toggle("active",active);button.setAttribute("aria-selected",String(active));});}
+
+document.querySelectorAll("[data-dashboard-tab]").forEach(button=>button.addEventListener("click",()=>setDashboardView(button.dataset.dashboardTab)));
 el("symbol-filter").addEventListener("change",event=>{state.symbol=event.target.value;if(state.snapshot)render(state.snapshot);});
 document.querySelectorAll("[data-order-filter]").forEach(button=>button.addEventListener("click",()=>{document.querySelectorAll("[data-order-filter]").forEach(b=>b.classList.remove("active"));button.classList.add("active");state.orderFilter=button.dataset.orderFilter;if(state.snapshot)renderOrders(filtered(state.snapshot.orders||[]));}));
 el("pause-button").addEventListener("click",()=>{state.paused=!state.paused;el("pause-button").innerHTML=state.paused?"<span>▶</span> Resume stream":"<span>Ⅱ</span> Pause stream";if(!state.paused&&state.snapshot)fetch("/api/dashboard",{cache:"no-store"}).then(r=>r.json()).then(applySnapshot).catch(()=>{});});

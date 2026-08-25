@@ -1,6 +1,6 @@
-# Alpaca minimal-latency crypto engine
+# Alpaca minimal-latency crypto and 0DTE proxy-options engine
 
-A production-oriented TypeScript implementation of the attached mathematical design. The engine reconstructs Alpaca's crypto L2 book, computes causal microstructure features on every event, and uses explicit deterministic entry, regime, cost, anti-chasing, persistence, reset, and exit rules. The default path does not construct or load a predictive model.
+A production-oriented TypeScript implementation of the attached mathematical design. The engine reconstructs Alpaca's crypto L2 book, computes causal microstructure features on every event, and uses explicit deterministic entry, regime, cost, anti-chasing, persistence, reset, and exit rules. The default path does not construct or load a predictive model. An optional, disabled-by-default route converts qualified bearish BTC or ETH intents into finite-risk long puts on a crypto ETF proxy.
 
 It does **not** promise profit or zero latency. `shadow` is the default. Paper mode requires paper credentials and `ALPACA_PAPER=true`; live mode remains protected by two explicit live-trading interlocks.
 
@@ -20,7 +20,8 @@ Alpaca crypto WebSocket
   -> anti-chasing + quantity-aware execution planning
   -> risk, correlation, and liquidity sizing
   -> maker-only entry planning + maker-first non-urgent exits with bounded IOC fallback
-  -> capped Alpaca limit order
+  -> long spot: capped Alpaca crypto limit order
+  -> bearish 0DTE route: streamed IBIT/ETHA quote + same-day put + premium cap
   -> private trade_updates reconciliation
   -> deterministic hold/reversal + recovery/time/profit-floor exits
 ```
@@ -50,7 +51,9 @@ The implementation uses the current Alpaca Trading API and Crypto Data API direc
 - Trading resources: account, account configuration, account portfolio history, activities, assets, clock, order create/list/get/by-client-ID/replace/cancel/cancel-all, position list/get/close/close-all.
 - Crypto latest data: order books, quotes, trades, bars, and snapshots.
 - Crypto historical data: bars, quotes, and trades with page-token-capable query types.
+- Options control plane: current-day contract discovery and option-order/position reconciliation.
 - Public stream: trades, quotes, and order-book reset/deltas at `v1beta3/crypto/{loc}`.
+- Proxy/options streams: IBIT/ETHA quotes from the stock WebSocket and explicitly subscribed contract quotes/trades from Alpaca's msgpack-only options WebSocket. REST snapshots never authorize an option order.
 - Private stream: all `trade_updates`, including new, partial fill, fill, cancel, expiry, replace, reject, pending, suspended, and uncommon states.
 - Every trading response retains Alpaca's `X-Request-ID` for operational diagnosis.
 
@@ -58,13 +61,18 @@ Startup preflight reads all latest crypto resources, account configuration, and 
 
 Alpaca venue constraints are enforced:
 
-- This engine trades Alpaca **spot crypto**. Assets currently report `shortable=false`, so deterministic short intents are evaluated symmetrically for audit/replay but cannot open short exposure.
+- Spot crypto assets currently report `shortable=false`. With `CRYPTO_SHORT_OPTIONS_ENABLED=false` (the default), short intents remain audit-only. When explicitly enabled, a qualified `BTC/USD` short buys an IBIT put and a qualified `ETH/USD` short buys an ETHA put; this is proxy exposure, not a short sale of the coin.
+- The options route is deliberately long-put-only. It does not sell naked calls or construct a synthetic short, so modeled maximum loss is the premium paid. It requires Alpaca options level 2, whole contracts, `day` orders, regular US options hours, fresh stock and option WebSocket quotes, a configured spread limit, and sufficient options buying power.
+- Only contracts whose expiration date equals the current `America/New_York` trading date are eligible. Greeks are not required because Alpaca generally cannot calculate them for 0DTE; the selector uses proxy moneyness, live bid/ask liquidity, and open interest. If the proxy has no listed expiration that day, the route fails closed.
+- New 0DTE entries are allowed only from 09:35 through 14:59 ET. Positions are sent a streamed, marketable-limit exit from 15:15 ET; any position still present at 15:25 ET uses an emergency market `sell_to_close` before Alpaca's expiration-risk processing window. Every entry is intraday-only and the engine never intentionally carries it through expiration.
+- Option orders remain interlocked through terminal-order reconciliation, including partial fills and momentarily inconsistent order/position snapshots. Ambiguous POST outcomes are resolved by client order ID and are never resubmitted speculatively. Opening orders encode the originating crypto reference price in their owned client ID so stop/target management survives a process restart, and any signal-router size reduction scales the maximum premium budget before whole-contract rounding.
+- The proxy route's premium cap is a loss bound, not evidence that a crypto signal has profitable 0DTE option expectancy. Paper fills must be used to calibrate proxy basis, option spread/slippage, and time decay before live enablement.
 - Alpaca crypto supports market, limit, and stop-limit orders with GTC/IOC. Entries remain non-marketable GTC limits. Continuation entries retain the micro-alpha TTL; multi-hour pullback/recovery entries use a separate 20-second maker TTL. Every submitted plan has an independent wall-clock deadline, so quiet market data cannot leave it resting past expiry. Cancellation intent is latched while an order POST is in flight and is executed immediately after acknowledgment. A single transient kinematics reset cannot cancel a resting pullback order: cancellation requires both the configured five-second grace and two consecutive unavailable events. A lone adverse OFI or trade-flow sensor also requires a configurable two-second, three-event confirmation; corroborated OFI and trade flow still cancel immediately. TTL, stale-book, structure, and exact-cost checks remain fail-closed. Non-urgent exits may rest at the ask for up to 30 seconds and then cancel/reconcile before a price-capped IOC submits the remainder; hard stops and profit-floor exits use IOC immediately. The `MAKER_MAKER_TAKER_FALLBACK` ledger charges maker exit fees plus stressed, probability-weighted fallback fee/spread/adverse costs. Every final quantity is exact-cost revalidated, and a taker entry cannot silently replace an unfilled or uneconomic maker entry. Account reconciliation fetches the exact authoritative status of locally tracked orders missing from Alpaca's open-order list instead of assuming they were canceled.
 - There are no perpetuals, leverage, liquidation, funding, or native reduce-only flags on this venue. Funding/borrow are therefore zero, and exits are client-side clamped to the known long position.
 - Alpaca's documented order-book schema exposes reset and price-level deltas, but no exchange sequence number or checksum. The engine requires a reset after connection, rejects timestamp reversal/crossed books/duplicates, and never misrepresents its local counter as an exchange sequence guarantee.
 - Minimum size, quantity increment, and price increment come from the live Alpaca Assets resource rather than hard-coded symbol rules.
 
-Official references: [real-time crypto data](https://docs.alpaca.markets/docs/real-time-crypto-pricing-data), [crypto trading](https://docs.alpaca.markets/docs/crypto-trading), [orders](https://docs.alpaca.markets/reference/postorder), and [trade updates](https://docs.alpaca.markets/docs/websocket-streaming).
+Official references: [real-time crypto data](https://docs.alpaca.markets/docs/real-time-crypto-pricing-data), [crypto trading](https://docs.alpaca.markets/docs/crypto-trading), [real-time options data](https://docs.alpaca.markets/docs/real-time-option-data), [options trading](https://docs.alpaca.markets/docs/options-trading), [orders](https://docs.alpaca.markets/reference/postorder), and [trade updates](https://docs.alpaca.markets/docs/websocket-streaming).
 
 ## Setup
 
@@ -91,6 +99,7 @@ Tunable parameters are JSON-backed:
 - `config/base.json` contains the enabled symbol list and baseline parameter values.
 - Files such as `config/btc_usd.json`, `config/doge_usd.json`, `config/eth_usd.json`, `config/link_usd.json`, `config/sol_usd.json`, and `config/xrp_usd.json` contain symbol-specific overrides. A symbol such as `XRP/USD` maps to `xrp_usd.json`.
 - A symbol file only needs to include values that differ from the baseline. Its keys must already exist in `base.json`, and global dashboard/database parameters cannot be overridden per symbol.
+- Global `OPTIONS_SHORT_*` values in `config/base.json` configure the proxy map, WebSocket feeds, ATM moneyness band, quote/spread limits, premium cap, contract subscription cap, entry/exit times, and intraday stops. The checked-in option feed is `opra`; the Alpaca account must have access to that feed.
 - `CONFIG_DIR` can select another configuration directory. JSON values take precedence over legacy tunable environment variables, so tuning has one source of truth.
 
 Keep credentials and connection secrets out of all JSON files.
@@ -150,6 +159,12 @@ Live mode additionally requires:
 ALPACA_PAPER=false
 ALLOW_LIVE_TRADING=true
 LIVE_TRADING_CONFIRMATION=I_UNDERSTAND_LIVE_ORDERS_USE_REAL_MONEY
+```
+
+Enabling the separate 0DTE route requires `CRYPTO_SHORT_OPTIONS_ENABLED=true`. In live mode it also requires:
+
+```text
+OPTIONS_SHORT_LIVE_CONFIRMATION=I_UNDERSTAND_0DTE_OPTIONS_CAN_EXPIRE_WORTHLESS
 ```
 
 ## AWS EC2 deployment with Docker Compose

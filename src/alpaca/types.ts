@@ -49,6 +49,9 @@ export interface AlpacaAccount {
   shorting_enabled: boolean;
   pattern_day_trader: boolean;
   daytrade_count: number;
+  options_buying_power?: string;
+  options_approved_level?: number;
+  options_trading_level?: number;
 }
 
 export interface AlpacaAccountConfiguration {
@@ -59,11 +62,13 @@ export interface AlpacaAccountConfiguration {
   pdt_check: string;
   suspend_trade: boolean;
   trade_confirm_email: string;
+  max_options_trading_level?: number;
 }
 
 export type AlpacaOrderSide = "buy" | "sell";
-export type AlpacaOrderType = "market" | "limit" | "stop_limit";
-export type AlpacaTimeInForce = "gtc" | "ioc";
+export type AlpacaOrderType = "market" | "limit" | "stop" | "stop_limit";
+export type AlpacaTimeInForce = "day" | "gtc" | "ioc";
+export type AlpacaPositionIntent = "buy_to_open" | "buy_to_close" | "sell_to_open" | "sell_to_close";
 export interface AlpacaCreateOrder {
   symbol: string;
   qty?: string;
@@ -75,6 +80,7 @@ export interface AlpacaCreateOrder {
   stop_price?: string;
   client_order_id: string;
   order_class?: "simple" | "";
+  position_intent?: AlpacaPositionIntent;
 }
 export interface AlpacaReplaceOrder { qty?: string; time_in_force?: AlpacaTimeInForce; limit_price?: string; stop_price?: string; client_order_id?: string; }
 export interface AlpacaOrder {
@@ -131,7 +137,42 @@ export interface AlpacaLatestTrade { t: string; p: number; s: number; i: number 
 export interface AlpacaBar { t: string; o: number; h: number; l: number; c: number; v: number; n?: number; vw?: number; }
 export interface AlpacaSnapshot { latestTrade?: AlpacaLatestTrade; latestQuote?: AlpacaLatestQuote; minuteBar?: AlpacaBar; dailyBar?: AlpacaBar; prevDailyBar?: AlpacaBar; }
 
-export interface ListOrdersQuery { status?: "open" | "closed" | "all"; limit?: number; after?: string; until?: string; direction?: "asc" | "desc"; symbols?: string; side?: AlpacaOrderSide; asset_class?: "crypto" | "all"; }
+export interface AlpacaOptionContract {
+  id: string;
+  symbol: string;
+  name: string;
+  status: "active" | "inactive";
+  tradable: boolean;
+  expiration_date: string;
+  root_symbol: string;
+  underlying_symbol: string;
+  underlying_asset_id: string;
+  type: "call" | "put";
+  style: "american" | "european";
+  strike_price: string;
+  size: string;
+  open_interest?: string;
+  open_interest_date?: string;
+  close_price?: string;
+  close_price_date?: string;
+  /** Penny Program Indicator, returned by current contract responses when available. */
+  ppind?: boolean;
+}
+export interface OptionContractsQuery {
+  underlying_symbols?: string;
+  status?: "active" | "inactive";
+  expiration_date?: string;
+  expiration_date_gte?: string;
+  expiration_date_lte?: string;
+  root_symbol?: string;
+  type?: "call" | "put";
+  style?: "american" | "european";
+  strike_price_gte?: number;
+  strike_price_lte?: number;
+  page_token?: string;
+  limit?: number;
+}
+export interface ListOrdersQuery { status?: "open" | "closed" | "all"; limit?: number; after?: string; until?: string; direction?: "asc" | "desc"; symbols?: string; side?: AlpacaOrderSide; asset_class?: "us_equity" | "us_option" | "crypto" | "all"; }
 export interface ActivitiesQuery { activity_types?: string; category?: "trade_activity" | "non_trade_activity"; order_id?: string; date?: string; until?: string; after?: string; direction?: "asc" | "desc"; page_size?: number; page_token?: string; }
 export interface HistoricalQuery { symbols: string; start?: string; end?: string; timeframe?: string; limit?: number; page_token?: string; sort?: "asc" | "desc"; }
 

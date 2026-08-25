@@ -156,6 +156,63 @@ export interface DashboardPositionCard {
   reversalProbability: number | null;
 }
 
+export interface DashboardOptionShortTrade {
+  cryptoSymbol: string;
+  proxySymbol: string;
+  contractSymbol: string;
+  expirationDate: string;
+  active: boolean;
+  closedAtMs: number | null;
+  qty: number;
+  averageEntryPremium: number;
+  premiumAtRiskDollars: number;
+  currentDay: boolean;
+  openedMs: number;
+  ageMs: number;
+  entryCryptoPrice: number | null;
+  currentPremium: number | null;
+  quoteAtMs: number | null;
+  quoteAgeMs: number | null;
+  unrealizedPnl: number | null;
+  unrealizedPnlBps: number | null;
+  pnlHistory: readonly DashboardPnlPoint[];
+}
+
+export interface DashboardOptionShortOrder {
+  cryptoSymbol: string;
+  contractSymbol: string;
+  clientOrderId: string;
+  alpacaOrderId: string | null;
+  purpose: "OPEN_SHORT" | "CLOSE_SHORT";
+  status: string;
+  filledQty: number;
+  expirationDate: string | null;
+  currentDay: boolean;
+  expiresMs: number;
+  expiresInMs: number;
+  settling: boolean;
+}
+
+export interface DashboardOptionShort {
+  enabled: boolean;
+  ready: boolean;
+  accountReady: boolean;
+  stockStreamReady: boolean;
+  optionStreamReady: boolean;
+  subscribedContracts: number;
+  currentSessionDate: string;
+  trades: readonly DashboardOptionShortTrade[];
+  pendingOrders: readonly DashboardOptionShortOrder[];
+  recentActivity: readonly DashboardEvent[];
+}
+
+export interface OptionShortPnlTelemetry {
+  tradeKey: string;
+  cryptoSymbol: string;
+  contractSymbol: string;
+  point: DashboardPnlPoint;
+}
+
 export interface DashboardMarketCard {
   symbol: string;
   bookValid: boolean;
@@ -279,10 +336,12 @@ export interface DashboardSnapshot {
   markets: readonly DashboardMarketCard[];
   positions: readonly DashboardPositionCard[];
   orders: readonly DashboardOrderCard[];
+  optionShort: DashboardOptionShort;
   events: readonly DashboardEvent[];
 }
 
-export type TelemetryKind = "event" | "health" | "order" | "position" | "decision" | "fill" | "market";
+export type TelemetryKind = "event" | "health" | "order" | "position" | "decision" | "fill" | "market"
+  | "option_order" | "option_trade" | "option_pnl";
 export interface TelemetryRecord {
   kind: TelemetryKind;
   atMs: number;
