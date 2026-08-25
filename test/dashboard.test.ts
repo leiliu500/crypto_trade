@@ -332,6 +332,7 @@ test("dashboard groups one trade into one card while keeping standalone order fi
   assert.match(app, /data-testid="trade-card"/);
   assert.match(app, /renderOrderLeg\(entry,"Entry"\)/);
   assert.match(app, /renderOrderLeg\(exit,"Exit"\)/);
+  assert.doesNotMatch(app, /clientOrderId\.slice\(0,24\)/);
 });
 
 test("operations monitor exposes structured cancellation reasons in order cards and timelines", () => {
