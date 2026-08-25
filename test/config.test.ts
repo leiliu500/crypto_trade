@@ -60,7 +60,7 @@ test("JSON baseline wins over legacy tunable environment values and symbol overl
     assert.equal(cfg.position.maximumHoldMs, 14_400_000);
     assert.deepEqual(cfg.deterministicSignal.analyticHorizons.map((item) => item.horizonMs), [3_600_000, 7_200_000, 14_400_000]);
     assert.equal(cfg.deterministicSignal.requireMakerEntry, true);
-    assert.equal(cfg.configurationVersion, "btc-eth-sustained-continuation-v4.6.0");
+    assert.equal(cfg.configurationVersion, "btc-eth-adverse-flow-confirmation-v4.6.1");
     assert.equal(cfg.position.minimumHoldMs, 600_000);
     assert.equal(cfg.position.unproductiveExitMs, 1_200_000);
     assert.equal(cfg.position.reentryCooldownMs, 900_000);
@@ -72,6 +72,8 @@ test("JSON baseline wins over legacy tunable environment values and symbol overl
     assert.equal(cfg.planner.pullbackKinematicsGraceEvents, 2);
     assert.equal(cfg.planner.pullbackSignalInvalidationGraceMs, 5_000);
     assert.equal(cfg.planner.pullbackSignalInvalidationGraceEvents, 3);
+    assert.equal(cfg.planner.adverseFlowConfirmationMs, 2_000);
+    assert.equal(cfg.planner.adverseFlowConfirmationEvents, 3);
     assert.equal(cfg.deterministicSignal.minimumSlowTrendAlignment, 0.1);
     assert.equal(cfg.deterministicSignal.minimumSlowTrendEfficiency, 0.05);
     assert.equal(cfg.deterministicSignal.minimumSlowTrendMoveBps, 7.5);

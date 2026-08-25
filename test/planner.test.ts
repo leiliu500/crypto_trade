@@ -31,6 +31,7 @@ function planner(takerLimitBufferBps = 0, fillHazardIntercept = 5): ExecutionPla
     makerTtlMs: 1_500, alphaHalfLifeMs: 4_000, minimumFillProbability: .65, takerLimitBufferBps, cancelAheadFraction: .5,
     pullbackMakerTtlMs: 20_000, pullbackKinematicsGraceMs: 5_000, pullbackKinematicsGraceEvents: 2,
     pullbackSignalInvalidationGraceMs: 5_000, pullbackSignalInvalidationGraceEvents: 3,
+    adverseFlowConfirmationMs: 2_000, adverseFlowConfirmationEvents: 3,
     fillHazardIntercept, fillHazardAggressiveWeight: 0, fillHazardFlowWeight: 0,
     fillHazardImbalanceWeight: 0, fillHazardSpreadWeight: 0,
     makerOpportunityCostBps: 0, staleOrderCostBps: 0, maximumImpactBps: 10, maximumIterations: 5,

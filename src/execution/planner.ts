@@ -16,6 +16,8 @@ export interface PlannerConfig {
   pullbackKinematicsGraceEvents: number;
   pullbackSignalInvalidationGraceMs: number;
   pullbackSignalInvalidationGraceEvents: number;
+  adverseFlowConfirmationMs: number;
+  adverseFlowConfirmationEvents: number;
   minimumFillProbability: number;
   /** Extra limit-price protection for marketable IOC orders. Zero preserves exact book-walk pricing. */
   takerLimitBufferBps: number;
@@ -94,7 +96,7 @@ export class ExecutionPlanner {
       throw new Error("Planner takerLimitBufferBps must be finite and non-negative");
     }
     const positiveDurations = [cfg.makerTtlMs, cfg.alphaHalfLifeMs, cfg.pullbackMakerTtlMs,
-      cfg.pullbackKinematicsGraceMs, cfg.pullbackSignalInvalidationGraceMs];
+      cfg.pullbackKinematicsGraceMs, cfg.pullbackSignalInvalidationGraceMs, cfg.adverseFlowConfirmationMs];
     if (positiveDurations.some((value) => !Number.isFinite(value) || value <= 0)) {
       throw new Error("Planner order lifetimes and kinematics grace must be finite and positive");
     }
@@ -104,8 +106,12 @@ export class ExecutionPlanner {
     if (!Number.isInteger(cfg.pullbackSignalInvalidationGraceEvents) || cfg.pullbackSignalInvalidationGraceEvents < 2) {
       throw new Error("Planner pullbackSignalInvalidationGraceEvents must be an integer of at least two");
     }
+    if (!Number.isInteger(cfg.adverseFlowConfirmationEvents) || cfg.adverseFlowConfirmationEvents < 2) {
+      throw new Error("Planner adverseFlowConfirmationEvents must be an integer of at least two");
+    }
     if (cfg.pullbackKinematicsGraceMs >= cfg.pullbackMakerTtlMs
-      || cfg.pullbackSignalInvalidationGraceMs >= cfg.pullbackMakerTtlMs) {
+      || cfg.pullbackSignalInvalidationGraceMs >= cfg.pullbackMakerTtlMs
+      || cfg.adverseFlowConfirmationMs >= cfg.pullbackMakerTtlMs) {
       throw new Error("Planner pullback grace periods must be shorter than its maker TTL");
     }
   }

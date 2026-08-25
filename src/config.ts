@@ -344,6 +344,8 @@ function defaultPlannerConfig(env: NodeJS.ProcessEnv, minimumFillProbability: nu
     pullbackKinematicsGraceEvents: integerEnv(env.PULLBACK_KINEMATICS_GRACE_EVENTS, 2, 2, 100),
     pullbackSignalInvalidationGraceMs: integerEnv(env.PULLBACK_SIGNAL_INVALIDATION_GRACE_MS, 5_000, 1, 299_999),
     pullbackSignalInvalidationGraceEvents: integerEnv(env.PULLBACK_SIGNAL_INVALIDATION_GRACE_EVENTS, 3, 2, 100),
+    adverseFlowConfirmationMs: integerEnv(env.ADVERSE_FLOW_CONFIRMATION_MS, 2_000, 1, 299_999),
+    adverseFlowConfirmationEvents: integerEnv(env.ADVERSE_FLOW_CONFIRMATION_EVENTS, 3, 2, 100),
     minimumFillProbability, takerLimitBufferBps, cancelAheadFraction: .5,
     fillHazardIntercept: -1, fillHazardAggressiveWeight: .1, fillHazardFlowWeight: 1, fillHazardImbalanceWeight: .5, fillHazardSpreadWeight: .05,
     makerOpportunityCostBps: 2, staleOrderCostBps: 1, maximumImpactBps: 10, maximumIterations: 5 };
