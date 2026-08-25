@@ -124,7 +124,7 @@ The default deterministic configuration in `config/base.json` includes:
 
 ```text
 SIGNAL_MODE=DETERMINISTIC_ONLY
-DETERMINISTIC_CONFIG_VERSION=expanded-universe-v4.2.0
+DETERMINISTIC_CONFIG_VERSION=btc-eth-sustained-continuation-v4.6.0
 PULLBACK_MAKER_TTL_MS=20000
 PULLBACK_KINEMATICS_GRACE_MS=5000
 PULLBACK_KINEMATICS_GRACE_EVENTS=2

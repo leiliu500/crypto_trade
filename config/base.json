@@ -6,7 +6,7 @@
   ],
   "parameters": {
     "SIGNAL_MODE": "DETERMINISTIC_ONLY",
-    "DETERMINISTIC_CONFIG_VERSION": "btc-eth-profit-protection-v4.5.0",
+    "DETERMINISTIC_CONFIG_VERSION": "btc-eth-sustained-continuation-v4.6.0",
     "STRATEGY_VERSION": "1.0.0",
     "MAXIMUM_NOTIONAL": 1000,
     "MAXIMUM_GROSS_NOTIONAL": 5000,
@@ -137,7 +137,7 @@
     "RULE_EDGE_SPREAD_UNCERTAINTY_WEIGHT": 0.5,
     "RULE_EDGE_FLIP_UNCERTAINTY_WEIGHT": 0.2,
     "RULE_EDGE_FULL_EVIDENCE": 0.1,
-    "RULE_ANALYTIC_HORIZONS_JSON": "[{\"horizonMs\":3600000,\"sigmaCaptureFraction\":0.35,\"breakoutWeight\":0.1,\"maximumGrossBps\":300,\"baseUncertaintyBps\":3,\"sigmaUncertaintyFraction\":0.3,\"trendCaptureFraction\":0.2,\"trendUncertaintyFraction\":0.12},{\"horizonMs\":7200000,\"sigmaCaptureFraction\":0.4,\"breakoutWeight\":0.1,\"maximumGrossBps\":450,\"baseUncertaintyBps\":4,\"sigmaUncertaintyFraction\":0.28,\"trendCaptureFraction\":0.25,\"trendUncertaintyFraction\":0.12},{\"horizonMs\":14400000,\"sigmaCaptureFraction\":0.45,\"breakoutWeight\":0.1,\"maximumGrossBps\":600,\"baseUncertaintyBps\":5,\"sigmaUncertaintyFraction\":0.25,\"trendCaptureFraction\":0.3,\"trendUncertaintyFraction\":0.12}]",
+    "RULE_ANALYTIC_HORIZONS_JSON": "[{\"horizonMs\":3600000,\"sigmaCaptureFraction\":0.35,\"breakoutWeight\":0.1,\"maximumGrossBps\":300,\"baseUncertaintyBps\":3,\"sigmaUncertaintyFraction\":0.3,\"trendCaptureFraction\":0.5,\"trendUncertaintyFraction\":0.12},{\"horizonMs\":7200000,\"sigmaCaptureFraction\":0.4,\"breakoutWeight\":0.1,\"maximumGrossBps\":450,\"baseUncertaintyBps\":4,\"sigmaUncertaintyFraction\":0.28,\"trendCaptureFraction\":0.75,\"trendUncertaintyFraction\":0.12},{\"horizonMs\":14400000,\"sigmaCaptureFraction\":0.45,\"breakoutWeight\":0.1,\"maximumGrossBps\":600,\"baseUncertaintyBps\":5,\"sigmaUncertaintyFraction\":0.25,\"trendCaptureFraction\":1,\"trendUncertaintyFraction\":0.12}]",
     "RULE_CALIBRATED_EDGE_TABLE_JSON": "[]",
     "RULE_PULLBACK_ENABLED": true,
     "RULE_PULLBACK_HORIZON_MS": 7200000,

@@ -735,6 +735,7 @@ export class TradingEngine extends EventEmitter {
     runtime.entryAudit.pass("COST_PATHS_RESOLVED");
     if (!diagnostics.costPass) {
       this.rejectEntry(runtime, "PRELIMINARY_COST_PASS", "COST_GATE", atMs, {
+        side: diagnostics.side, family: diagnostics.family,
         edgeSource: diagnostics.edgeSource, edgeHorizonMs: diagnostics.edgeHorizonMs, edgeQuality: diagnostics.edgeQuality,
         grossOpportunityBps: diagnostics.grossOpportunityBps, uncertaintyReserveBps: diagnostics.uncertaintyReserveBps,
         roundTripCostBps: diagnostics.roundTripCostBps, robustCostBps: diagnostics.robustCostBps,
