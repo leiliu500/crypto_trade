@@ -32,7 +32,7 @@ The main contracts are:
 - Cost: `deterministic opportunity − uncertainty reserve − (exact fixed fees + stressed variable execution cost) >= minimum edge`. The `1.75` safety factor applies only to uncertain execution, impact, latency, and adverse-selection components; known venue fees remain exact.
 - Horizon: microstructure selects entry timing. A bounded five-second sampler supplies causal 5/15/60-minute trend returns, slow efficiency, and slow realized variance; a separate 30-second sampler supplies the ordered four-hour pullback/recovery state to the 1/2/4-hour economic horizons.
 - Entry families: continuation keeps its existing aligned 5/15/60-minute gate. Pullback/recovery separately requires a prior structural move, a fee-scale retracement, a confirmed rebound, retained trend, and unrecovered room; it does not relax continuation thresholds.
-- Trend warm-up: PostgreSQL restores recent one-second mids into only the sampled slow-trend state after a short restart. Missing, future, invalid, or stale history fails closed; without usable history a process must causally observe at least 90% of the 60-minute window. Fast microstructure, CUSUM, and trigger state are never hydrated.
+- Trend warm-up: PostgreSQL first restores recent one-second mids into only the sampled slow-trend state. If that history is absent or stale after a clean restart, completed Alpaca one-minute bars plus a current L2 midpoint (with snapshot quote/trade fallback) provide the same causal structural bootstrap. Missing, future, invalid, crossed, or stale venue observations still fail closed; without usable history a process must observe at least 90% of the 60-minute window. Fast microstructure, CUSUM, and trigger state are never hydrated.
 - State: one continuous episode produces at most one candidate. Re-arming requires release hysteresis or an excessive event-gap reset, and the configured cooldown must have elapsed.
 - Models: `SIGNAL_MODE=DETERMINISTIC_ONLY` is the default. An optional model may only veto, rank, or reduce an already-valid deterministic intent; it cannot create exposure.
 - Risk: `quantity × maximum modeled loss per unit <= current risk budget`.
@@ -124,7 +124,7 @@ The default deterministic configuration in `config/base.json` includes:
 
 ```text
 SIGNAL_MODE=DETERMINISTIC_ONLY
-DETERMINISTIC_CONFIG_VERSION=btc-eth-order-lifecycle-v4.6.2
+DETERMINISTIC_CONFIG_VERSION=btc-eth-continuation-recall-v4.7.0
 PULLBACK_MAKER_TTL_MS=20000
 PULLBACK_KINEMATICS_GRACE_MS=5000
 PULLBACK_KINEMATICS_GRACE_EVENTS=2

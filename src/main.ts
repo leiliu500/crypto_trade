@@ -1,4 +1,4 @@
-import { loadConfig } from "./config.js";
+import { loadConfig, type EngineConfig } from "./config.js";
 import { validateReplay } from "./backtest/replay.js";
 import { TradingEngine } from "./engine/trading-engine.js";
 import { loadLocalEnv } from "./env.js";
@@ -6,6 +6,9 @@ import { OperationsMonitor } from "./dashboard/operations-monitor.js";
 import { DashboardServer } from "./dashboard/server.js";
 import type { DatabaseHealth, TelemetryRecord } from "./dashboard/types.js";
 import { PostgresTelemetryStore } from "./database/postgres-store.js";
+import { AlpacaRestClient } from "./alpaca/rest.js";
+import { loadVenueSlowTrendHistory } from "./alpaca/market-history.js";
+import type { SlowTrendObservation, SlowTrendRestoreResult } from "./strategy/deterministic-features.js";
 
 async function main(): Promise<void> {
   loadLocalEnv();
@@ -18,9 +21,11 @@ async function main(): Promise<void> {
     process.stdout.write(`${JSON.stringify(stats, null, 2)}\n`);
     return;
   }
-  const engine = new TradingEngine(cfg);
+  const rest = new AlpacaRestClient({ credentials: cfg.credentials, paper: cfg.paper, cryptoLocation: cfg.cryptoLocation });
+  const engine = new TradingEngine(cfg, { rest });
   const monitor = new OperationsMonitor({ marketSampleMs: cfg.databaseMarketSampleMs });
   let store: PostgresTelemetryStore | undefined;
+  let slowTrendBootstrapComplete = false;
   if (cfg.databaseEnabled) {
     store = new PostgresTelemetryStore({ connectionString: cfg.databaseUrl, flushIntervalMs: cfg.databaseFlushIntervalMs, maximumQueue: cfg.databaseMaxQueue });
     const candidate = store;
@@ -38,24 +43,8 @@ async function main(): Promise<void> {
       engine.restoreRealizedSessionPnl(restoredRealizedSessionPnl);
       const restoredDecisionVenueLatencies = engine.restoreDecisionVenueLatencies(
         await candidate.loadDecisionVenueLatencies(hydrationAtMs - 3_600_000, hydrationAtMs));
-      let slowTrendHistory: Readonly<Record<string, unknown>> | null = null;
-      try {
-        const maximumLookbackMs = Math.max(...cfg.symbols.map((symbol) => {
-          const symbolCfg = cfg.symbolConfigs[symbol]!;
-          return Math.max(symbolCfg.deterministicExtension.trendSlowWindowMs,
-            symbolCfg.deterministicExtension.pullbackWindowMs) + symbolCfg.deterministicExtension.trendSampleIntervalMs;
-        }));
-        const observations = await candidate.loadRecentMarketMids(cfg.symbols, hydrationAtMs - maximumLookbackMs, hydrationAtMs);
-        const bySymbol = new Map<string, { atMs: number; mid: number }[]>();
-        for (const observation of observations) {
-          const values = bySymbol.get(observation.symbol) ?? [];
-          values.push({ atMs: observation.atMs, mid: observation.mid });
-          bySymbol.set(observation.symbol, values);
-        }
-        slowTrendHistory = engine.restoreSlowTrendHistory(bySymbol, hydrationAtMs);
-      } catch (error) {
-        process.stderr.write(`${JSON.stringify({ type: "slow-trend-history-degraded", message: error instanceof Error ? error.message : String(error) })}\n`);
-      }
+      const slowTrendHistory = await restoreStartupSlowTrendHistory(engine, rest, cfg, candidate, hydrationAtMs);
+      slowTrendBootstrapComplete = true;
       process.stdout.write(`${JSON.stringify({ type: "database-ready", migrations, restoredOrders: restoredOrders.length,
         restoredPositionStates, restoredRealizedSessionPnl, restoredDecisionVenueLatencies, slowTrendHistory })}\n`);
     } catch (error) {
@@ -66,6 +55,10 @@ async function main(): Promise<void> {
       if (cfg.databaseRequired) throw error;
       process.stderr.write(`${JSON.stringify({ type: "database-degraded", message: error instanceof Error ? error.message : String(error) })}\n`);
     }
+  }
+  if (!slowTrendBootstrapComplete) {
+    const slowTrendHistory = await restoreStartupSlowTrendHistory(engine, rest, cfg);
+    process.stdout.write(`${JSON.stringify({ type: "slow-trend-history-ready", slowTrendHistory })}\n`);
   }
   const activeStore = store;
   if (activeStore) monitor.on("telemetry", (record: TelemetryRecord) => activeStore.enqueue(record));
@@ -117,6 +110,46 @@ const utcDayStartMs = (atMs: number): number => {
   const value = new Date(atMs);
   return Date.UTC(value.getUTCFullYear(), value.getUTCMonth(), value.getUTCDate());
 };
+
+async function restoreStartupSlowTrendHistory(engine: TradingEngine, rest: AlpacaRestClient, cfg: EngineConfig,
+  store?: PostgresTelemetryStore, asOfMs = Date.now()): Promise<Readonly<Record<string, SlowTrendRestoreResult>>> {
+  const maximumLookbackMs = Math.max(...cfg.symbols.map((symbol) => {
+    const extension = cfg.symbolConfigs[symbol]!.deterministicExtension;
+    return Math.max(extension.trendSlowWindowMs, extension.pullbackWindowMs) + extension.trendSampleIntervalMs;
+  }));
+  const bySymbol = new Map<string, SlowTrendObservation[]>();
+  if (store) {
+    try {
+      const observations = await store.loadRecentMarketMids(cfg.symbols, asOfMs - maximumLookbackMs, asOfMs);
+      for (const observation of observations) appendHistory(bySymbol, observation.symbol, observation);
+    } catch (error) {
+      process.stderr.write(`${JSON.stringify({ type: "slow-trend-database-history-degraded",
+        message: error instanceof Error ? error.message : String(error) })}\n`);
+    }
+  }
+  let restored = engine.restoreSlowTrendHistory(bySymbol, asOfMs);
+  const missing = cfg.symbols.filter((symbol) => restored[symbol]?.ready !== true);
+  if (missing.length > 0) {
+    try {
+      const venue = await loadVenueSlowTrendHistory(rest, missing, asOfMs - maximumLookbackMs, asOfMs);
+      for (const [symbol, observations] of venue) {
+        for (const observation of observations) appendHistory(bySymbol, symbol, observation);
+      }
+      restored = engine.restoreSlowTrendHistory(bySymbol, Date.now());
+    } catch (error) {
+      process.stderr.write(`${JSON.stringify({ type: "slow-trend-venue-history-degraded", symbols: missing,
+        message: error instanceof Error ? error.message : String(error) })}\n`);
+    }
+  }
+  return restored;
+}
+
+function appendHistory(history: Map<string, SlowTrendObservation[]>, symbol: string,
+  observation: SlowTrendObservation): void {
+  const values = history.get(symbol) ?? [];
+  values.push({ atMs: observation.atMs, mid: observation.mid });
+  history.set(symbol, values);
+}
 
 function argumentValue(args: readonly string[], name: string): string | null {
   const index = args.indexOf(name);
