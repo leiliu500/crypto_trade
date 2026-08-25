@@ -104,6 +104,7 @@ test("filled reduce-only exit cards inherit complete history and actual realized
     averageFillPx: 99,
     lastUpdateMs: closed.generatedAtMs,
   }];
+  closed.realizedSessionPnl = -1.00994999899505;
   monitor.ingestEngineSnapshot(closed);
 
   const snapshot = monitor.snapshot();
@@ -116,6 +117,20 @@ test("filled reduce-only exit cards inherit complete history and actual realized
   assert.equal(exitCard.livePosition?.closePx, 99);
   assert.ok(Math.abs((exitCard.livePosition?.realizedPnl ?? 0) + 1.00994999899505) < 1e-10,
     `realized P&L was ${exitCard.livePosition?.realizedPnl}`);
+  const breakdown = exitCard.livePosition?.realizedBreakdown;
+  assert.ok(breakdown);
+  assert.ok(Math.abs(breakdown.grossPricePnl + .999999999) < 1e-12);
+  assert.ok(Math.abs(breakdown.entryFee - .004999999995) < 1e-12);
+  assert.ok(Math.abs(breakdown.exitFee - .00494999999505) < 1e-12);
+  assert.equal(breakdown.entryStyle, "maker");
+  assert.equal(breakdown.exitStyle, "maker");
+  assert.ok(Math.abs(breakdown.realizedPnl
+    - (breakdown.grossPricePnl - breakdown.entryFee - breakdown.exitFee)) < 1e-12);
+  assert.equal(snapshot.realizedSessionBreakdown?.tradeCount, 1);
+  assert.ok(Math.abs((snapshot.realizedSessionBreakdown?.grossPricePnl ?? 0) - breakdown.grossPricePnl) < 1e-12);
+  assert.ok(Math.abs((snapshot.realizedSessionBreakdown?.entryFee ?? 0) - breakdown.entryFee) < 1e-12);
+  assert.ok(Math.abs((snapshot.realizedSessionBreakdown?.exitFee ?? 0) - breakdown.exitFee) < 1e-12);
+  assert.ok(Math.abs((snapshot.realizedSessionBreakdown?.realizedPnl ?? 0) - breakdown.realizedPnl) < 1e-12);
   assert.equal(exitCard.livePosition?.pnlHistory.length, 3);
   assert.equal(exitCard.livePosition?.pnlHistory.at(-1)?.kind, "close");
   assert.ok(Math.abs((exitCard.livePosition?.pnlHistory.at(-1)?.changePnl ?? 0) + 2.80994999899505) < 1e-10);
@@ -133,6 +148,7 @@ test("filled reduce-only exit cards inherit complete history and actual realized
     unrealizedPnlBps: -50,
     realizedPnl: null,
     realizedPnlBps: null,
+    realizedBreakdown: null,
     closePx: null,
     exitOrderId: null,
     pnlHistory: [
@@ -145,6 +161,7 @@ test("filled reduce-only exit cards inherit complete history and actual realized
   const repairedExit = afterReboot.snapshot().orders.find((order) => order.clientOrderId === "exit-1")!;
   afterReboot.stop();
   assert.ok(Math.abs((repairedExit.livePosition?.realizedPnl ?? 0) + 1.00994999899505) < 1e-10);
+  assert.ok(repairedExit.livePosition?.realizedBreakdown);
   assert.equal(repairedExit.livePosition?.pnlHistory.length, 3);
   assert.equal(repairedExit.livePosition?.pnlHistory.at(-1)?.kind, "close");
 });
@@ -156,7 +173,66 @@ test("dashboard distinguishes a motion reset from invalid market data", async ()
   assert.match(app, /motion evidence unavailable until the next valid update/);
   assert.match(app, /Estimated net position P&amp;L/);
   assert.match(app, /mark \/ net \/ change/);
+  assert.match(app, /Gross price gain/);
+  assert.match(app, /Actual realized P&amp;L/);
+  assert.match(app, /signedMoney\(breakdown\.grossPricePnl,5\)/);
   assert.match(html, /Realized · UTC day/);
+  assert.match(html, /id="session-pnl-breakdown"/);
+  assert.match(html, /app\.js\?v=20260825-trade-cards-2/);
+});
+
+test("dashboard formats the realized P&L reconciliation at five-decimal USD precision", async () => {
+  const app = await readFile("src/dashboard/public/app.js", "utf8");
+  const utilitySource = app.slice(0, app.indexOf("function setConnection"));
+  const formatted = runInNewContext(`${utilitySource}\nJSON.stringify([
+    signedMoney(1.345881920262224,5),
+    signedMoney(-.6814765346049143,5),
+    signedMoney(-.6824731453819951,5),
+    signedMoney(-.01806775972468533,5)
+  ])`) as string;
+  assert.equal(formatted, '["+$1.34588","-$0.68148","-$0.68247","-$0.01807"]');
+
+  const breakdownSource = app.slice(
+    app.indexOf("function renderRealizedPnlBreakdown"),
+    app.indexOf("function renderOrders"),
+  );
+  const rendered = runInNewContext(`${utilitySource}\n${breakdownSource}\nrenderRealizedPnlBreakdown({
+    active:false,
+    realizedBreakdown:{
+      grossPricePnl:1.345881920262224,
+      entryFee:.6814765346049143,
+      exitFee:.6824731453819951,
+      realizedPnl:-.01806775972468533,
+      entryStyle:"maker",
+      exitStyle:"maker"
+    }
+  })`) as string;
+  for (const expected of [
+    "Gross price gain", "+$1.34588",
+    "Entry maker fee", "-$0.68148",
+    "Exit maker fee", "-$0.68247",
+    "Actual realized P&amp;L", "-$0.01807",
+  ]) assert.ok(rendered.includes(expected), `missing ${expected} from ${rendered}`);
+
+  const sessionSource = app.slice(
+    app.indexOf("function sessionPnlBreakdownHtml"),
+    app.indexOf("function renderLiveness"),
+  );
+  const sessionRendered = runInNewContext(`${utilitySource}\n${sessionSource}\nsessionPnlBreakdownHtml({
+    grossPricePnl:1.345881920262224,
+    entryFee:.6814765346049143,
+    exitFee:.6824731453819951,
+    realizedPnl:-.01806775972468533,
+    tradeCount:1,
+    entryStyle:"maker",
+    exitStyle:"maker"
+  })`) as string;
+  for (const expected of [
+    "Gross price gain", "+$1.34588",
+    "Entry maker fee", "-$0.68148",
+    "Exit maker fee", "-$0.68247",
+    "Actual realized P&amp;L", "-$0.01807",
+  ]) assert.ok(sessionRendered.includes(expected), `missing ${expected} from ${sessionRendered}`);
 });
 
 test("dashboard uses adaptive price precision for micro-priced assets", async () => {
@@ -184,7 +260,7 @@ test("dashboard assets provide a phone-safe layout", async () => {
   assert.match(app, /data-label="Context"/);
 });
 
-test("dashboard order filters remain strict when filled orders retain P&L", async () => {
+test("dashboard groups one trade into one card while keeping standalone order filters strict", async () => {
   const app = await readFile("src/dashboard/public/app.js", "utf8");
   const utilitySource = app.slice(0, app.indexOf("function setConnection"));
   const matches = runInNewContext(`${utilitySource}\nJSON.stringify({
@@ -195,7 +271,34 @@ test("dashboard order filters remain strict when filled orders retain P&L", asyn
     allFilled: orderMatchesFilter({terminal:true,livePosition:{active:true}}, "all")
   })`) as string;
   assert.equal(matches, '{"openWorking":true,"openFilled":false,"terminalWorking":false,"terminalFilled":true,"allFilled":true}');
-  assert.doesNotMatch(app, /order\.livePosition\|\|state\.orderFilter/);
+  const groupingSource = app.slice(
+    app.indexOf("function groupOrderCards"),
+    app.indexOf("function renderOrderTimeline"),
+  );
+  const grouped = runInNewContext(`${utilitySource}\n${groupingSource}\n(()=>{
+    const closed={active:false,entryOrderId:"entry-1",exitOrderId:"exit-1"};
+    const cards=groupOrderCards([
+      {clientOrderId:"attempt-1",terminal:true,livePosition:null},
+      {clientOrderId:"exit-1",terminal:true,livePosition:closed},
+      {clientOrderId:"entry-1",terminal:true,livePosition:closed}
+    ]);
+    const trade=cards.find(card=>card.kind==="trade");
+    const activeCards=groupOrderCards([{clientOrderId:"entry-2",terminal:true,livePosition:{active:true,entryOrderId:"entry-2",exitOrderId:null}}]);
+    return JSON.stringify({
+      cardCount:cards.length,
+      tradeCount:cards.filter(card=>card.kind==="trade").length,
+      attemptCount:cards.filter(card=>card.kind==="order").length,
+      entryId:trade.entry.clientOrderId,
+      exitId:trade.exit.clientOrderId,
+      closedInTerminal:dashboardCardMatchesFilter(trade,"terminal"),
+      closedInOpen:dashboardCardMatchesFilter(trade,"open"),
+      activeInOpen:dashboardCardMatchesFilter(activeCards[0],"open")
+    });
+  })()`) as string;
+  assert.equal(grouped, '{"cardCount":2,"tradeCount":1,"attemptCount":1,"entryId":"entry-1","exitId":"exit-1","closedInTerminal":true,"closedInOpen":false,"activeInOpen":true}');
+  assert.match(app, /data-testid="trade-card"/);
+  assert.match(app, /renderOrderLeg\(entry,"Entry"\)/);
+  assert.match(app, /renderOrderLeg\(exit,"Exit"\)/);
 });
 
 test("operations monitor exposes structured cancellation reasons in order cards and timelines", () => {
@@ -289,7 +392,8 @@ test("dashboard server serves the read-only API, health probe, and browser route
     assert.equal(health.status, 200);
     const htmlText = await html.text();
     assert.match(htmlText, /data-testid="dashboard-root"/);
-    assert.match(htmlText, /Orders and live P&amp;L/);
+    assert.match(htmlText, /Trades and order attempts/);
+    assert.match(htmlText, /app\.js\?v=20260825-trade-cards-2/);
     assert.doesNotMatch(htmlText, /Exit dynamics/);
     assert.equal(dashboardAlias.status, 200);
     assert.match(await dashboardAlias.text(), /data-testid="dashboard-root"/);
@@ -300,7 +404,8 @@ test("dashboard server serves the read-only API, health probe, and browser route
     const appText = await app.text();
     assert.match(appText, /Realized trade P&amp;L/);
     assert.match(appText, /All P&amp;L changes/);
-    assert.match(appText, /orderMatchesFilter\(order,state\.orderFilter\)/);
+    assert.match(appText, /groupOrderCards\(items\)/);
+    assert.match(appText, /data-testid="trade-card"/);
     assert.match(appText, /o\.statusLabel/);
     assert.match(appText, /o\.cancelRequestReason/);
     assert.doesNotMatch(appText, /slice\(-8\)/);
