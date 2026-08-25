@@ -98,6 +98,15 @@ conservativeGross_d = max(0, grossPullback_d - uncertainty_d)
 
 The prior trend, pullback depth, and already-realized recovery affect confirmation quality but are never counted as future profit. This family then passes through the same liquidity, health, exposure, maker-fill, robust-cost, exact-quantity, sizing, and portfolio gates as continuation. Calibration buckets include the family key so continuation returns cannot authorize pullback entries or vice versa.
 
+For continuation, only the directional move simultaneously present in all three sampled trend windows is eligible for the analytical trend term:
+
+```text
+sustainedTrend_d = max(0, min(d trend5m, d trend15m, d trend60m))
+trendContribution_d,H = trendCaptureFraction_H alignment_d sustainedTrend_d
+```
+
+The horizon-specific capture fraction is bounded by one. Slow-path efficiency still increases the uncertainty reserve when the path is noisy, but it is not multiplied into gross trend a second time. A continuation candidate whose spread is above the learned trade threshold may reach exact economics only when the spread remains below the learned stress threshold and staleness, spread-z, depth, and impact checks all pass; the observed spread remains fully charged by the robust-cost gate.
+
 `src/strategy/deterministic-edge-resolver.ts` first requests calibrated edge when configured and falls back to a deterministic analytical estimate when calibration is absent. For economic horizon `H_E`:
 
 ```text

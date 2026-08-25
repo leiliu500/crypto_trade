@@ -55,11 +55,11 @@ export const DEFAULT_DETERMINISTIC_SIGNAL_CONFIG: DeterministicSignalConfig = {
   },
   analyticHorizons: [
     { horizonMs: 60 * 60_000, sigmaCaptureFraction: .35, breakoutWeight: .10, maximumGrossBps: 300,
-      baseUncertaintyBps: 3, sigmaUncertaintyFraction: .30, trendCaptureFraction: .20, trendUncertaintyFraction: .12 },
+      baseUncertaintyBps: 3, sigmaUncertaintyFraction: .30, trendCaptureFraction: .50, trendUncertaintyFraction: .12 },
     { horizonMs: 2 * 60 * 60_000, sigmaCaptureFraction: .40, breakoutWeight: .10, maximumGrossBps: 450,
-      baseUncertaintyBps: 4, sigmaUncertaintyFraction: .28, trendCaptureFraction: .25, trendUncertaintyFraction: .12 },
+      baseUncertaintyBps: 4, sigmaUncertaintyFraction: .28, trendCaptureFraction: .75, trendUncertaintyFraction: .12 },
     { horizonMs: 4 * 60 * 60_000, sigmaCaptureFraction: .45, breakoutWeight: .10, maximumGrossBps: 600,
-      baseUncertaintyBps: 5, sigmaUncertaintyFraction: .25, trendCaptureFraction: .30, trendUncertaintyFraction: .12 },
+      baseUncertaintyBps: 5, sigmaUncertaintyFraction: .25, trendCaptureFraction: 1, trendUncertaintyFraction: .12 },
   ],
   analyticEdge: {
     economicHorizonMs: 30 * 60_000,

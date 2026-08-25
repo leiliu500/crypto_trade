@@ -9,7 +9,7 @@ import { DeterministicRegimeEngine } from "../src/strategy/deterministic-regime.
 import { DeterministicHoldEngine } from "../src/strategy/deterministic-hold.js";
 import { DEFAULT_DETERMINISTIC_HOLD_CONFIG, DEFAULT_DETERMINISTIC_REGIME_CONFIG, DEFAULT_EXTENSION_CONFIG } from "../src/config/deterministic-defaults.js";
 import { SignalRouter } from "../src/strategy/signal-router.js";
-import { analyticEdges } from "../src/economics/analytic-edge.js";
+import { analyticEdges, validateMultiHorizonAnalyticConfig } from "../src/economics/analytic-edge.js";
 
 const cost = (roundTripBps = .2) => ({
   roundTripBps, spreadBps: .1, feeBps: .05, impactBps: .02, latencyBps: .01,
@@ -295,6 +295,80 @@ test("long-horizon analytical edge uses slow sampled variance and fails closed b
   assert.deepEqual(analyticEdges({ side: 1, features: { ...baseline, slowTrendReady: false }, continuation }, cfg), []);
 });
 
+test("sustained 5/15/60-minute continuation clears incident costs while a fading fast leg does not", () => {
+  const cfg = { horizons: DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.analyticHorizons,
+    spreadUncertaintyWeight: .5, flipUncertaintyWeight: .2 };
+  const continuation = {
+    score: .4815988496791121, efficiency: .2, flowPersistence: .5, velocity: .5, breakoutHold: .1,
+    regimeStability: 0, volatilitySuitability: .8, slowTrendAlignment: .898, slowTrendEfficiency: .099,
+  };
+  const incident = alignedFeatures(1);
+  incident.trendFastBps = 56.33;
+  incident.trendMediumBps = 84.92;
+  incident.trendSlowBps = 57.58;
+  incident.slowTrendAlignment = .898;
+  incident.slowTrendEfficiency = .099;
+  incident.slowVarianceRate = Math.pow(60.70 / 10_000, 2) / 3_600;
+  incident.slowSigmaBps = 60.70;
+  incident.spreadBps = 3.950726285846578;
+  incident.flowFlipRate = .2495;
+  const sustained = analyticEdges({ side: 1, features: incident, continuation }, cfg).at(-1)!;
+  const fading = analyticEdges({ side: 1, features: { ...incident, trendFastBps: 5.6 }, continuation }, cfg).at(-1)!;
+  assert.ok(sustained.conservativeGrossBps > 40.38115056383447);
+  assert.ok(fading.conservativeGrossBps < 40.38115056383447);
+  assert.ok(sustained.conservativeGrossBps > fading.conservativeGrossBps);
+  assert.throws(() => validateMultiHorizonAnalyticConfig({
+    ...cfg, horizons: [{ ...cfg.horizons[0]!, trendCaptureFraction: 1.01 }],
+  }), /trend capture fraction/);
+});
+
+test("aligned continuation may cost-revalidate a below-stress spread but never a stressed spread", () => {
+  const incidentCost = {
+    path: "MAKER_MAKER_TAKER_FALLBACK", supported: true,
+    entryExecutionBps: 0, exitExecutionBps: 1, entryFeeBps: 15, exitFeeBps: 15,
+    marketImpactBps: 0, latencyBps: 0, adverseSelectionBps: 4.93208603647684,
+    fundingBps: 0, borrowBps: 0, estimatedCostBps: 35.93208603647684,
+    positiveCostErrorP95Bps: 2, fillProbability: .8,
+  } as const;
+  const widenedSpread = {
+    pass: false, stress: false, sampleCount: 512, medianSpreadBps: 2.4,
+    tradeThresholdBps: 2.904746773483134, stressThresholdBps: 6.710543056945958,
+    reasons: ["SPREAD_ABOVE_DYNAMIC_TRADE_THRESHOLD"],
+  } as const;
+  const evaluate = (stress: boolean) => {
+    const engine = new DeterministicEntryEngine(DEFAULT_DETERMINISTIC_SIGNAL_CONFIG);
+    let intent = null;
+    for (let index = 0; index < 20; index += 1) {
+      const value = context(1, 1_000 + index * 50);
+      value.regime = { name: "CHOP", allowLong: false, allowShort: false, riskScale: 0 };
+      value.features.trendFastBps = 56.33;
+      value.features.trendMediumBps = 84.92;
+      value.features.trendSlowBps = 57.58;
+      value.features.slowTrendAlignment = .898;
+      value.features.slowTrendEfficiency = .099;
+      value.features.slowVarianceRate = Math.pow(60.70 / 10_000, 2) / 3_600;
+      value.features.slowSigmaBps = 60.70;
+      value.features.spreadBps = 3.950726285846578;
+      value.features.flowFlipRate = .2495;
+      value.longLiquidity = { ...widenedSpread, stress };
+      value.shortLiquidity = { ...widenedSpread, stress };
+      value.longEconomicCosts = [incidentCost];
+      value.shortEconomicCosts = [incidentCost];
+      intent ??= engine.evaluate(value);
+    }
+    return { intent, evaluation: engine.latestEvaluation()! };
+  };
+  const accepted = evaluate(false);
+  assert.equal(accepted.intent?.side, 1);
+  assert.equal(accepted.intent?.executionPath, "MAKER_MAKER_TAKER_FALLBACK");
+  assert.equal(accepted.evaluation.long.liquidityPass, true);
+  assert.ok(accepted.intent!.lowerBoundNetBps >= DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.minimumNetEdgeBps);
+  const rejected = evaluate(true);
+  assert.equal(rejected.intent, null);
+  assert.equal(rejected.evaluation.long.liquidityPass, false);
+  assert.ok(rejected.evaluation.long.reasons.includes("LIQUIDITY_GATE"));
+});
+
 test("account health blocks execution without suppressing directional candidates", () => {
   const engine = new DeterministicEntryEngine(testConfig());
   let intent = null;
@@ -426,7 +500,7 @@ test("a continuous signal fires once and needs both cooldown and reset before re
 test("a liquidity-blocked candidate is recorded once and a new episode must reconfirm", () => {
   const engine = new DeterministicEntryEngine(testConfig());
   const blockedLiquidity = {
-    pass: false, stress: false, sampleCount: 50, medianSpreadBps: 1,
+    pass: false, stress: true, sampleCount: 50, medianSpreadBps: 1,
     tradeThresholdBps: .5, stressThresholdBps: 2,
     reasons: ["SPREAD_ABOVE_DYNAMIC_TRADE_THRESHOLD"],
   } as const;
@@ -444,7 +518,7 @@ test("a liquidity-blocked candidate is recorded once and a new episode must reco
   assert.equal(blocked.long.candidatePass, false);
   assert.equal(blocked.long.liquidityPass, false);
 
-  const passingLiquidity = { ...blockedLiquidity, pass: true, reasons: [] } as const;
+  const passingLiquidity = { ...blockedLiquidity, pass: true, stress: false, reasons: [] } as const;
   const released = context(1, 4_500); released.longLiquidity = passingLiquidity; released.shortLiquidity = passingLiquidity;
   assert.equal(engine.evaluate(released), null);
   engine.evaluate(neutralContext(4_600));
