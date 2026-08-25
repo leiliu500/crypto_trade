@@ -264,7 +264,7 @@ test("dashboard fills a complete twenty-minute P&L history with one-minute check
   assert.equal(result, '{"pointCount":22,"checkpointCount":20,"firstAtMs":0,"lastAtMs":1216551,"lastKind":"close","maximumGapMs":60000}');
   assert.match(app, /One-minute carry-forward checkpoint/);
   assert.match(app, /P&amp;L history · \$\{historyCoverage\} covered/);
-  assert.match(app, /position\.active\?historyPoints\.slice\(\)\.reverse\(\):historyPoints/);
+  assert.match(app, /const displayedHistory=historyPoints\.slice\(\)\.reverse\(\)/);
 });
 
 test("dashboard uses adaptive price precision for micro-priced assets", async () => {
