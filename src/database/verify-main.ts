@@ -9,7 +9,9 @@ try {
   const version = await pool.query<{ version: string }>("SELECT version FROM schema_migrations ORDER BY applied_at");
   const tables = await pool.query<{ table_name: string }>("SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE' ORDER BY table_name");
   const runCount = await pool.query<{ count: string }>("SELECT count(*)::text AS count FROM engine_runs");
-  const recordTables = ["system_events", "health_snapshots", "orders", "order_events", "fills", "positions", "position_events", "decisions", "market_snapshots"] as const;
+  const recordTables = ["system_events", "health_snapshots", "orders", "order_events", "fills", "positions", "position_events",
+    "decisions", "market_snapshots", "option_short_orders", "option_short_order_events", "option_short_trades",
+    "option_short_pnl_events"] as const;
   const counts = await Promise.all(recordTables.map(async (table) => Number((await pool.query<{ count: string }>(`SELECT count(*)::text AS count FROM ${table}`)).rows[0]?.count ?? 0)));
   const recordCounts = Object.fromEntries(recordTables.map((table, index) => [table, counts[index]]));
   process.stdout.write(`${JSON.stringify({ status: "ok", migrations: version.rows.map((row) => row.version), tables: tables.rows.map((row) => row.table_name), engineRuns: Number(runCount.rows[0]?.count ?? 0), recordCounts }, null, 2)}\n`);

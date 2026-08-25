@@ -71,6 +71,9 @@ async function main(): Promise<void> {
   }
   engine.on("decision", (event) => process.stdout.write(`${JSON.stringify({ type: "decision", event }, bigintReplacer)}\n`));
   engine.on("positionDecision", (event) => process.stdout.write(`${JSON.stringify({ type: "position", event }, bigintReplacer)}\n`));
+  engine.on("optionShortDecision", (event) => process.stdout.write(`${JSON.stringify({ type: "option-short-decision", event }, bigintReplacer)}\n`));
+  engine.on("optionShortBlocked", (event) => process.stdout.write(`${JSON.stringify({ type: "option-short-blocked", event }, bigintReplacer)}\n`));
+  engine.on("optionShortOrderAccepted", (event) => process.stdout.write(`${JSON.stringify({ type: "option-short-order", event }, bigintReplacer)}\n`));
   engine.on("engineError", (error) => process.stderr.write(`${JSON.stringify({ type: "error", message: error instanceof Error ? error.message : String(error) })}\n`));
   try {
     await engine.start();

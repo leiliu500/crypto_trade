@@ -4,8 +4,9 @@ import type { EngineMarketSnapshot, EngineOperationalSnapshot, TradingEngine } f
 import type { PositionDecision } from "../strategy/position-manager.js";
 import type {
   DashboardEvent, DashboardLivePosition, DashboardMarketCard, DashboardOrderCard, DashboardPnlPoint,
-  DashboardPositionCard, DashboardSessionPnlBreakdown, DashboardSnapshot, DatabaseHealth, EventSeverity,
-  OrderTimelineEntry, TelemetryRecord,
+  DashboardOptionShort, DashboardOptionShortTrade, DashboardPositionCard, DashboardSessionPnlBreakdown, DashboardSnapshot,
+  DatabaseHealth, EventSeverity,
+  OptionShortPnlTelemetry, OrderTimelineEntry, TelemetryRecord,
 } from "./types.js";
 import { disabledDatabaseHealth } from "./types.js";
 
@@ -13,6 +14,10 @@ const ENGINE_EVENTS = [
   "reconciled", "engineError", "preflight", "publicStreamReady", "privateStreamReady", "decision",
   "orderReserved", "orderSending", "orderAccepted", "orderCancelRequested", "orderUpdate", "orderRejected",
   "positionDecision", "positionDust", "exitDecision", "fill", "watchdogFault", "entryBlocked", "pendingKinematicsGrace",
+  "optionShortDecision", "optionShortBlocked", "optionShortOrderAccepted", "optionShortOrderCancelRequested",
+  "optionShortOrderCancelUnknown", "optionShortOrderReconciled", "optionShortOrderUpdate", "optionShortOrderError",
+  "optionShortReconciled", "optionShortUniverse", "optionShortStockStreamReady",
+  "optionShortMarketStreamReady", "optionShortStockStreamDown", "optionShortMarketStreamDown",
 ] as const;
 const TERMINAL_ORDER_STATES = new Set(["FILLED", "CANCELED", "REJECTED", "EXPIRED"]);
 
@@ -49,12 +54,17 @@ export class OperationsMonitor extends EventEmitter {
   private readonly orderStatuses = new Map<string, string>();
   private readonly positionDecisions = new Map<string, LatestPositionDecision>();
   private readonly positionPnlHistories = new Map<string, PositionPnlSeries>();
+  private readonly optionPnlHistories = new Map<string, PositionPnlSeries>();
+  private readonly optionTrades = new Map<string, DashboardOptionShortTrade>();
   private readonly orderPositionPnl = new Map<string, DashboardLivePosition>();
   private readonly historicalOrders = new Map<string, DashboardOrderCard>();
   private readonly boundListeners = new Map<string, (...args: unknown[]) => void>();
   private engine?: TradingEngine;
   private timer?: NodeJS.Timeout;
   private lastMarketTelemetryMs = 0;
+  private readonly lastOptionOrderTelemetry = new Map<string, string>();
+  private readonly lastOptionTradeTelemetry = new Map<string, string>();
+  private readonly lastOptionPnlTelemetry = new Map<string, string>();
   private databaseHealth = disabledDatabaseHealth();
   private snapshotValue: DashboardSnapshot = emptySnapshot();
 
@@ -75,6 +85,9 @@ export class OperationsMonitor extends EventEmitter {
       this.boundListeners.set(eventName, listener);
       engine.on(eventName, listener);
     }
+    const optionMarkListener = (): void => this.poll();
+    this.boundListeners.set("optionShortMark", optionMarkListener);
+    engine.on("optionShortMark", optionMarkListener);
     this.poll();
     this.timer = setInterval(() => this.poll(), this.pollIntervalMs);
     this.timer.unref();
@@ -122,8 +135,11 @@ export class OperationsMonitor extends EventEmitter {
   public recordEvent(type: string, rawPayload: unknown, atMs = Date.now()): void {
     const payload = safeClone(rawPayload);
     const severity = severityFor(type);
-    const symbol = findString(payload, ["symbol", "position.symbol", "plan.symbol", "event.symbol"]);
-    const clientOrderId = findString(payload, ["clientOrderId", "client_order_id", "plan.clientOrderId", "event.clientOrderId"]);
+    const symbol = findString(payload, ["cryptoSymbol", "plan.cryptoSymbol", "order.cryptoSymbol", "symbol",
+      "position.symbol", "plan.symbol", "order.symbol", "order.contractSymbol", "contractSymbol", "plan.contractSymbol",
+      "event.cryptoSymbol", "event.symbol"]);
+    const clientOrderId = findString(payload, ["clientOrderId", "client_order_id", "plan.clientOrderId",
+      "order.clientOrderId", "order.client_order_id", "event.clientOrderId"]);
     const event: DashboardEvent = {
       id: randomUUID(), type, severity, atMs, symbol, clientOrderId,
       summary: summarize(type, payload, symbol), payload,
@@ -133,7 +149,7 @@ export class OperationsMonitor extends EventEmitter {
     this.captureTimeline(event);
     this.capturePositionDecision(type, payload);
     this.emit("telemetry", { kind: "event", atMs, payload: event } satisfies TelemetryRecord);
-    if (["decision", "positionDecision", "exitDecision"].includes(type)) {
+    if (["decision", "positionDecision", "exitDecision", "optionShortDecision"].includes(type)) {
       this.emit("telemetry", { kind: "decision", atMs, payload: { type, event: payload } } satisfies TelemetryRecord);
     }
     if (type === "fill") this.emit("telemetry", { kind: "fill", atMs, payload } satisfies TelemetryRecord);
@@ -375,6 +391,7 @@ export class OperationsMonitor extends EventEmitter {
     const entriesAllowed = coreHealthy && state.risk.reasons.length === 0;
     const overall = state.risk.reasons.length > 0 || (!health.publicStream && state.started) ? "critical"
       : !coreHealthy || (this.databaseHealth.status !== "disabled" && !this.databaseHealth.connected) ? "degraded" : "healthy";
+    const optionShort = this.projectOptionShort(state.optionShort, nowMs);
     return {
       version: 1, generatedAtMs: nowMs, mode: state.mode, paper: state.paper, paperEntryExercise: state.paperEntryExercise,
       strategyVersion: state.strategyVersion, modelVersion: state.modelVersion,
@@ -384,7 +401,7 @@ export class OperationsMonitor extends EventEmitter {
       realizedSessionPnl: state.realizedSessionPnl,
       realizedSessionBreakdown,
       latencyP95Ms: state.latency.decisionToVenue?.count ? state.latency.decisionToVenue.p95 : null,
-      liveness, database: { ...this.databaseHealth }, markets, positions, orders: visibleOrders,
+      liveness, database: { ...this.databaseHealth }, markets, positions, orders: visibleOrders, optionShort,
       events: [...this.events],
     };
   }
@@ -421,6 +438,95 @@ export class OperationsMonitor extends EventEmitter {
       });
       series.lastAppendMs = atMs;
     }
+    if (series.points.length > this.maximumPnlHistory) {
+      series.points.splice(0, series.points.length - this.maximumPnlHistory);
+    }
+    return series.points;
+  }
+
+  private projectOptionShort(optionShort: EngineOperationalSnapshot["optionShort"], nowMs: number): DashboardOptionShort {
+    const currentSessionDate = newYorkDate(nowMs);
+    if (!optionShort) return emptyOptionShort(currentSessionDate);
+    const activeKeys = new Set<string>();
+    for (const exposure of optionShort.exposures) {
+      const key = `${exposure.contractSymbol}:${exposure.openedMs}`;
+      activeKeys.add(key);
+      const currentPremium = exposure.markPremium ?? null;
+      const premiumAtRiskDollars = exposure.averageEntryPremium * exposure.qty * 100;
+      const unrealizedPnl = currentPremium === null ? null
+        : (currentPremium - exposure.averageEntryPremium) * exposure.qty * 100;
+      const unrealizedPnlBps = unrealizedPnl === null || !(premiumAtRiskDollars > 0) ? null
+        : unrealizedPnl / premiumAtRiskDollars * 10_000;
+      const previous = this.optionTrades.get(key);
+      const pnlHistory = currentPremium === null || unrealizedPnl === null || unrealizedPnlBps === null
+        ? previous?.pnlHistory ?? []
+        : this.trackOptionPnl(key, exposure.openedMs, exposure.markTimestampMs ?? nowMs,
+          currentPremium, unrealizedPnl, unrealizedPnlBps);
+      this.optionTrades.set(key, {
+        cryptoSymbol: exposure.cryptoSymbol,
+        proxySymbol: exposure.proxySymbol,
+        contractSymbol: exposure.contractSymbol,
+        expirationDate: exposure.expirationDate,
+        active: true,
+        closedAtMs: null,
+        qty: exposure.qty,
+        averageEntryPremium: exposure.averageEntryPremium,
+        premiumAtRiskDollars,
+        currentDay: exposure.expirationDate === currentSessionDate,
+        openedMs: exposure.openedMs,
+        ageMs: Math.max(0, nowMs - exposure.openedMs),
+        entryCryptoPrice: exposure.entryCryptoPrice ?? null,
+        currentPremium,
+        quoteAtMs: exposure.markTimestampMs ?? null,
+        quoteAgeMs: exposure.markTimestampMs === undefined ? null : Math.max(0, nowMs - exposure.markTimestampMs),
+        unrealizedPnl,
+        unrealizedPnlBps,
+        pnlHistory,
+      });
+    }
+    for (const [key, trade] of this.optionTrades) {
+      if (!trade.active || activeKeys.has(key)) continue;
+      this.optionTrades.set(key, { ...trade, active: false, closedAtMs: nowMs,
+        ageMs: Math.max(0, nowMs - trade.openedMs) });
+    }
+    const trades = [...this.optionTrades.values()].sort((a, b) => b.openedMs - a.openedMs);
+    for (const trade of trades.slice(50)) this.optionTrades.delete(`${trade.contractSymbol}:${trade.openedMs}`);
+    return {
+      enabled: optionShort.enabled,
+      ready: optionShort.enabled && optionShort.accountReady && optionShort.stockStreamReady && optionShort.optionStreamReady
+        && optionShort.subscribedContracts > 0,
+      accountReady: optionShort.accountReady,
+      stockStreamReady: optionShort.stockStreamReady,
+      optionStreamReady: optionShort.optionStreamReady,
+      subscribedContracts: optionShort.subscribedContracts,
+      currentSessionDate,
+      trades: trades.slice(0, 50),
+      pendingOrders: optionShort.pendingOrders.map((order) => {
+        const expirationDate = optionExpirationDate(order.contractSymbol);
+        return {
+          ...order,
+          alpacaOrderId: order.alpacaOrderId ?? null,
+          expirationDate,
+          currentDay: expirationDate === currentSessionDate,
+          expiresInMs: order.expiresMs - nowMs,
+          settling: ["SETTLING", "UNKNOWN"].includes(order.status.toUpperCase()),
+        };
+      }),
+      recentActivity: this.events.filter((event) => event.type.startsWith("optionShort")).slice(0, 8),
+    };
+  }
+
+  private trackOptionPnl(key: string, openedMs: number, atMs: number, currentPremium: number,
+    unrealizedPnl: number, unrealizedPnlBps: number): readonly DashboardPnlPoint[] {
+    let series = this.optionPnlHistories.get(key);
+    if (!series || series.openedMs !== openedMs) {
+      series = { openedMs, points: [], lastAppendMs: null };
+      this.optionPnlHistories.set(key, series);
+    }
+    const last = series.points.at(-1);
+    if (last?.currentPx === currentPremium && last.unrealizedPnl === unrealizedPnl) return series.points;
+    series.points.push({ atMs, currentPx: currentPremium, unrealizedPnl, unrealizedPnlBps,
+      changePnl: last ? unrealizedPnl - last.unrealizedPnl : null, kind: "mark" });
     if (series.points.length > this.maximumPnlHistory) {
       series.points.splice(0, series.points.length - this.maximumPnlHistory);
     }
@@ -554,11 +660,38 @@ export class OperationsMonitor extends EventEmitter {
       if (!order.historical) this.emit("telemetry", { kind: "order", atMs: nowMs, payload: order } satisfies TelemetryRecord);
     }
     for (const position of this.snapshotValue.positions) this.emit("telemetry", { kind: "position", atMs: nowMs, payload: position } satisfies TelemetryRecord);
+    for (const order of this.snapshotValue.optionShort.pendingOrders) {
+      const signature = `${order.alpacaOrderId ?? ""}:${order.status}:${order.filledQty}:${order.expiresMs}`;
+      if (this.lastOptionOrderTelemetry.get(order.clientOrderId) === signature) continue;
+      this.lastOptionOrderTelemetry.set(order.clientOrderId, signature);
+      this.emit("telemetry", { kind: "option_order", atMs: nowMs, payload: order } satisfies TelemetryRecord);
+    }
+    for (const trade of this.snapshotValue.optionShort.trades) {
+      const tradeKey = optionTradeKey(trade);
+      const signature = `${trade.active}:${trade.qty}:${trade.currentPremium ?? ""}:${trade.unrealizedPnl ?? ""}:${trade.closedAtMs ?? ""}`;
+      if (this.lastOptionTradeTelemetry.get(tradeKey) !== signature) {
+        this.lastOptionTradeTelemetry.set(tradeKey, signature);
+        this.emit("telemetry", { kind: "option_trade", atMs: nowMs,
+          payload: { ...trade, pnlHistory: [] } } satisfies TelemetryRecord);
+      }
+      const point = trade.pnlHistory.at(-1);
+      if (!point) continue;
+      const pointSignature = `${point.atMs}:${point.currentPx}:${point.unrealizedPnl}`;
+      if (this.lastOptionPnlTelemetry.get(tradeKey) === pointSignature) continue;
+      this.lastOptionPnlTelemetry.set(tradeKey, pointSignature);
+      this.emit("telemetry", { kind: "option_pnl", atMs: point.atMs,
+        payload: { tradeKey, cryptoSymbol: trade.cryptoSymbol, contractSymbol: trade.contractSymbol,
+          point } satisfies OptionShortPnlTelemetry } satisfies TelemetryRecord);
+    }
     if (nowMs - this.lastMarketTelemetryMs >= this.marketSampleMs) {
       this.lastMarketTelemetryMs = nowMs;
       for (const market of this.snapshotValue.markets) this.emit("telemetry", { kind: "market", atMs: nowMs, payload: market } satisfies TelemetryRecord);
     }
   }
+}
+
+function optionTradeKey(trade: Pick<DashboardOptionShortTrade, "contractSymbol" | "openedMs">): string {
+  return `${trade.contractSymbol}:${trade.openedMs}`;
 }
 
 function projectRule(rule: NonNullable<EngineMarketSnapshot["ruleEvaluation"]>["long"]): DashboardMarketCard["longRule"] {
@@ -591,7 +724,22 @@ function emptySnapshot(): DashboardSnapshot {
     configurationVersion: "-", signalMode: "DETERMINISTIC_ONLY", started: false,
     uptimeMs: 0, overall: "degraded", entriesAllowed: false, haltReasons: [], equity: 0, equityHighWater: 0, realizedSessionPnl: 0,
     realizedSessionBreakdown: null,
-    latencyP95Ms: null, liveness: [], database: disabledDatabaseHealth(), markets: [], positions: [], orders: [], events: [] };
+    latencyP95Ms: null, liveness: [], database: disabledDatabaseHealth(), markets: [], positions: [], orders: [],
+    optionShort: emptyOptionShort(), events: [] };
+}
+function emptyOptionShort(currentSessionDate = "-"): DashboardOptionShort {
+  return { enabled: false, ready: false, accountReady: false, stockStreamReady: false, optionStreamReady: false,
+    subscribedContracts: 0, currentSessionDate, trades: [], pendingOrders: [], recentActivity: [] };
+}
+function newYorkDate(atMs: number): string {
+  const parts = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", year: "numeric", month: "2-digit",
+    day: "2-digit" }).formatToParts(new Date(atMs));
+  const value = (type: Intl.DateTimeFormatPartTypes): string => parts.find((part) => part.type === type)?.value ?? "";
+  return `${value("year")}-${value("month")}-${value("day")}`;
+}
+function optionExpirationDate(contractSymbol: string): string | null {
+  const match = contractSymbol.match(/(\d{2})(\d{2})(\d{2})[CP]\d{8}$/);
+  return match ? `20${match[1]}-${match[2]}-${match[3]}` : null;
 }
 function check(id: string, label: string, healthy: boolean, detail: string, updatedAtMs: number) { return { id, label, healthy, detail, updatedAtMs }; }
 function midpoint(bid: number | null, ask: number | null): number | null { return bid === null || ask === null ? null : (bid + ask) / 2; }
@@ -658,10 +806,10 @@ function orderStatusLabel(status: string, cancellationReason: string | null): st
   return statusLabel(status);
 }
 function statusSeverity(status: string): EventSeverity { return ["REJECTED", "UNKNOWN"].includes(status) ? "critical" : ["CANCELED", "EXPIRED", "CANCEL_PENDING"].includes(status) ? "warning" : "info"; }
-function severityFor(type: string): EventSeverity { const value = type.toLowerCase(); return value.includes("error") || value.includes("fault") || value.includes("rejected") ? "critical" : value.includes("cancel") || value.includes("exit") || value.includes("disconnect") ? "warning" : "info"; }
+function severityFor(type: string): EventSeverity { const value = type.toLowerCase(); return value.includes("error") || value.includes("fault") || value.includes("rejected") ? "critical" : value.includes("cancel") || value.includes("exit") || value.includes("disconnect") || value.includes("blocked") || value.includes("down") ? "warning" : "info"; }
 function summarize(type: string, payload: unknown, symbol: string | null): string {
-  const reason = findString(payload, ["reason", "decision.reason", "message"]);
-  const action = findString(payload, ["decision.action", "action", "event"]);
+  const reason = findString(payload, ["reason", "plan.reason", "decision.reason", "message"]);
+  const action = findString(payload, ["purpose", "plan.purpose", "decision.action", "action", "event"]);
   const subject = symbol ? ` · ${symbol}` : "";
   return `${statusLabel(type)}${subject}${action ? ` · ${action}` : ""}${reason ? ` · ${reason}` : ""}`;
 }

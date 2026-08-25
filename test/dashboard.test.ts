@@ -178,7 +178,95 @@ test("dashboard distinguishes a motion reset from invalid market data", async ()
   assert.match(app, /signedMoney\(breakdown\.grossPricePnl,5\)/);
   assert.match(html, /Realized · UTC day/);
   assert.match(html, /id="session-pnl-breakdown"/);
-  assert.match(html, /app\.js\?v=20260825-pnl-history-4/);
+  assert.match(html, /app\.js\?v=20260825-option-shorts-1/);
+});
+
+test("option-short tab projects streamed 0DTE P&L changes with entry and exit lifecycle", async () => {
+  const monitor = new OperationsMonitor({ maximumPnlHistory: 20 });
+  const telemetryKinds: string[] = [];
+  monitor.on("telemetry", (record: { kind: string }) => { telemetryKinds.push(record.kind); });
+  const opened = engineState();
+  opened.generatedAtMs = Date.parse("2026-08-25T18:00:00.000Z");
+  opened.optionShort = {
+    enabled: true,
+    accountReady: true,
+    stockStreamReady: true,
+    optionStreamReady: true,
+    subscribedContracts: 12,
+    exposures: [{
+      cryptoSymbol: "BTC/USD", proxySymbol: "IBIT", contractSymbol: "IBIT260825P00050000",
+      expirationDate: "2026-08-25", qty: 2, averageEntryPremium: 1,
+      openedMs: opened.generatedAtMs - 60_000, entryCryptoPrice: 110_000,
+      markPremium: 1.12, markBidPremium: 1.12, markAskPremium: 1.14,
+      markTimestampMs: opened.generatedAtMs - 20,
+    }],
+    pendingOrders: [],
+  };
+  monitor.recordEvent("optionShortDecision", {
+    cryptoSymbol: "BTC/USD", contractSymbol: "IBIT260825P00050000", purpose: "OPEN_SHORT",
+    clientOrderId: "mlce-opt-open", qty: 2, limitPrice: 1, reason: "BEARISH_CONTINUATION",
+  }, opened.generatedAtMs - 60_500);
+  monitor.ingestEngineSnapshot(opened);
+  let option = monitor.snapshot().optionShort;
+  assert.equal(option.ready, true);
+  assert.equal(option.currentSessionDate, "2026-08-25");
+  assert.equal(option.trades[0]?.currentDay, true);
+  assert.equal(option.trades[0]?.currentPremium, 1.12);
+  assert.ok(Math.abs((option.trades[0]?.unrealizedPnl ?? 0) - 24) < 1e-10);
+  assert.ok(Math.abs((option.trades[0]?.unrealizedPnlBps ?? 0) - 1_200) < 1e-10);
+  assert.equal(option.trades[0]?.pnlHistory.length, 1);
+
+  const exiting = engineState();
+  exiting.generatedAtMs = opened.generatedAtMs + 500;
+  exiting.optionShort = {
+    ...opened.optionShort,
+    exposures: [{ ...opened.optionShort.exposures[0]!, markPremium: .92, markBidPremium: .92,
+      markAskPremium: .94, markTimestampMs: exiting.generatedAtMs - 10 }],
+    pendingOrders: [{
+      cryptoSymbol: "BTC/USD", contractSymbol: "IBIT260825P00050000", clientOrderId: "mlce-opt-close",
+      alpacaOrderId: "alpaca-close", purpose: "CLOSE_SHORT", status: "new", filledQty: 0,
+      expiresMs: exiting.generatedAtMs + 2_000,
+    }],
+  };
+  monitor.recordEvent("optionShortDecision", {
+    cryptoSymbol: "BTC/USD", contractSymbol: "IBIT260825P00050000", purpose: "CLOSE_SHORT",
+    clientOrderId: "mlce-opt-close", qty: 2, limitPrice: .91, reason: "MANDATORY_0DTE_SESSION_EXIT",
+  }, exiting.generatedAtMs - 25);
+  monitor.ingestEngineSnapshot(exiting);
+  option = monitor.snapshot().optionShort;
+  assert.ok(Math.abs((option.trades[0]?.unrealizedPnl ?? 0) + 16) < 1e-10);
+  assert.equal(option.trades[0]?.pnlHistory.length, 2);
+  assert.ok(Math.abs((option.trades[0]?.pnlHistory[1]?.changePnl ?? 0) + 40) < 1e-10);
+  assert.equal(option.pendingOrders[0]?.purpose, "CLOSE_SHORT");
+  assert.equal(option.pendingOrders[0]?.expirationDate, "2026-08-25");
+  assert.equal(option.pendingOrders[0]?.currentDay, true);
+
+  const closed = engineState();
+  closed.generatedAtMs = exiting.generatedAtMs + 500;
+  closed.optionShort = { ...exiting.optionShort, exposures: [], pendingOrders: [] };
+  monitor.ingestEngineSnapshot(closed);
+  option = monitor.snapshot().optionShort;
+  assert.equal(option.trades[0]?.active, false);
+  assert.equal(option.trades[0]?.closedAtMs, closed.generatedAtMs);
+  assert.equal(option.trades[0]?.pnlHistory.length, 2);
+  assert.ok(telemetryKinds.includes("option_order"));
+  assert.ok(telemetryKinds.includes("option_trade"));
+  assert.equal(telemetryKinds.filter((kind) => kind === "option_pnl").length, 2);
+  monitor.stop();
+
+  const [app, html, styles] = await Promise.all([
+    readFile("src/dashboard/public/app.js", "utf8"),
+    readFile("src/dashboard/public/index.html", "utf8"),
+    readFile("src/dashboard/public/styles.css", "utf8"),
+  ]);
+  assert.match(html, /data-testid="option-shorts-tab"/);
+  assert.match(html, /data-testid="option-shorts-panel"[^>]*hidden/);
+  assert.match(html, /Trades, P&amp;L, entry and exit/);
+  assert.match(app, /data-testid="option-short-trade-card"/);
+  assert.match(app, /data-testid="option-live-pnl"/);
+  assert.match(app, /data-testid="option-\$\{label\.toLowerCase\(\)\}-leg"/);
+  assert.match(app, /streamed bid changes/);
+  assert.match(styles, /\.dashboard-tabs/);
 });
 
 test("dashboard formats the realized P&L reconciliation at five-decimal USD precision", async () => {
@@ -427,7 +515,7 @@ test("dashboard server serves the read-only API, health probe, and browser route
     const htmlText = await html.text();
     assert.match(htmlText, /data-testid="dashboard-root"/);
     assert.match(htmlText, /Trades and order attempts/);
-    assert.match(htmlText, /app\.js\?v=20260825-pnl-history-4/);
+    assert.match(htmlText, /app\.js\?v=20260825-option-shorts-1/);
     assert.doesNotMatch(htmlText, /Exit dynamics/);
     assert.equal(dashboardAlias.status, 200);
     assert.match(await dashboardAlias.text(), /data-testid="dashboard-root"/);
@@ -454,6 +542,14 @@ test("PostgreSQL migration defines the complete operational record set", async (
   const cancellationSql = await readFile("database/migrations/002_order_cancellation_reasons.sql", "utf8");
   assert.match(cancellationSql, /cancel_request_reason text/);
   assert.match(cancellationSql, /cancellation_reason text/);
+  const optionShortSql = await readFile("database/migrations/003_option_short_lifecycle.sql", "utf8");
+  for (const table of ["option_short_orders", "option_short_order_events", "option_short_trades", "option_short_pnl_events"]) {
+    assert.match(optionShortSql, new RegExp(`CREATE TABLE IF NOT EXISTS ${table}`));
+  }
+  assert.match(optionShortSql, /source_event_id text NOT NULL UNIQUE/);
+  assert.match(optionShortSql, /client_order_id text NOT NULL REFERENCES option_short_orders/);
+  assert.match(optionShortSql, /trade_key text NOT NULL REFERENCES option_short_trades/);
+  assert.match(optionShortSql, /option_short_pnl_trade_time_idx/);
 });
 
 function engineState(): EngineOperationalSnapshot {

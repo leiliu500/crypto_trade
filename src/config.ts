@@ -17,6 +17,7 @@ import type { ExtensionConfig } from "./strategy/deterministic-features.js";
 import type { DeterministicRegimeConfig } from "./strategy/deterministic-regime.js";
 import type { DeterministicHoldConfig } from "./strategy/deterministic-hold.js";
 import type { DynamicLiquidityConfig } from "./strategy/dynamic-liquidity.js";
+import type { CryptoOptionShortConfig } from "./options/crypto-option-short.js";
 import { DEFAULT_DETERMINISTIC_HOLD_CONFIG, DEFAULT_DETERMINISTIC_REGIME_CONFIG, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG, DEFAULT_EXTENSION_CONFIG } from "./config/deterministic-defaults.js";
 
 export type TradingMode = "record" | "replay" | "shadow" | "paper" | "live";
@@ -70,6 +71,7 @@ export interface EngineConfig extends Omit<SymbolConfig, "symbol"> {
   databaseFlushIntervalMs: number;
   databaseMaxQueue: number;
   databaseMarketSampleMs: number;
+  optionShort: CryptoOptionShortConfig;
   recall: {
     sampleIntervalMs: number;
     opportunityHorizonMs: number;
@@ -89,6 +91,7 @@ interface SymbolParameterFile { schemaVersion: number; symbol: string; parameter
 const RUNTIME_ONLY_KEYS = new Set([
   "ALPACA_API_KEY", "ALPACA_API_SECRET", "APCA_API_KEY_ID", "APCA_API_SECRET_KEY", "ALPACA_PAPER",
   "TRADING_MODE", "ALLOW_LIVE_TRADING", "LIVE_TRADING_CONFIRMATION", "PAPER_ENTRY_EXERCISE", "DATABASE_URL",
+  "CRYPTO_SHORT_OPTIONS_ENABLED", "OPTIONS_SHORT_LIVE_CONFIRMATION",
   "POSTGRES_DB", "POSTGRES_USER", "POSTGRES_PASSWORD", "POSTGRES_HOST", "POSTGRES_PORT", "CONFIG_DIR",
 ]);
 const GLOBAL_PARAMETER_KEYS = new Set([
@@ -97,6 +100,14 @@ const GLOBAL_PARAMETER_KEYS = new Set([
   "DATABASE_ENABLED", "DATABASE_REQUIRED", "DATABASE_FLUSH_INTERVAL_MS", "DATABASE_MAX_QUEUE", "DATABASE_MARKET_SAMPLE_MS",
   "MAXIMUM_GROSS_NOTIONAL", "RECALL_SAMPLE_INTERVAL_MS", "RECALL_OPPORTUNITY_HORIZON_MS", "RECALL_MIN_NET_MOVE_BPS",
   "RECALL_MIN_TUNING_DURATION_MS", "RECALL_MIN_TUNING_OPPORTUNITIES",
+  "OPTIONS_SHORT_PROXY_MAP_JSON", "OPTIONS_SHORT_DATA_FEED", "OPTIONS_SHORT_STOCK_DATA_FEED", "OPTIONS_SHORT_TARGET_MONEYNESS",
+  "OPTIONS_SHORT_MAX_MONEYNESS_DISTANCE", "OPTIONS_SHORT_MAX_QUOTE_AGE_MS", "OPTIONS_SHORT_MAX_SPREAD_BPS",
+  "OPTIONS_SHORT_MAX_PREMIUM_DOLLARS", "OPTIONS_SHORT_MAX_CONTRACTS", "OPTIONS_SHORT_MAX_STREAM_CONTRACTS",
+  "OPTIONS_SHORT_ENTRY_START_ET_MINUTE",
+  "OPTIONS_SHORT_ENTRY_CUTOFF_ET_MINUTE", "OPTIONS_SHORT_FORCE_EXIT_ET_MINUTE",
+  "OPTIONS_SHORT_EMERGENCY_EXIT_ET_MINUTE", "OPTIONS_SHORT_MAX_HOLD_MS", "OPTIONS_SHORT_STOP_LOSS_BPS",
+  "OPTIONS_SHORT_TAKE_PROFIT_BPS", "OPTIONS_SHORT_ENTRY_LIMIT_BUFFER_BPS", "OPTIONS_SHORT_EXIT_LIMIT_BUFFER_BPS",
+  "OPTIONS_SHORT_ORDER_TTL_MS",
 ]);
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env, modeOverride?: string): EngineConfig {
@@ -118,6 +129,10 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env, modeOverride?: 
     if (paper) throw new Error("Live mode cannot run with ALPACA_PAPER=true");
     if (env.ALLOW_LIVE_TRADING !== "true" || env.LIVE_TRADING_CONFIRMATION !== "I_UNDERSTAND_LIVE_ORDERS_USE_REAL_MONEY") {
       throw new Error("Live trading interlock is not armed");
+    }
+    if (parseBoolean(env.CRYPTO_SHORT_OPTIONS_ENABLED, false)
+      && env.OPTIONS_SHORT_LIVE_CONFIRMATION !== "I_UNDERSTAND_0DTE_OPTIONS_CAN_EXPIRE_WORTHLESS") {
+      throw new Error("Live 0DTE option shorts require OPTIONS_SHORT_LIVE_CONFIRMATION=I_UNDERSTAND_0DTE_OPTIONS_CAN_EXPIRE_WORTHLESS");
     }
   }
   const baseline = loadSymbolConfig("__base__", configuredEnv, mode);
@@ -145,6 +160,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env, modeOverride?: 
     databaseFlushIntervalMs: integerEnv(configuredEnv.DATABASE_FLUSH_INTERVAL_MS, 250, 25, 60_000),
     databaseMaxQueue: integerEnv(configuredEnv.DATABASE_MAX_QUEUE, 10_000, 100, 1_000_000),
     databaseMarketSampleMs: integerEnv(configuredEnv.DATABASE_MARKET_SAMPLE_MS, 1_000, 100, 60_000),
+    optionShort: loadCryptoOptionShortConfig(env, configuredEnv),
     recall: {
       sampleIntervalMs: integerEnv(configuredEnv.RECALL_SAMPLE_INTERVAL_MS, 1_000, 10, 60_000),
       opportunityHorizonMs: integerEnv(configuredEnv.RECALL_OPPORTUNITY_HORIZON_MS, 60_000, 1_000, 86_400_000),
@@ -153,6 +169,59 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env, modeOverride?: 
       minimumTuningOpportunities: integerEnv(configuredEnv.RECALL_MIN_TUNING_OPPORTUNITIES, 100, 1, 1_000_000),
     },
   };
+}
+
+function loadCryptoOptionShortConfig(runtimeEnv: NodeJS.ProcessEnv, configuredEnv: NodeJS.ProcessEnv): CryptoOptionShortConfig {
+  const proxyByCryptoSymbol = parseStringMap(configuredEnv.OPTIONS_SHORT_PROXY_MAP_JSON
+    ?? '{"BTC/USD":"IBIT","ETH/USD":"ETHA"}', "OPTIONS_SHORT_PROXY_MAP_JSON");
+  const feed = (configuredEnv.OPTIONS_SHORT_DATA_FEED ?? "opra").toLowerCase();
+  if (feed !== "opra" && feed !== "indicative") throw new Error(`Invalid OPTIONS_SHORT_DATA_FEED: ${feed}`);
+  const stockFeed = (configuredEnv.OPTIONS_SHORT_STOCK_DATA_FEED ?? "iex").toLowerCase();
+  if (stockFeed !== "iex" && stockFeed !== "sip") throw new Error(`Invalid OPTIONS_SHORT_STOCK_DATA_FEED: ${stockFeed}`);
+  const value: CryptoOptionShortConfig = {
+    enabled: parseBoolean(runtimeEnv.CRYPTO_SHORT_OPTIONS_ENABLED, false),
+    proxyByCryptoSymbol,
+    dataFeed: feed,
+    stockDataFeed: stockFeed,
+    targetMoneyness: numberEnv(configuredEnv.OPTIONS_SHORT_TARGET_MONEYNESS, 1),
+    maximumMoneynessDistance: numberEnv(configuredEnv.OPTIONS_SHORT_MAX_MONEYNESS_DISTANCE, .03),
+    maximumQuoteAgeMs: integerEnv(configuredEnv.OPTIONS_SHORT_MAX_QUOTE_AGE_MS, 3_000, 100, 60_000),
+    maximumSpreadBps: numberEnv(configuredEnv.OPTIONS_SHORT_MAX_SPREAD_BPS, 500),
+    maximumPremiumDollars: numberEnv(configuredEnv.OPTIONS_SHORT_MAX_PREMIUM_DOLLARS, 250),
+    maximumContracts: integerEnv(configuredEnv.OPTIONS_SHORT_MAX_CONTRACTS, 1, 1, 100),
+    maximumStreamContracts: integerEnv(configuredEnv.OPTIONS_SHORT_MAX_STREAM_CONTRACTS, 180, 1, 1_000),
+    entryStartEtMinute: integerEnv(configuredEnv.OPTIONS_SHORT_ENTRY_START_ET_MINUTE, 575, 570, 959),
+    entryCutoffEtMinute: integerEnv(configuredEnv.OPTIONS_SHORT_ENTRY_CUTOFF_ET_MINUTE, 900, 570, 959),
+    forceExitEtMinute: integerEnv(configuredEnv.OPTIONS_SHORT_FORCE_EXIT_ET_MINUTE, 915, 570, 959),
+    emergencyExitEtMinute: integerEnv(configuredEnv.OPTIONS_SHORT_EMERGENCY_EXIT_ET_MINUTE, 925, 570, 959),
+    maximumHoldMs: integerEnv(configuredEnv.OPTIONS_SHORT_MAX_HOLD_MS, 14_400_000, 60_000, 28_800_000),
+    stopLossUnderlyingBps: numberEnv(configuredEnv.OPTIONS_SHORT_STOP_LOSS_BPS, 100),
+    takeProfitUnderlyingBps: numberEnv(configuredEnv.OPTIONS_SHORT_TAKE_PROFIT_BPS, 150),
+    entryLimitBufferBps: numberEnv(configuredEnv.OPTIONS_SHORT_ENTRY_LIMIT_BUFFER_BPS, 50),
+    exitLimitBufferBps: numberEnv(configuredEnv.OPTIONS_SHORT_EXIT_LIMIT_BUFFER_BPS, 100),
+    orderTtlMs: integerEnv(configuredEnv.OPTIONS_SHORT_ORDER_TTL_MS, 5_000, 500, 60_000),
+  };
+  if (!(value.targetMoneyness > 0) || !(value.maximumMoneynessDistance > 0 && value.maximumMoneynessDistance < 1)) {
+    throw new Error("0DTE option moneyness configuration is invalid");
+  }
+  if (!(value.maximumPremiumDollars > 0) || !(value.maximumSpreadBps > 0)
+    || !(value.entryStartEtMinute < value.entryCutoffEtMinute
+      && value.entryCutoffEtMinute < value.forceExitEtMinute
+      && value.forceExitEtMinute < value.emergencyExitEtMinute
+      && value.emergencyExitEtMinute < 930)) {
+    throw new Error("0DTE option risk limits or ET session cutoffs are invalid");
+  }
+  return value;
+}
+
+function parseStringMap(raw: string, name: string): Readonly<Record<string, string>> {
+  let parsed: unknown;
+  try { parsed = JSON.parse(raw); } catch { throw new Error(`${name} must be valid JSON`); }
+  if (!isObject(parsed) || Object.keys(parsed).length === 0
+    || Object.entries(parsed).some(([key, value]) => !key.trim() || typeof value !== "string" || !value.trim())) {
+    throw new Error(`${name} must be a non-empty object of string symbols`);
+  }
+  return Object.fromEntries(Object.entries(parsed).map(([key, value]) => [key.trim(), String(value).trim().toUpperCase()]));
 }
 
 function loadParameterFiles(configDirectory: string): { base: ParameterFile; symbols: Map<string, SymbolParameterFile> } {

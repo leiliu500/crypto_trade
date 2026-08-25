@@ -32,6 +32,7 @@ import { AlpacaTradeStream } from "../alpaca/trade-stream.js";
 import type { AlpacaAsset, AlpacaOrder, AlpacaPosition } from "../alpaca/types.js";
 import { EntryPipelineAudit, type EntryPipelineSnapshot, type EntryPipelineStage } from "./entry-pipeline-audit.js";
 import { HealthWatchdog, type WatchdogFault } from "./watchdog.js";
+import { CryptoOptionShortController, type CryptoOptionShortSnapshot } from "../options/crypto-option-short.js";
 
 const PAPER_DEMO_TARGET_NOTIONAL = 11;
 const CANCEL_PENDING_RECONCILE_DELAY_MS = 2_000;
@@ -75,6 +76,7 @@ export interface EngineOperationalSnapshot {
   positions: readonly Position[];
   markets: readonly EngineMarketSnapshot[];
   latency: ReturnType<LatencyTracker["summary"]>;
+  optionShort?: CryptoOptionShortSnapshot;
 }
 
 interface SymbolRuntime {
@@ -139,6 +141,7 @@ export interface EngineDependencies {
   marketStream?: AlpacaMarketStream;
   tradeStream?: AlpacaTradeStream;
   now?: () => number;
+  optionShort?: CryptoOptionShortController;
 }
 
 export class TradingEngine extends EventEmitter {
@@ -153,6 +156,7 @@ export class TradingEngine extends EventEmitter {
   private readonly portfolio: PortfolioRiskEngine;
   private readonly now: () => number;
   private readonly watchdog: HealthWatchdog;
+  private readonly optionShort: CryptoOptionShortController;
   private readonly recorder?: EventRecorder;
   private readonly reportedPositionDust = new Map<string, number>();
   private readonly cancelReconcileInFlight = new Set<string>();
@@ -176,6 +180,7 @@ export class TradingEngine extends EventEmitter {
     this.gateway = dependencies.gateway ?? new AlpacaOrderGateway(this.rest);
     this.marketStream = dependencies.marketStream ?? new AlpacaMarketStream({ credentials: cfg.credentials, symbols: cfg.symbols, location: cfg.cryptoLocation });
     this.tradeStream = dependencies.tradeStream ?? new AlpacaTradeStream({ credentials: cfg.credentials, paper: cfg.paper });
+    this.optionShort = dependencies.optionShort ?? new CryptoOptionShortController(cfg.optionShort, cfg.credentials, cfg.mode, this.rest, { now: this.now });
     this.riskState = new RiskState(cfg.rollingLossFraction, cfg.sessionLossFraction, cfg.sizing.maximumDrawdown);
     this.portfolio = new PortfolioRiskEngine(cfg.portfolio);
     this.watchdog = new HealthWatchdog(
@@ -202,6 +207,7 @@ export class TradingEngine extends EventEmitter {
         positionManager: new PositionManager(symbolCfg.position), cluster: baseAsset(symbol),
       });
     }
+    this.bindOptionShort();
     this.bindStreams();
   }
 
@@ -214,6 +220,7 @@ export class TradingEngine extends EventEmitter {
       await this.reconcileAccount();
     }
     else this.riskState.setHealth({ accountReconciled: true, privateStream: true, riskRecomputed: true });
+    this.optionShort.start();
     this.marketStream.connect();
     if (this.cfg.mode !== "record") this.tradeStream.connect();
     this.watchdog.start();
@@ -260,6 +267,7 @@ export class TradingEngine extends EventEmitter {
     this.orderDeadlineTimers.clear();
     this.marketStream.close();
     this.tradeStream.close();
+    this.optionShort.stop();
     this.watchdog.stop();
     if (this.recorder) {
       this.recorder.write({ kind: "DISCONNECT", receiveTsMs: this.now(), stream: "public" });
@@ -336,11 +344,15 @@ export class TradingEngine extends EventEmitter {
   public async reconcileAccount(): Promise<boolean> {
     this.riskState.setHealth({ accountReconciled: false, riskRecomputed: false });
     try {
-      const [accountResponse, assetsResponse, ordersResponse, positionsResponse, historyResponse, activitiesResponse] = await Promise.all([
+      const optionOrdersPromise = this.cfg.optionShort.enabled
+        ? this.rest.listOrders({ status: "all", asset_class: "us_option", limit: 500 })
+        : Promise.resolve({ data: [] as AlpacaOrder[], status: 200 });
+      const [accountResponse, assetsResponse, ordersResponse, positionsResponse, historyResponse, activitiesResponse, optionOrdersResponse] = await Promise.all([
         this.rest.getAccount(), this.rest.listAssets({ status: "active", asset_class: "crypto", exchange: "CRYPTO" }),
         this.rest.listOrders({ status: "open", asset_class: "crypto", limit: 500 }), this.rest.listPositions(),
         this.rest.getPortfolioHistory({ period: "1D", timeframe: "1Min" }),
         this.rest.getActivities({ category: "trade_activity", direction: "desc", page_size: 100 }),
+        optionOrdersPromise,
       ]);
       const account = accountResponse.data;
       if (account.account_blocked || account.trading_blocked || (account.crypto_status && account.crypto_status !== "ACTIVE")) throw new Error("Alpaca account is not available for crypto trading");
@@ -354,7 +366,9 @@ export class TradingEngine extends EventEmitter {
       }
       const fillAdvancedDuringOrderResolution = await this.reconcileTrackedOrders(ordersResponse.data);
       const refreshedPositionsResponse = fillAdvancedDuringOrderResolution ? await this.rest.listPositions() : undefined;
-      this.reconcilePositions(refreshedPositionsResponse?.data ?? positionsResponse.data);
+      const reconciledPositions = refreshedPositionsResponse?.data ?? positionsResponse.data;
+      this.reconcilePositions(reconciledPositions);
+      await this.optionShort.reconcile(account, reconciledPositions, optionOrdersResponse.data);
       const rollingLoss = rollingLossFromPortfolioHistory(historyResponse.data);
       if (rollingLoss > 0) this.realizedSessionPnl = Math.min(this.realizedSessionPnl, -rollingLoss);
       this.recomputePortfolioRisk();
@@ -362,7 +376,8 @@ export class TradingEngine extends EventEmitter {
       this.riskState.resumeAfterReconciliation();
       this.emit("reconciled", { recentTradeActivities: activitiesResponse.data.length,
         requestIds: [accountResponse.requestId, assetsResponse.requestId, ordersResponse.requestId, positionsResponse.requestId,
-          refreshedPositionsResponse?.requestId, historyResponse.requestId, activitiesResponse.requestId].filter(Boolean) });
+          refreshedPositionsResponse?.requestId, historyResponse.requestId, activitiesResponse.requestId,
+          (optionOrdersResponse as { requestId?: string }).requestId].filter(Boolean) });
       return true;
     } catch (error) {
       this.riskState.halt("ACCOUNT_UNKNOWN");
@@ -387,7 +402,8 @@ export class TradingEngine extends EventEmitter {
         regime: runtime.latestRegime ? { ...runtime.latestRegime } : null,
         ruleEvaluation: runtime.latestRuleEvaluation ? cloneEvaluation(runtime.latestRuleEvaluation) : null,
         entryReady: Boolean(runtime.latestRuleEvaluation?.intent
-          && (runtime.latestRuleEvaluation.intent.side === 1 || runtime.asset?.shortable === true)),
+          && (runtime.latestRuleEvaluation.intent.side === 1 || runtime.asset?.shortable === true
+            || this.optionShort.canRoute(symbol))),
         liquidity: runtime.latestLiquidity ? cloneLiquidity(runtime.latestLiquidity) : null,
         entryPipeline: runtime.entryAudit.snapshot(),
       };
@@ -413,6 +429,7 @@ export class TradingEngine extends EventEmitter {
       positions: [...this.runtimes.values()].flatMap((runtime) => runtime.position ? [{ ...runtime.position }] : []),
       markets,
       latency: this.latency.summary(generatedAtMs),
+      optionShort: this.optionShort.snapshot(),
     };
   }
 
@@ -440,8 +457,9 @@ export class TradingEngine extends EventEmitter {
       bookValid, sequenceValid: bookValid, checksumValid: bookValid,
       publicStreamHealthy: risk.health.publicStream, privateStreamHealthy: risk.health.privateStream,
       accountReconciled: risk.health.accountReconciled, clockHealthy: risk.health.clockValid,
-      entriesAllowed: this.riskState.entriesAllowed(), noExistingPosition: !runtime.position,
-      noPendingEntry: !this.pendingForSymbol(runtime.book.symbol),
+      entriesAllowed: this.riskState.entriesAllowed(),
+      noExistingPosition: !runtime.position && !this.optionShort.hasExposure(runtime.book.symbol),
+      noPendingEntry: !this.pendingForSymbol(runtime.book.symbol) && !this.optionShort.hasPending(runtime.book.symbol),
     };
   }
 
@@ -489,6 +507,29 @@ export class TradingEngine extends EventEmitter {
     this.tradeStream.on("heartbeat", () => this.watchdog.markPrivate());
     this.tradeStream.on("disconnect", () => { this.riskState.setHealth({ privateStream: false }); this.riskState.halt("PRIVATE_STREAM_DOWN"); void this.cancelAllSafely("PRIVATE_STREAM_DOWN"); });
     this.tradeStream.on("streamError", (error) => this.emit("engineError", error));
+  }
+
+  private bindOptionShort(): void {
+    this.optionShort.on("decision", (event) => this.emit("optionShortDecision", event));
+    this.optionShort.on("blocked", (event) => this.emit("optionShortBlocked", event));
+    this.optionShort.on("orderAccepted", (event) => this.emit("optionShortOrderAccepted", event));
+    this.optionShort.on("orderCancelRequested", (event) => this.emit("optionShortOrderCancelRequested", event));
+    this.optionShort.on("orderCancelUnknown", (event) => this.emit("optionShortOrderCancelUnknown", event));
+    this.optionShort.on("orderReconciled", (event) => this.emit("optionShortOrderReconciled", event));
+    this.optionShort.on("reconciled", (event) => this.emit("optionShortReconciled", event));
+    this.optionShort.on("universe", (event) => this.emit("optionShortUniverse", event));
+    this.optionShort.on("stockStreamReady", () => this.emit("optionShortStockStreamReady"));
+    this.optionShort.on("optionStreamReady", () => this.emit("optionShortMarketStreamReady"));
+    this.optionShort.on("stockStreamDown", () => this.emit("optionShortStockStreamDown"));
+    this.optionShort.on("optionStreamDown", () => this.emit("optionShortMarketStreamDown"));
+    this.optionShort.on("mark", (event) => this.emit("optionShortMark", event));
+    this.optionShort.on("reconcileRequested", () => { void this.reconcileAccount(); });
+    this.optionShort.on("orderError", (event) => {
+      this.emit("optionShortOrderError", event);
+      this.emit("engineError", event.error ?? event);
+      void this.reconcileAccount();
+    });
+    this.optionShort.on("streamError", (error) => this.emit("engineError", error));
   }
 
   private onBook(delta: BookDelta): void {
@@ -621,6 +662,28 @@ export class TradingEngine extends EventEmitter {
     });
     if (evaluation) this.auditEvaluation(runtime, evaluation, features.receiveTsMs);
 
+    if (this.optionShort.hasExposure(book.symbol) || this.optionShort.hasPending(book.symbol)) {
+      void this.optionShort.manage({
+        cryptoSymbol: book.symbol, cryptoPrice: features.mid,
+        bullishReversal: evaluation?.candidate?.side === 1,
+      });
+      return;
+    }
+
+    if (deterministicIntent?.side === -1 && this.optionShort.canRoute(book.symbol)) {
+      const optionRouted = runtime.signalRouter.route(deterministicIntent, features);
+      if (!optionRouted || optionRouted.sizeMultiplier <= 0) {
+        this.rejectEntry(runtime, "EXECUTION_PLAN_PASS", "SIGNAL_ROUTER_BLOCK", features.receiveTsMs);
+        return;
+      }
+      void this.optionShort.tryOpen({
+        cryptoSymbol: book.symbol, cryptoPrice: features.mid, decisionId: optionRouted.intent.decisionId,
+        reason: `${optionRouted.intent.source}:${optionRouted.intent.diagnostics.family}`,
+        sizeMultiplier: optionRouted.sizeMultiplier,
+      });
+      return;
+    }
+
     const venueIntent = deterministicIntent && (deterministicIntent.side === 1 || runtime.asset.shortable) ? deterministicIntent : null;
     const routed = runtime.signalRouter.route(venueIntent, features);
     if (!routed || routed.sizeMultiplier <= 0) {
@@ -748,7 +811,7 @@ export class TradingEngine extends EventEmitter {
       return;
     }
     runtime.entryAudit.pass("LIQUIDITY_PASS");
-    const venuePass = candidate.side === 1 || runtime.asset?.shortable === true;
+    const venuePass = candidate.side === 1 || runtime.asset?.shortable === true || this.optionShort.canRoute(runtime.book.symbol);
     if (!venuePass) { this.rejectEntry(runtime, "VENUE_DIRECTION_PASS", "SPOT_SHORT_UNAVAILABLE", atMs); return; }
     runtime.entryAudit.pass("VENUE_DIRECTION_PASS");
     if (!diagnostics.exposurePass) { this.rejectEntry(runtime, "EXPOSURE_PASS", "EXISTING_POSITION_OR_PENDING_ENTRY", atMs); return; }
@@ -803,6 +866,11 @@ export class TradingEngine extends EventEmitter {
   private onPrivateEvent(event: PrivateOrderEvent): void {
     this.watchdog.markPrivate(event.timestampMs);
     this.recorder?.write({ kind: "PRIVATE", event });
+    if (this.optionShort.ownsOrder(event.clientOrderId)) {
+      this.emit("optionShortOrderUpdate", event);
+      void this.reconcileAccount();
+      return;
+    }
     const fill = this.orderState.apply(event);
     const tracked = this.orderState.get(event.clientOrderId);
     if (tracked) this.emit("orderUpdate", { event, order: tracked });

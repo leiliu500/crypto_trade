@@ -1,7 +1,8 @@
 import type {
   ActivitiesQuery, AlpacaAccount, AlpacaAccountConfiguration, AlpacaActivity, AlpacaApiResponse,
   AlpacaAsset, AlpacaClientConfig, AlpacaClock, AlpacaCreateOrder, AlpacaOrder, AlpacaOrderbook,
-  AlpacaPosition, AlpacaReplaceOrder, AlpacaSnapshot, HistoricalQuery, ListOrdersQuery,
+  AlpacaOptionContract, AlpacaPosition, AlpacaReplaceOrder, AlpacaSnapshot, HistoricalQuery,
+  ListOrdersQuery, OptionContractsQuery,
 } from "./types.js";
 
 export class AlpacaApiError extends Error {
@@ -44,6 +45,13 @@ export class AlpacaRestClient {
   public getActivities(query: ActivitiesQuery = {}): Promise<AlpacaApiResponse<AlpacaActivity[]>> { return this.trading("GET", `/v2/account/activities${queryString(query)}`); }
   public getPortfolioHistory(query: { period?: string; timeframe?: string; date_end?: string; extended_hours?: boolean } = {}): Promise<AlpacaApiResponse<unknown>> { return this.trading("GET", `/v2/account/portfolio/history${queryString(query)}`); }
 
+  public listOptionContracts(query: OptionContractsQuery = {}): Promise<AlpacaApiResponse<{ option_contracts: AlpacaOptionContract[]; page_token?: string; limit?: number }>> {
+    return this.trading("GET", `/v2/options/contracts${queryString(query)}`);
+  }
+  public getOptionContract(symbolOrId: string): Promise<AlpacaApiResponse<AlpacaOptionContract>> {
+    return this.trading("GET", `/v2/options/contracts/${encodeURIComponent(symbolOrId)}`);
+  }
+
   public latestOrderbooks(symbols: readonly string[]): Promise<AlpacaApiResponse<{ orderbooks: Record<string, AlpacaOrderbook> }>> { return this.data("GET", `/v1beta3/crypto/${this.location}/latest/orderbooks?symbols=${encodeURIComponent(symbols.join(","))}`); }
   public latestQuotes(symbols: readonly string[]): Promise<AlpacaApiResponse<unknown>> { return this.data("GET", `/v1beta3/crypto/${this.location}/latest/quotes?symbols=${encodeURIComponent(symbols.join(","))}`); }
   public latestTrades(symbols: readonly string[]): Promise<AlpacaApiResponse<unknown>> { return this.data("GET", `/v1beta3/crypto/${this.location}/latest/trades?symbols=${encodeURIComponent(symbols.join(","))}`); }
@@ -52,7 +60,6 @@ export class AlpacaRestClient {
   public bars(query: HistoricalQuery): Promise<AlpacaApiResponse<unknown>> { return this.data("GET", `/v1beta3/crypto/${this.location}/bars${queryString(query)}`); }
   public quotes(query: HistoricalQuery): Promise<AlpacaApiResponse<unknown>> { return this.data("GET", `/v1beta3/crypto/${this.location}/quotes${queryString(query)}`); }
   public trades(query: HistoricalQuery): Promise<AlpacaApiResponse<unknown>> { return this.data("GET", `/v1beta3/crypto/${this.location}/trades${queryString(query)}`); }
-
   private trading<T>(method: string, path: string, body?: unknown): Promise<AlpacaApiResponse<T>> { return this.request(method, this.tradingBaseUrl + path, body); }
   private data<T>(method: string, path: string, body?: unknown): Promise<AlpacaApiResponse<T>> { return this.request(method, this.dataBaseUrl + path, body); }
   private async request<T>(method: string, url: string, body?: unknown): Promise<AlpacaApiResponse<T>> {

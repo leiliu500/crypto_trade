@@ -6,7 +6,7 @@
   <meta name="color-scheme" content="dark">
   <meta name="theme-color" content="#080b10">
   <title>Northstar · Crypto Operations</title>
-  <link rel="stylesheet" href="/styles.css?v=20260825-pnl-history-4">
+  <link rel="stylesheet" href="/styles.css?v=20260825-option-shorts-1">
 </head>
 <body>
   <div class="ambient ambient-a"></div><div class="ambient ambient-b"></div>
@@ -23,7 +23,12 @@
       </div>
     </header>
 
-    <section id="top" class="hero panel" data-testid="overall-health">
+    <nav class="dashboard-tabs" role="tablist" aria-label="Dashboard views">
+      <button class="active" role="tab" aria-selected="true" data-dashboard-tab="overview" data-testid="overview-tab">Operations overview</button>
+      <button role="tab" aria-selected="false" data-dashboard-tab="options" data-testid="option-shorts-tab">Option shorts</button>
+    </nav>
+
+    <section id="top" class="hero panel" data-testid="overall-health" data-dashboard-view="overview">
       <div class="hero-copy">
         <div class="eyebrow"><span id="health-pulse" class="pulse"></span> LIVE CONTROL PLANE</div>
         <h1 id="health-title">Establishing system state</h1>
@@ -41,17 +46,17 @@
       </div>
     </section>
 
-    <section class="section" data-testid="liveness-panel">
+    <section class="section" data-testid="liveness-panel" data-dashboard-view="overview">
       <div class="section-head"><div><span class="kicker">SYSTEM FABRIC</span><h2>Liveness matrix</h2></div><span id="last-update" class="freshness">Awaiting data</span></div>
       <div id="liveness-grid" class="liveness-grid skeleton-grid"></div>
     </section>
 
-    <section class="section" data-testid="market-panel">
+    <section class="section" data-testid="market-panel" data-dashboard-view="overview">
       <div class="section-head"><div><span class="kicker">ALPACA MARKET DATA</span><h2>Market pulse</h2></div><div class="section-actions"><select id="symbol-filter" aria-label="Filter dashboard by symbol"><option value="all">All symbols</option></select></div></div>
       <div id="market-grid" class="market-grid empty-grid"><p>Waiting for order books…</p></div>
     </section>
 
-    <section class="section orders-section" data-testid="orders-panel">
+    <section class="section orders-section" data-testid="orders-panel" data-dashboard-view="overview">
       <div class="section-head">
         <div><span class="kicker">EXECUTION LEDGER</span><h2>Trades and order attempts</h2></div>
         <div class="segmented" role="group" aria-label="Filter orders">
@@ -63,7 +68,33 @@
       <div id="orders-grid" class="orders-grid empty-grid"><p>No orders in this engine run.</p></div>
     </section>
 
-    <section class="section" data-testid="events-panel">
+    <section class="section option-short-view" data-dashboard-view="options" data-testid="option-shorts-panel" hidden>
+      <div class="option-route panel">
+        <div>
+          <span class="kicker">ALPACA · 0DTE PUT PROXIES</span>
+          <h1>Crypto option shorts</h1>
+          <p id="option-session-date">Awaiting New York session date</p>
+        </div>
+        <span id="option-short-status" class="option-route-status disabled">DISABLED</span>
+      </div>
+
+      <section class="option-subsection" aria-labelledby="option-readiness-title">
+        <div class="section-head"><div><span class="kicker">ROUTE INTERLOCKS</span><h2 id="option-readiness-title">Streaming readiness</h2></div><span class="freshness">WebSocket-priced only</span></div>
+        <div id="option-readiness-grid" class="option-readiness-grid"></div>
+      </section>
+
+      <section class="option-subsection" aria-labelledby="option-trades-title">
+        <div class="section-head"><div><span class="kicker">OPTION EXECUTION LEDGER</span><h2 id="option-trades-title">Trades, P&amp;L, entry and exit</h2></div><span class="freshness">100× contract multiplier</span></div>
+        <div id="option-trades-grid" class="option-trades-grid empty-grid"><p>No option-short trades in this session.</p></div>
+      </section>
+
+      <section class="option-subsection" aria-labelledby="option-activity-title">
+        <div class="section-head"><div><span class="kicker">DECISIONS &amp; SAFETY GATES</span><h2 id="option-activity-title">Option-short activity</h2></div></div>
+        <div id="option-activity" class="option-activity"><p class="option-activity-empty">No option-short lifecycle events yet.</p></div>
+      </section>
+    </section>
+
+    <section class="section" data-testid="events-panel" data-dashboard-view="overview">
       <div class="section-head"><div><span class="kicker">AUDIT STREAM</span><h2>Operational events</h2></div><button id="pause-button" class="text-button" data-testid="pause-stream"><span>Ⅱ</span> Pause stream</button></div>
       <div class="event-table-wrap">
         <table class="event-table"><thead><tr><th>Time</th><th>Severity</th><th>Event</th><th>Context</th></tr></thead><tbody id="events-body"><tr><td colspan="4" class="empty-row">Waiting for events…</td></tr></tbody></table>
@@ -72,6 +103,6 @@
 
     <footer><span>Northstar operations console</span><span id="footer-detail">Local read-only control plane</span></footer>
   </main>
-  <script type="module" src="/app.js?v=20260825-pnl-history-4"></script>
+  <script type="module" src="/app.js?v=20260825-option-shorts-1"></script>
 </body>
 </html>
