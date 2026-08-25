@@ -114,7 +114,7 @@ test("authoritative REST cancellation clears a stuck partially filled order", ()
   assert.equal(state.hasPendingEntry("BTC/USD"), false);
 });
 
-test("open-order reconciliation releases an absent partial fill", () => {
+test("open-order reconciliation never guesses a terminal state for an absent partial fill", () => {
   const state = new OrderStateReconciler();
   state.reserve(plan());
   state.markSending("client-1");
@@ -122,9 +122,9 @@ test("open-order reconciliation releases an absent partial fill", () => {
   state.apply({ id: "partial", event: "partial_fill", orderId: "order-1", clientOrderId: "client-1", symbol: "BTC/USD",
     filledQty: .4, eventQty: .4, eventPx: 100, timestampMs: 11 });
   state.reconcile([]);
-  assert.equal(state.get("client-1")?.status, "CANCELED");
-  assert.equal(state.get("client-1")?.cancellationReason, "PARTIAL_REMAINDER_CANCELED");
-  assert.equal(state.hasPendingEntry("BTC/USD"), false);
+  assert.equal(state.get("client-1")?.status, "PARTIALLY_FILLED");
+  assert.equal(state.get("client-1")?.cancellationReason, undefined);
+  assert.equal(state.hasPendingEntry("BTC/USD"), true);
 });
 
 test("REST client uses Alpaca auth, crypto endpoints, and request IDs without exposing credentials", async () => {

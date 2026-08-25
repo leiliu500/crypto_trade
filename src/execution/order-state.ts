@@ -18,8 +18,7 @@ export type OrderCancelRequestReason =
 export type OrderCancellationReason = OrderCancelRequestReason
   | "IOC_NO_FILL"
   | "PARTIAL_REMAINDER_CANCELED"
-  | "VENUE_CANCELED"
-  | "RECONCILIATION_ABSENT";
+  | "VENUE_CANCELED";
 export interface TrackedOrder {
   plan: ExecutionPlan;
   alpacaOrderId?: string;
@@ -105,13 +104,9 @@ export class OrderStateReconciler {
   }
   public reconcile(openOrders: readonly RemoteOrderSnapshot[]): void {
     const byClient = new Map(openOrders.map((order) => [order.clientOrderId, order]));
-    for (const [clientId, tracked] of this.orders) {
+    for (const [clientId] of this.orders) {
       const remote = byClient.get(clientId);
       if (remote) this.reconcileOrder(remote);
-      else if (["UNKNOWN", "SENDING", "OPEN", "PARTIALLY_FILLED", "CANCEL_PENDING"].includes(tracked.status)) {
-        tracked.status = tracked.filledQty >= tracked.plan.qty ? "FILLED" : "CANCELED";
-        if (tracked.status === "CANCELED") tracked.cancellationReason = this.classifyCancellation(tracked, "RECONCILIATION_ABSENT");
-      }
     }
   }
   public hasPendingEntry(symbol: string): boolean {

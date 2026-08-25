@@ -327,6 +327,152 @@ test("session P&L includes credited-asset entry fees and quote-currency exit fee
   assert.ok(Math.abs(engine.state().realizedSessionPnl - .59637875) < 1e-12);
 });
 
+test("a deadline that fires while order submission is in flight cancels immediately after acknowledgment", async () => {
+  const createdMs = Date.now();
+  const plan = { ...pullbackEntryPlan(), clientOrderId: "deadline-in-flight", decisionId: "deadline-in-flight-decision",
+    createdMs, expiresMs: createdMs + 25 };
+  let acknowledge!: (value: { id: string }) => void;
+  const acknowledgment = new Promise<{ id: string }>((resolve) => { acknowledge = resolve; });
+  const canceledOrderIds: string[] = [];
+  const gateway: OrderGateway = {
+    send: async () => await acknowledgment as never,
+    cancel: async (orderId) => { canceledOrderIds.push(orderId); },
+    cancelAll: async () => undefined,
+  };
+  const rest = { getOrder: async () => ({ data: {
+    id: "deadline-order", client_order_id: plan.clientOrderId, symbol: "BTCUSD",
+    filled_qty: "0", filled_avg_price: null, status: "canceled", updated_at: new Date().toISOString(),
+  } }) };
+  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", ALPACA_PAPER: "true",
+    ALPACA_API_KEY: "test", ALPACA_API_SECRET: "test", CONFIG_DIR: "config" }), {
+    gateway, rest: rest as never, now: Date.now,
+  });
+  const internals = engine as unknown as {
+    orderState: { get: (clientOrderId: string) => TrackedOrder | undefined };
+    submit: (value: ExecutionPlan) => Promise<boolean>;
+  };
+  const requested = new Promise<{ reason: string; alpacaOrderId: string | null }>((resolve) => {
+    engine.once("orderCancelRequested", resolve);
+  });
+
+  const submission = internals.submit(plan);
+  const request = await within(requested, "in-flight deadline request");
+  assert.equal(request.reason, "TTL_EXPIRED");
+  assert.equal(request.alpacaOrderId, null);
+  assert.equal(internals.orderState.get(plan.clientOrderId)?.status, "SENDING");
+  assert.equal(internals.orderState.get(plan.clientOrderId)?.cancelRequestReason, "TTL_EXPIRED");
+
+  acknowledge({ id: "deadline-order" });
+  assert.equal(await within(submission, "in-flight deadline cancellation"), true);
+  assert.deepEqual(canceledOrderIds, ["deadline-order"]);
+  assert.equal(internals.orderState.get(plan.clientOrderId)?.status, "CANCELED");
+  assert.equal(internals.orderState.get(plan.clientOrderId)?.cancellationReason, "TTL_EXPIRED");
+});
+
+test("an accepted maker order expires on its wall-clock deadline without another market event", async () => {
+  const createdMs = Date.now();
+  const plan = { ...pullbackEntryPlan(), clientOrderId: "event-free-deadline", decisionId: "event-free-deadline-decision",
+    createdMs, expiresMs: createdMs + 100 };
+  let observeCancel!: (orderId: string) => void;
+  const canceled = new Promise<string>((resolve) => { observeCancel = resolve; });
+  const gateway: OrderGateway = {
+    send: async () => ({ id: "event-free-order" }) as never,
+    cancel: async (orderId) => { observeCancel(orderId); },
+    cancelAll: async () => undefined,
+  };
+  const rest = { getOrder: async () => ({ data: {
+    id: "event-free-order", client_order_id: plan.clientOrderId, symbol: "BTCUSD",
+    filled_qty: "0", filled_avg_price: null, status: "canceled", updated_at: new Date().toISOString(),
+  } }) };
+  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", ALPACA_PAPER: "true",
+    ALPACA_API_KEY: "test", ALPACA_API_SECRET: "test", CONFIG_DIR: "config" }), {
+    gateway, rest: rest as never, now: Date.now,
+  });
+  const internals = engine as unknown as {
+    orderState: { get: (clientOrderId: string) => TrackedOrder | undefined };
+    submit: (value: ExecutionPlan) => Promise<boolean>;
+  };
+
+  assert.equal(await internals.submit(plan), true);
+  assert.equal(internals.orderState.get(plan.clientOrderId)?.status, "OPEN");
+  assert.equal(await within(canceled, "event-free order deadline"), "event-free-order");
+  await new Promise<void>((resolve) => setImmediate(resolve));
+  assert.equal(internals.orderState.get(plan.clientOrderId)?.status, "CANCELED");
+  assert.equal(internals.orderState.get(plan.clientOrderId)?.cancellationReason, "TTL_EXPIRED");
+});
+
+test("an emergency cancel-all intent survives a delayed order acknowledgment", async () => {
+  const nowMs = 2_000;
+  const plan = { ...pullbackEntryPlan(), clientOrderId: "emergency-in-flight", decisionId: "emergency-in-flight-decision" };
+  let acknowledge!: (value: { id: string }) => void;
+  const acknowledgment = new Promise<{ id: string }>((resolve) => { acknowledge = resolve; });
+  const canceledOrderIds: string[] = [];
+  let cancelAllCalls = 0;
+  const gateway: OrderGateway = {
+    send: async () => await acknowledgment as never,
+    cancel: async (orderId) => { canceledOrderIds.push(orderId); },
+    cancelAll: async () => { cancelAllCalls += 1; },
+  };
+  const rest = { getOrder: async () => ({ data: {
+    id: "emergency-order", client_order_id: plan.clientOrderId, symbol: "BTCUSD",
+    filled_qty: "0", filled_avg_price: null, status: "canceled", updated_at: new Date(nowMs).toISOString(),
+  } }) };
+  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", ALPACA_PAPER: "true",
+    ALPACA_API_KEY: "test", ALPACA_API_SECRET: "test", CONFIG_DIR: "config" }), {
+    gateway, rest: rest as never, now: () => nowMs,
+  });
+  const internals = engine as unknown as {
+    orderState: { get: (clientOrderId: string) => TrackedOrder | undefined };
+    submit: (value: ExecutionPlan) => Promise<boolean>;
+    cancelAllSafely: (reason: "PUBLIC_STREAM_DOWN") => Promise<void>;
+  };
+
+  const submission = internals.submit(plan);
+  await new Promise<void>((resolve) => setImmediate(resolve));
+  await internals.cancelAllSafely("PUBLIC_STREAM_DOWN");
+  assert.equal(cancelAllCalls, 1);
+  assert.equal(internals.orderState.get(plan.clientOrderId)?.cancelRequestReason, "PUBLIC_STREAM_DOWN");
+
+  acknowledge({ id: "emergency-order" });
+  assert.equal(await within(submission, "emergency post-ack cancellation"), true);
+  assert.deepEqual(canceledOrderIds, ["emergency-order"]);
+  assert.equal(internals.orderState.get(plan.clientOrderId)?.cancellationReason, "PUBLIC_STREAM_DOWN");
+});
+
+test("account reconciliation fetches exact status before terminalizing an order absent from the open list", async () => {
+  const plan = { ...pullbackEntryPlan(), clientOrderId: "absent-but-filled", decisionId: "absent-but-filled-decision" };
+  const exactLookups: string[] = [];
+  const rest = { getOrder: async (orderId: string) => {
+    exactLookups.push(orderId);
+    return { data: {
+      id: orderId, client_order_id: plan.clientOrderId, symbol: "BTCUSD",
+      filled_qty: String(plan.qty), filled_avg_price: "100.25", status: "filled",
+      updated_at: new Date(3_000).toISOString(),
+    } };
+  } };
+  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", ALPACA_PAPER: "true",
+    ALPACA_API_KEY: "test", ALPACA_API_SECRET: "test", CONFIG_DIR: "config" }), {
+    rest: rest as never, now: () => 3_000,
+  });
+  const internals = engine as unknown as {
+    orderState: {
+      reserve: (value: ExecutionPlan) => void;
+      markAccepted: (clientOrderId: string, alpacaOrderId: string, atMs: number) => void;
+      get: (clientOrderId: string) => TrackedOrder | undefined;
+    };
+    reconcileTrackedOrders: (openOrders: readonly []) => Promise<boolean>;
+  };
+  internals.orderState.reserve(plan);
+  internals.orderState.markAccepted(plan.clientOrderId, "filled-order", 2_000);
+
+  assert.equal(await internals.reconcileTrackedOrders([]), true);
+  assert.deepEqual(exactLookups, ["filled-order"]);
+  assert.equal(internals.orderState.get(plan.clientOrderId)?.status, "FILLED");
+  assert.equal(internals.orderState.get(plan.clientOrderId)?.filledQty, plan.qty);
+  assert.equal(internals.orderState.get(plan.clientOrderId)?.averageFillPx, 100.25);
+  assert.equal(internals.orderState.get(plan.clientOrderId)?.cancellationReason, undefined);
+});
+
 test("a pullback maker entry survives one transient kinematics reset and cancels only after the configured grace", async () => {
   let nowMs = 2_000;
   const canceledOrderIds: string[] = [];
