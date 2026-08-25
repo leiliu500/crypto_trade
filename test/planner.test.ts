@@ -44,6 +44,25 @@ function planner(takerLimitBufferBps = 0, fillHazardIntercept = 5): ExecutionPla
   }), "test-strategy", "none");
 }
 
+function directionalFillPlanner(): ExecutionPlanner {
+  return new ExecutionPlanner({
+    makerTtlMs: 1_500, alphaHalfLifeMs: 4_000, minimumFillProbability: .4, takerLimitBufferBps: 0,
+    cancelAheadFraction: .5, pullbackMakerTtlMs: 20_000,
+    pullbackKinematicsGraceMs: 5_000, pullbackKinematicsGraceEvents: 2,
+    pullbackSignalInvalidationGraceMs: 5_000, pullbackSignalInvalidationGraceEvents: 3,
+    adverseFlowConfirmationMs: 2_000, adverseFlowConfirmationEvents: 3,
+    fillHazardIntercept: -1, fillHazardAggressiveWeight: .1, fillHazardFlowWeight: 1,
+    fillHazardImbalanceWeight: .5, fillHazardSpreadWeight: .05,
+    makerOpportunityCostBps: 2, staleOrderCostBps: 1, maximumImpactBps: 10, maximumIterations: 5,
+  }, new RiskSizer({
+    baseRiskFraction: .001, maximumDrawdown: .05, maximumBookParticipation: .1,
+    fractionalKelly: .1, maximumKellyFraction: .05, targetSigmaHBps: 20, minimumQualityScale: .1,
+  }), new CostModel({
+    makerFeeBps: 15, takerFeeBps: 25, makerExitFillProbability: .65, makerExitFallbackAdverseBps: 2,
+    latencyAdverseFraction: .25, adverseSelectionBps: 1, fundingBps: 0, borrowBps: 0,
+  }), "test-strategy", "none");
+}
+
 test("preliminary cost considers an eligible maker entry", () => {
   const execution = planner();
   const preliminary = execution.preliminaryCost(features, book, 1, .001);
@@ -112,6 +131,23 @@ test("pullback maker orders use the family TTL and the same TTL in fill modeling
   }, false, { createdMs: 1_000, executionPath: "MAKER_TAKER", entryFamily: "PULLBACK_RECOVERY" });
   assert.equal(plan?.entryFamily, "PULLBACK_RECOVERY");
   assert.equal(plan?.expiresMs, 21_000);
+});
+
+test("maker fill probability follows contra-side flow instead of same-side momentum", () => {
+  const execution = directionalFillPlanner();
+  const ethIncident = { ...features, symbol: "ETH/USD", mid: 2480.8045, spread: .409,
+    spreadBps: 1.6486587314724135, tfi: 1, qi1: -.006542300646753155 };
+  const ethBook = { ...book, symbol: "ETH/USD",
+    bids: [{ px: 2480.6, qty: 20 }], asks: [{ px: 2481.009, qty: 20 }] };
+  const sameSideBuyFlow = execution.makerFillProbability(ethIncident, ethBook, 1, "PULLBACK_RECOVERY");
+  const contraSellFlow = execution.makerFillProbability({ ...ethIncident, tfi: -1, qi1: -.5 }, ethBook, 1,
+    "PULLBACK_RECOVERY");
+  const mirroredContraBuyFlow = execution.makerFillProbability({ ...ethIncident, tfi: 1, qi1: .5 }, ethBook, -1,
+    "PULLBACK_RECOVERY");
+
+  assert.ok(sameSideBuyFlow < .95, `same-side buy flow must not imply a certain maker fill: ${sameSideBuyFlow}`);
+  assert.ok(contraSellFlow > sameSideBuyFlow);
+  assert.ok(Math.abs(contraSellFlow - mirroredContraBuyFlow) < 1e-12);
 });
 
 test("a configured IOC buffer widens only the taker limit-price cap", () => {

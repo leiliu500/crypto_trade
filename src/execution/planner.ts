@@ -223,9 +223,13 @@ export class ExecutionPlanner {
   }
   private fillProbability(f: Features, book: BookState, side: Direction, ttlMs: number): number {
     const ahead = side === 1 ? book.bids[0]!.qty : book.asks[0]!.qty;
-    const aggressiveRatio = Math.max(0, side * f.tfi) / Math.max(ahead, 1e-12);
+    // A resting order fills when contra-side aggressors consume its queue. Same-side
+    // flow may support the price, but it cannot trade against the resting order.
+    const contraFlow = -side * f.tfi;
+    const opposingImbalance = -side * f.qi1;
+    const aggressiveRatio = Math.max(0, contraFlow) / Math.max(ahead, 1e-12);
     const logHazard = this.cfg.fillHazardIntercept + this.cfg.fillHazardAggressiveWeight * aggressiveRatio
-      + this.cfg.fillHazardFlowWeight * side * f.tfi + this.cfg.fillHazardImbalanceWeight * side * f.qi1
+      + this.cfg.fillHazardFlowWeight * contraFlow + this.cfg.fillHazardImbalanceWeight * opposingImbalance
       - this.cfg.fillHazardSpreadWeight * f.spreadBps;
     const hazardPerSecond = Math.exp(Math.max(-20, Math.min(20, logHazard)));
     return 1 - Math.exp(-hazardPerSecond * ttlMs / 1000);
