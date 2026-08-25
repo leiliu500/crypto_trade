@@ -59,7 +59,7 @@ Startup preflight reads all latest crypto resources, account configuration, and 
 Alpaca venue constraints are enforced:
 
 - This engine trades Alpaca **spot crypto**. Assets currently report `shortable=false`, so deterministic short intents are evaluated symmetrically for audit/replay but cannot open short exposure.
-- Alpaca crypto supports market, limit, and stop-limit orders with GTC/IOC. Entries remain non-marketable GTC limits. Continuation entries retain the micro-alpha TTL; multi-hour pullback/recovery entries use a separate 20-second maker TTL. A single transient kinematics reset cannot cancel a resting pullback order: cancellation requires both the configured five-second grace and two consecutive unavailable events, while TTL, stale-book, adverse-flow, structure, and exact-cost checks remain fail-closed. Non-urgent exits may rest at the ask for up to 30 seconds and then cancel/reconcile before a price-capped IOC submits the remainder; hard stops and profit-floor exits use IOC immediately. The `MAKER_MAKER_TAKER_FALLBACK` ledger charges maker exit fees plus stressed, probability-weighted fallback fee/spread/adverse costs. Every final quantity is exact-cost revalidated, and a taker entry cannot silently replace an unfilled or uneconomic maker entry.
+- Alpaca crypto supports market, limit, and stop-limit orders with GTC/IOC. Entries remain non-marketable GTC limits. Continuation entries retain the micro-alpha TTL; multi-hour pullback/recovery entries use a separate 20-second maker TTL. A single transient kinematics reset cannot cancel a resting pullback order: cancellation requires both the configured five-second grace and two consecutive unavailable events. A lone adverse OFI or trade-flow sensor also requires a configurable two-second, three-event confirmation; corroborated OFI and trade flow still cancel immediately. TTL, stale-book, structure, and exact-cost checks remain fail-closed. Non-urgent exits may rest at the ask for up to 30 seconds and then cancel/reconcile before a price-capped IOC submits the remainder; hard stops and profit-floor exits use IOC immediately. The `MAKER_MAKER_TAKER_FALLBACK` ledger charges maker exit fees plus stressed, probability-weighted fallback fee/spread/adverse costs. Every final quantity is exact-cost revalidated, and a taker entry cannot silently replace an unfilled or uneconomic maker entry.
 - There are no perpetuals, leverage, liquidation, funding, or native reduce-only flags on this venue. Funding/borrow are therefore zero, and exits are client-side clamped to the known long position.
 - Alpaca's documented order-book schema exposes reset and price-level deltas, but no exchange sequence number or checksum. The engine requires a reset after connection, rejects timestamp reversal/crossed books/duplicates, and never misrepresents its local counter as an exchange sequence guarantee.
 - Minimum size, quantity increment, and price increment come from the live Alpaca Assets resource rather than hard-coded symbol rules.
@@ -124,10 +124,12 @@ The default deterministic configuration in `config/base.json` includes:
 
 ```text
 SIGNAL_MODE=DETERMINISTIC_ONLY
-DETERMINISTIC_CONFIG_VERSION=btc-eth-sustained-continuation-v4.6.0
+DETERMINISTIC_CONFIG_VERSION=btc-eth-adverse-flow-confirmation-v4.6.1
 PULLBACK_MAKER_TTL_MS=20000
 PULLBACK_KINEMATICS_GRACE_MS=5000
 PULLBACK_KINEMATICS_GRACE_EVENTS=2
+ADVERSE_FLOW_CONFIRMATION_MS=2000
+ADVERSE_FLOW_CONFIRMATION_EVENTS=3
 ```
 
 `record` appends raw order-book and trade events to `data/events.jsonl`. Paper, shadow, and live modes also continuously append independently compressed gzip batches to `data/continuous-events.jsonl.gz` when `CONTINUOUS_RECORDING_ENABLED` is true. The batched writer keeps compression off the market-data hot path and makes completed batches replayable while the engine remains online. Run `npm run recall -- data/continuous-events.jsonl.gz` to analyze that capture.
