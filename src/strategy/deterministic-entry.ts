@@ -222,8 +222,8 @@ export class DeterministicEntryEngine {
     const strong = trigger.score >= this.cfg.microTrigger.strongScore;
     const requiredTimeMs = strong ? this.cfg.microTrigger.strongConfirmationMs : this.cfg.microTrigger.minimumConfirmationMs;
     const requiredEvents = strong ? this.cfg.microTrigger.strongConfirmationEvents : this.cfg.microTrigger.minimumConfirmationEvents;
-    const persistencePass = trigger.occupancy >= this.cfg.microTrigger.minimumOccupancy
-      && trigger.evidence >= this.cfg.microTrigger.fireEvidenceScoreSeconds
+    const persistencePass = trigger.occupancy >= trigger.requiredOccupancy
+      && trigger.evidence >= trigger.requiredEvidence
       && trigger.confirmationMs >= requiredTimeMs && trigger.consecutiveEvents >= requiredEvents;
     const antiChasePass = trigger.chaseBps <= this.cfg.microTrigger.maximumChaseBps;
     const cooldownPass = !trigger.reasons.includes("COOLDOWN_ACTIVE") && !trigger.reasons.includes("ALREADY_FIRED_IN_EPISODE");

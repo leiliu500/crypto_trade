@@ -124,6 +124,7 @@ export class SmallFractionEntryTrigger {
     const strong = score >= this.cfg.strongScore;
     const requiredTimeMs = strong ? this.cfg.strongConfirmationMs : this.cfg.minimumConfirmationMs;
     const requiredEvents = strong ? this.cfg.strongConfirmationEvents : this.cfg.minimumConfirmationEvents;
+    const { requiredOccupancy, requiredEvidence } = persistenceRequirements(this.cfg, strong);
     const reasons: string[] = [];
     if (!bookPass) reasons.push("BOOK_GROUP_FALSE");
     if (!flowPass) reasons.push("FLOW_GROUP_FALSE");
@@ -131,8 +132,8 @@ export class SmallFractionEntryTrigger {
     if (!motionPass) reasons.push("MOTION_GROUP_FALSE");
     if (!groupQuorum) reasons.push("GROUP_QUORUM_FALSE");
     if (score < this.cfg.armScore) reasons.push("ARM_SCORE_FALSE");
-    if (state.occupancy < this.cfg.minimumOccupancy) reasons.push("OCCUPANCY_FALSE");
-    if (state.evidence < this.cfg.fireEvidenceScoreSeconds) reasons.push("EVIDENCE_FALSE");
+    if (state.occupancy < requiredOccupancy) reasons.push("OCCUPANCY_FALSE");
+    if (state.evidence < requiredEvidence) reasons.push("EVIDENCE_FALSE");
     if (confirmationMs < requiredTimeMs) reasons.push("CONFIRMATION_TIME_FALSE");
     if (state.consecutiveEvents < requiredEvents) reasons.push("CONFIRMATION_EVENTS_FALSE");
     if (chaseBps > this.cfg.maximumChaseBps) reasons.push("MAXIMUM_CHASE_EXCEEDED");
@@ -141,14 +142,15 @@ export class SmallFractionEntryTrigger {
     if (state.firedInEpisode) reasons.push("ALREADY_FIRED_IN_EPISODE");
     if (eventGapExceeded) reasons.push("EVENT_GAP_RESET");
     const fire = state.armed && !state.firedInEpisode && groupQuorum && score >= this.cfg.armScore
-      && state.occupancy >= this.cfg.minimumOccupancy && state.evidence >= this.cfg.fireEvidenceScoreSeconds
+      && state.occupancy >= requiredOccupancy && state.evidence >= requiredEvidence
       && confirmationMs >= requiredTimeMs && state.consecutiveEvents >= requiredEvents
       && chaseBps <= this.cfg.maximumChaseBps && nowMs >= state.cooldownUntilMs
       && nowMs >= state.nextCandidateAtMs;
     return {
       side, score, microPressure: input.microPressure, bookPass, flowPass, motionPass, groupCount, groupQuorum,
       sensorThresholdBps: input.sensorThresholdBps, deltaMicroBps: input.deltaMicroBps, microNoiseBps: input.microNoiseBps,
-      occupancy: state.occupancy, evidence: state.evidence, confirmationMs, consecutiveEvents: state.consecutiveEvents,
+      occupancy: state.occupancy, evidence: state.evidence, requiredOccupancy, requiredEvidence,
+      confirmationMs, consecutiveEvents: state.consecutiveEvents,
       chaseBps, armed: state.armed, strong, fire, reasons,
     };
   }
@@ -203,8 +205,23 @@ function invalidDiagnostics(side: Direction, reason: string): SideTriggerDiagnos
   return {
     side, score: 0, microPressure: 0, bookPass: false, flowPass: false, motionPass: false,
     groupCount: 0, groupQuorum: false, sensorThresholdBps: 0, deltaMicroBps: 0, microNoiseBps: 0,
-    occupancy: 0, evidence: 0, confirmationMs: 0, consecutiveEvents: 0, chaseBps: 0,
+    occupancy: 0, evidence: 0, requiredOccupancy: 1, requiredEvidence: Number.POSITIVE_INFINITY,
+    confirmationMs: 0, consecutiveEvents: 0, chaseBps: 0,
     armed: false, strong: false, fire: false, reasons: [reason],
+  };
+}
+
+/** Makes the configured strong confirmation path reachable at its own time horizon. */
+function persistenceRequirements(cfg: SmallFractionTriggerConfig, strong: boolean): {
+  requiredOccupancy: number; requiredEvidence: number;
+} {
+  if (!strong) return { requiredOccupancy: cfg.minimumOccupancy, requiredEvidence: cfg.fireEvidenceScoreSeconds };
+  const seconds = cfg.strongConfirmationMs / 1_000;
+  const reachableOccupancy = 1 - Math.exp(-cfg.strongConfirmationMs / cfg.occupancyTauMs);
+  const reachableEvidence = seconds * Math.max(0, cfg.strongScore - cfg.evidenceDriftAllowance);
+  return {
+    requiredOccupancy: Math.min(cfg.minimumOccupancy, reachableOccupancy),
+    requiredEvidence: Math.min(cfg.fireEvidenceScoreSeconds, reachableEvidence),
   };
 }
 

@@ -89,6 +89,8 @@ export interface SideTriggerDiagnostics {
   readonly microNoiseBps: number;
   readonly occupancy: number;
   readonly evidence: number;
+  readonly requiredOccupancy: number;
+  readonly requiredEvidence: number;
   readonly confirmationMs: number;
   readonly consecutiveEvents: number;
   readonly chaseBps: number;

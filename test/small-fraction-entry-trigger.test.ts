@@ -41,6 +41,16 @@ test("one isolated microprice spike cannot bypass occupancy and evidence confirm
   assert.equal(trigger.update(bullish(20, { microprice: 100.01, qiK: .5, ofi: .6 })).candidate, null);
 });
 
+test("two continuously strong observations can use the configured strong confirmation path", () => {
+  const trigger = new SmallFractionEntryTrigger(triggerConfig());
+  assert.equal(trigger.update(bullish(0)).candidate, null);
+  const second = trigger.update(bullish(triggerConfig().strongConfirmationMs));
+  assert.equal(second.candidate?.side, 1);
+  assert.equal(second.long.strong, true);
+  assert.ok(second.long.requiredOccupancy < triggerConfig().minimumOccupancy);
+  assert.ok(second.long.requiredEvidence < triggerConfig().fireEvidenceScoreSeconds);
+});
+
 test("a kinematics reset blocks motion evidence without invalidating market data", () => {
   const trigger = new SmallFractionEntryTrigger(triggerConfig());
   const result = trigger.update(bullish(0, { kinematicsReady: false }));
