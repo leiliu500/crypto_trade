@@ -23,6 +23,9 @@ export class EconomicEdgeResolver {
     const calibrated = this.calibrated.resolve({ symbol: input.symbol, family: input.family, side: input.side, regime: input.regime.name,
       quality, spreadBps: input.features.spreadBps });
     if (calibrated.length > 0) return calibrated;
+    // Pullback entries have demonstrated asymmetric recorded losses when their presumed rebound is valued analytically.
+    // Keep the structural signal observable, but fail closed until a matching side/family/path bucket is calibrated.
+    if (input.family === "PULLBACK_RECOVERY") return [];
     if (this.mode === "CALIBRATED_LIVE") return [];
     return analytic;
   }
