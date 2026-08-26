@@ -9,6 +9,7 @@ import { DeterministicEntryEngine, type DeterministicEvaluation } from "../strat
 import { BookPressureTracker, DeterministicFeatureExtensions, type DeterministicFeatures } from "../strategy/deterministic-features.js";
 import { DeterministicRegimeEngine } from "../strategy/deterministic-regime.js";
 import { DynamicLiquidityPolicy } from "../strategy/dynamic-liquidity.js";
+import { pullbackState } from "../strategy/pullback-recovery.js";
 import { readRecordedEvents } from "./replay.js";
 import type { CalibratedEdgeBucket } from "../calibration/calibrated-edge-table.js";
 import type { EntryFamily, ExecutionPath } from "../economics/types.js";
@@ -18,11 +19,11 @@ interface RecallPoint {
   atMs: number;
   bid: number;
   ask: number;
-  evaluation: DeterministicEvaluation;
 }
 interface RecallSignal {
   atMs: number; side: Direction; family: EntryFamily | null; bid: number; ask: number;
   horizonMs: number; robustCostBps: number; executionPath: ExecutionPath | null;
+  reversalExtremeAgeMs: number | null;
 }
 interface OpportunityWindow { startMs: number; endMs: number; peakNetBps: number }
 interface ForwardCalibrationCandidate {
@@ -66,6 +67,15 @@ interface OfflineRuntime {
   costQualifiedIntentEvents: number;
   directionCounters: { long: DirectionCandidateCounts; short: DirectionCandidateCounts };
   bestCandidateEconomics: EconomicCandidateAudit | null;
+  maximumLongScore: number;
+  minimumModeledCostBps: number | null;
+}
+
+export interface PullbackRecencyShadow {
+  maximumReversalAgeMs: number;
+  signalCount: number;
+  profitableSignals: number;
+  precision: number;
 }
 
 export interface DirectionRecallReport {
@@ -78,6 +88,7 @@ export interface DirectionRecallReport {
   profitableSignals: number;
   pullbackSignalCount: number;
   profitablePullbackSignals: number;
+  pullbackRecencyShadow: Record<string, PullbackRecencyShadow>;
   precision: number;
   rawSignalCount: number;
   rawCapturedWindows: number;
@@ -100,19 +111,50 @@ export interface SymbolRecallReport {
   blockReasons: Record<string, number>;
   bestCandidateEconomics: EconomicCandidateAudit | null;
   long: DirectionRecallReport;
+  short: DirectionRecallReport;
+  /** Retained for report compatibility; consult `short.venueEligible` before treating it as audit-only. */
   shortAuditOnly: DirectionRecallReport;
 }
 export interface OpportunityRecallReport {
-  recording: { path: string; events: number; books: number; trades: number; firstTsMs: number | null; lastTsMs: number | null; durationMs: number };
+  recording: {
+    path: string;
+    paths: string[];
+    events: number;
+    books: number;
+    trades: number;
+    disconnects: number;
+    gaps: number;
+    firstTsMs: number | null;
+    lastTsMs: number | null;
+    durationMs: number;
+    coveredDurationMs: number;
+  };
   assumptions: { sampleIntervalMs: number; opportunityHorizonMs: number; minimumNetMoveBps: number; label: string };
   symbols: Record<string, SymbolRecallReport>;
   tuning: { ready: boolean; observedDurationMs: number; requiredDurationMs: number; opportunityWindows: number; requiredOpportunityWindows: number; reason: string | null };
-  calibration: { ready: boolean; buckets: CalibratedEdgeBucket[]; deployableBuckets: number; reason: string | null };
-  acceptance: { passed: boolean; longIntentSignals: number; profitableAfterCostLongSignals: number; reason: string | null };
+  calibration: {
+    ready: boolean;
+    candidateCounts: { long: number; short: number; venueEligible: number };
+    buckets: CalibratedEdgeBucket[];
+    deployableBuckets: number;
+    reason: string | null;
+  };
+  acceptance: {
+    passed: boolean;
+    eligibleIntentSignals: number;
+    profitableAfterCostEligibleSignals: number;
+    longIntentSignals: number;
+    profitableAfterCostLongSignals: number;
+    reason: string | null;
+  };
 }
 
-export async function analyzeOpportunityRecall(path: string, cfg: EngineConfig,
+const PULLBACK_RECENCY_SHADOW_MS = [60_000, 120_000, 300_000, 600_000] as const;
+
+export async function analyzeOpportunityRecall(path: string | readonly string[], cfg: EngineConfig,
   options: { economicOnly?: boolean } = {}): Promise<OpportunityRecallReport> {
+  const paths = typeof path === "string" ? [path] : [...path];
+  if (paths.length === 0) throw new Error("Opportunity recall requires at least one recording path");
   const runtimes = new Map<string, OfflineRuntime>();
   for (const symbol of cfg.symbols) {
     const symbolCfg = cfg.symbolConfigs[symbol];
@@ -133,36 +175,50 @@ export async function analyzeOpportunityRecall(path: string, cfg: EngineConfig,
       directionalCandidateEvents: 0, costQualifiedIntentEvents: 0,
       directionCounters: { long: emptyDirectionCounts(), short: emptyDirectionCounts() },
       bestCandidateEconomics: null,
+      maximumLongScore: Number.NEGATIVE_INFINITY,
+      minimumModeledCostBps: null,
     });
   }
 
-  let events = 0, books = 0, trades = 0;
-  let firstTsMs: number | null = null, lastTsMs: number | null = null;
-  for await (const event of readRecordedEvents(path)) {
-    events += 1;
-    const atMs = event.kind === "BOOK" ? event.delta.receiveTsMs : event.kind === "TRADE" ? event.trade.receiveTsMs
-      : event.kind === "DISCONNECT" || event.kind === "RECORDER_GAP" ? event.receiveTsMs : null;
-    if (atMs !== null) { firstTsMs ??= atMs; lastTsMs = atMs; }
-    if (event.kind === "BOOK") {
-      books += 1;
-      const runtime = runtimes.get(event.delta.symbol);
-      if (!runtime) continue;
-      const applied = runtime.book.apply(event.delta);
-      if (!applied.accepted || !applied.state || applied.duplicate) continue;
-      const base = runtime.features.onBook(applied.state, applied.flow);
-      if (base) processState(runtime, applied.state, base, cfg);
-    } else if (event.kind === "TRADE") {
-      trades += 1;
-      const runtime = runtimes.get(event.trade.symbol);
-      if (!runtime) continue;
-      runtime.features.onTrade(event.trade);
-      const snapshot = runtime.book.snapshot();
-      if (!snapshot.valid) continue;
-      const eventBook: BookState = { ...snapshot, receiveTsMs: event.trade.receiveTsMs };
-      const base = runtime.features.onBook(eventBook);
-      if (base) processState(runtime, eventBook, base, cfg);
-    } else if (event.kind === "DISCONNECT" || event.kind === "RECORDER_GAP") {
-      for (const runtime of runtimes.values()) runtime.book.invalidate();
+  let events = 0, books = 0, trades = 0, disconnects = 0, gaps = 0, coveredDurationMs = 0;
+  let firstTsMs: number | null = null, lastTsMs: number | null = null, previousTsMs: number | null = null;
+  const coverageGapToleranceMs = Math.max(cfg.feature.absoluteMaxProviderAgeMs * 2, cfg.feature.maximumKinematicsGapMs);
+  for (const recordingPath of paths) {
+    for await (const event of readRecordedEvents(recordingPath)) {
+      events += 1;
+      const atMs = event.kind === "BOOK" ? event.delta.receiveTsMs : event.kind === "TRADE" ? event.trade.receiveTsMs
+        : event.kind === "DISCONNECT" || event.kind === "RECORDER_GAP" ? event.receiveTsMs : null;
+      if (atMs !== null) {
+        firstTsMs ??= atMs;
+        if (previousTsMs !== null && atMs >= previousTsMs && atMs - previousTsMs <= coverageGapToleranceMs) {
+          coveredDurationMs += atMs - previousTsMs;
+        }
+        previousTsMs = previousTsMs === null ? atMs : Math.max(previousTsMs, atMs);
+        lastTsMs = previousTsMs;
+      }
+      if (event.kind === "BOOK") {
+        books += 1;
+        const runtime = runtimes.get(event.delta.symbol);
+        if (!runtime) continue;
+        const applied = runtime.book.apply(event.delta);
+        if (!applied.accepted || !applied.state || applied.duplicate) continue;
+        const base = runtime.features.onBook(applied.state, applied.flow);
+        if (base) processState(runtime, applied.state, base, cfg);
+      } else if (event.kind === "TRADE") {
+        trades += 1;
+        const runtime = runtimes.get(event.trade.symbol);
+        if (!runtime) continue;
+        runtime.features.onTrade(event.trade);
+        const snapshot = runtime.book.snapshot();
+        if (!snapshot.valid) continue;
+        const eventBook: BookState = { ...snapshot, receiveTsMs: event.trade.receiveTsMs };
+        const base = runtime.features.onBook(eventBook);
+        if (base) processState(runtime, eventBook, base, cfg);
+      } else if (event.kind === "DISCONNECT" || event.kind === "RECORDER_GAP") {
+        if (event.kind === "DISCONNECT") disconnects += 1;
+        else gaps += 1;
+        for (const runtime of runtimes.values()) runtime.book.invalidate();
+      }
     }
   }
 
@@ -172,33 +228,36 @@ export async function analyzeOpportunityRecall(path: string, cfg: EngineConfig,
   for (const [symbol, runtime] of runtimes) {
     const longSignals = runtime.signals.filter((signal) => signal.side === 1);
     const shortSignals = runtime.signals.filter((signal) => signal.side === -1);
+    const shortVenueEligible = cfg.venue === "kraken_futures";
     const long = options.economicOnly ? emptyDirectionReport(true, longSignals.length,
-      longSignals.filter((signal) => signal.family === "PULLBACK_RECOVERY").length) : directionReport(runtime, 1, cfg);
-    const shortAuditOnly = options.economicOnly ? emptyDirectionReport(false, shortSignals.length,
-      shortSignals.filter((signal) => signal.family === "PULLBACK_RECOVERY").length) : directionReport(runtime, -1, cfg);
-    opportunityWindows += long.opportunityWindows;
-    const finiteLongScores = runtime.points.map((point) => point.evaluation.long.score).filter(Number.isFinite);
-    const modeledCosts = runtime.points.flatMap((point) => [point.evaluation.long.roundTripCostBps, point.evaluation.short.roundTripCostBps]).filter(Number.isFinite);
+      longSignals.filter((signal) => signal.family === "PULLBACK_RECOVERY").length) : directionReport(runtime, 1, cfg, true);
+    const short = options.economicOnly ? emptyDirectionReport(shortVenueEligible, shortSignals.length,
+      shortSignals.filter((signal) => signal.family === "PULLBACK_RECOVERY").length) : directionReport(runtime, -1, cfg, shortVenueEligible);
+    opportunityWindows += long.opportunityWindows + (short.venueEligible ? short.opportunityWindows : 0);
     symbols[symbol] = {
       samples: runtime.points.length, staleEvents: runtime.staleEvents, nonFiniteEvents: runtime.nonFiniteEvents,
-      maximumLongScore: finiteLongScores.length ? Math.max(...finiteLongScores) : 0,
-      minimumModeledCostBps: modeledCosts.length ? Math.min(...modeledCosts) : null,
+      maximumLongScore: Number.isFinite(runtime.maximumLongScore) ? runtime.maximumLongScore : 0,
+      minimumModeledCostBps: runtime.minimumModeledCostBps,
       evaluationEvents: runtime.evaluationEvents, rawDirectionalEvents: runtime.rawDirectionalEvents,
       directionalCandidateEvents: runtime.directionalCandidateEvents,
       costQualifiedIntentEvents: runtime.costQualifiedIntentEvents,
       directionPipeline: { long: { ...runtime.directionCounters.long }, short: { ...runtime.directionCounters.short } },
       blockReasons: Object.fromEntries([...runtime.blockReasons].sort((a, b) => b[1] - a[1])),
       bestCandidateEconomics: runtime.bestCandidateEconomics ? { ...runtime.bestCandidateEconomics } : null,
-      long, shortAuditOnly,
+      long, short, shortAuditOnly: short,
     };
   }
-  const durationReady = durationMs >= cfg.recall.minimumTuningDurationMs;
+  const durationReady = coveredDurationMs >= cfg.recall.minimumTuningDurationMs;
   const opportunitiesReady = opportunityWindows >= cfg.recall.minimumTuningOpportunities;
-  const ready = durationReady && opportunitiesReady;
-  const reason = ready ? null : !durationReady
-    ? `Recording duration is below ${cfg.recall.minimumTuningDurationMs} ms`
+  const ready = gaps === 0 && durationReady && opportunitiesReady;
+  const reason = ready ? null : gaps > 0 ? `Recording contains ${gaps} explicit recorder gap(s)`
+    : !durationReady ? `Covered recording duration is below ${cfg.recall.minimumTuningDurationMs} ms`
     : `Only ${opportunityWindows} eligible opportunity windows were observed`;
   const calibrationBuckets = options.economicOnly ? [] : forwardCalibrationBuckets(runtimes, cfg);
+  const longCalibrationCandidates = [...runtimes.values()].reduce((total, runtime) => total
+    + runtime.calibrationCandidates.filter((candidate) => candidate.side === 1).length, 0);
+  const shortCalibrationCandidates = [...runtimes.values()].reduce((total, runtime) => total
+    + runtime.calibrationCandidates.filter((candidate) => candidate.side === -1).length, 0);
   const deployableBuckets = ready ? calibrationBuckets.filter((bucket) => bucket.effectiveSampleCount >= cfg.deterministicSignal.minimumEffectiveSampleCount
     && bucket.lowerConfidenceGrossReturnBps > 0).length : 0;
   const calibrationReady = ready && deployableBuckets > 0;
@@ -206,12 +265,16 @@ export async function analyzeOpportunityRecall(path: string, cfg: EngineConfig,
     : `No forward-return bucket has ${cfg.deterministicSignal.minimumEffectiveSampleCount} independent samples and a positive lower confidence bound`;
   const longIntentSignals = Object.values(symbols).reduce((sum, symbol) => sum + symbol.long.signalCount, 0);
   const profitableAfterCostLongSignals = Object.values(symbols).reduce((sum, symbol) => sum + symbol.long.profitableSignals, 0);
-  const acceptancePassed = !options.economicOnly && longIntentSignals > 0 && profitableAfterCostLongSignals > 0;
-  const acceptanceReason = acceptancePassed ? null : longIntentSignals === 0 ? "Replay produced no cost-qualified long intents"
+  const eligibleReports = Object.values(symbols).flatMap((symbol) => [symbol.long, symbol.short]).filter((report) => report.venueEligible);
+  const eligibleIntentSignals = eligibleReports.reduce((sum, report) => sum + report.signalCount, 0);
+  const profitableAfterCostEligibleSignals = eligibleReports.reduce((sum, report) => sum + report.profitableSignals, 0);
+  const acceptancePassed = !options.economicOnly && eligibleIntentSignals > 0 && profitableAfterCostEligibleSignals > 0;
+  const acceptanceReason = acceptancePassed ? null : eligibleIntentSignals === 0 ? "Replay produced no cost-qualified venue-eligible intents"
     : options.economicOnly ? "Profitability acceptance requires a full replay; economic-only mode does not label forward returns"
-      : "Replay produced no long intent with a profitable forward move after its robust modeled cost";
+      : "Replay produced no venue-eligible intent with a profitable forward move after its robust modeled cost";
   return {
-    recording: { path, events, books, trades, firstTsMs, lastTsMs, durationMs },
+    recording: { path: paths.join(","), paths, events, books, trades, disconnects, gaps,
+      firstTsMs, lastTsMs, durationMs, coveredDurationMs },
     assumptions: {
       sampleIntervalMs: cfg.recall.sampleIntervalMs,
       opportunityHorizonMs: cfg.recall.opportunityHorizonMs,
@@ -219,10 +282,14 @@ export async function analyzeOpportunityRecall(path: string, cfg: EngineConfig,
       label: "Best executable bid/ask move within the horizon minus two taker fees and fixed adverse/funding/borrow costs; latency and impact omitted, so recall is an optimistic upper bound",
     },
     symbols,
-    tuning: { ready, observedDurationMs: durationMs, requiredDurationMs: cfg.recall.minimumTuningDurationMs,
+    tuning: { ready, observedDurationMs: coveredDurationMs, requiredDurationMs: cfg.recall.minimumTuningDurationMs,
       opportunityWindows, requiredOpportunityWindows: cfg.recall.minimumTuningOpportunities, reason },
-    calibration: { ready: calibrationReady, buckets: calibrationBuckets, deployableBuckets, reason: calibrationReason },
-    acceptance: { passed: acceptancePassed, longIntentSignals, profitableAfterCostLongSignals, reason: acceptanceReason },
+    calibration: { ready: calibrationReady,
+      candidateCounts: { long: longCalibrationCandidates, short: shortCalibrationCandidates,
+        venueEligible: longCalibrationCandidates + (cfg.venue === "kraken_futures" ? shortCalibrationCandidates : 0) },
+      buckets: calibrationBuckets, deployableBuckets, reason: calibrationReason },
+    acceptance: { passed: acceptancePassed, eligibleIntentSignals, profitableAfterCostEligibleSignals,
+      longIntentSignals, profitableAfterCostLongSignals, reason: acceptanceReason },
   };
 }
 
@@ -254,13 +321,20 @@ function processState(runtime: OfflineRuntime, book: BookState, base: Features, 
     longPullbackEconomicCosts, shortPullbackEconomicCosts, longLiquidity, shortLiquidity,
   });
   if (intent) {
+    const pullback = pullbackState(intent.side, features);
     runtime.signals.push({ atMs: features.receiveTsMs, side: intent.side, family: intent.diagnostics.family,
       bid: book.bids[0]!.px, ask: book.asks[0]!.px,
       horizonMs: intent.selectedHorizonMs ?? intent.diagnostics.edgeHorizonMs,
-      robustCostBps: intent.robustCostBps ?? intent.diagnostics.robustCostBps, executionPath: intent.executionPath ?? null });
+      robustCostBps: intent.robustCostBps ?? intent.diagnostics.robustCostBps, executionPath: intent.executionPath ?? null,
+      reversalExtremeAgeMs: intent.diagnostics.family === "PULLBACK_RECOVERY" ? pullback.reversalExtremeAgeMs : null });
   }
   const latest = runtime.entry.latestEvaluation();
   if (latest) {
+    runtime.maximumLongScore = Math.max(runtime.maximumLongScore, latest.long.score);
+    for (const cost of [latest.long.roundTripCostBps, latest.short.roundTripCostBps]) {
+      if (Number.isFinite(cost)) runtime.minimumModeledCostBps = runtime.minimumModeledCostBps === null
+        ? cost : Math.min(runtime.minimumModeledCostBps, cost);
+    }
     runtime.evaluationEvents += 1;
     if (latest.long.rawDirectionalPass || latest.short.rawDirectionalPass) runtime.rawDirectionalEvents += 1;
     if (latest.candidate) runtime.directionalCandidateEvents += 1;
@@ -301,10 +375,10 @@ function processState(runtime: OfflineRuntime, book: BookState, base: Features, 
   const evaluation = runtime.entry.latestEvaluation();
   if (!evaluation) return;
   runtime.lastSampleMs = features.receiveTsMs;
-  runtime.points.push({ atMs: features.receiveTsMs, bid: book.bids[0]!.px, ask: book.asks[0]!.px, evaluation });
+  runtime.points.push({ atMs: features.receiveTsMs, bid: book.bids[0]!.px, ask: book.asks[0]!.px });
 }
 
-function directionReport(runtime: OfflineRuntime, side: Direction, cfg: EngineConfig): DirectionRecallReport {
+function directionReport(runtime: OfflineRuntime, side: Direction, cfg: EngineConfig, venueEligible: boolean): DirectionRecallReport {
   const feesAndFixedCosts = 2 * runtime.config.cost.takerFeeBps + runtime.config.cost.adverseSelectionBps
     + runtime.config.cost.fundingBps + runtime.config.cost.borrowBps;
   const labels = bestNetMoves(runtime.points, side, cfg.recall.opportunityHorizonMs, feesAndFixedCosts);
@@ -312,19 +386,28 @@ function directionReport(runtime: OfflineRuntime, side: Direction, cfg: EngineCo
   const signals = runtime.signals.filter((signal) => signal.side === side);
   const rawSignals = runtime.rawSignals.filter((signal) => signal.side === side);
   const candidateSignals = runtime.candidateSignals.filter((signal) => signal.side === side);
-  const captured = windows.filter((window) => signals.some((signal) => signal.atMs >= window.startMs && signal.atMs <= window.endMs + cfg.recall.sampleIntervalMs)).length;
-  const rawCaptured = windows.filter((window) => rawSignals.some((signal) => signal.atMs >= window.startMs && signal.atMs <= window.endMs + cfg.recall.sampleIntervalMs)).length;
-  const candidateCaptured = windows.filter((window) => candidateSignals.some((signal) => signal.atMs >= window.startMs && signal.atMs <= window.endMs + cfg.recall.sampleIntervalMs)).length;
-  const profitableSignals = signals.filter((signal) => bestNetForSignal(signal, runtime.points) >= cfg.recall.minimumNetMoveBps).length;
+  const signalNet = new Map(signals.map((signal) => [signal, bestNetForSignal(signal, runtime.points)]));
+  const captured = countCapturedWindows(windows, signals, cfg.recall.sampleIntervalMs);
+  const rawCaptured = countCapturedWindows(windows, rawSignals, cfg.recall.sampleIntervalMs);
+  const candidateCaptured = countCapturedWindows(windows, candidateSignals, cfg.recall.sampleIntervalMs);
+  const profitableSignals = signals.filter((signal) => signalNet.get(signal)! >= cfg.recall.minimumNetMoveBps).length;
   const pullbackSignals = signals.filter((signal) => signal.family === "PULLBACK_RECOVERY");
-  const profitablePullbackSignals = pullbackSignals.filter((signal) => bestNetForSignal(signal, runtime.points)
+  const profitablePullbackSignals = pullbackSignals.filter((signal) => signalNet.get(signal)!
     >= cfg.recall.minimumNetMoveBps).length;
+  const pullbackRecencyShadow = Object.fromEntries(PULLBACK_RECENCY_SHADOW_MS.map((maximumReversalAgeMs) => {
+    const gated = pullbackSignals.filter((signal) => signal.reversalExtremeAgeMs !== null
+      && signal.reversalExtremeAgeMs <= maximumReversalAgeMs);
+    const profitable = gated.filter((signal) => signalNet.get(signal)! >= cfg.recall.minimumNetMoveBps).length;
+    return [`${maximumReversalAgeMs}ms`, { maximumReversalAgeMs, signalCount: gated.length,
+      profitableSignals: profitable, precision: ratio(profitable, gated.length) }];
+  }));
   return {
-    venueEligible: side === 1,
+    venueEligible,
     opportunityWindows: windows.length, capturedWindows: captured, recall: ratio(captured, windows.length),
-    maximumNetMoveBps: labels.length ? Math.max(0, ...labels.filter(Number.isFinite)) : 0,
+    maximumNetMoveBps: maximumFinite(labels, 0),
     signalCount: signals.length, profitableSignals,
     pullbackSignalCount: pullbackSignals.length, profitablePullbackSignals,
+    pullbackRecencyShadow,
     precision: ratio(profitableSignals, signals.length),
     rawSignalCount: rawSignals.length, rawCapturedWindows: rawCaptured, rawRecall: ratio(rawCaptured, windows.length),
     candidateSignalCount: candidateSignals.length, candidateCapturedWindows: candidateCaptured,
@@ -335,6 +418,7 @@ function directionReport(runtime: OfflineRuntime, side: Direction, cfg: EngineCo
 function emptyDirectionReport(venueEligible: boolean, signalCount: number, pullbackSignalCount: number): DirectionRecallReport {
   return { venueEligible, opportunityWindows: 0, capturedWindows: 0, recall: 0, maximumNetMoveBps: 0,
     signalCount, profitableSignals: 0, pullbackSignalCount, profitablePullbackSignals: 0,
+    pullbackRecencyShadow: {},
     precision: 0, rawSignalCount: 0, rawCapturedWindows: 0,
     rawRecall: 0, candidateSignalCount: 0, candidateCapturedWindows: 0, candidateRecall: 0 };
 }
@@ -367,8 +451,15 @@ function bestNetMoves(points: readonly RecallPoint[], side: Direction, horizonMs
 
 function bestNetForSignal(signal: RecallSignal, points: readonly RecallPoint[]): number {
   let best = Number.NEGATIVE_INFINITY;
-  for (const point of points) {
-    if (point.atMs <= signal.atMs || point.atMs > signal.atMs + signal.horizonMs) continue;
+  let lo = 0, hi = points.length;
+  while (lo < hi) {
+    const middle = (lo + hi) >>> 1;
+    if (points[middle]!.atMs <= signal.atMs) lo = middle + 1;
+    else hi = middle;
+  }
+  for (let index = lo; index < points.length; index += 1) {
+    const point = points[index]!;
+    if (point.atMs > signal.atMs + signal.horizonMs) break;
     const makerEntry = signal.executionPath !== "TAKER_TAKER";
     const entryPx = signal.side === 1 ? (makerEntry ? signal.bid : signal.ask) : (makerEntry ? signal.ask : signal.bid);
     const gross = signal.side === 1 ? (point.bid / entryPx - 1) * 10_000 : (entryPx / point.ask - 1) * 10_000;
@@ -379,15 +470,16 @@ function bestNetForSignal(signal: RecallSignal, points: readonly RecallPoint[]):
 
 function auditSignal(atMs: number, side: Direction, book: BookState): RecallSignal {
   return { atMs, side, family: null, bid: book.bids[0]!.px, ask: book.asks[0]!.px,
-    horizonMs: 0, robustCostBps: Number.POSITIVE_INFINITY, executionPath: null };
+    horizonMs: 0, robustCostBps: Number.POSITIVE_INFINITY, executionPath: null, reversalExtremeAgeMs: null };
 }
 
 function forwardCalibrationBuckets(runtimes: ReadonlyMap<string, OfflineRuntime>, cfg: EngineConfig): CalibratedEdgeBucket[] {
   const buckets: CalibratedEdgeBucket[] = [];
   for (const [symbol, runtime] of runtimes) {
     const groups = new Map<string, ForwardCalibrationCandidate[]>();
-    for (const candidate of runtime.calibrationCandidates.filter((item) => item.side === 1)) {
-      const key = `${candidate.family}|${candidate.regime}|${candidate.horizonMs}|${candidate.executionPath}`;
+    for (const candidate of runtime.calibrationCandidates.filter((item) => item.side === 1 || cfg.venue === "kraken_futures")) {
+      const key = calibrationGroupKey(candidate.side, candidate.family, candidate.regime,
+        candidate.horizonMs, candidate.executionPath);
       const values = groups.get(key) ?? [];
       values.push(candidate);
       groups.set(key, values);
@@ -399,19 +491,14 @@ function forwardCalibrationBuckets(runtimes: ReadonlyMap<string, OfflineRuntime>
       }
       const returns = independent.flatMap((candidate) => {
         const future = pointAtOrAfter(runtime.points, candidate.atMs + candidate.horizonMs, Math.max(5_000, cfg.recall.sampleIntervalMs * 2));
-        return future ? [(future.bid / candidate.bid - 1) * 10_000] : [];
+        if (!future) return [];
+        return [fixedHorizonGrossReturnBps(candidate.side, candidate.bid, candidate.ask, future.bid, future.ask)];
       });
       if (returns.length < 2) continue;
       const template = independent[0]!;
-      const meanGrossReturnBps = mean(returns);
-      const standardError = sampleStandardDeviation(returns) / Math.sqrt(returns.length);
-      buckets.push({
-        symbol, family: template.family, side: 1, regime: template.regime, minimumQuality: 0, maximumQuality: 1,
-        minimumSpreadBps: 0, maximumSpreadBps: runtime.config.deterministicSignal.maximumSpreadBps,
-        horizonMs: template.horizonMs, path: template.executionPath,
-        meanGrossReturnBps, lowerConfidenceGrossReturnBps: meanGrossReturnBps - 1.645 * standardError,
-        effectiveSampleCount: returns.length,
-      });
+      const bucket = calibrationBucketFromReturns(symbol, template.family, template.side, template.regime,
+        template.horizonMs, template.executionPath, runtime.config.deterministicSignal.maximumSpreadBps, returns);
+      if (bucket) buckets.push(bucket);
     }
   }
   return buckets;
@@ -422,6 +509,30 @@ function pointAtOrAfter(points: readonly RecallPoint[], targetMs: number, tolera
   while (lo < hi) { const middle = (lo + hi) >>> 1; if (points[middle]!.atMs < targetMs) lo = middle + 1; else hi = middle; }
   const point = points[lo];
   return point && point.atMs - targetMs <= toleranceMs ? point : undefined;
+}
+
+export function calibrationGroupKey(side: Direction, family: EntryFamily, regime: RegimeName,
+  horizonMs: number, executionPath: ExecutionPath): string {
+  return `${side}|${family}|${regime}|${horizonMs}|${executionPath}`;
+}
+
+export function fixedHorizonGrossReturnBps(side: Direction, entryBid: number, entryAsk: number,
+  futureBid: number, futureAsk: number): number {
+  return side === 1 ? (futureBid / entryBid - 1) * 10_000 : (entryAsk / futureAsk - 1) * 10_000;
+}
+
+export function calibrationBucketFromReturns(symbol: string, family: EntryFamily, side: Direction,
+  regime: RegimeName, horizonMs: number, executionPath: ExecutionPath, maximumSpreadBps: number,
+  returns: readonly number[]): CalibratedEdgeBucket | null {
+  if (returns.length < 2) return null;
+  const meanGrossReturnBps = mean(returns);
+  const standardError = sampleStandardDeviation(returns) / Math.sqrt(returns.length);
+  return {
+    symbol, family, side, regime, minimumQuality: 0, maximumQuality: 1,
+    minimumSpreadBps: 0, maximumSpreadBps, horizonMs, path: executionPath,
+    meanGrossReturnBps, lowerConfidenceGrossReturnBps: meanGrossReturnBps - 1.645 * standardError,
+    effectiveSampleCount: returns.length,
+  };
 }
 
 function mean(values: readonly number[]): number { return values.reduce((sum, value) => sum + value, 0) / values.length; }
@@ -447,6 +558,21 @@ function groupWindows(points: readonly RecallPoint[], labels: readonly number[],
     } else active = undefined;
   }
   return windows;
+}
+
+function countCapturedWindows(windows: readonly OpportunityWindow[], signals: readonly RecallSignal[], sampleIntervalMs: number): number {
+  let count = 0, signalIndex = 0;
+  for (const window of windows) {
+    while (signalIndex < signals.length && signals[signalIndex]!.atMs < window.startMs) signalIndex += 1;
+    if (signalIndex < signals.length && signals[signalIndex]!.atMs <= window.endMs + sampleIntervalMs) count += 1;
+  }
+  return count;
+}
+
+function maximumFinite(values: readonly number[], fallback: number): number {
+  let maximum = fallback;
+  for (const value of values) if (Number.isFinite(value)) maximum = Math.max(maximum, value);
+  return maximum;
 }
 
 function allNumbersFinite(value: unknown): boolean {
