@@ -74,6 +74,42 @@ test("operations monitor retains an order's full P&L history after the position 
   monitor.stop();
 });
 
+test("ordinary database telemetry is sampled and unchanged orders are deduplicated", () => {
+  const monitor = new OperationsMonitor({ marketSampleMs: 1_000 });
+  const telemetry: string[] = [];
+  monitor.on("telemetry", (record: { kind: string }) => { telemetry.push(record.kind); });
+  const first = engineState();
+  monitor.ingestEngineSnapshot(first);
+  assert.equal(telemetry.filter((kind) => kind === "health").length, 1);
+  assert.equal(telemetry.filter((kind) => kind === "market").length, 1);
+  assert.equal(telemetry.filter((kind) => kind === "position").length, 1);
+  assert.equal(telemetry.filter((kind) => kind === "order").length, 1);
+
+  const rapid = engineState();
+  rapid.generatedAtMs = first.generatedAtMs + 100;
+  monitor.ingestEngineSnapshot(rapid);
+  assert.equal(telemetry.filter((kind) => kind === "health").length, 1);
+  assert.equal(telemetry.filter((kind) => kind === "position").length, 1);
+  assert.equal(telemetry.filter((kind) => kind === "order").length, 1);
+
+  rapid.orders[0]!.status = "CANCELED";
+  rapid.orders[0]!.lastUpdateMs = rapid.generatedAtMs;
+  monitor.ingestEngineSnapshot(rapid);
+  assert.equal(telemetry.filter((kind) => kind === "order").length, 2);
+  assert.equal(telemetry.filter((kind) => kind === "health").length, 1);
+
+  const sampled = engineState();
+  sampled.generatedAtMs = first.generatedAtMs + 1_000;
+  sampled.orders[0]!.status = "CANCELED";
+  sampled.orders[0]!.lastUpdateMs = rapid.generatedAtMs;
+  monitor.ingestEngineSnapshot(sampled);
+  assert.equal(telemetry.filter((kind) => kind === "health").length, 2);
+  assert.equal(telemetry.filter((kind) => kind === "market").length, 2);
+  assert.equal(telemetry.filter((kind) => kind === "position").length, 2);
+  assert.equal(telemetry.filter((kind) => kind === "order").length, 2);
+  monitor.stop();
+});
+
 test("dashboard resets total session P&L at UTC rollover and carries live equity forward", () => {
   const monitor = new OperationsMonitor();
   const before = engineState();
