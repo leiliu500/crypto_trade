@@ -62,10 +62,12 @@ export interface DashboardRealizedPnlBreakdown {
 }
 
 export interface DashboardSessionPnlBreakdown {
-  grossPricePnl: number;
-  entryFee: number;
-  exitFee: number;
+  grossPricePnl: number | null;
+  entryFee: number | null;
+  exitFee: number | null;
   realizedPnl: number;
+  unrealizedPnl: number;
+  totalPnl: number;
   tradeCount: number;
   entryStyle: string | null;
   exitStyle: string | null;
@@ -328,6 +330,10 @@ export interface DashboardSnapshot {
   haltReasons: readonly string[];
   equity: number;
   equityHighWater: number;
+  sessionStartingEquity: number;
+  sessionPnl: number;
+  sessionRealizedPnl: number;
+  sessionUnrealizedPnl: number;
   realizedSessionPnl: number;
   realizedSessionBreakdown: DashboardSessionPnlBreakdown | null;
   latencyP95Ms: number | null;
