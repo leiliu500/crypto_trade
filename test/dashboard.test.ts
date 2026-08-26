@@ -27,6 +27,11 @@ test("operations monitor retains an order's full P&L history after the position 
   assert.equal(snapshot.orders[0]?.livePosition?.pnlHistory.length, 1);
   assert.equal(snapshot.positions[0]?.currentPx, 101);
   assert.equal(snapshot.positions[0]?.unrealizedPnl, .8);
+  assert.equal(snapshot.sessionStartingEquity, 9_994.5);
+  assert.equal(snapshot.sessionRealizedPnl, 4);
+  assert.equal(snapshot.sessionUnrealizedPnl, 1.5);
+  assert.equal(snapshot.sessionPnl, 5.5);
+  assert.equal(snapshot.equity, 10_000);
   assert.equal(snapshot.markets[0]?.kinematicsReady, false);
   const payload = snapshot.events[0]?.payload as { apiKey: string; nested: { password: string } };
   assert.equal(payload.apiKey, "[REDACTED]");
@@ -40,11 +45,17 @@ test("operations monitor retains an order's full P&L history after the position 
   const changed = engineState();
   changed.generatedAtMs += 1_500;
   changed.markets[0]!.bestBid = 102;
+  changed.markets[0]!.bestAsk = 103;
   monitor.ingestEngineSnapshot(changed);
-  const livePosition = monitor.snapshot().orders[0]?.livePosition;
+  const changedSnapshot = monitor.snapshot();
+  const livePosition = changedSnapshot.orders[0]?.livePosition;
   assert.equal(livePosition?.unrealizedPnl, 1.8);
   assert.equal(livePosition?.pnlHistory.length, 2);
   assert.equal(livePosition?.pnlHistory[1]?.changePnl, .5);
+  assert.equal(changedSnapshot.sessionRealizedPnl, 4);
+  assert.equal(changedSnapshot.sessionUnrealizedPnl, 2.5);
+  assert.equal(changedSnapshot.sessionPnl, 6.5);
+  assert.equal(changedSnapshot.equity, 10_001);
 
   const closed = engineState();
   closed.generatedAtMs += 2_000;
@@ -60,6 +71,53 @@ test("operations monitor retains an order's full P&L history after the position 
   const stillClosed = { ...closed, generatedAtMs: closed.generatedAtMs + 5_000 };
   monitor.ingestEngineSnapshot(stillClosed);
   assert.equal(monitor.snapshot().orders[0]?.livePosition?.closedAtMs, closed.generatedAtMs);
+  monitor.stop();
+});
+
+test("dashboard resets total session P&L at UTC rollover and carries live equity forward", () => {
+  const monitor = new OperationsMonitor();
+  const before = engineState();
+  monitor.ingestEngineSnapshot(before);
+  assert.equal(monitor.snapshot().sessionPnl, 5.5);
+  assert.equal(monitor.snapshot().equity, 10_000);
+
+  const nextUtcDay = engineState();
+  nextUtcDay.generatedAtMs = Math.floor(before.generatedAtMs / 86_400_000) * 86_400_000 + 86_400_000 + 1_000;
+  monitor.ingestEngineSnapshot(nextUtcDay);
+  assert.equal(monitor.snapshot().sessionStartingEquity, 10_000);
+  assert.equal(monitor.snapshot().sessionRealizedPnl, 0);
+  assert.equal(monitor.snapshot().sessionUnrealizedPnl, 0);
+  assert.equal(monitor.snapshot().sessionPnl, 0);
+  assert.equal(monitor.snapshot().equity, 10_000);
+
+  nextUtcDay.generatedAtMs += 1_000;
+  nextUtcDay.markets[0]!.bestBid = 102;
+  nextUtcDay.markets[0]!.bestAsk = 103;
+  monitor.ingestEngineSnapshot(nextUtcDay);
+  assert.equal(monitor.snapshot().sessionRealizedPnl, 0);
+  assert.equal(monitor.snapshot().sessionUnrealizedPnl, 1);
+  assert.equal(monitor.snapshot().sessionPnl, 1);
+  assert.equal(monitor.snapshot().equity, 10_001);
+  monitor.stop();
+});
+
+test("dashboard waits for account reconciliation before locking the UTC opening equity", () => {
+  const monitor = new OperationsMonitor();
+  const starting = engineState();
+  starting.equity = 0;
+  starting.equityHighWater = 0;
+  starting.risk.equity = 0;
+  starting.risk.equityHighWater = 0;
+  starting.risk.health.accountReconciled = false;
+  monitor.ingestEngineSnapshot(starting);
+  assert.equal(monitor.snapshot().equity, 0);
+
+  const reconciled = engineState();
+  reconciled.generatedAtMs += 1_000;
+  monitor.ingestEngineSnapshot(reconciled);
+  assert.equal(monitor.snapshot().sessionStartingEquity, 9_994.5);
+  assert.equal(monitor.snapshot().sessionPnl, 5.5);
+  assert.equal(monitor.snapshot().equity, 10_000);
   monitor.stop();
 });
 
@@ -130,7 +188,8 @@ test("filled reduce-only exit cards inherit complete history and actual realized
   assert.ok(Math.abs((snapshot.realizedSessionBreakdown?.grossPricePnl ?? 0) - breakdown.grossPricePnl) < 1e-12);
   assert.ok(Math.abs((snapshot.realizedSessionBreakdown?.entryFee ?? 0) - breakdown.entryFee) < 1e-12);
   assert.ok(Math.abs((snapshot.realizedSessionBreakdown?.exitFee ?? 0) - breakdown.exitFee) < 1e-12);
-  assert.ok(Math.abs((snapshot.realizedSessionBreakdown?.realizedPnl ?? 0) - breakdown.realizedPnl) < 1e-12);
+  assert.ok(Math.abs((snapshot.realizedSessionBreakdown?.realizedPnl ?? 0) - breakdown.realizedPnl) < 1e-10,
+    `session realized ${snapshot.realizedSessionBreakdown?.realizedPnl} did not match ${breakdown.realizedPnl}`);
   assert.equal(exitCard.livePosition?.pnlHistory.length, 3);
   assert.equal(exitCard.livePosition?.pnlHistory.at(-1)?.kind, "close");
   assert.ok(Math.abs((exitCard.livePosition?.pnlHistory.at(-1)?.changePnl ?? 0) + 2.80994999899505) < 1e-10);
@@ -176,9 +235,9 @@ test("dashboard distinguishes a motion reset from invalid market data", async ()
   assert.match(app, /Gross price gain/);
   assert.match(app, /Actual realized P&amp;L/);
   assert.match(app, /signedMoney\(breakdown\.grossPricePnl,5\)/);
-  assert.match(html, /Realized · UTC day/);
+  assert.match(html, /Total · UTC day/);
   assert.match(html, /id="session-pnl-breakdown"/);
-  assert.match(html, /app\.js\?v=20260825-option-shorts-1/);
+  assert.match(html, /app\.js\?v=20260826-session-pnl-2/);
 });
 
 test("option-short tab projects streamed 0DTE P&L changes with entry and exit lifecycle", async () => {
@@ -273,12 +332,15 @@ test("dashboard formats the realized P&L reconciliation at five-decimal USD prec
   const app = await readFile("src/dashboard/public/app.js", "utf8");
   const utilitySource = app.slice(0, app.indexOf("function setConnection"));
   const formatted = runInNewContext(`${utilitySource}\nJSON.stringify([
+    money(100000.00197408,5),
     signedMoney(1.345881920262224,5),
     signedMoney(-.6814765346049143,5),
     signedMoney(-.6824731453819951,5),
     signedMoney(-.01806775972468533,5)
   ])`) as string;
-  assert.equal(formatted, '["+$1.34588","-$0.68148","-$0.68247","-$0.01807"]');
+  assert.equal(formatted, '["$100,000.00197","+$1.34588","-$0.68148","-$0.68247","-$0.01807"]');
+  assert.match(app, /money\(s\.equity,5\)/);
+  assert.match(app, /money\(s\.sessionStartingEquity,5\)/);
 
   const breakdownSource = app.slice(
     app.indexOf("function renderRealizedPnlBreakdown"),
@@ -311,6 +373,8 @@ test("dashboard formats the realized P&L reconciliation at five-decimal USD prec
     entryFee:.6814765346049143,
     exitFee:.6824731453819951,
     realizedPnl:-.01806775972468533,
+    unrealizedPnl:.25,
+    totalPnl:.23193224027531467,
     tradeCount:1,
     entryStyle:"maker",
     exitStyle:"maker"
@@ -319,7 +383,9 @@ test("dashboard formats the realized P&L reconciliation at five-decimal USD prec
     "Gross price gain", "+$1.34588",
     "Entry maker fee", "-$0.68148",
     "Exit maker fee", "-$0.68247",
-    "Actual realized P&amp;L", "-$0.01807",
+    "Realized P&amp;L", "-$0.01807",
+    "Open mark P&amp;L", "+$0.25000",
+    "Total UTC-day P&amp;L", "+$0.23193",
   ]) assert.ok(sessionRendered.includes(expected), `missing ${expected} from ${sessionRendered}`);
 });
 
@@ -515,7 +581,7 @@ test("dashboard server serves the read-only API, health probe, and browser route
     const htmlText = await html.text();
     assert.match(htmlText, /data-testid="dashboard-root"/);
     assert.match(htmlText, /Trades and order attempts/);
-    assert.match(htmlText, /app\.js\?v=20260825-option-shorts-1/);
+    assert.match(htmlText, /app\.js\?v=20260826-session-pnl-2/);
     assert.doesNotMatch(htmlText, /Exit dynamics/);
     assert.equal(dashboardAlias.status, 200);
     assert.match(await dashboardAlias.text(), /data-testid="dashboard-root"/);

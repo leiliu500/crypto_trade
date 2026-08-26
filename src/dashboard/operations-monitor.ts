@@ -43,6 +43,14 @@ interface PositionPnlSeries {
   lastAppendMs: number | null;
 }
 
+interface UtcSessionProjection {
+  dayStartMs: number;
+  startingEquity: number;
+  realizedBaseline: number;
+  unrealizedBaseline: number;
+  equityHighWater: number;
+}
+
 /** Read-only projection of engine state for UI and durable telemetry. */
 export class OperationsMonitor extends EventEmitter {
   private readonly pollIntervalMs: number;
@@ -68,6 +76,7 @@ export class OperationsMonitor extends EventEmitter {
   private readonly lastOptionPnlTelemetry = new Map<string, string>();
   private databaseHealth = disabledDatabaseHealth();
   private snapshotValue: DashboardSnapshot = emptySnapshot();
+  private utcSession?: UtcSessionProjection;
 
   public constructor(options: MonitorOptions = {}) {
     super();
@@ -375,7 +384,20 @@ export class OperationsMonitor extends EventEmitter {
         this.orderPositionPnl.set(order.clientOrderId, cloneLivePosition(order.livePosition));
       }
     }
-    const realizedSessionBreakdown = aggregateRealizedSessionPnl(visibleOrders, nowMs);
+    const markUnrealizedPnl = sessionMarkUnrealizedPnl(state);
+    const session = this.projectUtcSession(state, markUnrealizedPnl);
+    const realizedBreakdown = aggregateRealizedSessionPnl(visibleOrders, nowMs);
+    const realizedSessionBreakdown: DashboardSessionPnlBreakdown = {
+      grossPricePnl: realizedBreakdown?.grossPricePnl ?? null,
+      entryFee: realizedBreakdown?.entryFee ?? null,
+      exitFee: realizedBreakdown?.exitFee ?? null,
+      realizedPnl: session.realizedPnl,
+      unrealizedPnl: session.unrealizedPnl,
+      totalPnl: session.totalPnl,
+      tradeCount: realizedBreakdown?.tradeCount ?? 0,
+      entryStyle: realizedBreakdown?.entryStyle ?? null,
+      exitStyle: realizedBreakdown?.exitStyle ?? null,
+    };
     const health = state.risk.health;
     const kraken = state.venue === "kraken_futures";
     const liveness: DashboardSnapshot["liveness"] = [
@@ -401,13 +423,64 @@ export class OperationsMonitor extends EventEmitter {
       strategyVersion: state.strategyVersion, modelVersion: state.modelVersion,
       configurationVersion: state.configurationVersion ?? "-", signalMode: state.signalMode ?? "DETERMINISTIC_ONLY",
       started: state.started, uptimeMs: state.uptimeMs, overall, entriesAllowed,
-      haltReasons: [...state.risk.reasons], equity: state.equity, equityHighWater: state.equityHighWater,
+      haltReasons: [...state.risk.reasons], equity: session.equity, equityHighWater: session.equityHighWater,
+      sessionStartingEquity: session.startingEquity,
+      sessionPnl: session.totalPnl,
+      sessionRealizedPnl: session.realizedPnl,
+      sessionUnrealizedPnl: session.unrealizedPnl,
       realizedSessionPnl: state.realizedSessionPnl,
       realizedSessionBreakdown,
       latencyP95Ms: state.latency.decisionToVenue?.count ? state.latency.decisionToVenue.p95 : null,
       liveness, database: { ...this.databaseHealth }, markets, positions, orders: visibleOrders, optionShort,
       events: [...this.events],
     };
+  }
+
+  private projectUtcSession(state: EngineOperationalSnapshot, markUnrealizedPnl: number): {
+    startingEquity: number; equity: number; equityHighWater: number;
+    realizedPnl: number; unrealizedPnl: number; totalPnl: number;
+  } {
+    const dayStartMs = utcDayStartMs(state.generatedAtMs);
+    if (!this.utcSession) {
+      const totalPnl = state.realizedSessionPnl + markUnrealizedPnl;
+      if (!state.risk.health.accountReconciled) {
+        return {
+          startingEquity: state.equity - totalPnl,
+          equity: state.equity,
+          equityHighWater: Math.max(state.equityHighWater, state.equity),
+          realizedPnl: state.realizedSessionPnl,
+          unrealizedPnl: markUnrealizedPnl,
+          totalPnl,
+        };
+      }
+      this.utcSession = {
+        dayStartMs,
+        startingEquity: state.equity - totalPnl,
+        realizedBaseline: 0,
+        unrealizedBaseline: 0,
+        equityHighWater: Math.max(state.equityHighWater, state.equity),
+      };
+    } else if (this.utcSession.dayStartMs !== dayStartMs) {
+      const previous = this.utcSession;
+      const openingEquity = previous.startingEquity
+        + (state.realizedSessionPnl - previous.realizedBaseline)
+        + (markUnrealizedPnl - previous.unrealizedBaseline);
+      this.utcSession = {
+        dayStartMs,
+        startingEquity: openingEquity,
+        realizedBaseline: state.realizedSessionPnl,
+        unrealizedBaseline: markUnrealizedPnl,
+        equityHighWater: openingEquity,
+      };
+    }
+    const session = this.utcSession;
+    const realizedPnl = state.realizedSessionPnl - session.realizedBaseline;
+    const unrealizedPnl = markUnrealizedPnl - session.unrealizedBaseline;
+    const totalPnl = realizedPnl + unrealizedPnl;
+    const equity = session.startingEquity + totalPnl;
+    session.equityHighWater = Math.max(session.equityHighWater, equity);
+    return { startingEquity: session.startingEquity, equity, equityHighWater: session.equityHighWater,
+      realizedPnl, unrealizedPnl, totalPnl };
   }
 
   private trackPositionPnl(symbol: string, openedMs: number, atMs: number, currentPx: number,
@@ -726,7 +799,8 @@ function projectRule(rule: NonNullable<EngineMarketSnapshot["ruleEvaluation"]>["
 function emptySnapshot(): DashboardSnapshot {
   return { version: 1, generatedAtMs: Date.now(), mode: "offline", paper: true, strategyVersion: "-", modelVersion: "-",
     configurationVersion: "-", signalMode: "DETERMINISTIC_ONLY", started: false,
-    uptimeMs: 0, overall: "degraded", entriesAllowed: false, haltReasons: [], equity: 0, equityHighWater: 0, realizedSessionPnl: 0,
+    uptimeMs: 0, overall: "degraded", entriesAllowed: false, haltReasons: [], equity: 0, equityHighWater: 0,
+    sessionStartingEquity: 0, sessionPnl: 0, sessionRealizedPnl: 0, sessionUnrealizedPnl: 0, realizedSessionPnl: 0,
     realizedSessionBreakdown: null,
     latencyP95Ms: null, liveness: [], database: disabledDatabaseHealth(), markets: [], positions: [], orders: [],
     optionShort: emptyOptionShort(), events: [] };
@@ -762,14 +836,23 @@ function cloneLivePosition(position: DashboardLivePosition): DashboardLivePositi
     pnlHistory: position.pnlHistory.map((point) => ({ ...point })),
   };
 }
-function aggregateRealizedSessionPnl(orders: readonly DashboardOrderCard[], atMs: number): DashboardSessionPnlBreakdown | null {
-  const utcDayStartMs = Math.floor(atMs / 86_400_000) * 86_400_000;
+interface RealizedSessionBreakdown {
+  grossPricePnl: number;
+  entryFee: number;
+  exitFee: number;
+  realizedPnl: number;
+  tradeCount: number;
+  entryStyle: string | null;
+  exitStyle: string | null;
+}
+function aggregateRealizedSessionPnl(orders: readonly DashboardOrderCard[], atMs: number): RealizedSessionBreakdown | null {
+  const dayStartMs = utcDayStartMs(atMs);
   const closedTrades = new Map<string, DashboardRealizedTrade>();
   for (const order of orders) {
     const position = order.livePosition;
     const breakdown = position?.realizedBreakdown;
     if (!position || position.active || !breakdown || !position.exitOrderId || position.closedAtMs === null) continue;
-    if (position.closedAtMs < utcDayStartMs || position.closedAtMs >= utcDayStartMs + 86_400_000) continue;
+    if (position.closedAtMs < dayStartMs || position.closedAtMs >= dayStartMs + 86_400_000) continue;
     const previous = closedTrades.get(position.exitOrderId);
     if (!previous || order.clientOrderId === position.exitOrderId) closedTrades.set(position.exitOrderId, { breakdown });
   }
@@ -797,6 +880,15 @@ function aggregateRealizedSessionPnl(orders: readonly DashboardOrderCard[], atMs
     entryStyle: entryStyles.size === 1 ? [...entryStyles][0]! : null,
     exitStyle: exitStyles.size === 1 ? [...exitStyles][0]! : null,
   };
+}
+function utcDayStartMs(atMs: number): number { return Math.floor(atMs / 86_400_000) * 86_400_000; }
+function sessionMarkUnrealizedPnl(state: EngineOperationalSnapshot): number {
+  const markets = new Map(state.markets.map((market) => [market.symbol, market]));
+  return state.positions.reduce((total, position) => {
+    const market = markets.get(position.symbol);
+    const mark = midpoint(market?.bestBid ?? null, market?.bestAsk ?? null) ?? position.entryPx;
+    return total + position.side * (mark - position.entryPx) * position.qty;
+  }, 0);
 }
 interface DashboardRealizedTrade { breakdown: NonNullable<DashboardLivePosition["realizedBreakdown"]> }
 function legFeeBps(order: DashboardOrderCard): number {
