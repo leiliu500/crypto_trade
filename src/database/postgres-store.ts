@@ -276,10 +276,12 @@ export class PostgresTelemetryStore extends EventEmitter {
 
   private async persistHealth(client: PoolClient, snapshot: DashboardSnapshot, runId: string, atMs: number): Promise<void> {
     const live = new Map(snapshot.liveness.map((item) => [item.id, item.healthy]));
-    await client.query("INSERT INTO health_snapshots (run_id,captured_at,overall_status,public_stream,private_stream,account_reconciled,book_valid,clock_valid,risk_recomputed,database_connected,halt_reasons,equity,equity_high_water,uptime_ms,payload) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15::jsonb)",
+    await client.query("INSERT INTO health_snapshots (run_id,captured_at,overall_status,public_stream,private_stream,account_reconciled,book_valid,clock_valid,risk_recomputed,database_connected,database_queued_records,database_dropped_records,database_last_persisted_at,database_error,halt_reasons,equity,equity_high_water,uptime_ms,payload) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19::jsonb)",
       [runId, date(atMs), snapshot.overall, live.get("public") ?? false, live.get("private") ?? false, live.get("account") ?? false,
         live.get("book") ?? false, live.get("clock") ?? false, live.get("risk") ?? false, snapshot.database.connected,
-        [...snapshot.haltReasons], snapshot.equity, snapshot.equityHighWater, Math.floor(snapshot.uptimeMs), json(snapshot)]);
+        snapshot.database.queuedRecords, snapshot.database.droppedRecords,
+        snapshot.database.lastPersistedAtMs === null ? null : date(snapshot.database.lastPersistedAtMs), snapshot.database.lastError,
+        [...snapshot.haltReasons], snapshot.equity, snapshot.equityHighWater, Math.floor(snapshot.uptimeMs), json(compactHealthSnapshot(snapshot))]);
   }
 
   private async persistOrder(client: PoolClient, order: DashboardOrderCard, runId: string): Promise<void> {
@@ -450,6 +452,36 @@ export class PostgresTelemetryStore extends EventEmitter {
   }
 
   private publishHealth(): void { this.emit("health", this.health()); }
+}
+
+export function compactHealthSnapshot(snapshot: DashboardSnapshot): Record<string, unknown> {
+  return {
+    version: snapshot.version,
+    generatedAtMs: snapshot.generatedAtMs,
+    mode: snapshot.mode,
+    paper: snapshot.paper,
+    paperEntryExercise: snapshot.paperEntryExercise ?? false,
+    strategyVersion: snapshot.strategyVersion,
+    modelVersion: snapshot.modelVersion,
+    configurationVersion: snapshot.configurationVersion,
+    signalMode: snapshot.signalMode,
+    started: snapshot.started,
+    uptimeMs: snapshot.uptimeMs,
+    overall: snapshot.overall,
+    entriesAllowed: snapshot.entriesAllowed,
+    haltReasons: [...snapshot.haltReasons],
+    equity: snapshot.equity,
+    equityHighWater: snapshot.equityHighWater,
+    sessionStartingEquity: snapshot.sessionStartingEquity,
+    sessionPnl: snapshot.sessionPnl,
+    sessionRealizedPnl: snapshot.sessionRealizedPnl,
+    sessionUnrealizedPnl: snapshot.sessionUnrealizedPnl,
+    realizedSessionPnl: snapshot.realizedSessionPnl,
+    realizedSessionBreakdown: snapshot.realizedSessionBreakdown,
+    latencyP95Ms: snapshot.latencyP95Ms,
+    liveness: snapshot.liveness,
+    database: snapshot.database,
+  };
 }
 
 function telemetryPriority(record: TelemetryRecord): number {
