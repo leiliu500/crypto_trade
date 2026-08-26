@@ -8,6 +8,8 @@ import type { DatabaseHealth, TelemetryRecord } from "./dashboard/types.js";
 import { PostgresTelemetryStore } from "./database/postgres-store.js";
 import { AlpacaRestClient } from "./alpaca/rest.js";
 import { loadVenueSlowTrendHistory } from "./alpaca/market-history.js";
+import { KrakenFuturesMarketStream } from "./kraken/market-stream.js";
+import { KrakenPaperBroker, loadKrakenFuturesInstruments } from "./kraken/paper-broker.js";
 import type { SlowTrendObservation, SlowTrendRestoreResult } from "./strategy/deterministic-features.js";
 
 async function main(): Promise<void> {
@@ -21,8 +23,30 @@ async function main(): Promise<void> {
     process.stdout.write(`${JSON.stringify(stats, null, 2)}\n`);
     return;
   }
-  const rest = new AlpacaRestClient({ credentials: cfg.credentials, paper: cfg.paper, cryptoLocation: cfg.cryptoLocation });
-  const engine = new TradingEngine(cfg, { rest });
+  let rest: AlpacaRestClient;
+  let engine: TradingEngine;
+  if (cfg.venue === "kraken_futures") {
+    const instruments = await loadKrakenFuturesInstruments(cfg.krakenFutures.productsBySymbol);
+    const marketStream = new KrakenFuturesMarketStream({
+      websocketUrl: cfg.krakenFutures.websocketUrl,
+      productsBySymbol: cfg.krakenFutures.productsBySymbol,
+    });
+    const broker = new KrakenPaperBroker({
+      initialEquity: cfg.krakenFutures.initialEquity,
+      productsBySymbol: cfg.krakenFutures.productsBySymbol,
+      instruments,
+      makerFeeBpsBySymbol: Object.fromEntries(cfg.symbols.map((symbol) => [symbol, cfg.symbolConfigs[symbol]!.cost.makerFeeBps])),
+      takerFeeBpsBySymbol: Object.fromEntries(cfg.symbols.map((symbol) => [symbol, cfg.symbolConfigs[symbol]!.cost.takerFeeBps])),
+      stateFile: cfg.krakenFutures.paperStateFile,
+    });
+    marketStream.on("book", (delta) => broker.onBook(delta));
+    marketStream.on("trade", (trade) => broker.onTrade(trade));
+    rest = broker;
+    engine = new TradingEngine(cfg, { rest, gateway: broker, marketStream, tradeStream: broker.tradeStream });
+  } else {
+    rest = new AlpacaRestClient({ credentials: cfg.credentials, paper: cfg.paper, cryptoLocation: cfg.cryptoLocation });
+    engine = new TradingEngine(cfg, { rest });
+  }
   const monitor = new OperationsMonitor({ marketSampleMs: cfg.databaseMarketSampleMs });
   let store: PostgresTelemetryStore | undefined;
   let slowTrendBootstrapComplete = false;
@@ -33,7 +57,7 @@ async function main(): Promise<void> {
     monitor.setDatabaseHealth(candidate.health());
     try {
       const migrations = await candidate.start({ mode: cfg.mode, paper: cfg.paper, strategyVersion: cfg.strategyVersion, modelVersion: cfg.modelVersion,
-        symbols: cfg.symbols, metadata: { configurationVersion: cfg.configurationVersion, signalMode: cfg.signalMode,
+        symbols: cfg.symbols, metadata: { venue: cfg.venue, configurationVersion: cfg.configurationVersion, signalMode: cfg.signalMode,
           paperEntryExercise: cfg.paperEntryExercise } });
       const restoredOrders = await candidate.loadOrders();
       monitor.hydrateOrders(restoredOrders);
@@ -84,7 +108,7 @@ async function main(): Promise<void> {
     if (activeStore) await activeStore.close().catch(() => undefined);
     throw error;
   }
-  process.stdout.write(`${JSON.stringify({ type: "started", mode: cfg.mode, symbols: cfg.symbols, paper: cfg.paper,
+  process.stdout.write(`${JSON.stringify({ type: "started", mode: cfg.mode, venue: cfg.venue, symbols: cfg.symbols, paper: cfg.paper,
     paperEntryExercise: cfg.paperEntryExercise })}\n`);
   if (paperDemoSymbol !== null) {
     void submitPaperDemoWhenReady(engine, paperDemoSymbol || "BTC/USD").then((plan) => {

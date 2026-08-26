@@ -1,15 +1,15 @@
-# Alpaca minimal-latency crypto and 0DTE proxy-options engine
+# Multi-venue minimal-latency crypto engine
 
-A production-oriented TypeScript implementation of the attached mathematical design. The engine reconstructs Alpaca's crypto L2 book, computes causal microstructure features on every event, and uses explicit deterministic entry, regime, cost, anti-chasing, persistence, reset, and exit rules. The default path does not construct or load a predictive model. An optional, disabled-by-default route converts qualified bearish BTC or ETH intents into finite-risk long puts on a crypto ETF proxy.
+A production-oriented TypeScript implementation of the attached mathematical design. The active paper path reconstructs Kraken's linear perpetual-futures L2 book, computes causal microstructure features on every event, and uses explicit deterministic entry, regime, cost, anti-chasing, persistence, reset, and exit rules. The default path does not construct or load a predictive model. The retained Alpaca adapter includes an optional, disabled-by-default route that converts qualified bearish BTC or ETH intents into finite-risk long puts on a crypto ETF proxy.
 
-It does **not** promise profit or zero latency. `shadow` is the default. Paper mode requires paper credentials and `ALPACA_PAPER=true`; live mode remains protected by two explicit live-trading interlocks.
+It does **not** promise profit or zero latency. The checked-in `.env.example` selects the Kraken Futures adapter and starts in shadow mode; `npm run paper` enables its local paper broker. Kraken market data is production public data, while orders, fills, balances, and positions remain strictly local. Kraken live order routing is intentionally unavailable.
 
 ## Implemented system
 
 The hot path is:
 
 ```text
-Alpaca crypto WebSocket
+Kraken Futures public WebSocket (or the retained Alpaca adapter)
   -> reset/delta L2 book validation
   -> causal microstructure + sampled 5/15/60-minute trend state
   -> prior-event adaptive microprice-noise threshold
@@ -20,9 +20,8 @@ Alpaca crypto WebSocket
   -> anti-chasing + quantity-aware execution planning
   -> risk, correlation, and liquidity sizing
   -> maker-only entry planning + maker-first non-urgent exits with bounded IOC fallback
-  -> long spot: capped Alpaca crypto limit order
-  -> bearish 0DTE route: streamed IBIT/ETHA quote + same-day put + premium cap
-  -> private trade_updates reconciliation
+  -> Kraken paper: capped linear-perpetual order for native long or short exposure
+  -> local paper acknowledgements/fills/cancels/reconciliation
   -> deterministic hold/reversal + recovery/time/profit-floor exits
 ```
 
@@ -33,7 +32,7 @@ The main contracts are:
 - Cost: `deterministic opportunity − uncertainty reserve − (exact fixed fees + stressed variable execution cost) >= minimum edge`. The `1.75` safety factor applies only to uncertain execution, impact, latency, and adverse-selection components; known venue fees remain exact.
 - Horizon: microstructure selects entry timing. A bounded five-second sampler supplies causal 5/15/60-minute trend returns, slow efficiency, and slow realized variance; a separate 30-second sampler supplies the ordered four-hour pullback/recovery state to the 1/2/4-hour economic horizons.
 - Entry families: continuation keeps its existing aligned 5/15/60-minute gate. Pullback/recovery separately requires a prior structural move, a fee-scale retracement, a confirmed rebound, retained trend, and unrecovered room; it does not relax continuation thresholds.
-- Trend warm-up: PostgreSQL first restores recent one-second mids into only the sampled slow-trend state. If that history is absent or stale after a clean restart, completed Alpaca one-minute bars plus a current L2 midpoint (with snapshot quote/trade fallback) provide the same causal structural bootstrap. Missing, future, invalid, crossed, or stale venue observations still fail closed; without usable history a process must observe at least 90% of the 60-minute window. Fast microstructure, CUSUM, and trigger state are never hydrated.
+- Trend warm-up: PostgreSQL first restores recent one-second mids into only the sampled slow-trend state. If that history is absent or stale after a clean restart, completed venue one-minute bars plus a current L2 midpoint provide the same causal structural bootstrap. Missing, future, invalid, crossed, or stale venue observations still fail closed; without usable history a process must observe at least 90% of the 60-minute window. Fast microstructure, CUSUM, and trigger state are never hydrated.
 - State: one continuous episode produces at most one candidate. Re-arming requires release hysteresis or an excessive event-gap reset, and the configured cooldown must have elapsed.
 - Models: `SIGNAL_MODE=DETERMINISTIC_ONLY` is the default. An optional model may only veto, rank, or reduce an already-valid deterministic intent; it cannot create exposure.
 - Risk: `quantity × maximum modeled loss per unit <= current risk budget`.
@@ -44,9 +43,19 @@ The main contracts are:
 
 See [Mathematical implementation](docs/MATHEMATICS.md) for the formulas and their source modules.
 
+## Kraken Futures paper trading
+
+`TRADING_VENUE=kraken_futures` maps `BTC/USD` to `PF_XBTUSD` and `ETH/USD` to `PF_ETHUSD`. These are Kraken's linear perpetuals, so quantity and P&L remain denominated in base-asset units. Startup reads Kraken's public instruments catalogue and fails closed unless every configured product is tradeable, linear, and has valid price/quantity increments.
+
+The public WebSocket subscribes to Kraken `book` and `trade` feeds. A snapshot is mandatory, every book delta must have the next exchange sequence, and a gap disconnects and invalidates the local book until a new snapshot arrives. Retrospective trade snapshots never advance causal features.
+
+The paper broker is local-only and provides the normal order lifecycle: submit, acknowledge, IOC/GTC, cancel/cancel-all, partial fill, open-order reconciliation, long/short positions, reduce-only exits, fees, realized P&L, and mark-to-market equity. Account state is atomically persisted at `KRAKEN_PAPER_STATE_FILE`, including positions, cash/P&L, orders, and fills. On restart, positions and balances are restored; any order that was still resting is marked canceled because fills during downtime cannot be reconstructed safely. IOC fills walk the observed book subject to the order's limit. Resting maker fills require contra-side Kraken trades to consume simulated queue-ahead volume. This is deliberately conservative but cannot reproduce real queue identity, venue latency, margin liquidation, funding realization, API rejection, or outages.
+
+No Kraken API key is read in this mode, and no Kraken private REST or WebSocket order method is called. A Kraken Pro browser sign-in is unrelated to the local simulator. `TRADING_MODE=live` with `TRADING_VENUE=kraken_futures` fails at configuration load.
+
 ## Alpaca API coverage
 
-The implementation uses the current Alpaca Trading API and Crypto Data API directly:
+The retained Alpaca adapter uses the current Alpaca Trading API and Crypto Data API directly:
 
 - Trading resources: account, account configuration, account portfolio history, activities, assets, clock, order create/list/get/by-client-ID/replace/cancel/cancel-all, position list/get/close/close-all.
 - Crypto latest data: order books, quotes, trades, bars, and snapshots.
@@ -83,16 +92,15 @@ npm install
 Copy-Item .env.example .env
 ```
 
-The CLI loads `.env` through Node's built-in environment-file support. `.env` is reserved for credentials, endpoint safety controls, trading mode, live interlocks, and database connection values. You may also set those runtime values in the current shell before starting:
+The CLI loads `.env` through Node's built-in environment-file support. For Kraken local paper trading, no exchange credential is required:
 
 ```powershell
-$env:ALPACA_API_KEY = '<paper key>'
-$env:ALPACA_API_SECRET = '<paper secret>'
-$env:ALPACA_PAPER = 'true'
-npm run shadow
+$env:TRADING_VENUE = 'kraken_futures'
+$env:TRADING_MODE = 'paper'
+npm run paper
 ```
 
-The standard Alpaca names `APCA_API_KEY_ID` and `APCA_API_SECRET_KEY` are also accepted. Secrets are never included in application logs. `.env` is ignored by Git.
+The standard Alpaca names `APCA_API_KEY_ID` and `APCA_API_SECRET_KEY` remain accepted when `TRADING_VENUE=alpaca`. Secrets are never included in application logs. `.env` is ignored by Git.
 
 Tunable parameters are JSON-backed:
 
@@ -111,8 +119,8 @@ Keep credentials and connection secrets out of all JSON files.
 | `record` | Records public book/trade events to JSONL; no decisions or orders. |
 | `replay` | Reconstructs and validates a recorded event stream. |
 | `shadow` | Runs the full decision pipeline and emits plans without submitting them. |
-| `paper` | Submits capped deterministic-rule orders to Alpaca paper trading; no model file is required. |
-| `live` | Real-money orders. Requires live credentials and both live interlocks. |
+| `paper` | Runs capped deterministic-rule orders through the selected paper adapter. Kraken orders remain local. |
+| `live` | Alpaca real-money orders only. Kraken live routing is not implemented. |
 
 Commands:
 
@@ -145,9 +153,9 @@ ADVERSE_FLOW_CONFIRMATION_EVENTS=3
 
 `recall` reconstructs the same causal features, adaptive micro trigger, occupancy/evidence state, cost, and deterministic-entry pipeline, then labels the best executable move available over the configured future horizon. It reports long opportunity recall, signal precision, audit-only downside moves, gate-block frequencies, and non-finite feature incidents. Labels deduct two taker fees plus fixed costs but omit latency and impact, so the result is an optimistic upper bound rather than a profit claim.
 
-`paper:demo-trade` is an explicit diagnostic path for observing the real Alpaca paper order lifecycle. It waits for a healthy warmed book, submits one approximately $11 `BTC/USD` capped IOC entry by default (above Alpaca's $10 USD-crypto minimum), and records reserve, send, acknowledgment, private updates, fills, position management, and any strategy-managed exit in the normal dashboard and database. It is hard-disabled outside paper mode, refuses existing exposure or pending orders, caps entry notional at $25, and labels the decision `PAPER_LIFECYCLE_DEMO` because it intentionally bypasses strategy gates. Stop the normal engine before using it because both commands bind the same dashboard port.
+`paper:demo-trade` is an explicit diagnostic path for the selected paper order lifecycle. It waits for a healthy warmed book, submits one approximately $11 `BTC/USD` capped IOC entry by default, and records reserve, send, acknowledgment, private updates, fills, position management, and any strategy-managed exit in the normal dashboard and database. It is hard-disabled outside paper mode, refuses existing exposure or pending orders, caps entry notional at $25, and labels the decision `PAPER_LIFECYCLE_DEMO` because it intentionally bypasses strategy gates. Stop the normal engine before using it because both commands bind the same dashboard port.
 
-For repeated strategy-pipeline exercise in a paper account, `PAPER_ENTRY_EXERCISE=true` is an explicit non-economic mode. It retains signal, liquidity, exposure, sizing, portfolio, and order-lifecycle controls, but uses zero simulated fees, latency reserve, adverse-selection reserve, positive cost error, and analytical signal-uncertainty reserve. It assumes full sigma/breakout capture, reduces the cost safety factor to `1`, the minimum net edge to `0`, requires IOC/taker entry planning, adds a 5 bps IOC limit-price protection buffer against quote movement during entry and exit submission, and caps each symbol at $25 notional. Startup and the dashboard label the run `EXERCISE`. The switch fails closed outside the Alpaca paper endpoint. Results from this mode are operational tests only and must never be interpreted as achievable performance.
+For repeated strategy-pipeline exercise in a paper account, `PAPER_ENTRY_EXERCISE=true` is an explicit non-economic mode. It retains signal, liquidity, exposure, sizing, portfolio, and order-lifecycle controls, but uses zero simulated fees, latency reserve, adverse-selection reserve, positive cost error, and analytical signal-uncertainty reserve. It assumes full sigma/breakout capture, reduces the cost safety factor to `1`, the minimum net edge to `0`, requires IOC/taker entry planning, adds a 5 bps IOC limit-price protection buffer against quote movement during entry and exit submission, and caps each symbol at $25 notional. Startup and the dashboard label the run `EXERCISE`. The switch fails closed outside paper mode. Results from this mode are operational tests only and must never be interpreted as achievable performance.
 
 Recall and tuning safeguards live in `config/base.json` under the `RECALL_*` parameters. The report refuses to authorize per-symbol tuning until it has both the minimum recording duration and the minimum count of eligible long opportunity windows. The checked-in baseline requires seven days and 100 opportunities; shorter captures are smoke tests only and must not be used to loosen trading gates.
 

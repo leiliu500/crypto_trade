@@ -61,6 +61,7 @@ export interface EngineOperationalSnapshot {
   startedAtMs: number | null;
   uptimeMs: number;
   mode: EngineConfig["mode"];
+  venue?: EngineConfig["venue"];
   paper: boolean;
   paperEntryExercise: boolean;
   strategyVersion: string;
@@ -138,18 +139,29 @@ interface PendingAdverseFlowAssessment {
 export interface EngineDependencies {
   rest?: AlpacaRestClient;
   gateway?: OrderGateway;
-  marketStream?: AlpacaMarketStream;
-  tradeStream?: AlpacaTradeStream;
+  marketStream?: EngineMarketStream;
+  tradeStream?: EngineTradeStream;
   now?: () => number;
   optionShort?: CryptoOptionShortController;
+}
+
+export interface EngineMarketStream extends EventEmitter {
+  connect(): void;
+  close(): void;
+  reconnectNow(): void;
+}
+
+export interface EngineTradeStream extends EventEmitter {
+  connect(): void;
+  close(): void;
 }
 
 export class TradingEngine extends EventEmitter {
   private readonly runtimes = new Map<string, SymbolRuntime>();
   private readonly rest: AlpacaRestClient;
   private readonly gateway: OrderGateway;
-  private readonly marketStream: AlpacaMarketStream;
-  private readonly tradeStream: AlpacaTradeStream;
+  private readonly marketStream: EngineMarketStream;
+  private readonly tradeStream: EngineTradeStream;
   private readonly orderState = new OrderStateReconciler();
   private readonly latency = new LatencyTracker();
   private readonly riskState: RiskState;
@@ -167,6 +179,7 @@ export class TradingEngine extends EventEmitter {
   private readonly pendingAdverseFlowFaults = new Map<string, PendingAdverseFlowFault>();
   private readonly orderDeadlineTimers = new Map<string, NodeJS.Timeout>();
   private readonly restoredPositionCandidates = new Map<string, Position[]>();
+  private readonly lastPositionDecisionTelemetryMs = new Map<string, number>();
   private equity = 0;
   private equityHighWater = 0;
   private realizedSessionPnl = 0;
@@ -278,11 +291,11 @@ export class TradingEngine extends EventEmitter {
 
   /**
    * Sends one minimum-size, marketable entry through the real order-state path.
-   * This exists only for an explicitly requested Alpaca paper-account lifecycle
+   * This exists only for an explicitly requested paper-account lifecycle
    * demonstration; it is never reachable from normal strategy evaluation.
    */
   public async submitPaperDemoEntry(symbol = "BTC/USD"): Promise<ExecutionPlan> {
-    if (this.cfg.mode !== "paper" || !this.cfg.paper) throw new Error("Paper demo entries require paper mode and the Alpaca paper endpoint");
+    if (this.cfg.mode !== "paper" || !this.cfg.paper) throw new Error("Paper demo entries require paper mode");
     if (!this.started) throw new Error("Paper demo entry requires a started engine");
     if (!this.riskState.entriesAllowed()) throw new Error(`Paper demo entry blocked by risk/health state: ${this.riskState.reasons().join(",") || "not ready"}`);
     const runtime = this.runtimes.get(symbol);
@@ -335,7 +348,8 @@ export class TradingEngine extends EventEmitter {
       diagnostic: "PAPER_LIFECYCLE_DEMO", bypassedStrategyGates: true,
       reason: "User-requested minimum-size paper order lifecycle demonstration",
       configurationVersion: runtime.config.configurationVersion, strategyVersion: runtime.config.strategyVersion,
-      adapterVersion: "alpaca-v1", symbolRulesetVersion: assetRulesVersion(runtime.asset), features, plan, mode: this.cfg.mode,
+      adapterVersion: this.cfg.venue === "kraken_futures" ? "kraken-futures-paper-v1" : "alpaca-v1",
+      symbolRulesetVersion: assetRulesVersion(runtime.asset), features, plan, mode: this.cfg.mode,
     });
     if (!await this.submit(plan)) throw new Error(`Paper demo entry submission failed for ${symbol}`);
     return plan;
@@ -355,7 +369,7 @@ export class TradingEngine extends EventEmitter {
         optionOrdersPromise,
       ]);
       const account = accountResponse.data;
-      if (account.account_blocked || account.trading_blocked || (account.crypto_status && account.crypto_status !== "ACTIVE")) throw new Error("Alpaca account is not available for crypto trading");
+      if (account.account_blocked || account.trading_blocked || (account.crypto_status && account.crypto_status !== "ACTIVE")) throw new Error("Trading account is not available");
       this.equity = Number(account.equity);
       this.equityHighWater = Math.max(this.equityHighWater, this.equity);
       this.riskState.updateEquity(this.equity);
@@ -414,6 +428,7 @@ export class TradingEngine extends EventEmitter {
       startedAtMs: this.startedAtMs,
       uptimeMs: this.startedAtMs === null ? 0 : Math.max(0, generatedAtMs - this.startedAtMs),
       mode: this.cfg.mode,
+      venue: this.cfg.venue,
       paper: this.cfg.paper,
       paperEntryExercise: this.cfg.paperEntryExercise,
       strategyVersion: this.cfg.strategyVersion,
@@ -734,7 +749,8 @@ export class TradingEngine extends EventEmitter {
     runtime.entryAudit.pass("PORTFOLIO_PASS");
     this.emit("decision", {
       configurationVersion: runtime.config.configurationVersion, strategyVersion: runtime.config.strategyVersion,
-      adapterVersion: "alpaca-v1", symbolRulesetVersion: assetRulesVersion(runtime.asset),
+      adapterVersion: this.cfg.venue === "kraken_futures" ? "kraken-futures-paper-v1" : "alpaca-v1",
+      symbolRulesetVersion: assetRulesVersion(runtime.asset),
       regime, deterministicIntent: routed.intent, routing: routed, features, plan, mode: this.cfg.mode,
     });
     if (this.cfg.mode !== "shadow") {
@@ -1109,17 +1125,22 @@ export class TradingEngine extends EventEmitter {
     }
     const regime = runtime.regimeEngine.classify(features);
     runtime.latestRegime = regime;
-    const exitCost = runtime.cost.estimate(features, book, -1, position.qty, false);
+    const exitSide = -position.side as 1 | -1;
+    const exitCost = runtime.cost.estimate(features, book, exitSide, position.qty, false);
     // Fees, current spread, and exit impact are unavoidable exit costs, not
     // incremental costs of holding for one more decision interval.
     const expectedIncrementalDelayCostBps = exitCost ? incrementalHoldCostBps(exitCost) : Number.POSITIVE_INFINITY;
     const remainingEconomicHorizonMs = position.selectedHorizonMs === undefined ? runtime.config.deterministicHold.holdHorizonMs
       : Math.max(1, position.selectedHorizonMs - (this.now() - position.openedMs));
     const hold = runtime.holdEngine.evaluate(position.side, features, expectedIncrementalDelayCostBps, remainingEconomicHorizonMs);
-    const executableExit = book.bids[0]!.px;
+    const executableExit = position.side === 1 ? book.bids[0]!.px : book.asks[0]!.px;
     const nowMs = this.now();
     const decision = runtime.positionManager.update(position, executableExit, nowMs, features, hold.holdLowerBoundBps, hold.reversalScore, Math.max(0, -hold.holdLowerBoundBps));
-    this.emit("positionDecision", { configurationVersion: runtime.config.configurationVersion, position: { ...position }, decision, hold, regime });
+    const lastTelemetryMs = this.lastPositionDecisionTelemetryMs.get(position.symbol);
+    if (decision.action !== "HOLD" || lastTelemetryMs === undefined || nowMs - lastTelemetryMs >= 1_000) {
+      this.lastPositionDecisionTelemetryMs.set(position.symbol, nowMs);
+      this.emit("positionDecision", { configurationVersion: runtime.config.configurationVersion, position: { ...position }, decision, hold, regime });
+    }
     if (decision.action === "EXIT") void this.submitExit(runtime, position.qty, decision.reason, book, features);
     else if (decision.action === "REDUCE") void this.submitExit(runtime, position.qty * decision.fraction, decision.reason, book, features);
   }
@@ -1129,7 +1150,7 @@ export class TradingEngine extends EventEmitter {
     const position = runtime.position;
     if (!position) return;
     const nowMs = this.now();
-    if (pending.plan.side === 1) {
+    if (!pending.plan.reduceOnlyIntent) {
       const reason: OrderCancelRequestReason = nowMs >= pending.plan.expiresMs ? "TTL_EXPIRED" : "POSITION_ALREADY_OPEN";
       await this.cancelTracked(pending, reason, {
         nowMs, expiresMs: pending.plan.expiresMs, kinematicsReady: features.kinematicsReady,
@@ -1138,7 +1159,7 @@ export class TradingEngine extends EventEmitter {
       return;
     }
     if (!pending.plan.reduceOnlyIntent || pending.plan.style !== "maker") return;
-    const executableExit = book.bids[0]!.px;
+    const executableExit = position.side === 1 ? book.bids[0]!.px : book.asks[0]!.px;
     const signedMovePx = position.side * (executableExit - position.entryPx);
     const riskFloorBreached = signedMovePx <= Math.max(position.floorPx, -position.initialRiskPx);
     if (nowMs >= pending.plan.expiresMs || riskFloorBreached) {
@@ -1150,7 +1171,7 @@ export class TradingEngine extends EventEmitter {
     book: ReturnType<LocalOrderBook["snapshot"]>, features: DeterministicFeatures): Promise<void> {
     const position = runtime.position;
     if (!position) return;
-    const executableExit = book.bids[0]!.px;
+    const executableExit = position.side === 1 ? book.bids[0]!.px : book.asks[0]!.px;
     const signedMovePx = position.side * (executableExit - position.entryPx);
     const reason = signedMovePx <= -position.initialRiskPx ? "HARD_STOP"
       : signedMovePx <= position.floorPx ? "PROFIT_FLOOR" : null;
@@ -1169,16 +1190,18 @@ export class TradingEngine extends EventEmitter {
     if (qty < runtime.asset.minOrderSize) return;
     const makerEligible = runtime.position.executionPath === "MAKER_MAKER_TAKER_FALLBACK" && makerExitEligible(reason);
     const style = forcedStyle ?? (makerEligible ? "maker" : "taker");
-    const sweep = style === "taker" ? estimateSweep(book.bids, qty) : null;
-    const cost = runtime.cost.estimate(features, book, -1, qty, style === "maker");
+    const exitSide = -runtime.position.side as 1 | -1;
+    const sweep = style === "taker" ? estimateSweep(exitSide === 1 ? book.asks : book.bids, qty) : null;
+    const cost = runtime.cost.estimate(features, book, exitSide, qty, style === "maker");
     if ((style === "taker" && !sweep) || !cost) { this.riskState.halt("BOOK_INVALID"); return; }
     const risk: RiskApproval = { qty, riskBudget: 0, maximumLossPerUnit: 0, modeledMaximumLoss: 0, drawdownScale: 1, qualityScale: 1, volatilityScale: 1, bindingLimit: "exposure" };
     const nowMs = this.now();
     const plan: ExecutionPlan = {
       clientOrderId: `mlce-exit-${nowMs}-${randomUUID().slice(0, 8)}`, decisionId: randomUUID(), riskApprovalId: randomUUID(),
-      symbol: runtime.position.symbol, side: -1, qty,
-      limitPx: style === "maker" ? ceilPrice(book.asks[0]!.px, runtime.asset.priceIncrement)
-        : bufferedTakerLimitPrice(sweep!.worstPx, runtime.asset.priceIncrement, -1, runtime.config.planner.takerLimitBufferBps),
+      symbol: runtime.position.symbol, side: exitSide, qty,
+      limitPx: style === "maker"
+        ? (exitSide === 1 ? floorPrice(book.bids[0]!.px, runtime.asset.priceIncrement) : ceilPrice(book.asks[0]!.px, runtime.asset.priceIncrement))
+        : bufferedTakerLimitPrice(sweep!.worstPx, runtime.asset.priceIncrement, exitSide, runtime.config.planner.takerLimitBufferBps),
       style, timeInForce: style === "maker" ? "gtc" : "ioc",
       createdMs: nowMs, expiresMs: nowMs + (style === "maker" ? runtime.config.position.makerExitTtlMs : 1_000), originatingSequence: book.sequence,
       featureHash: createHash("sha256").update(JSON.stringify(features)).digest("hex").slice(0, 24), strategyVersion: runtime.config.strategyVersion,
@@ -1223,17 +1246,19 @@ export class TradingEngine extends EventEmitter {
       : tracked ? runtime.config.cost.takerFeeBps : 0;
     const executionFee = fill.qty * fill.price * feeBps / 10_000;
     runtime.entryAudit.pass(fill.final ? "FULL_FILL" : "PARTIAL_FILL");
-    if (fill.side === 1) {
-      this.realizedSessionPnl -= executionFee;
+    this.realizedSessionPnl -= executionFee;
+    const closing = tracked?.plan.reduceOnlyIntent === true
+      || (tracked === undefined && runtime.position !== undefined && fill.side === -runtime.position.side);
+    if (!closing) {
       if (!runtime.position) {
         const positionQty = fill.positionQty !== undefined && fill.positionQty > 0 ? fill.positionQty : fill.qty;
         const initialRiskPx = tracked?.plan.risk.maximumLossPerUnit || Math.max(fill.price * .005, runtime.asset?.priceIncrement ?? 0);
-        runtime.position = { symbol: fill.symbol, side: 1, qty: positionQty, entryPx: fill.price, openedMs: fill.final ? this.now() : (tracked?.plan.createdMs ?? this.now()),
+        runtime.position = { symbol: fill.symbol, side: fill.side, qty: positionQty, entryPx: fill.price, openedMs: fill.final ? this.now() : (tracked?.plan.createdMs ?? this.now()),
           initialRiskPx, roundTripCostPx: fill.price * (tracked?.plan.expectedCost.roundTripBps ?? 0) / 10_000,
           mfePx: 0, maePx: 0, floorPx: -initialRiskPx, breakEvenArmed: false, phase: "OPEN",
           ...(tracked?.plan.economicHorizonMs === undefined ? {} : { selectedHorizonMs: tracked.plan.economicHorizonMs }),
           ...(tracked?.plan.executionPath === undefined ? {} : { executionPath: tracked.plan.executionPath }) };
-      } else if (tracked && runtime.position.symbol === tracked.plan.symbol) {
+      } else if (tracked && runtime.position.symbol === tracked.plan.symbol && runtime.position.side === fill.side) {
         const previous = runtime.position.qty;
         const total = fill.positionQty !== undefined && fill.positionQty >= previous ? fill.positionQty : previous + fill.qty;
         const added = Math.max(0, total - previous);
@@ -1241,9 +1266,10 @@ export class TradingEngine extends EventEmitter {
         runtime.position.qty = total;
       } else throw new Error("NO_AVERAGING_DOWN_INVARIANT");
     } else if (runtime.position) {
+      if (fill.side !== -runtime.position.side) throw new Error("REDUCE_ONLY_DIRECTION_INVARIANT");
       const remainingQty = fill.positionQty !== undefined ? Math.max(0, fill.positionQty) : Math.max(0, runtime.position.qty - fill.qty);
       const closeQty = Math.max(0, runtime.position.qty - remainingQty);
-      this.realizedSessionPnl += closeQty * (fill.price - runtime.position.entryPx) - executionFee;
+      this.realizedSessionPnl += closeQty * runtime.position.side * (fill.price - runtime.position.entryPx);
       runtime.position.qty = remainingQty;
       const minimumTradableQty = runtime.asset?.minOrderSize ?? runtime.asset?.minTradeIncrement ?? 1e-12;
       if (runtime.position.qty < minimumTradableQty) {
@@ -1251,6 +1277,7 @@ export class TradingEngine extends EventEmitter {
         else this.reportedPositionDust.delete(fill.symbol);
         this.armReentryCooldown(runtime);
         delete runtime.position;
+        this.lastPositionDecisionTelemetryMs.delete(fill.symbol);
       }
     }
     this.recomputePortfolioRisk();
@@ -1267,7 +1294,8 @@ export class TradingEngine extends EventEmitter {
     for (const remote of positions) {
       const runtime = this.runtimes.get(normalizeSymbol(remote.symbol));
       const qty = Number(remote.qty), entryPx = Number(remote.avg_entry_price);
-      if (!runtime || !(qty > 0) || !(entryPx > 0) || remote.side !== "long") continue;
+      if (!runtime || !(qty > 0) || !(entryPx > 0) || !["long", "short"].includes(remote.side)) continue;
+      const side = remote.side === "long" ? 1 as const : -1 as const;
       if (runtime.asset && qty < runtime.asset.minOrderSize) {
         observedDustSymbols.add(runtime.book.symbol);
         this.reportPositionDust(runtime.book.symbol, qty);
@@ -1276,19 +1304,22 @@ export class TradingEngine extends EventEmitter {
       this.reportedPositionDust.delete(runtime.book.symbol);
       const entryTolerance = Math.max(runtime.asset?.priceIncrement ?? 0, entryPx * 1e-6);
       const previous = [previousPositions.get(runtime.book.symbol), ...(this.restoredPositionCandidates.get(runtime.book.symbol) ?? [])]
-        .filter((candidate): candidate is Position => candidate?.side === 1 && Math.abs(candidate.entryPx - entryPx) <= entryTolerance)
+        .filter((candidate): candidate is Position => candidate?.side === side && Math.abs(candidate.entryPx - entryPx) <= entryTolerance)
         .sort((left, right) => left.openedMs - right.openedMs)[0];
       if (previous) {
         runtime.position = { ...previous, qty, entryPx };
       } else {
         const risk = Math.max(entryPx * .01, runtime.asset?.priceIncrement ?? 0);
-        runtime.position = { symbol: runtime.book.symbol, side: 1, qty, entryPx, openedMs: this.now(), initialRiskPx: risk, roundTripCostPx: 0,
+        runtime.position = { symbol: runtime.book.symbol, side, qty, entryPx, openedMs: this.now(), initialRiskPx: risk, roundTripCostPx: 0,
           mfePx: 0, maePx: 0, floorPx: -risk, breakEvenArmed: false, phase: "OPEN" };
       }
     }
     for (const symbol of previouslyOpen) {
       const runtime = this.runtimes.get(symbol);
-      if (runtime && !runtime.position) this.armReentryCooldown(runtime);
+      if (runtime && !runtime.position) {
+        this.armReentryCooldown(runtime);
+        this.lastPositionDecisionTelemetryMs.delete(symbol);
+      }
     }
     for (const symbol of this.reportedPositionDust.keys()) {
       if (!observedDustSymbols.has(symbol)) this.reportedPositionDust.delete(symbol);
@@ -1311,7 +1342,7 @@ export class TradingEngine extends EventEmitter {
     for (const [symbol, runtime] of this.runtimes) {
       const position = runtime.position;
       if (!position) this.portfolio.updateExposure({ symbol, notional: 0, cluster: runtime.cluster, stressedLoss: 0 });
-      else this.portfolio.updateExposure({ symbol, notional: position.qty * position.entryPx, cluster: runtime.cluster,
+      else this.portfolio.updateExposure({ symbol, notional: position.side * position.qty * position.entryPx, cluster: runtime.cluster,
         stressedLoss: position.qty * (position.initialRiskPx + position.roundTripCostPx) });
     }
     this.riskState.updateLosses(Math.max(0, -this.realizedSessionPnl), Math.max(0, -this.realizedSessionPnl), this.portfolio.stressedOpenLoss());
@@ -1545,6 +1576,7 @@ function remoteOrderSnapshot(order: AlpacaOrder): RemoteOrderSnapshot {
 function cfgPriceSigma(features: Features, multiple: number): number { return features.mid * features.sigmaHBps / 10_000 * multiple; }
 function ceilQuantity(quantity: number, increment: number): number { return Math.ceil(quantity / increment - 1e-12) * increment; }
 function ceilPrice(price: number, increment: number): number { return Math.ceil(price / increment - 1e-12) * increment; }
+function floorPrice(price: number, increment: number): number { return Math.floor(price / increment + 1e-12) * increment; }
 function makerExitEligible(reason: string): boolean {
   return ["TIME_STOP", "UNPRODUCTIVE_TIME_STOP", "EVIDENCE_EXIT", "DETERMINISTIC_HOLD_EVIDENCE", "REVERSAL_RISK"].includes(reason);
 }
