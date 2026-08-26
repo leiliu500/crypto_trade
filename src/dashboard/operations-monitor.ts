@@ -14,6 +14,7 @@ const ENGINE_EVENTS = [
   "reconciled", "engineError", "preflight", "publicStreamReady", "privateStreamReady", "decision",
   "orderReserved", "orderSending", "orderAccepted", "orderCancelRequested", "orderUpdate", "orderRejected",
   "positionDecision", "positionDust", "exitDecision", "fill", "watchdogFault", "entryBlocked", "pendingKinematicsGrace",
+  "pendingSignalGrace", "pendingSignalRecovered", "pendingAdverseFlowGrace", "pendingAdverseFlowRecovered",
   "optionShortDecision", "optionShortBlocked", "optionShortOrderAccepted", "optionShortOrderCancelRequested",
   "optionShortOrderCancelUnknown", "optionShortOrderReconciled", "optionShortOrderUpdate", "optionShortOrderError",
   "optionShortReconciled", "optionShortUniverse", "optionShortStockStreamReady",
@@ -376,10 +377,13 @@ export class OperationsMonitor extends EventEmitter {
     }
     const realizedSessionBreakdown = aggregateRealizedSessionPnl(visibleOrders, nowMs);
     const health = state.risk.health;
+    const kraken = state.venue === "kraken_futures";
     const liveness: DashboardSnapshot["liveness"] = [
       check("engine", "Engine process", state.started, state.started ? `Up ${formatDuration(state.uptimeMs)}` : "Not started", nowMs),
-      check("public", "Alpaca market stream", health.publicStream, health.publicStream ? "Authenticated · receiving" : "Disconnected", nowMs),
-      check("private", "Alpaca trade updates", health.privateStream, health.privateStream ? "Authenticated · receiving" : "Disconnected", nowMs),
+      check("public", kraken ? "Kraken Futures market stream" : "Alpaca market stream", health.publicStream,
+        health.publicStream ? (kraken ? "Subscribed · receiving" : "Authenticated · receiving") : "Disconnected", nowMs),
+      check("private", kraken ? "Local paper order stream" : "Alpaca trade updates", health.privateStream,
+        health.privateStream ? (kraken ? "Simulator connected" : "Authenticated · receiving") : "Disconnected", nowMs),
       check("account", "Account reconciliation", health.accountReconciled, health.accountReconciled ? "Positions and orders reconciled" : "Unknown account state", nowMs),
       check("book", "Local order books", health.bookValid, health.bookValid ? `${markets.length} book${markets.length === 1 ? "" : "s"} valid` : "Invalid or warming up", nowMs),
       check("clock", "Clock sanity", health.clockValid, health.clockValid ? "Timestamps valid" : "Clock invalid", nowMs),

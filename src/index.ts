@@ -29,6 +29,8 @@ export * from "./alpaca/market-stream.js";
 export * from "./alpaca/rest.js";
 export * from "./alpaca/trade-stream.js";
 export * from "./alpaca/types.js";
+export * from "./kraken/market-stream.js";
+export * from "./kraken/paper-broker.js";
 export * from "./backtest/metrics.js";
 export * from "./backtest/replay.js";
 export * from "./engine/trading-engine.js";
