@@ -3,7 +3,8 @@ import { mkdtempSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
-import { analyzeOpportunityRecall } from "../src/backtest/opportunity-recall.js";
+import { analyzeOpportunityRecall, calibrationBucketFromReturns, calibrationGroupKey,
+  fixedHorizonGrossReturnBps } from "../src/backtest/opportunity-recall.js";
 import { readRecordedEvents } from "../src/backtest/replay.js";
 import { loadConfig } from "../src/config.js";
 import { EventRecorder } from "../src/recorder.js";
@@ -90,5 +91,70 @@ test("opportunity recall labels executable moves and refuses tuning on a short s
     assert.equal(report.symbols["BTC/USD"]?.nonFiniteEvents, 0);
     assert.ok((report.symbols["BTC/USD"]?.long.opportunityWindows ?? 0) > 0);
     assert.equal(report.tuning.ready, false);
+  } finally { rmSync(directory, { recursive: true, force: true }); }
+});
+
+test("Kraken Futures recall treats native shorts as venue-eligible", async () => {
+  const directory = mkdtempSync(join(tmpdir(), "crypto-recall-short-"));
+  const path = join(directory, "events.jsonl");
+  try {
+    const atMs = 1_700_000_000_000;
+    writeFileSync(path, `${JSON.stringify({ kind: "BOOK", delta: {
+      symbol: "BTC/USD", bids: [{ px: 99.99, qty: 1_000 }], asks: [{ px: 100.01, qty: 1_000 }],
+      reset: true, exchangeTsMs: atMs, receiveTsMs: atMs, sourceId: "book-1",
+    } })}\n`);
+
+    const alpaca = await analyzeOpportunityRecall(path, loadConfig({ TRADING_MODE: "replay" }));
+    assert.equal(alpaca.symbols["BTC/USD"]?.short.venueEligible, false);
+    assert.equal(alpaca.symbols["BTC/USD"]?.shortAuditOnly.venueEligible, false);
+
+    const kraken = await analyzeOpportunityRecall([path, path], loadConfig({
+      TRADING_MODE: "replay", TRADING_VENUE: "kraken_futures",
+    }));
+    assert.equal(kraken.recording.events, 2);
+    assert.deepEqual(kraken.recording.paths, [path, path]);
+    assert.equal(kraken.symbols["BTC/USD"]?.short.venueEligible, true);
+    assert.equal(kraken.symbols["BTC/USD"]?.shortAuditOnly.venueEligible, true);
+  } finally { rmSync(directory, { recursive: true, force: true }); }
+});
+
+test("forward calibration separates side and computes symmetric fixed-horizon returns", () => {
+  const longKey = calibrationGroupKey(1, "PULLBACK_RECOVERY", "TREND_UP", 7_200_000,
+    "MAKER_MAKER_TAKER_FALLBACK");
+  const shortKey = calibrationGroupKey(-1, "PULLBACK_RECOVERY", "TREND_UP", 7_200_000,
+    "MAKER_MAKER_TAKER_FALLBACK");
+  assert.notEqual(longKey, shortKey);
+  assert.ok(fixedHorizonGrossReturnBps(1, 100, 100.1, 101, 101.1) > 0);
+  assert.ok(fixedHorizonGrossReturnBps(-1, 100, 100.1, 99, 99.1) > 0);
+  assert.ok(fixedHorizonGrossReturnBps(-1, 100, 100.1, 101, 101.1) < 0);
+  const shortBucket = calibrationBucketFromReturns("BTC/USD", "PULLBACK_RECOVERY", -1, "TREND_DOWN",
+    7_200_000, "MAKER_MAKER_TAKER_FALLBACK", 30, [8, 12]);
+  assert.equal(shortBucket?.side, -1);
+  assert.equal(shortBucket?.meanGrossReturnBps, 10);
+});
+
+test("recall counts covered time and explicit recorder gaps block tuning", async () => {
+  const directory = mkdtempSync(join(tmpdir(), "crypto-recall-gap-"));
+  const path = join(directory, "events.jsonl");
+  try {
+    const firstMs = 1_700_000_000_000;
+    writeFileSync(path, [
+      JSON.stringify({ kind: "BOOK", delta: {
+        symbol: "BTC/USD", bids: [{ px: 99.99, qty: 1_000 }], asks: [{ px: 100.01, qty: 1_000 }],
+        reset: true, exchangeTsMs: firstMs, receiveTsMs: firstMs, sourceId: "book-gap-1",
+      } }),
+      JSON.stringify({ kind: "RECORDER_GAP", receiveTsMs: firstMs + 1_000,
+        droppedEvents: 1, droppedBytes: 100 }),
+      JSON.stringify({ kind: "BOOK", delta: {
+        symbol: "BTC/USD", bids: [{ px: 100, qty: 1_000 }], asks: [{ px: 100.02, qty: 1_000 }],
+        reset: true, exchangeTsMs: firstMs + 10_000, receiveTsMs: firstMs + 10_000, sourceId: "book-gap-2",
+      } }),
+    ].join("\n") + "\n");
+
+    const report = await analyzeOpportunityRecall(path, loadConfig({ TRADING_MODE: "replay" }));
+    assert.equal(report.recording.durationMs, 10_000);
+    assert.equal(report.recording.coveredDurationMs, 1_000);
+    assert.equal(report.recording.gaps, 1);
+    assert.match(report.tuning.reason ?? "", /recorder gap/);
   } finally { rmSync(directory, { recursive: true, force: true }); }
 });
