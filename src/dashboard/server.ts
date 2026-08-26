@@ -18,6 +18,7 @@ const MIME = new Map([
   ["app.js", "text/javascript; charset=utf-8"],
   ["styles.css", "text/css; charset=utf-8"],
 ]);
+const MAXIMUM_WEBSOCKET_BUFFERED_BYTES = 1024 * 1024;
 
 export class DashboardServer {
   private server?: Server;
@@ -77,9 +78,14 @@ export class DashboardServer {
   }
 
   private broadcast(snapshot: DashboardSnapshot): void {
-    if (!this.sockets) return;
+    if (!this.sockets || this.sockets.clients.size === 0) return;
+    const clients = [...this.sockets.clients].filter((client) => client.readyState === WebSocket.OPEN);
+    if (clients.length === 0) return;
     const message = JSON.stringify({ type: "snapshot", data: snapshot });
-    for (const client of this.sockets.clients) if (client.readyState === WebSocket.OPEN) client.send(message);
+    for (const client of clients) {
+      if (client.bufferedAmount > MAXIMUM_WEBSOCKET_BUFFERED_BYTES) continue;
+      client.send(message);
+    }
   }
 
   private async route(request: IncomingMessage, response: ServerResponse, publicDirectory: string): Promise<void> {

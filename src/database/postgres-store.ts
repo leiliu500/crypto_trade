@@ -146,18 +146,47 @@ export class PostgresTelemetryStore extends EventEmitter {
   public async loadLatestPositionStates(symbols: readonly string[]): Promise<readonly Position[]> {
     if (symbols.length === 0) return [];
     const result = await this.pool.query<PersistedPositionStateRow>(
-      `SELECT position FROM (
-         SELECT DISTINCT ON (run_id,symbol) symbol,run_id,payload->'position' AS position,occurred_at
-         FROM system_events
-         WHERE event_type = 'positionDecision' AND symbol = ANY($1::text[])
-           AND occurred_at >= now() - interval '1 day' AND payload ? 'position'
-         ORDER BY run_id,symbol,occurred_at DESC,id DESC
-       ) latest_run_positions
-       ORDER BY symbol,occurred_at DESC`,
+      `WITH event_positions AS (
+         SELECT symbol,position,occurred_at AS observed_at,NULL::text AS round_trip_bps,
+           NULL::text AS economic_horizon_ms,NULL::text AS execution_path
+         FROM (
+           SELECT DISTINCT ON (run_id,symbol) symbol,run_id,payload->'position' AS position,occurred_at
+           FROM system_events
+           WHERE event_type = 'positionDecision' AND symbol = ANY($1::text[])
+             AND occurred_at >= now() - interval '1 day' AND payload ? 'position'
+           ORDER BY run_id,symbol,occurred_at DESC,id DESC
+         ) latest_run_positions
+       ), snapshot_positions AS (
+         SELECT p.symbol,p.payload AS position,p.updated_at AS observed_at,
+           entry.round_trip_bps,entry.economic_horizon_ms,entry.execution_path
+         FROM positions p
+         LEFT JOIN LATERAL (
+           SELECT o.plan#>>'{expectedCost,roundTripBps}' AS round_trip_bps,
+             o.plan->>'economicHorizonMs' AS economic_horizon_ms,o.plan->>'executionPath' AS execution_path
+           FROM orders o
+           WHERE o.symbol = p.symbol AND o.status = 'FILLED' AND NOT o.reduce_only_intent
+             AND o.side = COALESCE((p.payload->>'side')::smallint,p.side)
+             AND abs(o.average_fill_price - COALESCE((p.payload->>'entryPx')::numeric,p.entry_price))
+               <= greatest(.000000001,COALESCE((p.payload->>'entryPx')::numeric,p.entry_price) * .000001)
+             AND abs(extract(epoch FROM (o.updated_at - COALESCE(
+               to_timestamp((p.payload->>'openedMs')::double precision / 1000),p.opened_at)))) <= 300
+           ORDER BY abs(extract(epoch FROM (o.updated_at - COALESCE(
+             to_timestamp((p.payload->>'openedMs')::double precision / 1000),p.opened_at)))),o.updated_at DESC
+           LIMIT 1
+         ) entry ON true
+         WHERE p.symbol = ANY($1::text[]) AND p.updated_at >= now() - interval '1 day'
+       )
+       SELECT position,round_trip_bps,economic_horizon_ms,execution_path
+       FROM (
+         SELECT * FROM event_positions
+         UNION ALL
+         SELECT * FROM snapshot_positions
+       ) candidates
+       ORDER BY symbol,observed_at DESC`,
       [[...symbols]],
     );
     return result.rows.flatMap((row) => {
-      const restored = restorePositionState(row.position);
+      const restored = restorePositionState(row.position, row);
       return restored ? [restored] : [];
     });
   }
@@ -303,7 +332,10 @@ export class PostgresTelemetryStore extends EventEmitter {
   private async persistPosition(client: PoolClient, position: DashboardPositionCard, runId: string, atMs: number): Promise<void> {
     await client.query(`INSERT INTO positions (run_id,symbol,side,qty,entry_price,current_price,unrealized_pnl,phase,floor_price,stop_price,mfe,mae,opened_at,updated_at,payload)
       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15::jsonb)
-      ON CONFLICT (run_id,symbol) DO UPDATE SET qty=EXCLUDED.qty,current_price=EXCLUDED.current_price,unrealized_pnl=EXCLUDED.unrealized_pnl,phase=EXCLUDED.phase,floor_price=EXCLUDED.floor_price,stop_price=EXCLUDED.stop_price,mfe=EXCLUDED.mfe,mae=EXCLUDED.mae,updated_at=EXCLUDED.updated_at,payload=EXCLUDED.payload`,
+      ON CONFLICT (run_id,symbol) DO UPDATE SET side=EXCLUDED.side,qty=EXCLUDED.qty,entry_price=EXCLUDED.entry_price,
+        current_price=EXCLUDED.current_price,unrealized_pnl=EXCLUDED.unrealized_pnl,phase=EXCLUDED.phase,
+        floor_price=EXCLUDED.floor_price,stop_price=EXCLUDED.stop_price,mfe=EXCLUDED.mfe,mae=EXCLUDED.mae,
+        opened_at=EXCLUDED.opened_at,updated_at=EXCLUDED.updated_at,payload=EXCLUDED.payload`,
       [runId, position.symbol, position.side, position.qty, position.entryPx, position.currentPx, position.unrealizedPnl, position.phase,
         position.floorPx, position.stopPx, position.mfePx, position.maePx, date(position.openedMs), date(atMs), json(position)]);
     await client.query("INSERT INTO position_events (run_id,symbol,action,reason,qty,current_price,floor_price,hold_edge_bps,reversal_probability,occurred_at,payload) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11::jsonb)",
@@ -647,11 +679,16 @@ interface PersistedMarketMidRow {
   mid: string | number;
 }
 
-interface PersistedPositionStateRow { position: unknown; }
+interface PersistedPositionStateRow {
+  position: unknown;
+  round_trip_bps: string | number | null;
+  economic_horizon_ms: string | number | null;
+  execution_path: string | null;
+}
 interface PersistedSessionPnlRow { realized_pnl: string | number; }
 interface PersistedDecisionVenueLatencyRow { occurred_at: Date | string; decision_ms: string | number; }
 
-function restorePositionState(value: unknown): Position | null {
+function restorePositionState(value: unknown, fallback?: Partial<PersistedPositionStateRow>): Position | null {
   const position = object(value);
   const symbol = typeof position.symbol === "string" ? position.symbol : "";
   const side = Number(position.side);
@@ -659,7 +696,11 @@ function restorePositionState(value: unknown): Position | null {
   const entryPx = Number(position.entryPx);
   const openedMs = Number(position.openedMs);
   const initialRiskPx = Number(position.initialRiskPx);
-  const roundTripCostPx = Number(position.roundTripCostPx);
+  const persistedRoundTripCostPx = Number(position.roundTripCostPx);
+  const fallbackRoundTripBps = fallback?.round_trip_bps === null || fallback?.round_trip_bps === undefined
+    ? Number.NaN : Number(fallback.round_trip_bps);
+  const roundTripCostPx = Number.isFinite(persistedRoundTripCostPx) && persistedRoundTripCostPx >= 0
+    ? persistedRoundTripCostPx : entryPx * fallbackRoundTripBps / 10_000;
   const mfePx = Number(position.mfePx);
   const maePx = Number(position.maePx);
   const floorPx = Number(position.floorPx);
@@ -667,11 +708,12 @@ function restorePositionState(value: unknown): Position | null {
     || (side !== 1 && side !== -1) || qty <= 0 || entryPx <= 0 || openedMs <= 0 || initialRiskPx <= 0 || roundTripCostPx < 0) return null;
   const phase = ["OPEN", "RECOVERY", "PROTECTED", "TREND_HOLD", "EXITING"].includes(String(position.phase))
     ? position.phase as Position["phase"] : "OPEN";
-  const selectedHorizonMs = Number(position.selectedHorizonMs);
+  const selectedHorizonMs = Number(position.selectedHorizonMs ?? fallback?.economic_horizon_ms);
   const lastReductionProbability = Number(position.lastReductionProbability);
-  const executionPath = typeof position.executionPath === "string"
-    && ["MAKER_MAKER", "MAKER_TAKER", "MAKER_MAKER_TAKER_FALLBACK", "TAKER_TAKER"].includes(position.executionPath)
-    ? position.executionPath as NonNullable<Position["executionPath"]> : null;
+  const persistedExecutionPath = position.executionPath ?? fallback?.execution_path;
+  const executionPath = typeof persistedExecutionPath === "string"
+    && ["MAKER_MAKER", "MAKER_TAKER", "MAKER_MAKER_TAKER_FALLBACK", "TAKER_TAKER"].includes(persistedExecutionPath)
+    ? persistedExecutionPath as NonNullable<Position["executionPath"]> : null;
   return {
     symbol, side, qty, entryPx, openedMs, initialRiskPx, roundTripCostPx, mfePx, maePx, floorPx,
     breakEvenArmed: Boolean(position.breakEvenArmed), phase,

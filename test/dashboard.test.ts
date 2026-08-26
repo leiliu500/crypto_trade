@@ -75,6 +75,31 @@ test("operations monitor retains an order's full P&L history after the position 
   monitor.stop();
 });
 
+test("operations monitor bounds default P&L history retained in memory", () => {
+  const monitor = new OperationsMonitor({ pnlSampleMs: 0 });
+  const state = engineState();
+  for (let index = 0; index < 2_050; index += 1) {
+    state.generatedAtMs += 1;
+    state.markets[0]!.bestBid = 101 + index / 10_000;
+    monitor.ingestEngineSnapshot(state);
+  }
+  assert.equal(monitor.snapshot().positions[0]?.symbol, "BTC/USD");
+  assert.equal(monitor.snapshot().orders[0]?.livePosition?.pnlHistory.length, 2_000);
+  monitor.stop();
+});
+
+test("dashboard broadcast skips serialization when there are no websocket clients", () => {
+  const monitor = new OperationsMonitor();
+  const server = new DashboardServer(monitor, { host: "127.0.0.1", port: 0 });
+  const internals = server as unknown as {
+    sockets: { clients: Set<unknown> };
+    broadcast: (snapshot: unknown) => void;
+  };
+  internals.sockets = { clients: new Set() };
+  assert.doesNotThrow(() => internals.broadcast({ value: 1n }));
+  monitor.stop();
+});
+
 test("ordinary database telemetry is sampled and unchanged orders are deduplicated", () => {
   const monitor = new OperationsMonitor({ marketSampleMs: 1_000, healthSampleMs: 10_000 });
   const telemetry: string[] = [];
