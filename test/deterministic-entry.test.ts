@@ -60,6 +60,19 @@ function context(side: 1 | -1 = 1, nowMs = 1_000): EntryContext {
 
 const testConfig = () => ({ ...DEFAULT_DETERMINISTIC_SIGNAL_CONFIG, minimumNetEdgeBps: -10, requireMakerEntry: false });
 
+function calibratedPullbackConfig(regime: "TREND_UP" | "CHOP" = "TREND_UP", lowerConfidenceGrossReturnBps = 15,
+  effectiveSampleCount = 200) {
+  const cfg = testConfig();
+  cfg.calibratedEdges = [{
+    symbol: "BTC/USD", family: "PULLBACK_RECOVERY", side: 1, regime,
+    minimumQuality: 0, maximumQuality: 1, minimumSpreadBps: 0, maximumSpreadBps: 10,
+    horizonMs: cfg.pullbackRecovery.horizonMs, path: "TAKER_TAKER",
+    meanGrossReturnBps: lowerConfidenceGrossReturnBps + 10, lowerConfidenceGrossReturnBps,
+    effectiveSampleCount,
+  }];
+  return cfg;
+}
+
 function persistentIntent(engine: DeterministicEntryEngine, side: 1 | -1 = 1, startMs = 1_000) {
   let intent = null;
   for (let index = 0; index < 20; index += 1) {
@@ -118,7 +131,25 @@ test("slow trend warm-up and direction alignment fail closed", () => {
   }
 });
 
-test("pullback recovery is a distinct entry family and does not require continuation alignment", () => {
+test("continuation cannot enter or remain valid when the active regime disallows its direction", () => {
+  const engine = new DeterministicEntryEngine(testConfig());
+  let result = null;
+  let value = context(1);
+  for (let index = 0; index < 20; index += 1) {
+    value = context(1, 1_000 + index * 50);
+    value.regime = { name: "CHOP", allowLong: false, allowShort: false, riskScale: 0 };
+    result ??= engine.evaluate(value);
+  }
+  assert.equal(result, null);
+  const diagnostics = engine.latestEvaluation()!.long;
+  assert.equal(diagnostics.family, "CONTINUATION");
+  assert.equal(diagnostics.continuationTrendPass, true);
+  assert.equal(diagnostics.regimePass, false);
+  assert.ok(diagnostics.reasons.includes("REGIME_GATE"));
+  assert.equal(engine.signalStillValid(1, value.features, value.regime, "CONTINUATION", "ANALYTIC"), false);
+});
+
+test("an uncalibrated pullback remains observable but cannot authorize an entry", () => {
   const engine = new DeterministicEntryEngine(testConfig());
   let result = null;
   for (let index = 0; index < 20; index += 1) {
@@ -132,11 +163,86 @@ test("pullback recovery is a distinct entry family and does not require continua
     };
     result ??= engine.evaluate(value);
   }
+  assert.equal(result, null);
+  const diagnostics = engine.latestEvaluation()!.long;
+  assert.equal(diagnostics.family, "PULLBACK_RECOVERY");
+  assert.equal(diagnostics.continuationTrendPass, false);
+  assert.equal(diagnostics.pullbackRecoveryPass, true);
+  assert.equal(diagnostics.edgeSource, "UNRESOLVED");
+  assert.equal(diagnostics.edgeEffectiveSampleCount, 0);
+  assert.equal(diagnostics.pullbackCalibrationPass, false);
+  assert.ok(diagnostics.reasons.includes("PULLBACK_CALIBRATION_REQUIRED"));
+  assert.ok(diagnostics.reasons.includes("EDGE_NOT_RESOLVED"));
+});
+
+test("the uncalibrated pullback gate is symmetric for long and short entries", () => {
+  for (const side of [1, -1] as const) {
+    const engine = new DeterministicEntryEngine(testConfig());
+    let result = null;
+    for (let index = 0; index < 20; index += 1) {
+      const value = context(side, 1_000 + index * 50);
+      value.features.trendFastBps = side * -12;
+      value.features.trendMediumBps = side * -5;
+      value.features.slowTrendAlignment = side * -.15;
+      const pullback = {
+        ready: true, structuralMoveBps: 150, pullbackDepthBps: 100, recoveryBps: 20,
+        remainingRoomBps: 80, structuralExtremeAgeMs: 3_600_000, reversalExtremeAgeMs: 300_000,
+      };
+      if (side === 1) value.features.longPullback = pullback;
+      else value.features.shortPullback = pullback;
+      result ??= engine.evaluate(value);
+    }
+    assert.equal(result, null);
+    const diagnostics = side === 1 ? engine.latestEvaluation()!.long : engine.latestEvaluation()!.short;
+    assert.equal(diagnostics.family, "PULLBACK_RECOVERY");
+    assert.equal(diagnostics.pullbackCalibrationPass, false);
+    assert.ok(diagnostics.reasons.includes("PULLBACK_CALIBRATION_REQUIRED"));
+  }
+});
+
+test("a sufficiently sampled calibrated pullback may enter without continuation alignment", () => {
+  const cfg = calibratedPullbackConfig();
+  const engine = new DeterministicEntryEngine(cfg);
+  let result = null;
+  for (let index = 0; index < 20; index += 1) {
+    const value = context(1, 1_000 + index * 50);
+    value.features.trendFastBps = -12;
+    value.features.trendMediumBps = -5;
+    value.features.slowTrendAlignment = -.15;
+    value.features.longPullback = {
+      ready: true, structuralMoveBps: 150, pullbackDepthBps: 100, recoveryBps: 20,
+      remainingRoomBps: 80, structuralExtremeAgeMs: 3_600_000, reversalExtremeAgeMs: 300_000,
+    };
+    result ??= engine.evaluate(value);
+  }
   assert.equal(result?.source, "DETERMINISTIC_PULLBACK_RECOVERY");
-  assert.equal(result?.diagnostics.family, "PULLBACK_RECOVERY");
+  assert.equal(result?.diagnostics.edgeSource, "CALIBRATED");
+  assert.equal(result?.diagnostics.pullbackCalibrationPass, true);
   assert.equal(result?.diagnostics.continuationTrendPass, false);
-  assert.equal(result?.diagnostics.pullbackRecoveryPass, true);
-  assert.equal(result?.selectedHorizonMs, testConfig().pullbackRecovery.horizonMs);
+  assert.equal(result?.selectedHorizonMs, cfg.pullbackRecovery.horizonMs);
+});
+
+test("a calibrated pullback bucket below the effective-sample requirement remains blocked", () => {
+  const engine = new DeterministicEntryEngine(calibratedPullbackConfig("TREND_UP", 15, 99));
+  let result = null;
+  for (let index = 0; index < 20; index += 1) {
+    const value = context(1, 1_000 + index * 50);
+    value.features.trendFastBps = -12;
+    value.features.trendMediumBps = -5;
+    value.features.slowTrendAlignment = -.15;
+    value.features.longPullback = {
+      ready: true, structuralMoveBps: 150, pullbackDepthBps: 100, recoveryBps: 20,
+      remainingRoomBps: 80, structuralExtremeAgeMs: 3_600_000, reversalExtremeAgeMs: 300_000,
+    };
+    result ??= engine.evaluate(value);
+  }
+  assert.equal(result, null);
+  const diagnostics = engine.latestEvaluation()!.long;
+  assert.equal(diagnostics.edgeSource, "CALIBRATED");
+  assert.equal(diagnostics.edgeEffectiveSampleCount, 99);
+  assert.equal(diagnostics.pullbackCalibrationPass, false);
+  assert.ok(diagnostics.reasons.includes("PULLBACK_CALIBRATION_REQUIRED"));
+  assert.ok(diagnostics.reasons.includes("INSUFFICIENT_EFFECTIVE_SAMPLES"));
 });
 
 test("an uncalibrated pullback cannot enter against the active regime", () => {
@@ -158,20 +264,14 @@ test("an uncalibrated pullback cannot enter against the active regime", () => {
   const diagnostics = engine.latestEvaluation()!.long;
   assert.equal(diagnostics.family, "PULLBACK_RECOVERY");
   assert.equal(diagnostics.regimePass, false);
-  assert.equal(diagnostics.edgeSource, "ANALYTIC");
+  assert.equal(diagnostics.edgeSource, "UNRESOLVED");
   assert.equal(diagnostics.edgeEffectiveSampleCount, 0);
-  assert.equal(diagnostics.counterRegimeCalibrationPass, false);
-  assert.ok(diagnostics.reasons.includes("COUNTER_REGIME_UNCALIBRATED"));
+  assert.equal(diagnostics.pullbackCalibrationPass, false);
+  assert.ok(diagnostics.reasons.includes("PULLBACK_CALIBRATION_REQUIRED"));
 });
 
 test("a sufficiently sampled calibrated pullback may enter against the active regime", () => {
-  const cfg = testConfig();
-  cfg.calibratedEdges = [{
-    symbol: "BTC/USD", family: "PULLBACK_RECOVERY", side: 1, regime: "CHOP",
-    minimumQuality: 0, maximumQuality: 1, minimumSpreadBps: 0, maximumSpreadBps: 10,
-    horizonMs: cfg.pullbackRecovery.horizonMs, path: "TAKER_TAKER",
-    meanGrossReturnBps: 20, lowerConfidenceGrossReturnBps: 15, effectiveSampleCount: 200,
-  }];
+  const cfg = calibratedPullbackConfig("CHOP");
   const engine = new DeterministicEntryEngine(cfg);
   let result = null;
   for (let index = 0; index < 20; index += 1) {
@@ -188,7 +288,7 @@ test("a sufficiently sampled calibrated pullback may enter against the active re
   }
   assert.equal(result?.diagnostics.edgeSource, "CALIBRATED");
   assert.equal(result?.diagnostics.edgeEffectiveSampleCount, 200);
-  assert.equal(result?.diagnostics.counterRegimeCalibrationPass, true);
+  assert.equal(result?.diagnostics.pullbackCalibrationPass, true);
 });
 
 test("pending signal validity cannot cross from pullback into continuation or vice versa", () => {
@@ -201,7 +301,9 @@ test("pending signal validity cannot cross from pullback into continuation or vi
     ready: true, structuralMoveBps: 150, pullbackDepthBps: 100, recoveryBps: 20,
     remainingRoomBps: 80, structuralExtremeAgeMs: 3_600_000, reversalExtremeAgeMs: 300_000,
   };
-  assert.equal(engine.signalStillValid(1, value.features, value.regime, "PULLBACK_RECOVERY"), true);
+  assert.equal(engine.signalStillValid(1, value.features, value.regime, "PULLBACK_RECOVERY"), false);
+  assert.equal(engine.signalStillValid(1, value.features, value.regime, "PULLBACK_RECOVERY", "ANALYTIC"), false);
+  assert.equal(engine.signalStillValid(1, value.features, value.regime, "PULLBACK_RECOVERY", "CALIBRATED"), true);
   assert.equal(engine.signalStillValid(1, value.features, value.regime, "CONTINUATION"), false);
   value.regime = { name: "CHOP", allowLong: false, allowShort: false, riskScale: 0 };
   assert.equal(engine.signalStillValid(1, value.features, value.regime, "PULLBACK_RECOVERY", "ANALYTIC"), false);
@@ -211,6 +313,8 @@ test("pending signal validity cannot cross from pullback into continuation or vi
   value.features.trendMediumBps = 35;
   value.features.slowTrendAlignment = .7;
   assert.equal(engine.signalStillValid(1, value.features, value.regime, "PULLBACK_RECOVERY"), false);
+  assert.equal(engine.signalStillValid(1, value.features, value.regime, "CONTINUATION"), false);
+  value.regime = { name: "TREND_UP", allowLong: true, allowShort: false, riskScale: 1 };
   assert.equal(engine.signalStillValid(1, value.features, value.regime, "CONTINUATION"), true);
 });
 
@@ -235,7 +339,7 @@ test("partial pullbacks do not bypass structural or exact economic gates", () =>
 
 test("fee-sized pullback room must still clear the unchanged robust cost gate", () => {
   const run = (roundTripBps: number) => {
-    const engine = new DeterministicEntryEngine({ ...testConfig(), minimumNetEdgeBps: .5 });
+    const engine = new DeterministicEntryEngine({ ...calibratedPullbackConfig("TREND_UP", 50), minimumNetEdgeBps: .5 });
     let result = null;
     for (let index = 0; index < 20; index += 1) {
       const value = context(1, 1_000 + index * 50);
@@ -340,7 +444,7 @@ test("aligned continuation may cost-revalidate a below-stress spread but never a
     let intent = null;
     for (let index = 0; index < 20; index += 1) {
       const value = context(1, 1_000 + index * 50);
-      value.regime = { name: "CHOP", allowLong: false, allowShort: false, riskScale: 0 };
+      value.regime = { name: "TREND_UP", allowLong: true, allowShort: false, riskScale: 1 };
       value.features.trendFastBps = 56.33;
       value.features.trendMediumBps = 84.92;
       value.features.trendSlowBps = 57.58;

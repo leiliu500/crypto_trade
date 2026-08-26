@@ -85,7 +85,7 @@ export interface RuleDiagnostics {
   requiredContinuationQuality: number | null; continuationQuality: number; economicSizeScale: number;
   scorePass: boolean; rawDirectionalPass: boolean; candidatePass: boolean; edgeResolvedPass: boolean;
   healthPass: boolean; liquidityPass: boolean; regimePass: boolean; persistencePass: boolean; antiChasePass: boolean;
-  counterRegimeCalibrationPass: boolean;
+  pullbackCalibrationPass: boolean;
   exposurePass: boolean; cooldownPass: boolean; costPass: boolean; arbitrationPass: boolean; slowTrendPass: boolean;
   continuationTrendPass: boolean; pullbackRecoveryPass: boolean;
   pullbackStructuralMoveBps: number; pullbackDepthBps: number; pullbackRecoveryBps: number; pullbackRemainingRoomBps: number;
@@ -184,7 +184,8 @@ export class DeterministicEntryEngine {
     family?: EntryFamily, edgeSource?: RuleDiagnostics["edgeSource"]): boolean {
     if (features.stale || !features.kinematicsReady) return false;
     const regimePass = side === 1 ? regime.allowLong : regime.allowShort;
-    if (family === "PULLBACK_RECOVERY" && !regimePass && edgeSource !== "CALIBRATED") return false;
+    if (family === "CONTINUATION" && !regimePass) return false;
+    if (family === "PULLBACK_RECOVERY" && edgeSource !== "CALIBRATED") return false;
     const structure = this.structuralSetup(side, features);
     if (family === "CONTINUATION" ? !structure.continuationPass
       : family === "PULLBACK_RECOVERY" ? !structure.pullbackPass : !structure.pass) return false;
@@ -204,7 +205,8 @@ export class DeterministicEntryEngine {
 
   private commonPass(d: RuleDiagnostics): boolean {
     return d.candidatePass && d.healthPass && d.liquidityPass && d.antiChasePass && d.exposurePass
-      && d.cooldownPass && d.edgeResolvedPass && d.costPass && d.slowTrendPass && d.counterRegimeCalibrationPass;
+      && d.cooldownPass && d.edgeResolvedPass && d.costPass && d.slowTrendPass && d.pullbackCalibrationPass
+      && (d.regimePass || d.family === "PULLBACK_RECOVERY");
   }
 
   private diagnostics(trigger: SideTriggerDiagnostics, oppositeScore: number, context: EntryContext,
@@ -255,7 +257,7 @@ export class DeterministicEntryEngine {
       ? availableCosts.filter((item) => item.path === "MAKER_TAKER" || item.path === "MAKER_MAKER_TAKER_FALLBACK") : availableCosts;
     const decision = this.costGate.evaluate(edges, costs);
     const economic = decision.selected ?? decision.bestRejected;
-    const counterRegimeCalibrationPass = structure.family !== "PULLBACK_RECOVERY" || regimePass
+    const pullbackCalibrationPass = structure.family !== "PULLBACK_RECOVERY"
       || (economic?.edge.source === "CALIBRATED"
         && economic.edge.effectiveSampleCount >= this.cfg.minimumEffectiveSampleCount);
     // Signal uncertainty is already incorporated in conservativeGrossBps and is not charged again.
@@ -272,6 +274,7 @@ export class DeterministicEntryEngine {
     const reasons = [...trigger.reasons];
     if (!healthPass) reasons.push("HEALTH_GATE");
     if (!liquidityPass) reasons.push("LIQUIDITY_GATE");
+    if (!regimePass && structure.family === "CONTINUATION") reasons.push("REGIME_GATE");
     if (!exposurePass) reasons.push("EXPOSURE_GATE");
     if (!edgeResolvedPass) reasons.push("EDGE_NOT_RESOLVED");
     if (edgeResolvedPass && !costPass) reasons.push("COST_GATE");
@@ -281,7 +284,7 @@ export class DeterministicEntryEngine {
       ? "STRUCTURAL_HISTORY_WARMUP" : "STRUCTURAL_SETUP_GATE");
     if (!structure.continuationPass) reasons.push("CONTINUATION_TREND_GATE");
     if (!structure.pullbackPass) reasons.push("PULLBACK_RECOVERY_GATE");
-    if (!counterRegimeCalibrationPass) reasons.push("COUNTER_REGIME_UNCALIBRATED");
+    if (!pullbackCalibrationPass) reasons.push("PULLBACK_CALIBRATION_REQUIRED");
     return {
       family: structure.family, side: direction, phase, score: trigger.score, oppositeScore, scoreMargin: trigger.score - oppositeScore, votes,
       persistence: trigger.occupancy, evidence: trigger.evidence, confirmationMs: trigger.confirmationMs,
@@ -300,7 +303,7 @@ export class DeterministicEntryEngine {
       edgeQuality: economic?.edge.quality ?? continuation.score,
       edgeEffectiveSampleCount: economic?.edge.effectiveSampleCount ?? 0,
       scorePass, rawDirectionalPass, candidatePass, edgeResolvedPass, healthPass, liquidityPass, regimePass,
-      counterRegimeCalibrationPass, persistencePass, antiChasePass, exposurePass, cooldownPass, costPass, arbitrationPass,
+      pullbackCalibrationPass, persistencePass, antiChasePass, exposurePass, cooldownPass, costPass, arbitrationPass,
       slowTrendPass,
       continuationTrendPass: structure.continuationPass, pullbackRecoveryPass: structure.pullbackPass,
       pullbackStructuralMoveBps: pullback.structuralMoveBps, pullbackDepthBps: pullback.pullbackDepthBps,
