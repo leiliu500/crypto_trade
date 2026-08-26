@@ -21,6 +21,7 @@ import type { CryptoOptionShortConfig } from "./options/crypto-option-short.js";
 import { DEFAULT_DETERMINISTIC_HOLD_CONFIG, DEFAULT_DETERMINISTIC_REGIME_CONFIG, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG, DEFAULT_EXTENSION_CONFIG } from "./config/deterministic-defaults.js";
 
 export type TradingMode = "record" | "replay" | "shadow" | "paper" | "live";
+export type TradingVenue = "alpaca" | "kraken_futures";
 export interface SymbolConfig {
   symbol: string;
   maximumNotional: number;
@@ -49,12 +50,19 @@ export interface SymbolConfig {
 
 export interface EngineConfig extends Omit<SymbolConfig, "symbol"> {
   mode: TradingMode;
+  venue: TradingVenue;
   credentials: { keyId: string; secretKey: string };
   paper: boolean;
   paperEntryExercise: boolean;
   symbols: string[];
   symbolConfigs: Readonly<Record<string, SymbolConfig>>;
   cryptoLocation: string;
+  krakenFutures: {
+    websocketUrl: string;
+    productsBySymbol: Readonly<Record<string, string>>;
+    initialEquity: number;
+    paperStateFile: string;
+  };
   recordFile: string;
   replayFile: string;
   continuousRecordingEnabled: boolean;
@@ -93,6 +101,9 @@ const RUNTIME_ONLY_KEYS = new Set([
   "TRADING_MODE", "ALLOW_LIVE_TRADING", "LIVE_TRADING_CONFIRMATION", "PAPER_ENTRY_EXERCISE", "DATABASE_URL",
   "CRYPTO_SHORT_OPTIONS_ENABLED", "OPTIONS_SHORT_LIVE_CONFIRMATION",
   "POSTGRES_DB", "POSTGRES_USER", "POSTGRES_PASSWORD", "POSTGRES_HOST", "POSTGRES_PORT", "CONFIG_DIR",
+  "TRADING_VENUE", "KRAKEN_FUTURES_WEBSOCKET_URL", "KRAKEN_FUTURES_SYMBOL_MAP_JSON", "KRAKEN_PAPER_INITIAL_EQUITY",
+  "KRAKEN_PAPER_STATE_FILE",
+  "KRAKEN_FUTURES_MAKER_FEE_BPS", "KRAKEN_FUTURES_TAKER_FEE_BPS", "KRAKEN_FUTURES_FUNDING_RESERVE_BPS",
 ]);
 const GLOBAL_PARAMETER_KEYS = new Set([
   "ALPACA_CRYPTO_LOCATION", "REPLAY_FILE", "RECORD_FILE", "CONTINUOUS_RECORDING_ENABLED", "CONTINUOUS_RECORD_FILE",
@@ -114,16 +125,24 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env, modeOverride?: 
   const files = loadParameterFiles(env.CONFIG_DIR ?? "config");
   const configuredEnv = applyParameters(env, files.base.parameters);
   const mode = parseMode(modeOverride ?? env.TRADING_MODE ?? "shadow");
+  const venue = parseVenue(env.TRADING_VENUE ?? "alpaca");
   const keyId = firstNonBlank(env.ALPACA_API_KEY, env.APCA_API_KEY_ID);
   const secretKey = firstNonBlank(env.ALPACA_API_SECRET, env.APCA_API_SECRET_KEY);
-  const paper = parseBoolean(env.ALPACA_PAPER, true);
+  const alpacaPaper = parseBoolean(env.ALPACA_PAPER, true);
+  const paper = venue === "kraken_futures" ? mode === "paper" : alpacaPaper;
   const paperEntryExercise = parseBoolean(env.PAPER_ENTRY_EXERCISE, false);
-  if (mode === "paper" && !paper) throw new Error("Paper mode requires ALPACA_PAPER=true; refusing to route paper-mode orders to the live endpoint");
+  if (venue === "alpaca" && mode === "paper" && !paper) throw new Error("Paper mode requires ALPACA_PAPER=true; refusing to route paper-mode orders to the live endpoint");
   if (paperEntryExercise && (mode !== "paper" || !paper)) {
-    throw new Error("PAPER_ENTRY_EXERCISE is restricted to the Alpaca paper endpoint");
+    throw new Error("PAPER_ENTRY_EXERCISE is restricted to the Alpaca paper endpoint or Kraken paper mode");
   }
-  if (["record", "shadow", "paper", "live"].includes(mode) && (!keyId || !secretKey)) {
+  if (venue === "alpaca" && ["record", "shadow", "paper", "live"].includes(mode) && (!keyId || !secretKey)) {
     throw new Error("Alpaca credentials are required via ALPACA_API_KEY/ALPACA_API_SECRET or APCA_API_KEY_ID/APCA_API_SECRET_KEY");
+  }
+  if (venue === "kraken_futures" && mode === "live") {
+    throw new Error("Kraken Futures live order routing is not implemented; use paper or shadow mode");
+  }
+  if (venue === "kraken_futures" && parseBoolean(env.CRYPTO_SHORT_OPTIONS_ENABLED, false)) {
+    throw new Error("CRYPTO_SHORT_OPTIONS_ENABLED is incompatible with native Kraken Futures shorts");
   }
   if (mode === "live") {
     if (paper) throw new Error("Live mode cannot run with ALPACA_PAPER=true");
@@ -135,18 +154,42 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env, modeOverride?: 
       throw new Error("Live 0DTE option shorts require OPTIONS_SHORT_LIVE_CONFIRMATION=I_UNDERSTAND_0DTE_OPTIONS_CAN_EXPIRE_WORTHLESS");
     }
   }
-  const baseline = loadSymbolConfig("__base__", configuredEnv, mode);
+  let baseline = loadSymbolConfig("__base__", configuredEnv, mode);
   const symbolConfigs: Record<string, SymbolConfig> = {};
   for (const symbol of files.base.symbols) {
     const overlay = files.symbols.get(symbol);
     if (!overlay) throw new Error(`Missing symbol configuration for ${symbol}`);
     symbolConfigs[symbol] = loadSymbolConfig(symbol, applyParameters(configuredEnv, overlay.parameters), mode);
   }
+  if (venue === "kraken_futures") {
+    const makerFeeBps = paperEntryExercise ? 0 : numberEnv(env.KRAKEN_FUTURES_MAKER_FEE_BPS, 2);
+    const takerFeeBps = paperEntryExercise ? 0 : numberEnv(env.KRAKEN_FUTURES_TAKER_FEE_BPS, 5);
+    const fundingBps = paperEntryExercise ? 0 : numberEnv(env.KRAKEN_FUTURES_FUNDING_RESERVE_BPS, 0);
+    const applyKrakenCosts = (value: SymbolConfig): SymbolConfig => ({ ...value,
+      cost: { ...value.cost, makerFeeBps, takerFeeBps, fundingBps, borrowBps: 0 } });
+    baseline = applyKrakenCosts(baseline);
+    for (const symbol of files.base.symbols) symbolConfigs[symbol] = applyKrakenCosts(symbolConfigs[symbol]!);
+  }
   const { symbol: _baselineSymbol, ...baselineConfig } = baseline;
+  const productsBySymbol = parseStringMap(env.KRAKEN_FUTURES_SYMBOL_MAP_JSON
+    ?? '{"BTC/USD":"PF_XBTUSD","ETH/USD":"PF_ETHUSD"}', "KRAKEN_FUTURES_SYMBOL_MAP_JSON");
+  if (venue === "kraken_futures") {
+    for (const symbol of files.base.symbols) {
+      if (!productsBySymbol[symbol]) throw new Error(`KRAKEN_FUTURES_SYMBOL_MAP_JSON is missing ${symbol}`);
+    }
+  }
+  const krakenPaperInitialEquity = numberEnv(env.KRAKEN_PAPER_INITIAL_EQUITY, 100_000);
+  if (!(krakenPaperInitialEquity > 0)) throw new Error("KRAKEN_PAPER_INITIAL_EQUITY must be positive");
   return {
     ...baselineConfig,
-    mode, credentials: { keyId, secretKey }, paper, paperEntryExercise, symbols: [...files.base.symbols], symbolConfigs,
+    mode, venue, credentials: { keyId, secretKey }, paper, paperEntryExercise, symbols: [...files.base.symbols], symbolConfigs,
     cryptoLocation: configuredEnv.ALPACA_CRYPTO_LOCATION ?? "us", recordFile: configuredEnv.RECORD_FILE ?? "data/events.jsonl", replayFile: configuredEnv.REPLAY_FILE ?? "data/events.jsonl",
+    krakenFutures: {
+      websocketUrl: env.KRAKEN_FUTURES_WEBSOCKET_URL ?? "wss://futures.kraken.com/ws/v1",
+      productsBySymbol,
+      initialEquity: krakenPaperInitialEquity,
+      paperStateFile: env.KRAKEN_PAPER_STATE_FILE ?? "data/kraken-paper-state.json",
+    },
     continuousRecordingEnabled: parseBoolean(configuredEnv.CONTINUOUS_RECORDING_ENABLED, false),
     continuousRecordFile: configuredEnv.CONTINUOUS_RECORD_FILE ?? "data/continuous-events.jsonl.gz",
     portfolio: { maximumVariance: Number.POSITIVE_INFINITY, maximumClusterPositions: 1, maximumGrossNotional: numberEnv(configuredEnv.MAXIMUM_GROSS_NOTIONAL, 5_000), rollingLossBudgetFraction: .0075 },
@@ -169,6 +212,11 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env, modeOverride?: 
       minimumTuningOpportunities: integerEnv(configuredEnv.RECALL_MIN_TUNING_OPPORTUNITIES, 100, 1, 1_000_000),
     },
   };
+}
+
+function parseVenue(value: string): TradingVenue {
+  if (value === "alpaca" || value === "kraken_futures") return value;
+  throw new Error(`Invalid TRADING_VENUE: ${value}`);
 }
 
 function loadCryptoOptionShortConfig(runtimeEnv: NodeJS.ProcessEnv, configuredEnv: NodeJS.ProcessEnv): CryptoOptionShortConfig {

@@ -1,9 +1,9 @@
 {
-  "name": "alpaca-minimal-latency-crypto-engine",
+  "name": "multi-venue-minimal-latency-crypto-engine",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Event-driven TypeScript crypto trading engine for Alpaca with latency, cost, risk, and order-state controls.",
+  "description": "Event-driven TypeScript crypto trading engine with Kraken Futures paper trading and Alpaca adapters.",
   "engines": {
     "node": ">=20"
   },
