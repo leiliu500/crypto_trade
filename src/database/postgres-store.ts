@@ -80,11 +80,29 @@ export class PostgresTelemetryStore extends EventEmitter {
   public enqueue(record: TelemetryRecord): void {
     if (this.closing) return;
     if (this.queue.length >= this.options.maximumQueue) {
-      this.droppedRecords += 1;
-      this.lastError = `Telemetry queue full (${this.options.maximumQueue}); newest record dropped`;
-      this.status = "degraded";
-      this.publishHealth();
-      return;
+      const incomingPriority = telemetryPriority(record);
+      let evictionIndex = -1;
+      let evictionPriority = incomingPriority;
+      for (let index = 0; index < this.queue.length; index += 1) {
+        const priority = telemetryPriority(this.queue[index]!);
+        if (priority >= evictionPriority) continue;
+        evictionIndex = index;
+        evictionPriority = priority;
+        if (priority === 0) break;
+      }
+      if (evictionIndex >= 0) {
+        this.queue.splice(evictionIndex, 1);
+        this.droppedRecords += 1;
+        this.lastError = `Telemetry queue full (${this.options.maximumQueue}); lower-priority record evicted`;
+        this.status = "degraded";
+        this.publishHealth();
+      } else {
+        this.droppedRecords += 1;
+        this.lastError = `Telemetry queue full (${this.options.maximumQueue}); newest record dropped`;
+        this.status = "degraded";
+        this.publishHealth();
+        return;
+      }
     }
     this.queue.push(record);
     if (this.queue.length >= 250) void this.flush();
@@ -432,6 +450,17 @@ export class PostgresTelemetryStore extends EventEmitter {
   }
 
   private publishHealth(): void { this.emit("health", this.health()); }
+}
+
+function telemetryPriority(record: TelemetryRecord): number {
+  if (record.kind === "fill") return 3;
+  if (["order", "decision", "option_order", "option_trade", "option_pnl"].includes(record.kind)) return 2;
+  if (record.kind === "event") {
+    const eventType = object(record.payload).type;
+    return typeof eventType === "string" && ["fill", "orderAccepted", "orderUpdate", "orderRejected",
+      "orderCancelRequested", "exitDecision", "engineError", "watchdogFault"].includes(eventType) ? 2 : 1;
+  }
+  return 0;
 }
 
 function date(ms: number): Date { return new Date(ms); }

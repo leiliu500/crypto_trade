@@ -71,6 +71,7 @@ export class OperationsMonitor extends EventEmitter {
   private engine?: TradingEngine;
   private timer?: NodeJS.Timeout;
   private lastMarketTelemetryMs = 0;
+  private readonly lastOrderTelemetry = new Map<string, string>();
   private readonly lastOptionOrderTelemetry = new Map<string, string>();
   private readonly lastOptionTradeTelemetry = new Map<string, string>();
   private readonly lastOptionPnlTelemetry = new Map<string, string>();
@@ -732,11 +733,16 @@ export class OperationsMonitor extends EventEmitter {
 
   private emitTelemetry(state: EngineOperationalSnapshot): void {
     const nowMs = state.generatedAtMs;
-    this.emit("telemetry", { kind: "health", atMs: nowMs, payload: this.snapshotValue } satisfies TelemetryRecord);
     for (const order of this.snapshotValue.orders) {
-      if (!order.historical) this.emit("telemetry", { kind: "order", atMs: nowMs, payload: order } satisfies TelemetryRecord);
+      if (order.historical) continue;
+      const latestPnl = order.livePosition?.pnlHistory.at(-1);
+      const signature = [order.status, order.filledQty, order.averageFillPx, order.updatedMs,
+        order.cancelRequestReason, order.cancellationReason, order.livePosition?.active,
+        order.livePosition?.closedAtMs, order.livePosition?.realizedPnl, latestPnl?.atMs].join(":");
+      if (this.lastOrderTelemetry.get(order.clientOrderId) === signature) continue;
+      this.lastOrderTelemetry.set(order.clientOrderId, signature);
+      this.emit("telemetry", { kind: "order", atMs: nowMs, payload: order } satisfies TelemetryRecord);
     }
-    for (const position of this.snapshotValue.positions) this.emit("telemetry", { kind: "position", atMs: nowMs, payload: position } satisfies TelemetryRecord);
     for (const order of this.snapshotValue.optionShort.pendingOrders) {
       const signature = `${order.alpacaOrderId ?? ""}:${order.status}:${order.filledQty}:${order.expiresMs}`;
       if (this.lastOptionOrderTelemetry.get(order.clientOrderId) === signature) continue;
@@ -760,9 +766,14 @@ export class OperationsMonitor extends EventEmitter {
         payload: { tradeKey, cryptoSymbol: trade.cryptoSymbol, contractSymbol: trade.contractSymbol,
           point } satisfies OptionShortPnlTelemetry } satisfies TelemetryRecord);
     }
-    if (nowMs - this.lastMarketTelemetryMs >= this.marketSampleMs) {
-      this.lastMarketTelemetryMs = nowMs;
-      for (const market of this.snapshotValue.markets) this.emit("telemetry", { kind: "market", atMs: nowMs, payload: market } satisfies TelemetryRecord);
+    if (nowMs - this.lastMarketTelemetryMs < this.marketSampleMs) return;
+    this.lastMarketTelemetryMs = nowMs;
+    this.emit("telemetry", { kind: "health", atMs: nowMs, payload: this.snapshotValue } satisfies TelemetryRecord);
+    for (const position of this.snapshotValue.positions) {
+      this.emit("telemetry", { kind: "position", atMs: nowMs, payload: position } satisfies TelemetryRecord);
+    }
+    for (const market of this.snapshotValue.markets) {
+      this.emit("telemetry", { kind: "market", atMs: nowMs, payload: market } satisfies TelemetryRecord);
     }
   }
 }
