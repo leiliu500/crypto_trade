@@ -10,9 +10,10 @@ export type RecordedEvent =
   | { kind: "BOOK"; delta: BookDelta }
   | { kind: "TRADE"; trade: MarketTrade }
   | { kind: "PRIVATE"; event: unknown }
-  | { kind: "DISCONNECT"; receiveTsMs: number; stream: "public" | "private" };
+  | { kind: "DISCONNECT"; receiveTsMs: number; stream: "public" | "private" }
+  | { kind: "RECORDER_GAP"; receiveTsMs: number; droppedEvents: number; droppedBytes: number };
 
-export interface ReplayStats { events: number; books: number; trades: number; duplicates: number; invalidBooks: number; disconnects: number; firstTsMs?: number; lastTsMs?: number; }
+export interface ReplayStats { events: number; books: number; trades: number; duplicates: number; invalidBooks: number; disconnects: number; gaps: number; firstTsMs?: number; lastTsMs?: number; }
 export interface WalkForwardFold { train: [number, number]; validation: [number, number]; test: [number, number]; purgeMs: number; embargoMs: number; }
 export interface StressProfile { feeMultiplier: number; slippageMultiplier: number; latencyMultiplier: number; fillProbabilityMultiplier: number; adverseSelectionMultiplier: number; spreadMultiplier: number; depthMultiplier: number; }
 
@@ -30,10 +31,11 @@ export async function* readRecordedEvents(path: string): AsyncGenerator<Recorded
 
 export async function validateReplay(path: string): Promise<ReplayStats> {
   const books = new Map<string, LocalOrderBook>();
-  const stats: ReplayStats = { events: 0, books: 0, trades: 0, duplicates: 0, invalidBooks: 0, disconnects: 0 };
+  const stats: ReplayStats = { events: 0, books: 0, trades: 0, duplicates: 0, invalidBooks: 0, disconnects: 0, gaps: 0 };
   for await (const event of readRecordedEvents(path)) {
     stats.events += 1;
-    const timestamp = event.kind === "BOOK" ? event.delta.receiveTsMs : event.kind === "TRADE" ? event.trade.receiveTsMs : event.kind === "DISCONNECT" ? event.receiveTsMs : undefined;
+    const timestamp = event.kind === "BOOK" ? event.delta.receiveTsMs : event.kind === "TRADE" ? event.trade.receiveTsMs
+      : event.kind === "DISCONNECT" || event.kind === "RECORDER_GAP" ? event.receiveTsMs : undefined;
     if (timestamp !== undefined) { stats.firstTsMs ??= timestamp; stats.lastTsMs = timestamp; }
     if (event.kind === "BOOK") {
       stats.books += 1;
@@ -43,7 +45,11 @@ export async function validateReplay(path: string): Promise<ReplayStats> {
       if (result.duplicate) stats.duplicates += 1;
       else if (!result.accepted) stats.invalidBooks += 1;
     } else if (event.kind === "TRADE") stats.trades += 1;
-    else if (event.kind === "DISCONNECT") { stats.disconnects += 1; for (const book of books.values()) book.invalidate(); }
+    else if (event.kind === "DISCONNECT" || event.kind === "RECORDER_GAP") {
+      if (event.kind === "DISCONNECT") stats.disconnects += 1;
+      else stats.gaps += 1;
+      for (const book of books.values()) book.invalidate();
+    }
   }
   return stats;
 }

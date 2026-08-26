@@ -201,7 +201,9 @@ export class TradingEngine extends EventEmitter {
       (fault) => this.onWatchdogFault(fault), this.now,
     );
     if (cfg.mode === "record") this.recorder = new EventRecorder(cfg.recordFile);
-    else if (cfg.continuousRecordingEnabled && ["shadow", "paper", "live"].includes(cfg.mode)) this.recorder = new EventRecorder(cfg.continuousRecordFile);
+    else if (cfg.continuousRecordingEnabled && ["shadow", "paper", "live"].includes(cfg.mode)) {
+      this.recorder = new EventRecorder(cfg.continuousRecordFile, { rotateExisting: true });
+    }
     for (const symbol of cfg.symbols) {
       const symbolCfg = cfg.symbolConfigs[symbol];
       if (!symbolCfg) throw new Error(`Missing resolved symbol configuration for ${symbol}`);

@@ -21,6 +21,7 @@ const ENGINE_EVENTS = [
   "optionShortMarketStreamReady", "optionShortStockStreamDown", "optionShortMarketStreamDown",
 ] as const;
 const TERMINAL_ORDER_STATES = new Set(["FILLED", "CANCELED", "REJECTED", "EXPIRED"]);
+const DEFAULT_MAXIMUM_PNL_HISTORY = 2_000;
 
 interface MonitorOptions {
   pollIntervalMs?: number;
@@ -89,7 +90,7 @@ export class OperationsMonitor extends EventEmitter {
     this.healthSampleMs = Math.max(this.marketSampleMs, options.healthSampleMs ?? 10_000);
     this.maximumEvents = options.maximumEvents ?? 200;
     this.pnlSampleMs = Math.max(0, options.pnlSampleMs ?? 1_000);
-    this.maximumPnlHistory = Math.max(1, options.maximumPnlHistory ?? Number.POSITIVE_INFINITY);
+    this.maximumPnlHistory = Math.max(1, options.maximumPnlHistory ?? DEFAULT_MAXIMUM_PNL_HISTORY);
   }
 
   public attach(engine: TradingEngine): void {
@@ -316,9 +317,10 @@ export class OperationsMonitor extends EventEmitter {
         unrealizedPnl,
         unrealizedPnlBps,
         phase: position.phase, openedMs: position.openedMs, ageMs,
-        initialRiskPx: position.initialRiskPx, floorPx: position.floorPx,
+        initialRiskPx: position.initialRiskPx, roundTripCostPx: position.roundTripCostPx, floorPx: position.floorPx,
         stopPx: position.entryPx + position.side * position.floorPx,
         mfePx: position.mfePx, maePx: position.maePx, breakEvenArmed: position.breakEvenArmed,
+        selectedHorizonMs: position.selectedHorizonMs ?? null, executionPath: position.executionPath ?? null,
         latestAction: latest?.action ?? "MONITOR", latestReason: latest?.reason ?? null,
         holdEdgeBps: latest?.holdEdgeBps ?? null, reversalProbability: latest?.reversalProbability ?? null,
       };
