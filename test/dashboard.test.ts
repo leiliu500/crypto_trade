@@ -4,6 +4,7 @@ import test from "node:test";
 import { runInNewContext } from "node:vm";
 import { OperationsMonitor } from "../src/dashboard/operations-monitor.js";
 import { DashboardServer } from "../src/dashboard/server.js";
+import { compactHealthSnapshot } from "../src/database/postgres-store.js";
 import type { EngineOperationalSnapshot } from "../src/engine/trading-engine.js";
 import { loadConfig } from "../src/config.js";
 
@@ -75,7 +76,7 @@ test("operations monitor retains an order's full P&L history after the position 
 });
 
 test("ordinary database telemetry is sampled and unchanged orders are deduplicated", () => {
-  const monitor = new OperationsMonitor({ marketSampleMs: 1_000 });
+  const monitor = new OperationsMonitor({ marketSampleMs: 1_000, healthSampleMs: 10_000 });
   const telemetry: string[] = [];
   monitor.on("telemetry", (record: { kind: string }) => { telemetry.push(record.kind); });
   const first = engineState();
@@ -92,21 +93,51 @@ test("ordinary database telemetry is sampled and unchanged orders are deduplicat
   assert.equal(telemetry.filter((kind) => kind === "position").length, 1);
   assert.equal(telemetry.filter((kind) => kind === "order").length, 1);
 
-  rapid.orders[0]!.status = "CANCELED";
-  rapid.orders[0]!.lastUpdateMs = rapid.generatedAtMs;
-  monitor.ingestEngineSnapshot(rapid);
+  const marked = engineState();
+  marked.generatedAtMs = first.generatedAtMs + 1_000;
+  marked.markets[0]!.bestBid = 102;
+  marked.markets[0]!.bestAsk = 103;
+  monitor.ingestEngineSnapshot(marked);
+  assert.equal(telemetry.filter((kind) => kind === "health").length, 1);
+  assert.equal(telemetry.filter((kind) => kind === "position").length, 2);
+  assert.equal(telemetry.filter((kind) => kind === "order").length, 1);
+
+  marked.generatedAtMs += 100;
+  marked.orders[0]!.status = "CANCELED";
+  marked.orders[0]!.lastUpdateMs = marked.generatedAtMs;
+  monitor.ingestEngineSnapshot(marked);
   assert.equal(telemetry.filter((kind) => kind === "order").length, 2);
   assert.equal(telemetry.filter((kind) => kind === "health").length, 1);
 
   const sampled = engineState();
-  sampled.generatedAtMs = first.generatedAtMs + 1_000;
+  sampled.generatedAtMs = first.generatedAtMs + 2_000;
   sampled.orders[0]!.status = "CANCELED";
-  sampled.orders[0]!.lastUpdateMs = rapid.generatedAtMs;
+  sampled.orders[0]!.lastUpdateMs = marked.orders[0]!.lastUpdateMs;
   monitor.ingestEngineSnapshot(sampled);
-  assert.equal(telemetry.filter((kind) => kind === "health").length, 2);
-  assert.equal(telemetry.filter((kind) => kind === "market").length, 2);
-  assert.equal(telemetry.filter((kind) => kind === "position").length, 2);
+  assert.equal(telemetry.filter((kind) => kind === "health").length, 1);
+  assert.equal(telemetry.filter((kind) => kind === "market").length, 3);
+  assert.equal(telemetry.filter((kind) => kind === "position").length, 3);
   assert.equal(telemetry.filter((kind) => kind === "order").length, 2);
+
+  const healthSample = engineState();
+  healthSample.generatedAtMs = first.generatedAtMs + 10_000;
+  healthSample.orders[0]!.status = "CANCELED";
+  healthSample.orders[0]!.lastUpdateMs = marked.orders[0]!.lastUpdateMs;
+  monitor.ingestEngineSnapshot(healthSample);
+  assert.equal(telemetry.filter((kind) => kind === "health").length, 2);
+  assert.equal(telemetry.filter((kind) => kind === "market").length, 4);
+  assert.equal(telemetry.filter((kind) => kind === "position").length, 4);
+  assert.equal(telemetry.filter((kind) => kind === "order").length, 2);
+  monitor.stop();
+});
+
+test("durable health payload excludes high-cardinality dashboard collections", () => {
+  const monitor = new OperationsMonitor();
+  monitor.ingestEngineSnapshot(engineState());
+  const compact = compactHealthSnapshot(monitor.snapshot());
+  assert.equal(compact.overall, "healthy");
+  assert.deepEqual(compact.database, monitor.snapshot().database);
+  for (const field of ["markets", "positions", "orders", "optionShort", "events"]) assert.equal(field in compact, false);
   monitor.stop();
 });
 
@@ -652,6 +683,10 @@ test("PostgreSQL migration defines the complete operational record set", async (
   assert.match(optionShortSql, /client_order_id text NOT NULL REFERENCES option_short_orders/);
   assert.match(optionShortSql, /trade_key text NOT NULL REFERENCES option_short_trades/);
   assert.match(optionShortSql, /option_short_pnl_trade_time_idx/);
+  const compactHealthSql = await readFile("database/migrations/004_compact_health_telemetry.sql", "utf8");
+  assert.match(compactHealthSql, /database_queued_records integer/);
+  assert.match(compactHealthSql, /database_dropped_records bigint/);
+  assert.match(compactHealthSql, /health_snapshots_run_dropped_idx/);
 });
 
 function engineState(): EngineOperationalSnapshot {

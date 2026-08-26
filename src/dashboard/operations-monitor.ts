@@ -25,6 +25,7 @@ const TERMINAL_ORDER_STATES = new Set(["FILLED", "CANCELED", "REJECTED", "EXPIRE
 interface MonitorOptions {
   pollIntervalMs?: number;
   marketSampleMs?: number;
+  healthSampleMs?: number;
   maximumEvents?: number;
   pnlSampleMs?: number;
   maximumPnlHistory?: number;
@@ -55,6 +56,7 @@ interface UtcSessionProjection {
 export class OperationsMonitor extends EventEmitter {
   private readonly pollIntervalMs: number;
   private readonly marketSampleMs: number;
+  private readonly healthSampleMs: number;
   private readonly maximumEvents: number;
   private readonly pnlSampleMs: number;
   private readonly maximumPnlHistory: number;
@@ -71,6 +73,7 @@ export class OperationsMonitor extends EventEmitter {
   private engine?: TradingEngine;
   private timer?: NodeJS.Timeout;
   private lastMarketTelemetryMs = 0;
+  private lastHealthTelemetryMs = 0;
   private readonly lastOrderTelemetry = new Map<string, string>();
   private readonly lastOptionOrderTelemetry = new Map<string, string>();
   private readonly lastOptionTradeTelemetry = new Map<string, string>();
@@ -83,6 +86,7 @@ export class OperationsMonitor extends EventEmitter {
     super();
     this.pollIntervalMs = options.pollIntervalMs ?? 500;
     this.marketSampleMs = options.marketSampleMs ?? 1_000;
+    this.healthSampleMs = Math.max(this.marketSampleMs, options.healthSampleMs ?? 10_000);
     this.maximumEvents = options.maximumEvents ?? 200;
     this.pnlSampleMs = Math.max(0, options.pnlSampleMs ?? 1_000);
     this.maximumPnlHistory = Math.max(1, options.maximumPnlHistory ?? Number.POSITIVE_INFINITY);
@@ -735,10 +739,9 @@ export class OperationsMonitor extends EventEmitter {
     const nowMs = state.generatedAtMs;
     for (const order of this.snapshotValue.orders) {
       if (order.historical) continue;
-      const latestPnl = order.livePosition?.pnlHistory.at(-1);
       const signature = [order.status, order.filledQty, order.averageFillPx, order.updatedMs,
         order.cancelRequestReason, order.cancellationReason, order.livePosition?.active,
-        order.livePosition?.closedAtMs, order.livePosition?.realizedPnl, latestPnl?.atMs].join(":");
+        order.livePosition?.closedAtMs, order.livePosition?.realizedPnl].join(":");
       if (this.lastOrderTelemetry.get(order.clientOrderId) === signature) continue;
       this.lastOrderTelemetry.set(order.clientOrderId, signature);
       this.emit("telemetry", { kind: "order", atMs: nowMs, payload: order } satisfies TelemetryRecord);
@@ -766,9 +769,12 @@ export class OperationsMonitor extends EventEmitter {
         payload: { tradeKey, cryptoSymbol: trade.cryptoSymbol, contractSymbol: trade.contractSymbol,
           point } satisfies OptionShortPnlTelemetry } satisfies TelemetryRecord);
     }
+    if (nowMs - this.lastHealthTelemetryMs >= this.healthSampleMs) {
+      this.lastHealthTelemetryMs = nowMs;
+      this.emit("telemetry", { kind: "health", atMs: nowMs, payload: this.snapshotValue } satisfies TelemetryRecord);
+    }
     if (nowMs - this.lastMarketTelemetryMs < this.marketSampleMs) return;
     this.lastMarketTelemetryMs = nowMs;
-    this.emit("telemetry", { kind: "health", atMs: nowMs, payload: this.snapshotValue } satisfies TelemetryRecord);
     for (const position of this.snapshotValue.positions) {
       this.emit("telemetry", { kind: "position", atMs: nowMs, payload: position } satisfies TelemetryRecord);
     }
