@@ -141,7 +141,7 @@ export async function analyzeOpportunityRecall(path: string, cfg: EngineConfig,
   for await (const event of readRecordedEvents(path)) {
     events += 1;
     const atMs = event.kind === "BOOK" ? event.delta.receiveTsMs : event.kind === "TRADE" ? event.trade.receiveTsMs
-      : event.kind === "DISCONNECT" ? event.receiveTsMs : null;
+      : event.kind === "DISCONNECT" || event.kind === "RECORDER_GAP" ? event.receiveTsMs : null;
     if (atMs !== null) { firstTsMs ??= atMs; lastTsMs = atMs; }
     if (event.kind === "BOOK") {
       books += 1;
@@ -161,7 +161,7 @@ export async function analyzeOpportunityRecall(path: string, cfg: EngineConfig,
       const eventBook: BookState = { ...snapshot, receiveTsMs: event.trade.receiveTsMs };
       const base = runtime.features.onBook(eventBook);
       if (base) processState(runtime, eventBook, base, cfg);
-    } else if (event.kind === "DISCONNECT") {
+    } else if (event.kind === "DISCONNECT" || event.kind === "RECORDER_GAP") {
       for (const runtime of runtimes.values()) runtime.book.invalidate();
     }
   }

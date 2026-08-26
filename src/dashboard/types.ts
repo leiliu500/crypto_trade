@@ -147,11 +147,14 @@ export interface DashboardPositionCard {
   openedMs: number;
   ageMs: number;
   initialRiskPx: number;
+  roundTripCostPx: number;
   floorPx: number;
   stopPx: number;
   mfePx: number;
   maePx: number;
   breakEvenArmed: boolean;
+  selectedHorizonMs: number | null;
+  executionPath: string | null;
   latestAction: string;
   latestReason: string | null;
   holdEdgeBps: number | null;
