@@ -131,7 +131,7 @@ test("slow trend warm-up and direction alignment fail closed", () => {
   }
 });
 
-test("neutral regimes authorize trend-aligned continuations symmetrically while opposite regimes remain blocked", () => {
+test("strong neutral regimes authorize trend-aligned continuations symmetrically while opposite regimes remain blocked", () => {
   for (const side of [1, -1] as const) {
     const neutralEngine = new DeterministicEntryEngine(testConfig());
     let neutralIntent = null;
@@ -147,6 +147,7 @@ test("neutral regimes authorize trend-aligned continuations symmetrically while 
     assert.equal(neutralDiagnostics.family, "CONTINUATION");
     assert.equal(neutralDiagnostics.continuationTrendPass, true);
     assert.equal(neutralDiagnostics.regimePass, false);
+    assert.equal(neutralDiagnostics.votes.book, 2);
     assert.equal(neutralDiagnostics.directionAuthorizationPass, true);
     assert.ok(!neutralDiagnostics.reasons.includes("REGIME_GATE"));
     assert.deepEqual(neutralEngine.assessSignalValidity(side, neutral.features, neutral.regime,
@@ -195,6 +196,31 @@ test("neutral regimes authorize trend-aligned continuations symmetrically while 
     { name: "TREND_UP", allowLong: true, allowShort: false, riskScale: 1 }, "CONTINUATION", "ANALYTIC"), {
     valid: false, immediateCancel: true, reasons: ["CONTINUATION_TREND_GATE"],
   });
+});
+
+test("neutral continuations require coherent immediate and aggregate book pressure", () => {
+  for (const side of [1, -1] as const) {
+    const engine = new DeterministicEntryEngine(testConfig());
+    let intent = null;
+    let mixed = context(side);
+    for (let index = 0; index < 20; index += 1) {
+      mixed = context(side, 4_000 + index * 50);
+      mixed.regime = { name: "CHOP", allowLong: false, allowShort: false, riskScale: 0 };
+      mixed.features.microprice = mixed.features.mid * Math.exp(-side * .3 / 10_000);
+      mixed.features.microEdgeBps = -side * .3;
+      intent ??= engine.evaluate(mixed);
+    }
+
+    assert.equal(intent, null);
+    const diagnostics = side === 1 ? engine.latestEvaluation()!.long : engine.latestEvaluation()!.short;
+    assert.ok(diagnostics.score >= testConfig().microTrigger.strongScore);
+    assert.equal(diagnostics.votes.book, 1);
+    assert.equal(diagnostics.regimePass, false);
+    assert.equal(diagnostics.directionAuthorizationPass, false);
+    assert.ok(diagnostics.reasons.includes("REGIME_GATE"));
+    assert.deepEqual(engine.assessSignalValidity(side, mixed.features, mixed.regime,
+      "CONTINUATION", "ANALYTIC"), { valid: false, immediateCancel: false, reasons: ["REGIME_GATE"] });
+  }
 });
 
 test("an uncalibrated pullback remains observable but cannot authorize an entry", () => {

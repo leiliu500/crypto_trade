@@ -37,11 +37,13 @@ interface PaperPosition { symbol: string; side: 1 | -1; qty: number; entryPx: nu
 interface PaperOrder { plan: ExecutionPlan; remote: AlpacaOrder; queueAhead: number; }
 interface SerializedPaperOrder { plan: Omit<ExecutionPlan, "originatingSequence"> & { originatingSequence: string }; remote: AlpacaOrder; queueAhead: number; }
 interface KrakenPaperState {
-  schemaVersion: 1;
+  schemaVersion: 3;
   initialEquity: number;
   productsBySymbol: Record<string, string>;
   savedAt: string;
   cashEquity: number;
+  utcSessionDate: string;
+  utcSessionStartingCashEquity: number;
   positions: PaperPosition[];
   orders: SerializedPaperOrder[];
   activities: AlpacaActivity[];
@@ -72,12 +74,16 @@ export class KrakenPaperBroker extends AlpacaRestClient implements OrderGateway 
   private readonly activities: AlpacaActivity[] = [];
   private readonly paperFetcher: typeof fetch;
   private cashEquity: number;
+  private utcSessionDate: string;
+  private utcSessionStartingCashEquity: number;
 
   public constructor(private readonly paperCfg: KrakenPaperBrokerConfig, fetcher: typeof fetch = fetch) {
     super({ credentials: { keyId: "local-paper", secretKey: "local-paper" }, paper: true });
     if (!(paperCfg.initialEquity > 0)) throw new Error("Kraken paper initial equity must be positive");
     this.paperFetcher = fetcher;
     this.cashEquity = paperCfg.initialEquity;
+    this.utcSessionDate = utcDate(Date.now());
+    this.utcSessionStartingCashEquity = paperCfg.initialEquity;
     this.restoreState();
   }
 
@@ -202,7 +208,11 @@ export class KrakenPaperBroker extends AlpacaRestClient implements OrderGateway 
   }
 
   public override async getPortfolioHistory(): Promise<AlpacaApiResponse<unknown>> {
-    return response({ equity: [this.paperCfg.initialEquity, this.equity()] });
+    if (this.rollUtcCashSession(Date.now())) this.persistState();
+    return response({
+      equity: [this.utcSessionStartingCashEquity, this.cashEquity],
+      profit_loss: [0, this.cashEquity - this.utcSessionStartingCashEquity],
+    });
   }
 
   public override async getActivities(_query: ActivitiesQuery = {}): Promise<AlpacaApiResponse<AlpacaActivity[]>> {
@@ -317,6 +327,7 @@ export class KrakenPaperBroker extends AlpacaRestClient implements OrderGateway 
     paperOrder.remote.filled_qty = String(totalFilled);
     paperOrder.remote.filled_avg_price = String(average);
     paperOrder.remote.updated_at = new Date().toISOString();
+    this.rollUtcCashSession(Date.parse(paperOrder.remote.updated_at));
     const final = totalFilled >= Number(paperOrder.remote.qty) - 1e-12;
     paperOrder.remote.status = final ? "filled" : "partially_filled";
     if (final) paperOrder.remote.filled_at = paperOrder.remote.updated_at;
@@ -367,6 +378,8 @@ export class KrakenPaperBroker extends AlpacaRestClient implements OrderGateway 
     }
     const state = validatePaperState(raw, this.paperCfg, stateFile);
     this.cashEquity = state.cashEquity;
+    this.utcSessionDate = state.utcSessionDate;
+    this.utcSessionStartingCashEquity = state.utcSessionStartingCashEquity;
     for (const position of state.positions) this.positions.set(position.symbol, { ...position });
     for (const stored of state.orders) {
       const plan: ExecutionPlan = { ...stored.plan, originatingSequence: BigInt(stored.plan.originatingSequence) };
@@ -392,11 +405,13 @@ export class KrakenPaperBroker extends AlpacaRestClient implements OrderGateway 
     const stateFile = this.paperCfg.stateFile;
     if (!stateFile) return;
     const state: KrakenPaperState = {
-      schemaVersion: 1,
+      schemaVersion: 3,
       initialEquity: this.paperCfg.initialEquity,
       productsBySymbol: sortedRecord(this.paperCfg.productsBySymbol),
       savedAt: new Date().toISOString(),
       cashEquity: this.cashEquity,
+      utcSessionDate: this.utcSessionDate,
+      utcSessionStartingCashEquity: this.utcSessionStartingCashEquity,
       positions: [...this.positions.values()].map((position) => ({ ...position })),
       orders: [...this.ordersById.values()].map(({ plan, remote, queueAhead }) => ({
         plan: { ...plan, originatingSequence: plan.originatingSequence.toString() },
@@ -408,6 +423,14 @@ export class KrakenPaperBroker extends AlpacaRestClient implements OrderGateway 
     const temporaryFile = `${stateFile}.${process.pid}.tmp`;
     writeFileSync(temporaryFile, `${JSON.stringify(state)}\n`, { encoding: "utf8", mode: 0o600 });
     renameSync(temporaryFile, stateFile);
+  }
+
+  private rollUtcCashSession(nowMs: number): boolean {
+    const date = utcDate(nowMs);
+    if (date === this.utcSessionDate) return false;
+    this.utcSessionDate = date;
+    this.utcSessionStartingCashEquity = this.cashEquity;
+    return true;
   }
 
   private privateEvent(paperOrder: PaperOrder, event: string, eventQty: number, eventPx: number, positionQty: number): PrivateOrderEvent {
@@ -493,7 +516,9 @@ function parseRestLevels(value: unknown, descending: boolean): Array<{ p: number
 function validatePaperState(raw: unknown, cfg: KrakenPaperBrokerConfig, stateFile: string): KrakenPaperState {
   const invalid = (reason: string): never => { throw new Error(`Invalid Kraken paper state in ${stateFile}: ${reason}`); };
   const state = isRecord(raw) ? raw : invalid("root must be an object");
-  if (state.schemaVersion !== 1) invalid(`unsupported schema version ${String(state.schemaVersion)}`);
+  if (state.schemaVersion !== 1 && state.schemaVersion !== 2 && state.schemaVersion !== 3) {
+    invalid(`unsupported schema version ${String(state.schemaVersion)}`);
+  }
   if (state.initialEquity !== cfg.initialEquity) invalid("initial equity does not match KRAKEN_PAPER_INITIAL_EQUITY");
   if (!sameRecord(state.productsBySymbol, cfg.productsBySymbol)) invalid("symbol/product mapping does not match configuration");
   const cashEquity = isFiniteNumber(state.cashEquity) ? state.cashEquity : invalid("cashEquity must be finite");
@@ -535,10 +560,71 @@ function validatePaperState(raw: unknown, cfg: KrakenPaperBrokerConfig, stateFil
   if (activityRecords.length > MAX_PAPER_ACTIVITIES || activityRecords.some((activity) => !isRecord(activity))) {
     invalid("activities are invalid or exceed the retention limit");
   }
-  return { schemaVersion: 1, initialEquity: cfg.initialEquity, productsBySymbol: sortedRecord(cfg.productsBySymbol),
+  const today = utcDate(Date.now());
+  let utcSessionDate = today;
+  let utcSessionStartingCashEquity = cashEquity;
+  if (state.schemaVersion === 3) {
+    const sessionDate = state.utcSessionDate;
+    const sessionStartingCashEquity = state.utcSessionStartingCashEquity;
+    if (typeof sessionDate !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(sessionDate)
+      || !isFiniteNumber(sessionStartingCashEquity)) invalid("UTC session state is invalid");
+    if (sessionDate === today) {
+      utcSessionDate = sessionDate;
+      utcSessionStartingCashEquity = Number(sessionStartingCashEquity);
+    }
+  } else {
+    utcSessionStartingCashEquity = replayUtcSessionStartingCashEquity(
+      cfg.initialEquity, cashEquity, orders, activityRecords as AlpacaActivity[], cfg, Date.parse(`${today}T00:00:00.000Z`),
+    ) ?? cashEquity;
+  }
+  return { schemaVersion: 3, initialEquity: cfg.initialEquity, productsBySymbol: sortedRecord(cfg.productsBySymbol),
     savedAt: typeof state.savedAt === "string" ? state.savedAt : "", cashEquity,
+    utcSessionDate, utcSessionStartingCashEquity,
     positions, orders, activities: activityRecords as AlpacaActivity[] };
 }
+
+function replayUtcSessionStartingCashEquity(initialEquity: number, persistedCashEquity: number,
+  orders: readonly SerializedPaperOrder[], activities: readonly AlpacaActivity[], cfg: KrakenPaperBrokerConfig,
+  dayStartMs: number): number | null {
+  const ordersById = new Map(orders.map((order) => [order.remote.id, order]));
+  const positions = new Map<string, PaperPosition>();
+  let cashEquity = initialEquity;
+  let startingCashEquity: number | null = null;
+  const fills = activities.filter((activity) => activity.activity_type === "FILL").sort((left, right) =>
+    Date.parse(left.transaction_time ?? "") - Date.parse(right.transaction_time ?? ""));
+  for (const activity of fills) {
+    const atMs = Date.parse(activity.transaction_time ?? "");
+    const qty = Number(activity.qty), price = Number(activity.price);
+    const order = activity.order_id ? ordersById.get(activity.order_id) : undefined;
+    if (!Number.isFinite(atMs) || !(qty > 0) || !(price > 0) || !order) return null;
+    if (startingCashEquity === null && atMs >= dayStartMs) startingCashEquity = cashEquity;
+    const plan = order.plan;
+    const oldPosition = positions.get(plan.symbol);
+    if (plan.reduceOnlyIntent) {
+      if (!oldPosition || oldPosition.side === plan.side) return null;
+      const closeQty = Math.min(qty, oldPosition.qty);
+      cashEquity += oldPosition.side * (price - oldPosition.entryPx) * closeQty;
+      oldPosition.qty -= closeQty;
+      if (oldPosition.qty <= 1e-12) positions.delete(plan.symbol);
+    } else if (!oldPosition) {
+      positions.set(plan.symbol, { symbol: plan.symbol, side: plan.side, qty, entryPx: price });
+    } else if (oldPosition.side === plan.side) {
+      oldPosition.entryPx = (oldPosition.entryPx * oldPosition.qty + price * qty) / (oldPosition.qty + qty);
+      oldPosition.qty += qty;
+    } else return null;
+    const feeBps = plan.style === "maker" ? cfg.makerFeeBpsBySymbol[plan.symbol] ?? 0
+      : cfg.takerFeeBpsBySymbol[plan.symbol] ?? 0;
+    cashEquity -= qty * price * feeBps / 10_000;
+  }
+  const replayStartingCashEquity = startingCashEquity ?? cashEquity;
+  const replaySessionPnl = cashEquity - replayStartingCashEquity;
+  // Legacy files can contain older fills produced under different fee settings.
+  // Anchor the replayed current-day delta to authoritative persisted cash so
+  // pre-session discrepancies cannot leak into today's P&L.
+  return persistedCashEquity - replaySessionPnl;
+}
+
+function utcDate(atMs: number): string { return new Date(atMs).toISOString().slice(0, 10); }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);

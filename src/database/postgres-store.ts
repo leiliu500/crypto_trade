@@ -195,13 +195,14 @@ export class PostgresTelemetryStore extends EventEmitter {
     if (!Number.isFinite(sinceMs) || sinceMs < 0) throw new Error("Invalid realized session P&L start time");
     const result = await this.pool.query<PersistedSessionPnlRow>(
       `SELECT COALESCE(sum(realized_pnl),0) AS realized_pnl FROM (
-         SELECT DISTINCT ON (plan#>>'{livePosition,entryOrderId}')
+         SELECT DISTINCT ON (plan#>>'{livePosition,exitOrderId}')
            (plan#>>'{livePosition,realizedPnl}')::numeric AS realized_pnl
          FROM orders
          WHERE created_at >= $1 AND status = 'FILLED' AND plan->>'reduceOnlyIntent' = 'true'
            AND plan#>>'{livePosition,entryOrderId}' IS NOT NULL
+           AND plan#>>'{livePosition,exitOrderId}' IS NOT NULL
            AND plan#>>'{livePosition,realizedPnl}' IS NOT NULL
-         ORDER BY plan#>>'{livePosition,entryOrderId}',updated_at DESC,client_order_id DESC
+         ORDER BY plan#>>'{livePosition,exitOrderId}',updated_at DESC,client_order_id DESC
        ) closed_trades`,
       [date(sinceMs)],
     );

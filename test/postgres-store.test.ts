@@ -61,3 +61,32 @@ test("position restoration supplements legacy snapshots with entry-order economi
     await originalPool.end();
   }
 });
+
+test("realized session restoration deduplicates exit legs instead of dropping partial exits", async () => {
+  const store = new PostgresTelemetryStore({
+    connectionString: "postgres://unused",
+    flushIntervalMs: 60_000,
+    maximumQueue: 3,
+  });
+  const internals = store as unknown as { pool: {
+    query: (sql: string) => Promise<{ rows: Array<{ realized_pnl: string }> }>;
+    end: () => Promise<void>;
+  } };
+  const originalPool = internals.pool;
+  let query = "";
+  internals.pool = {
+    query: async (sql) => {
+      query = sql;
+      return { rows: [{ realized_pnl: "2.75" }] };
+    },
+    end: async () => undefined,
+  };
+  try {
+    assert.equal(await store.loadRealizedSessionPnl(Date.parse("2026-08-27T00:00:00.000Z")), 2.75);
+    assert.match(query, /DISTINCT ON \(plan#>>'\{livePosition,exitOrderId\}'\)/);
+    assert.match(query, /plan#>>'\{livePosition,exitOrderId\}' IS NOT NULL/);
+  } finally {
+    await store.close();
+    await originalPool.end();
+  }
+});

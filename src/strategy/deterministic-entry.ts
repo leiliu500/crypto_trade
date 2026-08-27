@@ -196,7 +196,6 @@ export class DeterministicEntryEngine {
     family?: EntryFamily, edgeSource?: RuleDiagnostics["edgeSource"]): SignalValidityAssessment {
     if (features.stale) return invalidSignal(true, "STALE_FEATURES");
     if (!features.kinematicsReady) return invalidSignal(true, "KINEMATICS_UNAVAILABLE");
-    const directionAuthorizationPass = this.continuationDirectionAuthorized(side, regime);
     if (family === "PULLBACK_RECOVERY" && edgeSource !== "CALIBRATED") {
       return invalidSignal(true, "PULLBACK_CALIBRATION_REQUIRED");
     }
@@ -209,6 +208,10 @@ export class DeterministicEntryEngine {
     const halfSpread = Math.max(features.spread / 2, 1e-12);
     const pressure = clamp((features.microprice - features.mid) / halfSpread, -1, 1);
     const cfg = this.cfg.microTrigger;
+    const directionAuthorizationPass = this.continuationDirectionAuthorized(side, regime);
+    const neutralRegime = !regime.allowLong && !regime.allowShort;
+    const neutralBookCoherencePass = side * pressure >= cfg.minimumMicroPressure
+      && side * features.qiK >= cfg.minimumQiK;
     const book = side * pressure >= cfg.minimumMicroPressure || side * features.qiK >= cfg.minimumQiK;
     const flow = side * features.ofi >= cfg.minimumOfi || side * features.tfi >= cfg.minimumTfi
       || side * features.replenishmentPressure >= cfg.minimumReplenishment;
@@ -218,9 +221,10 @@ export class DeterministicEntryEngine {
       || breakout >= cfg.minimumBreakoutBps || cusum >= cfg.minimumCusum;
     const score = side * this.signedScore(pressure, features);
     const reasons: string[] = [];
-    // A neutral micro regime does not invalidate a slow-trend continuation.
-    // Explicit authorization of the opposite direction still blocks the signal.
-    if (family === "CONTINUATION" && !directionAuthorizationPass) reasons.push("REGIME_GATE");
+    // A resting neutral-regime continuation remains valid only while both the
+    // top-of-book pressure and aggregate-book imbalance agree with its side.
+    if (family === "CONTINUATION" && (!directionAuthorizationPass
+      || (neutralRegime && !neutralBookCoherencePass))) reasons.push("REGIME_GATE");
     if (Number(book) + Number(flow) + Number(motion) < 2) reasons.push("MICRO_GROUP_QUORUM");
     if (!motion) reasons.push("MOTION_EVIDENCE");
     if (!(score > cfg.releaseScore)) reasons.push("RELEASE_SCORE");
@@ -258,12 +262,12 @@ export class DeterministicEntryEngine {
     const continuation = continuationQuality(direction, f, context.regime, this.cfg.continuationQuality);
     const structure = this.structuralSetup(direction, f);
     // A neutral micro regime is not evidence for the opposite direction, but
-    // it may authorize a new continuation only through the existing strong
-    // micro-confirmation path. The slow structure and exact economics remain
-    // mandatory, while an explicitly opposite regime still fails closed.
+    // it may authorize a new continuation only when strong confirmation and
+    // both independent book views agree. This prevents a slow-trend signal
+    // from entering at a local turn while immediate price pressure opposes it.
     const neutralRegime = !context.regime.allowLong && !context.regime.allowShort;
     const directionAuthorizationPass = structure.family === "PULLBACK_RECOVERY"
-      || regimePass || (neutralRegime && strong);
+      || regimePass || (neutralRegime && strong && votes.book >= 2);
     // During a causally aligned continuation, a moderately widened spread may
     // proceed to exact economics when it is still below the learned stress
     // threshold and every non-spread liquidity check remains healthy. The
