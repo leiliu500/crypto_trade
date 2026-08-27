@@ -157,6 +157,10 @@ export class DeterministicEntryEngine {
 
   public latestEvaluation(): DeterministicEvaluation | undefined { return this.lastEvaluation; }
 
+  public rearmAfterUnfilledMakerExpiry(side: Direction, nowMs: number): boolean {
+    return this.microTrigger.rearmAfterUnfilledMakerExpiry(side, nowMs);
+  }
+
   public revalidateExactCost(intent: DeterministicTradeIntent, exactCost: CostEstimate): DeterministicTradeIntent | null {
     const path = intent.executionPath ?? "TAKER_TAKER";
     const exact = exactCostBreakdown(exactCost, path,
