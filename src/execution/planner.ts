@@ -16,6 +16,8 @@ export interface PlannerConfig {
   pullbackKinematicsGraceEvents: number;
   pullbackSignalInvalidationGraceMs: number;
   pullbackSignalInvalidationGraceEvents: number;
+  continuationSignalInvalidationGraceMs: number;
+  continuationSignalInvalidationGraceEvents: number;
   adverseFlowConfirmationMs: number;
   adverseFlowConfirmationEvents: number;
   minimumFillProbability: number;
@@ -96,7 +98,8 @@ export class ExecutionPlanner {
       throw new Error("Planner takerLimitBufferBps must be finite and non-negative");
     }
     const positiveDurations = [cfg.makerTtlMs, cfg.alphaHalfLifeMs, cfg.pullbackMakerTtlMs,
-      cfg.pullbackKinematicsGraceMs, cfg.pullbackSignalInvalidationGraceMs, cfg.adverseFlowConfirmationMs];
+      cfg.pullbackKinematicsGraceMs, cfg.pullbackSignalInvalidationGraceMs,
+      cfg.continuationSignalInvalidationGraceMs, cfg.adverseFlowConfirmationMs];
     if (positiveDurations.some((value) => !Number.isFinite(value) || value <= 0)) {
       throw new Error("Planner order lifetimes and kinematics grace must be finite and positive");
     }
@@ -106,6 +109,10 @@ export class ExecutionPlanner {
     if (!Number.isInteger(cfg.pullbackSignalInvalidationGraceEvents) || cfg.pullbackSignalInvalidationGraceEvents < 2) {
       throw new Error("Planner pullbackSignalInvalidationGraceEvents must be an integer of at least two");
     }
+    if (!Number.isInteger(cfg.continuationSignalInvalidationGraceEvents)
+      || cfg.continuationSignalInvalidationGraceEvents < 2) {
+      throw new Error("Planner continuationSignalInvalidationGraceEvents must be an integer of at least two");
+    }
     if (!Number.isInteger(cfg.adverseFlowConfirmationEvents) || cfg.adverseFlowConfirmationEvents < 2) {
       throw new Error("Planner adverseFlowConfirmationEvents must be an integer of at least two");
     }
@@ -113,6 +120,9 @@ export class ExecutionPlanner {
       || cfg.pullbackSignalInvalidationGraceMs >= cfg.pullbackMakerTtlMs
       || cfg.adverseFlowConfirmationMs >= cfg.pullbackMakerTtlMs) {
       throw new Error("Planner pullback grace periods must be shorter than its maker TTL");
+    }
+    if (cfg.continuationSignalInvalidationGraceMs >= Math.min(cfg.makerTtlMs, cfg.alphaHalfLifeMs / 2)) {
+      throw new Error("Planner continuation signal grace must be shorter than its maker TTL");
     }
   }
 
@@ -222,17 +232,28 @@ export class ExecutionPlanner {
       ? this.cfg.pullbackMakerTtlMs : Math.min(this.cfg.makerTtlMs, this.cfg.alphaHalfLifeMs / 2);
   }
   private fillProbability(f: Features, book: BookState, side: Direction, ttlMs: number): number {
-    const ahead = side === 1 ? book.bids[0]!.qty : book.asks[0]!.qty;
+    const restingLevels = side === 1 ? book.bids : book.asks;
+    const ahead = restingLevels[0]!.qty;
     // A resting order fills when contra-side aggressors consume its queue. Same-side
     // flow may support the price, but it cannot trade against the resting order.
     const contraFlow = -side * f.tfi;
     const opposingImbalance = -side * f.qi1;
-    const aggressiveRatio = Math.max(0, contraFlow) / Math.max(ahead, 1e-12);
-    const logHazard = this.cfg.fillHazardIntercept + this.cfg.fillHazardAggressiveWeight * aggressiveRatio
+    // TFI is a unitless [-1,1] ratio, so dividing it by base-asset quantity makes
+    // probabilities depend on an asset's denomination and saturate for small queues.
+    // Queue share is dimensionless and preserves the intended depth relationship.
+    const displayedRestingDepth = restingLevels.slice(0, 10).reduce((sum, level) => sum + level.qty, 0);
+    const queueShare = Math.max(0, Math.min(1, ahead / Math.max(displayedRestingDepth, 1e-12)));
+    const normalizedAggression = Math.max(0, contraFlow) * (1 - queueShare);
+    const logHazard = this.cfg.fillHazardIntercept + this.cfg.fillHazardAggressiveWeight * normalizedAggression
       + this.cfg.fillHazardFlowWeight * contraFlow + this.cfg.fillHazardImbalanceWeight * opposingImbalance
       - this.cfg.fillHazardSpreadWeight * f.spreadBps;
-    const hazardPerSecond = Math.exp(Math.max(-20, Math.min(20, logHazard)));
-    return 1 - Math.exp(-hazardPerSecond * ttlMs / 1000);
+    const fillHazardPerSecond = Math.exp(Math.max(-20, Math.min(20, logHazard)));
+    // Fill and signal decay are competing risks. Reporting only the full-TTL fill
+    // hazard overstated orders that usually lose their alpha and cancel first.
+    const signalCancellationHazardPerSecond = Math.log(2) / (this.cfg.alphaHalfLifeMs / 1_000);
+    const totalHazardPerSecond = fillHazardPerSecond + signalCancellationHazardPerSecond;
+    return fillHazardPerSecond / totalHazardPerSecond
+      * (1 - Math.exp(-totalHazardPerSecond * ttlMs / 1_000));
   }
   private roundPrice(price: number, increment: number, side: Direction, marketable: boolean): number {
     const units = price / increment;

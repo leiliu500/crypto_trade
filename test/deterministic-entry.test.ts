@@ -147,6 +147,9 @@ test("continuation cannot enter or remain valid when the active regime disallows
   assert.equal(diagnostics.regimePass, false);
   assert.ok(diagnostics.reasons.includes("REGIME_GATE"));
   assert.equal(engine.signalStillValid(1, value.features, value.regime, "CONTINUATION", "ANALYTIC"), false);
+  assert.deepEqual(engine.assessSignalValidity(1, value.features, value.regime, "CONTINUATION", "ANALYTIC"), {
+    valid: false, immediateCancel: true, reasons: ["REGIME_GATE"],
+  });
 });
 
 test("an uncalibrated pullback remains observable but cannot authorize an entry", () => {
@@ -303,6 +306,9 @@ test("pending signal validity cannot cross from pullback into continuation or vi
   };
   assert.equal(engine.signalStillValid(1, value.features, value.regime, "PULLBACK_RECOVERY"), false);
   assert.equal(engine.signalStillValid(1, value.features, value.regime, "PULLBACK_RECOVERY", "ANALYTIC"), false);
+  assert.deepEqual(engine.assessSignalValidity(1, value.features, value.regime, "PULLBACK_RECOVERY", "ANALYTIC"), {
+    valid: false, immediateCancel: true, reasons: ["PULLBACK_CALIBRATION_REQUIRED"],
+  });
   assert.equal(engine.signalStillValid(1, value.features, value.regime, "PULLBACK_RECOVERY", "CALIBRATED"), true);
   assert.equal(engine.signalStillValid(1, value.features, value.regime, "CONTINUATION"), false);
   value.regime = { name: "CHOP", allowLong: false, allowShort: false, riskScale: 0 };
