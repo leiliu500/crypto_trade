@@ -317,6 +317,58 @@ test("filled reduce-only exit cards inherit complete history and actual realized
   assert.equal(repairedExit.livePosition?.pnlHistory.at(-1)?.kind, "close");
 });
 
+test("partial exits allocate entry fees once and aggregate as one realized trade", () => {
+  const monitor = new OperationsMonitor({ pnlSampleMs: 0 });
+  const opened = engineState();
+  opened.positions[0]!.qty = 2;
+  opened.positions[0]!.entryPx = 100;
+  opened.orders[0]!.plan.qty = 2;
+  opened.orders[0]!.plan.expectedCost.feeBps = 10;
+  opened.orders[0]!.status = "FILLED";
+  opened.orders[0]!.filledQty = 2;
+  opened.orders[0]!.averageFillPx = 100;
+  monitor.ingestEngineSnapshot(opened);
+
+  const reduced = structuredClone(opened);
+  reduced.generatedAtMs += 1_000;
+  reduced.positions[0]!.qty = 1;
+  const entryOrder = reduced.orders[0]!;
+  reduced.orders = [...reduced.orders, {
+    ...entryOrder,
+    plan: { ...entryOrder.plan, clientOrderId: "exit-part-1", side: -1, qty: 1, reduceOnlyIntent: true,
+      createdMs: reduced.generatedAtMs - 100, expiresMs: reduced.generatedAtMs + 1_000 },
+    alpacaOrderId: "alpaca-exit-part-1", status: "FILLED", filledQty: 1, averageFillPx: 101,
+    lastUpdateMs: reduced.generatedAtMs,
+  }];
+  reduced.realizedSessionPnl = .8995;
+  monitor.ingestEngineSnapshot(reduced);
+
+  const closed = structuredClone(reduced);
+  closed.generatedAtMs += 1_000;
+  closed.positions = [];
+  closed.orders = [...closed.orders, {
+    ...entryOrder,
+    plan: { ...entryOrder.plan, clientOrderId: "exit-part-2", side: -1, qty: 1, reduceOnlyIntent: true,
+      createdMs: closed.generatedAtMs - 100, expiresMs: closed.generatedAtMs + 1_000 },
+    alpacaOrderId: "alpaca-exit-part-2", status: "FILLED", filledQty: 1, averageFillPx: 102,
+    lastUpdateMs: closed.generatedAtMs,
+  }];
+  closed.realizedSessionPnl = 2.7985;
+  monitor.ingestEngineSnapshot(closed);
+
+  const snapshot = monitor.snapshot();
+  monitor.stop();
+  const firstExit = snapshot.orders.find((order) => order.clientOrderId === "exit-part-1")!;
+  const secondExit = snapshot.orders.find((order) => order.clientOrderId === "exit-part-2")!;
+  assert.ok(Math.abs((firstExit.livePosition?.realizedBreakdown?.entryFee ?? 0) - .05) < 1e-12);
+  assert.ok(Math.abs((secondExit.livePosition?.realizedBreakdown?.entryFee ?? 0) - .05) < 1e-12);
+  assert.equal(snapshot.realizedSessionBreakdown?.tradeCount, 1);
+  assert.ok(Math.abs((snapshot.realizedSessionBreakdown?.grossPricePnl ?? 0) - 3) < 1e-12);
+  assert.ok(Math.abs((snapshot.realizedSessionBreakdown?.entryFee ?? 0) - .1) < 1e-12);
+  assert.ok(Math.abs((snapshot.realizedSessionBreakdown?.exitFee ?? 0) - .1015) < 1e-12);
+  assert.ok(Math.abs((snapshot.realizedSessionBreakdown?.realizedPnl ?? 0) - 2.7985) < 1e-12);
+});
+
 test("dashboard distinguishes a motion reset from invalid market data", async () => {
   const app = await readFile("src/dashboard/public/app.js", "utf8");
   const html = await readFile("src/dashboard/public/index.html", "utf8");

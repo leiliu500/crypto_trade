@@ -640,13 +640,9 @@ export class OperationsMonitor extends EventEmitter {
 
   private closedTradePnl(entry: DashboardOrderCard, exit: DashboardOrderCard): DashboardLivePosition {
     const source = entry.livePosition!;
-    if (source.exitOrderId === exit.clientOrderId && source.realizedPnl !== null && source.realizedBreakdown) {
-      return cloneLivePosition(source);
-    }
     const closeQty = exit.filledQty;
     const closePx = exit.averageFillPx;
-    const positionFraction = source.qty > 0 ? Math.min(1, closeQty / source.qty) : 1;
-    const grossEntryQty = entry.filledQty * positionFraction;
+    const grossEntryQty = Math.min(entry.filledQty, closeQty);
     const entryNotional = grossEntryQty * source.entryPx;
     const entryFee = entryNotional * legFeeBps(entry) / 10_000;
     const exitFee = closeQty * closePx * legFeeBps(exit) / 10_000;
@@ -867,27 +863,31 @@ interface RealizedSessionBreakdown {
 }
 function aggregateRealizedSessionPnl(orders: readonly DashboardOrderCard[], atMs: number): RealizedSessionBreakdown | null {
   const dayStartMs = utcDayStartMs(atMs);
-  const closedTrades = new Map<string, DashboardRealizedTrade>();
+  const closedExitLegs = new Map<string, DashboardRealizedTrade>();
   for (const order of orders) {
     const position = order.livePosition;
     const breakdown = position?.realizedBreakdown;
-    if (!position || position.active || !breakdown || !position.exitOrderId || position.closedAtMs === null) continue;
+    if (!position || position.active || !breakdown || !position.entryOrderId || !position.exitOrderId || position.closedAtMs === null) continue;
     if (position.closedAtMs < dayStartMs || position.closedAtMs >= dayStartMs + 86_400_000) continue;
-    const previous = closedTrades.get(position.exitOrderId);
-    if (!previous || order.clientOrderId === position.exitOrderId) closedTrades.set(position.exitOrderId, { breakdown });
+    const previous = closedExitLegs.get(position.exitOrderId);
+    if (!previous || order.clientOrderId === position.exitOrderId) {
+      closedExitLegs.set(position.exitOrderId, { entryOrderId: position.entryOrderId, breakdown });
+    }
   }
-  if (closedTrades.size === 0) return null;
+  if (closedExitLegs.size === 0) return null;
   let grossPricePnl = 0;
   let entryFee = 0;
   let exitFee = 0;
   let realizedPnl = 0;
+  const entryOrderIds = new Set<string>();
   const entryStyles = new Set<string>();
   const exitStyles = new Set<string>();
-  for (const { breakdown } of closedTrades.values()) {
+  for (const { entryOrderId, breakdown } of closedExitLegs.values()) {
     grossPricePnl += breakdown.grossPricePnl;
     entryFee += breakdown.entryFee;
     exitFee += breakdown.exitFee;
     realizedPnl += breakdown.realizedPnl;
+    entryOrderIds.add(entryOrderId);
     entryStyles.add(breakdown.entryStyle);
     exitStyles.add(breakdown.exitStyle);
   }
@@ -896,7 +896,7 @@ function aggregateRealizedSessionPnl(orders: readonly DashboardOrderCard[], atMs
     entryFee,
     exitFee,
     realizedPnl,
-    tradeCount: closedTrades.size,
+    tradeCount: entryOrderIds.size,
     entryStyle: entryStyles.size === 1 ? [...entryStyles][0]! : null,
     exitStyle: exitStyles.size === 1 ? [...exitStyles][0]! : null,
   };
@@ -910,7 +910,10 @@ function sessionMarkUnrealizedPnl(state: EngineOperationalSnapshot): number {
     return total + position.side * (mark - position.entryPx) * position.qty;
   }, 0);
 }
-interface DashboardRealizedTrade { breakdown: NonNullable<DashboardLivePosition["realizedBreakdown"]> }
+interface DashboardRealizedTrade {
+  entryOrderId: string;
+  breakdown: NonNullable<DashboardLivePosition["realizedBreakdown"]>;
+}
 function legFeeBps(order: DashboardOrderCard): number {
   return Number.isFinite(order.expectedCost.feeBps) ? Math.max(0, order.expectedCost.feeBps / 2) : 0;
 }

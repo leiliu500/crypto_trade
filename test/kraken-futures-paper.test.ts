@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
@@ -132,6 +132,54 @@ test("Kraken paper account survives restart and fail-closed cancels a resting re
     const afterSecondRestart = new KrakenPaperBroker(config);
     assert.deepEqual((await afterSecondRestart.listPositions()).data, []);
     assert.equal(Number((await afterSecondRestart.getAccount()).data.equity), 100_000.5);
+  } finally {
+    rmSync(temporaryDirectory, { recursive: true, force: true });
+  }
+});
+
+test("Kraken paper portfolio history excludes persisted losses from prior UTC days", async () => {
+  const temporaryDirectory = mkdtempSync(join(tmpdir(), "kraken-paper-session-"));
+  try {
+    const stateFile = join(temporaryDirectory, "account.json");
+    const instrument: KrakenFuturesInstrumentRules = {
+      symbol: "BTC/USD", productId: "PF_XBTUSD", tickSize: 1, quantityIncrement: .001, maximumOrderQty: 1_000,
+    };
+    const config = { initialEquity: 100_000, productsBySymbol: { "BTC/USD": "PF_XBTUSD" },
+      instruments: new Map([["BTC/USD", instrument]]), makerFeeBpsBySymbol: { "BTC/USD": 0 },
+      takerFeeBpsBySymbol: { "BTC/USD": 0 }, stateFile };
+    const previousDay = new KrakenPaperBroker(config);
+    previousDay.onBook({ symbol: "BTC/USD", bids: [{ px: 100, qty: 5 }], asks: [{ px: 101, qty: 5 }], reset: true,
+      exchangeTsMs: 1_000, receiveTsMs: 1_001, sourceId: "snapshot" });
+    await previousDay.send(plan("old-short", -1, 1, 100, false));
+    await Promise.resolve();
+    await previousDay.send(plan("old-cover", 1, 1, 101, true));
+    await Promise.resolve();
+
+    const legacy = JSON.parse(readFileSync(stateFile, "utf8")) as Record<string, unknown>;
+    legacy.schemaVersion = 1;
+    delete legacy.utcSessionDate;
+    delete legacy.utcSessionStartingCashEquity;
+    legacy.cashEquity = 99_994;
+    const yesterday = new Date(Date.now() - 86_400_000).toISOString();
+    for (const activity of legacy.activities as Array<Record<string, unknown>>) activity.transaction_time = yesterday;
+    writeFileSync(stateFile, `${JSON.stringify(legacy)}\n`);
+
+    const currentDay = new KrakenPaperBroker(config);
+    assert.deepEqual((await currentDay.getPortfolioHistory()).data, {
+      equity: [99_994, 99_994], profit_loss: [0, 0],
+    });
+    currentDay.onBook({ symbol: "BTC/USD", bids: [{ px: 100, qty: 5 }], asks: [{ px: 101, qty: 5 }], reset: true,
+      exchangeTsMs: 2_000, receiveTsMs: 2_001, sourceId: "snapshot" });
+    await currentDay.send(plan("new-short", -1, 1, 100, false));
+    await Promise.resolve();
+    await currentDay.send(plan("new-cover", 1, 1, 101, true));
+    await Promise.resolve();
+    assert.deepEqual((await currentDay.getPortfolioHistory()).data, {
+      equity: [99_994, 99_993], profit_loss: [0, -1],
+    });
+    const migrated = JSON.parse(readFileSync(stateFile, "utf8")) as Record<string, unknown>;
+    assert.equal(migrated.schemaVersion, 3);
+    assert.equal(migrated.utcSessionStartingCashEquity, 99_994);
   } finally {
     rmSync(temporaryDirectory, { recursive: true, force: true });
   }

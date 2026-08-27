@@ -386,8 +386,12 @@ export class TradingEngine extends EventEmitter {
       const reconciledPositions = refreshedPositionsResponse?.data ?? positionsResponse.data;
       this.reconcilePositions(reconciledPositions);
       await this.optionShort.reconcile(account, reconciledPositions, optionOrdersResponse.data);
-      const rollingLoss = rollingLossFromPortfolioHistory(historyResponse.data);
-      if (rollingLoss > 0) this.realizedSessionPnl = Math.min(this.realizedSessionPnl, -rollingLoss);
+      const portfolioSessionPnl = sessionPnlFromPortfolioHistory(historyResponse.data);
+      if (this.cfg.venue === "kraken_futures") {
+        if (portfolioSessionPnl !== null) this.realizedSessionPnl = portfolioSessionPnl;
+      } else if (portfolioSessionPnl !== null && portfolioSessionPnl < 0) {
+        this.realizedSessionPnl = Math.min(this.realizedSessionPnl, portfolioSessionPnl);
+      }
       this.recomputePortfolioRisk();
       this.riskState.setHealth({ accountReconciled: true, riskRecomputed: true });
       this.riskState.resumeAfterReconciliation();
@@ -1651,11 +1655,11 @@ function nestedNumbersAreFinite(value: unknown): boolean {
   if (!value || typeof value !== "object") return true;
   return Object.values(value as Record<string, unknown>).every(nestedNumbersAreFinite);
 }
-function rollingLossFromPortfolioHistory(value: unknown): number {
-  if (!value || typeof value !== "object") return 0;
+function sessionPnlFromPortfolioHistory(value: unknown): number | null {
+  if (!value || typeof value !== "object") return null;
   const equity = (value as { equity?: unknown }).equity;
-  if (!Array.isArray(equity)) return 0;
+  if (!Array.isArray(equity)) return null;
   const values = equity.map(Number).filter(Number.isFinite);
-  if (values.length < 2) return 0;
-  return Math.max(0, values[0]! - values.at(-1)!);
+  if (values.length < 2) return null;
+  return values.at(-1)! - values[0]!;
 }
