@@ -31,7 +31,7 @@ function planner(takerLimitBufferBps = 0, fillHazardIntercept = 5): ExecutionPla
     makerTtlMs: 1_500, alphaHalfLifeMs: 4_000, minimumFillProbability: .65, takerLimitBufferBps, cancelAheadFraction: .5,
     pullbackMakerTtlMs: 20_000, pullbackKinematicsGraceMs: 5_000, pullbackKinematicsGraceEvents: 2,
     pullbackSignalInvalidationGraceMs: 5_000, pullbackSignalInvalidationGraceEvents: 3,
-    continuationSignalInvalidationGraceMs: 250, continuationSignalInvalidationGraceEvents: 3,
+    continuationSignalInvalidationGraceMs: 750, continuationSignalInvalidationGraceEvents: 3,
     adverseFlowConfirmationMs: 2_000, adverseFlowConfirmationEvents: 3,
     fillHazardIntercept, fillHazardAggressiveWeight: 0, fillHazardFlowWeight: 0,
     fillHazardImbalanceWeight: 0, fillHazardSpreadWeight: 0,
@@ -51,7 +51,7 @@ function directionalFillPlanner(): ExecutionPlanner {
     cancelAheadFraction: .5, pullbackMakerTtlMs: 20_000,
     pullbackKinematicsGraceMs: 5_000, pullbackKinematicsGraceEvents: 2,
     pullbackSignalInvalidationGraceMs: 5_000, pullbackSignalInvalidationGraceEvents: 3,
-    continuationSignalInvalidationGraceMs: 250, continuationSignalInvalidationGraceEvents: 3,
+    continuationSignalInvalidationGraceMs: 750, continuationSignalInvalidationGraceEvents: 3,
     adverseFlowConfirmationMs: 2_000, adverseFlowConfirmationEvents: 3,
     fillHazardIntercept: -1, fillHazardAggressiveWeight: .1, fillHazardFlowWeight: 1,
     fillHazardImbalanceWeight: .5, fillHazardSpreadWeight: .05,
@@ -88,6 +88,29 @@ test("maker planning remains possible when the exact taker cost gate rejects", (
   assert.equal(plan.style, "maker");
   assert.equal(plan.timeInForce, "gtc");
   assert.ok(plan.expectedCost.roundTripBps < 6);
+  assert.equal(execution.latestBuildRejection(), null);
+});
+
+test("maker-only planning reports fill probability and exact-cost failures separately", () => {
+  const baseRisk = {
+    equity: 100_000, equityHighWater: 100_000, initialStopDistance: 1, jumpBuffer: 0,
+    maximumNotional: 1_000, lotSize: .001, regimeScale: 1, exposureCapacityQty: 10,
+  };
+  const asset = { symbol: "BTC/USD", minOrderSize: .001, minTradeIncrement: .001,
+    priceIncrement: .001, maximumOrderQty: 1_000, shortable: false };
+
+  const lowFill = directionalFillPlanner();
+  assert.equal(lowFill.build(intent, features, book, asset, baseRisk, false,
+    { createdMs: 1_000, executionPath: "MAKER_MAKER_TAKER_FALLBACK" }), null);
+  const fillRejection = lowFill.latestBuildRejection();
+  assert.equal(fillRejection?.reason, "MAKER_FILL_PROBABILITY_BELOW_MINIMUM");
+  assert.ok(Number(fillRejection?.values.fillProbability) < Number(fillRejection?.values.minimumFillProbability));
+
+  const exactCost = planner();
+  assert.equal(exactCost.build(intent, features, book, asset, baseRisk, false, {
+    createdMs: 1_000, executionPath: "MAKER_MAKER_TAKER_FALLBACK", revalidateCost: () => null,
+  }), null);
+  assert.equal(exactCost.latestBuildRejection()?.reason, "EXACT_COST_REVALIDATION_FAILED");
 });
 
 test("the economic execution path constrains the final order style", () => {
