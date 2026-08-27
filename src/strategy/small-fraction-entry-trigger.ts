@@ -12,6 +12,7 @@ interface DirectionState {
   evidence: number;
   armed: boolean;
   firedInEpisode: boolean;
+  retryUsedInEpisode: boolean;
   firstSupportMs?: number;
   anchorMid?: number;
   consecutiveEvents: number;
@@ -80,6 +81,21 @@ export class SmallFractionEntryTrigger {
     state.cooldownUntilMs = Math.max(state.cooldownUntilMs, nowMs + this.cfg.cooldownMs);
   }
 
+  /**
+   * Re-opens one candidate slot when a resting maker entry expires without any fill.
+   * The original episode anchor and accumulated evidence stay intact, so the normal
+   * signal, anti-chase, exposure, liquidity, and exact-cost gates all run again.
+   */
+  public rearmAfterUnfilledMakerExpiry(side: Direction, nowMs: number): boolean {
+    const state = this.mustState(side);
+    if (!state.armed || !state.firedInEpisode || state.retryUsedInEpisode) return false;
+    state.firedInEpisode = false;
+    state.retryUsedInEpisode = true;
+    state.nextCandidateAtMs = Math.max(state.nextCandidateAtMs === Number.POSITIVE_INFINITY ? 0 : state.nextCandidateAtMs,
+      nowMs + this.cfg.candidateRetryMs);
+    return true;
+  }
+
   private evaluateSide(input: SideInput): SideTriggerDiagnostics {
     const { side, nowMs, mid, features: f } = input;
     const state = this.mustState(side);
@@ -113,6 +129,7 @@ export class SmallFractionEntryTrigger {
       if (!state.armed) {
         state.armed = true;
         state.firedInEpisode = false;
+        state.retryUsedInEpisode = false;
         state.firstSupportMs = nowMs;
         state.anchorMid = mid;
         state.consecutiveEvents = 1;
@@ -183,6 +200,7 @@ export class SmallFractionEntryTrigger {
     state.evidence = 0;
     state.armed = false;
     state.firedInEpisode = false;
+    state.retryUsedInEpisode = false;
     state.nextCandidateAtMs = 0;
     delete state.firstSupportMs;
     delete state.anchorMid;
@@ -197,7 +215,7 @@ export class SmallFractionEntryTrigger {
 }
 
 function freshState(): DirectionState {
-  return { occupancy: 0, evidence: 0, armed: false, firedInEpisode: false, consecutiveEvents: 0,
+  return { occupancy: 0, evidence: 0, armed: false, firedInEpisode: false, retryUsedInEpisode: false, consecutiveEvents: 0,
     nextCandidateAtMs: 0, cooldownUntilMs: 0 };
 }
 

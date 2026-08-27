@@ -919,7 +919,7 @@ export class TradingEngine extends EventEmitter {
       this.pendingSignalFaults.delete(tracked.plan.clientOrderId);
       this.pendingAdverseFlowFaults.delete(tracked.plan.clientOrderId);
       const runtime = this.runtimes.get(tracked.plan.symbol);
-      if (runtime?.pendingEntryIntent?.decisionId === tracked.plan.decisionId) delete runtime.pendingEntryIntent;
+      if (runtime) this.finalizeTerminalEntry(runtime, tracked);
     }
     if (["rejected", "order_replace_rejected", "order_cancel_rejected"].includes(event.event)) this.emit("orderRejected", event);
   }
@@ -1155,6 +1155,15 @@ export class TradingEngine extends EventEmitter {
       void this.handlePendingWithPosition(runtime, pending, book, features);
       return;
     }
+    const { decision, hold, regime, nowMs } = this.evaluatePosition(runtime, book, features);
+    this.publishPositionDecision(runtime, position, decision, hold, regime, nowMs);
+    if (decision.action === "EXIT") void this.submitExit(runtime, position.qty, decision.reason, book, features);
+    else if (decision.action === "REDUCE") void this.submitExit(runtime, position.qty * decision.fraction, decision.reason, book, features);
+  }
+
+  private evaluatePosition(runtime: SymbolRuntime, book: ReturnType<LocalOrderBook["snapshot"]>,
+    features: DeterministicFeatures) {
+    const position = runtime.position!;
     const regime = runtime.regimeEngine.classify(features);
     runtime.latestRegime = regime;
     const exitSide = -position.side as 1 | -1;
@@ -1168,13 +1177,17 @@ export class TradingEngine extends EventEmitter {
     const executableExit = position.side === 1 ? book.bids[0]!.px : book.asks[0]!.px;
     const nowMs = this.now();
     const decision = runtime.positionManager.update(position, executableExit, nowMs, features, hold.holdLowerBoundBps, hold.reversalScore, Math.max(0, -hold.holdLowerBoundBps));
+    return { decision, hold, regime, nowMs };
+  }
+
+  private publishPositionDecision(runtime: SymbolRuntime, position: Position,
+    decision: ReturnType<PositionManager["update"]>, hold: ReturnType<DeterministicHoldEngine["evaluate"]>,
+    regime: RegimeDecision, nowMs: number): void {
     const lastTelemetryMs = this.lastPositionDecisionTelemetryMs.get(position.symbol);
     if (decision.action !== "HOLD" || lastTelemetryMs === undefined || nowMs - lastTelemetryMs >= 1_000) {
       this.lastPositionDecisionTelemetryMs.set(position.symbol, nowMs);
       this.emit("positionDecision", { configurationVersion: runtime.config.configurationVersion, position: { ...position }, decision, hold, regime });
     }
-    if (decision.action === "EXIT") void this.submitExit(runtime, position.qty, decision.reason, book, features);
-    else if (decision.action === "REDUCE") void this.submitExit(runtime, position.qty * decision.fraction, decision.reason, book, features);
   }
 
   private async handlePendingWithPosition(runtime: SymbolRuntime, pending: TrackedOrder,
@@ -1183,11 +1196,56 @@ export class TradingEngine extends EventEmitter {
     if (!position) return;
     const nowMs = this.now();
     if (!pending.plan.reduceOnlyIntent) {
-      const reason: OrderCancelRequestReason = nowMs >= pending.plan.expiresMs ? "TTL_EXPIRED" : "POSITION_ALREADY_OPEN";
-      await this.cancelTracked(pending, reason, {
-        nowMs, expiresMs: pending.plan.expiresMs, kinematicsReady: features.kinematicsReady,
-        filledQty: pending.filledQty, remainingQty: Math.max(0, pending.plan.qty - pending.filledQty),
-      });
+      const partialRemainder = pending.filledQty > 0 && pending.filledQty < pending.plan.qty
+        && pending.plan.side === position.side && position.phase !== "EXITING";
+      if (!partialRemainder) {
+        const reason: OrderCancelRequestReason = nowMs >= pending.plan.expiresMs ? "TTL_EXPIRED" : "POSITION_ALREADY_OPEN";
+        await this.cancelTracked(pending, reason, {
+          nowMs, expiresMs: pending.plan.expiresMs, kinematicsReady: features.kinematicsReady,
+          filledQty: pending.filledQty, remainingQty: Math.max(0, pending.plan.qty - pending.filledQty),
+        });
+        return;
+      }
+      if (nowMs >= pending.plan.expiresMs) {
+        await this.cancelTracked(pending, "TTL_EXPIRED", {
+          nowMs, expiresMs: pending.plan.expiresMs, kinematicsReady: features.kinematicsReady,
+          filledQty: pending.filledQty, remainingQty: Math.max(0, pending.plan.qty - pending.filledQty),
+          partialRemainderRetainedUntilTtl: true,
+        });
+        if (!this.pendingForSymbol(position.symbol)) {
+          if (features.kinematicsReady) this.managePosition(runtime, book, features);
+          else await this.enforceProtectiveExitWithoutKinematics(runtime, book, features);
+        }
+        return;
+      }
+      if (!features.kinematicsReady) {
+        const executableExit = position.side === 1 ? book.bids[0]!.px : book.asks[0]!.px;
+        const signedMovePx = position.side * (executableExit - position.entryPx);
+        if (signedMovePx <= Math.max(position.floorPx, -position.initialRiskPx)) {
+          await this.cancelTracked(pending, "POSITION_PROTECTION", {
+            nowMs, signedMovePx, floorPx: position.floorPx, initialRiskPx: position.initialRiskPx,
+            filledQty: pending.filledQty, remainingQty: Math.max(0, pending.plan.qty - pending.filledQty),
+          });
+          if (!this.pendingForSymbol(position.symbol)) {
+            await this.enforceProtectiveExitWithoutKinematics(runtime, book, features);
+          }
+        } else await this.handlePendingKinematicsUnavailable(runtime, pending, features);
+        return;
+      }
+      const { decision, hold, regime, nowMs: evaluatedAtMs } = this.evaluatePosition(runtime, book, features);
+      this.publishPositionDecision(runtime, position, decision, hold, regime, evaluatedAtMs);
+      if (decision.action !== "HOLD") {
+        await this.cancelTracked(pending, "POSITION_PROTECTION", {
+          nowMs, positionDecision: decision.action, positionReason: decision.reason,
+          filledQty: pending.filledQty, remainingQty: Math.max(0, pending.plan.qty - pending.filledQty),
+        });
+        if (!this.pendingForSymbol(position.symbol) && runtime.position) {
+          const desiredQty = decision.action === "EXIT" ? runtime.position.qty : runtime.position.qty * decision.fraction;
+          await this.submitExit(runtime, desiredQty, decision.reason, book, features);
+        }
+        return;
+      }
+      this.reevaluatePending(runtime, pending, book, features);
       return;
     }
     if (!pending.plan.reduceOnlyIntent || pending.plan.style !== "maker") return;
@@ -1460,7 +1518,7 @@ export class TradingEngine extends EventEmitter {
           this.clearOrderDeadline(clientOrderId);
           this.cancelReconcileLastAttemptMs.delete(clientOrderId);
           const runtime = this.runtimes.get(reconciled.plan.symbol);
-          if (runtime?.pendingEntryIntent?.decisionId === reconciled.plan.decisionId) delete runtime.pendingEntryIntent;
+          if (runtime) this.finalizeTerminalEntry(runtime, reconciled);
         }
       }
       // A missed fill changes authoritative exposure and must use the full
@@ -1550,9 +1608,24 @@ export class TradingEngine extends EventEmitter {
       if (isPendingOrderStatus(tracked.status)) continue;
       this.clearOrderDeadline(tracked.plan.clientOrderId);
       const runtime = this.runtimes.get(tracked.plan.symbol);
-      if (runtime?.pendingEntryIntent?.decisionId === tracked.plan.decisionId) delete runtime.pendingEntryIntent;
+      if (runtime) this.finalizeTerminalEntry(runtime, tracked);
     }
     return fillAdvanced;
+  }
+
+  private finalizeTerminalEntry(runtime: SymbolRuntime, tracked: TrackedOrder): void {
+    const retryArmed = !tracked.plan.reduceOnlyIntent && tracked.plan.style === "maker"
+      && tracked.filledQty <= 1e-12 && tracked.cancelRequestReason === "TTL_EXPIRED"
+      && ["CANCELED", "EXPIRED"].includes(tracked.status)
+      && runtime.entryEngine.rearmAfterUnfilledMakerExpiry(tracked.plan.side, this.now());
+    if (retryArmed) this.emit("missedEntryRetryArmed", {
+      symbol: tracked.plan.symbol, side: tracked.plan.side,
+      originalDecisionId: tracked.plan.decisionId,
+      originalClientOrderId: tracked.plan.clientOrderId,
+      reason: "UNFILLED_MAKER_TTL",
+      maximumRetriesPerEpisode: 1,
+    });
+    if (runtime.pendingEntryIntent?.decisionId === tracked.plan.decisionId) delete runtime.pendingEntryIntent;
   }
   private onPublicDisconnect(): void {
     this.recorder?.write({ kind: "DISCONNECT", receiveTsMs: this.now(), stream: "public" });

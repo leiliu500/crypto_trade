@@ -15,6 +15,7 @@ const ENGINE_EVENTS = [
   "orderReserved", "orderSending", "orderAccepted", "orderCancelRequested", "orderUpdate", "orderRejected",
   "positionDecision", "positionDust", "exitDecision", "fill", "watchdogFault", "entryBlocked", "pendingKinematicsGrace",
   "pendingSignalGrace", "pendingSignalRecovered", "pendingAdverseFlowGrace", "pendingAdverseFlowRecovered",
+  "missedEntryRetryArmed",
   "optionShortDecision", "optionShortBlocked", "optionShortOrderAccepted", "optionShortOrderCancelRequested",
   "optionShortOrderCancelUnknown", "optionShortOrderReconciled", "optionShortOrderUpdate", "optionShortOrderError",
   "optionShortReconciled", "optionShortUniverse", "optionShortStockStreamReady",

@@ -98,6 +98,35 @@ test("a continuous episode produces only one candidate", () => {
   assert.equal(count, 1);
 });
 
+test("BTC and ETH each permit exactly one revalidated retry after an unfilled maker expiry", () => {
+  for (const scenario of [
+    { symbol: "BTC/USD", sample: (atMs: number) => bullish(atMs) },
+    { symbol: "ETH/USD", sample: (atMs: number) => ({ ...bearish(atMs), symbol: "ETH/USD" }) },
+  ]) {
+    const cfg = { ...triggerConfig(), candidateRetryMs: 200 };
+    const trigger = new SmallFractionEntryTrigger(cfg);
+    let first: SmallFractionCandidate | null = null;
+    for (let index = 0; index < 40 && !first; index += 1) {
+      first = trigger.update(scenario.sample(index * 20)).candidate;
+    }
+    assert.ok(first, `${scenario.symbol} should produce its first candidate`);
+    trigger.commitCandidate(first.side, first.createdMs);
+    assert.equal(trigger.rearmAfterUnfilledMakerExpiry(first.side, 1_500), true);
+
+    let retry: SmallFractionCandidate | null = null;
+    for (let atMs = 1_520; atMs <= 2_000 && !retry; atMs += 20) {
+      retry = trigger.update(scenario.sample(atMs)).candidate;
+    }
+    assert.ok(retry, `${scenario.symbol} should produce its bounded retry`);
+    assert.equal(retry.side, first.side);
+    trigger.commitCandidate(retry.side, retry.createdMs);
+    assert.equal(trigger.rearmAfterUnfilledMakerExpiry(retry.side, 2_100), false);
+    for (let atMs = 2_120; atMs <= 2_600; atMs += 20) {
+      assert.equal(trigger.update(scenario.sample(atMs)).candidate, null);
+    }
+  }
+});
+
 test("a downstream-rejected episode can retry, while an accepted episode cannot", () => {
   const cfg = { ...triggerConfig(), candidateRetryMs: 200 };
   const trigger = new SmallFractionEntryTrigger(cfg);

@@ -216,7 +216,7 @@ test("hard stops bypass maker exit optimization", async () => {
   assert.equal(plans[0]?.timeInForce, "ioc");
 });
 
-test("a partial entry cancels its remainder while kinematics are unavailable", async () => {
+test("a partial entry retains its remainder during the pullback kinematics grace", async () => {
   const canceledOrderIds: string[] = [];
   const plan = pullbackEntryPlan();
   const gateway: OrderGateway = {
@@ -255,12 +255,71 @@ test("a partial entry cancels its remainder while kinematics are unavailable", a
     exchangeTsMs: 2_000, receiveTsMs: 2_000, sequence: 1n, valid: true, sourceReset: true } satisfies BookState;
   const unavailable = { ...basicFeatures(2_000), kinematicsReady: false,
     kinematicsResetReason: "FILTER_BOUNDS" as const };
+  const graceEvents: unknown[] = [];
+  engine.on("pendingKinematicsGrace", (event) => graceEvents.push(event));
 
   const tracked = internals.orderState.get(plan.clientOrderId)!;
-  await within(internals.handlePendingWithPosition(runtime, tracked, book, unavailable), "partial entry cancellation");
-  assert.deepEqual(canceledOrderIds, ["partial-entry"]);
-  assert.equal(tracked.cancelRequestReason, "POSITION_ALREADY_OPEN");
-  assert.equal(tracked.cancellationReason, "PARTIAL_REMAINDER_CANCELED");
+  await within(internals.handlePendingWithPosition(runtime, tracked, book, unavailable), "partial entry retention");
+  assert.deepEqual(canceledOrderIds, []);
+  assert.equal(tracked.status, "PARTIALLY_FILLED");
+  assert.equal(tracked.cancelRequestReason, undefined);
+  assert.equal(graceEvents.length, 1);
+});
+
+test("terminal zero-fill TTL orders arm shared BTC and ETH retries but partial fills do not", () => {
+  const nowMs = 5_000;
+  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "replay", CONFIG_DIR: "config" }), { now: () => nowMs });
+  const internals = engine as unknown as {
+    runtimes: Map<string, {
+      pendingEntryIntent?: { decisionId: string };
+      entryEngine: { rearmAfterUnfilledMakerExpiry: (side: 1 | -1, atMs: number) => boolean };
+    }>;
+    orderState: {
+      reserve: (value: ExecutionPlan) => void;
+      markAccepted: (clientOrderId: string, alpacaOrderId: string, atMs: number) => void;
+      requestCancel: (clientOrderId: string, reason: "TTL_EXPIRED", atMs: number) => void;
+      reconcileOrder: (value: { id: string; clientOrderId: string; filledQty: number; status: string }) => TrackedOrder;
+    };
+    finalizeTerminalEntry: (runtime: unknown, tracked: TrackedOrder) => void;
+  };
+  const rearmed: Array<{ symbol: string; side: number; atMs: number }> = [];
+  const events: unknown[] = [];
+  engine.on("missedEntryRetryArmed", (event) => events.push(event));
+
+  for (const [index, symbol] of ["BTC/USD", "ETH/USD"].entries()) {
+    const runtime = internals.runtimes.get(symbol)!;
+    runtime.entryEngine.rearmAfterUnfilledMakerExpiry = (side, atMs) => {
+      rearmed.push({ symbol, side, atMs });
+      return true;
+    };
+    const plan = { ...pullbackEntryPlan(), symbol, clientOrderId: `unfilled-${index}`,
+      decisionId: `unfilled-decision-${index}`, side: index === 0 ? 1 as const : -1 as const };
+    runtime.pendingEntryIntent = { decisionId: plan.decisionId };
+    internals.orderState.reserve(plan);
+    internals.orderState.markAccepted(plan.clientOrderId, `venue-${index}`, 1_100);
+    internals.orderState.requestCancel(plan.clientOrderId, "TTL_EXPIRED", nowMs);
+    const tracked = internals.orderState.reconcileOrder({ id: `venue-${index}`,
+      clientOrderId: plan.clientOrderId, filledQty: 0, status: "canceled" });
+    internals.finalizeTerminalEntry(runtime, tracked);
+    assert.equal(runtime.pendingEntryIntent, undefined);
+  }
+
+  assert.deepEqual(rearmed, [
+    { symbol: "BTC/USD", side: 1, atMs: nowMs },
+    { symbol: "ETH/USD", side: -1, atMs: nowMs },
+  ]);
+  assert.equal(events.length, 2);
+
+  const btc = internals.runtimes.get("BTC/USD")!;
+  const partial = { ...pullbackEntryPlan(), clientOrderId: "partial-no-retry", decisionId: "partial-no-retry-decision" };
+  internals.orderState.reserve(partial);
+  internals.orderState.markAccepted(partial.clientOrderId, "partial-no-retry-venue", 1_100);
+  internals.orderState.requestCancel(partial.clientOrderId, "TTL_EXPIRED", nowMs);
+  const trackedPartial = internals.orderState.reconcileOrder({ id: "partial-no-retry-venue",
+    clientOrderId: partial.clientOrderId, filledQty: .001, status: "canceled" });
+  internals.finalizeTerminalEntry(btc, trackedPartial);
+  assert.equal(rearmed.length, 2);
+  assert.equal(events.length, 2);
 });
 
 test("hard stops remain active while kinematics are unavailable", async () => {
