@@ -21,7 +21,8 @@ import { PositionManager, type Position } from "../strategy/position-manager.js"
 import type { TradeIntent } from "../strategy/signal.js";
 import { BookPressureTracker, DeterministicFeatureExtensions, type DeterministicFeatures, type SlowTrendObservation, type SlowTrendRestoreResult } from "../strategy/deterministic-features.js";
 import { DeterministicRegimeEngine, type RegimeDecision } from "../strategy/deterministic-regime.js";
-import { DeterministicEntryEngine, type DeterministicEvaluation, type DeterministicTradeIntent, type SystemGateState } from "../strategy/deterministic-entry.js";
+import { DeterministicEntryEngine, type DeterministicEvaluation, type DeterministicTradeIntent,
+  type SignalValidityAssessment, type SystemGateState } from "../strategy/deterministic-entry.js";
 import { DeterministicHoldEngine } from "../strategy/deterministic-hold.js";
 import { DynamicLiquidityPolicy, type LiquidityDecision } from "../strategy/dynamic-liquidity.js";
 import { SignalRouter, type OptionalSignalModel } from "../strategy/signal-router.js";
@@ -951,14 +952,16 @@ export class TradingEngine extends EventEmitter {
     runtime.latestRegime = regime;
     const sourceIntent = runtime.pendingEntryIntent?.decisionId === pending.plan.decisionId
       ? runtime.pendingEntryIntent : undefined;
-    const stillValid = sourceIntent !== undefined
-      && runtime.entryEngine.signalStillValid(pending.plan.side, features, regime,
+    const signalValidity: SignalValidityAssessment = sourceIntent === undefined
+      ? { valid: false, immediateCancel: true, reasons: ["SOURCE_INTENT_MISSING"] }
+      : runtime.entryEngine.assessSignalValidity(pending.plan.side, features, regime,
         sourceIntent.diagnostics.family, sourceIntent.diagnostics.edgeSource);
+    const stillValid = signalValidity.valid;
     const exactCostValid = cost !== null && sourceIntent?.side === pending.plan.side
       && runtime.entryEngine.revalidateExactCost(sourceIntent, cost) !== null;
     const nowMs = this.now();
     const adverseFlow = this.confirmPendingAdverseFlow(runtime, pending, features, nowMs);
-    const signalInvalidationConfirmed = this.confirmPendingSignalInvalidation(runtime, pending, stillValid, nowMs);
+    const signalInvalidationConfirmed = this.confirmPendingSignalInvalidation(runtime, pending, signalValidity, nowMs);
     const reason: OrderCancelRequestReason | null = nowMs >= pending.plan.expiresMs ? "TTL_EXPIRED"
       : features.stale ? "STALE_BOOK"
         : adverseFlow.confirmed ? "ADVERSE_FLOW"
@@ -966,6 +969,8 @@ export class TradingEngine extends EventEmitter {
             : !exactCostValid ? "COST_INVALIDATED" : null;
     if (reason) void this.cancelTracked(pending, reason, {
       nowMs, expiresMs: pending.plan.expiresMs, stillValid, exactCostValid,
+      signalInvalidationReasons: signalValidity.reasons,
+      signalImmediateCancel: signalValidity.immediateCancel,
       adverse: adverseFlow.adverse, adverseConfirmed: adverseFlow.confirmed,
       adverseCorroborated: adverseFlow.corroborated,
       firstAdverseAtMs: adverseFlow.firstAdverseAtMs, adverseForMs: adverseFlow.adverseForMs,
@@ -1025,10 +1030,10 @@ export class TradingEngine extends EventEmitter {
   }
 
   private confirmPendingSignalInvalidation(runtime: SymbolRuntime, pending: TrackedOrder,
-    stillValid: boolean, nowMs: number): boolean {
+    assessment: SignalValidityAssessment, nowMs: number): boolean {
     const clientOrderId = pending.plan.clientOrderId;
     const family = pending.plan.entryFamily;
-    if (stillValid) {
+    if (assessment.valid) {
       const previous = this.pendingSignalFaults.get(clientOrderId);
       this.pendingSignalFaults.delete(clientOrderId);
       if (previous) this.emit("pendingSignalRecovered", {
@@ -1037,7 +1042,7 @@ export class TradingEngine extends EventEmitter {
       });
       return false;
     }
-    if (family !== "PULLBACK_RECOVERY") {
+    if (assessment.immediateCancel || (family !== "PULLBACK_RECOVERY" && family !== "CONTINUATION")) {
       this.pendingSignalFaults.delete(clientOrderId);
       return true;
     }
@@ -1049,16 +1054,22 @@ export class TradingEngine extends EventEmitter {
     };
     this.pendingSignalFaults.set(clientOrderId, fault);
     const graceElapsedMs = nowMs - fault.firstAtMs;
-    const confirmed = graceElapsedMs >= runtime.config.planner.pullbackSignalInvalidationGraceMs
-      && fault.consecutiveEvents >= runtime.config.planner.pullbackSignalInvalidationGraceEvents;
+    const graceMs = family === "PULLBACK_RECOVERY"
+      ? runtime.config.planner.pullbackSignalInvalidationGraceMs
+      : runtime.config.planner.continuationSignalInvalidationGraceMs;
+    const requiredConsecutiveEvents = family === "PULLBACK_RECOVERY"
+      ? runtime.config.planner.pullbackSignalInvalidationGraceEvents
+      : runtime.config.planner.continuationSignalInvalidationGraceEvents;
+    const confirmed = graceElapsedMs >= graceMs && fault.consecutiveEvents >= requiredConsecutiveEvents;
     if (!confirmed && !previous) this.emit("pendingSignalGrace", {
       symbol: pending.plan.symbol, clientOrderId, reason: "SIGNAL_INVALIDATED",
       details: {
         nowMs, expiresMs: pending.plan.expiresMs, family,
         firstInvalidAtMs: fault.firstAtMs, graceElapsedMs,
-        graceMs: runtime.config.planner.pullbackSignalInvalidationGraceMs,
+        graceMs,
         consecutiveEvents: fault.consecutiveEvents,
-        requiredConsecutiveEvents: runtime.config.planner.pullbackSignalInvalidationGraceEvents,
+        requiredConsecutiveEvents,
+        invalidationReasons: assessment.reasons,
       },
     });
     return confirmed;

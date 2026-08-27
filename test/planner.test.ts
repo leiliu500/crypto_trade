@@ -31,6 +31,7 @@ function planner(takerLimitBufferBps = 0, fillHazardIntercept = 5): ExecutionPla
     makerTtlMs: 1_500, alphaHalfLifeMs: 4_000, minimumFillProbability: .65, takerLimitBufferBps, cancelAheadFraction: .5,
     pullbackMakerTtlMs: 20_000, pullbackKinematicsGraceMs: 5_000, pullbackKinematicsGraceEvents: 2,
     pullbackSignalInvalidationGraceMs: 5_000, pullbackSignalInvalidationGraceEvents: 3,
+    continuationSignalInvalidationGraceMs: 250, continuationSignalInvalidationGraceEvents: 3,
     adverseFlowConfirmationMs: 2_000, adverseFlowConfirmationEvents: 3,
     fillHazardIntercept, fillHazardAggressiveWeight: 0, fillHazardFlowWeight: 0,
     fillHazardImbalanceWeight: 0, fillHazardSpreadWeight: 0,
@@ -50,6 +51,7 @@ function directionalFillPlanner(): ExecutionPlanner {
     cancelAheadFraction: .5, pullbackMakerTtlMs: 20_000,
     pullbackKinematicsGraceMs: 5_000, pullbackKinematicsGraceEvents: 2,
     pullbackSignalInvalidationGraceMs: 5_000, pullbackSignalInvalidationGraceEvents: 3,
+    continuationSignalInvalidationGraceMs: 250, continuationSignalInvalidationGraceEvents: 3,
     adverseFlowConfirmationMs: 2_000, adverseFlowConfirmationEvents: 3,
     fillHazardIntercept: -1, fillHazardAggressiveWeight: .1, fillHazardFlowWeight: 1,
     fillHazardImbalanceWeight: .5, fillHazardSpreadWeight: .05,
@@ -113,12 +115,12 @@ test("the economic execution path constrains the final order style", () => {
     { createdMs: 1_000, executionPath: "MAKER_MAKER" }), null);
 });
 
-test("pullback maker orders use the family TTL and the same TTL in fill modeling", () => {
+test("maker fill modeling uses the family TTL and competes with signal decay", () => {
   const execution = planner(0, -3);
   const continuationProbability = execution.makerFillProbability(features, book, 1, "CONTINUATION");
   const pullbackProbability = execution.makerFillProbability(features, book, 1, "PULLBACK_RECOVERY");
-  assert.ok(Math.abs(continuationProbability - (1 - Math.exp(-Math.exp(-3) * 1.5))) < 1e-12);
-  assert.ok(Math.abs(pullbackProbability - (1 - Math.exp(-Math.exp(-3) * 20))) < 1e-12);
+  assert.ok(Math.abs(continuationProbability - competingFillProbability(Math.exp(-3), 1.5, 4)) < 1e-12);
+  assert.ok(Math.abs(pullbackProbability - competingFillProbability(Math.exp(-3), 20, 4)) < 1e-12);
   assert.ok(pullbackProbability > continuationProbability);
 
   const executable = planner();
@@ -150,6 +152,22 @@ test("maker fill probability follows contra-side flow instead of same-side momen
   assert.ok(Math.abs(contraSellFlow - mirroredContraBuyFlow) < 1e-12);
 });
 
+test("maker fill probability is denomination-invariant and does not saturate on a tiny base-asset queue", () => {
+  const execution = directionalFillPlanner();
+  const incident = { ...features, tfi: -.7491045205697658, qi1: .28, spreadBps: .1264358369736318 };
+  const tinyBtcQueue = { ...book,
+    bids: [{ px: 99.995, qty: .001 }, { px: 99.99, qty: .009 }],
+    asks: [{ px: 100.005, qty: .001 }, { px: 100.01, qty: .009 }] };
+  const scaledQueue = { ...tinyBtcQueue,
+    bids: tinyBtcQueue.bids.map((level) => ({ ...level, qty: level.qty * 1_000 })),
+    asks: tinyBtcQueue.asks.map((level) => ({ ...level, qty: level.qty * 1_000 })) };
+
+  const tinyProbability = execution.makerFillProbability(incident, tinyBtcQueue, 1, "CONTINUATION");
+  const scaledProbability = execution.makerFillProbability(incident, scaledQueue, 1, "CONTINUATION");
+  assert.ok(tinyProbability > .4 && tinyProbability < .9, `unexpected incident probability: ${tinyProbability}`);
+  assert.ok(Math.abs(tinyProbability - scaledProbability) < 1e-12);
+});
+
 test("a configured IOC buffer widens only the taker limit-price cap", () => {
   const execution = planner(5);
   const baseRisk = {
@@ -169,3 +187,9 @@ test("a configured IOC buffer widens only the taker limit-price cap", () => {
 test("the IOC buffer is symmetric for a sell exit", () => {
   assert.equal(bufferedTakerLimitPrice(100, .001, -1, 5), 99.95);
 });
+
+function competingFillProbability(fillHazardPerSecond: number, ttlSeconds: number, alphaHalfLifeSeconds: number): number {
+  const cancellationHazardPerSecond = Math.log(2) / alphaHalfLifeSeconds;
+  const totalHazardPerSecond = fillHazardPerSecond + cancellationHazardPerSecond;
+  return fillHazardPerSecond / totalHazardPerSecond * (1 - Math.exp(-totalHazardPerSecond * ttlSeconds));
+}

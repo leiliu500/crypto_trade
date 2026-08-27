@@ -556,10 +556,11 @@ test("a pullback maker entry requires persistent signal invalidation before canc
   };
   const runtime = internals.runtimes.get("BTC/USD")!;
   runtime.pendingEntryIntent = {
-    decisionId: plan.decisionId, side: 1, diagnostics: { family: "PULLBACK_RECOVERY" },
+    decisionId: plan.decisionId, side: 1, diagnostics: { family: "PULLBACK_RECOVERY", edgeSource: "CALIBRATED" },
   };
   runtime.entryEngine = {
-    signalStillValid: () => signalValid,
+    assessSignalValidity: () => ({ valid: signalValid, immediateCancel: false,
+      reasons: signalValid ? [] : ["PULLBACK_RECOVERY_GATE"] }),
     revalidateExactCost: (intent: unknown) => intent,
   };
   runtime.regimeEngine = { classify: () => ({ name: "TREND_UP", allowLong: true, allowShort: false, riskScale: 1 }) };
@@ -623,6 +624,35 @@ test("the incident's transient OFI spike enters grace and recovers without cance
   assert.equal(recoveredEvents.length, 1);
   assert.equal(recoveredEvents[0]?.adverseEvents, 1);
   assert.equal(recoveredEvents[0]?.lastOpposingOfi, true);
+});
+
+test("a continuation maker confirms transient micro invalidation but cancels a hard failure immediately", async () => {
+  const transient = pendingEntryHarness("continuation-transient-signal", false, "CONTINUATION");
+  const graceEvents: Array<{ details?: { graceMs?: number; invalidationReasons?: string[] } }> = [];
+  transient.engine.on("pendingSignalGrace", (event) => graceEvents.push(event));
+
+  await transient.reevaluate(2_050, 0, 0);
+  await transient.reevaluate(2_200, 0, 0);
+  assert.equal(transient.canceledOrderIds.length, 0);
+  assert.equal(transient.tracked.status, "OPEN");
+  assert.equal(graceEvents[0]?.details?.graceMs, 250);
+  assert.deepEqual(graceEvents[0]?.details?.invalidationReasons, ["MOTION_EVIDENCE"]);
+
+  transient.setSignalValid(true);
+  await transient.reevaluate(2_225, 0, 0);
+  assert.equal(transient.canceledOrderIds.length, 0);
+
+  transient.setSignalValid(false);
+  await transient.reevaluate(2_300, 0, 0);
+  await transient.reevaluate(2_549, 0, 0);
+  assert.equal(transient.canceledOrderIds.length, 0);
+  await transient.reevaluate(2_550, 0, 0);
+  assert.deepEqual(transient.canceledOrderIds, ["continuation-transient-signal-order"]);
+
+  const hard = pendingEntryHarness("continuation-hard-signal", false, "CONTINUATION");
+  hard.setSignalImmediateCancel(true);
+  await hard.reevaluate(2_050, 0, 0);
+  assert.deepEqual(hard.canceledOrderIds, ["continuation-hard-signal-order"]);
 });
 
 test("persistent single-sensor adverse flow cancels after both time and event confirmation", async () => {
@@ -774,11 +804,14 @@ function basicFeatures(nowMs: number): Features {
   };
 }
 
-function pendingEntryHarness(clientOrderId: string, initialSignalValid: boolean) {
+function pendingEntryHarness(clientOrderId: string, initialSignalValid: boolean,
+  family: "PULLBACK_RECOVERY" | "CONTINUATION" = "PULLBACK_RECOVERY") {
   let nowMs = 2_000;
   let signalValid = initialSignalValid;
+  let signalImmediateCancel = false;
   const canceledOrderIds: string[] = [];
-  const plan = { ...pullbackEntryPlan(), clientOrderId, decisionId: `${clientOrderId}-decision` };
+  const plan = { ...pullbackEntryPlan(), clientOrderId, decisionId: `${clientOrderId}-decision`,
+    entryFamily: family, ...(family === "CONTINUATION" ? { createdMs: nowMs, expiresMs: nowMs + 1_500 } : {}) };
   const gateway: OrderGateway = {
     send: async () => ({ id: `${clientOrderId}-order` }) as never,
     cancel: async (orderId) => { canceledOrderIds.push(orderId); },
@@ -808,10 +841,12 @@ function pendingEntryHarness(clientOrderId: string, initialSignalValid: boolean)
   };
   const runtime = internals.runtimes.get("BTC/USD")!;
   runtime.pendingEntryIntent = {
-    decisionId: plan.decisionId, side: 1, diagnostics: { family: "PULLBACK_RECOVERY" },
+    decisionId: plan.decisionId, side: 1,
+    diagnostics: { family, edgeSource: family === "PULLBACK_RECOVERY" ? "CALIBRATED" : "ANALYTIC" },
   };
   runtime.entryEngine = {
-    signalStillValid: () => signalValid,
+    assessSignalValidity: () => ({ valid: signalValid, immediateCancel: signalImmediateCancel,
+      reasons: signalValid ? [] : [signalImmediateCancel ? "REGIME_GATE" : "MOTION_EVIDENCE"] }),
     revalidateExactCost: (intent: unknown) => intent,
   };
   runtime.regimeEngine = { classify: () => ({ name: "TREND_UP", allowLong: true, allowShort: false, riskScale: 1 }) };
@@ -826,6 +861,7 @@ function pendingEntryHarness(clientOrderId: string, initialSignalValid: boolean)
     tracked,
     canceledOrderIds,
     setSignalValid: (value: boolean) => { signalValid = value; },
+    setSignalImmediateCancel: (value: boolean) => { signalImmediateCancel = value; },
     reevaluate: async (atMs: number, ofi: number, tfi: number) => {
       nowMs = atMs;
       internals.reevaluatePending(runtime, tracked, { ...book, exchangeTsMs: atMs, receiveTsMs: atMs },

@@ -105,6 +105,12 @@ export interface DeterministicTradeIntent {
 export interface DeterministicEvaluation {
   long: RuleDiagnostics; short: RuleDiagnostics; candidate: DeterministicDirectionalCandidate | null; intent: DeterministicTradeIntent | null;
 }
+export interface SignalValidityAssessment {
+  valid: boolean;
+  /** Hard failures invalidate a resting maker immediately; transient micro evidence may use lifecycle confirmation. */
+  immediateCancel: boolean;
+  reasons: readonly string[];
+}
 
 /** Converts a sensitive micro-move candidate into an order intent only after all conservative execution gates pass. */
 export class DeterministicEntryEngine {
@@ -182,13 +188,24 @@ export class DeterministicEntryEngine {
 
   public signalStillValid(side: Direction, features: DeterministicFeatures, regime: RegimeDecision,
     family?: EntryFamily, edgeSource?: RuleDiagnostics["edgeSource"]): boolean {
-    if (features.stale || !features.kinematicsReady) return false;
+    return this.assessSignalValidity(side, features, regime, family, edgeSource).valid;
+  }
+
+  public assessSignalValidity(side: Direction, features: DeterministicFeatures, regime: RegimeDecision,
+    family?: EntryFamily, edgeSource?: RuleDiagnostics["edgeSource"]): SignalValidityAssessment {
+    if (features.stale) return invalidSignal(true, "STALE_FEATURES");
+    if (!features.kinematicsReady) return invalidSignal(true, "KINEMATICS_UNAVAILABLE");
     const regimePass = side === 1 ? regime.allowLong : regime.allowShort;
-    if (family === "CONTINUATION" && !regimePass) return false;
-    if (family === "PULLBACK_RECOVERY" && edgeSource !== "CALIBRATED") return false;
+    if (family === "CONTINUATION" && !regimePass) return invalidSignal(true, "REGIME_GATE");
+    if (family === "PULLBACK_RECOVERY" && edgeSource !== "CALIBRATED") {
+      return invalidSignal(true, "PULLBACK_CALIBRATION_REQUIRED");
+    }
     const structure = this.structuralSetup(side, features);
     if (family === "CONTINUATION" ? !structure.continuationPass
-      : family === "PULLBACK_RECOVERY" ? !structure.pullbackPass : !structure.pass) return false;
+      : family === "PULLBACK_RECOVERY" ? !structure.pullbackPass : !structure.pass) {
+      return invalidSignal(family === "CONTINUATION", family === "CONTINUATION"
+        ? "CONTINUATION_TREND_GATE" : "PULLBACK_RECOVERY_GATE");
+    }
     const halfSpread = Math.max(features.spread / 2, 1e-12);
     const pressure = clamp((features.microprice - features.mid) / halfSpread, -1, 1);
     const cfg = this.cfg.microTrigger;
@@ -200,7 +217,13 @@ export class DeterministicEntryEngine {
     const motion = side * features.velocityZ >= cfg.minimumVelocityZ
       || breakout >= cfg.minimumBreakoutBps || cusum >= cfg.minimumCusum;
     const score = side * this.signedScore(pressure, features);
-    return Number(book) + Number(flow) + Number(motion) >= 2 && motion && score > cfg.releaseScore;
+    const reasons: string[] = [];
+    if (Number(book) + Number(flow) + Number(motion) < 2) reasons.push("MICRO_GROUP_QUORUM");
+    if (!motion) reasons.push("MOTION_EVIDENCE");
+    if (!(score > cfg.releaseScore)) reasons.push("RELEASE_SCORE");
+    return reasons.length === 0
+      ? { valid: true, immediateCancel: false, reasons: [] }
+      : { valid: false, immediateCancel: false, reasons };
   }
 
   private commonPass(d: RuleDiagnostics): boolean {
@@ -462,4 +485,8 @@ function flattenNumbers(value: unknown): number[] {
   if (typeof value === "number") return [value];
   if (!value || typeof value !== "object") return [];
   return Object.values(value as Record<string, unknown>).flatMap(flattenNumbers);
+}
+
+function invalidSignal(immediateCancel: boolean, reason: string): SignalValidityAssessment {
+  return { valid: false, immediateCancel, reasons: [reason] };
 }
