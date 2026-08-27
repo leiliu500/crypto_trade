@@ -131,7 +131,7 @@ test("slow trend warm-up and direction alignment fail closed", () => {
   }
 });
 
-test("continuation cannot enter or remain valid when the active regime disallows its direction", () => {
+test("continuation cannot enter when the active regime disallows its direction but a resting maker confirms the micro flip", () => {
   const engine = new DeterministicEntryEngine(testConfig());
   let result = null;
   let value = context(1);
@@ -148,7 +148,14 @@ test("continuation cannot enter or remain valid when the active regime disallows
   assert.ok(diagnostics.reasons.includes("REGIME_GATE"));
   assert.equal(engine.signalStillValid(1, value.features, value.regime, "CONTINUATION", "ANALYTIC"), false);
   assert.deepEqual(engine.assessSignalValidity(1, value.features, value.regime, "CONTINUATION", "ANALYTIC"), {
-    valid: false, immediateCancel: true, reasons: ["REGIME_GATE"],
+    valid: false, immediateCancel: false, reasons: ["REGIME_GATE"],
+  });
+
+  value.features.trendFastBps = -20;
+  value.features.trendMediumBps = -10;
+  assert.deepEqual(engine.assessSignalValidity(1, value.features,
+    { name: "TREND_UP", allowLong: true, allowShort: false, riskScale: 1 }, "CONTINUATION", "ANALYTIC"), {
+    valid: false, immediateCancel: true, reasons: ["CONTINUATION_TREND_GATE"],
   });
 });
 

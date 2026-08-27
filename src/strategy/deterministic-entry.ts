@@ -196,7 +196,6 @@ export class DeterministicEntryEngine {
     if (features.stale) return invalidSignal(true, "STALE_FEATURES");
     if (!features.kinematicsReady) return invalidSignal(true, "KINEMATICS_UNAVAILABLE");
     const regimePass = side === 1 ? regime.allowLong : regime.allowShort;
-    if (family === "CONTINUATION" && !regimePass) return invalidSignal(true, "REGIME_GATE");
     if (family === "PULLBACK_RECOVERY" && edgeSource !== "CALIBRATED") {
       return invalidSignal(true, "PULLBACK_CALIBRATION_REQUIRED");
     }
@@ -218,6 +217,11 @@ export class DeterministicEntryEngine {
       || breakout >= cfg.minimumBreakoutBps || cusum >= cfg.minimumCusum;
     const score = side * this.signedScore(pressure, features);
     const reasons: string[] = [];
+    // The micro regime may flip when contra-side trades arrive to fill a resting
+    // maker order. Initial entries still require regime authorization, but an
+    // already resting continuation confirms that transient loss unless its
+    // slower structural trend has also failed above.
+    if (family === "CONTINUATION" && !regimePass) reasons.push("REGIME_GATE");
     if (Number(book) + Number(flow) + Number(motion) < 2) reasons.push("MICRO_GROUP_QUORUM");
     if (!motion) reasons.push("MOTION_EVIDENCE");
     if (!(score > cfg.releaseScore)) reasons.push("RELEASE_SCORE");

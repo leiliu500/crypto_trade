@@ -626,27 +626,30 @@ test("the incident's transient OFI spike enters grace and recovers without cance
   assert.equal(recoveredEvents[0]?.lastOpposingOfi, true);
 });
 
-test("a continuation maker confirms transient micro invalidation but cancels a hard failure immediately", async () => {
+test("a continuation maker gives a regime or micro flip half its TTL but cancels a structural failure immediately", async () => {
   const transient = pendingEntryHarness("continuation-transient-signal", false, "CONTINUATION");
   const graceEvents: Array<{ details?: { graceMs?: number; invalidationReasons?: string[] } }> = [];
   transient.engine.on("pendingSignalGrace", (event) => graceEvents.push(event));
+  transient.setSignalReasons(["REGIME_GATE"]);
 
   await transient.reevaluate(2_050, 0, 0);
-  await transient.reevaluate(2_200, 0, 0);
+  // All three live incidents canceled within 403 ms. A regime-only flip now
+  // survives that interval while the slow continuation structure remains valid.
+  await transient.reevaluate(2_453, 0, 0);
   assert.equal(transient.canceledOrderIds.length, 0);
   assert.equal(transient.tracked.status, "OPEN");
-  assert.equal(graceEvents[0]?.details?.graceMs, 250);
-  assert.deepEqual(graceEvents[0]?.details?.invalidationReasons, ["MOTION_EVIDENCE"]);
+  assert.equal(graceEvents[0]?.details?.graceMs, 750);
+  assert.deepEqual(graceEvents[0]?.details?.invalidationReasons, ["REGIME_GATE"]);
 
   transient.setSignalValid(true);
-  await transient.reevaluate(2_225, 0, 0);
+  await transient.reevaluate(2_475, 0, 0);
   assert.equal(transient.canceledOrderIds.length, 0);
 
   transient.setSignalValid(false);
-  await transient.reevaluate(2_300, 0, 0);
-  await transient.reevaluate(2_549, 0, 0);
+  await transient.reevaluate(2_500, 0, 0);
+  await transient.reevaluate(3_249, 0, 0);
   assert.equal(transient.canceledOrderIds.length, 0);
-  await transient.reevaluate(2_550, 0, 0);
+  await transient.reevaluate(3_250, 0, 0);
   assert.deepEqual(transient.canceledOrderIds, ["continuation-transient-signal-order"]);
 
   const hard = pendingEntryHarness("continuation-hard-signal", false, "CONTINUATION");
@@ -809,6 +812,7 @@ function pendingEntryHarness(clientOrderId: string, initialSignalValid: boolean,
   let nowMs = 2_000;
   let signalValid = initialSignalValid;
   let signalImmediateCancel = false;
+  let signalReasons = ["MOTION_EVIDENCE"];
   const canceledOrderIds: string[] = [];
   const plan = { ...pullbackEntryPlan(), clientOrderId, decisionId: `${clientOrderId}-decision`,
     entryFamily: family, ...(family === "CONTINUATION" ? { createdMs: nowMs, expiresMs: nowMs + 1_500 } : {}) };
@@ -846,7 +850,7 @@ function pendingEntryHarness(clientOrderId: string, initialSignalValid: boolean,
   };
   runtime.entryEngine = {
     assessSignalValidity: () => ({ valid: signalValid, immediateCancel: signalImmediateCancel,
-      reasons: signalValid ? [] : [signalImmediateCancel ? "REGIME_GATE" : "MOTION_EVIDENCE"] }),
+      reasons: signalValid ? [] : signalImmediateCancel ? ["CONTINUATION_TREND_GATE"] : signalReasons }),
     revalidateExactCost: (intent: unknown) => intent,
   };
   runtime.regimeEngine = { classify: () => ({ name: "TREND_UP", allowLong: true, allowShort: false, riskScale: 1 }) };
@@ -862,6 +866,7 @@ function pendingEntryHarness(clientOrderId: string, initialSignalValid: boolean,
     canceledOrderIds,
     setSignalValid: (value: boolean) => { signalValid = value; },
     setSignalImmediateCancel: (value: boolean) => { signalImmediateCancel = value; },
+    setSignalReasons: (value: string[]) => { signalReasons = [...value]; },
     reevaluate: async (atMs: number, ofi: number, tfi: number) => {
       nowMs = atMs;
       internals.reevaluatePending(runtime, tracked, { ...book, exchangeTsMs: atMs, receiveTsMs: atMs },

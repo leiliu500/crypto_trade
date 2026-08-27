@@ -735,8 +735,11 @@ export class TradingEngine extends EventEmitter {
       },
     });
     if (!plan) {
-      this.rejectEntry(runtime, "EXECUTION_PLAN_PASS", "NO_SAFE_SIZE_OR_EXACT_COST_PLAN", features.receiveTsMs, {
+      const plannerRejection = runtime.planner.latestBuildRejection();
+      this.rejectEntry(runtime, "EXECUTION_PLAN_PASS", plannerRejection?.reason ?? "NO_SAFE_SIZE_OR_EXACT_COST_PLAN",
+        features.receiveTsMs, {
         side: routed.intent.side, lowerBoundNetBps: routed.intent.lowerBoundNetBps,
+        ...(plannerRejection?.values ?? {}),
       });
       return;
     }

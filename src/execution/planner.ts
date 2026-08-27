@@ -75,6 +75,11 @@ export interface PlannerBuildOptions {
   riskSigmaHBps?: number;
 }
 
+export interface PlannerBuildRejection {
+  reason: string;
+  values: Readonly<Record<string, number | string | boolean | null>>;
+}
+
 interface ExecutionCandidate {
   style: ExecutionStyle;
   qty: number;
@@ -85,8 +90,14 @@ interface ExecutionCandidate {
   expectedValue: number;
   worstPx: number | undefined;
 }
+interface CandidateBuildResult {
+  candidate: ExecutionCandidate | null;
+  rejection: PlannerBuildRejection | null;
+}
 
 export class ExecutionPlanner {
+  private lastBuildRejectionValue: PlannerBuildRejection | null = null;
+
   public constructor(
     private readonly cfg: PlannerConfig,
     private readonly riskSizer: RiskSizer,
@@ -127,20 +138,38 @@ export class ExecutionPlanner {
   }
 
   public build(intent: TradeIntent, features: Features, book: BookState, asset: AssetRules, baseRisk: Omit<RiskContext, "price" | "visibleLiquidityQty" | "sigmaHBps" | "estimatedExitCostBps" | "maximumExchangeQty">, closingExistingLong = false, options: PlannerBuildOptions = {}): ExecutionPlan | null {
-    if (!book.valid || features.stale) return null;
-    if (intent.side === -1 && !asset.shortable && !closingExistingLong) return null;
+    this.lastBuildRejectionValue = null;
+    if (!book.valid) return this.rejectBuild("BOOK_INVALID");
+    if (features.stale) return this.rejectBuild("FEATURES_STALE");
+    if (intent.side === -1 && !asset.shortable && !closingExistingLong) return this.rejectBuild("SHORT_UNAVAILABLE");
     const quantityMultiplier = Math.max(0, Math.min(1, options.quantityMultiplier ?? 1));
-    if (!(quantityMultiplier > 0)) return null;
-    if (options.executionPath === "MAKER_MAKER") return null;
+    if (!(quantityMultiplier > 0)) return this.rejectBuild("QUANTITY_MULTIPLIER_ZERO");
+    if (options.executionPath === "MAKER_MAKER") {
+      return this.rejectBuild("UNSUPPORTED_ENTRY_EXECUTION_PATH", { executionPath: options.executionPath });
+    }
     const allowTaker = options.executionPath === undefined || options.executionPath === "TAKER_TAKER";
     const allowMaker = options.executionPath === undefined || options.executionPath === "MAKER_TAKER"
       || options.executionPath === "MAKER_MAKER_TAKER_FALLBACK";
     const makerTtlMs = this.makerEntryTtlMs(options.entryFamily);
-    const taker = allowTaker ? this.buildCandidate("taker", intent, features, book, asset, baseRisk, quantityMultiplier, options, makerTtlMs) : null;
-    const makerCandidate = allowMaker ? this.buildCandidate("maker", intent, features, book, asset, baseRisk, quantityMultiplier, options, makerTtlMs) : null;
+    const takerResult = allowTaker
+      ? this.buildCandidate("taker", intent, features, book, asset, baseRisk, quantityMultiplier, options, makerTtlMs) : null;
+    const makerResult = allowMaker
+      ? this.buildCandidate("maker", intent, features, book, asset, baseRisk, quantityMultiplier, options, makerTtlMs) : null;
+    const taker = takerResult?.candidate ?? null;
+    const makerCandidate = makerResult?.candidate ?? null;
     const maker = makerCandidate && makerCandidate.fillProbability >= this.cfg.minimumFillProbability ? makerCandidate : null;
     const selected = maker && (!taker || maker.expectedValue > taker.expectedValue) ? maker : taker;
-    if (!selected) return null;
+    if (!selected) {
+      if (makerCandidate && makerCandidate.fillProbability < this.cfg.minimumFillProbability) {
+        return this.rejectBuild("MAKER_FILL_PROBABILITY_BELOW_MINIMUM", {
+          fillProbability: makerCandidate.fillProbability,
+          minimumFillProbability: this.cfg.minimumFillProbability,
+          ttlMs: makerTtlMs,
+        });
+      }
+      const rejection = makerResult?.rejection ?? takerResult?.rejection;
+      return this.rejectBuild(rejection?.reason ?? "NO_ELIGIBLE_EXECUTION_CANDIDATE", rejection?.values);
+    }
     const limitPx = selected.style === "maker"
       ? this.roundPrice(intent.side === 1 ? book.bids[0]!.px : book.asks[0]!.px, asset.priceIncrement, intent.side, false)
       : bufferedTakerLimitPrice(selected.worstPx!, asset.priceIncrement, intent.side, this.cfg.takerLimitBufferBps);
@@ -160,6 +189,11 @@ export class ExecutionPlanner {
       ...(options.entryFamily === undefined ? {} : { entryFamily: options.entryFamily }),
       ...(options.executionPath === undefined ? {} : { executionPath: options.executionPath }),
     };
+  }
+
+  public latestBuildRejection(): PlannerBuildRejection | null {
+    return this.lastBuildRejectionValue
+      ? { reason: this.lastBuildRejectionValue.reason, values: { ...this.lastBuildRejectionValue.values } } : null;
   }
 
   /** Cheapest execution style that is currently eligible for a preliminary deterministic cost gate. */
@@ -184,7 +218,7 @@ export class ExecutionPlanner {
 
   private buildCandidate(style: ExecutionStyle, intent: TradeIntent, features: Features, book: BookState, asset: AssetRules,
     baseRisk: Omit<RiskContext, "price" | "visibleLiquidityQty" | "sigmaHBps" | "estimatedExitCostBps" | "maximumExchangeQty">,
-    quantityMultiplier: number, options: PlannerBuildOptions, makerTtlMs: number): ExecutionCandidate | null {
+    quantityMultiplier: number, options: PlannerBuildOptions, makerTtlMs: number): CandidateBuildResult {
     const makerEntry = style === "maker";
     let qty = asset.minOrderSize;
     let cost: CostEstimate | null = null;
@@ -192,28 +226,40 @@ export class ExecutionPlanner {
     let exactIntent: TradeIntent | null = null;
     for (let iteration = 0; iteration < this.cfg.maximumIterations; iteration += 1) {
       cost = this.costModel.estimate(features, book, intent.side, qty, makerEntry);
-      if (!cost || cost.impactBps > this.cfg.maximumImpactBps) return null;
+      if (!cost) return candidateRejected("COST_ESTIMATE_UNAVAILABLE", { style, iteration, qty });
+      if (cost.impactBps > this.cfg.maximumImpactBps) return candidateRejected("IMPACT_ABOVE_MAXIMUM", {
+        style, iteration, qty, impactBps: cost.impactBps, maximumImpactBps: this.cfg.maximumImpactBps,
+      });
       exactIntent = options.revalidateCost ? options.revalidateCost(cost) : intent;
-      if (!exactIntent) return null;
+      if (!exactIntent) return candidateRejected("EXACT_COST_REVALIDATION_FAILED", {
+        style, iteration, qty, roundTripCostBps: cost.roundTripBps,
+      });
       const approval = this.riskSizer.size(exactIntent, {
         ...baseRisk, price: features.mid, visibleLiquidityQty: this.relevantDepth(book, intent.side),
         sigmaHBps: options.riskSigmaHBps ?? features.sigmaHBps,
         estimatedExitCostBps: cost.spreadBps / 2 + cost.feeBps / 2,
         maximumExchangeQty: asset.maximumOrderQty,
       });
-      if (!approval) return null;
+      if (!approval) return candidateRejected("RISK_SIZE_UNAVAILABLE", { style, iteration, qty });
       const nextQty = Math.floor(approval.qty * quantityMultiplier / asset.minTradeIncrement + 1e-12) * asset.minTradeIncrement;
       risk = { ...approval, qty: nextQty, modeledMaximumLoss: nextQty * approval.maximumLossPerUnit };
       if (Math.abs(nextQty - qty) <= asset.minTradeIncrement / 2) { qty = nextQty; break; }
       qty = nextQty;
     }
-    if (!risk || qty < asset.minOrderSize) return null;
+    if (!risk || qty < asset.minOrderSize) return candidateRejected("BELOW_MINIMUM_ORDER_SIZE", {
+      style, qty, minimumOrderSize: asset.minOrderSize,
+    });
     cost = this.costModel.estimate(features, book, intent.side, qty, makerEntry);
-    if (!cost || cost.impactBps > this.cfg.maximumImpactBps) return null;
+    if (!cost) return candidateRejected("COST_ESTIMATE_UNAVAILABLE", { style, qty });
+    if (cost.impactBps > this.cfg.maximumImpactBps) return candidateRejected("IMPACT_ABOVE_MAXIMUM", {
+      style, qty, impactBps: cost.impactBps, maximumImpactBps: this.cfg.maximumImpactBps,
+    });
     exactIntent = options.revalidateCost ? options.revalidateCost(cost) : intent;
-    if (!exactIntent) return null;
+    if (!exactIntent) return candidateRejected("EXACT_COST_REVALIDATION_FAILED", {
+      style, qty, roundTripCostBps: cost.roundTripBps,
+    });
     const sweep = style === "taker" ? estimateSweep(intent.side === 1 ? book.asks : book.bids, qty) : null;
-    if (style === "taker" && !sweep) return null;
+    if (style === "taker" && !sweep) return candidateRejected("BOOK_SWEEP_UNAVAILABLE", { style, qty });
     const fillProbability = makerEntry ? this.fillProbability(features, book, intent.side, makerTtlMs) : 1;
     const grossValue = qty * features.mid * (exactIntent.predictedGrossBps - cost.roundTripBps) / 10_000;
     const expectedValue = makerEntry
@@ -221,7 +267,14 @@ export class ExecutionPlanner {
         - (1 - fillProbability) * qty * features.mid * this.cfg.makerOpportunityCostBps / 10_000
         - qty * features.mid * this.cfg.staleOrderCostBps / 10_000
       : grossValue;
-    return { style, qty, cost, risk, intent: exactIntent, fillProbability, expectedValue, worstPx: sweep?.worstPx };
+    return { candidate: { style, qty, cost, risk, intent: exactIntent, fillProbability, expectedValue,
+      worstPx: sweep?.worstPx }, rejection: null };
+  }
+
+  private rejectBuild(reason: string,
+    values: Readonly<Record<string, number | string | boolean | null>> = {}): null {
+    this.lastBuildRejectionValue = { reason, values: { ...values } };
+    return null;
   }
 
   private relevantDepth(book: BookState, side: Direction): number {
@@ -259,6 +312,11 @@ export class ExecutionPlanner {
     const units = price / increment;
     return (side === 1 ? (marketable ? Math.ceil(units) : Math.floor(units)) : (marketable ? Math.floor(units) : Math.ceil(units))) * increment;
   }
+}
+
+function candidateRejected(reason: string,
+  values: Readonly<Record<string, number | string | boolean | null>>): CandidateBuildResult {
+  return { candidate: null, rejection: { reason, values: { ...values } } };
 }
 
 /** Produces a directionally marketable, price-capped IOC limit with an explicit latency buffer. */
