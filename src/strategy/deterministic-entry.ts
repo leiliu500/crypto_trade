@@ -84,7 +84,8 @@ export interface RuleDiagnostics {
   costBreakdown?: CostBreakdown;
   requiredContinuationQuality: number | null; continuationQuality: number; economicSizeScale: number;
   scorePass: boolean; rawDirectionalPass: boolean; candidatePass: boolean; edgeResolvedPass: boolean;
-  healthPass: boolean; liquidityPass: boolean; regimePass: boolean; persistencePass: boolean; antiChasePass: boolean;
+  healthPass: boolean; liquidityPass: boolean; regimePass: boolean; directionAuthorizationPass: boolean;
+  persistencePass: boolean; antiChasePass: boolean;
   pullbackCalibrationPass: boolean;
   exposurePass: boolean; cooldownPass: boolean; costPass: boolean; arbitrationPass: boolean; slowTrendPass: boolean;
   continuationTrendPass: boolean; pullbackRecoveryPass: boolean;
@@ -195,7 +196,7 @@ export class DeterministicEntryEngine {
     family?: EntryFamily, edgeSource?: RuleDiagnostics["edgeSource"]): SignalValidityAssessment {
     if (features.stale) return invalidSignal(true, "STALE_FEATURES");
     if (!features.kinematicsReady) return invalidSignal(true, "KINEMATICS_UNAVAILABLE");
-    const regimePass = side === 1 ? regime.allowLong : regime.allowShort;
+    const directionAuthorizationPass = this.continuationDirectionAuthorized(side, regime);
     if (family === "PULLBACK_RECOVERY" && edgeSource !== "CALIBRATED") {
       return invalidSignal(true, "PULLBACK_CALIBRATION_REQUIRED");
     }
@@ -217,11 +218,9 @@ export class DeterministicEntryEngine {
       || breakout >= cfg.minimumBreakoutBps || cusum >= cfg.minimumCusum;
     const score = side * this.signedScore(pressure, features);
     const reasons: string[] = [];
-    // The micro regime may flip when contra-side trades arrive to fill a resting
-    // maker order. Initial entries still require regime authorization, but an
-    // already resting continuation confirms that transient loss unless its
-    // slower structural trend has also failed above.
-    if (family === "CONTINUATION" && !regimePass) reasons.push("REGIME_GATE");
+    // A neutral micro regime does not invalidate a slow-trend continuation.
+    // Explicit authorization of the opposite direction still blocks the signal.
+    if (family === "CONTINUATION" && !directionAuthorizationPass) reasons.push("REGIME_GATE");
     if (Number(book) + Number(flow) + Number(motion) < 2) reasons.push("MICRO_GROUP_QUORUM");
     if (!motion) reasons.push("MOTION_EVIDENCE");
     if (!(score > cfg.releaseScore)) reasons.push("RELEASE_SCORE");
@@ -233,7 +232,7 @@ export class DeterministicEntryEngine {
   private commonPass(d: RuleDiagnostics): boolean {
     return d.candidatePass && d.healthPass && d.liquidityPass && d.antiChasePass && d.exposurePass
       && d.cooldownPass && d.edgeResolvedPass && d.costPass && d.slowTrendPass && d.pullbackCalibrationPass
-      && (d.regimePass || d.family === "PULLBACK_RECOVERY");
+      && d.directionAuthorizationPass;
   }
 
   private diagnostics(trigger: SideTriggerDiagnostics, oppositeScore: number, context: EntryContext,
@@ -258,6 +257,13 @@ export class DeterministicEntryEngine {
     const cooldownPass = !trigger.reasons.includes("COOLDOWN_ACTIVE") && !trigger.reasons.includes("ALREADY_FIRED_IN_EPISODE");
     const continuation = continuationQuality(direction, f, context.regime, this.cfg.continuationQuality);
     const structure = this.structuralSetup(direction, f);
+    // A neutral micro regime is not evidence for the opposite direction, but
+    // it may authorize a new continuation only through the existing strong
+    // micro-confirmation path. The slow structure and exact economics remain
+    // mandatory, while an explicitly opposite regime still fails closed.
+    const neutralRegime = !context.regime.allowLong && !context.regime.allowShort;
+    const directionAuthorizationPass = structure.family === "PULLBACK_RECOVERY"
+      || regimePass || (neutralRegime && strong);
     // During a causally aligned continuation, a moderately widened spread may
     // proceed to exact economics when it is still below the learned stress
     // threshold and every non-spread liquidity check remains healthy. The
@@ -301,7 +307,7 @@ export class DeterministicEntryEngine {
     const reasons = [...trigger.reasons];
     if (!healthPass) reasons.push("HEALTH_GATE");
     if (!liquidityPass) reasons.push("LIQUIDITY_GATE");
-    if (!regimePass && structure.family === "CONTINUATION") reasons.push("REGIME_GATE");
+    if (!directionAuthorizationPass) reasons.push("REGIME_GATE");
     if (!exposurePass) reasons.push("EXPOSURE_GATE");
     if (!edgeResolvedPass) reasons.push("EDGE_NOT_RESOLVED");
     if (edgeResolvedPass && !costPass) reasons.push("COST_GATE");
@@ -330,6 +336,7 @@ export class DeterministicEntryEngine {
       edgeQuality: economic?.edge.quality ?? continuation.score,
       edgeEffectiveSampleCount: economic?.edge.effectiveSampleCount ?? 0,
       scorePass, rawDirectionalPass, candidatePass, edgeResolvedPass, healthPass, liquidityPass, regimePass,
+      directionAuthorizationPass,
       pullbackCalibrationPass, persistencePass, antiChasePass, exposurePass, cooldownPass, costPass, arbitrationPass,
       slowTrendPass,
       continuationTrendPass: structure.continuationPass, pullbackRecoveryPass: structure.pullbackPass,
@@ -411,6 +418,14 @@ export class DeterministicEntryEngine {
       && f.slowTrendEfficiency >= this.cfg.minimumSlowTrendEfficiency
       && side * f.trendSlowBps >= this.cfg.minimumSlowTrendMoveBps
       && side * f.trendFastBps > 0 && side * f.trendMediumBps > 0;
+  }
+
+  private continuationDirectionAuthorized(side: Direction, regime: RegimeDecision): boolean {
+    // Aligned and neutral regimes are eligible; an explicit opposite-side
+    // authorization remains a hard initial-entry block.
+    return side === 1
+      ? regime.allowLong || !regime.allowShort
+      : regime.allowShort || !regime.allowLong;
   }
 
   private structuralSetup(side: Direction, f: DeterministicFeatures): {

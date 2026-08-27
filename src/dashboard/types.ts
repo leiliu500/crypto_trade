@@ -301,6 +301,7 @@ export interface DashboardRuleDiagnostics {
   healthPass: boolean;
   liquidityPass: boolean;
   regimePass: boolean;
+  directionAuthorizationPass: boolean;
   persistencePass: boolean;
   antiChasePass: boolean;
   exposurePass: boolean;
