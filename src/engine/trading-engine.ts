@@ -823,6 +823,18 @@ export class TradingEngine extends EventEmitter {
       return;
     }
     runtime.entryAudit.pass("SLOW_TREND_PASS");
+    if (!diagnostics.directionAuthorizationPass) {
+      this.rejectEntry(runtime, "DIRECTION_AUTHORIZATION_PASS", "REGIME_GATE", atMs, {
+        side: diagnostics.side,
+        regime: runtime.latestRegime?.name ?? "UNKNOWN",
+        allowLong: runtime.latestRegime?.allowLong ?? false,
+        allowShort: runtime.latestRegime?.allowShort ?? false,
+        score: diagnostics.score,
+        neutralRequiredScore: runtime.config.deterministicSignal.microTrigger.strongScore,
+      });
+      return;
+    }
+    runtime.entryAudit.pass("DIRECTION_AUTHORIZATION_PASS");
     if (!diagnostics.healthPass) { this.rejectEntry(runtime, "HEALTH_PASS", "HEALTH_GATE", atMs); return; }
     runtime.entryAudit.pass("HEALTH_PASS");
     if (!diagnostics.liquidityPass) {

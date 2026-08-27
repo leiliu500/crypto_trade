@@ -36,7 +36,8 @@ export interface EconomicCandidateAudit {
   requiredContinuationQuality: number | null; horizonMs: number; executionPath: string | null; edgeSource: string;
 }
 interface DirectionCandidateCounts {
-  evaluations: number; regimePass: number; quorumPass: number; scorePass: number; arbitrationPass: number;
+  evaluations: number; regimePass: number; directionAuthorizationPass: number; quorumPass: number;
+  scorePass: number; arbitrationPass: number;
   antiChasePass: number; rawDirectionalPass: number; persistencePass: number; candidatePass: number;
   liquidityPass: number; slowTrendPass: number; edgeResolvedPass: number; preliminaryCostPass: number;
   pullbackRecoveryPass: number;
@@ -581,7 +582,8 @@ function allNumbersFinite(value: unknown): boolean {
   return Object.values(value as Record<string, unknown>).every(allNumbersFinite);
 }
 function emptyDirectionCounts(): DirectionCandidateCounts {
-  return { evaluations: 0, regimePass: 0, quorumPass: 0, scorePass: 0, arbitrationPass: 0, antiChasePass: 0,
+  return { evaluations: 0, regimePass: 0, directionAuthorizationPass: 0,
+    quorumPass: 0, scorePass: 0, arbitrationPass: 0, antiChasePass: 0,
     rawDirectionalPass: 0, persistencePass: 0, candidatePass: 0, liquidityPass: 0, slowTrendPass: 0,
     edgeResolvedPass: 0, preliminaryCostPass: 0, pullbackRecoveryPass: 0,
     maximumPersistence: 0, maximumConfirmationMs: 0, maximumConfirmationEvents: 0 };
@@ -589,6 +591,7 @@ function emptyDirectionCounts(): DirectionCandidateCounts {
 function incrementDirection(counts: DirectionCandidateCounts, diagnostics: DeterministicEvaluation["long"]): void {
   counts.evaluations += 1;
   if (diagnostics.regimePass) counts.regimePass += 1;
+  if (diagnostics.directionAuthorizationPass) counts.directionAuthorizationPass += 1;
   if (diagnostics.votes.quorum) counts.quorumPass += 1;
   if (diagnostics.scorePass) counts.scorePass += 1;
   if (diagnostics.arbitrationPass) counts.arbitrationPass += 1;

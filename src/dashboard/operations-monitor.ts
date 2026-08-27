@@ -806,6 +806,7 @@ function projectRule(rule: NonNullable<EngineMarketSnapshot["ruleEvaluation"]>["
     executionPath: rule.executionPath ?? null,
     scorePass: rule.scorePass, rawDirectionalPass: rule.rawDirectionalPass, candidatePass: rule.candidatePass,
     healthPass: rule.healthPass, liquidityPass: rule.liquidityPass, regimePass: rule.regimePass,
+    directionAuthorizationPass: rule.directionAuthorizationPass,
     persistencePass: rule.persistencePass, antiChasePass: rule.antiChasePass, exposurePass: rule.exposurePass,
     cooldownPass: rule.cooldownPass, costPass: rule.costPass,
     arbitrationPass: rule.arbitrationPass, slowTrendPass: rule.slowTrendPass,

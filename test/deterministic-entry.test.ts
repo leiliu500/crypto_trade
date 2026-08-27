@@ -131,29 +131,67 @@ test("slow trend warm-up and direction alignment fail closed", () => {
   }
 });
 
-test("continuation cannot enter when the active regime disallows its direction but a resting maker confirms the micro flip", () => {
-  const engine = new DeterministicEntryEngine(testConfig());
-  let result = null;
-  let value = context(1);
-  for (let index = 0; index < 20; index += 1) {
-    value = context(1, 1_000 + index * 50);
-    value.regime = { name: "CHOP", allowLong: false, allowShort: false, riskScale: 0 };
-    result ??= engine.evaluate(value);
-  }
-  assert.equal(result, null);
-  const diagnostics = engine.latestEvaluation()!.long;
-  assert.equal(diagnostics.family, "CONTINUATION");
-  assert.equal(diagnostics.continuationTrendPass, true);
-  assert.equal(diagnostics.regimePass, false);
-  assert.ok(diagnostics.reasons.includes("REGIME_GATE"));
-  assert.equal(engine.signalStillValid(1, value.features, value.regime, "CONTINUATION", "ANALYTIC"), false);
-  assert.deepEqual(engine.assessSignalValidity(1, value.features, value.regime, "CONTINUATION", "ANALYTIC"), {
-    valid: false, immediateCancel: false, reasons: ["REGIME_GATE"],
-  });
+test("neutral regimes authorize trend-aligned continuations symmetrically while opposite regimes remain blocked", () => {
+  for (const side of [1, -1] as const) {
+    const neutralEngine = new DeterministicEntryEngine(testConfig());
+    let neutralIntent = null;
+    let neutral = context(side);
+    for (let index = 0; index < 20; index += 1) {
+      neutral = context(side, 1_000 + index * 50);
+      neutral.regime = { name: "CHOP", allowLong: false, allowShort: false, riskScale: 0 };
+      neutralIntent ??= neutralEngine.evaluate(neutral);
+    }
+    assert.equal(neutralIntent?.side, side);
+    const neutralDiagnostics = side === 1
+      ? neutralEngine.latestEvaluation()!.long : neutralEngine.latestEvaluation()!.short;
+    assert.equal(neutralDiagnostics.family, "CONTINUATION");
+    assert.equal(neutralDiagnostics.continuationTrendPass, true);
+    assert.equal(neutralDiagnostics.regimePass, false);
+    assert.equal(neutralDiagnostics.directionAuthorizationPass, true);
+    assert.ok(!neutralDiagnostics.reasons.includes("REGIME_GATE"));
+    assert.deepEqual(neutralEngine.assessSignalValidity(side, neutral.features, neutral.regime,
+      "CONTINUATION", "ANALYTIC"), { valid: true, immediateCancel: false, reasons: [] });
+    assert.equal(neutralEngine.signalStillValid(side, neutral.features,
+      { name: "UNKNOWN", allowLong: true, allowShort: true, riskScale: 1 }, "CONTINUATION", "ANALYTIC"), true);
 
-  value.features.trendFastBps = -20;
-  value.features.trendMediumBps = -10;
-  assert.deepEqual(engine.assessSignalValidity(1, value.features,
+    const oppositeEngine = new DeterministicEntryEngine(testConfig());
+    let oppositeIntent = null;
+    let opposite = context(side);
+    for (let index = 0; index < 20; index += 1) {
+      opposite = context(side, 2_000 + index * 50);
+      opposite.regime = side === 1
+        ? { name: "TREND_DOWN", allowLong: false, allowShort: true, riskScale: 1 }
+        : { name: "TREND_UP", allowLong: true, allowShort: false, riskScale: 1 };
+      oppositeIntent ??= oppositeEngine.evaluate(opposite);
+    }
+    assert.equal(oppositeIntent, null);
+    const oppositeDiagnostics = side === 1
+      ? oppositeEngine.latestEvaluation()!.long : oppositeEngine.latestEvaluation()!.short;
+    assert.equal(oppositeDiagnostics.directionAuthorizationPass, false);
+    assert.ok(oppositeDiagnostics.reasons.includes("REGIME_GATE"));
+    assert.deepEqual(oppositeEngine.assessSignalValidity(side, opposite.features, opposite.regime,
+      "CONTINUATION", "ANALYTIC"), { valid: false, immediateCancel: false, reasons: ["REGIME_GATE"] });
+
+    const weakNeutralConfig = testConfig();
+    weakNeutralConfig.microTrigger = { ...weakNeutralConfig.microTrigger, strongScore: 1 };
+    const weakNeutralEngine = new DeterministicEntryEngine(weakNeutralConfig);
+    let weakNeutralIntent = null;
+    for (let index = 0; index < 20; index += 1) {
+      const weakNeutral = context(side, 3_000 + index * 50);
+      weakNeutral.regime = { name: "UNKNOWN", allowLong: false, allowShort: false, riskScale: 0 };
+      weakNeutralIntent ??= weakNeutralEngine.evaluate(weakNeutral);
+    }
+    assert.equal(weakNeutralIntent, null);
+    const weakNeutralDiagnostics = side === 1
+      ? weakNeutralEngine.latestEvaluation()!.long : weakNeutralEngine.latestEvaluation()!.short;
+    assert.equal(weakNeutralDiagnostics.directionAuthorizationPass, false);
+    assert.ok(weakNeutralDiagnostics.reasons.includes("REGIME_GATE"));
+  }
+
+  const structural = context(1);
+  structural.features.trendFastBps = -20;
+  structural.features.trendMediumBps = -10;
+  assert.deepEqual(new DeterministicEntryEngine(testConfig()).assessSignalValidity(1, structural.features,
     { name: "TREND_UP", allowLong: true, allowShort: false, riskScale: 1 }, "CONTINUATION", "ANALYTIC"), {
     valid: false, immediateCancel: true, reasons: ["CONTINUATION_TREND_GATE"],
   });
@@ -326,6 +364,8 @@ test("pending signal validity cannot cross from pullback into continuation or vi
   value.features.trendMediumBps = 35;
   value.features.slowTrendAlignment = .7;
   assert.equal(engine.signalStillValid(1, value.features, value.regime, "PULLBACK_RECOVERY"), false);
+  assert.equal(engine.signalStillValid(1, value.features, value.regime, "CONTINUATION"), true);
+  value.regime = { name: "TREND_DOWN", allowLong: false, allowShort: true, riskScale: 1 };
   assert.equal(engine.signalStillValid(1, value.features, value.regime, "CONTINUATION"), false);
   value.regime = { name: "TREND_UP", allowLong: true, allowShort: false, riskScale: 1 };
   assert.equal(engine.signalStillValid(1, value.features, value.regime, "CONTINUATION"), true);
