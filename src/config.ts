@@ -428,19 +428,20 @@ function loadSymbolConfig(symbol: string, env: NodeJS.ProcessEnv, mode: TradingM
       latencyAdverseFraction: paperEntryExercise ? 0 : .25, adverseSelectionBps: paperEntryExercise ? 0 : 1, fundingBps: 0, borrowBps: 0,
       positiveCostErrorP95Bps: deterministicSignal.positiveCostErrorP95Bps },
     sizing: { baseRiskFraction: .001, maximumDrawdown: .05, maximumBookParticipation: .01, fractionalKelly: .1, maximumKellyFraction: .05, targetSigmaHBps: 20, minimumQualityScale: .1 },
-    position, planner: defaultPlannerConfig(env, deterministicSignal.minimumMakerFillProbability, paperEntryExercise ? 5 : 0),
+    position, planner: defaultPlannerConfig(env, deterministicSignal.minimumMakerFillProbability,
+      paperEntryExercise ? 5 : 0, paperEntryExercise),
   };
 }
 
 function defaultPositionConfig(env: NodeJS.ProcessEnv): PositionConfig {
   return { recoveryArmR: .5, trailActivationR: .75, minimumProgressR: .25,
-    minimumHoldMs: integerEnv(env.POSITION_MINIMUM_HOLD_MS, 1_000, 0, 2_147_483_647),
-    unproductiveExitMs: integerEnv(env.POSITION_UNPRODUCTIVE_EXIT_MS, 20 * 60_000, 1, 2_147_483_647),
-    maximumHoldMs: integerEnv(env.POSITION_MAXIMUM_HOLD_MS, 30 * 60_000, 1, 2_147_483_647),
+    minimumHoldMs: integerEnv(env.POSITION_MINIMUM_HOLD_MS, 60_000, 0, 2_147_483_647),
+    unproductiveExitMs: integerEnv(env.POSITION_UNPRODUCTIVE_EXIT_MS, 15 * 60_000, 1, 2_147_483_647),
+    maximumHoldMs: integerEnv(env.POSITION_MAXIMUM_HOLD_MS, 4 * 60 * 60_000, 1, 2_147_483_647),
     reentryCooldownMs: integerEnv(env.POSITION_REENTRY_COOLDOWN_MS, 0, 0, 2_147_483_647),
     makerExitTtlMs: integerEnv(env.MAKER_EXIT_TTL_MS, 30_000, 1_000, 300_000),
-    evidenceConfirmationMs: integerEnv(env.POSITION_EVIDENCE_CONFIRMATION_MS, 750, 0, 2_147_483_647),
-    profitActivationCostMultiple: numberEnv(env.POSITION_PROFIT_ACTIVATION_COST_MULTIPLE, 1.25),
+    evidenceConfirmationMs: integerEnv(env.POSITION_EVIDENCE_CONFIRMATION_MS, 5_000, 0, 2_147_483_647),
+    profitActivationCostMultiple: numberEnv(env.POSITION_PROFIT_ACTIVATION_COST_MULTIPLE, 2.5),
     lockMin: .1, lockMax: .85, lockMaturityRate: .8, lockReversalWeight: .3, lockTrendDiscount: .15,
     baseVolatilityMultiple: 2, trendVolatilityBonus: 1, reversalVolatilityPenalty: 1.25, minimumVolatilityMultiple: .5, maximumVolatilityMultiple: 4,
     partialExitThreshold: .7, maximumPartialExitFraction: .5, minimumPartialExitBenefitBps: 2 };
@@ -454,7 +455,8 @@ function validatePositionTiming(position: PositionConfig): void {
     throw new Error(`POSITION_UNPRODUCTIVE_EXIT_MS (${position.unproductiveExitMs}) must not exceed POSITION_MAXIMUM_HOLD_MS (${position.maximumHoldMs})`);
   }
 }
-function defaultPlannerConfig(env: NodeJS.ProcessEnv, minimumFillProbability: number, takerLimitBufferBps: number): PlannerConfig {
+function defaultPlannerConfig(env: NodeJS.ProcessEnv, minimumFillProbability: number, takerLimitBufferBps: number,
+  paperEntryExercise = false): PlannerConfig {
   return { makerTtlMs: 1_500, alphaHalfLifeMs: 2_772,
     pullbackMakerTtlMs: integerEnv(env.PULLBACK_MAKER_TTL_MS, 20_000, 1_000, 300_000),
     pullbackKinematicsGraceMs: integerEnv(env.PULLBACK_KINEMATICS_GRACE_MS, 5_000, 1, 299_999),
@@ -463,11 +465,24 @@ function defaultPlannerConfig(env: NodeJS.ProcessEnv, minimumFillProbability: nu
     pullbackSignalInvalidationGraceEvents: integerEnv(env.PULLBACK_SIGNAL_INVALIDATION_GRACE_EVENTS, 3, 2, 100),
     continuationSignalInvalidationGraceMs: integerEnv(env.CONTINUATION_SIGNAL_INVALIDATION_GRACE_MS, 750, 1, 299_999),
     continuationSignalInvalidationGraceEvents: integerEnv(env.CONTINUATION_SIGNAL_INVALIDATION_GRACE_EVENTS, 3, 2, 100),
+    continuationAdverseFlowConfirmationMs: integerEnv(env.CONTINUATION_ADVERSE_FLOW_CONFIRMATION_MS, 100, 1, 299_999),
+    continuationAdverseFlowConfirmationEvents: integerEnv(env.CONTINUATION_ADVERSE_FLOW_CONFIRMATION_EVENTS, 2, 2, 100),
     adverseFlowConfirmationMs: integerEnv(env.ADVERSE_FLOW_CONFIRMATION_MS, 2_000, 1, 299_999),
     adverseFlowConfirmationEvents: integerEnv(env.ADVERSE_FLOW_CONFIRMATION_EVENTS, 3, 2, 100),
-    minimumFillProbability, takerLimitBufferBps, cancelAheadFraction: .5,
-    fillHazardIntercept: -1, fillHazardAggressiveWeight: .1, fillHazardFlowWeight: 1, fillHazardImbalanceWeight: .5, fillHazardSpreadWeight: .05,
-    makerOpportunityCostBps: 2, staleOrderCostBps: 1, maximumImpactBps: 10, maximumIterations: 5 };
+    adverseOfiThreshold: numberEnv(env.PENDING_ADVERSE_OFI_THRESHOLD, .3),
+    adverseTfiThreshold: numberEnv(env.PENDING_ADVERSE_TFI_THRESHOLD, .15),
+    minimumFillProbability,
+    minimumExpectedValueBps: paperEntryExercise ? 0 : numberEnv(env.MAKER_MINIMUM_EXPECTED_VALUE_BPS, .25),
+    minimumRewardRiskRatio: paperEntryExercise ? 0 : numberEnv(env.ENTRY_MINIMUM_REWARD_RISK_RATIO, .25),
+    takerLimitBufferBps, cancelAheadFraction: .5,
+    fillHazardIntercept: finiteNumberEnv(env.MAKER_FILL_HAZARD_INTERCEPT, -3.25),
+    fillHazardAggressiveWeight: numberEnv(env.MAKER_FILL_HAZARD_AGGRESSIVE_WEIGHT, .1),
+    fillHazardFlowWeight: numberEnv(env.MAKER_FILL_HAZARD_FLOW_WEIGHT, 1),
+    fillHazardImbalanceWeight: numberEnv(env.MAKER_FILL_HAZARD_IMBALANCE_WEIGHT, .5),
+    fillHazardSpreadWeight: numberEnv(env.MAKER_FILL_HAZARD_SPREAD_WEIGHT, .05),
+    makerOpportunityCostBps: numberEnv(env.MAKER_OPPORTUNITY_COST_BPS, 2),
+    staleOrderCostBps: numberEnv(env.MAKER_STALE_ORDER_COST_BPS, 1),
+    maximumImpactBps: 10, maximumIterations: 5 };
 }
 function parseMode(value: string): TradingMode {
   if (!["record", "replay", "shadow", "paper", "live"].includes(value)) throw new Error(`Unknown trading mode: ${value}`);

@@ -155,11 +155,18 @@ EV_maker = P_fill notional (predictedGrossBps - makerCostBps) / 10000
          - staleOrderCost
 ```
 
-Fill probability uses `1-exp(-lambda TTL)` and a log hazard driven by aggressive volume versus queue ahead, flow, imbalance, and spread. The same actual TTL is used by both fill modeling and the resulting order plan. Continuation maker TTL cannot exceed half the configured micro-alpha half-life. The independent multi-hour pullback/recovery family instead uses `PULLBACK_MAKER_TTL_MS` (20 seconds by default), so micro-alpha expiry cannot force a structurally valid order to disappear before a plausible maker fill. Each submitted plan also owns a wall-clock deadline timer; TTL enforcement therefore does not depend on another market event. A cancellation that occurs before the POST acknowledgment is latched and executed once the authoritative venue order ID arrives. Non-urgent exits selected by `MAKER_MAKER_TAKER_FALLBACK` rest at the ask for a bounded TTL; after cancellation is authoritatively reconciled, any remainder walks the bid and uses the worst walked price as an IOC limit cap. Hard-stop, data-invalid, recovery-no-edge, and profit-floor exits bypass the maker attempt.
+Fill probability uses `1-exp(-lambda TTL)` and a log hazard driven by aggressive volume versus queue ahead, flow, imbalance, and spread. The checked-in hazard intercept is conservatively shifted from `-1` to `-3.25` after the observed maker-fill rate was materially below the former estimate; the optimization report must still accumulate its full duration/sample requirement before treating that fit as deployable calibration. The same actual TTL is used by both fill modeling and the resulting order plan. Continuation maker TTL cannot exceed half the configured micro-alpha half-life. Its adverse-flow confirmation is bounded inside that TTL (100 milliseconds and two events by default); the independent multi-hour pullback/recovery family uses its 20-second maker TTL and the slower two-second, three-event adverse confirmation. Each submitted plan also owns a wall-clock deadline timer, so TTL enforcement does not depend on another market event. A cancellation that occurs before POST acknowledgment is latched and executed once the authoritative venue order ID arrives. Only a profitable, cost-covered non-urgent exit selected by `MAKER_MAKER_TAKER_FALLBACK` may rest at the ask for the bounded five-second TTL; after cancellation is authoritatively reconciled, any remainder walks the bid and uses the worst walked price as an IOC limit cap. Losing/cost-uncovered exits and hard-risk, data-invalid, recovery-no-edge, and profit-floor exits bypass the maker attempt.
 
 The fallback path fixes the maker exit fee in the ledger and adds `(1-P_exitFill)` times the taker-minus-maker fee, half spread, and configured fallback adverse move to stressable variable cost. Exit completion therefore does not depend on an indefinite maker fill, and the economic gate does not pretend the fallback branch is free.
 
-Maker and taker are independent execution candidates. Each candidate iterates quantity, style-specific cost, deterministic LCB revalidation, and risk sizing to stability. A candidate that fails its exact cost gate is discarded without suppressing the other style; the surviving candidates are compared by expected value, subject to the maker fill-probability floor.
+Maker and taker are independent execution candidates. Each candidate iterates quantity, style-specific cost, deterministic LCB revalidation, and risk sizing to stability. Economic horizon selection takes the shortest horizon that passes all robust-cost gates, then the best path within that horizon. A final candidate must also satisfy:
+
+```text
+rewardRisk = conservativeNetEdgeBps / modeledMaximumLossBps >= 0.25
+orderExpectedValueBps >= 0.25
+```
+
+A candidate that fails exact cost, reward/risk, expected value, or fill probability is discarded with a distinct audit reason. This prevents a small positive forecast from authorizing a stop several times larger than the forecast and prevents a nominally cheap maker path from passing after calibrated no-fill opportunity costs make its order-level EV negative.
 
 ## Position and portfolio risk
 
@@ -198,7 +205,7 @@ volatilityFloor = MFE - volatilityMultiple sigmaPrice
 F_t = max(F_{t-1}, -initialRisk, armed floors)
 ```
 
-It exits on hard risk, floor breach, confirmed non-positive incremental hold edge plus reversal evidence, stale data, or no progress over the time stop. A loss that recovers past costs either exits when hold edge is gone or arms break-even permanently. Reversal-dependent partial reductions are allowed only when their modeled benefit exceeds extra costs.
+It exits on hard risk, floor breach, stale data, or confirmed hold-engine exit evidence. The hold engine combines weak continuation, reversal quorum, and non-positive incremental edge with OR semantics; the position manager preserves that result rather than requiring both a negative edge and a reversal quorum. After the one-minute minimum hold, a no-progress loss at or beyond `minimumProgressR` (0.25 by default) exits as `EARLY_ADVERSE_STOP`; a position whose MFE never covers costs exits after the 15-minute unproductive stop. A loss that recovers past costs either exits when hold edge is gone or arms break-even permanently. A straight winner does not arm break-even until it covers both a meaningful fraction of risk and the configured cost multiple, and profit trailing requires both the risk and cost thresholds, preventing one-cost-unit moves from being clipped into tiny winners. Reversal-dependent partial reductions remain allowed only when their modeled benefit exceeds extra costs.
 
 ## Order and failure state
 

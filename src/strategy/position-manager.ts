@@ -53,7 +53,8 @@ export type PositionDecision =
 
 export class PositionManager {
   public constructor(private readonly cfg: PositionConfig) {}
-  public update(p: Position, executableExitPx: number, nowMs: number, f: Features, holdLowerBoundBps: number, reversalProbability: number, reductionBenefitBps = 0): PositionDecision {
+  public update(p: Position, executableExitPx: number, nowMs: number, f: Features, holdLowerBoundBps: number,
+    reversalProbability: number, reductionBenefitBps = 0, holdExitEvidence?: boolean): PositionDecision {
     const u = p.side * (executableExitPx - p.entryPx);
     const risk = p.initialRiskPx;
     if (!(risk > 0)) return { action: "EXIT", reason: "INVALID_INITIAL_RISK" };
@@ -69,8 +70,13 @@ export class PositionManager {
       p.breakEvenArmed = true;
     }
     const costBasedActivation = p.roundTripCostPx > 0
-      ? this.cfg.profitActivationCostMultiple * p.roundTripCostPx : Number.POSITIVE_INFINITY;
-    const protectionActivationPx = Math.min(this.cfg.trailActivationR * risk, costBasedActivation);
+      ? this.cfg.profitActivationCostMultiple * p.roundTripCostPx : 0;
+    const breakEvenActivationPx = Math.max(this.cfg.minimumProgressR * risk, costBasedActivation);
+    if (p.mfePx >= breakEvenActivationPx) p.breakEvenArmed = true;
+    // Require both a meaningful fraction of initial risk and sufficient cost
+    // coverage before trailing. The old min() activated at one cost unit and
+    // repeatedly converted valid trends into tiny winners.
+    const protectionActivationPx = Math.max(this.cfg.trailActivationR * risk, costBasedActivation);
     const protectedTrade = p.mfePx >= protectionActivationPx;
     let candidateFloor = -risk;
     if (p.breakEvenArmed) candidateFloor = Math.max(candidateFloor, p.roundTripCostPx);
@@ -97,11 +103,18 @@ export class PositionManager {
 
     const meaningfulProgressPx = p.roundTripCostPx > 0
       ? p.roundTripCostPx : this.cfg.minimumProgressR * risk;
+    if (elapsedMs >= this.cfg.minimumHoldMs && p.mfePx < meaningfulProgressPx
+      && u <= -this.cfg.minimumProgressR * risk) {
+      p.phase = "EXITING"; return { action: "EXIT", reason: "EARLY_ADVERSE_STOP" };
+    }
     if (elapsedMs >= this.cfg.unproductiveExitMs && p.mfePx < meaningfulProgressPx) {
       p.phase = "EXITING"; return { action: "EXIT", reason: "UNPRODUCTIVE_TIME_STOP" };
     }
 
-    const adverseEvidence = holdLowerBoundBps <= 0 && reversalProbability >= .55;
+    // The hold engine intentionally combines weak continuation, reversal
+    // quorum, and negative incremental edge with OR semantics. Requiring a
+    // negative LCB and a reversal quorum here discarded most valid exits.
+    const adverseEvidence = holdExitEvidence ?? (holdLowerBoundBps <= 0 || reversalProbability >= .55);
     if (adverseEvidence) {
       p.adverseEvidenceSinceMs ??= nowMs;
       if (elapsedMs >= this.cfg.minimumHoldMs && nowMs - p.adverseEvidenceSinceMs >= this.cfg.evidenceConfirmationMs) {

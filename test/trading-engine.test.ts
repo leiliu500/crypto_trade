@@ -122,9 +122,9 @@ test("non-urgent exits fall back to a capped IOC at expiry even when kinematics 
   runtime.position = { symbol: "BTC/USD", side: 1, qty: .01, entryPx: 100, openedMs: 0,
     initialRiskPx: 1, roundTripCostPx: .4, mfePx: 0, maePx: 0, floorPx: -1,
     breakEvenArmed: false, phase: "EXITING", executionPath: "MAKER_MAKER_TAKER_FALLBACK" };
-  const book: BookState = { symbol: "BTC/USD", bids: [{ px: 99.99, qty: 1 }], asks: [{ px: 100.01, qty: 1 }],
+  const book: BookState = { symbol: "BTC/USD", bids: [{ px: 100.5, qty: 1 }], asks: [{ px: 100.51, qty: 1 }],
     exchangeTsMs: nowMs, receiveTsMs: nowMs, sequence: 1n, valid: true, sourceReset: true };
-  const features: Features = { symbol: "BTC/USD", mid: 100, spread: .02, spreadBps: 2, microprice: 100, visibleDepth: 2,
+  const features: Features = { symbol: "BTC/USD", mid: 100.505, spread: .01, spreadBps: .995, microprice: 100.505, visibleDepth: 2,
     qi1: 0, qiK: 0, persistentQiK: 0, ofi: 0, tfi: 0, bidCancellationRatio: 0, askCancellationRatio: 0,
     replenishmentPressure: 0, velocity: 0, acceleration: 0, varianceRate: 1e-8, sigmaHBps: 1,
     microEdgeZ: 0, velocityZ: 0, accelerationZ: 0, efficiency: .5, cusumUp: false, cusumDown: false,
@@ -137,11 +137,11 @@ test("non-urgent exits fall back to a capped IOC at expiry even when kinematics 
   await within(internals.submitExit(runtime, .01, "TIME_STOP", book, features), "maker exit submission");
   assert.equal(plans[0]?.style, "maker");
   assert.equal(plans[0]?.timeInForce, "gtc");
-  assert.equal(plans[0]?.limitPx, 100.01);
-  assert.equal(plans[0]?.expiresMs, 31_000);
+  assert.equal(plans[0]?.limitPx, 100.51);
+  assert.equal(plans[0]?.expiresMs, 6_000);
 
   const maker = internals.orderState.get(plans[0]!.clientOrderId)!;
-  nowMs = 31_001;
+  nowMs = 6_001;
   const unavailable = { ...features, receiveTsMs: nowMs, kinematicsReady: false,
     kinematicsResetReason: "EVENT_GAP" as const };
   runtime.latestFeatures = unavailable;
@@ -224,6 +224,34 @@ test("hard stops bypass maker exit optimization", async () => {
     spreadZ: 0, depthZ: 0, signalFlipRate: 0, providerAgeMs: 0, staleThresholdMs: 1_000,
     warmedUp: true, kinematicsReady: true, stale: false, staleReason: null, receiveTsMs: 1_000 } satisfies Features;
   await within(internals.submitExit(runtime, .01, "HARD_STOP", book, features), "hard-stop exit submission");
+  assert.equal(plans[0]?.style, "taker");
+  assert.equal(plans[0]?.timeInForce, "ioc");
+});
+
+test("losing time and evidence exits use IOC immediately instead of resting for another maker TTL", async () => {
+  const plans: ExecutionPlan[] = [];
+  const gateway: OrderGateway = {
+    send: async (plan) => { plans.push(plan); return { id: "loss-exit-order" } as never; },
+    cancel: async () => undefined, cancelAll: async () => undefined,
+  };
+  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", ALPACA_PAPER: "true",
+    ALPACA_API_KEY: "test", ALPACA_API_SECRET: "test", CONFIG_DIR: "config" }), { gateway, now: () => 1_000 });
+  const internals = engine as unknown as {
+    runtimes: Map<string, { asset?: AssetRules; position?: Position }>;
+    submitExit: (runtime: unknown, qty: number, reason: string, book: BookState, features: Features) => Promise<void>;
+  };
+  const runtime = internals.runtimes.get("BTC/USD")!;
+  runtime.asset = { symbol: "BTC/USD", minOrderSize: .001, minTradeIncrement: .001,
+    priceIncrement: .001, maximumOrderQty: 1_000, shortable: false };
+  runtime.position = { symbol: "BTC/USD", side: 1, qty: .01, entryPx: 100, openedMs: 0,
+    initialRiskPx: 1, roundTripCostPx: .04, mfePx: 0, maePx: .01, floorPx: -1,
+    breakEvenArmed: false, phase: "EXITING", executionPath: "MAKER_MAKER_TAKER_FALLBACK" };
+  const book = { symbol: "BTC/USD", bids: [{ px: 99.99, qty: 1 }], asks: [{ px: 100.01, qty: 1 }],
+    exchangeTsMs: 1_000, receiveTsMs: 1_000, sequence: 1n, valid: true, sourceReset: true } satisfies BookState;
+
+  await within(internals.submitExit(runtime, .01, "UNPRODUCTIVE_TIME_STOP", book, basicFeatures(1_000)),
+    "losing time-stop IOC submission");
+
   assert.equal(plans[0]?.style, "taker");
   assert.equal(plans[0]?.timeInForce, "ioc");
 });
@@ -695,6 +723,21 @@ test("the incident's transient OFI spike enters grace and recovers without cance
   assert.equal(recoveredEvents.length, 1);
   assert.equal(recoveredEvents[0]?.adverseEvents, 1);
   assert.equal(recoveredEvents[0]?.lastOpposingOfi, true);
+});
+
+test("a continuation maker cancels persistent adverse flow before its short TTL can fill adversely", async () => {
+  const harness = pendingEntryHarness("continuation-adverse-flow", true, "CONTINUATION");
+  const graceEvents: Array<{ details?: { confirmationMs?: number; requiredConsecutiveEvents?: number } }> = [];
+  harness.engine.on("pendingAdverseFlowGrace", (event) => graceEvents.push(event));
+
+  await harness.reevaluate(2_050, -.4, 0);
+  assert.equal(harness.canceledOrderIds.length, 0);
+  assert.equal(graceEvents[0]?.details?.confirmationMs, 100);
+  assert.equal(graceEvents[0]?.details?.requiredConsecutiveEvents, 2);
+
+  await harness.reevaluate(2_150, -.4, 0);
+  assert.deepEqual(harness.canceledOrderIds, ["continuation-adverse-flow-order"]);
+  assert.equal(harness.tracked.cancellationReason, "ADVERSE_FLOW");
 });
 
 test("a continuation maker gives a regime or micro flip half its TTL but cancels a structural failure immediately", async () => {

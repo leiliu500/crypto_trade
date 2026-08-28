@@ -478,7 +478,7 @@ test("long-horizon analytical edge uses slow sampled variance and fails closed b
   assert.deepEqual(analyticEdges({ side: 1, features: { ...baseline, slowTrendReady: false }, continuation }, cfg), []);
 });
 
-test("sustained 5/15/60-minute continuation clears incident costs while a fading fast leg does not", () => {
+test("sustained 5/15/60-minute continuation clears the net-edge floor while a fading fast leg does not", () => {
   const cfg = { horizons: DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.analyticHorizons,
     spreadUncertaintyWeight: .5, flipUncertaintyWeight: .2 };
   const continuation = {
@@ -497,8 +497,8 @@ test("sustained 5/15/60-minute continuation clears incident costs while a fading
   incident.flowFlipRate = .2495;
   const sustained = analyticEdges({ side: 1, features: incident, continuation }, cfg).at(-1)!;
   const fading = analyticEdges({ side: 1, features: { ...incident, trendFastBps: 5.6 }, continuation }, cfg).at(-1)!;
-  assert.ok(sustained.conservativeGrossBps > 40.38115056383447);
-  assert.ok(fading.conservativeGrossBps < 40.38115056383447);
+  assert.ok(sustained.conservativeGrossBps > DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.minimumNetEdgeBps);
+  assert.ok(fading.conservativeGrossBps < DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.minimumNetEdgeBps);
   assert.ok(sustained.conservativeGrossBps > fading.conservativeGrossBps);
   assert.throws(() => validateMultiHorizonAnalyticConfig({
     ...cfg, horizons: [{ ...cfg.horizons[0]!, trendCaptureFraction: 1.01 }],
@@ -508,9 +508,9 @@ test("sustained 5/15/60-minute continuation clears incident costs while a fading
 test("aligned continuation may cost-revalidate a below-stress spread but never a stressed spread", () => {
   const incidentCost = {
     path: "MAKER_MAKER_TAKER_FALLBACK", supported: true,
-    entryExecutionBps: 0, exitExecutionBps: 1, entryFeeBps: 15, exitFeeBps: 15,
-    marketImpactBps: 0, latencyBps: 0, adverseSelectionBps: 4.93208603647684,
-    fundingBps: 0, borrowBps: 0, estimatedCostBps: 35.93208603647684,
+    entryExecutionBps: 0, exitExecutionBps: 1, entryFeeBps: .5, exitFeeBps: .5,
+    marketImpactBps: 0, latencyBps: 0, adverseSelectionBps: 1,
+    fundingBps: 0, borrowBps: 0, estimatedCostBps: 3,
     positiveCostErrorP95Bps: 2, fillProbability: .8,
   } as const;
   const widenedSpread = {

@@ -25,7 +25,7 @@ test("maker-fill calibration excludes contaminated runs and requires discriminat
   assert.equal(report.dataQuality.excludedOrdersFromRunsWithDropsOrNoHealth, 1);
 });
 
-test("fifteen-minute timeout shadow uses only trades still unproductive at the executable mark", () => {
+test("ten-minute timeout shadow stays below the active fifteen-minute exit and uses only unproductive trades", () => {
   const orders = [
     exit("improved-a", 0, -10, -2, "UNPRODUCTIVE_TIME_STOP"),
     exit("improved-b", 8 * DAY, -5, -1, "UNPRODUCTIVE_TIME_STOP"),
@@ -43,11 +43,13 @@ test("fifteen-minute timeout shadow uses only trades still unproductive at the e
   assert.equal(report.unproductiveExitShadow.dataReady, true);
   assert.equal(report.unproductiveExitShadow.deploymentReady, true);
   assert.ok((report.unproductiveExitShadow.lower95AveragePnlDelta ?? 0) > 0);
+  const insufficient = analyzeTradeOptimization(orders, safeguards(3));
+  assert.equal(insufficient.unproductiveExitShadow.reason, "Only 2 clean 10-minute unproductive trades; 3 required");
 });
 
 function safeguards(minimumSamples: number) {
-  return { minimumDurationMs: 7 * DAY, minimumSamples, shadowUnproductiveExitMs: 15 * 60_000,
-    activeUnproductiveExitMs: 20 * 60_000 };
+  return { minimumDurationMs: 7 * DAY, minimumSamples, shadowUnproductiveExitMs: 10 * 60_000,
+    activeUnproductiveExitMs: 15 * 60_000 };
 }
 
 function maker(clientOrderId: string, createdMs: number, fillProbability: number, filledQty: number): OptimizationOrder {
@@ -59,20 +61,20 @@ function maker(clientOrderId: string, createdMs: number, fillProbability: number
   };
 }
 
-function exit(clientOrderId: string, openedMs: number, actualPnl: number, pnlAt15m: number, exitReason: string,
+function exit(clientOrderId: string, openedMs: number, actualPnl: number, pnlAt10m: number, exitReason: string,
   maximumPnlBps = -1): OptimizationOrder {
-  const target = openedMs + 15 * 60_000;
+  const target = openedMs + 10 * 60_000;
   return {
     clientOrderId, runId: "clean", telemetryDroppedRecords: 0, symbol: "ETH/USD", side: -1, style: "taker",
     status: "FILLED", requestedQty: 1, filledQty: 1, fillProbability: 1, reduceOnlyIntent: true,
-    createdMs: openedMs + 20 * 60_000, updatedMs: openedMs + 20 * 60_000 + 1_000,
+    createdMs: openedMs + 15 * 60_000, updatedMs: openedMs + 15 * 60_000 + 1_000,
     entryFamily: null, cancellationReason: null, exitReason,
     livePosition: {
-      openedMs, closedAtMs: openedMs + 20 * 60_000, realizedPnl: actualPnl, entryOrderId: `entry-${clientOrderId}`,
+      openedMs, closedAtMs: openedMs + 15 * 60_000, realizedPnl: actualPnl, entryOrderId: `entry-${clientOrderId}`,
       pnlHistory: [
         { atMs: openedMs + 1_000, currentPx: 100, unrealizedPnl: -.1, unrealizedPnlBps: maximumPnlBps, changePnl: null, kind: "mark" },
-        { atMs: target, currentPx: 99, unrealizedPnl: pnlAt15m, unrealizedPnlBps: maximumPnlBps, changePnl: -.1, kind: "mark" },
-        { atMs: openedMs + 20 * 60_000, currentPx: 98, unrealizedPnl: actualPnl, unrealizedPnlBps: -2, changePnl: -.1, kind: "close" },
+        { atMs: target, currentPx: 99, unrealizedPnl: pnlAt10m, unrealizedPnlBps: maximumPnlBps, changePnl: -.1, kind: "mark" },
+        { atMs: openedMs + 15 * 60_000, currentPx: 98, unrealizedPnl: actualPnl, unrealizedPnlBps: -2, changePnl: -.1, kind: "close" },
       ],
     },
   };

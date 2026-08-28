@@ -37,8 +37,6 @@ import { CryptoOptionShortController, type CryptoOptionShortSnapshot } from "../
 
 const PAPER_DEMO_TARGET_NOTIONAL = 11;
 const CANCEL_PENDING_RECONCILE_DELAY_MS = 2_000;
-const ADVERSE_OFI_THRESHOLD = 2;
-const ADVERSE_TFI_THRESHOLD = .5;
 
 export interface EngineMarketSnapshot {
   symbol: string;
@@ -135,6 +133,10 @@ interface PendingAdverseFlowAssessment {
   consecutiveEvents: number;
   opposingOfi: boolean;
   opposingTfi: boolean;
+  confirmationMs: number;
+  requiredEvents: number;
+  ofiThreshold: number;
+  tfiThreshold: number;
 }
 
 export interface EngineDependencies {
@@ -997,8 +999,8 @@ export class TradingEngine extends EventEmitter {
       adverseCorroborated: adverseFlow.corroborated,
       firstAdverseAtMs: adverseFlow.firstAdverseAtMs, adverseForMs: adverseFlow.adverseForMs,
       adverseConsecutiveEvents: adverseFlow.consecutiveEvents,
-      requiredAdverseEvents: runtime.config.planner.adverseFlowConfirmationEvents,
-      adverseConfirmationMs: runtime.config.planner.adverseFlowConfirmationMs,
+      requiredAdverseEvents: adverseFlow.requiredEvents,
+      adverseConfirmationMs: adverseFlow.confirmationMs,
       opposingOfi: adverseFlow.opposingOfi, opposingTfi: adverseFlow.opposingTfi,
       stale: features.stale, tfi: features.tfi, ofi: features.ofi,
       remainingQty: Math.max(pending.plan.qty - pending.filledQty, 0),
@@ -1009,8 +1011,17 @@ export class TradingEngine extends EventEmitter {
   private confirmPendingAdverseFlow(runtime: SymbolRuntime, pending: TrackedOrder,
     features: DeterministicFeatures, nowMs: number): PendingAdverseFlowAssessment {
     const clientOrderId = pending.plan.clientOrderId;
-    const opposingOfi = pending.plan.side * features.ofi < -ADVERSE_OFI_THRESHOLD;
-    const opposingTfi = pending.plan.side * features.tfi < -ADVERSE_TFI_THRESHOLD;
+    const continuation = pending.plan.entryFamily === "CONTINUATION";
+    const confirmationMs = continuation
+      ? runtime.config.planner.continuationAdverseFlowConfirmationMs
+      : runtime.config.planner.adverseFlowConfirmationMs;
+    const requiredEvents = continuation
+      ? runtime.config.planner.continuationAdverseFlowConfirmationEvents
+      : runtime.config.planner.adverseFlowConfirmationEvents;
+    const ofiThreshold = runtime.config.planner.adverseOfiThreshold;
+    const tfiThreshold = runtime.config.planner.adverseTfiThreshold;
+    const opposingOfi = pending.plan.side * features.ofi < -ofiThreshold;
+    const opposingTfi = pending.plan.side * features.tfi < -tfiThreshold;
     const adverse = opposingOfi || opposingTfi;
     const previous = this.pendingAdverseFlowFaults.get(clientOrderId);
     if (!adverse) {
@@ -1021,7 +1032,8 @@ export class TradingEngine extends EventEmitter {
         lastOpposingOfi: previous.opposingOfi, lastOpposingTfi: previous.opposingTfi,
       });
       return { adverse: false, corroborated: false, confirmed: false, firstAdverseAtMs: null,
-        adverseForMs: 0, consecutiveEvents: 0, opposingOfi: false, opposingTfi: false };
+        adverseForMs: 0, consecutiveEvents: 0, opposingOfi: false, opposingTfi: false,
+        confirmationMs, requiredEvents, ofiThreshold, tfiThreshold };
     }
     const fault: PendingAdverseFlowFault = {
       firstAtMs: previous?.firstAtMs ?? nowMs,
@@ -1033,22 +1045,23 @@ export class TradingEngine extends EventEmitter {
     this.pendingAdverseFlowFaults.set(clientOrderId, fault);
     const corroborated = opposingOfi && opposingTfi;
     const adverseForMs = nowMs - fault.firstAtMs;
-    const confirmed = corroborated || (adverseForMs >= runtime.config.planner.adverseFlowConfirmationMs
-      && fault.consecutiveEvents >= runtime.config.planner.adverseFlowConfirmationEvents);
+    const confirmed = corroborated || (adverseForMs >= confirmationMs
+      && fault.consecutiveEvents >= requiredEvents);
     if (!confirmed && !previous) this.emit("pendingAdverseFlowGrace", {
       symbol: pending.plan.symbol, clientOrderId, reason: "ADVERSE_FLOW",
       details: {
         nowMs, expiresMs: pending.plan.expiresMs,
         firstAdverseAtMs: fault.firstAtMs, adverseForMs,
-        confirmationMs: runtime.config.planner.adverseFlowConfirmationMs,
+        confirmationMs,
         consecutiveEvents: fault.consecutiveEvents,
-        requiredConsecutiveEvents: runtime.config.planner.adverseFlowConfirmationEvents,
+        requiredConsecutiveEvents: requiredEvents,
         opposingOfi, opposingTfi, ofi: features.ofi, tfi: features.tfi,
-        ofiThreshold: ADVERSE_OFI_THRESHOLD, tfiThreshold: ADVERSE_TFI_THRESHOLD,
+        ofiThreshold, tfiThreshold,
       },
     });
     return { adverse, corroborated, confirmed, firstAdverseAtMs: fault.firstAtMs,
-      adverseForMs, consecutiveEvents: fault.consecutiveEvents, opposingOfi, opposingTfi };
+      adverseForMs, consecutiveEvents: fault.consecutiveEvents, opposingOfi, opposingTfi,
+      confirmationMs, requiredEvents, ofiThreshold, tfiThreshold };
   }
 
   private confirmPendingSignalInvalidation(runtime: SymbolRuntime, pending: TrackedOrder,
@@ -1179,7 +1192,8 @@ export class TradingEngine extends EventEmitter {
     const hold = runtime.holdEngine.evaluate(position.side, features, expectedIncrementalDelayCostBps, remainingEconomicHorizonMs);
     const executableExit = position.side === 1 ? book.bids[0]!.px : book.asks[0]!.px;
     const nowMs = this.now();
-    const decision = runtime.positionManager.update(position, executableExit, nowMs, features, hold.holdLowerBoundBps, hold.reversalScore, Math.max(0, -hold.holdLowerBoundBps));
+    const decision = runtime.positionManager.update(position, executableExit, nowMs, features,
+      hold.holdLowerBoundBps, hold.reversalScore, Math.max(0, -hold.holdLowerBoundBps), hold.exitEvidence);
     return { decision, hold, regime, nowMs };
   }
 
@@ -1281,7 +1295,13 @@ export class TradingEngine extends EventEmitter {
       this.orderState.get(clientOrderId)?.plan.symbol === runtime.position?.symbol)) return;
     const qty = Math.min(runtime.position.qty, Math.floor(desiredQty / runtime.asset.minTradeIncrement + 1e-12) * runtime.asset.minTradeIncrement);
     if (qty < runtime.asset.minOrderSize) return;
-    const makerEligible = runtime.position.executionPath === "MAKER_MAKER_TAKER_FALLBACK" && makerExitEligible(reason);
+    const executableExitPx = runtime.position.side === 1 ? book.bids[0]!.px : book.asks[0]!.px;
+    const signedMovePx = runtime.position.side * (executableExitPx - runtime.position.entryPx);
+    // A losing or not-yet-cost-covering exit is risk removal, not price
+    // optimization. Resting it for another maker TTL reproduced the observed
+    // partial-fill/fallback losses after the time stop had already fired.
+    const makerEligible = runtime.position.executionPath === "MAKER_MAKER_TAKER_FALLBACK"
+      && makerExitEligible(reason) && signedMovePx > runtime.position.roundTripCostPx;
     const style = forcedStyle ?? (makerEligible ? "maker" : "taker");
     const exitSide = -runtime.position.side as 1 | -1;
     const sweep = style === "taker" ? estimateSweep(exitSide === 1 ? book.asks : book.bids, qty) : null;

@@ -187,7 +187,8 @@ function timeoutReport(orders: readonly OptimizationOrder[], options: TradeOptim
   const dataReady = candidates.length >= options.minimumSamples && observedDurationMs >= options.minimumDurationMs;
   const deploymentReady = dataReady && lower95AveragePnlDelta !== null && lower95AveragePnlDelta > 0;
   const reason = deploymentReady ? null
-    : candidates.length < options.minimumSamples ? `Only ${candidates.length} clean 15-minute unproductive trades; ${options.minimumSamples} required`
+    : candidates.length < options.minimumSamples
+      ? `Only ${candidates.length} clean ${options.shadowUnproductiveExitMs / 60_000}-minute unproductive trades; ${options.minimumSamples} required`
       : observedDurationMs < options.minimumDurationMs ? `Eligible trade span is ${observedDurationMs} ms; ${options.minimumDurationMs} ms required`
         : lower95AveragePnlDelta === null ? "A confidence bound requires at least two eligible trades"
           : `The lower 95% average P&L delta is ${lower95AveragePnlDelta}; it must be positive`;
