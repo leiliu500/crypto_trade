@@ -74,6 +74,18 @@ test("realized session P&L can be restored before engine startup", () => {
   assert.throws(() => engine.restoreRealizedSessionPnl(Number.NaN), /must be finite/);
 });
 
+test("Kraken paper realized session P&L resets before the first snapshot of a new UTC day", () => {
+  let nowMs = Date.UTC(2026, 7, 27, 23, 59, 59);
+  const engine = new TradingEngine(loadConfig({
+    TRADING_MODE: "replay", TRADING_VENUE: "kraken_futures", CONFIG_DIR: "config",
+  }), { now: () => nowMs });
+  engine.restoreRealizedSessionPnl(-1.43715354);
+  assert.equal(engine.state().realizedSessionPnl, -1.43715354);
+
+  nowMs = Date.UTC(2026, 7, 28, 0, 0, 1);
+  assert.equal(engine.state().realizedSessionPnl, 0);
+});
+
 test("non-urgent exits fall back to a capped IOC at expiry even when kinematics are unavailable", async () => {
   let nowMs = 1_000;
   const plans: ExecutionPlan[] = [];

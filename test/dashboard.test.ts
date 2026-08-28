@@ -193,6 +193,36 @@ test("dashboard resets total session P&L at UTC rollover and carries live equity
   monitor.stop();
 });
 
+test("dashboard does not subtract the prior Kraken UTC session after the broker resets its counter", () => {
+  const monitor = new OperationsMonitor();
+  const before = engineState();
+  before.venue = "kraken_futures";
+  before.generatedAtMs = Date.UTC(2026, 7, 27, 23, 59, 59);
+  before.positions = [];
+  before.orders = [];
+  before.equity = 99_994.54782779;
+  before.equityHighWater = before.equity;
+  before.realizedSessionPnl = -1.43715354;
+  monitor.ingestEngineSnapshot(before);
+
+  const afterRollover = structuredClone(before);
+  afterRollover.generatedAtMs = Date.UTC(2026, 7, 28, 0, 0, 1);
+  afterRollover.realizedSessionPnl = 0;
+  monitor.ingestEngineSnapshot(afterRollover);
+  assert.equal(monitor.snapshot().sessionStartingEquity, before.equity);
+  assert.equal(monitor.snapshot().sessionRealizedPnl, 0);
+  assert.equal(monitor.snapshot().sessionPnl, 0);
+
+  const afterTrade = structuredClone(afterRollover);
+  afterTrade.generatedAtMs += 1_000;
+  afterTrade.realizedSessionPnl = .01100667;
+  afterTrade.equity += .01100667;
+  monitor.ingestEngineSnapshot(afterTrade);
+  assert.ok(Math.abs(monitor.snapshot().sessionRealizedPnl - .01100667) < 1e-12);
+  assert.ok(Math.abs(monitor.snapshot().sessionPnl - .01100667) < 1e-12);
+  monitor.stop();
+});
+
 test("dashboard waits for account reconciliation before locking the UTC opening equity", () => {
   const monitor = new OperationsMonitor();
   const starting = engineState();
