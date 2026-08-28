@@ -429,7 +429,7 @@ function loadSymbolConfig(symbol: string, env: NodeJS.ProcessEnv, mode: TradingM
       positiveCostErrorP95Bps: deterministicSignal.positiveCostErrorP95Bps },
     sizing: { baseRiskFraction: .001, maximumDrawdown: .05, maximumBookParticipation: .01, fractionalKelly: .1, maximumKellyFraction: .05, targetSigmaHBps: 20, minimumQualityScale: .1 },
     position, planner: defaultPlannerConfig(env, deterministicSignal.minimumMakerFillProbability,
-      paperEntryExercise ? 5 : 0, paperEntryExercise),
+      paperEntryExercise ? 5 : 0, paperEntryExercise, mode),
   };
 }
 
@@ -456,7 +456,7 @@ function validatePositionTiming(position: PositionConfig): void {
   }
 }
 function defaultPlannerConfig(env: NodeJS.ProcessEnv, minimumFillProbability: number, takerLimitBufferBps: number,
-  paperEntryExercise = false): PlannerConfig {
+  paperEntryExercise = false, mode: TradingMode = "shadow"): PlannerConfig {
   return { makerTtlMs: 1_500, alphaHalfLifeMs: 2_772,
     pullbackMakerTtlMs: integerEnv(env.PULLBACK_MAKER_TTL_MS, 20_000, 1_000, 300_000),
     pullbackKinematicsGraceMs: integerEnv(env.PULLBACK_KINEMATICS_GRACE_MS, 5_000, 1, 299_999),
@@ -482,7 +482,29 @@ function defaultPlannerConfig(env: NodeJS.ProcessEnv, minimumFillProbability: nu
     fillHazardSpreadWeight: numberEnv(env.MAKER_FILL_HAZARD_SPREAD_WEIGHT, .05),
     makerOpportunityCostBps: numberEnv(env.MAKER_OPPORTUNITY_COST_BPS, 2),
     staleOrderCostBps: numberEnv(env.MAKER_STALE_ORDER_COST_BPS, 1),
-    maximumImpactBps: 10, maximumIterations: 5 };
+    maximumImpactBps: 10, maximumIterations: 5,
+    hybridEntry: {
+      // Live activation remains fail-closed until route-shadow evidence is deployment-ready.
+      continuationTakerEnabled: mode !== "live" && parseBoolean(env.CONTINUATION_TAKER_ENABLED, true),
+      continuationTakerSizeMultiplier: fractionEnv(env.CONTINUATION_TAKER_SIZE_MULTIPLIER, .25),
+      continuationTakerMinimumScore: numberEnv(env.CONTINUATION_TAKER_MIN_SCORE, .30),
+      continuationTakerMinimumNetEdgeBps: numberEnv(env.CONTINUATION_TAKER_MIN_NET_EDGE_BPS, 8),
+      continuationTakerMinimumExpectedValueBps: numberEnv(env.CONTINUATION_TAKER_MIN_EXPECTED_VALUE_BPS, 1),
+      continuationTakerMinimumOfi: numberEnv(env.CONTINUATION_TAKER_MIN_OFI, .5),
+      continuationTakerMinimumTfi: numberEnv(env.CONTINUATION_TAKER_MIN_TFI, .2),
+      continuationTakerMinimumQiK: numberEnv(env.CONTINUATION_TAKER_MIN_QIK, .15),
+      continuationTakerMaximumLatencyHalfLifeFraction:
+        fractionEnv(env.CONTINUATION_TAKER_MAX_LATENCY_HALF_LIFE_FRACTION, .25),
+      // Evidence modes must be able to collect their first acknowledgment instead of
+      // deadlocking behind a sample count they can only obtain by sending an order.
+      // Live routing is disabled above and retains a 20-sample floor for any future activation.
+      continuationTakerMinimumLatencySamples: mode === "live"
+        ? Math.max(20, integerEnv(env.CONTINUATION_TAKER_MIN_LATENCY_SAMPLES, 20, 0, 10_000))
+        : integerEnv(env.CONTINUATION_TAKER_MIN_LATENCY_SAMPLES, 0, 0, 10_000),
+      routeShadowEnabled: parseBoolean(env.ENTRY_ROUTE_SHADOW_ENABLED, true),
+      routeShadowHorizonsMs: integerListEnv(env.ENTRY_ROUTE_SHADOW_HORIZONS_MS,
+        [1_000, 5_000, 30_000, 60_000, 300_000]),
+    } };
 }
 function parseMode(value: string): TradingMode {
   if (!["record", "replay", "shadow", "paper", "live"].includes(value)) throw new Error(`Unknown trading mode: ${value}`);
@@ -512,6 +534,14 @@ function finiteNumberEnv(value: string | undefined, fallback: number): number { 
 function integerEnv(value: string | undefined, fallback: number, minimum: number, maximum: number): number {
   const parsed = value === undefined ? fallback : Number(value);
   if (!Number.isInteger(parsed) || parsed < minimum || parsed > maximum) throw new Error(`Invalid integer configuration: ${value}`);
+  return parsed;
+}
+function integerListEnv(value: string | undefined, fallback: readonly number[]): number[] {
+  const parsed = value === undefined ? [...fallback] : value.split(",").map((item) => Number(item.trim()));
+  if (parsed.length === 0 || parsed.some((item) => !Number.isInteger(item) || item <= 0)
+    || parsed.some((item, index) => index > 0 && item <= parsed[index - 1]!)) {
+    throw new Error(`Invalid increasing integer-list configuration: ${value}`);
+  }
   return parsed;
 }
 function buildDatabaseUrl(env: NodeJS.ProcessEnv): string {
@@ -619,6 +649,8 @@ function loadDeterministicSignalConfig(env: NodeJS.ProcessEnv, mode: SignalMode,
     minimumEconomicSizeScale: numberEnv(env.RULE_MIN_ECONOMIC_SIZE_SCALE, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.minimumEconomicSizeScale),
     minimumMakerFillProbability: numberEnv(env.RULE_MIN_MAKER_FILL_PROBABILITY, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.minimumMakerFillProbability),
     requireMakerEntry: parseBoolean(env.RULE_REQUIRE_MAKER_ENTRY, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.requireMakerEntry),
+    allowTakerContinuation: parseBoolean(env.RULE_ALLOW_TAKER_CONTINUATION,
+      DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.allowTakerContinuation),
     minimumSlowTrendAlignment: numberEnv(env.RULE_MIN_SLOW_TREND_ALIGNMENT, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.minimumSlowTrendAlignment),
     minimumSlowTrendEfficiency: numberEnv(env.RULE_MIN_SLOW_TREND_EFFICIENCY, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.minimumSlowTrendEfficiency),
     minimumSlowTrendMoveBps: numberEnv(env.RULE_MIN_SLOW_TREND_MOVE_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.minimumSlowTrendMoveBps),

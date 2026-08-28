@@ -148,12 +148,28 @@ The micro trigger arbitrates direction directly from bounded long/short scores; 
 `src/execution/planner.ts` compares:
 
 ```text
-EV_taker = notional (predictedGrossBps - takerCostBps) / 10000
+EV_taker = notional LCB_taker / 10000
 
-EV_maker = P_fill notional (predictedGrossBps - makerCostBps) / 10000
+EV_maker = P_fill notional LCB_maker / 10000
          - (1-P_fill) opportunityCost
          - staleOrderCost
 ```
+
+Both route values therefore use the exact route-specific lower-confidence edge after robust costs, not an unconditional forecast that ignores selection into maker fills. The continuation router constructs a full-size maker candidate and a 25%-size capped IOC candidate independently. The IOC is eligible only when all of the following hold:
+
+```text
+family = CONTINUATION
+score >= 0.30
+d OFI >= 0.50, d TFI >= 0.20, d QI_K >= 0.15
+liquidityPass and not liquidityStress
+latencySamples >= configured minimum
+latencyP95 <= 0.25 alphaHalfLife
+LCB_taker >= 8 bps
+EV_taker/notional >= 1 bp
+EV_taker/notional > EV_maker/notional
+```
+
+If any urgency condition fails, an independently valid maker candidate is retained; no trade is created when neither exact plan passes. Pullback/recovery never enters through this IOC route. Live-mode IOC activation is hard-disabled while paper, shadow, and replay collect evidence. Evidence modes use a zero-sample bootstrap so their first safe paper acknowledgment can create a latency observation instead of waiting for samples that only an order can produce; after that first observation the measured p95 gate applies. The disabled live route retains a floor of 20 observations.
 
 Fill probability uses `1-exp(-lambda TTL)` and a log hazard driven by aggressive volume versus queue ahead, flow, imbalance, and spread. The checked-in hazard intercept is conservatively shifted from `-1` to `-3.25` after the observed maker-fill rate was materially below the former estimate; the optimization report must still accumulate its full duration/sample requirement before treating that fit as deployable calibration. The same actual TTL is used by both fill modeling and the resulting order plan. Continuation maker TTL cannot exceed half the configured micro-alpha half-life. Its adverse-flow confirmation is bounded inside that TTL (100 milliseconds and two events by default); the independent multi-hour pullback/recovery family uses its 20-second maker TTL and the slower two-second, three-event adverse confirmation. Each submitted plan also owns a wall-clock deadline timer, so TTL enforcement does not depend on another market event. A cancellation that occurs before POST acknowledgment is latched and executed once the authoritative venue order ID arrives. Only a profitable, cost-covered non-urgent exit selected by `MAKER_MAKER_TAKER_FALLBACK` may rest at the ask for the bounded five-second TTL; after cancellation is authoritatively reconciled, any remainder walks the bid and uses the worst walked price as an IOC limit cap. Losing/cost-uncovered exits and hard-risk, data-invalid, recovery-no-edge, and profit-floor exits bypass the maker attempt.
 
@@ -167,6 +183,8 @@ orderExpectedValueBps >= 0.25
 ```
 
 A candidate that fails exact cost, reward/risk, expected value, or fill probability is discarded with a distinct audit reason. This prevents a small positive forecast from authorizing a stop several times larger than the forecast and prevents a nominally cheap maker path from passing after calibrated no-fill opportunity costs make its order-level EV negative.
+
+`src/execution/entry-route-shadow.ts` records the counterfactual without looking ahead. At decision time it freezes both exact plans and displayed maker queue ahead. Subsequent contra-side trades first consume that queue and only then fill the simulated maker; through-price trades clear the remaining queue. At each configured horizon each policy walks the then-current exit book at its own quantity. A missed maker fill contributes zero policy return, a partial fill scales its per-unit return by the filled fraction, and the taker uses its frozen walked entry VWAP. Fees and carrying reserves are deducted once. Stale books do not produce marks, and the report excludes a delayed mark rather than assigning a later observation to its earlier target horizon. `npm run optimize:report` also slices symbol, side, and family, excludes runs with missing or dropped health telemetry, and requires the configured sample span/count plus positive taker net return and a positive lower 95% confidence bound for taker minus maker before reporting the route as deployment-ready.
 
 ## Position and portfolio risk
 

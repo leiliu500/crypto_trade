@@ -60,7 +60,8 @@ test("JSON baseline wins over legacy tunable environment values and symbol overl
     assert.equal(cfg.position.maximumHoldMs, 14_400_000);
     assert.deepEqual(cfg.deterministicSignal.analyticHorizons.map((item) => item.horizonMs), [900_000, 1_800_000, 3_600_000]);
     assert.equal(cfg.deterministicSignal.requireMakerEntry, true);
-    assert.equal(cfg.configurationVersion, "btc-eth-profitability-controls-v6.0.0");
+    assert.equal(cfg.deterministicSignal.allowTakerContinuation, true);
+    assert.equal(cfg.configurationVersion, "btc-eth-hybrid-entry-routing-v7.0.0");
     assert.equal(cfg.position.minimumHoldMs, 60_000);
     assert.equal(cfg.position.unproductiveExitMs, 900_000);
     assert.equal(cfg.position.reentryCooldownMs, 900_000);
@@ -83,6 +84,12 @@ test("JSON baseline wins over legacy tunable environment values and symbol overl
     assert.equal(cfg.planner.fillHazardIntercept, -3.25);
     assert.equal(cfg.planner.minimumExpectedValueBps, .25);
     assert.equal(cfg.planner.minimumRewardRiskRatio, .25);
+    assert.equal(cfg.planner.hybridEntry.continuationTakerEnabled, true);
+    assert.equal(cfg.planner.hybridEntry.continuationTakerSizeMultiplier, .25);
+    assert.equal(cfg.planner.hybridEntry.continuationTakerMinimumNetEdgeBps, 8);
+    assert.equal(cfg.planner.hybridEntry.continuationTakerMinimumLatencySamples, 0);
+    assert.equal(cfg.planner.hybridEntry.routeShadowEnabled, true);
+    assert.deepEqual(cfg.planner.hybridEntry.routeShadowHorizonsMs, [1_000, 5_000, 30_000, 60_000, 300_000]);
     assert.equal(cfg.deterministicSignal.minimumSlowTrendAlignment, 0.1);
     assert.equal(cfg.deterministicSignal.minimumSlowTrendEfficiency, 0.05);
     assert.equal(cfg.deterministicSignal.minimumSlowTrendMoveBps, 7.5);
@@ -95,6 +102,17 @@ test("JSON baseline wins over legacy tunable environment values and symbol overl
     assert.equal(cfg.recall.opportunityHorizonMs, cfg.position.maximumHoldMs);
     assert.equal(cfg.symbolConfigs["BTC/USD"]?.deterministicSignal.microTrigger.minimumMicroMoveBps, 0.008);
   } finally { rmSync(directory, { recursive: true, force: true }); }
+});
+
+test("continuation taker activation remains fail-closed in live mode", () => {
+  const cfg = loadConfig({
+    TRADING_MODE: "live", ALPACA_PAPER: "false", ALPACA_API_KEY: "key", ALPACA_API_SECRET: "secret",
+    ALLOW_LIVE_TRADING: "true", LIVE_TRADING_CONFIRMATION: "I_UNDERSTAND_LIVE_ORDERS_USE_REAL_MONEY",
+    CRYPTO_SHORT_OPTIONS_ENABLED: "false", CONTINUATION_TAKER_ENABLED: "true",
+  });
+  assert.equal(cfg.planner.hybridEntry.continuationTakerEnabled, false);
+  assert.equal(cfg.planner.hybridEntry.continuationTakerMinimumLatencySamples, 20);
+  assert.equal(cfg.planner.hybridEntry.routeShadowEnabled, true);
 });
 
 test("legacy calibrated buckets are scoped to continuation and cannot authorize pullback entries", () => {

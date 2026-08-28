@@ -24,6 +24,8 @@ export * from "./risk/sizing.js";
 export * from "./execution/book-walk.js";
 export * from "./execution/order-state.js";
 export * from "./execution/planner.js";
+export * from "./execution/hybrid-entry-router.js";
+export * from "./execution/entry-route-shadow.js";
 export * from "./alpaca/gateway.js";
 export * from "./alpaca/market-stream.js";
 export * from "./alpaca/rest.js";

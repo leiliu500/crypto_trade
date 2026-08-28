@@ -26,6 +26,15 @@ const intent: TradeIntent = {
   side: 1, probability: .8, predictedGrossBps: 20, lowerBoundNetBps: 10, quality: 1, decisionTsMs: 1_000,
 };
 
+const hybridEntry: PlannerConfig["hybridEntry"] = {
+  continuationTakerEnabled: true, continuationTakerSizeMultiplier: .25,
+  continuationTakerMinimumScore: .3, continuationTakerMinimumNetEdgeBps: 8,
+  continuationTakerMinimumExpectedValueBps: 1, continuationTakerMinimumOfi: .5,
+  continuationTakerMinimumTfi: .2, continuationTakerMinimumQiK: .15,
+  continuationTakerMaximumLatencyHalfLifeFraction: .25, continuationTakerMinimumLatencySamples: 20,
+  routeShadowEnabled: true, routeShadowHorizonsMs: [1_000, 5_000, 30_000],
+};
+
 function planner(takerLimitBufferBps = 0, fillHazardIntercept = 5,
   overrides: Partial<PlannerConfig> = {}): ExecutionPlanner {
   return new ExecutionPlanner({
@@ -40,6 +49,7 @@ function planner(takerLimitBufferBps = 0, fillHazardIntercept = 5,
     fillHazardIntercept, fillHazardAggressiveWeight: 0, fillHazardFlowWeight: 0,
     fillHazardImbalanceWeight: 0, fillHazardSpreadWeight: 0,
     makerOpportunityCostBps: 0, staleOrderCostBps: 0, maximumImpactBps: 10, maximumIterations: 5,
+    hybridEntry,
     ...overrides,
   }, new RiskSizer({
     baseRiskFraction: .001, maximumDrawdown: .05, maximumBookParticipation: .1,
@@ -64,6 +74,7 @@ function directionalFillPlanner(): ExecutionPlanner {
     fillHazardIntercept: -1, fillHazardAggressiveWeight: .1, fillHazardFlowWeight: 1,
     fillHazardImbalanceWeight: .5, fillHazardSpreadWeight: .05,
     makerOpportunityCostBps: 2, staleOrderCostBps: 1, maximumImpactBps: 10, maximumIterations: 5,
+    hybridEntry,
   }, new RiskSizer({
     baseRiskFraction: .001, maximumDrawdown: .05, maximumBookParticipation: .1,
     fractionalKelly: .1, maximumKellyFraction: .05, targetSigmaHBps: 20, minimumQualityScale: .1,
@@ -171,6 +182,9 @@ test("conservative calibration still fires a maker order when edge, fill chance,
   assert.ok(plan);
   assert.ok(plan.fillProbability >= .05);
   assert.ok(plan.expectedValue > 0);
+  assert.equal(plan.conservativeNetEdgeBps, 100);
+  assert.ok((plan.conservativeExpectedValueBps ?? 0) > 0);
+  assert.ok((plan.rewardRiskRatio ?? 0) >= .25);
 });
 
 test("the economic execution path constrains the final order style", () => {
