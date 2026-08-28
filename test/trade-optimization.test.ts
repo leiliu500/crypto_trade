@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { analyzeTradeOptimization, type OptimizationOrder } from "../src/analysis/trade-optimization.js";
+import { analyzeTradeOptimization, type OptimizationOrder,
+  type OptimizationRouteShadowMark } from "../src/analysis/trade-optimization.js";
 
 const DAY = 86_400_000;
 
@@ -47,6 +48,28 @@ test("ten-minute timeout shadow stays below the active fifteen-minute exit and u
   assert.equal(insufficient.unproductiveExitShadow.reason, "Only 2 clean 10-minute unproductive trades; 3 required");
 });
 
+test("route shadows compare executable taker markout with zero for missed maker fills", () => {
+  const shadows = [
+    routeShadow("a", 0, null, 8),
+    routeShadow("b", 8 * DAY, 2, 12),
+    { ...routeShadow("delayed", 8 * DAY, null, 100), markDelayMs: 1_001 },
+    { ...routeShadow("dirty", 9 * DAY, null, 100), telemetryDroppedRecords: 1 },
+  ];
+  const report = analyzeTradeOptimization([], safeguards(2), shadows);
+  assert.equal(report.entryRouteShadow.marks, 4);
+  assert.equal(report.entryRouteShadow.cleanMarks, 3);
+  assert.equal(report.entryRouteShadow.excludedUncleanMarks, 1);
+  assert.equal(report.entryRouteShadow.excludedInvalidOrDelayedCleanMarks, 1);
+  assert.equal(report.entryRouteShadow.decisionHorizon.samples, 2);
+  assert.equal(report.entryRouteShadow.decisionHorizon.makerFills, 1);
+  assert.equal(report.entryRouteShadow.decisionHorizon.meanMakerPolicyNetBps, 1);
+  assert.equal(report.entryRouteShadow.decisionHorizon.meanTakerNetBps, 10);
+  assert.equal(report.entryRouteShadow.decisionHorizon.meanTakerMinusMakerBps, 9);
+  assert.equal(report.entryRouteShadow.dataReady, true);
+  assert.equal(report.entryRouteShadow.deploymentReady, true);
+  assert.ok((report.entryRouteShadow.decisionHorizon.lower95TakerMinusMakerBps ?? 0) > 0);
+});
+
 function safeguards(minimumSamples: number) {
   return { minimumDurationMs: 7 * DAY, minimumSamples, shadowUnproductiveExitMs: 10 * 60_000,
     activeUnproductiveExitMs: 15 * 60_000 };
@@ -77,5 +100,15 @@ function exit(clientOrderId: string, openedMs: number, actualPnl: number, pnlAt1
         { atMs: openedMs + 15 * 60_000, currentPx: 98, unrealizedPnl: actualPnl, unrealizedPnlBps: -2, changePnl: -.1, kind: "close" },
       ],
     },
+  };
+}
+
+function routeShadow(decisionId: string, signalAtMs: number, makerNetBps: number | null,
+  takerNetBps: number): OptimizationRouteShadowMark {
+  return {
+    runId: "clean", telemetryDroppedRecords: 0, decisionId, symbol: "BTC/USD", side: 1,
+    family: "CONTINUATION", signalAtMs, horizonMs: 30_000, markDelayMs: 10,
+    makerAvailable: true, takerAvailable: true,
+    makerFillFraction: makerNetBps === null ? 0 : 1, makerNetBps, takerNetBps,
   };
 }

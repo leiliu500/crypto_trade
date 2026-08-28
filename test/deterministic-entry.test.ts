@@ -444,7 +444,8 @@ test("fee-sized pullback room must still clear the unchanged robust cost gate", 
 });
 
 test("maker-first entries exclude the taker entry path", () => {
-  const engine = new DeterministicEntryEngine({ ...testConfig(), requireMakerEntry: true });
+  const engine = new DeterministicEntryEngine({ ...testConfig(), requireMakerEntry: true,
+    allowTakerContinuation: false });
   const pathCost = (path: "MAKER_TAKER" | "TAKER_TAKER", amount: number) => ({
     path, supported: true, entryExecutionBps: 0, exitExecutionBps: 0, entryFeeBps: amount / 2,
     exitFeeBps: amount / 2, marketImpactBps: 0, latencyBps: 0, adverseSelectionBps: 0,
@@ -458,6 +459,25 @@ test("maker-first entries exclude the taker entry path", () => {
     intent ??= engine.evaluate(value);
   }
   assert.equal(intent?.executionPath, "MAKER_TAKER");
+});
+
+test("hybrid continuations can preserve a profitable taker path for exact route planning", () => {
+  const engine = new DeterministicEntryEngine({ ...testConfig(), requireMakerEntry: true,
+    allowTakerContinuation: true });
+  const pathCost = (path: "MAKER_TAKER" | "TAKER_TAKER", amount: number, fillProbability: number) => ({
+    path, supported: true, entryExecutionBps: 0, exitExecutionBps: 0, entryFeeBps: amount / 2,
+    exitFeeBps: amount / 2, marketImpactBps: 0, latencyBps: 0, adverseSelectionBps: 0,
+    fundingBps: 0, borrowBps: 0, estimatedCostBps: amount, positiveCostErrorP95Bps: 0,
+    fillProbability,
+  } as const);
+  let intent = null;
+  for (let index = 0; index < 20; index += 1) {
+    const value = context(1, 1_000 + index * 50);
+    value.longEconomicCosts = [pathCost("MAKER_TAKER", .2, 0), pathCost("TAKER_TAKER", .5, 1)];
+    intent ??= engine.evaluate(value);
+  }
+  assert.equal(intent?.diagnostics.family, "CONTINUATION");
+  assert.equal(intent?.executionPath, "TAKER_TAKER");
 });
 
 test("long-horizon analytical edge uses slow sampled variance and fails closed before trend warm-up", () => {

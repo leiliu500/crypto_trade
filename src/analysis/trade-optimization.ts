@@ -34,6 +34,37 @@ export interface TradeOptimizationOptions {
   shadowUnproductiveExitMs: number;
   activeUnproductiveExitMs: number;
   minimumFillAuc?: number;
+  routeShadowDecisionHorizonMs?: number;
+  routeShadowMaximumMarkDelayMs?: number;
+}
+
+export interface OptimizationRouteShadowMark {
+  runId: string | null;
+  telemetryDroppedRecords: number | null;
+  decisionId: string;
+  symbol: string;
+  side: 1 | -1;
+  family: string;
+  signalAtMs: number;
+  horizonMs: number;
+  markDelayMs: number;
+  makerAvailable: boolean;
+  takerAvailable: boolean;
+  makerFillFraction: number | null;
+  makerNetBps: number | null;
+  takerNetBps: number | null;
+}
+
+export interface RouteShadowSlice {
+  samples: number;
+  makerFills: number;
+  makerFillRate: number | null;
+  meanMakerPolicyNetBps: number | null;
+  meanTakerNetBps: number | null;
+  meanTakerMinusMakerBps: number | null;
+  lower95TakerMinusMakerBps: number | null;
+  takerWins: number;
+  makerWins: number;
 }
 
 export interface CalibrationSlice {
@@ -53,6 +84,8 @@ export interface TradeOptimizationReport {
     minimumFillAuc: number;
     shadowUnproductiveExitMs: number;
     activeUnproductiveExitMs: number;
+    routeShadowDecisionHorizonMs: number;
+    routeShadowMaximumMarkDelayMs: number;
   };
   dataQuality: {
     orders: number;
@@ -91,6 +124,20 @@ export interface TradeOptimizationReport {
     deploymentReady: boolean;
     reason: string | null;
   };
+  entryRouteShadow: {
+    marks: number;
+    cleanMarks: number;
+    excludedUncleanMarks: number;
+    excludedInvalidOrDelayedCleanMarks: number;
+    decisions: number;
+    observedDurationMs: number;
+    horizons: Record<string, RouteShadowSlice>;
+    groups: Record<string, RouteShadowSlice>;
+    decisionHorizon: RouteShadowSlice;
+    dataReady: boolean;
+    deploymentReady: boolean;
+    reason: string | null;
+  };
 }
 
 interface FillAttempt extends OptimizationOrder { probability: number; label: 0 | 1; }
@@ -98,12 +145,17 @@ interface TimeoutCandidate { openedMs: number; actualPnl: number; counterfactual
 
 const TERMINAL_ORDER_STATES = new Set(["FILLED", "CANCELED", "REJECTED", "EXPIRED"]);
 
-export function analyzeTradeOptimization(orders: readonly OptimizationOrder[], options: TradeOptimizationOptions): TradeOptimizationReport {
+export function analyzeTradeOptimization(orders: readonly OptimizationOrder[], options: TradeOptimizationOptions,
+  routeShadows: readonly OptimizationRouteShadowMark[] = []): TradeOptimizationReport {
   validateOptions(options);
   const minimumFillAuc = options.minimumFillAuc ?? .55;
+  const routeShadowDecisionHorizonMs = options.routeShadowDecisionHorizonMs ?? 30_000;
+  const routeShadowMaximumMarkDelayMs = options.routeShadowMaximumMarkDelayMs ?? 1_000;
   const cleanOrders = orders.filter((order) => order.telemetryDroppedRecords === 0);
   const makerFill = makerFillReport(orders, options, minimumFillAuc);
   const unproductiveExitShadow = timeoutReport(orders, options);
+  const entryRouteShadow = routeShadowReport(routeShadows, options, routeShadowDecisionHorizonMs,
+    routeShadowMaximumMarkDelayMs);
   return {
     requirements: {
       minimumDurationMs: options.minimumDurationMs,
@@ -111,6 +163,8 @@ export function analyzeTradeOptimization(orders: readonly OptimizationOrder[], o
       minimumFillAuc,
       shadowUnproductiveExitMs: options.shadowUnproductiveExitMs,
       activeUnproductiveExitMs: options.activeUnproductiveExitMs,
+      routeShadowDecisionHorizonMs,
+      routeShadowMaximumMarkDelayMs,
     },
     dataQuality: {
       orders: orders.length,
@@ -119,7 +173,90 @@ export function analyzeTradeOptimization(orders: readonly OptimizationOrder[], o
     },
     makerFill,
     unproductiveExitShadow,
+    entryRouteShadow,
   };
+}
+
+function routeShadowReport(marks: readonly OptimizationRouteShadowMark[], options: TradeOptimizationOptions,
+  decisionHorizonMs: number, maximumMarkDelayMs: number): TradeOptimizationReport["entryRouteShadow"] {
+  const clean = marks.filter((mark) => mark.telemetryDroppedRecords === 0);
+  const paired = clean.filter((mark) => validRouteShadowMark(mark, maximumMarkDelayMs));
+  const grouped = new Map<number, OptimizationRouteShadowMark[]>();
+  for (const mark of paired) {
+    const values = grouped.get(mark.horizonMs) ?? [];
+    values.push(mark);
+    grouped.set(mark.horizonMs, values);
+  }
+  const horizons = Object.fromEntries([...grouped].sort(([a], [b]) => a - b)
+    .map(([horizonMs, values]) => [String(horizonMs), routeShadowSlice(values)]));
+  const decisionMarks = grouped.get(decisionHorizonMs) ?? [];
+  const decisionHorizon = routeShadowSlice(decisionMarks);
+  const groups = groupRouteShadows(decisionMarks,
+    (mark) => `${mark.symbol}:${mark.side === 1 ? "long" : "short"}:${mark.family}`);
+  const observedDurationMs = span(decisionMarks.map((mark) => mark.signalAtMs));
+  const dataReady = decisionMarks.length >= options.minimumSamples && observedDurationMs >= options.minimumDurationMs;
+  const deploymentReady = dataReady && decisionHorizon.meanTakerNetBps !== null
+    && decisionHorizon.meanTakerNetBps > 0
+    && decisionHorizon.lower95TakerMinusMakerBps !== null
+    && decisionHorizon.lower95TakerMinusMakerBps > 0;
+  const reason = deploymentReady ? null
+    : decisionMarks.length < options.minimumSamples
+      ? `Only ${decisionMarks.length} clean paired route shadows at ${decisionHorizonMs} ms; ${options.minimumSamples} required`
+      : observedDurationMs < options.minimumDurationMs
+        ? `Paired route-shadow span is ${observedDurationMs} ms; ${options.minimumDurationMs} ms required`
+        : decisionHorizon.meanTakerNetBps === null || decisionHorizon.meanTakerNetBps <= 0
+          ? "Mean taker shadow net return must be positive"
+          : decisionHorizon.lower95TakerMinusMakerBps === null
+            ? "A maker-versus-taker confidence bound requires at least two paired shadows"
+            : `The lower 95% taker-minus-maker delta is ${decisionHorizon.lower95TakerMinusMakerBps}; it must be positive`;
+  return {
+    marks: marks.length, cleanMarks: clean.length, excludedUncleanMarks: marks.length - clean.length,
+    excludedInvalidOrDelayedCleanMarks: clean.length - paired.length,
+    decisions: new Set(paired.map((mark) => mark.decisionId)).size, observedDurationMs, horizons, groups,
+    decisionHorizon, dataReady, deploymentReady, reason,
+  };
+}
+
+function routeShadowSlice(marks: readonly OptimizationRouteShadowMark[]): RouteShadowSlice {
+  if (marks.length === 0) return {
+    samples: 0, makerFills: 0, makerFillRate: null, meanMakerPolicyNetBps: null,
+    meanTakerNetBps: null, meanTakerMinusMakerBps: null, lower95TakerMinusMakerBps: null,
+    takerWins: 0, makerWins: 0,
+  };
+  const makerPolicy = marks.map((mark) => mark.makerNetBps ?? 0);
+  const taker = marks.map((mark) => mark.takerNetBps!);
+  const deltas = taker.map((value, index) => value - makerPolicy[index]!);
+  return {
+    samples: marks.length,
+    makerFills: marks.filter((mark) => (mark.makerFillFraction ?? 0) > 0).length,
+    makerFillRate: mean(marks.map((mark) => (mark.makerFillFraction ?? 0) > 0 ? 1 : 0)),
+    meanMakerPolicyNetBps: mean(makerPolicy), meanTakerNetBps: mean(taker),
+    meanTakerMinusMakerBps: mean(deltas), lower95TakerMinusMakerBps: lowerConfidenceMean(deltas),
+    takerWins: deltas.filter((value) => value > 0).length, makerWins: deltas.filter((value) => value < 0).length,
+  };
+}
+
+function validRouteShadowMark(mark: OptimizationRouteShadowMark, maximumMarkDelayMs: number): boolean {
+  return Boolean(mark.makerAvailable && mark.takerAvailable) && Number.isFinite(mark.signalAtMs)
+    && Number.isInteger(mark.horizonMs) && mark.horizonMs > 0
+    && Number.isFinite(mark.markDelayMs) && mark.markDelayMs >= 0 && mark.markDelayMs <= maximumMarkDelayMs
+    && mark.takerNetBps !== null && Number.isFinite(mark.takerNetBps)
+    && (mark.makerNetBps === null || Number.isFinite(mark.makerNetBps))
+    && (mark.makerFillFraction === null || (Number.isFinite(mark.makerFillFraction)
+      && mark.makerFillFraction >= 0 && mark.makerFillFraction <= 1));
+}
+
+function groupRouteShadows(marks: readonly OptimizationRouteShadowMark[],
+  key: (mark: OptimizationRouteShadowMark) => string): Record<string, RouteShadowSlice> {
+  const groups = new Map<string, OptimizationRouteShadowMark[]>();
+  for (const mark of marks) {
+    const group = key(mark);
+    const values = groups.get(group) ?? [];
+    values.push(mark);
+    groups.set(group, values);
+  }
+  return Object.fromEntries([...groups].sort(([a], [b]) => a.localeCompare(b))
+    .map(([group, values]) => [group, routeShadowSlice(values)]));
 }
 
 function makerFillReport(orders: readonly OptimizationOrder[], options: TradeOptimizationOptions,
@@ -325,6 +462,12 @@ function validateOptions(options: TradeOptimizationOptions): void {
   }
   const auc = options.minimumFillAuc ?? .55;
   if (!(auc >= .5 && auc <= 1)) throw new Error("minimumFillAuc must be between 0.5 and 1");
+  const routeHorizon = options.routeShadowDecisionHorizonMs ?? 30_000;
+  if (!Number.isInteger(routeHorizon) || routeHorizon <= 0) throw new Error("routeShadowDecisionHorizonMs must be positive");
+  const maximumMarkDelayMs = options.routeShadowMaximumMarkDelayMs ?? 1_000;
+  if (!Number.isInteger(maximumMarkDelayMs) || maximumMarkDelayMs < 0) {
+    throw new Error("routeShadowMaximumMarkDelayMs must be a non-negative integer");
+  }
 }
 
 const sum = (values: readonly number[]): number => values.reduce((total, value) => total + value, 0);

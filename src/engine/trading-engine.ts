@@ -12,6 +12,8 @@ import {
   type RemoteOrderSnapshot, type TrackedOrder,
 } from "../execution/order-state.js";
 import { estimateSweep } from "../execution/book-walk.js";
+import { EntryRouteShadowTracker } from "../execution/entry-route-shadow.js";
+import { HybridEntryRouter } from "../execution/hybrid-entry-router.js";
 import { PortfolioRiskEngine } from "../risk/portfolio.js";
 import { RiskState } from "../risk/risk-state.js";
 import { RiskSizer, type RiskApproval } from "../risk/sizing.js";
@@ -34,6 +36,7 @@ import type { AlpacaAsset, AlpacaOrder, AlpacaPosition } from "../alpaca/types.j
 import { EntryPipelineAudit, type EntryPipelineSnapshot, type EntryPipelineStage } from "./entry-pipeline-audit.js";
 import { HealthWatchdog, type WatchdogFault } from "./watchdog.js";
 import { CryptoOptionShortController, type CryptoOptionShortSnapshot } from "../options/crypto-option-short.js";
+import type { ExecutionPath } from "../economics/types.js";
 
 const PAPER_DEMO_TARGET_NOTIONAL = 11;
 const CANCEL_PENDING_RECONCILE_DELAY_MS = 2_000;
@@ -93,6 +96,8 @@ interface SymbolRuntime {
   holdEngine: DeterministicHoldEngine;
   cost: CostModel;
   planner: ExecutionPlanner;
+  hybridEntryRouter: HybridEntryRouter;
+  routeShadow: EntryRouteShadowTracker;
   positionManager: PositionManager;
   asset?: AssetRules;
   latestFeatures?: DeterministicFeatures;
@@ -224,6 +229,8 @@ export class TradingEngine extends EventEmitter {
         signalRouter: new SignalRouter(symbolCfg.signalMode, this.optionalModel(symbolCfg, optionalForecast)),
         holdEngine: new DeterministicHoldEngine(symbolCfg.deterministicHold), cost,
         planner: new ExecutionPlanner(symbolCfg.planner, new RiskSizer(symbolCfg.sizing), cost, symbolCfg.strategyVersion, symbolCfg.modelVersion),
+        hybridEntryRouter: new HybridEntryRouter(symbolCfg.planner.hybridEntry),
+        routeShadow: new EntryRouteShadowTracker(symbolCfg.planner.hybridEntry.routeShadowHorizonsMs),
         positionManager: new PositionManager(symbolCfg.position), cluster: baseAsset(symbol),
       });
     }
@@ -592,6 +599,11 @@ export class TradingEngine extends EventEmitter {
       return;
     }
     runtime.latestFeatures = features;
+    if (runtime.config.planner.hybridEntry.routeShadowEnabled && !features.stale) {
+      for (const mark of runtime.routeShadow.mark(book.symbol, book, features.receiveTsMs)) {
+        this.emit("entryRouteShadowMark", mark);
+      }
+    }
     const allBooksStructurallyValid = [...this.runtimes.values()].every((item) => item.book.isValid());
     const staleExposure = [...this.runtimes.values()].some((item) =>
       Boolean(item.position || this.pendingForSymbol(item.book.symbol)) && item.latestFeatures?.stale !== false);
@@ -717,7 +729,6 @@ export class TradingEngine extends EventEmitter {
       if (venueIntent) this.rejectEntry(runtime, "EXECUTION_PLAN_PASS", "SIGNAL_ROUTER_BLOCK", features.receiveTsMs);
       return;
     }
-    const intent = plannerIntent(routed.intent, 1);
     const riskSigmaHBps = routed.intent.selectedHorizonMs === undefined ? features.sigmaHBps
       : 10_000 * Math.sqrt(Math.max(features.slowVarianceRate, 1e-16) * routed.intent.selectedHorizonMs / 1_000);
     const initialStopDistance = Math.max(
@@ -725,30 +736,93 @@ export class TradingEngine extends EventEmitter {
       runtime.config.minimumStopSpreadMultiple * features.spread,
       runtime.asset.priceIncrement,
     );
-    const plan = runtime.planner.build(intent, features, book, runtime.asset, {
+    const baseRisk = {
       equity: this.equity, equityHighWater: this.equityHighWater, initialStopDistance,
       jumpBuffer: cfgPriceSigma(features, runtime.config.jumpSigma), maximumNotional: runtime.config.maximumNotional,
       // A micro candidate is regime-independent by construction; candidate quality already scales risk.
       lotSize: runtime.asset.minTradeIncrement, regimeScale: 1,
       exposureCapacityQty: runtime.config.maximumNotional / features.mid,
-    }, false, {
-      createdMs: features.receiveTsMs, decisionId: routed.intent.decisionId,
-      quantityMultiplier: routed.sizeMultiplier,
-      riskSigmaHBps,
-      ...(routed.intent.executionPath === undefined ? {} : { executionPath: routed.intent.executionPath }),
-      ...(routed.intent.selectedHorizonMs === undefined ? {} : { economicHorizonMs: routed.intent.selectedHorizonMs }),
-      entryFamily: routed.intent.diagnostics.family,
-      revalidateCost: (exactCost) => {
-        const exact = runtime.entryEngine.revalidateExactCost(routed.intent, exactCost);
-        return exact ? plannerIntent(exact, 1) : null;
+    };
+    const family = routed.intent.diagnostics.family;
+    const makerPath = routed.intent.executionPath && routed.intent.executionPath !== "TAKER_TAKER"
+      ? routed.intent.executionPath : "MAKER_MAKER_TAKER_FALLBACK";
+    const makerIntent = entryIntentForPath(routed.intent, makerPath);
+    const makerPlan = runtime.planner.build(plannerIntent(makerIntent, 1), features, book, runtime.asset,
+      baseRisk, false, {
+        createdMs: features.receiveTsMs, decisionId: routed.intent.decisionId,
+        quantityMultiplier: routed.sizeMultiplier, riskSigmaHBps, executionPath: makerPath,
+        ...(routed.intent.selectedHorizonMs === undefined ? {} : { economicHorizonMs: routed.intent.selectedHorizonMs }),
+        entryFamily: family,
+        revalidateCost: (exactCost) => {
+          const exact = runtime.entryEngine.revalidateExactCost(makerIntent, exactCost);
+          return exact ? plannerIntent(exact, 1) : null;
+        },
+      });
+    const makerRejection = runtime.planner.latestBuildRejection();
+    const buildTaker = family === "CONTINUATION"
+      && (runtime.config.planner.hybridEntry.continuationTakerEnabled
+        || runtime.config.planner.hybridEntry.routeShadowEnabled);
+    const takerIntent = entryIntentForPath(routed.intent, "TAKER_TAKER");
+    const takerPlan = buildTaker ? runtime.planner.build(plannerIntent(takerIntent, 1), features, book, runtime.asset,
+      baseRisk, false, {
+        createdMs: features.receiveTsMs, decisionId: routed.intent.decisionId,
+        quantityMultiplier: routed.sizeMultiplier
+          * runtime.config.planner.hybridEntry.continuationTakerSizeMultiplier,
+        riskSigmaHBps, executionPath: "TAKER_TAKER",
+        ...(routed.intent.selectedHorizonMs === undefined ? {} : { economicHorizonMs: routed.intent.selectedHorizonMs }),
+        entryFamily: family,
+        revalidateCost: (exactCost) => {
+          const exact = runtime.entryEngine.revalidateExactCost(takerIntent, exactCost);
+          return exact ? plannerIntent(exact, 1) : null;
+        },
+      }) : null;
+    const takerRejection = buildTaker ? runtime.planner.latestBuildRejection() : null;
+    const latency = this.latency.summary(features.receiveTsMs).decisionToVenue!;
+    const routeDecision = runtime.hybridEntryRouter.select({
+      family, side: routed.intent.side, signalScore: routed.intent.diagnostics.score, features,
+      liquidity: routed.intent.side === 1 ? longLiquidity : shortLiquidity,
+      latencySamples: latency.count, latencyP95Ms: latency.p95,
+      alphaHalfLifeMs: runtime.config.planner.alphaHalfLifeMs, makerPlan, takerPlan,
+    });
+    const plan = routeDecision.selectedPlan;
+    const selectedIntent = plan?.style === "taker" ? takerIntent : makerIntent;
+    this.emit("entryRouteEvaluated", {
+      configurationVersion: runtime.config.configurationVersion, symbol: book.symbol,
+      decisionId: routed.intent.decisionId, family, side: routed.intent.side,
+      selectedStyle: routeDecision.selectedStyle, takerEligible: routeDecision.takerEligible,
+      reasons: routeDecision.reasons, makerPlan: entryPlanSummary(makerPlan), takerPlan: entryPlanSummary(takerPlan),
+      makerRejection, takerRejection,
+      metrics: {
+        makerExpectedValueBps: routeDecision.makerExpectedValueBps,
+        takerExpectedValueBps: routeDecision.takerExpectedValueBps,
+        takerNetEdgeBps: routeDecision.takerNetEdgeBps,
+        alignedOfi: routeDecision.alignedOfi, alignedTfi: routeDecision.alignedTfi, alignedQiK: routeDecision.alignedQiK,
+        latencySamples: routeDecision.latencySamples, latencyP95Ms: routeDecision.latencyP95Ms,
+        maximumLatencyMs: routeDecision.maximumLatencyMs,
       },
     });
+    if (runtime.config.planner.hybridEntry.routeShadowEnabled && (makerPlan || takerPlan)) {
+      const restingLevels = routed.intent.side === 1 ? book.bids : book.asks;
+      const shadowStarted = runtime.routeShadow.start({
+        decisionId: routed.intent.decisionId, symbol: book.symbol, side: routed.intent.side, family,
+        createdMs: features.receiveTsMs, selectedStyle: routeDecision.selectedStyle, makerPlan, takerPlan,
+        makerQueueAheadQty: restingLevels[0]?.qty ?? 0,
+      });
+      if (shadowStarted) this.emit("entryRouteShadowStarted", {
+        configurationVersion: runtime.config.configurationVersion, symbol: book.symbol,
+        decisionId: routed.intent.decisionId, family, side: routed.intent.side,
+        selectedStyle: routeDecision.selectedStyle,
+        makerPlan: entryPlanSummary(makerPlan), takerPlan: entryPlanSummary(takerPlan),
+        horizonsMs: runtime.config.planner.hybridEntry.routeShadowHorizonsMs,
+      });
+    }
     if (!plan) {
-      const plannerRejection = runtime.planner.latestBuildRejection();
-      this.rejectEntry(runtime, "EXECUTION_PLAN_PASS", plannerRejection?.reason ?? "NO_SAFE_SIZE_OR_EXACT_COST_PLAN",
+      const reason = makerRejection?.reason ?? routeDecision.reasons[0]
+        ?? takerRejection?.reason ?? "NO_SAFE_SIZE_OR_EXACT_COST_PLAN";
+      this.rejectEntry(runtime, "EXECUTION_PLAN_PASS", reason,
         features.receiveTsMs, {
         side: routed.intent.side, lowerBoundNetBps: routed.intent.lowerBoundNetBps,
-        ...(plannerRejection?.values ?? {}),
+        ...(makerRejection?.values ?? takerRejection?.values ?? {}),
       });
       return;
     }
@@ -766,10 +840,11 @@ export class TradingEngine extends EventEmitter {
       configurationVersion: runtime.config.configurationVersion, strategyVersion: runtime.config.strategyVersion,
       adapterVersion: this.cfg.venue === "kraken_futures" ? "kraken-futures-paper-v1" : "alpaca-v1",
       symbolRulesetVersion: assetRulesVersion(runtime.asset),
-      regime, deterministicIntent: routed.intent, routing: routed, features, plan, mode: this.cfg.mode,
+      regime, deterministicIntent: selectedIntent, routing: { ...routed, intent: selectedIntent },
+      routeDecision, features, plan, mode: this.cfg.mode,
     });
     if (this.cfg.mode !== "shadow") {
-      runtime.pendingEntryIntent = routed.intent;
+      runtime.pendingEntryIntent = selectedIntent;
       void this.submit(plan).then((submitted) => {
         if (!submitted && runtime.pendingEntryIntent?.decisionId === plan.decisionId) delete runtime.pendingEntryIntent;
       });
@@ -895,6 +970,7 @@ export class TradingEngine extends EventEmitter {
     this.recorder?.write({ kind: "TRADE", trade });
     const runtime = this.runtimes.get(trade.symbol);
     if (!runtime) return;
+    if (runtime.config.planner.hybridEntry.routeShadowEnabled) runtime.routeShadow.observeTrade(trade);
     runtime.features.onTrade(trade);
     const snapshot = runtime.book.snapshot();
     if (!snapshot.valid) return;
@@ -1723,6 +1799,21 @@ function plannerIntent(intent: DeterministicTradeIntent, sizeMultiplier: number)
     side: intent.side, probability: 1, predictedGrossBps: intent.grossOpportunityBps,
     lowerBoundNetBps: intent.lowerBoundNetBps, quality: Math.max(0, Math.min(1, intent.quality * sizeMultiplier)),
     decisionTsMs: intent.createdMs,
+  };
+}
+function entryIntentForPath(intent: DeterministicTradeIntent, executionPath: ExecutionPath): DeterministicTradeIntent {
+  return {
+    ...intent, executionPath,
+    diagnostics: { ...intent.diagnostics, executionPath },
+  };
+}
+function entryPlanSummary(plan: ExecutionPlan | null): Record<string, number | string | null> | null {
+  if (!plan) return null;
+  return {
+    style: plan.style, executionPath: plan.executionPath ?? null, qty: plan.qty, limitPx: plan.limitPx,
+    fillProbability: plan.fillProbability, conservativeNetEdgeBps: plan.conservativeNetEdgeBps ?? null,
+    conservativeExpectedValueBps: plan.conservativeExpectedValueBps ?? null,
+    rewardRiskRatio: plan.rewardRiskRatio ?? null, roundTripCostBps: plan.expectedCost.roundTripBps,
   };
 }
 function assetRulesVersion(asset: AssetRules): string {

@@ -45,6 +45,8 @@ export interface DeterministicSignalConfig {
   minimumEconomicSizeScale: number;
   minimumMakerFillProbability: number;
   requireMakerEntry: boolean;
+  /** Allows exact taker economics to qualify only the continuation family; pullbacks remain maker-only. */
+  allowTakerContinuation: boolean;
   minimumSlowTrendAlignment: number;
   minimumSlowTrendEfficiency: number;
   minimumSlowTrendMoveBps: number;
@@ -294,7 +296,9 @@ export class DeterministicEntryEngine {
       : direction === 1 ? context.longEconomicCosts : context.shortEconomicCosts;
     const availableCosts = suppliedCosts && suppliedCosts.length > 0 ? suppliedCosts
       : [exactCostBreakdown(cost, "TAKER_TAKER", 1, this.cfg.positiveCostErrorP95Bps)];
-    const costs = this.cfg.requireMakerEntry
+    const makerRequired = this.cfg.requireMakerEntry
+      && !(structure.family === "CONTINUATION" && this.cfg.allowTakerContinuation);
+    const costs = makerRequired
       ? availableCosts.filter((item) => item.path === "MAKER_TAKER" || item.path === "MAKER_MAKER_TAKER_FALLBACK") : availableCosts;
     const decision = this.costGate.evaluate(edges, costs);
     const economic = decision.selected ?? decision.bestRejected;

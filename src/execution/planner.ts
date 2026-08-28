@@ -5,6 +5,7 @@ import type { TradeIntent } from "../strategy/signal.js";
 import type { RiskApproval, RiskContext, RiskSizer } from "../risk/sizing.js";
 import { estimateSweep } from "./book-walk.js";
 import type { CostBreakdown, EntryFamily, ExecutionPath } from "../economics/types.js";
+import type { HybridEntryConfig } from "./hybrid-entry-router.js";
 
 export type ExecutionStyle = "maker" | "taker";
 export interface AssetRules { symbol: string; minOrderSize: number; minTradeIncrement: number; priceIncrement: number; maximumOrderQty: number; shortable: boolean; }
@@ -41,6 +42,7 @@ export interface PlannerConfig {
   staleOrderCostBps: number;
   maximumImpactBps: number;
   maximumIterations: number;
+  hybridEntry: HybridEntryConfig;
 }
 export interface ExecutionPlan {
   clientOrderId: string;
@@ -61,6 +63,11 @@ export interface ExecutionPlan {
   expectedCost: CostEstimate;
   risk: RiskApproval;
   fillProbability: number;
+  /** Route-specific lower-confidence net edge after exact costs. */
+  conservativeNetEdgeBps?: number;
+  /** Lower-confidence order EV in bps of requested notional. */
+  conservativeExpectedValueBps?: number;
+  rewardRiskRatio?: number;
   expectedValue: number;
   reduceOnlyIntent: boolean;
   economicHorizonMs?: number;
@@ -96,6 +103,8 @@ interface ExecutionCandidate {
   intent: TradeIntent;
   fillProbability: number;
   expectedValue: number;
+  expectedValueBps: number;
+  rewardRiskRatio: number;
   worstPx: number | undefined;
 }
 interface CandidateBuildResult {
@@ -209,6 +218,9 @@ export class ExecutionPlanner {
       featureHash: createHash("sha256").update(JSON.stringify(features)).digest("hex").slice(0, 24),
       strategyVersion: this.strategyVersion, modelVersion: this.modelVersion,
       expectedCost: selected.cost, risk: selected.risk, fillProbability: selected.fillProbability,
+      conservativeNetEdgeBps: selected.intent.lowerBoundNetBps,
+      conservativeExpectedValueBps: selected.expectedValueBps,
+      rewardRiskRatio: selected.rewardRiskRatio,
       expectedValue: selected.expectedValue, reduceOnlyIntent: closingExistingLong,
       ...(options.economicHorizonMs === undefined ? {} : { economicHorizonMs: options.economicHorizonMs }),
       ...(options.entryFamily === undefined ? {} : { entryFamily: options.entryFamily }),
@@ -294,12 +306,14 @@ export class ExecutionPlanner {
     const sweep = style === "taker" ? estimateSweep(intent.side === 1 ? book.asks : book.bids, qty) : null;
     if (style === "taker" && !sweep) return candidateRejected("BOOK_SWEEP_UNAVAILABLE", { style, qty });
     const fillProbability = makerEntry ? this.fillProbability(features, book, intent.side, makerTtlMs) : 1;
-    const grossValue = qty * features.mid * (exactIntent.predictedGrossBps - cost.roundTripBps) / 10_000;
+    // Maker fills are selection-biased, so route EV uses the lower-confidence
+    // post-cost edge rather than the unconditional gross forecast.
+    const conservativeNetValue = qty * features.mid * exactIntent.lowerBoundNetBps / 10_000;
     const expectedValue = makerEntry
-      ? fillProbability * grossValue
+      ? fillProbability * conservativeNetValue
         - (1 - fillProbability) * qty * features.mid * this.cfg.makerOpportunityCostBps / 10_000
         - qty * features.mid * this.cfg.staleOrderCostBps / 10_000
-      : grossValue;
+      : conservativeNetValue;
     const expectedValueBps = 10_000 * expectedValue / (qty * features.mid);
     if ((!makerEntry || fillProbability >= this.cfg.minimumFillProbability)
       && expectedValueBps < this.cfg.minimumExpectedValueBps) {
@@ -309,7 +323,7 @@ export class ExecutionPlanner {
       });
     }
     return { candidate: { style, qty, cost, risk, intent: exactIntent, fillProbability, expectedValue,
-      worstPx: sweep?.worstPx }, rejection: null };
+      expectedValueBps, rewardRiskRatio, worstPx: sweep?.worstPx }, rejection: null };
   }
 
   private rejectBuild(reason: string,
