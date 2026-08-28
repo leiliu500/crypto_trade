@@ -18,9 +18,17 @@ export interface PlannerConfig {
   pullbackSignalInvalidationGraceEvents: number;
   continuationSignalInvalidationGraceMs: number;
   continuationSignalInvalidationGraceEvents: number;
+  continuationAdverseFlowConfirmationMs: number;
+  continuationAdverseFlowConfirmationEvents: number;
   adverseFlowConfirmationMs: number;
   adverseFlowConfirmationEvents: number;
+  adverseOfiThreshold: number;
+  adverseTfiThreshold: number;
   minimumFillProbability: number;
+  /** Minimum order-level expected value, expressed in bps of requested notional. */
+  minimumExpectedValueBps: number;
+  /** Conservative net edge divided by modeled maximum loss per unit. */
+  minimumRewardRiskRatio: number;
   /** Extra limit-price protection for marketable IOC orders. Zero preserves exact book-walk pricing. */
   takerLimitBufferBps: number;
   cancelAheadFraction: number;
@@ -126,6 +134,23 @@ export class ExecutionPlanner {
     }
     if (!Number.isInteger(cfg.adverseFlowConfirmationEvents) || cfg.adverseFlowConfirmationEvents < 2) {
       throw new Error("Planner adverseFlowConfirmationEvents must be an integer of at least two");
+    }
+    if (!Number.isInteger(cfg.continuationAdverseFlowConfirmationEvents)
+      || cfg.continuationAdverseFlowConfirmationEvents < 2) {
+      throw new Error("Planner continuationAdverseFlowConfirmationEvents must be an integer of at least two");
+    }
+    if (!(cfg.continuationAdverseFlowConfirmationMs > 0)
+      || cfg.continuationAdverseFlowConfirmationMs >= Math.min(cfg.makerTtlMs, cfg.alphaHalfLifeMs / 2)) {
+      throw new Error("Planner continuation adverse-flow confirmation must be positive and shorter than its maker TTL");
+    }
+    if (!(cfg.adverseOfiThreshold > 0) || !(cfg.adverseTfiThreshold > 0)) {
+      throw new Error("Planner adverse-flow thresholds must be positive");
+    }
+    if (!Number.isFinite(cfg.minimumExpectedValueBps) || cfg.minimumExpectedValueBps < 0) {
+      throw new Error("Planner minimumExpectedValueBps must be finite and non-negative");
+    }
+    if (!Number.isFinite(cfg.minimumRewardRiskRatio) || cfg.minimumRewardRiskRatio < 0) {
+      throw new Error("Planner minimumRewardRiskRatio must be finite and non-negative");
     }
     if (cfg.pullbackKinematicsGraceMs >= cfg.pullbackMakerTtlMs
       || cfg.pullbackSignalInvalidationGraceMs >= cfg.pullbackMakerTtlMs
@@ -258,6 +283,14 @@ export class ExecutionPlanner {
     if (!exactIntent) return candidateRejected("EXACT_COST_REVALIDATION_FAILED", {
       style, qty, roundTripCostBps: cost.roundTripBps,
     });
+    const maximumLossBps = 10_000 * risk.maximumLossPerUnit / features.mid;
+    const rewardRiskRatio = maximumLossBps > 0 ? exactIntent.lowerBoundNetBps / maximumLossBps : 0;
+    if (rewardRiskRatio < this.cfg.minimumRewardRiskRatio) {
+      return candidateRejected("REWARD_RISK_BELOW_MINIMUM", {
+        style, qty, lowerBoundNetBps: exactIntent.lowerBoundNetBps, maximumLossBps,
+        rewardRiskRatio, minimumRewardRiskRatio: this.cfg.minimumRewardRiskRatio,
+      });
+    }
     const sweep = style === "taker" ? estimateSweep(intent.side === 1 ? book.asks : book.bids, qty) : null;
     if (style === "taker" && !sweep) return candidateRejected("BOOK_SWEEP_UNAVAILABLE", { style, qty });
     const fillProbability = makerEntry ? this.fillProbability(features, book, intent.side, makerTtlMs) : 1;
@@ -267,6 +300,14 @@ export class ExecutionPlanner {
         - (1 - fillProbability) * qty * features.mid * this.cfg.makerOpportunityCostBps / 10_000
         - qty * features.mid * this.cfg.staleOrderCostBps / 10_000
       : grossValue;
+    const expectedValueBps = 10_000 * expectedValue / (qty * features.mid);
+    if ((!makerEntry || fillProbability >= this.cfg.minimumFillProbability)
+      && expectedValueBps < this.cfg.minimumExpectedValueBps) {
+      return candidateRejected("EXPECTED_VALUE_BELOW_MINIMUM", {
+        style, qty, fillProbability, expectedValue, expectedValueBps,
+        minimumExpectedValueBps: this.cfg.minimumExpectedValueBps,
+      });
+    }
     return { candidate: { style, qty, cost, risk, intent: exactIntent, fillProbability, expectedValue,
       worstPx: sweep?.worstPx }, rejection: null };
   }

@@ -61,7 +61,7 @@ test("taker book walking counts top-of-book crossing and incremental impact once
   assert.ok(boundedExit.estimatedCostBps < paths.find((item) => item.path === "MAKER_TAKER")!.estimatedCostBps);
 });
 
-test("multi-horizon gate selects the best executable path and applies robust cost once", () => {
+test("multi-horizon gate selects the shortest profitable horizon and best path within it", () => {
   const gate = new MultiHorizonCostGate({ costSafetyFactor: 1.5, minimumNetEdgeBps: .5,
     fullQualityEdgeBps: 20, minimumEconomicSizeScale: .2, minimumMakerFillProbability: .4,
     minimumEffectiveSampleCount: 100, maximumReasonableCostBps: 1_000, maximumReasonableGrossBps: 2_000 }, "ANALYTIC_PAPER");
@@ -69,9 +69,9 @@ test("multi-horizon gate selects the best executable path and applies robust cos
     cost("MAKER_TAKER", 25, true, .8), cost("TAKER_TAKER", 30)]);
   assert.equal(decision.pass, true);
   assert.equal(decision.selected?.cost.path, "MAKER_TAKER");
-  assert.equal(decision.selected?.edge.horizonMs, 900_000);
+  assert.equal(decision.selected?.edge.horizonMs, 300_000);
   assert.equal(decision.selected?.robustCostBps, 26);
-  assert.equal(decision.selected?.lowerBoundNetBps, 19);
+  assert.equal(decision.selected?.lowerBoundNetBps, 9);
   assert.ok(decision.sizeScale >= .2 && decision.sizeScale < 1);
   assert.equal(robustCostBps(cost("TAKER_TAKER", 10), 1.5), 11);
   const inconsistent = { ...cost("TAKER_TAKER", 10), estimatedCostBps: 9 };

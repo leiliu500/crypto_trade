@@ -43,7 +43,9 @@ try {
   const orders = result.rows.flatMap(optimizationOrder);
   const minimumSamples = Math.max(...cfg.symbols.map((symbol) =>
     cfg.symbolConfigs[symbol]?.deterministicSignal.minimumEffectiveSampleCount ?? 0));
-  const shadowUnproductiveExitMs = envPositiveInteger("OPTIMIZATION_SHADOW_UNPRODUCTIVE_EXIT_MS", 15 * 60_000);
+  const defaultShadowUnproductiveExitMs = Math.min(10 * 60_000, cfg.position.unproductiveExitMs - 1);
+  const shadowUnproductiveExitMs = envPositiveInteger("OPTIMIZATION_SHADOW_UNPRODUCTIVE_EXIT_MS",
+    defaultShadowUnproductiveExitMs);
   const report = analyzeTradeOptimization(orders, {
     minimumDurationMs: cfg.recall.minimumTuningDurationMs,
     minimumSamples,

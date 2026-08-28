@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { BookState, Features } from "../src/core/market.js";
-import { bufferedTakerLimitPrice, ExecutionPlanner } from "../src/execution/planner.js";
+import { bufferedTakerLimitPrice, ExecutionPlanner, type PlannerConfig } from "../src/execution/planner.js";
 import { RiskSizer } from "../src/risk/sizing.js";
 import { CostModel } from "../src/strategy/cost.js";
 import type { TradeIntent } from "../src/strategy/signal.js";
@@ -26,16 +26,21 @@ const intent: TradeIntent = {
   side: 1, probability: .8, predictedGrossBps: 20, lowerBoundNetBps: 10, quality: 1, decisionTsMs: 1_000,
 };
 
-function planner(takerLimitBufferBps = 0, fillHazardIntercept = 5): ExecutionPlanner {
+function planner(takerLimitBufferBps = 0, fillHazardIntercept = 5,
+  overrides: Partial<PlannerConfig> = {}): ExecutionPlanner {
   return new ExecutionPlanner({
     makerTtlMs: 1_500, alphaHalfLifeMs: 4_000, minimumFillProbability: .65, takerLimitBufferBps, cancelAheadFraction: .5,
     pullbackMakerTtlMs: 20_000, pullbackKinematicsGraceMs: 5_000, pullbackKinematicsGraceEvents: 2,
     pullbackSignalInvalidationGraceMs: 5_000, pullbackSignalInvalidationGraceEvents: 3,
     continuationSignalInvalidationGraceMs: 750, continuationSignalInvalidationGraceEvents: 3,
+    continuationAdverseFlowConfirmationMs: 100, continuationAdverseFlowConfirmationEvents: 2,
     adverseFlowConfirmationMs: 2_000, adverseFlowConfirmationEvents: 3,
+    adverseOfiThreshold: 2, adverseTfiThreshold: .5,
+    minimumExpectedValueBps: 0, minimumRewardRiskRatio: 0,
     fillHazardIntercept, fillHazardAggressiveWeight: 0, fillHazardFlowWeight: 0,
     fillHazardImbalanceWeight: 0, fillHazardSpreadWeight: 0,
     makerOpportunityCostBps: 0, staleOrderCostBps: 0, maximumImpactBps: 10, maximumIterations: 5,
+    ...overrides,
   }, new RiskSizer({
     baseRiskFraction: .001, maximumDrawdown: .05, maximumBookParticipation: .1,
     fractionalKelly: .1, maximumKellyFraction: .05, targetSigmaHBps: 20, minimumQualityScale: .1,
@@ -52,7 +57,10 @@ function directionalFillPlanner(): ExecutionPlanner {
     pullbackKinematicsGraceMs: 5_000, pullbackKinematicsGraceEvents: 2,
     pullbackSignalInvalidationGraceMs: 5_000, pullbackSignalInvalidationGraceEvents: 3,
     continuationSignalInvalidationGraceMs: 750, continuationSignalInvalidationGraceEvents: 3,
+    continuationAdverseFlowConfirmationMs: 100, continuationAdverseFlowConfirmationEvents: 2,
     adverseFlowConfirmationMs: 2_000, adverseFlowConfirmationEvents: 3,
+    adverseOfiThreshold: 2, adverseTfiThreshold: .5,
+    minimumExpectedValueBps: 0, minimumRewardRiskRatio: 0,
     fillHazardIntercept: -1, fillHazardAggressiveWeight: .1, fillHazardFlowWeight: 1,
     fillHazardImbalanceWeight: .5, fillHazardSpreadWeight: .05,
     makerOpportunityCostBps: 2, staleOrderCostBps: 1, maximumImpactBps: 10, maximumIterations: 5,
@@ -111,6 +119,58 @@ test("maker-only planning reports fill probability and exact-cost failures separ
     createdMs: 1_000, executionPath: "MAKER_MAKER_TAKER_FALLBACK", revalidateCost: () => null,
   }), null);
   assert.equal(exactCost.latestBuildRejection()?.reason, "EXACT_COST_REVALIDATION_FAILED");
+});
+
+test("planner rejects small-edge entries whose conservative reward cannot justify modeled loss", () => {
+  const execution = planner(0, 5, { minimumRewardRiskRatio: .2 });
+  const plan = execution.build(intent, features, book, {
+    symbol: "BTC/USD", minOrderSize: .001, minTradeIncrement: .001, priceIncrement: .001,
+    maximumOrderQty: 1_000, shortable: false,
+  }, {
+    equity: 100_000, equityHighWater: 100_000, initialStopDistance: 1, jumpBuffer: 0,
+    maximumNotional: 1_000, lotSize: .001, regimeScale: 1, exposureCapacityQty: 10,
+  }, false, { createdMs: 1_000, executionPath: "MAKER_TAKER" });
+
+  assert.equal(plan, null);
+  assert.equal(execution.latestBuildRejection()?.reason, "REWARD_RISK_BELOW_MINIMUM");
+});
+
+test("planner rejects maker orders whose calibrated fill chance makes order-level EV negative", () => {
+  const execution = planner(0, -3.25, {
+    minimumFillProbability: .01, minimumExpectedValueBps: 0,
+    makerOpportunityCostBps: 2, staleOrderCostBps: 1,
+  });
+  const plan = execution.build(intent, features, book, {
+    symbol: "BTC/USD", minOrderSize: .001, minTradeIncrement: .001, priceIncrement: .001,
+    maximumOrderQty: 1_000, shortable: false,
+  }, {
+    equity: 100_000, equityHighWater: 100_000, initialStopDistance: 1, jumpBuffer: 0,
+    maximumNotional: 1_000, lotSize: .001, regimeScale: 1, exposureCapacityQty: 10,
+  }, false, { createdMs: 1_000, executionPath: "MAKER_TAKER" });
+
+  assert.equal(plan, null);
+  assert.equal(execution.latestBuildRejection()?.reason, "EXPECTED_VALUE_BELOW_MINIMUM");
+});
+
+test("conservative calibration still fires a maker order when edge, fill chance, and reward-risk all pass", () => {
+  const execution = planner(0, -3.25, {
+    minimumFillProbability: .05, minimumExpectedValueBps: .25, minimumRewardRiskRatio: .25,
+    makerOpportunityCostBps: 2, staleOrderCostBps: 1,
+    fillHazardFlowWeight: 1, fillHazardImbalanceWeight: .5,
+  });
+  const strongIntent = { ...intent, predictedGrossBps: 200, lowerBoundNetBps: 100 };
+  const fillableFeatures = { ...features, tfi: -.1, qi1: -.5 };
+  const plan = execution.build(strongIntent, fillableFeatures, book, {
+    symbol: "BTC/USD", minOrderSize: .001, minTradeIncrement: .001, priceIncrement: .001,
+    maximumOrderQty: 1_000, shortable: false,
+  }, {
+    equity: 100_000, equityHighWater: 100_000, initialStopDistance: .5, jumpBuffer: 0,
+    maximumNotional: 1_000, lotSize: .001, regimeScale: 1, exposureCapacityQty: 10,
+  }, false, { createdMs: 1_000, executionPath: "MAKER_TAKER" });
+
+  assert.ok(plan);
+  assert.ok(plan.fillProbability >= .05);
+  assert.ok(plan.expectedValue > 0);
 });
 
 test("the economic execution path constrains the final order style", () => {
