@@ -52,6 +52,7 @@ interface UtcSessionProjection {
   realizedBaseline: number;
   unrealizedBaseline: number;
   equityHighWater: number;
+  lastEquity: number;
 }
 
 /** Read-only projection of engine state for UI and durable telemetry. */
@@ -467,18 +468,20 @@ export class OperationsMonitor extends EventEmitter {
         realizedBaseline: 0,
         unrealizedBaseline: 0,
         equityHighWater: Math.max(state.equityHighWater, state.equity),
+        lastEquity: state.equity,
       };
     } else if (this.utcSession.dayStartMs !== dayStartMs) {
       const previous = this.utcSession;
-      const openingEquity = previous.startingEquity
-        + (state.realizedSessionPnl - previous.realizedBaseline)
-        + (markUnrealizedPnl - previous.unrealizedBaseline);
+      const openingEquity = previous.lastEquity;
       this.utcSession = {
         dayStartMs,
         startingEquity: openingEquity,
-        realizedBaseline: state.realizedSessionPnl,
+        // Kraken's paper broker already resets this counter at UTC midnight.
+        // Other venues retain a cumulative process value that must be rebased here.
+        realizedBaseline: state.venue === "kraken_futures" ? 0 : state.realizedSessionPnl,
         unrealizedBaseline: markUnrealizedPnl,
         equityHighWater: openingEquity,
+        lastEquity: openingEquity,
       };
     }
     const session = this.utcSession;
@@ -487,6 +490,7 @@ export class OperationsMonitor extends EventEmitter {
     const totalPnl = realizedPnl + unrealizedPnl;
     const equity = session.startingEquity + totalPnl;
     session.equityHighWater = Math.max(session.equityHighWater, equity);
+    session.lastEquity = equity;
     return { startingEquity: session.startingEquity, equity, equityHighWater: session.equityHighWater,
       realizedPnl, unrealizedPnl, totalPnl };
   }

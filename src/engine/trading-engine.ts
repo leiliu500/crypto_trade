@@ -184,12 +184,14 @@ export class TradingEngine extends EventEmitter {
   private equity = 0;
   private equityHighWater = 0;
   private realizedSessionPnl = 0;
+  private realizedSessionDayStartMs: number;
   private started = false;
   private startedAtMs: number | null = null;
 
   public constructor(private readonly cfg: EngineConfig, dependencies: EngineDependencies = {}) {
     super();
     this.now = dependencies.now ?? Date.now;
+    this.realizedSessionDayStartMs = utcDayStartMs(this.now());
     this.rest = dependencies.rest ?? new AlpacaRestClient({ credentials: cfg.credentials, paper: cfg.paper, cryptoLocation: cfg.cryptoLocation });
     this.gateway = dependencies.gateway ?? new AlpacaOrderGateway(this.rest);
     this.marketStream = dependencies.marketStream ?? new AlpacaMarketStream({ credentials: cfg.credentials, symbols: cfg.symbols, location: cfg.cryptoLocation });
@@ -409,6 +411,7 @@ export class TradingEngine extends EventEmitter {
 
   public state(): EngineOperationalSnapshot {
     const generatedAtMs = this.now();
+    if (this.rollKrakenRealizedSessionPnl(generatedAtMs)) this.recomputePortfolioRisk();
     const markets = [...this.runtimes.entries()].map(([symbol, runtime]): EngineMarketSnapshot => {
       const book = runtime.book.snapshot();
       return {
@@ -1329,6 +1332,7 @@ export class TradingEngine extends EventEmitter {
   }
 
   private applyFill(fill: FillDelta): void {
+    this.rollKrakenRealizedSessionPnl(this.now());
     const runtime = this.runtimes.get(fill.symbol);
     if (!runtime) return;
     const tracked = this.orderState.get(fill.clientOrderId);
@@ -1436,6 +1440,15 @@ export class TradingEngine extends EventEmitter {
         stressedLoss: position.qty * (position.initialRiskPx + position.roundTripCostPx) });
     }
     this.riskState.updateLosses(Math.max(0, -this.realizedSessionPnl), Math.max(0, -this.realizedSessionPnl), this.portfolio.stressedOpenLoss());
+  }
+
+  private rollKrakenRealizedSessionPnl(nowMs: number): boolean {
+    if (this.cfg.venue !== "kraken_futures") return false;
+    const dayStartMs = utcDayStartMs(nowMs);
+    if (dayStartMs === this.realizedSessionDayStartMs) return false;
+    this.realizedSessionDayStartMs = dayStartMs;
+    this.realizedSessionPnl = 0;
+    return true;
   }
 
   private pendingForSymbol(symbol: string): ReturnType<OrderStateReconciler["all"]>[number] | undefined {
@@ -1736,3 +1749,4 @@ function sessionPnlFromPortfolioHistory(value: unknown): number | null {
   if (values.length < 2) return null;
   return values.at(-1)! - values[0]!;
 }
+function utcDayStartMs(atMs: number): number { return Math.floor(atMs / 86_400_000) * 86_400_000; }
