@@ -16,7 +16,7 @@ import { EntryRouteShadowTracker } from "../execution/entry-route-shadow.js";
 import { HybridEntryRouter } from "../execution/hybrid-entry-router.js";
 import { PortfolioRiskEngine } from "../risk/portfolio.js";
 import { RiskState } from "../risk/risk-state.js";
-import { RiskSizer, type RiskApproval } from "../risk/sizing.js";
+import { entryRiskSigmaBps, RiskSizer, type RiskApproval } from "../risk/sizing.js";
 import { CostModel, incrementalHoldCostBps } from "../strategy/cost.js";
 import { ForecastEngine } from "../strategy/forecast.js";
 import { PositionManager, type Position } from "../strategy/position-manager.js";
@@ -729,8 +729,13 @@ export class TradingEngine extends EventEmitter {
       if (venueIntent) this.rejectEntry(runtime, "EXECUTION_PLAN_PASS", "SIGNAL_ROUTER_BLOCK", features.receiveTsMs);
       return;
     }
+    // Forecast horizons may span hours so trends can clear conservative costs,
+    // while an entry that makes no progress is force-exited much sooner. Size
+    // the stop to that actual loss-control horizon instead of the full alpha
+    // horizon; otherwise every legitimate long-horizon edge fails reward/risk.
     const riskSigmaHBps = routed.intent.selectedHorizonMs === undefined ? features.sigmaHBps
-      : 10_000 * Math.sqrt(Math.max(features.slowVarianceRate, 1e-16) * routed.intent.selectedHorizonMs / 1_000);
+      : entryRiskSigmaBps(features.slowVarianceRate, routed.intent.selectedHorizonMs,
+        runtime.config.position.unproductiveExitMs);
     const initialStopDistance = Math.max(
       features.mid * riskSigmaHBps / 10_000 * runtime.config.initialStopSigma,
       runtime.config.minimumStopSpreadMultiple * features.spread,

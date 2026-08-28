@@ -175,14 +175,15 @@ Fill probability uses `1-exp(-lambda TTL)` and a log hazard driven by aggressive
 
 The fallback path fixes the maker exit fee in the ledger and adds `(1-P_exitFill)` times the taker-minus-maker fee, half spread, and configured fallback adverse move to stressable variable cost. Exit completion therefore does not depend on an indefinite maker fill, and the economic gate does not pretend the fallback branch is free.
 
-Maker and taker are independent execution candidates. Each candidate iterates quantity, style-specific cost, deterministic LCB revalidation, and risk sizing to stability. Economic horizon selection takes the shortest horizon that passes all robust-cost gates, then the best path within that horizon. A final candidate must also satisfy:
+Maker and taker are independent execution candidates. Each candidate iterates quantity, style-specific cost, deterministic LCB revalidation, and risk sizing to stability. Economic arbitration selects the strongest conservative post-cost edge across horizon and path. Because risk volatility is independently capped at the unproductive-exit horizon, choosing a stronger long-horizon edge does not widen the entry stop. A final candidate must also satisfy:
 
 ```text
-rewardRisk = conservativeNetEdgeBps / modeledMaximumLossBps >= 0.25
+entryRiskHorizon = min(selectedEconomicHorizon, unproductiveExitHorizon)
+rewardRisk = conservativeNetEdgeBps / modeledMaximumLossBps >= 0.20
 orderExpectedValueBps >= 0.25
 ```
 
-A candidate that fails exact cost, reward/risk, expected value, or fill probability is discarded with a distinct audit reason. This prevents a small positive forecast from authorizing a stop several times larger than the forecast and prevents a nominally cheap maker path from passing after calibrated no-fill opportunity costs make its order-level EV negative.
+A candidate that fails exact cost, reward/risk, expected value, or fill probability is discarded with a distinct audit reason. The 1/2/4-hour economic horizons retain enough trend scale to clear robust costs, while the independent 15-minute risk cap prevents those horizons from manufacturing multi-hour stops. This prevents a small positive forecast from authorizing a stop several times larger than the forecast and prevents a nominally cheap maker path from passing after calibrated no-fill opportunity costs make its order-level EV negative.
 
 `src/execution/entry-route-shadow.ts` records the counterfactual without looking ahead. At decision time it freezes both exact plans and displayed maker queue ahead. Subsequent contra-side trades first consume that queue and only then fill the simulated maker; through-price trades clear the remaining queue. At each configured horizon each policy walks the then-current exit book at its own quantity. A missed maker fill contributes zero policy return, a partial fill scales its per-unit return by the filled fraction, and the taker uses its frozen walked entry VWAP. Fees and carrying reserves are deducted once. Stale books do not produce marks, and the report excludes a delayed mark rather than assigning a later observation to its earlier target horizon. `npm run optimize:report` also slices symbol, side, and family, excludes runs with missing or dropped health telemetry, and requires the configured sample span/count plus positive taker net return and a positive lower 95% confidence bound for taker minus maker before reporting the route as deployment-ready.
 

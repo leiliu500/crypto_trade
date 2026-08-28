@@ -3,7 +3,7 @@ import test from "node:test";
 import type { Features } from "../src/core/market.js";
 import { ForecastEngine } from "../src/strategy/forecast.js";
 import { SignalEngine } from "../src/strategy/signal.js";
-import { RiskSizer } from "../src/risk/sizing.js";
+import { entryRiskSigmaBps, RiskSizer } from "../src/risk/sizing.js";
 import { PositionManager, type Position } from "../src/strategy/position-manager.js";
 import { RiskState } from "../src/risk/risk-state.js";
 import { incrementalHoldCostBps } from "../src/strategy/cost.js";
@@ -40,6 +40,13 @@ test("risk sizing cannot exceed its modeled maximum-loss budget", () => {
   });
   assert.ok(approval);
   assert.ok(approval.modeledMaximumLoss <= approval.riskBudget + 1e-8);
+});
+
+test("entry risk volatility is capped at the unproductive-exit horizon", () => {
+  const hourlyVarianceRate = Math.pow(120 / 10_000, 2) / 3_600;
+  assert.ok(Math.abs(entryRiskSigmaBps(hourlyVarianceRate, 14_400_000, 900_000) - 60) < 1e-10);
+  assert.ok(Math.abs(entryRiskSigmaBps(hourlyVarianceRate, 225_000, 900_000) - 30) < 1e-10);
+  assert.throws(() => entryRiskSigmaBps(hourlyVarianceRate, 0, 900_000), /Invalid entry risk horizon inputs/);
 });
 
 test("incremental hold cost excludes unavoidable round-trip execution charges", () => {

@@ -30,7 +30,7 @@ The main contracts are:
 - Candidate: a bounded directional score, two-of-three book/flow/motion quorum with motion mandatory, decayed occupancy, leaky evidence, confirmation time/events, arbitration, cooldown, and midpoint-at-arm chase limit must pass. A directional regime is still reported but cannot suppress a micro candidate.
 - Entry: every health, dynamic-liquidity, venue, exposure, edge, cost, sizing, execution-plan, and portfolio gate must then pass. The final plan must also have positive lower-confidence order value and a conservative net-edge/maximum-loss ratio of at least `0.25`. Pullback/recovery stays maker-only. A continuation may use a reduced-size capped IOC only when its exact robust edge, lower-confidence EV, aligned OFI/TFI/book imbalance, liquidity state, and measured decision-to-venue latency all pass; otherwise the independently valid maker plan remains the fallback. Candidate sensitivity never bypasses order economics.
 - Cost: `deterministic opportunity − uncertainty reserve − (exact fixed fees + stressed variable execution cost) >= minimum edge`. The `1.75` safety factor applies only to uncertain execution, impact, latency, and adverse-selection components; known venue fees remain exact.
-- Horizon: microstructure selects entry timing. A bounded five-second sampler supplies causal 5/15/60-minute trend returns, slow efficiency, and slow realized variance. Continuation economics use 15/30/60-minute horizons and select the shortest horizon that clears every cost gate instead of maximizing a long-horizon volatility extrapolation. A separate 30-second sampler supplies the ordered four-hour state for calibrated two-hour pullback/recovery entries.
+- Horizon: microstructure selects entry timing. A bounded five-second sampler supplies causal 5/15/60-minute trend returns, slow efficiency, and slow realized variance. Continuation economics use 1/2/4-hour horizons and select the strongest conservative post-cost edge. Entry loss sizing caps that forecast volatility at the 15-minute unproductive-exit horizon, so a long alpha horizon cannot widen the stop. A separate 30-second sampler supplies the ordered four-hour state for calibrated two-hour pullback/recovery entries.
 - Entry families: continuation keeps its existing aligned 5/15/60-minute gate. Pullback/recovery separately requires a prior structural move, a fee-scale retracement, a confirmed rebound, retained trend, and unrecovered room; it does not relax continuation thresholds.
 - Trend warm-up: PostgreSQL first restores recent one-second mids into only the sampled slow-trend state. If that history is absent or stale after a clean restart, completed venue one-minute bars plus a current L2 midpoint provide the same causal structural bootstrap. Missing, future, invalid, crossed, or stale venue observations still fail closed; without usable history a process must observe at least 90% of the 60-minute window. Fast microstructure, CUSUM, and trigger state are never hydrated.
 - State: one continuous episode produces at most one candidate. Re-arming requires release hysteresis or an excessive event-gap reset, and the configured cooldown must have elapsed.
@@ -154,7 +154,7 @@ ADVERSE_FLOW_CONFIRMATION_EVENTS=3
 MAKER_FILL_HAZARD_INTERCEPT=-3.25
 RULE_MIN_MAKER_FILL_PROBABILITY=0.05
 MAKER_MINIMUM_EXPECTED_VALUE_BPS=0.25
-ENTRY_MINIMUM_REWARD_RISK_RATIO=0.25
+ENTRY_MINIMUM_REWARD_RISK_RATIO=0.20
 CONTINUATION_TAKER_ENABLED=true
 CONTINUATION_TAKER_SIZE_MULTIPLIER=0.25
 CONTINUATION_TAKER_MIN_SCORE=0.30
@@ -167,6 +167,8 @@ ENTRY_ROUTE_SHADOW_HORIZONS_MS=1000,5000,30000,60000,300000
 POSITION_MINIMUM_HOLD_MS=60000
 POSITION_UNPRODUCTIVE_EXIT_MS=900000
 ```
+
+Continuation economics are evaluated over 1-, 2-, and 4-hour horizons, with the strongest conservative post-cost edge selected. Entry loss sizing is independently capped at the 15-minute unproductive-exit horizon, so a long trend forecast cannot create a four-hour stop. This preserves enough horizon for conservative edge to clear costs while still rejecting entries below the order-EV and reward/risk floors.
 
 The zero latency-sample floor applies only to non-live evidence collection so the first paper acknowledgment can bootstrap measurement. Once any sample exists, its observed p95 must still fit the alpha budget. Live IOC routing is hard-disabled and its effective configuration retains at least 20 samples.
 
