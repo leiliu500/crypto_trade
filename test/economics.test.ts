@@ -5,10 +5,14 @@ import { effectiveSampleCount } from "../src/calibration/effective-sample-count.
 import { CalibratedEdgeTable } from "../src/calibration/calibrated-edge-table.js";
 import { minimumFeasibleHorizonMs } from "../src/economics/feasibility-audit.js";
 import { decimalRateToBps, percentToBps, validateFeeBps } from "../src/economics/fee-validation.js";
+import { analyticEdges } from "../src/economics/analytic-edge.js";
 import { MultiHorizonCostGate, robustCostBps } from "../src/economics/multi-horizon-cost-gate.js";
 import type { ConservativeEdge, CostBreakdown, ExecutionPath } from "../src/economics/types.js";
+import { DEFAULT_DETERMINISTIC_SIGNAL_CONFIG } from "../src/config/deterministic-defaults.js";
 import { scaleEconomicQuantity } from "../src/risk/economic-risk-sizer.js";
+import { entryRiskSigmaBps } from "../src/risk/sizing.js";
 import { CostModel } from "../src/strategy/cost.js";
+import type { DeterministicFeatures } from "../src/strategy/deterministic-features.js";
 
 const features: Features = {
   symbol: "BTC/USD", mid: 100, spread: .01, spreadBps: 1, microprice: 100, visibleDepth: 2,
@@ -61,7 +65,7 @@ test("taker book walking counts top-of-book crossing and incremental impact once
   assert.ok(boundedExit.estimatedCostBps < paths.find((item) => item.path === "MAKER_TAKER")!.estimatedCostBps);
 });
 
-test("multi-horizon gate selects the shortest profitable horizon and best path within it", () => {
+test("multi-horizon gate selects the strongest conservative edge across horizon and path", () => {
   const gate = new MultiHorizonCostGate({ costSafetyFactor: 1.5, minimumNetEdgeBps: .5,
     fullQualityEdgeBps: 20, minimumEconomicSizeScale: .2, minimumMakerFillProbability: .4,
     minimumEffectiveSampleCount: 100, maximumReasonableCostBps: 1_000, maximumReasonableGrossBps: 2_000 }, "ANALYTIC_PAPER");
@@ -69,9 +73,9 @@ test("multi-horizon gate selects the shortest profitable horizon and best path w
     cost("MAKER_TAKER", 25, true, .8), cost("TAKER_TAKER", 30)]);
   assert.equal(decision.pass, true);
   assert.equal(decision.selected?.cost.path, "MAKER_TAKER");
-  assert.equal(decision.selected?.edge.horizonMs, 300_000);
+  assert.equal(decision.selected?.edge.horizonMs, 900_000);
   assert.equal(decision.selected?.robustCostBps, 26);
-  assert.equal(decision.selected?.lowerBoundNetBps, 9);
+  assert.equal(decision.selected?.lowerBoundNetBps, 19);
   assert.ok(decision.sizeScale >= .2 && decision.sizeScale < 1);
   assert.equal(robustCostBps(cost("TAKER_TAKER", 10), 1.5), 11);
   const inconsistent = { ...cost("TAKER_TAKER", 10), estimatedCostBps: 9 };
@@ -79,6 +83,52 @@ test("multi-horizon gate selects the shortest profitable horizon and best path w
   const rejected = gate.evaluate([{ ...edge(), conservativeGrossBps: 5 }],
     [cost("MAKER_MAKER", 1, false, .9), cost("MAKER_TAKER", 10, true, .8)]);
   assert.equal(rejected.bestRejected?.cost.path, "MAKER_TAKER");
+});
+
+test("an observed strong continuation clears economics with the bounded entry-risk horizon", () => {
+  const cfg = DEFAULT_DETERMINISTIC_SIGNAL_CONFIG;
+  const observed = {
+    slowTrendReady: true, breakoutUpBps: 0, breakoutDownBps: 0,
+    trendFastBps: -74.17731811699468, trendMediumBps: -130.41169857636703,
+    trendSlowBps: -294.72346655119, slowVarianceRate: 1.4536446914795633e-8,
+    slowTrendAlignment: -.9987679691013045, slowTrendEfficiency: .2283216424462419,
+    spreadBps: .12971262168665323, flowFlipRate: .12162162162162163,
+  };
+  const continuation = {
+    score: .58617383655469, efficiency: 0, flowPersistence: 0, velocity: 0, breakoutHold: 0,
+    regimeStability: 0, volatilitySuitability: 0, slowTrendAlignment: .9987679691013045,
+    slowTrendEfficiency: .2283216424462419,
+  };
+  const edges = analyticEdges({ side: -1, features: observed as unknown as DeterministicFeatures, continuation }, {
+    horizons: cfg.analyticHorizons, spreadUncertaintyWeight: cfg.analyticEdge.spreadUncertaintyWeight,
+    flipUncertaintyWeight: cfg.analyticEdge.flipUncertaintyWeight,
+  });
+  const observedCost: CostBreakdown = {
+    path: "MAKER_MAKER_TAKER_FALLBACK", supported: true, entryExecutionBps: 0,
+    exitExecutionBps: .022699708795164315, entryFeeBps: 2, exitFeeBps: 2,
+    marketImpactBps: 0, latencyBps: 7.483492833739327, adverseSelectionBps: 2.75,
+    fundingBps: 0, borrowBps: 0, estimatedCostBps: 14.256192542534492,
+    positiveCostErrorP95Bps: 2, fillProbability: .4440526452447344,
+  };
+  const gate = new MultiHorizonCostGate({
+    costSafetyFactor: cfg.costSafetyFactor, minimumNetEdgeBps: cfg.minimumNetEdgeBps,
+    fullQualityEdgeBps: cfg.fullQualityEdgeBps, minimumEconomicSizeScale: cfg.minimumEconomicSizeScale,
+    minimumMakerFillProbability: cfg.minimumMakerFillProbability,
+    minimumEffectiveSampleCount: cfg.minimumEffectiveSampleCount,
+    maximumReasonableCostBps: cfg.maximumReasonableCostBps,
+    maximumReasonableGrossBps: cfg.maximumReasonableGrossBps,
+  }, cfg.economicEdgeMode);
+  const selected = gate.evaluate(edges, [observedCost]).selected!;
+  const riskSigmaBps = entryRiskSigmaBps(observed.slowVarianceRate, selected.edge.horizonMs, 900_000);
+  const maximumLossBps = 3 * riskSigmaBps + 5 * 3.7417464168696637
+    + observed.spreadBps / 2 + observedCost.entryFeeBps;
+  const rewardRisk = selected.lowerBoundNetBps / maximumLossBps;
+  const makerExpectedValueBps = observedCost.fillProbability * selected.lowerBoundNetBps
+    - (1 - observedCost.fillProbability) * 2 - 1;
+
+  assert.equal(selected.edge.horizonMs, 14_400_000);
+  assert.ok(rewardRisk >= .2);
+  assert.ok(makerExpectedValueBps >= .25);
 });
 
 test("robust cost keeps known fees exact and stresses only uncertain execution components", () => {

@@ -58,10 +58,11 @@ test("JSON baseline wins over legacy tunable environment values and symbol overl
     assert.equal(cfg.forecast.intendedHoldMs, 1_800_000);
     assert.equal(cfg.deterministicSignal.analyticEdge.economicHorizonMs, cfg.forecast.intendedHoldMs);
     assert.equal(cfg.position.maximumHoldMs, 14_400_000);
-    assert.deepEqual(cfg.deterministicSignal.analyticHorizons.map((item) => item.horizonMs), [900_000, 1_800_000, 3_600_000]);
+    assert.deepEqual(cfg.deterministicSignal.analyticHorizons.map((item) => item.horizonMs),
+      [3_600_000, 7_200_000, 14_400_000]);
     assert.equal(cfg.deterministicSignal.requireMakerEntry, true);
     assert.equal(cfg.deterministicSignal.allowTakerContinuation, true);
-    assert.equal(cfg.configurationVersion, "btc-eth-hybrid-entry-routing-v7.0.0");
+    assert.equal(cfg.configurationVersion, "btc-eth-entry-availability-v7.1.0");
     assert.equal(cfg.position.minimumHoldMs, 60_000);
     assert.equal(cfg.position.unproductiveExitMs, 900_000);
     assert.equal(cfg.position.reentryCooldownMs, 900_000);
@@ -83,7 +84,7 @@ test("JSON baseline wins over legacy tunable environment values and symbol overl
     assert.equal(cfg.planner.adverseTfiThreshold, .15);
     assert.equal(cfg.planner.fillHazardIntercept, -3.25);
     assert.equal(cfg.planner.minimumExpectedValueBps, .25);
-    assert.equal(cfg.planner.minimumRewardRiskRatio, .25);
+    assert.equal(cfg.planner.minimumRewardRiskRatio, .2);
     assert.equal(cfg.planner.hybridEntry.continuationTakerEnabled, true);
     assert.equal(cfg.planner.hybridEntry.continuationTakerSizeMultiplier, .25);
     assert.equal(cfg.planner.hybridEntry.continuationTakerMinimumNetEdgeBps, 8);

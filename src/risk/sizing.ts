@@ -36,6 +36,23 @@ export interface RiskApproval {
   bindingLimit: "risk" | "liquidity" | "kelly" | "notional" | "exchange" | "exposure";
 }
 
+/**
+ * Converts slow sampled variance to the volatility used for entry loss sizing.
+ * The economic forecast may span hours, but an entry that makes no progress is
+ * removed at the unproductive-exit deadline. Capping the risk horizon there
+ * prevents a long alpha horizon from manufacturing an unnecessarily wide stop.
+ */
+export function entryRiskSigmaBps(slowVarianceRate: number, economicHorizonMs: number,
+  unproductiveExitMs: number): number {
+  if (!Number.isFinite(slowVarianceRate) || slowVarianceRate < 0
+    || !Number.isFinite(economicHorizonMs) || economicHorizonMs <= 0
+    || !Number.isFinite(unproductiveExitMs) || unproductiveExitMs <= 0) {
+    throw new Error("Invalid entry risk horizon inputs");
+  }
+  const riskHorizonMs = Math.min(economicHorizonMs, unproductiveExitMs);
+  return 10_000 * Math.sqrt(Math.max(slowVarianceRate, 1e-16) * riskHorizonMs / 1_000);
+}
+
 export class RiskSizer {
   public constructor(private readonly cfg: RiskConfig) {}
   public size(intent: TradeIntent, ctx: RiskContext): RiskApproval | null {

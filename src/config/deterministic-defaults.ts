@@ -17,7 +17,7 @@ export const DEFAULT_DETERMINISTIC_REGIME_CONFIG: DeterministicRegimeConfig = {
   hysteresisResetRatio: .75,
 };
 export const DEFAULT_DETERMINISTIC_SIGNAL_CONFIG: DeterministicSignalConfig = {
-  mode: "DETERMINISTIC_ONLY", configurationVersion: "deterministic-hybrid-entry-routing-v7.0",
+  mode: "DETERMINISTIC_ONLY", configurationVersion: "deterministic-entry-availability-v7.1",
   maximumSpreadBps: 30, maximumSpreadZ: 3, minimumDepthZ: -2.5, maximumImpactBps: 1.5,
   microEdgeBps: .2, qi1: .15, qiK: .1, ofi: .3, tfi: .15, replenishment: .1, velocityZ: .25,
   maximumOpposingAccelerationZ: .3, impulseBps: .4, breakoutBps: .5, cusum: 2.5, efficiency: .45, maximumFlipRate: .45,
@@ -55,12 +55,12 @@ export const DEFAULT_DETERMINISTIC_SIGNAL_CONFIG: DeterministicSignalConfig = {
     velocityScale: .50, breakoutScaleBps: 5, volatilityTargetBps: 75, volatilityToleranceBps: 75,
   },
   analyticHorizons: [
-    { horizonMs: 15 * 60_000, sigmaCaptureFraction: .20, breakoutWeight: .10, maximumGrossBps: 150,
-      baseUncertaintyBps: 3, sigmaUncertaintyFraction: .32, trendCaptureFraction: .25, trendUncertaintyFraction: .14 },
-    { horizonMs: 30 * 60_000, sigmaCaptureFraction: .25, breakoutWeight: .10, maximumGrossBps: 225,
-      baseUncertaintyBps: 3.5, sigmaUncertaintyFraction: .30, trendCaptureFraction: .35, trendUncertaintyFraction: .13 },
-    { horizonMs: 60 * 60_000, sigmaCaptureFraction: .30, breakoutWeight: .10, maximumGrossBps: 300,
-      baseUncertaintyBps: 4, sigmaUncertaintyFraction: .28, trendCaptureFraction: .50, trendUncertaintyFraction: .12 },
+    { horizonMs: 60 * 60_000, sigmaCaptureFraction: .35, breakoutWeight: .10, maximumGrossBps: 300,
+      baseUncertaintyBps: 3, sigmaUncertaintyFraction: .30, trendCaptureFraction: .50, trendUncertaintyFraction: .12 },
+    { horizonMs: 2 * 60 * 60_000, sigmaCaptureFraction: .40, breakoutWeight: .10, maximumGrossBps: 450,
+      baseUncertaintyBps: 4, sigmaUncertaintyFraction: .28, trendCaptureFraction: .75, trendUncertaintyFraction: .12 },
+    { horizonMs: 4 * 60 * 60_000, sigmaCaptureFraction: .45, breakoutWeight: .10, maximumGrossBps: 600,
+      baseUncertaintyBps: 5, sigmaUncertaintyFraction: .25, trendCaptureFraction: 1, trendUncertaintyFraction: .12 },
   ],
   analyticEdge: {
     economicHorizonMs: 30 * 60_000,

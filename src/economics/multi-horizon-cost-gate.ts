@@ -22,12 +22,10 @@ export class MultiHorizonCostGate {
       if (edge.executionPath === undefined || edge.executionPath === cost.path) evaluations.push(this.pathEvaluation(edge, cost));
     }
     const ranked = [...evaluations].sort((left, right) => right.lowerBoundNetBps - left.lowerBoundNetBps);
-    // Select the shortest economically sufficient horizon, then the best path
-    // within it. Taking the largest extrapolated horizon simply because its
-    // square-root volatility term is larger produces wide stops and a payoff
-    // horizon that is inconsistent with live invalidation and time-stop rules.
-    const selected = evaluations.filter((item) => item.pass).sort((left, right) =>
-      left.edge.horizonMs - right.edge.horizonMs || right.lowerBoundNetBps - left.lowerBoundNetBps)[0] ?? null;
+    // Rank by conservative post-cost edge across both horizon and path. Risk
+    // sizing independently caps volatility at the unproductive-exit horizon,
+    // so selecting a stronger long-horizon edge cannot manufacture a wider stop.
+    const selected = ranked.find((item) => item.pass) ?? null;
     const bestRejected = selected ? null
       : ranked.find((item) => item.cost.supported && !item.rejectionReasons.includes("MAKER_FILL_PROBABILITY")
         && !item.rejectionReasons.includes("CALIBRATED_EDGE_REQUIRED")

@@ -473,7 +473,7 @@ function defaultPlannerConfig(env: NodeJS.ProcessEnv, minimumFillProbability: nu
     adverseTfiThreshold: numberEnv(env.PENDING_ADVERSE_TFI_THRESHOLD, .15),
     minimumFillProbability,
     minimumExpectedValueBps: paperEntryExercise ? 0 : numberEnv(env.MAKER_MINIMUM_EXPECTED_VALUE_BPS, .25),
-    minimumRewardRiskRatio: paperEntryExercise ? 0 : numberEnv(env.ENTRY_MINIMUM_REWARD_RISK_RATIO, .25),
+    minimumRewardRiskRatio: paperEntryExercise ? 0 : numberEnv(env.ENTRY_MINIMUM_REWARD_RISK_RATIO, .20),
     takerLimitBufferBps, cancelAheadFraction: .5,
     fillHazardIntercept: finiteNumberEnv(env.MAKER_FILL_HAZARD_INTERCEPT, -3.25),
     fillHazardAggressiveWeight: numberEnv(env.MAKER_FILL_HAZARD_AGGRESSIVE_WEIGHT, .1),
