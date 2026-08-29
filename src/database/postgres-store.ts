@@ -5,6 +5,7 @@ import type {
   DashboardEvent, DashboardMarketCard, DashboardOptionShortOrder, DashboardOptionShortTrade, DashboardOrderCard,
   DashboardPositionCard, DashboardSnapshot, DatabaseHealth, OptionShortPnlTelemetry, TelemetryRecord,
 } from "../dashboard/types.js";
+import type { HistoricalFillRecord } from "../kraken/paper-history.js";
 import type { Position } from "../strategy/position-manager.js";
 import { runMigrations } from "./migrations.js";
 
@@ -30,6 +31,7 @@ export interface PersistedMarketMid {
 }
 
 export interface PersistedDecisionVenueLatency { atMs: number; milliseconds: number; }
+export interface HistoricalBackfillResult { ordersInserted: number; fillsInserted: number; }
 
 const OPTION_ORDER_LIFECYCLE_EVENTS = new Set([
   "optionShortDecision",
@@ -121,6 +123,56 @@ export class PostgresTelemetryStore extends EventEmitter {
       const restored = restoreOrder(row);
       return restored ? [restored] : [];
     });
+  }
+
+  /**
+   * Idempotently restores simulator-owned history when PostgreSQL was cleared but
+   * the durable paper account file survived. Unknown original run ids remain NULL.
+   */
+  public async backfillHistoricalOrders(orders: readonly DashboardOrderCard[], fills: readonly HistoricalFillRecord[]): Promise<HistoricalBackfillResult> {
+    if (orders.length === 0 && fills.length === 0) return { ordersInserted: 0, fillsInserted: 0 };
+    const client = await this.pool.connect();
+    let ordersInserted = 0, fillsInserted = 0;
+    try {
+      await client.query("BEGIN");
+      for (const order of orders) {
+        const inserted = await client.query(`INSERT INTO orders
+          (client_order_id,run_id,alpaca_order_id,symbol,side,style,time_in_force,status,cancel_request_reason,
+           cancellation_reason,requested_qty,filled_qty,average_fill_price,limit_price,expected_value,
+           fill_probability,reduce_only_intent,created_at,expires_at,updated_at,plan)
+          VALUES ($1,NULL,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20::jsonb)
+          ON CONFLICT (client_order_id) DO NOTHING`,
+        [order.clientOrderId, order.alpacaOrderId, order.symbol, order.side, order.style, order.timeInForce,
+          order.status, order.cancelRequestReason, order.cancellationReason, order.requestedQty, order.filledQty,
+          order.averageFillPx || null, order.limitPx, order.expectedValue, order.fillProbability,
+          order.reduceOnlyIntent, date(order.createdMs), date(order.expiresMs), date(order.updatedMs), json(order)]);
+        ordersInserted += inserted.rowCount ?? 0;
+        await client.query(`INSERT INTO order_events
+          (run_id,client_order_id,alpaca_order_id,event_type,status,cancellation_reason,event_qty,event_price,
+           filled_qty,occurred_at,payload)
+          SELECT NULL,$1,$2,'history_import',$3,$4,NULL,$5,$6,$7,$8::jsonb
+          WHERE NOT EXISTS (
+            SELECT 1 FROM order_events WHERE client_order_id=$1 AND event_type='history_import'
+          )`,
+        [order.clientOrderId, order.alpacaOrderId, order.status, order.cancellationReason,
+          order.averageFillPx || null, order.filledQty, date(order.updatedMs), json(order)]);
+      }
+      for (const fill of fills) {
+        const inserted = await client.query(`INSERT INTO fills
+          (execution_id,run_id,client_order_id,symbol,side,qty,price,final,occurred_at,payload)
+          VALUES ($1,NULL,$2,$3,$4,$5,$6,$7,$8,$9::jsonb)
+          ON CONFLICT (execution_id) DO NOTHING`,
+        [fill.id, fill.clientOrderId, fill.symbol, fill.side, fill.qty, fill.price, fill.final, date(fill.atMs), json(fill)]);
+        fillsInserted += inserted.rowCount ?? 0;
+      }
+      await client.query("COMMIT");
+      return { ordersInserted, fillsInserted };
+    } catch (error) {
+      await client.query("ROLLBACK").catch(() => undefined);
+      throw error;
+    } finally {
+      client.release();
+    }
   }
 
   public async loadRecentMarketMids(symbols: readonly string[], sinceMs: number, untilMs: number): Promise<readonly PersistedMarketMid[]> {

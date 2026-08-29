@@ -9,6 +9,7 @@ import type { FillDelta, PrivateOrderEvent } from "../src/execution/order-state.
 import { TradingEngine } from "../src/engine/trading-engine.js";
 import { decodeKrakenFuturesMessage } from "../src/kraken/market-stream.js";
 import { KrakenPaperBroker, type KrakenFuturesInstrumentRules } from "../src/kraken/paper-broker.js";
+import { projectKrakenPaperHistory } from "../src/kraken/paper-history.js";
 
 test("Kraken Futures paper configuration needs no funded-account credentials and rejects live routing", () => {
   const cfg = loadConfig({ TRADING_MODE: "paper", TRADING_VENUE: "kraken_futures", CONFIG_DIR: "config" });
@@ -94,6 +95,31 @@ test("local Kraken maker order remains eligible after a partial fill", async () 
   broker.onTrade({ id: "trade-2", symbol: "BTC/USD", px: 100, qty: 1, aggressor: -1, exchangeTsMs: 1_020, receiveTsMs: 1_021 });
   assert.equal((await broker.getOrder(order.id)).data.status, "filled");
   assert.equal((await broker.listPositions()).data[0]?.qty, "2");
+});
+
+test("Kraken paper history projects durable orders and fills for database repair", async () => {
+  const instrument: KrakenFuturesInstrumentRules = {
+    symbol: "BTC/USD", productId: "PF_XBTUSD", tickSize: 1, quantityIncrement: .001, maximumOrderQty: 1_000,
+  };
+  const broker = new KrakenPaperBroker({ initialEquity: 100_000, productsBySymbol: { "BTC/USD": "PF_XBTUSD" },
+    instruments: new Map([["BTC/USD", instrument]]), makerFeeBpsBySymbol: { "BTC/USD": 2 },
+    takerFeeBpsBySymbol: { "BTC/USD": 5 } });
+  broker.onBook({ symbol: "BTC/USD", bids: [{ px: 100, qty: 5 }], asks: [{ px: 101, qty: 5 }], reset: true,
+    exchangeTsMs: 1_000, receiveTsMs: 1_001, sourceId: "snapshot" });
+  const unfilled = await broker.send({ ...plan("history-cancel", 1, 1, 99, false), style: "maker", timeInForce: "gtc" });
+  await broker.cancel(unfilled.id);
+  await broker.send(plan("history-fill", 1, 1, 101, false));
+  await Promise.resolve();
+
+  const history = projectKrakenPaperHistory(broker.history(), 10_000);
+  const filled = history.orders.find((order) => order.clientOrderId === "history-fill");
+  const canceled = history.orders.find((order) => order.clientOrderId === "history-cancel");
+  assert.equal(filled?.status, "FILLED");
+  assert.equal(filled?.filledQty, 1);
+  assert.equal(canceled?.status, "CANCELED");
+  assert.equal(canceled?.cancellationReason, "VENUE_CANCELED");
+  assert.deepEqual(history.fills.map((fill) => ({ clientOrderId: fill.clientOrderId, qty: fill.qty,
+    price: fill.price, final: fill.final })), [{ clientOrderId: "history-fill", qty: 1, price: 101, final: true }]);
 });
 
 test("Kraken paper account survives restart and fail-closed cancels a resting remainder", async () => {

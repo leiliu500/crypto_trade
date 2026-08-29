@@ -10,6 +10,7 @@ import { AlpacaRestClient } from "./alpaca/rest.js";
 import { loadVenueSlowTrendHistory } from "./alpaca/market-history.js";
 import { KrakenFuturesMarketStream } from "./kraken/market-stream.js";
 import { KrakenPaperBroker, loadKrakenFuturesInstruments } from "./kraken/paper-broker.js";
+import { projectKrakenPaperHistory } from "./kraken/paper-history.js";
 import type { SlowTrendObservation, SlowTrendRestoreResult } from "./strategy/deterministic-features.js";
 
 async function main(): Promise<void> {
@@ -25,6 +26,7 @@ async function main(): Promise<void> {
   }
   let rest: AlpacaRestClient;
   let engine: TradingEngine;
+  let paperBroker: KrakenPaperBroker | undefined;
   if (cfg.venue === "kraken_futures") {
     const instruments = await loadKrakenFuturesInstruments(cfg.krakenFutures.productsBySymbol);
     const marketStream = new KrakenFuturesMarketStream({
@@ -39,6 +41,7 @@ async function main(): Promise<void> {
       takerFeeBpsBySymbol: Object.fromEntries(cfg.symbols.map((symbol) => [symbol, cfg.symbolConfigs[symbol]!.cost.takerFeeBps])),
       stateFile: cfg.krakenFutures.paperStateFile,
     });
+    paperBroker = broker;
     marketStream.on("book", (delta) => broker.onBook(delta));
     marketStream.on("trade", (trade) => broker.onTrade(trade));
     rest = broker;
@@ -59,6 +62,16 @@ async function main(): Promise<void> {
       const migrations = await candidate.start({ mode: cfg.mode, paper: cfg.paper, strategyVersion: cfg.strategyVersion, modelVersion: cfg.modelVersion,
         symbols: cfg.symbols, metadata: { venue: cfg.venue, configurationVersion: cfg.configurationVersion, signalMode: cfg.signalMode,
           paperEntryExercise: cfg.paperEntryExercise } });
+      let paperHistoryBackfill = { ordersInserted: 0, fillsInserted: 0 };
+      if (paperBroker) {
+        try {
+          const history = projectKrakenPaperHistory(paperBroker.history());
+          paperHistoryBackfill = await candidate.backfillHistoricalOrders(history.orders, history.fills);
+        } catch (error) {
+          process.stderr.write(`${JSON.stringify({ type: "paper-history-backfill-degraded",
+            message: error instanceof Error ? error.message : String(error) })}\n`);
+        }
+      }
       const restoredOrders = await candidate.loadOrders();
       monitor.hydrateOrders(restoredOrders);
       const restoredPositionStates = engine.restorePositionStates(await candidate.loadLatestPositionStates(cfg.symbols));
@@ -70,7 +83,8 @@ async function main(): Promise<void> {
       const slowTrendHistory = await restoreStartupSlowTrendHistory(engine, rest, cfg, candidate, hydrationAtMs);
       slowTrendBootstrapComplete = true;
       process.stdout.write(`${JSON.stringify({ type: "database-ready", migrations, restoredOrders: restoredOrders.length,
-        restoredPositionStates, restoredRealizedSessionPnl, restoredDecisionVenueLatencies, slowTrendHistory })}\n`);
+        restoredPositionStates, restoredRealizedSessionPnl, restoredDecisionVenueLatencies, paperHistoryBackfill,
+        slowTrendHistory })}\n`);
     } catch (error) {
       await candidate.close().catch(() => undefined);
       store = undefined;

@@ -90,3 +90,50 @@ test("realized session restoration deduplicates exit legs instead of dropping pa
     await originalPool.end();
   }
 });
+
+test("paper-history backfill is transactional and keeps unknown original run ids null", async () => {
+  const store = new PostgresTelemetryStore({
+    connectionString: "postgres://unused",
+    flushIntervalMs: 60_000,
+    maximumQueue: 3,
+  });
+  const queries: Array<{ sql: string; values?: readonly unknown[] }> = [];
+  const internals = store as unknown as { pool: {
+    connect: () => Promise<{ query: (sql: string, values?: readonly unknown[]) => Promise<{ rowCount: number | null }>; release: () => void }>;
+    end: () => Promise<void>;
+  } };
+  const originalPool = internals.pool;
+  internals.pool = {
+    connect: async () => ({
+      query: async (sql, values) => {
+        queries.push({ sql, ...(values === undefined ? {} : { values }) });
+        return { rowCount: /^INSERT INTO (orders|fills)/.test(sql.trim()) ? 1 : 0 };
+      },
+      release: () => undefined,
+    }),
+    end: async () => undefined,
+  };
+  try {
+    const atMs = Date.parse("2026-08-28T16:00:00.000Z");
+    const result = await store.backfillHistoricalOrders([{
+      clientOrderId: "paper-history", decisionId: "decision", alpacaOrderId: "remote", historical: true,
+      symbol: "BTC/USD", side: 1, style: "maker", timeInForce: "gtc", status: "FILLED",
+      statusLabel: "Filled", terminal: true, requestedQty: .001, filledQty: .001, remainingQty: 0,
+      fillPercent: 100, averageFillPx: 80_000, limitPx: 80_000, expectedValue: 1, fillProbability: .1,
+      expectedCost: { roundTripBps: 7, spreadBps: 1, feeBps: 7, impactBps: 0, latencyBps: 0,
+        adverseSelectionBps: 0, fundingBps: 0, borrowBps: 0 },
+      reduceOnlyIntent: false, createdMs: atMs, expiresMs: atMs + 1_000, updatedMs: atMs + 500,
+      ageMs: 1_000, expiresInMs: 0, error: null, cancelRequestReason: null, cancellationReason: null,
+      timeline: [], livePosition: null,
+    }], [{ id: "fill-history", clientOrderId: "paper-history", symbol: "BTC/USD", side: 1,
+      qty: .001, price: 80_000, final: true, atMs: atMs + 500 }]);
+    assert.deepEqual(result, { ordersInserted: 1, fillsInserted: 1 });
+    assert.equal(queries[0]?.sql, "BEGIN");
+    assert.match(queries[1]?.sql ?? "", /VALUES \(\$1,NULL/);
+    assert.match(queries.at(-2)?.sql ?? "", /ON CONFLICT \(execution_id\) DO NOTHING/);
+    assert.equal(queries.at(-1)?.sql, "COMMIT");
+  } finally {
+    await store.close();
+    await originalPool.end();
+  }
+});
