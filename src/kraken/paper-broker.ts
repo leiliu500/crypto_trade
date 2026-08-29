@@ -40,6 +40,8 @@ export interface KrakenPaperHistoricalOrder { plan: ExecutionPlan; remote: Alpac
 export interface KrakenPaperHistory {
   orders: readonly KrakenPaperHistoricalOrder[];
   activities: readonly AlpacaActivity[];
+  makerFeeBpsBySymbol: Readonly<Record<string, number>>;
+  takerFeeBpsBySymbol: Readonly<Record<string, number>>;
 }
 interface KrakenPaperState {
   schemaVersion: 3;
@@ -231,6 +233,8 @@ export class KrakenPaperBroker extends AlpacaRestClient implements OrderGateway 
         plan: clonePlan(plan), remote: cloneOrder(remote),
       })),
       activities: this.activities.map((activity) => ({ ...activity })),
+      makerFeeBpsBySymbol: { ...this.paperCfg.makerFeeBpsBySymbol },
+      takerFeeBpsBySymbol: { ...this.paperCfg.takerFeeBpsBySymbol },
     };
   }
 

@@ -154,16 +154,29 @@ function renderRealizedPnlBreakdown(position){
 }
 function groupOrderCards(items){
   const byId=new Map(items.map(order=>[order.clientOrderId,order]));
-  const tradeByOrderId=new Map();
+  const tradesByEntryId=new Map();
   for(const order of items){
     const position=order.livePosition;
     if(!position?.entryOrderId)continue;
     const entry=byId.get(position.entryOrderId);
     if(!entry)continue;
     const exit=position.exitOrderId?byId.get(position.exitOrderId)||null:null;
-    const trade={kind:"trade",entry,exit,position:exit?.livePosition||entry.livePosition||position};
-    tradeByOrderId.set(entry.clientOrderId,trade);
-    if(exit)tradeByOrderId.set(exit.clientOrderId,trade);
+    let trade=tradesByEntryId.get(position.entryOrderId);
+    if(!trade){trade={kind:"trade",entry,exit,entries:[],exits:[],position,orderIds:new Set()};tradesByEntryId.set(position.entryOrderId,trade);}
+    trade.orderIds.add(order.clientOrderId);
+    trade.orderIds.add(entry.clientOrderId);
+    if(exit)trade.orderIds.add(exit.clientOrderId);
+    if(!position.active||trade.position.active)trade.position=exit?.livePosition||order.livePosition||entry.livePosition||position;
+  }
+  const tradeByOrderId=new Map();
+  for(const trade of tradesByEntryId.values()){
+    const legs=items.filter(order=>trade.orderIds.has(order.clientOrderId)||order.livePosition?.entryOrderId===trade.entry.clientOrderId)
+      .sort((a,b)=>a.createdMs-b.createdMs||a.updatedMs-b.updatedMs||a.clientOrderId.localeCompare(b.clientOrderId));
+    trade.entries=legs.filter(order=>!order.reduceOnlyIntent);
+    trade.exits=legs.filter(order=>order.reduceOnlyIntent);
+    if(!trade.entries.some(order=>order.clientOrderId===trade.entry.clientOrderId))trade.entries.unshift(trade.entry);
+    trade.exit=trade.exits.find(order=>order.clientOrderId===trade.position.exitOrderId)||trade.exit||trade.exits.at(-1)||null;
+    for(const leg of [...trade.entries,...trade.exits])tradeByOrderId.set(leg.clientOrderId,trade);
   }
   const seenTrades=new Set();
   const grouped=[];
@@ -191,8 +204,10 @@ function renderOrderLeg(o,label){
   return `<section class="trade-leg" data-testid="${label.toLowerCase()}-leg"><div class="trade-leg-head"><div><span class="trade-leg-label">${esc(label)} · ${side} · ${esc(o.style.toUpperCase())} · ${esc(o.timeInForce.toUpperCase())}</span><div class="order-id" title="${esc(o.clientOrderId)}">${esc(o.clientOrderId)}</div></div><span class="order-status ${esc(o.status)}" title="${esc(cancelTitle)}">${esc(statusText)}</span></div><div class="fill-row"><span>FILLED <strong>${num(o.filledQty,6)} / ${num(o.requestedQty,6)}</strong></span><span>${num(o.fillPercent,1)}%</span></div><div class="fill-bar"><i style="width:${Math.max(0,Math.min(100,o.fillPercent))}%"></i></div><div class="order-main"><div class="metric"><span>Limit</span><strong>${priceMoney(o.limitPx)}</strong></div><div class="metric"><span>Avg fill</span><strong>${o.averageFillPx?priceMoney(o.averageFillPx):"—"}</strong></div><div class="metric"><span>Expected value</span><strong class="${pnlClass(o.expectedValue)}">${money(o.expectedValue)}</strong></div><div class="metric"><span>TTL / age</span><strong>${ttl} · ${duration(o.ageMs)}</strong></div></div><div class="cost-grid"><div><span>Round trip</span><strong>${num(cost.roundTripBps,2)} bp</strong></div><div><span>Impact</span><strong>${num(cost.impactBps,2)} bp</strong></div><div><span>Fill probability</span><strong>${num(o.fillProbability*100,1)}%</strong></div></div>${renderOrderTimeline(o,`${label} lifecycle`)}</section>`;
 }
 function renderTradeCard(card){
-  const {entry,exit,position}=card,direction=entry.side>0?"LONG":"SHORT",stateLabel=position.active?"OPEN":"CLOSED";
-  return `<article class="order-card trade-card has-live-position" data-testid="trade-card"><div class="order-head"><div><span class="symbol">${esc(entry.symbol)}</span><span class="side-label ${entry.side<0?"sell":""}">TRADE · ${direction}</span></div><span class="order-status ${position.active?"OPEN":"FILLED"}">${stateLabel}</span></div>${renderLivePnl(position)}<div class="trade-legs">${renderOrderLeg(entry,"Entry")}${exit?renderOrderLeg(exit,"Exit"):`<section class="trade-leg pending-leg" data-testid="exit-leg"><div class="trade-leg-head"><span class="trade-leg-label">Exit · pending</span><span class="order-status OPEN">MONITORING</span></div><p>The exit engine is monitoring this open position.</p></section>`}</div></article>`;
+  const {entry,position}=card,direction=entry.side>0?"LONG":"SHORT",stateLabel=position.active?"OPEN":"CLOSED";
+  const entries=card.entries.length>1?card.entries.map((order,index)=>renderOrderLeg(order,`Entry ${index+1}`)).join(""):renderOrderLeg(card.entries[0]||entry,"Entry");
+  const exits=card.exits.length?card.exits.map((order,index)=>renderOrderLeg(order,card.exits.length>1?`Exit ${index+1}`:"Exit")).join(""):`<section class="trade-leg pending-leg" data-testid="exit-leg"><div class="trade-leg-head"><span class="trade-leg-label">Exit · pending</span><span class="order-status OPEN">MONITORING</span></div><p>The exit engine is monitoring this open position.</p></section>`;
+  return `<article class="order-card trade-card has-live-position" data-testid="trade-card"><div class="order-head"><div><span class="symbol">${esc(entry.symbol)}</span><span class="side-label ${entry.side<0?"sell":""}">TRADE · ${direction}</span></div><span class="order-status ${position.active?"OPEN":"FILLED"}">${stateLabel}</span></div>${renderLivePnl(position)}<div class="trade-legs">${entries}${exits}</div></article>`;
 }
 function renderOrderAttempt(o){
   const side=o.side>0?"BUY":"SELL",cost=o.expectedCost||{},ttl=o.expiresInMs>0?`${duration(o.expiresInMs)} left`:o.terminal?"complete":"expired";

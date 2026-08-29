@@ -147,6 +147,14 @@ export class PostgresTelemetryStore extends EventEmitter {
           order.averageFillPx || null, order.limitPx, order.expectedValue, order.fillProbability,
           order.reduceOnlyIntent, date(order.createdMs), date(order.expiresMs), date(order.updatedMs), json(order)]);
         ordersInserted += inserted.rowCount ?? 0;
+        if ((inserted.rowCount ?? 0) === 0) {
+          // A previous startup may already have restored the order before
+          // position replay was available. Refresh only simulator-owned rows;
+          // never overwrite normal telemetry associated with a real run.
+          await client.query(`UPDATE orders SET plan=$2::jsonb
+            WHERE client_order_id=$1 AND run_id IS NULL AND plan IS DISTINCT FROM $2::jsonb`,
+          [order.clientOrderId, json(order)]);
+        }
         await client.query(`INSERT INTO order_events
           (run_id,client_order_id,alpaca_order_id,event_type,status,cancellation_reason,event_qty,event_price,
            filled_qty,occurred_at,payload)

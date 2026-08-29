@@ -116,10 +116,60 @@ test("Kraken paper history projects durable orders and fills for database repair
   const canceled = history.orders.find((order) => order.clientOrderId === "history-cancel");
   assert.equal(filled?.status, "FILLED");
   assert.equal(filled?.filledQty, 1);
+  assert.equal(filled?.livePosition?.active, true);
+  assert.equal(filled?.livePosition?.entryOrderId, "history-fill");
   assert.equal(canceled?.status, "CANCELED");
   assert.equal(canceled?.cancellationReason, "VENUE_CANCELED");
   assert.deepEqual(history.fills.map((fill) => ({ clientOrderId: fill.clientOrderId, qty: fill.qty,
     price: fill.price, final: fill.final })), [{ clientOrderId: "history-fill", qty: 1, price: 101, final: true }]);
+});
+
+test("Kraken paper history reconstructs one fee-adjusted trade across partial exit legs", async () => {
+  const instrument: KrakenFuturesInstrumentRules = {
+    symbol: "BTC/USD", productId: "PF_XBTUSD", tickSize: 1, quantityIncrement: .001, maximumOrderQty: 1_000,
+  };
+  const broker = new KrakenPaperBroker({ initialEquity: 100_000, productsBySymbol: { "BTC/USD": "PF_XBTUSD" },
+    instruments: new Map([["BTC/USD", instrument]]), makerFeeBpsBySymbol: { "BTC/USD": 2 },
+    takerFeeBpsBySymbol: { "BTC/USD": 5 } });
+  broker.onBook({ symbol: "BTC/USD", bids: [{ px: 100, qty: 5 }], asks: [{ px: 101, qty: 5 }], reset: true,
+    exchangeTsMs: 1_000, receiveTsMs: 1_001, sourceId: "entry-book" });
+  await broker.send(plan("trade-entry", 1, 2, 101, false));
+  await Promise.resolve();
+
+  broker.onBook({ symbol: "BTC/USD", bids: [{ px: 102, qty: 5 }], asks: [], reset: true,
+    exchangeTsMs: 2_000, receiveTsMs: 2_001, sourceId: "partial-exit-book" });
+  const partialPlan = { ...plan("trade-exit-partial", -1, 2, 103, true), style: "maker" as const,
+    timeInForce: "gtc" as const, exitReason: "PARTIAL_RISK_REDUCTION" };
+  const partialOrder = await broker.send(partialPlan);
+  broker.onTrade({ id: "partial-exit-trade", symbol: "BTC/USD", px: 103, qty: .75, aggressor: 1,
+    exchangeTsMs: 2_010, receiveTsMs: 2_011 });
+  await broker.cancel(partialOrder.id);
+
+  broker.onBook({ symbol: "BTC/USD", bids: [{ px: 102, qty: 5 }], asks: [{ px: 103, qty: 5 }], reset: true,
+    exchangeTsMs: 3_000, receiveTsMs: 3_001, sourceId: "final-exit-book" });
+  await broker.send({ ...plan("trade-exit-final", -1, 1.25, 102, true), exitReason: "TIME_STOP" });
+  await Promise.resolve();
+
+  const history = projectKrakenPaperHistory(broker.history());
+  const linked = history.orders.filter((order) => order.livePosition?.entryOrderId === "trade-entry");
+  assert.equal(linked.length, 3);
+  assert.equal(linked.find((order) => order.clientOrderId === "trade-exit-partial")?.status, "CANCELED");
+  for (const order of linked) {
+    assert.equal(order.livePosition?.active, false);
+    assert.equal(order.livePosition?.exitOrderId, "trade-exit-final");
+    assert.equal(order.livePosition?.qty, 2);
+    assert.equal(order.livePosition?.entryPx, 101);
+    assert.ok(Math.abs((order.livePosition?.closePx ?? 0) - 102.375) < 1e-12);
+    assert.equal(order.livePosition?.pnlHistory.length, 2);
+    assert.equal(order.livePosition?.pnlHistory.at(-1)?.kind, "close");
+  }
+  const breakdown = linked[0]!.livePosition!.realizedBreakdown!;
+  assert.ok(Math.abs(breakdown.grossPricePnl - 2.75) < 1e-12);
+  assert.ok(Math.abs(breakdown.entryFee - .101) < 1e-12);
+  assert.ok(Math.abs(breakdown.exitFee - .0792) < 1e-12);
+  assert.ok(Math.abs(breakdown.realizedPnl - 2.5698) < 1e-12);
+  assert.equal(breakdown.entryStyle, "taker");
+  assert.equal(breakdown.exitStyle, "maker + taker");
 });
 
 test("Kraken paper account survives restart and fail-closed cancels a resting remainder", async () => {
