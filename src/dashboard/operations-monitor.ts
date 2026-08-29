@@ -636,6 +636,10 @@ export class OperationsMonitor extends EventEmitter {
       if (order.filledQty <= 0 || !(order.averageFillPx > 0)) continue;
       const entry = latestEntryBySymbol.get(order.symbol);
       if (!entry?.livePosition || entry.side === order.side) continue;
+      // Historical paper replay already carries the complete multi-fill trade.
+      // Re-linking one exit card at a time would replace that authoritative
+      // aggregate with a single-leg estimate.
+      if (order.livePosition?.realizedBreakdown && order.livePosition.entryOrderId) continue;
       const closedPnl = this.closedTradePnl(entry, order);
       order.livePosition = closedPnl;
       if (!entry.livePosition.active) entry.livePosition = cloneLivePosition(closedPnl);

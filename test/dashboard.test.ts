@@ -411,7 +411,7 @@ test("dashboard distinguishes a motion reset from invalid market data", async ()
   assert.match(app, /signedMoney\(breakdown\.grossPricePnl,5\)/);
   assert.match(html, /Total · UTC day/);
   assert.match(html, /id="session-pnl-breakdown"/);
-  assert.match(html, /app\.js\?v=20260826-session-pnl-2/);
+  assert.match(html, /app\.js\?v=20260829-paper-trades-1/);
 });
 
 test("option-short tab projects streamed 0DTE P&L changes with entry and exit lifecycle", async () => {
@@ -640,8 +640,9 @@ test("dashboard groups one trade into one card while keeping standalone order fi
     const closed={active:false,entryOrderId:"entry-1",exitOrderId:"exit-1"};
     const cards=groupOrderCards([
       {clientOrderId:"attempt-1",terminal:true,livePosition:null},
-      {clientOrderId:"exit-1",terminal:true,livePosition:closed},
-      {clientOrderId:"entry-1",terminal:true,livePosition:closed}
+      {clientOrderId:"exit-1",createdMs:3,updatedMs:3,terminal:true,reduceOnlyIntent:true,livePosition:closed},
+      {clientOrderId:"exit-partial",createdMs:2,updatedMs:2,terminal:true,reduceOnlyIntent:true,livePosition:closed},
+      {clientOrderId:"entry-1",createdMs:1,updatedMs:1,terminal:true,reduceOnlyIntent:false,livePosition:closed}
     ]);
     const trade=cards.find(card=>card.kind==="trade");
     const activeCards=groupOrderCards([{clientOrderId:"entry-2",terminal:true,livePosition:{active:true,entryOrderId:"entry-2",exitOrderId:null}}]);
@@ -651,15 +652,17 @@ test("dashboard groups one trade into one card while keeping standalone order fi
       attemptCount:cards.filter(card=>card.kind==="order").length,
       entryId:trade.entry.clientOrderId,
       exitId:trade.exit.clientOrderId,
+      entryLegs:trade.entries.length,
+      exitLegs:trade.exits.length,
       closedInTerminal:dashboardCardMatchesFilter(trade,"terminal"),
       closedInOpen:dashboardCardMatchesFilter(trade,"open"),
       activeInOpen:dashboardCardMatchesFilter(activeCards[0],"open")
     });
   })()`) as string;
-  assert.equal(grouped, '{"cardCount":2,"tradeCount":1,"attemptCount":1,"entryId":"entry-1","exitId":"exit-1","closedInTerminal":true,"closedInOpen":false,"activeInOpen":true}');
+  assert.equal(grouped, '{"cardCount":2,"tradeCount":1,"attemptCount":1,"entryId":"entry-1","exitId":"exit-1","entryLegs":1,"exitLegs":2,"closedInTerminal":true,"closedInOpen":false,"activeInOpen":true}');
   assert.match(app, /data-testid="trade-card"/);
-  assert.match(app, /renderOrderLeg\(entry,"Entry"\)/);
-  assert.match(app, /renderOrderLeg\(exit,"Exit"\)/);
+  assert.match(app, /renderOrderLeg\(card\.entries\[0\]\|\|entry,"Entry"\)/);
+  assert.match(app, /`Exit \$\{index\+1\}`/);
   assert.doesNotMatch(app, /clientOrderId\.slice\(0,24\)/);
 });
 
@@ -755,7 +758,7 @@ test("dashboard server serves the read-only API, health probe, and browser route
     const htmlText = await html.text();
     assert.match(htmlText, /data-testid="dashboard-root"/);
     assert.match(htmlText, /Trades and order attempts/);
-    assert.match(htmlText, /app\.js\?v=20260826-session-pnl-2/);
+    assert.match(htmlText, /app\.js\?v=20260829-paper-trades-1/);
     assert.doesNotMatch(htmlText, /Exit dynamics/);
     assert.equal(dashboardAlias.status, 200);
     assert.match(await dashboardAlias.text(), /data-testid="dashboard-root"/);

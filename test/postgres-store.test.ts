@@ -103,11 +103,25 @@ test("paper-history backfill is transactional and keeps unknown original run ids
     end: () => Promise<void>;
   } };
   const originalPool = internals.pool;
+  const insertedOrderIds = new Set<string>();
+  const insertedFillIds = new Set<string>();
   internals.pool = {
     connect: async () => ({
       query: async (sql, values) => {
         queries.push({ sql, ...(values === undefined ? {} : { values }) });
-        return { rowCount: /^INSERT INTO (orders|fills)/.test(sql.trim()) ? 1 : 0 };
+        if (/^INSERT INTO orders/.test(sql.trim())) {
+          const id = String(values?.[0]);
+          if (insertedOrderIds.has(id)) return { rowCount: 0 };
+          insertedOrderIds.add(id);
+          return { rowCount: 1 };
+        }
+        if (/^INSERT INTO fills/.test(sql.trim())) {
+          const id = String(values?.[0]);
+          if (insertedFillIds.has(id)) return { rowCount: 0 };
+          insertedFillIds.add(id);
+          return { rowCount: 1 };
+        }
+        return { rowCount: 0 };
       },
       release: () => undefined,
     }),
@@ -115,9 +129,9 @@ test("paper-history backfill is transactional and keeps unknown original run ids
   };
   try {
     const atMs = Date.parse("2026-08-28T16:00:00.000Z");
-    const result = await store.backfillHistoricalOrders([{
+    const historicalOrder = {
       clientOrderId: "paper-history", decisionId: "decision", alpacaOrderId: "remote", historical: true,
-      symbol: "BTC/USD", side: 1, style: "maker", timeInForce: "gtc", status: "FILLED",
+      symbol: "BTC/USD", side: 1 as const, style: "maker", timeInForce: "gtc", status: "FILLED",
       statusLabel: "Filled", terminal: true, requestedQty: .001, filledQty: .001, remainingQty: 0,
       fillPercent: 100, averageFillPx: 80_000, limitPx: 80_000, expectedValue: 1, fillProbability: .1,
       expectedCost: { roundTripBps: 7, spreadBps: 1, feeBps: 7, impactBps: 0, latencyBps: 0,
@@ -125,13 +139,21 @@ test("paper-history backfill is transactional and keeps unknown original run ids
       reduceOnlyIntent: false, createdMs: atMs, expiresMs: atMs + 1_000, updatedMs: atMs + 500,
       ageMs: 1_000, expiresInMs: 0, error: null, cancelRequestReason: null, cancellationReason: null,
       timeline: [], livePosition: null,
-    }], [{ id: "fill-history", clientOrderId: "paper-history", symbol: "BTC/USD", side: 1,
-      qty: .001, price: 80_000, final: true, atMs: atMs + 500 }]);
+    };
+    const historicalFill = { id: "fill-history", clientOrderId: "paper-history", symbol: "BTC/USD", side: 1 as const,
+      qty: .001, price: 80_000, final: true, atMs: atMs + 500 };
+    const result = await store.backfillHistoricalOrders([historicalOrder], [historicalFill]);
     assert.deepEqual(result, { ordersInserted: 1, fillsInserted: 1 });
     assert.equal(queries[0]?.sql, "BEGIN");
     assert.match(queries[1]?.sql ?? "", /VALUES \(\$1,NULL/);
     assert.match(queries.at(-2)?.sql ?? "", /ON CONFLICT \(execution_id\) DO NOTHING/);
     assert.equal(queries.at(-1)?.sql, "COMMIT");
+    queries.length = 0;
+    const repeated = await store.backfillHistoricalOrders([historicalOrder], [historicalFill]);
+    assert.deepEqual(repeated, { ordersInserted: 0, fillsInserted: 0 });
+    const refresh = queries.find(({ sql }) => /^UPDATE orders/.test(sql.trim()));
+    assert.match(refresh?.sql ?? "", /run_id IS NULL/);
+    assert.match(refresh?.sql ?? "", /plan IS DISTINCT FROM/);
   } finally {
     await store.close();
     await originalPool.end();
