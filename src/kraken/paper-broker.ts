@@ -36,6 +36,11 @@ interface PaperBook { bids: Map<number, number>; asks: Map<number, number>; time
 interface PaperPosition { symbol: string; side: 1 | -1; qty: number; entryPx: number; }
 interface PaperOrder { plan: ExecutionPlan; remote: AlpacaOrder; queueAhead: number; }
 interface SerializedPaperOrder { plan: Omit<ExecutionPlan, "originatingSequence"> & { originatingSequence: string }; remote: AlpacaOrder; queueAhead: number; }
+export interface KrakenPaperHistoricalOrder { plan: ExecutionPlan; remote: AlpacaOrder; }
+export interface KrakenPaperHistory {
+  orders: readonly KrakenPaperHistoricalOrder[];
+  activities: readonly AlpacaActivity[];
+}
 interface KrakenPaperState {
   schemaVersion: 3;
   initialEquity: number;
@@ -217,6 +222,16 @@ export class KrakenPaperBroker extends AlpacaRestClient implements OrderGateway 
 
   public override async getActivities(_query: ActivitiesQuery = {}): Promise<AlpacaApiResponse<AlpacaActivity[]>> {
     return response(this.activities.map((activity) => ({ ...activity })));
+  }
+
+  /** Read-only durable history used to repair an empty telemetry database after a restart. */
+  public history(): KrakenPaperHistory {
+    return {
+      orders: [...this.ordersById.values()].map(({ plan, remote }) => ({
+        plan: clonePlan(plan), remote: cloneOrder(remote),
+      })),
+      activities: this.activities.map((activity) => ({ ...activity })),
+    };
   }
 
   public override async latestOrderbooks(symbols: readonly string[]): Promise<AlpacaApiResponse<{ orderbooks: Record<string, AlpacaOrderbook> }>> {
@@ -493,6 +508,13 @@ export async function loadKrakenFuturesInstruments(productsBySymbol: Readonly<Re
 
 function response<T>(data: T): AlpacaApiResponse<T> { return { data, status: 200, requestId: `kraken-paper-${randomUUID()}` }; }
 function cloneOrder(order: AlpacaOrder): AlpacaOrder { return { ...order }; }
+function clonePlan(plan: ExecutionPlan): ExecutionPlan {
+  return {
+    ...plan,
+    expectedCost: { ...plan.expectedCost },
+    risk: { ...plan.risk },
+  };
+}
 function isTerminal(status: string): boolean { return ["filled", "canceled", "rejected", "expired"].includes(status); }
 function applyLevels(target: Map<number, number>, levels: readonly { px: number; qty: number }[]): void {
   for (const level of levels) { if (level.qty === 0) target.delete(level.px); else target.set(level.px, level.qty); }

@@ -128,6 +128,7 @@ Commands:
 npm run record
 npm run replay
 npm run recall
+npm run report:rejected-entries
 npm run shadow
 npm run paper
 npm run paper:demo-trade -- BTC/USD

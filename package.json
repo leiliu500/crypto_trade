@@ -21,6 +21,7 @@
     "recall": "tsx src/backtest/opportunity-recall-main.ts",
     "optimize:report": "tsx src/analysis/optimization-main.ts",
     "optimize:report:production": "node --enable-source-maps dist/src/analysis/optimization-main.js",
+    "report:rejected-entries": "tsx src/analysis/rejected-entry-main.ts",
     "dashboard": "tsx src/dashboard/demo-main.ts",
     "dashboard:demo": "tsx src/dashboard/demo-main.ts",
     "docker:up": "docker-compose up -d --build",
