@@ -115,9 +115,16 @@ export class PostgresTelemetryStore extends EventEmitter {
       droppedRecords: this.droppedRecords, lastPersistedAtMs: this.lastPersistedAtMs, lastError: this.lastError };
   }
 
-  public async loadOrders(): Promise<readonly DashboardOrderCard[]> {
+  public async loadOrders(sinceMs: number, untilMs: number): Promise<readonly DashboardOrderCard[]> {
+    if (!Number.isFinite(sinceMs) || !Number.isFinite(untilMs) || sinceMs < 0 || sinceMs >= untilMs) {
+      throw new Error("Invalid order-history interval");
+    }
     const result = await this.pool.query<PersistedOrderRow>(
-      "SELECT client_order_id,status,cancel_request_reason,cancellation_reason,created_at,updated_at,plan FROM orders ORDER BY created_at DESC, updated_at DESC, client_order_id DESC",
+      `SELECT client_order_id,status,cancel_request_reason,cancellation_reason,created_at,updated_at,plan
+       FROM orders
+       WHERE created_at >= $1 AND created_at < $2
+       ORDER BY created_at DESC, updated_at DESC, client_order_id DESC`,
+      [date(sinceMs), date(untilMs)],
     );
     return result.rows.flatMap((row) => {
       const restored = restoreOrder(row);

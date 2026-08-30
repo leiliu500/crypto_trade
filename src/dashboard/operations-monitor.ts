@@ -387,7 +387,7 @@ export class OperationsMonitor extends EventEmitter {
     const visibleOrders = sortOrders(this.linkExitOrderPnl([
       ...orders,
       ...[...this.historicalOrders.values()].filter((order) => !currentOrderIds.has(order.clientOrderId)),
-    ]));
+    ])).filter((order) => isCurrentUtcDay(order.createdMs, nowMs));
     for (const order of visibleOrders) {
       if (currentOrderIds.has(order.clientOrderId) && order.livePosition) {
         this.orderPositionPnl.set(order.clientOrderId, cloneLivePosition(order.livePosition));
@@ -441,7 +441,7 @@ export class OperationsMonitor extends EventEmitter {
       realizedSessionBreakdown,
       latencyP95Ms: state.latency.decisionToVenue?.count ? state.latency.decisionToVenue.p95 : null,
       liveness, database: { ...this.databaseHealth }, markets, positions, orders: visibleOrders, optionShort,
-      events: [...this.events],
+      events: this.events.filter((event) => isCurrentUtcDay(event.atMs, nowMs)),
     };
   }
 
@@ -580,6 +580,19 @@ export class OperationsMonitor extends EventEmitter {
     }
     const trades = [...this.optionTrades.values()].sort((a, b) => b.openedMs - a.openedMs);
     for (const trade of trades.slice(50)) this.optionTrades.delete(`${trade.contractSymbol}:${trade.openedMs}`);
+    const currentTrades = trades.filter((trade) => trade.expirationDate === currentSessionDate
+      && newYorkDate(trade.openedMs) === currentSessionDate);
+    const currentPendingOrders = optionShort.pendingOrders.map((order) => {
+      const expirationDate = optionExpirationDate(order.contractSymbol);
+      return {
+        ...order,
+        alpacaOrderId: order.alpacaOrderId ?? null,
+        expirationDate,
+        currentDay: expirationDate === currentSessionDate,
+        expiresInMs: order.expiresMs - nowMs,
+        settling: ["SETTLING", "UNKNOWN"].includes(order.status.toUpperCase()),
+      };
+    }).filter((order) => order.currentDay);
     return {
       enabled: optionShort.enabled,
       ready: optionShort.enabled && optionShort.accountReady && optionShort.stockStreamReady && optionShort.optionStreamReady
@@ -589,19 +602,10 @@ export class OperationsMonitor extends EventEmitter {
       optionStreamReady: optionShort.optionStreamReady,
       subscribedContracts: optionShort.subscribedContracts,
       currentSessionDate,
-      trades: trades.slice(0, 50),
-      pendingOrders: optionShort.pendingOrders.map((order) => {
-        const expirationDate = optionExpirationDate(order.contractSymbol);
-        return {
-          ...order,
-          alpacaOrderId: order.alpacaOrderId ?? null,
-          expirationDate,
-          currentDay: expirationDate === currentSessionDate,
-          expiresInMs: order.expiresMs - nowMs,
-          settling: ["SETTLING", "UNKNOWN"].includes(order.status.toUpperCase()),
-        };
-      }),
-      recentActivity: this.events.filter((event) => event.type.startsWith("optionShort")).slice(0, 8),
+      trades: currentTrades.slice(0, 50),
+      pendingOrders: currentPendingOrders,
+      recentActivity: this.events.filter((event) => event.type.startsWith("optionShort")
+        && newYorkDate(event.atMs) === currentSessionDate).slice(0, 8),
     };
   }
 
@@ -911,6 +915,10 @@ function aggregateRealizedSessionPnl(orders: readonly DashboardOrderCard[], atMs
   };
 }
 function utcDayStartMs(atMs: number): number { return Math.floor(atMs / 86_400_000) * 86_400_000; }
+function isCurrentUtcDay(candidateMs: number, atMs: number): boolean {
+  const dayStartMs = utcDayStartMs(atMs);
+  return candidateMs >= dayStartMs && candidateMs < dayStartMs + 86_400_000;
+}
 function sessionMarkUnrealizedPnl(state: EngineOperationalSnapshot): number {
   const markets = new Map(state.markets.map((market) => [market.symbol, market]));
   return state.positions.reduce((total, position) => {
