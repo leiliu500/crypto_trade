@@ -91,6 +91,40 @@ test("realized session restoration deduplicates exit legs instead of dropping pa
   }
 });
 
+test("dashboard order restoration is bounded to the requested UTC session", async () => {
+  const store = new PostgresTelemetryStore({
+    connectionString: "postgres://unused",
+    flushIntervalMs: 60_000,
+    maximumQueue: 3,
+  });
+  const internals = store as unknown as { pool: {
+    query: (sql: string, values?: readonly unknown[]) => Promise<{ rows: unknown[] }>;
+    end: () => Promise<void>;
+  } };
+  const originalPool = internals.pool;
+  let query = "";
+  let values: readonly unknown[] = [];
+  internals.pool = {
+    query: async (sql, parameters) => {
+      query = sql;
+      values = parameters ?? [];
+      return { rows: [] };
+    },
+    end: async () => undefined,
+  };
+  try {
+    const sinceMs = Date.parse("2026-08-30T00:00:00.000Z");
+    const untilMs = sinceMs + 86_400_000;
+    assert.deepEqual(await store.loadOrders(sinceMs, untilMs), []);
+    assert.match(query, /created_at >= \$1 AND created_at < \$2/);
+    assert.deepEqual(values, [new Date(sinceMs), new Date(untilMs)]);
+    await assert.rejects(store.loadOrders(untilMs, sinceMs), /Invalid order-history interval/);
+  } finally {
+    await store.close();
+    await originalPool.end();
+  }
+});
+
 test("paper-history backfill is transactional and keeps unknown original run ids null", async () => {
   const store = new PostgresTelemetryStore({
     connectionString: "postgres://unused",

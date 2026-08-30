@@ -485,6 +485,23 @@ test("option-short tab projects streamed 0DTE P&L changes with entry and exit li
   assert.ok(telemetryKinds.includes("option_order"));
   assert.ok(telemetryKinds.includes("option_trade"));
   assert.equal(telemetryKinds.filter((kind) => kind === "option_pnl").length, 2);
+
+  const nextSession = structuredClone(closed);
+  nextSession.generatedAtMs = Date.parse("2026-08-26T14:00:00.000Z");
+  nextSession.optionShort = {
+    ...closed.optionShort,
+    pendingOrders: [{
+      cryptoSymbol: "BTC/USD", contractSymbol: "IBIT260825P00050000", clientOrderId: "stale-option-order",
+      alpacaOrderId: "alpaca-stale", purpose: "OPEN_SHORT", status: "new", filledQty: 0,
+      expiresMs: nextSession.generatedAtMs + 2_000,
+    }],
+  };
+  monitor.ingestEngineSnapshot(nextSession);
+  option = monitor.snapshot().optionShort;
+  assert.equal(option.currentSessionDate, "2026-08-26");
+  assert.deepEqual(option.trades, []);
+  assert.deepEqual(option.pendingOrders, []);
+  assert.deepEqual(option.recentActivity, []);
   monitor.stop();
 
   const [app, html, styles] = await Promise.all([
@@ -705,6 +722,39 @@ test("order cards stay in reverse creation-time order when an older order update
   ];
   monitor.ingestEngineSnapshot(state);
   assert.deepEqual(monitor.snapshot().orders.map((order) => order.clientOrderId), ["newest-order", "older-order"]);
+  monitor.stop();
+});
+
+test("dashboard only exposes orders and events from the current UTC session", () => {
+  const monitor = new OperationsMonitor();
+  const priorSession = engineState();
+  priorSession.generatedAtMs = Date.parse("2026-08-29T23:59:59.000Z");
+  priorSession.positions = [];
+  priorSession.orders[0]!.plan.createdMs = priorSession.generatedAtMs - 1_000;
+  priorSession.orders[0]!.plan.expiresMs = priorSession.generatedAtMs + 1_000;
+  priorSession.orders[0]!.lastUpdateMs = priorSession.generatedAtMs;
+  monitor.recordEvent("engineError", { message: "prior session" }, priorSession.generatedAtMs);
+  monitor.ingestEngineSnapshot(priorSession);
+  monitor.hydrateOrders(monitor.snapshot().orders);
+
+  const currentSession = structuredClone(priorSession);
+  currentSession.generatedAtMs = Date.parse("2026-08-30T00:00:01.000Z");
+  currentSession.orders = [{
+    ...currentSession.orders[0]!,
+    plan: {
+      ...currentSession.orders[0]!.plan,
+      clientOrderId: "current-session-order",
+      createdMs: currentSession.generatedAtMs - 500,
+      expiresMs: currentSession.generatedAtMs + 500,
+    },
+    lastUpdateMs: currentSession.generatedAtMs,
+  }];
+  monitor.recordEvent("engineError", { message: "current session" }, currentSession.generatedAtMs);
+  monitor.ingestEngineSnapshot(currentSession);
+
+  const snapshot = monitor.snapshot();
+  assert.deepEqual(snapshot.orders.map((order) => order.clientOrderId), ["current-session-order"]);
+  assert.deepEqual(snapshot.events.map((event) => (event.payload as { message: string }).message), ["current session"]);
   monitor.stop();
 });
 

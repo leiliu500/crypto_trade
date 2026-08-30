@@ -72,10 +72,11 @@ async function main(): Promise<void> {
             message: error instanceof Error ? error.message : String(error) })}\n`);
         }
       }
-      const restoredOrders = await candidate.loadOrders();
+      const hydrationAtMs = Date.now();
+      const hydrationDayStartMs = utcDayStartMs(hydrationAtMs);
+      const restoredOrders = await candidate.loadOrders(hydrationDayStartMs, hydrationDayStartMs + 86_400_000);
       monitor.hydrateOrders(restoredOrders);
       const restoredPositionStates = engine.restorePositionStates(await candidate.loadLatestPositionStates(cfg.symbols));
-      const hydrationAtMs = Date.now();
       const restoredRealizedSessionPnl = await candidate.loadRealizedSessionPnl(utcDayStartMs(hydrationAtMs));
       engine.restoreRealizedSessionPnl(restoredRealizedSessionPnl);
       const restoredDecisionVenueLatencies = engine.restoreDecisionVenueLatencies(
