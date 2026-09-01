@@ -8,6 +8,8 @@ test("route shadow consumes queue ahead causally and scales a partial maker mark
   const tracker = new EntryRouteShadowTracker([1_000]);
   assert.equal(tracker.start({
     decisionId: "decision", symbol: "BTC/USD", side: 1, family: "CONTINUATION", createdMs: 1_000,
+    configurationVersion: "test", regime: "TREND_UP", regimePass: true, edgeSource: "CALIBRATED",
+    edgeEffectiveSampleCount: 100, economicHorizonMs: 1_000,
     selectedStyle: "maker", makerPlan: plan("maker", 2, 100), takerPlan: plan("taker", .5, 101),
     makerQueueAheadQty: 2,
   }), true);
@@ -34,6 +36,8 @@ test("unfilled maker policy is preserved as zero while missed executable taker a
   const tracker = new EntryRouteShadowTracker([1_000]);
   tracker.start({
     decisionId: "miss", symbol: "BTC/USD", side: 1, family: "CONTINUATION", createdMs: 1_000,
+    configurationVersion: "test", regime: "TREND_UP", regimePass: true, edgeSource: "CALIBRATED",
+    edgeEffectiveSampleCount: 100, economicHorizonMs: 1_000,
     selectedStyle: "maker", makerPlan: plan("maker", 1, 100), takerPlan: plan("taker", .25, 101),
     makerQueueAheadQty: 10,
   });
@@ -42,6 +46,8 @@ test("unfilled maker policy is preserved as zero while missed executable taker a
   assert.equal(mark.makerNetBps, null);
   assert.ok((mark.takerNetBps ?? 0) > 0);
   assert.equal(mark.missedTakerAlphaBps, mark.takerNetBps);
+  assert.equal(mark.economicHorizonMs, 1_000);
+  assert.equal(mark.edgeSource, "CALIBRATED");
 });
 
 function plan(style: "maker" | "taker", qty: number, entryPx: number): ExecutionPlan {

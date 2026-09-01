@@ -821,6 +821,10 @@ export class TradingEngine extends EventEmitter {
       const restingLevels = routed.intent.side === 1 ? book.bids : book.asks;
       const shadowStarted = runtime.routeShadow.start({
         decisionId: routed.intent.decisionId, symbol: book.symbol, side: routed.intent.side, family,
+        configurationVersion: runtime.config.configurationVersion, regime: regime.name,
+        regimePass: routed.intent.diagnostics.regimePass, edgeSource: routed.intent.diagnostics.edgeSource,
+        edgeEffectiveSampleCount: routed.intent.diagnostics.edgeEffectiveSampleCount,
+        economicHorizonMs: routed.intent.selectedHorizonMs ?? null,
         createdMs: features.receiveTsMs, selectedStyle: routeDecision.selectedStyle, makerPlan, takerPlan,
         makerQueueAheadQty: restingLevels[0]?.qty ?? 0,
       });
@@ -837,7 +841,7 @@ export class TradingEngine extends EventEmitter {
       });
     }
     if (!plan) {
-      const evidenceReason = routeDecision.reasons.find((value) => value === "UNCALIBRATED_NEUTRAL_CONTINUATION");
+      const evidenceReason = routeDecision.reasons.find((value) => value === "UNCALIBRATED_CONTINUATION");
       const reason = evidenceReason ?? makerRejection?.reason ?? routeDecision.reasons[0]
         ?? takerRejection?.reason ?? "NO_SAFE_SIZE_OR_EXACT_COST_PLAN";
       this.rejectEntry(runtime, "EXECUTION_PLAN_PASS", reason,
@@ -1840,6 +1844,7 @@ function entryPlanSummary(plan: ExecutionPlan | null): Record<string, number | s
     fillProbability: plan.fillProbability, conservativeNetEdgeBps: plan.conservativeNetEdgeBps ?? null,
     conservativeExpectedValueBps: plan.conservativeExpectedValueBps ?? null,
     rewardRiskRatio: plan.rewardRiskRatio ?? null, roundTripCostBps: plan.expectedCost.roundTripBps,
+    economicHorizonMs: plan.economicHorizonMs ?? null,
   };
 }
 function assetRulesVersion(asset: AssetRules): string {

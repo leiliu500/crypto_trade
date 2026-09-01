@@ -30,14 +30,14 @@ const liquidity: LiquidityDecision = {
   tradeThresholdBps: 2, stressThresholdBps: 4, reasons: [],
 };
 
-const alignedAnalyticEvidence = {
-  regimePass: true, edgeSource: "ANALYTIC" as const,
-  edgeEffectiveSampleCount: 0, minimumEffectiveSampleCount: 100,
+const calibratedEvidence = {
+  regimePass: true, edgeSource: "CALIBRATED" as const,
+  edgeEffectiveSampleCount: 100, minimumEffectiveSampleCount: 100,
 };
 
 test("strong aligned continuation chooses the higher conservative-EV bounded taker", () => {
   const decision = new HybridEntryRouter(config).select({
-    family: "CONTINUATION", side: 1, ...alignedAnalyticEvidence, signalScore: .7, features, liquidity,
+    family: "CONTINUATION", side: 1, ...calibratedEvidence, signalScore: .7, features, liquidity,
     latencySamples: 50, latencyP95Ms: 400, alphaHalfLifeMs: 4_000,
     makerPlan: plan("maker", 2, 12), takerPlan: plan("taker", 9, 14),
   });
@@ -49,7 +49,7 @@ test("strong aligned continuation chooses the higher conservative-EV bounded tak
 
 test("weak flow or stale execution latency falls back to maker without forcing a trade", () => {
   const decision = new HybridEntryRouter(config).select({
-    family: "CONTINUATION", side: 1, ...alignedAnalyticEvidence, signalScore: .7,
+    family: "CONTINUATION", side: 1, ...calibratedEvidence, signalScore: .7,
     features: { ...features, ofi: .1 }, liquidity,
     latencySamples: 50, latencyP95Ms: 1_100, alphaHalfLifeMs: 4_000,
     makerPlan: plan("maker", 2, 12), takerPlan: plan("taker", 9, 14),
@@ -62,7 +62,7 @@ test("weak flow or stale execution latency falls back to maker without forcing a
 
 test("pullback/recovery remains maker-only even when a taker plan has greater EV", () => {
   const decision = new HybridEntryRouter(config).select({
-    family: "PULLBACK_RECOVERY", side: 1, ...alignedAnalyticEvidence, signalScore: .8, features, liquidity,
+    family: "PULLBACK_RECOVERY", side: 1, ...calibratedEvidence, signalScore: .8, features, liquidity,
     latencySamples: 50, latencyP95Ms: 100, alphaHalfLifeMs: 4_000,
     makerPlan: plan("maker", 2, 12), takerPlan: plan("taker", 20, 30),
   });
@@ -73,7 +73,7 @@ test("pullback/recovery remains maker-only even when a taker plan has greater EV
 
 test("non-finite urgency evidence fails closed to the valid maker route", () => {
   const decision = new HybridEntryRouter(config).select({
-    family: "CONTINUATION", side: 1, ...alignedAnalyticEvidence, signalScore: Number.NaN,
+    family: "CONTINUATION", side: 1, ...calibratedEvidence, signalScore: Number.NaN,
     features: { ...features, ofi: Number.NaN }, liquidity,
     latencySamples: 50, latencyP95Ms: Number.NaN, alphaHalfLifeMs: 4_000,
     makerPlan: plan("maker", 2, 12), takerPlan: plan("taker", 20, 30),
@@ -85,9 +85,9 @@ test("non-finite urgency evidence fails closed to the valid maker route", () => 
   assert.ok(decision.reasons.includes("TAKER_LATENCY_ABOVE_ALPHA_BUDGET"));
 });
 
-test("uncalibrated neutral continuations remain shadow-only even when both execution routes pass", () => {
+test("uncalibrated continuations remain shadow-only even when regime and both execution routes pass", () => {
   const decision = new HybridEntryRouter(config).select({
-    family: "CONTINUATION", side: 1, regimePass: false, edgeSource: "ANALYTIC",
+    family: "CONTINUATION", side: 1, regimePass: true, edgeSource: "ANALYTIC",
     edgeEffectiveSampleCount: 0, minimumEffectiveSampleCount: 100,
     signalScore: .7, features, liquidity,
     latencySamples: 50, latencyP95Ms: 400, alphaHalfLifeMs: 4_000,
@@ -97,7 +97,7 @@ test("uncalibrated neutral continuations remain shadow-only even when both execu
   assert.equal(decision.takerEligible, false);
   assert.equal(decision.selectedPlan, null);
   assert.equal(decision.selectedStyle, null);
-  assert.ok(decision.reasons.includes("UNCALIBRATED_NEUTRAL_CONTINUATION"));
+  assert.ok(decision.reasons.includes("UNCALIBRATED_CONTINUATION"));
 });
 
 test("a sufficiently sampled calibrated edge may authorize a neutral continuation", () => {
@@ -111,7 +111,7 @@ test("a sufficiently sampled calibrated edge may authorize a neutral continuatio
   assert.equal(decision.executionEvidencePass, true);
   assert.equal(decision.takerEligible, true);
   assert.equal(decision.selectedStyle, "taker");
-  assert.ok(!decision.reasons.includes("UNCALIBRATED_NEUTRAL_CONTINUATION"));
+  assert.ok(!decision.reasons.includes("UNCALIBRATED_CONTINUATION"));
 });
 
 test("an undersampled calibrated edge cannot authorize a neutral continuation", () => {
@@ -124,7 +124,7 @@ test("an undersampled calibrated edge cannot authorize a neutral continuation", 
   });
   assert.equal(decision.executionEvidencePass, false);
   assert.equal(decision.selectedPlan, null);
-  assert.ok(decision.reasons.includes("UNCALIBRATED_NEUTRAL_CONTINUATION"));
+  assert.ok(decision.reasons.includes("UNCALIBRATED_CONTINUATION"));
 });
 
 function plan(style: "maker" | "taker", conservativeExpectedValueBps: number,

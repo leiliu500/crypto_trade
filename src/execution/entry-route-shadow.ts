@@ -7,6 +7,12 @@ export interface EntryRouteShadowStart {
   symbol: string;
   side: Direction;
   family: string;
+  configurationVersion: string;
+  regime: string;
+  regimePass: boolean;
+  edgeSource: "CALIBRATED" | "ANALYTIC" | "UNRESOLVED";
+  edgeEffectiveSampleCount: number;
+  economicHorizonMs: number | null;
   createdMs: number;
   selectedStyle: "maker" | "taker" | null;
   makerPlan: ExecutionPlan | null;
@@ -19,6 +25,12 @@ export interface EntryRouteShadowMark {
   symbol: string;
   side: Direction;
   family: string;
+  configurationVersion: string;
+  regime: string;
+  regimePass: boolean;
+  edgeSource: "CALIBRATED" | "ANALYTIC" | "UNRESOLVED";
+  edgeEffectiveSampleCount: number;
+  economicHorizonMs: number | null;
   selectedStyle: "maker" | "taker" | null;
   signalAtMs: number;
   horizonMs: number;
@@ -136,6 +148,9 @@ export class EntryRouteShadowTracker {
         shadow.takerPlan.expectedCost.fundingBps + shadow.takerPlan.expectedCost.borrowBps) : null;
     return {
       decisionId: shadow.decisionId, symbol: shadow.symbol, side: shadow.side, family: shadow.family,
+      configurationVersion: shadow.configurationVersion, regime: shadow.regime, regimePass: shadow.regimePass,
+      edgeSource: shadow.edgeSource, edgeEffectiveSampleCount: shadow.edgeEffectiveSampleCount,
+      economicHorizonMs: shadow.economicHorizonMs,
       selectedStyle: shadow.selectedStyle, signalAtMs: shadow.createdMs, horizonMs, markedAtMs: nowMs,
       markDelayMs: Math.max(0, nowMs - (shadow.createdMs + horizonMs)),
       makerAvailable: shadow.makerPlan !== null, takerAvailable: shadow.takerPlan !== null,

@@ -66,7 +66,10 @@ try {
   const defaultShadowUnproductiveExitMs = Math.min(10 * 60_000, cfg.position.unproductiveExitMs - 1);
   const shadowUnproductiveExitMs = envPositiveInteger("OPTIMIZATION_SHADOW_UNPRODUCTIVE_EXIT_MS",
     defaultShadowUnproductiveExitMs);
-  const routeShadowDecisionHorizonMs = envPositiveInteger("OPTIMIZATION_ROUTE_SHADOW_HORIZON_MS", 30_000);
+  const maximumEconomicHorizonMs = Math.max(...cfg.symbols.flatMap((symbol) =>
+    cfg.symbolConfigs[symbol]?.deterministicSignal.analyticHorizons.map((item) => item.horizonMs) ?? []));
+  const routeShadowDecisionHorizonMs = envPositiveInteger("OPTIMIZATION_ROUTE_SHADOW_HORIZON_MS",
+    maximumEconomicHorizonMs);
   const routeShadowMaximumMarkDelayMs = envNonNegativeInteger("OPTIMIZATION_ROUTE_SHADOW_MAX_DELAY_MS", 1_000);
   const report = analyzeTradeOptimization(orders, {
     minimumDurationMs: cfg.recall.minimumTuningDurationMs,
@@ -129,6 +132,12 @@ function optimizationRouteShadow(row: RouteShadowRow): OptimizationRouteShadowMa
     symbol,
     side,
     family,
+    configurationVersion: text(payload.configurationVersion),
+    regime: text(payload.regime),
+    regimePass: typeof payload.regimePass === "boolean" ? payload.regimePass : null,
+    edgeSource: text(payload.edgeSource),
+    edgeEffectiveSampleCount: nullableFiniteNumber(payload.edgeEffectiveSampleCount),
+    economicHorizonMs: nullablePositiveInteger(payload.economicHorizonMs),
     signalAtMs,
     horizonMs,
     markDelayMs,
@@ -172,6 +181,11 @@ function finiteNumber(value: unknown): number | null {
 }
 function nullableFiniteNumber(value: unknown): number | null {
   return value === null || value === undefined ? null : finiteNumber(value);
+}
+function nullablePositiveInteger(value: unknown): number | null {
+  if (value === null || value === undefined) return null;
+  const result = Number(value);
+  return Number.isInteger(result) && result > 0 ? result : null;
 }
 function envPositiveInteger(name: string, fallback: number): number {
   const raw = process.env[name];

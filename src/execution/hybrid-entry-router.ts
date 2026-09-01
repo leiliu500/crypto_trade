@@ -68,15 +68,14 @@ export class HybridEntryRouter {
     const alignedQiK = input.side * input.features.qiK;
     const maximumLatencyMs = input.alphaHalfLifeMs * this.cfg.continuationTakerMaximumLatencyHalfLifeFraction;
     const reasons: string[] = [];
-    // Neutral-regime continuation is deliberately retained as an observation
-    // path, but an analytical estimate with no forward-return sample cannot
-    // authorize an order. A matching calibrated bucket may re-enable the
-    // cohort after it clears the configured effective-sample floor.
+    // Analytical continuation estimates remain an observation path. Only a
+    // matching calibrated bucket with the required independent sample count
+    // may authorize capital; regime alignment alone is not profit evidence.
     const calibratedEvidence = input.edgeSource === "CALIBRATED"
       && Number.isFinite(input.edgeEffectiveSampleCount)
       && input.edgeEffectiveSampleCount >= input.minimumEffectiveSampleCount;
-    const executionEvidencePass = input.family !== "CONTINUATION" || input.regimePass || calibratedEvidence;
-    if (!executionEvidencePass) reasons.push("UNCALIBRATED_NEUTRAL_CONTINUATION");
+    const executionEvidencePass = input.family !== "CONTINUATION" || calibratedEvidence;
+    if (!executionEvidencePass) reasons.push("UNCALIBRATED_CONTINUATION");
     if (!this.cfg.continuationTakerEnabled) reasons.push("TAKER_DISABLED");
     if (input.family !== "CONTINUATION") reasons.push("PULLBACK_MAKER_ONLY");
     if (!takerPlan) reasons.push("TAKER_PLAN_UNAVAILABLE");

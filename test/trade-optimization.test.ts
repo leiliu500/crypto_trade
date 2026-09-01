@@ -64,10 +64,32 @@ test("route shadows compare executable taker markout with zero for missed maker 
   assert.equal(report.entryRouteShadow.decisionHorizon.makerFills, 1);
   assert.equal(report.entryRouteShadow.decisionHorizon.meanMakerPolicyNetBps, 1);
   assert.equal(report.entryRouteShadow.decisionHorizon.meanTakerNetBps, 10);
+  assert.ok((report.entryRouteShadow.decisionHorizon.lower95TakerNetBps ?? 0) > 0);
   assert.equal(report.entryRouteShadow.decisionHorizon.meanTakerMinusMakerBps, 9);
   assert.equal(report.entryRouteShadow.dataReady, true);
   assert.equal(report.entryRouteShadow.deploymentReady, true);
   assert.ok((report.entryRouteShadow.decisionHorizon.lower95TakerMinusMakerBps ?? 0) > 0);
+});
+
+test("route profitability includes taker-only candidates with no-trade as the alternative", () => {
+  const shadows = [
+    { ...routeShadow("a", 0, null, 8), makerAvailable: false },
+    { ...routeShadow("b", 8 * DAY, null, 12), makerAvailable: false },
+  ];
+  const report = analyzeTradeOptimization([], safeguards(2), shadows);
+  assert.equal(report.entryRouteShadow.decisionHorizon.samples, 2);
+  assert.equal(report.entryRouteShadow.pairedMakerTakerMarks, 0);
+  assert.equal(report.entryRouteShadow.excludedNoExecutableTakerMarks, 0);
+  assert.equal(report.entryRouteShadow.deploymentReady, true);
+});
+
+test("a taker route cannot deploy merely because it loses less than the maker alternative", () => {
+  const shadows = [routeShadow("a", 0, -20, -1), routeShadow("b", 8 * DAY, -20, -2)];
+  const report = analyzeTradeOptimization([], safeguards(2), shadows);
+  assert.ok((report.entryRouteShadow.decisionHorizon.lower95TakerMinusMakerBps ?? 0) > 0);
+  assert.ok((report.entryRouteShadow.decisionHorizon.lower95TakerNetBps ?? 0) < 0);
+  assert.equal(report.entryRouteShadow.dataReady, true);
+  assert.equal(report.entryRouteShadow.deploymentReady, false);
 });
 
 function safeguards(minimumSamples: number) {
@@ -107,7 +129,9 @@ function routeShadow(decisionId: string, signalAtMs: number, makerNetBps: number
   takerNetBps: number): OptimizationRouteShadowMark {
   return {
     runId: "clean", telemetryDroppedRecords: 0, decisionId, symbol: "BTC/USD", side: 1,
-    family: "CONTINUATION", signalAtMs, horizonMs: 30_000, markDelayMs: 10,
+    family: "CONTINUATION", configurationVersion: "test", regime: "TREND_UP", regimePass: true,
+    edgeSource: "CALIBRATED", edgeEffectiveSampleCount: 100, economicHorizonMs: 30_000,
+    signalAtMs, horizonMs: 30_000, markDelayMs: 10,
     makerAvailable: true, takerAvailable: true,
     makerFillFraction: makerNetBps === null ? 0 : 1, makerNetBps, takerNetBps,
   };
