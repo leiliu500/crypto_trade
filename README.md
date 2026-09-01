@@ -142,7 +142,7 @@ The default deterministic configuration in `config/base.json` includes:
 
 ```text
 SIGNAL_MODE=DETERMINISTIC_ONLY
-DETERMINISTIC_CONFIG_VERSION=btc-eth-hybrid-entry-routing-v7.0.0
+DETERMINISTIC_CONFIG_VERSION=btc-eth-evidence-routing-v8.0.0
 PULLBACK_MAKER_TTL_MS=20000
 PULLBACK_KINEMATICS_GRACE_MS=5000
 PULLBACK_KINEMATICS_GRACE_EVENTS=2
@@ -164,7 +164,7 @@ CONTINUATION_TAKER_MIN_EXPECTED_VALUE_BPS=1
 CONTINUATION_TAKER_MAX_LATENCY_HALF_LIFE_FRACTION=0.25
 CONTINUATION_TAKER_MIN_LATENCY_SAMPLES=0
 ENTRY_ROUTE_SHADOW_ENABLED=true
-ENTRY_ROUTE_SHADOW_HORIZONS_MS=1000,5000,30000,60000,300000
+ENTRY_ROUTE_SHADOW_HORIZONS_MS=1000,5000,30000,60000,300000,3600000,7200000,14400000
 POSITION_MINIMUM_HOLD_MS=60000
 POSITION_UNPRODUCTIVE_EXIT_MS=900000
 ```
@@ -172,6 +172,8 @@ POSITION_UNPRODUCTIVE_EXIT_MS=900000
 Continuation economics are evaluated over 1-, 2-, and 4-hour horizons, with the strongest conservative post-cost edge selected. Entry loss sizing is independently capped at the 15-minute unproductive-exit horizon, so a long trend forecast cannot create a four-hour stop. This preserves enough horizon for conservative edge to clear costs while still rejecting entries below the order-EV and reward/risk floors.
 
 The zero latency-sample floor applies only to non-live evidence collection so the first paper acknowledgment can bootstrap measurement. Once any sample exists, its observed p95 must still fit the alpha budget. Live IOC routing is hard-disabled and its effective configuration retains at least 20 samples.
+
+Neutral-regime continuation candidates with analytical-only edge remain shadow-only. They may route an order only after a matching calibrated bucket reaches `RULE_MIN_EFFECTIVE_SAMPLES`; explicit trend-regime continuations remain eligible under the normal cost, liquidity, risk, and route gates. Route shadow marks include the full 1-, 2-, and 4-hour economic horizons so this admission rule can be validated against executable forward returns instead of short-term microstructure alone.
 
 `record` appends raw order-book and trade events to `data/events.jsonl`. Paper, shadow, and live modes also continuously append independently compressed gzip batches to `data/continuous-events.jsonl.gz` when `CONTINUOUS_RECORDING_ENABLED` is true. The batched writer keeps compression off the market-data hot path and makes completed batches replayable while the engine remains online. Run `npm run recall -- data/continuous-events.jsonl.gz` to analyze one capture, or pass archived and active files in chronological order to accumulate coverage across restarts: `npm run recall -- data/continuous-events.ARCHIVE.jsonl.gz data/continuous-events.jsonl.gz`.
 

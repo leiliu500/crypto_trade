@@ -784,7 +784,11 @@ export class TradingEngine extends EventEmitter {
     const takerRejection = buildTaker ? runtime.planner.latestBuildRejection() : null;
     const latency = this.latency.summary(features.receiveTsMs).decisionToVenue!;
     const routeDecision = runtime.hybridEntryRouter.select({
-      family, side: routed.intent.side, signalScore: routed.intent.diagnostics.score, features,
+      family, side: routed.intent.side, regimePass: routed.intent.diagnostics.regimePass,
+      edgeSource: routed.intent.diagnostics.edgeSource,
+      edgeEffectiveSampleCount: routed.intent.diagnostics.edgeEffectiveSampleCount,
+      minimumEffectiveSampleCount: runtime.config.deterministicSignal.minimumEffectiveSampleCount,
+      signalScore: routed.intent.diagnostics.score, features,
       liquidity: routed.intent.side === 1 ? longLiquidity : shortLiquidity,
       latencySamples: latency.count, latencyP95Ms: latency.p95,
       alphaHalfLifeMs: runtime.config.planner.alphaHalfLifeMs, makerPlan, takerPlan,
@@ -794,7 +798,14 @@ export class TradingEngine extends EventEmitter {
     this.emit("entryRouteEvaluated", {
       configurationVersion: runtime.config.configurationVersion, symbol: book.symbol,
       decisionId: routed.intent.decisionId, family, side: routed.intent.side,
-      selectedStyle: routeDecision.selectedStyle, takerEligible: routeDecision.takerEligible,
+      selectedStyle: routeDecision.selectedStyle, executionEvidencePass: routeDecision.executionEvidencePass,
+      takerEligible: routeDecision.takerEligible,
+      evidence: {
+        regime: regime.name, regimePass: routed.intent.diagnostics.regimePass,
+        edgeSource: routed.intent.diagnostics.edgeSource,
+        edgeEffectiveSampleCount: routed.intent.diagnostics.edgeEffectiveSampleCount,
+        minimumEffectiveSampleCount: runtime.config.deterministicSignal.minimumEffectiveSampleCount,
+      },
       reasons: routeDecision.reasons, makerPlan: entryPlanSummary(makerPlan), takerPlan: entryPlanSummary(takerPlan),
       makerRejection, takerRejection,
       metrics: {
@@ -817,17 +828,27 @@ export class TradingEngine extends EventEmitter {
         configurationVersion: runtime.config.configurationVersion, symbol: book.symbol,
         decisionId: routed.intent.decisionId, family, side: routed.intent.side,
         selectedStyle: routeDecision.selectedStyle,
+        regime: regime.name, regimePass: routed.intent.diagnostics.regimePass,
+        edgeSource: routed.intent.diagnostics.edgeSource,
+        edgeEffectiveSampleCount: routed.intent.diagnostics.edgeEffectiveSampleCount,
+        minimumEffectiveSampleCount: runtime.config.deterministicSignal.minimumEffectiveSampleCount,
         makerPlan: entryPlanSummary(makerPlan), takerPlan: entryPlanSummary(takerPlan),
         horizonsMs: runtime.config.planner.hybridEntry.routeShadowHorizonsMs,
       });
     }
     if (!plan) {
-      const reason = makerRejection?.reason ?? routeDecision.reasons[0]
+      const evidenceReason = routeDecision.reasons.find((value) => value === "UNCALIBRATED_NEUTRAL_CONTINUATION");
+      const reason = evidenceReason ?? makerRejection?.reason ?? routeDecision.reasons[0]
         ?? takerRejection?.reason ?? "NO_SAFE_SIZE_OR_EXACT_COST_PLAN";
       this.rejectEntry(runtime, "EXECUTION_PLAN_PASS", reason,
         features.receiveTsMs, {
-        side: routed.intent.side, lowerBoundNetBps: routed.intent.lowerBoundNetBps,
-        ...(makerRejection?.values ?? takerRejection?.values ?? {}),
+          side: routed.intent.side, lowerBoundNetBps: routed.intent.lowerBoundNetBps,
+          ...(evidenceReason ? {
+            family, regime: regime.name, edgeSource: routed.intent.diagnostics.edgeSource,
+            edgeEffectiveSampleCount: routed.intent.diagnostics.edgeEffectiveSampleCount,
+            minimumEffectiveSampleCount: runtime.config.deterministicSignal.minimumEffectiveSampleCount,
+          } : {}),
+          ...(makerRejection?.values ?? takerRejection?.values ?? {}),
       });
       return;
     }

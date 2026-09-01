@@ -62,7 +62,7 @@ test("JSON baseline wins over legacy tunable environment values and symbol overl
       [3_600_000, 7_200_000, 14_400_000]);
     assert.equal(cfg.deterministicSignal.requireMakerEntry, true);
     assert.equal(cfg.deterministicSignal.allowTakerContinuation, true);
-    assert.equal(cfg.configurationVersion, "btc-eth-entry-availability-v7.1.0");
+    assert.equal(cfg.configurationVersion, "btc-eth-evidence-routing-v8.0.0");
     assert.equal(cfg.position.minimumHoldMs, 60_000);
     assert.equal(cfg.position.unproductiveExitMs, 900_000);
     assert.equal(cfg.position.reentryCooldownMs, 900_000);
@@ -90,7 +90,8 @@ test("JSON baseline wins over legacy tunable environment values and symbol overl
     assert.equal(cfg.planner.hybridEntry.continuationTakerMinimumNetEdgeBps, 8);
     assert.equal(cfg.planner.hybridEntry.continuationTakerMinimumLatencySamples, 0);
     assert.equal(cfg.planner.hybridEntry.routeShadowEnabled, true);
-    assert.deepEqual(cfg.planner.hybridEntry.routeShadowHorizonsMs, [1_000, 5_000, 30_000, 60_000, 300_000]);
+    assert.deepEqual(cfg.planner.hybridEntry.routeShadowHorizonsMs,
+      [1_000, 5_000, 30_000, 60_000, 300_000, 3_600_000, 7_200_000, 14_400_000]);
     assert.equal(cfg.deterministicSignal.minimumSlowTrendAlignment, 0.1);
     assert.equal(cfg.deterministicSignal.minimumSlowTrendEfficiency, 0.05);
     assert.equal(cfg.deterministicSignal.minimumSlowTrendMoveBps, 7.5);
@@ -114,6 +115,21 @@ test("continuation taker activation remains fail-closed in live mode", () => {
   assert.equal(cfg.planner.hybridEntry.continuationTakerEnabled, false);
   assert.equal(cfg.planner.hybridEntry.continuationTakerMinimumLatencySamples, 20);
   assert.equal(cfg.planner.hybridEntry.routeShadowEnabled, true);
+});
+
+test("route shadow must cover every configured economic horizon", () => {
+  const directory = mkdtempSync(join(tmpdir(), "crypto-trade-config-"));
+  try {
+    const base = JSON.parse(readFileSync("config/base.json", "utf8")) as { parameters: Record<string, unknown> };
+    base.parameters.ENTRY_ROUTE_SHADOW_HORIZONS_MS = "1000,5000,30000,60000,300000";
+    writeFileSync(join(directory, "base.json"), JSON.stringify(base));
+    for (const stem of ["btc_usd", "eth_usd", "link_usd", "sol_usd", "xrp_usd", "doge_usd",
+      "ada_usd", "ltc_usd", "avax_usd", "hype_usd", "pepe_usd"]) {
+      writeFileSync(join(directory, `${stem}.json`), readFileSync(`config/${stem}.json`, "utf8"));
+    }
+    assert.throws(() => loadConfig({ TRADING_MODE: "replay", CONFIG_DIR: directory }),
+      /must include every economic horizon; missing 3600000,7200000,14400000/);
+  } finally { rmSync(directory, { recursive: true, force: true }); }
 });
 
 test("legacy calibrated buckets are scoped to continuation and cannot authorize pullback entries", () => {

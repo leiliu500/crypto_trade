@@ -412,6 +412,9 @@ function loadSymbolConfig(symbol: string, env: NodeJS.ProcessEnv, mode: TradingM
   const position = defaultPositionConfig(env);
   validatePositionTiming(position);
   validateStrategyHorizons(deterministicSignal.analyticHorizons.map((item) => item.horizonMs), position.maximumHoldMs);
+  const planner = defaultPlannerConfig(env, deterministicSignal.minimumMakerFillProbability,
+    paperEntryExercise ? 5 : 0, paperEntryExercise, mode);
+  validateRouteShadowHorizons(planner, deterministicSignal.analyticHorizons.map((item) => item.horizonMs));
   return {
     symbol,
     maximumNotional: paperEntryExercise ? Math.min(25, numberEnv(env.MAXIMUM_NOTIONAL, 1_000)) : numberEnv(env.MAXIMUM_NOTIONAL, 1_000),
@@ -428,8 +431,7 @@ function loadSymbolConfig(symbol: string, env: NodeJS.ProcessEnv, mode: TradingM
       latencyAdverseFraction: paperEntryExercise ? 0 : .25, adverseSelectionBps: paperEntryExercise ? 0 : 1, fundingBps: 0, borrowBps: 0,
       positiveCostErrorP95Bps: deterministicSignal.positiveCostErrorP95Bps },
     sizing: { baseRiskFraction: .001, maximumDrawdown: .05, maximumBookParticipation: .01, fractionalKelly: .1, maximumKellyFraction: .05, targetSigmaHBps: 20, minimumQualityScale: .1 },
-    position, planner: defaultPlannerConfig(env, deterministicSignal.minimumMakerFillProbability,
-      paperEntryExercise ? 5 : 0, paperEntryExercise, mode),
+    position, planner,
   };
 }
 
@@ -503,7 +505,7 @@ function defaultPlannerConfig(env: NodeJS.ProcessEnv, minimumFillProbability: nu
         : integerEnv(env.CONTINUATION_TAKER_MIN_LATENCY_SAMPLES, 0, 0, 10_000),
       routeShadowEnabled: parseBoolean(env.ENTRY_ROUTE_SHADOW_ENABLED, true),
       routeShadowHorizonsMs: integerListEnv(env.ENTRY_ROUTE_SHADOW_HORIZONS_MS,
-        [1_000, 5_000, 30_000, 60_000, 300_000]),
+        [1_000, 5_000, 30_000, 60_000, 300_000, 3_600_000, 7_200_000, 14_400_000]),
     } };
 }
 function parseMode(value: string): TradingMode {
@@ -515,6 +517,15 @@ function validateStrategyHorizons(economicHorizonsMs: readonly number[], maximum
   const maximumEconomicHorizonMs = Math.max(...economicHorizonsMs);
   if (maximumHoldMs < maximumEconomicHorizonMs) {
     throw new Error(`POSITION_MAXIMUM_HOLD_MS (${maximumHoldMs}) must cover the largest economic horizon (${maximumEconomicHorizonMs})`);
+  }
+}
+
+function validateRouteShadowHorizons(planner: PlannerConfig, economicHorizonsMs: readonly number[]): void {
+  if (!planner.hybridEntry.routeShadowEnabled) return;
+  const available = new Set(planner.hybridEntry.routeShadowHorizonsMs);
+  const missing = economicHorizonsMs.filter((horizonMs) => !available.has(horizonMs));
+  if (missing.length > 0) {
+    throw new Error(`ENTRY_ROUTE_SHADOW_HORIZONS_MS must include every economic horizon; missing ${missing.join(",")}`);
   }
 }
 function parseSignalMode(value: string | undefined): SignalMode {
