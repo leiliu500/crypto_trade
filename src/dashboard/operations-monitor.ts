@@ -68,6 +68,7 @@ export class OperationsMonitor extends EventEmitter {
   private readonly orderStatuses = new Map<string, string>();
   private readonly positionDecisions = new Map<string, LatestPositionDecision>();
   private readonly positionPnlHistories = new Map<string, PositionPnlSeries>();
+  private readonly observedPositions = new Map<string, DashboardPositionCard>();
   private readonly optionPnlHistories = new Map<string, PositionPnlSeries>();
   private readonly optionTrades = new Map<string, DashboardOptionShortTrade>();
   private readonly orderPositionPnl = new Map<string, DashboardLivePosition>();
@@ -314,6 +315,7 @@ export class OperationsMonitor extends EventEmitter {
         }
       }
       return {
+        active: !exitedAsDust, closedAtMs: null,
         symbol: position.symbol, side: position.side, qty: position.qty, entryPx: position.entryPx, currentPx,
         marketValue: currentPx === null ? null : currentPx * position.qty,
         unrealizedPnl,
@@ -757,6 +759,7 @@ export class OperationsMonitor extends EventEmitter {
       this.lastOrderTelemetry.set(order.clientOrderId, signature);
       this.emit("telemetry", { kind: "order", atMs: nowMs, payload: order } satisfies TelemetryRecord);
     }
+    this.emitPositionClosures(nowMs);
     for (const order of this.snapshotValue.optionShort.pendingOrders) {
       const signature = `${order.alpacaOrderId ?? ""}:${order.status}:${order.filledQty}:${order.expiresMs}`;
       if (this.lastOptionOrderTelemetry.get(order.clientOrderId) === signature) continue;
@@ -791,6 +794,43 @@ export class OperationsMonitor extends EventEmitter {
     }
     for (const market of this.snapshotValue.markets) {
       this.emit("telemetry", { kind: "market", atMs: nowMs, payload: market } satisfies TelemetryRecord);
+    }
+  }
+
+  private emitPositionClosures(nowMs: number): void {
+    const active = new Map(this.snapshotValue.positions
+      .filter((position) => position.active)
+      .map((position) => [position.symbol, position] as const));
+    for (const position of active.values()) {
+      this.observedPositions.set(position.symbol, safeClone(position) as DashboardPositionCard);
+    }
+    for (const [symbol, previous] of this.observedPositions) {
+      if (active.has(symbol)) continue;
+      const exit = this.snapshotValue.orders
+        .filter((order) => order.symbol === symbol && order.reduceOnlyIntent && order.status === "FILLED"
+          && order.filledQty > 0 && order.livePosition?.openedMs === previous.openedMs
+          && order.livePosition.active === false)
+        .sort((left, right) => (right.livePosition?.closedAtMs ?? right.updatedMs)
+          - (left.livePosition?.closedAtMs ?? left.updatedMs))[0];
+      const closedAtMs = exit?.livePosition?.closedAtMs ?? exit?.updatedMs ?? nowMs;
+      const closePx = exit?.livePosition?.closePx ?? (exit?.averageFillPx ? exit.averageFillPx : previous.currentPx);
+      const closed: DashboardPositionCard = {
+        ...previous,
+        active: false,
+        closedAtMs,
+        qty: 0,
+        currentPx: closePx,
+        marketValue: 0,
+        unrealizedPnl: 0,
+        unrealizedPnlBps: 0,
+        phase: "CLOSED",
+        ageMs: Math.max(0, closedAtMs - previous.openedMs),
+        latestAction: "EXIT",
+        latestReason: exit?.exitReason ?? exit?.livePosition?.latestReason ?? previous.latestReason
+          ?? "POSITION_CLOSED",
+      };
+      this.emit("telemetry", { kind: "position", atMs: closedAtMs, payload: closed } satisfies TelemetryRecord);
+      this.observedPositions.delete(symbol);
     }
   }
 }

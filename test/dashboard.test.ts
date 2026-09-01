@@ -75,6 +75,46 @@ test("operations monitor retains an order's full P&L history after the position 
   monitor.stop();
 });
 
+test("operations monitor emits one authoritative closed-position telemetry record", () => {
+  const monitor = new OperationsMonitor({ marketSampleMs: 1_000 });
+  const positionTelemetry: Array<Record<string, unknown>> = [];
+  monitor.on("telemetry", (record: { kind: string; payload: unknown }) => {
+    if (record.kind === "position") positionTelemetry.push(record.payload as Record<string, unknown>);
+  });
+  const opened = engineState();
+  opened.orders[0]!.status = "FILLED";
+  opened.orders[0]!.filledQty = 1;
+  opened.orders[0]!.averageFillPx = 100;
+  monitor.ingestEngineSnapshot(opened);
+
+  const closed = structuredClone(opened);
+  closed.generatedAtMs += 100;
+  closed.positions = [];
+  const entry = closed.orders[0]!;
+  closed.orders = [...closed.orders, {
+    ...entry,
+    plan: { ...entry.plan, clientOrderId: "exit-close-audit", side: -1, reduceOnlyIntent: true,
+      exitReason: "EVIDENCE_EXIT", createdMs: closed.generatedAtMs - 50, expiresMs: closed.generatedAtMs + 950 },
+    alpacaOrderId: "alpaca-exit-close-audit",
+    status: "FILLED",
+    filledQty: 1,
+    averageFillPx: 99,
+    lastUpdateMs: closed.generatedAtMs,
+  }];
+  monitor.ingestEngineSnapshot(closed);
+  monitor.ingestEngineSnapshot({ ...closed, generatedAtMs: closed.generatedAtMs + 100 });
+  monitor.stop();
+
+  assert.equal(positionTelemetry.length, 2);
+  assert.equal(positionTelemetry[0]?.active, true);
+  assert.equal(positionTelemetry[1]?.active, false);
+  assert.equal(positionTelemetry[1]?.phase, "CLOSED");
+  assert.equal(positionTelemetry[1]?.qty, 0);
+  assert.equal(positionTelemetry[1]?.currentPx, 99);
+  assert.equal(positionTelemetry[1]?.closedAtMs, closed.generatedAtMs);
+  assert.equal(positionTelemetry[1]?.latestReason, "EVIDENCE_EXIT");
+});
+
 test("operations monitor bounds default P&L history retained in memory", () => {
   const monitor = new OperationsMonitor({ pnlSampleMs: 0 });
   const state = engineState();
@@ -847,6 +887,10 @@ test("PostgreSQL migration defines the complete operational record set", async (
   assert.match(compactHealthSql, /database_queued_records integer/);
   assert.match(compactHealthSql, /database_dropped_records bigint/);
   assert.match(compactHealthSql, /health_snapshots_run_dropped_idx/);
+  const closedPositionsSql = await readFile("database/migrations/005_close_position_audit_rows.sql", "utf8");
+  assert.match(closedPositionsSql, /phase = 'CLOSED'/);
+  assert.match(closedPositionsSql, /closed_at = closed\.closed_at/);
+  assert.match(closedPositionsSql, /closed\.closed_at >= position\.updated_at/);
 });
 
 function engineState(): EngineOperationalSnapshot {
