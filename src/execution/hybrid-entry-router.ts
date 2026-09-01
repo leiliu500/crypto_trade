@@ -21,6 +21,10 @@ export interface HybridEntryConfig {
 export interface HybridRouteInput {
   family: EntryFamily;
   side: Direction;
+  regimePass: boolean;
+  edgeSource: "CALIBRATED" | "ANALYTIC" | "UNRESOLVED";
+  edgeEffectiveSampleCount: number;
+  minimumEffectiveSampleCount: number;
   signalScore: number;
   features: Features;
   liquidity: LiquidityDecision;
@@ -34,6 +38,7 @@ export interface HybridRouteInput {
 export interface HybridRouteDecision {
   selectedPlan: ExecutionPlan | null;
   selectedStyle: "maker" | "taker" | null;
+  executionEvidencePass: boolean;
   takerEligible: boolean;
   reasons: readonly string[];
   makerExpectedValueBps: number | null;
@@ -63,6 +68,15 @@ export class HybridEntryRouter {
     const alignedQiK = input.side * input.features.qiK;
     const maximumLatencyMs = input.alphaHalfLifeMs * this.cfg.continuationTakerMaximumLatencyHalfLifeFraction;
     const reasons: string[] = [];
+    // Neutral-regime continuation is deliberately retained as an observation
+    // path, but an analytical estimate with no forward-return sample cannot
+    // authorize an order. A matching calibrated bucket may re-enable the
+    // cohort after it clears the configured effective-sample floor.
+    const calibratedEvidence = input.edgeSource === "CALIBRATED"
+      && Number.isFinite(input.edgeEffectiveSampleCount)
+      && input.edgeEffectiveSampleCount >= input.minimumEffectiveSampleCount;
+    const executionEvidencePass = input.family !== "CONTINUATION" || input.regimePass || calibratedEvidence;
+    if (!executionEvidencePass) reasons.push("UNCALIBRATED_NEUTRAL_CONTINUATION");
     if (!this.cfg.continuationTakerEnabled) reasons.push("TAKER_DISABLED");
     if (input.family !== "CONTINUATION") reasons.push("PULLBACK_MAKER_ONLY");
     if (!takerPlan) reasons.push("TAKER_PLAN_UNAVAILABLE");
@@ -95,9 +109,9 @@ export class HybridEntryRouter {
     const takerWins = takerEligible && takerPlan !== null
       && (makerPlan === null || (takerExpectedValueBps ?? Number.NEGATIVE_INFINITY)
         > (makerExpectedValueBps ?? Number.NEGATIVE_INFINITY));
-    const selectedPlan = takerWins ? takerPlan : makerPlan;
+    const selectedPlan = executionEvidencePass ? (takerWins ? takerPlan : makerPlan) : null;
     return {
-      selectedPlan, selectedStyle: selectedPlan?.style ?? null, takerEligible, reasons,
+      selectedPlan, selectedStyle: selectedPlan?.style ?? null, executionEvidencePass, takerEligible, reasons,
       makerExpectedValueBps, takerExpectedValueBps, takerNetEdgeBps,
       alignedOfi, alignedTfi, alignedQiK, latencySamples: input.latencySamples,
       latencyP95Ms: input.latencyP95Ms, maximumLatencyMs,
