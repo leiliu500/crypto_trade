@@ -45,6 +45,12 @@ export interface OptimizationRouteShadowMark {
   symbol: string;
   side: 1 | -1;
   family: string;
+  configurationVersion: string | null;
+  regime: string | null;
+  regimePass: boolean | null;
+  edgeSource: string | null;
+  edgeEffectiveSampleCount: number | null;
+  economicHorizonMs: number | null;
   signalAtMs: number;
   horizonMs: number;
   markDelayMs: number;
@@ -57,14 +63,25 @@ export interface OptimizationRouteShadowMark {
 
 export interface RouteShadowSlice {
   samples: number;
+  makerAlternatives: number;
   makerFills: number;
   makerFillRate: number | null;
   meanMakerPolicyNetBps: number | null;
   meanTakerNetBps: number | null;
+  lower95TakerNetBps: number | null;
   meanTakerMinusMakerBps: number | null;
   lower95TakerMinusMakerBps: number | null;
+  takerProfitable: number;
+  takerUnprofitable: number;
   takerWins: number;
   makerWins: number;
+}
+
+export interface RouteShadowCohort extends RouteShadowSlice {
+  observedDurationMs: number;
+  dataReady: boolean;
+  deploymentReady: boolean;
+  reason: string | null;
 }
 
 export interface CalibrationSlice {
@@ -129,11 +146,16 @@ export interface TradeOptimizationReport {
     cleanMarks: number;
     excludedUncleanMarks: number;
     excludedInvalidOrDelayedCleanMarks: number;
+    excludedNoExecutableTakerMarks: number;
+    pairedMakerTakerMarks: number;
+    economicHorizonMarks: number;
     decisions: number;
     observedDurationMs: number;
     horizons: Record<string, RouteShadowSlice>;
-    groups: Record<string, RouteShadowSlice>;
+    groups: Record<string, RouteShadowCohort>;
+    deployableGroups: string[];
     decisionHorizon: RouteShadowSlice;
+    economicHorizon: RouteShadowSlice;
     dataReady: boolean;
     deploymentReady: boolean;
     reason: string | null;
@@ -180,9 +202,13 @@ export function analyzeTradeOptimization(orders: readonly OptimizationOrder[], o
 function routeShadowReport(marks: readonly OptimizationRouteShadowMark[], options: TradeOptimizationOptions,
   decisionHorizonMs: number, maximumMarkDelayMs: number): TradeOptimizationReport["entryRouteShadow"] {
   const clean = marks.filter((mark) => mark.telemetryDroppedRecords === 0);
-  const paired = clean.filter((mark) => validRouteShadowMark(mark, maximumMarkDelayMs));
+  const structurallyValid = clean.filter((mark) => validRouteShadowShape(mark, maximumMarkDelayMs));
+  // A taker-only candidate is a real profitability observation: when no safe
+  // maker plan exists, the alternative policy is no trade (zero), not a reason
+  // to discard the taker markout.
+  const executable = structurallyValid.filter(validExecutableTakerMark);
   const grouped = new Map<number, OptimizationRouteShadowMark[]>();
-  for (const mark of paired) {
+  for (const mark of executable) {
     const values = grouped.get(mark.horizonMs) ?? [];
     values.push(mark);
     grouped.set(mark.horizonMs, values);
@@ -191,63 +217,72 @@ function routeShadowReport(marks: readonly OptimizationRouteShadowMark[], option
     .map(([horizonMs, values]) => [String(horizonMs), routeShadowSlice(values)]));
   const decisionMarks = grouped.get(decisionHorizonMs) ?? [];
   const decisionHorizon = routeShadowSlice(decisionMarks);
-  const groups = groupRouteShadows(decisionMarks,
-    (mark) => `${mark.symbol}:${mark.side === 1 ? "long" : "short"}:${mark.family}`);
-  const observedDurationMs = span(decisionMarks.map((mark) => mark.signalAtMs));
-  const dataReady = decisionMarks.length >= options.minimumSamples && observedDurationMs >= options.minimumDurationMs;
-  const deploymentReady = dataReady && decisionHorizon.meanTakerNetBps !== null
-    && decisionHorizon.meanTakerNetBps > 0
-    && decisionHorizon.lower95TakerMinusMakerBps !== null
-    && decisionHorizon.lower95TakerMinusMakerBps > 0;
+  const economicMarks = executable.filter((mark) => mark.horizonMs
+    === (mark.economicHorizonMs ?? decisionHorizonMs));
+  const economicHorizon = routeShadowSlice(economicMarks);
+  const groups = groupRouteShadowCohorts(economicMarks, options,
+    (mark) => [mark.configurationVersion ?? "legacy", mark.symbol, mark.side === 1 ? "long" : "short",
+      mark.family, mark.regime ?? "legacy", mark.edgeSource ?? "legacy", String(mark.horizonMs)].join(":"));
+  const deployableGroups = Object.entries(groups).filter(([, group]) => group.deploymentReady).map(([key]) => key);
+  const observedDurationMs = span(economicMarks.map((mark) => mark.signalAtMs));
+  const dataReady = Object.values(groups).some((group) => group.dataReady);
+  const deploymentReady = deployableGroups.length > 0;
+  const largestGroup = Object.values(groups).sort((left, right) => right.samples - left.samples)[0];
   const reason = deploymentReady ? null
-    : decisionMarks.length < options.minimumSamples
-      ? `Only ${decisionMarks.length} clean paired route shadows at ${decisionHorizonMs} ms; ${options.minimumSamples} required`
-      : observedDurationMs < options.minimumDurationMs
-        ? `Paired route-shadow span is ${observedDurationMs} ms; ${options.minimumDurationMs} ms required`
-        : decisionHorizon.meanTakerNetBps === null || decisionHorizon.meanTakerNetBps <= 0
-          ? "Mean taker shadow net return must be positive"
-          : decisionHorizon.lower95TakerMinusMakerBps === null
-            ? "A maker-versus-taker confidence bound requires at least two paired shadows"
-            : `The lower 95% taker-minus-maker delta is ${decisionHorizon.lower95TakerMinusMakerBps}; it must be positive`;
+    : economicMarks.length === 0
+      ? "No clean executable taker marks exist at their selected economic horizons"
+      : !dataReady
+        ? `No economic-horizon cohort meets ${options.minimumSamples} samples over ${options.minimumDurationMs} ms; largest has ${largestGroup?.samples ?? 0} samples`
+        : "No data-ready economic-horizon cohort has positive lower 95% bounds for both taker net return and taker-versus-alternative return";
   return {
     marks: marks.length, cleanMarks: clean.length, excludedUncleanMarks: marks.length - clean.length,
-    excludedInvalidOrDelayedCleanMarks: clean.length - paired.length,
-    decisions: new Set(paired.map((mark) => mark.decisionId)).size, observedDurationMs, horizons, groups,
-    decisionHorizon, dataReady, deploymentReady, reason,
+    excludedInvalidOrDelayedCleanMarks: clean.length - structurallyValid.length,
+    excludedNoExecutableTakerMarks: structurallyValid.length - executable.length,
+    pairedMakerTakerMarks: executable.filter((mark) => mark.makerAvailable).length,
+    economicHorizonMarks: economicMarks.length,
+    decisions: new Set(executable.map((mark) => mark.decisionId)).size, observedDurationMs, horizons, groups,
+    deployableGroups, decisionHorizon, economicHorizon, dataReady, deploymentReady, reason,
   };
 }
 
 function routeShadowSlice(marks: readonly OptimizationRouteShadowMark[]): RouteShadowSlice {
   if (marks.length === 0) return {
-    samples: 0, makerFills: 0, makerFillRate: null, meanMakerPolicyNetBps: null,
-    meanTakerNetBps: null, meanTakerMinusMakerBps: null, lower95TakerMinusMakerBps: null,
-    takerWins: 0, makerWins: 0,
+    samples: 0, makerAlternatives: 0, makerFills: 0, makerFillRate: null, meanMakerPolicyNetBps: null,
+    meanTakerNetBps: null, lower95TakerNetBps: null,
+    meanTakerMinusMakerBps: null, lower95TakerMinusMakerBps: null,
+    takerProfitable: 0, takerUnprofitable: 0, takerWins: 0, makerWins: 0,
   };
-  const makerPolicy = marks.map((mark) => mark.makerNetBps ?? 0);
+  const makerPolicy = marks.map((mark) => mark.makerAvailable ? mark.makerNetBps ?? 0 : 0);
   const taker = marks.map((mark) => mark.takerNetBps!);
   const deltas = taker.map((value, index) => value - makerPolicy[index]!);
   return {
     samples: marks.length,
+    makerAlternatives: marks.filter((mark) => mark.makerAvailable).length,
     makerFills: marks.filter((mark) => (mark.makerFillFraction ?? 0) > 0).length,
     makerFillRate: mean(marks.map((mark) => (mark.makerFillFraction ?? 0) > 0 ? 1 : 0)),
-    meanMakerPolicyNetBps: mean(makerPolicy), meanTakerNetBps: mean(taker),
+    meanMakerPolicyNetBps: mean(makerPolicy), meanTakerNetBps: mean(taker), lower95TakerNetBps: lowerConfidenceMean(taker),
     meanTakerMinusMakerBps: mean(deltas), lower95TakerMinusMakerBps: lowerConfidenceMean(deltas),
+    takerProfitable: taker.filter((value) => value > 0).length,
+    takerUnprofitable: taker.filter((value) => value <= 0).length,
     takerWins: deltas.filter((value) => value > 0).length, makerWins: deltas.filter((value) => value < 0).length,
   };
 }
 
-function validRouteShadowMark(mark: OptimizationRouteShadowMark, maximumMarkDelayMs: number): boolean {
-  return Boolean(mark.makerAvailable && mark.takerAvailable) && Number.isFinite(mark.signalAtMs)
+function validRouteShadowShape(mark: OptimizationRouteShadowMark, maximumMarkDelayMs: number): boolean {
+  return Number.isFinite(mark.signalAtMs)
     && Number.isInteger(mark.horizonMs) && mark.horizonMs > 0
     && Number.isFinite(mark.markDelayMs) && mark.markDelayMs >= 0 && mark.markDelayMs <= maximumMarkDelayMs
-    && mark.takerNetBps !== null && Number.isFinite(mark.takerNetBps)
     && (mark.makerNetBps === null || Number.isFinite(mark.makerNetBps))
     && (mark.makerFillFraction === null || (Number.isFinite(mark.makerFillFraction)
       && mark.makerFillFraction >= 0 && mark.makerFillFraction <= 1));
 }
 
-function groupRouteShadows(marks: readonly OptimizationRouteShadowMark[],
-  key: (mark: OptimizationRouteShadowMark) => string): Record<string, RouteShadowSlice> {
+function validExecutableTakerMark(mark: OptimizationRouteShadowMark): boolean {
+  return mark.takerAvailable && mark.takerNetBps !== null && Number.isFinite(mark.takerNetBps);
+}
+
+function groupRouteShadowCohorts(marks: readonly OptimizationRouteShadowMark[], options: TradeOptimizationOptions,
+  key: (mark: OptimizationRouteShadowMark) => string): Record<string, RouteShadowCohort> {
   const groups = new Map<string, OptimizationRouteShadowMark[]>();
   for (const mark of marks) {
     const group = key(mark);
@@ -256,7 +291,24 @@ function groupRouteShadows(marks: readonly OptimizationRouteShadowMark[],
     groups.set(group, values);
   }
   return Object.fromEntries([...groups].sort(([a], [b]) => a.localeCompare(b))
-    .map(([group, values]) => [group, routeShadowSlice(values)]));
+    .map(([group, values]) => [group, routeShadowCohort(values, options)]));
+}
+
+function routeShadowCohort(marks: readonly OptimizationRouteShadowMark[],
+  options: TradeOptimizationOptions): RouteShadowCohort {
+  const slice = routeShadowSlice(marks);
+  const observedDurationMs = span(marks.map((mark) => mark.signalAtMs));
+  const dataReady = slice.samples >= options.minimumSamples && observedDurationMs >= options.minimumDurationMs;
+  const deploymentReady = dataReady && (slice.lower95TakerNetBps ?? Number.NEGATIVE_INFINITY) > 0
+    && (slice.lower95TakerMinusMakerBps ?? Number.NEGATIVE_INFINITY) > 0;
+  const reason = deploymentReady ? null
+    : slice.samples < options.minimumSamples ? `Only ${slice.samples} samples; ${options.minimumSamples} required`
+      : observedDurationMs < options.minimumDurationMs
+        ? `Observed span is ${observedDurationMs} ms; ${options.minimumDurationMs} ms required`
+        : (slice.lower95TakerNetBps ?? Number.NEGATIVE_INFINITY) <= 0
+          ? `Lower 95% taker net return is ${slice.lower95TakerNetBps}; it must be positive`
+          : `Lower 95% taker-versus-alternative return is ${slice.lower95TakerMinusMakerBps}; it must be positive`;
+  return { ...slice, observedDurationMs, dataReady, deploymentReady, reason };
 }
 
 function makerFillReport(orders: readonly OptimizationOrder[], options: TradeOptimizationOptions,
