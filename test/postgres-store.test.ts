@@ -52,6 +52,8 @@ test("position restoration supplements legacy snapshots with entry-order economi
   try {
     const states = await store.loadLatestPositionStates(["BTC/USD"]);
     assert.match(query, /snapshot_positions/);
+    assert.match(query, /SELECT DISTINCT ON \(symbol\)/);
+    assert.match(query, /closed\.closed_at >= candidates\.observed_at/);
     assert.equal(states.length, 1);
     assert.ok(Math.abs(states[0]!.roundTripCostPx - 65.98554543127428) < 1e-12);
     assert.equal(states[0]!.selectedHorizonMs, 7_200_000);
@@ -59,6 +61,65 @@ test("position restoration supplements legacy snapshots with entry-order economi
   } finally {
     await store.close();
     await originalPool.end();
+  }
+});
+
+test("position persistence writes closures and clears closed_at for a newer active position", async () => {
+  const store = new PostgresTelemetryStore({
+    connectionString: "postgres://unused",
+    flushIntervalMs: 60_000,
+    maximumQueue: 3,
+  });
+  const calls: Array<{ sql: string; values: readonly unknown[] }> = [];
+  const client = {
+    query: async (sql: string, values: readonly unknown[]) => {
+      calls.push({ sql, values });
+      return { rows: [] };
+    },
+  };
+  const persistPosition = (store as unknown as {
+    persistPosition: (databaseClient: unknown, position: Record<string, unknown>, runId: string, atMs: number) => Promise<void>;
+  }).persistPosition.bind(store);
+  const base = {
+    active: false,
+    closedAtMs: 2_000,
+    symbol: "BTC/USD",
+    side: 1,
+    qty: 0,
+    entryPx: 100,
+    currentPx: 99,
+    marketValue: 0,
+    unrealizedPnl: 0,
+    unrealizedPnlBps: 0,
+    phase: "CLOSED",
+    openedMs: 1_000,
+    ageMs: 1_000,
+    initialRiskPx: 2,
+    roundTripCostPx: .2,
+    floorPx: -2,
+    stopPx: 98,
+    mfePx: 1,
+    maePx: 1,
+    breakEvenArmed: false,
+    selectedHorizonMs: 3_600_000,
+    executionPath: "TAKER_TAKER",
+    latestAction: "EXIT",
+    latestReason: "EVIDENCE_EXIT",
+    holdEdgeBps: -1,
+    reversalProbability: .8,
+  };
+  try {
+    await persistPosition(client, base, "run-1", 2_000);
+    assert.match(calls[0]!.sql, /closed_at,payload/);
+    assert.match(calls[0]!.sql, /closed_at=EXCLUDED\.closed_at/);
+    assert.match(calls[0]!.sql, /positions\.opened_at <= EXCLUDED\.opened_at/);
+    assert.deepEqual(calls[0]!.values[14], new Date(2_000));
+
+    await persistPosition(client, { ...base, active: true, closedAtMs: null, qty: 1, phase: "OPEN",
+      openedMs: 3_000, ageMs: 0, latestAction: "MONITOR", latestReason: null }, "run-1", 3_000);
+    assert.equal(calls[2]!.values[14], null);
+  } finally {
+    await store.close();
   }
 });
 

@@ -243,12 +243,17 @@ export class PostgresTelemetryStore extends EventEmitter {
          ) entry ON true
          WHERE p.symbol = ANY($1::text[]) AND p.updated_at >= now() - interval '1 day'
        )
-       SELECT position,round_trip_bps,economic_horizon_ms,execution_path
+       SELECT DISTINCT ON (symbol) position,round_trip_bps,economic_horizon_ms,execution_path,symbol,observed_at
        FROM (
          SELECT * FROM event_positions
          UNION ALL
          SELECT * FROM snapshot_positions
        ) candidates
+       WHERE NOT EXISTS (
+         SELECT 1 FROM positions closed
+         WHERE closed.symbol = candidates.symbol AND closed.closed_at IS NOT NULL
+           AND closed.closed_at >= candidates.observed_at
+       )
        ORDER BY symbol,observed_at DESC`,
       [[...symbols]],
     );
@@ -398,14 +403,17 @@ export class PostgresTelemetryStore extends EventEmitter {
   }
 
   private async persistPosition(client: PoolClient, position: DashboardPositionCard, runId: string, atMs: number): Promise<void> {
-    await client.query(`INSERT INTO positions (run_id,symbol,side,qty,entry_price,current_price,unrealized_pnl,phase,floor_price,stop_price,mfe,mae,opened_at,updated_at,payload)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15::jsonb)
+    const closedAtMs = position.active ? null : position.closedAtMs ?? atMs;
+    await client.query(`INSERT INTO positions (run_id,symbol,side,qty,entry_price,current_price,unrealized_pnl,phase,floor_price,stop_price,mfe,mae,opened_at,updated_at,closed_at,payload)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16::jsonb)
       ON CONFLICT (run_id,symbol) DO UPDATE SET side=EXCLUDED.side,qty=EXCLUDED.qty,entry_price=EXCLUDED.entry_price,
         current_price=EXCLUDED.current_price,unrealized_pnl=EXCLUDED.unrealized_pnl,phase=EXCLUDED.phase,
         floor_price=EXCLUDED.floor_price,stop_price=EXCLUDED.stop_price,mfe=EXCLUDED.mfe,mae=EXCLUDED.mae,
-        opened_at=EXCLUDED.opened_at,updated_at=EXCLUDED.updated_at,payload=EXCLUDED.payload`,
+        opened_at=EXCLUDED.opened_at,updated_at=EXCLUDED.updated_at,closed_at=EXCLUDED.closed_at,payload=EXCLUDED.payload
+      WHERE positions.opened_at <= EXCLUDED.opened_at`,
       [runId, position.symbol, position.side, position.qty, position.entryPx, position.currentPx, position.unrealizedPnl, position.phase,
-        position.floorPx, position.stopPx, position.mfePx, position.maePx, date(position.openedMs), date(atMs), json(position)]);
+        position.floorPx, position.stopPx, position.mfePx, position.maePx, date(position.openedMs), date(atMs),
+        closedAtMs === null ? null : date(closedAtMs), json(position)]);
     await client.query("INSERT INTO position_events (run_id,symbol,action,reason,qty,current_price,floor_price,hold_edge_bps,reversal_probability,occurred_at,payload) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11::jsonb)",
       [runId, position.symbol, position.latestAction, position.latestReason, position.qty, position.currentPx, position.floorPx,
         position.holdEdgeBps, position.reversalProbability, date(atMs), json(position)]);
@@ -586,6 +594,7 @@ export function compactHealthSnapshot(snapshot: DashboardSnapshot): Record<strin
 
 function telemetryPriority(record: TelemetryRecord): number {
   if (record.kind === "fill") return 3;
+  if (record.kind === "position" && object(record.payload).active === false) return 2;
   if (["order", "decision", "option_order", "option_trade", "option_pnl"].includes(record.kind)) return 2;
   if (record.kind === "event") {
     const eventType = object(record.payload).type;

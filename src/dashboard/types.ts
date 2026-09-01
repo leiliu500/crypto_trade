@@ -135,6 +135,8 @@ export interface DashboardOrderCard {
 }
 
 export interface DashboardPositionCard {
+  active: boolean;
+  closedAtMs: number | null;
   symbol: string;
   side: 1 | -1;
   qty: number;
