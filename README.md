@@ -30,7 +30,7 @@ The main contracts are:
 - Candidate: a bounded directional score, two-of-three book/flow/motion quorum with motion mandatory, decayed occupancy, leaky evidence, confirmation time/events, arbitration, cooldown, and midpoint-at-arm chase limit must pass. A directional regime is still reported but cannot suppress a micro candidate.
 - Entry: every health, dynamic-liquidity, venue, exposure, edge, cost, sizing, execution-plan, and portfolio gate must then pass. The final plan must also have positive lower-confidence order value and a conservative net-edge/maximum-loss ratio of at least `0.25`. Pullback/recovery stays maker-only. A continuation may use a reduced-size capped IOC only when its exact robust edge, lower-confidence EV, aligned OFI/TFI/book imbalance, liquidity state, and measured decision-to-venue latency all pass; otherwise the independently valid maker plan remains the fallback. Candidate sensitivity never bypasses order economics.
 - Cost: `deterministic opportunity − uncertainty reserve − (exact fixed fees + stressed variable execution cost) >= minimum edge`. The `1.75` safety factor applies only to uncertain execution, impact, latency, and adverse-selection components; known venue fees remain exact.
-- Horizon: microstructure selects entry timing. A bounded five-second sampler supplies causal 5/15/60-minute trend returns, slow efficiency, and slow realized variance. Continuation economics use 1/2/4-hour horizons and select the strongest conservative post-cost edge. Entry loss sizing caps that forecast volatility at the 15-minute unproductive-exit horizon, so a long alpha horizon cannot widen the stop. A separate 30-second sampler supplies the ordered four-hour state for calibrated two-hour pullback/recovery entries.
+- Horizon: microstructure selects entry timing. A bounded five-second sampler supplies causal 5/15/60-minute trend returns, slow efficiency, and slow realized variance. Continuation economics use 1/2/4-hour horizons and select the strongest conservative post-cost edge. Entry loss sizing caps that forecast volatility at the 15-minute unproductive-exit horizon, so a long alpha horizon cannot widen the stop. A separate 30-second sampler supplies the ordered four-hour state for 15-minute pullback/recovery entries.
 - Entry families: continuation keeps its existing aligned 5/15/60-minute gate. Pullback/recovery separately requires a prior structural move, a fee-scale retracement, a confirmed rebound, retained trend, and unrecovered room; it does not relax continuation thresholds.
 - Trend warm-up: PostgreSQL first restores recent one-second mids into only the sampled slow-trend state. If that history is absent or stale after a clean restart, completed venue one-minute bars plus a current L2 midpoint provide the same causal structural bootstrap. Missing, future, invalid, crossed, or stale venue observations still fail closed; without usable history a process must observe at least 90% of the 60-minute window. Fast microstructure, CUSUM, and trigger state are never hydrated.
 - State: one continuous episode produces at most one candidate. Re-arming requires release hysteresis or an excessive event-gap reset, and the configured cooldown must have elapsed.
@@ -142,7 +142,7 @@ The default deterministic configuration in `config/base.json` includes:
 
 ```text
 SIGNAL_MODE=DETERMINISTIC_ONLY
-DETERMINISTIC_CONFIG_VERSION=btc-eth-analytic-paper-v9.1.0
+DETERMINISTIC_CONFIG_VERSION=btc-eth-aligned-pullback-v9.2.0
 PULLBACK_MAKER_TTL_MS=20000
 PULLBACK_KINEMATICS_GRACE_MS=5000
 PULLBACK_KINEMATICS_GRACE_EVENTS=2
@@ -164,7 +164,8 @@ CONTINUATION_TAKER_MIN_EXPECTED_VALUE_BPS=1
 CONTINUATION_TAKER_MAX_LATENCY_HALF_LIFE_FRACTION=0.25
 CONTINUATION_TAKER_MIN_LATENCY_SAMPLES=0
 ENTRY_ROUTE_SHADOW_ENABLED=true
-ENTRY_ROUTE_SHADOW_HORIZONS_MS=1000,5000,30000,60000,300000,3600000,7200000,14400000
+ENTRY_ROUTE_SHADOW_HORIZONS_MS=1000,5000,30000,60000,300000,900000,3600000,7200000,14400000
+RULE_PULLBACK_HORIZON_MS=900000
 POSITION_MINIMUM_HOLD_MS=60000
 POSITION_UNPRODUCTIVE_EXIT_MS=900000
 ```
@@ -173,7 +174,7 @@ Continuation economics are evaluated over 1-, 2-, and 4-hour horizons, with the 
 
 The zero latency-sample floor applies only to non-live evidence collection so the first paper acknowledgment can bootstrap measurement. Once any sample exists, its observed p95 must still fit the alpha budget. Live IOC routing is hard-disabled and its effective configuration retains at least 20 samples.
 
-Normal paper mode (`ANALYTIC_PAPER`) may route analytical continuation and maker-only pullback/recovery entries after every ordinary health, signal, liquidity, exact-cost, reward/risk, sizing, and portfolio gate passes. This produces local order, fill, position, and outcome evidence instead of leaving the paper engine observation-only. Shadow/replay and live modes still require a matching calibrated bucket with `RULE_MIN_EFFECTIVE_SAMPLES`; live continuation IOC routing also remains hard-disabled. Route shadow marks continue alongside paper orders and carry configuration, regime, evidence source, and the signal's selected economic horizon across the full 1-, 2-, and 4-hour set.
+Normal paper mode (`ANALYTIC_PAPER`) may route analytical continuation and maker-only pullback/recovery entries after every ordinary health, signal, liquidity, exact-cost, reward/risk, sizing, and portfolio gate passes. Uncalibrated analytical pullbacks additionally require the causal 15- and 60-minute trends to retain the entry direction; a calibrated bucket with enough effective samples may establish a different profitable cohort. This produces local order, fill, position, and outcome evidence instead of leaving the paper engine observation-only. Shadow/replay and live modes still require a matching calibrated bucket with `RULE_MIN_EFFECTIVE_SAMPLES`; live continuation IOC routing also remains hard-disabled. Route shadow marks continue alongside paper orders and carry configuration, regime, evidence source, and the signal's selected economic horizon.
 
 `record` appends raw order-book and trade events to `data/events.jsonl`. Paper, shadow, and live modes also continuously append independently compressed gzip batches to `data/continuous-events.jsonl.gz` when `CONTINUOUS_RECORDING_ENABLED` is true. The batched writer keeps compression off the market-data hot path and makes completed batches replayable while the engine remains online. Run `npm run recall -- data/continuous-events.jsonl.gz` to analyze one capture, or pass archived and active files in chronological order to accumulate coverage across restarts: `npm run recall -- data/continuous-events.ARCHIVE.jsonl.gz data/continuous-events.jsonl.gz`.
 

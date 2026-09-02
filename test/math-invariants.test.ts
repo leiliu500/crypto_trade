@@ -109,6 +109,26 @@ test("profit protection waits for meaningful progress instead of clipping at one
   assert.equal(position.phase, "TREND_HOLD");
 });
 
+test("an armed winner retains a small net-profit floor before the full trail activates", () => {
+  const manager = new PositionManager({ recoveryArmR: .5, trailActivationR: .75, minimumProgressR: .2,
+    minimumHoldMs: 0, unproductiveExitMs: 5_000, maximumHoldMs: 10_000, reentryCooldownMs: 0,
+    makerExitTtlMs: 30_000, evidenceConfirmationMs: 100, profitActivationCostMultiple: 1,
+    lockMin: .2, lockMax: .8, lockMaturityRate: 1, lockReversalWeight: .3, lockTrendDiscount: .1,
+    baseVolatilityMultiple: 2, trendVolatilityBonus: 1, reversalVolatilityPenalty: 1,
+    minimumVolatilityMultiple: .5, maximumVolatilityMultiple: 4,
+    partialExitThreshold: .9, maximumPartialExitFraction: .5, minimumPartialExitBenefitBps: 1 });
+  const position: Position = { symbol: "BTC/USD", side: 1, qty: 1, entryPx: 100, openedMs: 0,
+    initialRiskPx: 10, roundTripCostPx: 1, mfePx: 0, maePx: 0, floorPx: -10,
+    breakEvenArmed: false, phase: "OPEN" };
+
+  assert.equal(manager.update(position, 103, 100, features({ sigmaHBps: 1 }), 1, 0, 0, false).action, "HOLD");
+  assert.equal(position.breakEvenArmed, true);
+  assert.equal(position.phase, "OPEN");
+  assert.equal(position.floorPx, 1.4);
+  assert.deepEqual(manager.update(position, 101.39, 200, features({ sigmaHBps: 1 }), 1, 0, 0, false),
+    { action: "EXIT", reason: "PROFIT_FLOOR" });
+});
+
 test("an unproductive position exits after fifteen minutes instead of waiting for its full horizon", () => {
   const manager = new PositionManager({ recoveryArmR: .5, trailActivationR: .75, minimumProgressR: .2,
     minimumHoldMs: 60_000, unproductiveExitMs: 900_000, maximumHoldMs: 14_400_000,

@@ -62,7 +62,7 @@ test("JSON baseline wins over legacy tunable environment values and symbol overl
       [3_600_000, 7_200_000, 14_400_000]);
     assert.equal(cfg.deterministicSignal.requireMakerEntry, true);
     assert.equal(cfg.deterministicSignal.allowTakerContinuation, true);
-    assert.equal(cfg.configurationVersion, "btc-eth-analytic-paper-v9.1.0");
+    assert.equal(cfg.configurationVersion, "btc-eth-aligned-pullback-v9.2.0");
     assert.equal(cfg.position.minimumHoldMs, 60_000);
     assert.equal(cfg.position.unproductiveExitMs, 900_000);
     assert.equal(cfg.position.reentryCooldownMs, 900_000);
@@ -92,7 +92,7 @@ test("JSON baseline wins over legacy tunable environment values and symbol overl
     assert.equal(cfg.planner.hybridEntry.continuationTakerMinimumLatencySamples, 0);
     assert.equal(cfg.planner.hybridEntry.routeShadowEnabled, true);
     assert.deepEqual(cfg.planner.hybridEntry.routeShadowHorizonsMs,
-      [1_000, 5_000, 30_000, 60_000, 300_000, 3_600_000, 7_200_000, 14_400_000]);
+      [1_000, 5_000, 30_000, 60_000, 300_000, 900_000, 3_600_000, 7_200_000, 14_400_000]);
     assert.equal(cfg.deterministicSignal.minimumSlowTrendAlignment, 0.1);
     assert.equal(cfg.deterministicSignal.minimumSlowTrendEfficiency, 0.05);
     assert.equal(cfg.deterministicSignal.minimumSlowTrendMoveBps, 7.5);
@@ -101,6 +101,7 @@ test("JSON baseline wins over legacy tunable environment values and symbol overl
     assert.equal(cfg.deterministicExtension.pullbackWindowMs, 14_400_000);
     assert.equal(cfg.deterministicExtension.pullbackSampleIntervalMs, 30_000);
     assert.equal(cfg.deterministicSignal.pullbackRecovery.minimumPullbackDepthBps, 45);
+    assert.equal(cfg.deterministicSignal.pullbackRecovery.horizonMs, 900_000);
     assert.equal(cfg.deterministicSignal.continuationQuality.volatilityTargetBps, 75);
     assert.equal(cfg.recall.opportunityHorizonMs, cfg.position.maximumHoldMs);
     assert.equal(cfg.symbolConfigs["BTC/USD"]?.deterministicSignal.microTrigger.minimumMicroMoveBps, 0.008);
@@ -147,7 +148,7 @@ test("route shadow must cover every configured economic horizon", () => {
       writeFileSync(join(directory, `${stem}.json`), readFileSync(`config/${stem}.json`, "utf8"));
     }
     assert.throws(() => loadConfig({ TRADING_MODE: "replay", CONFIG_DIR: directory }),
-      /must include every economic horizon; missing 3600000,7200000,14400000/);
+      /must include every economic horizon; missing 900000,3600000,7200000,14400000/);
   } finally { rmSync(directory, { recursive: true, force: true }); }
 });
 

@@ -415,7 +415,10 @@ function loadSymbolConfig(symbol: string, env: NodeJS.ProcessEnv, mode: TradingM
   const planner = defaultPlannerConfig(env, deterministicSignal.minimumMakerFillProbability,
     paperEntryExercise ? 5 : 0, paperEntryExercise, mode,
     mode === "paper" && deterministicSignal.economicEdgeMode === "ANALYTIC_PAPER");
-  validateRouteShadowHorizons(planner, deterministicSignal.analyticHorizons.map((item) => item.horizonMs));
+  validateRouteShadowHorizons(planner, [
+    deterministicSignal.pullbackRecovery.horizonMs,
+    ...deterministicSignal.analyticHorizons.map((item) => item.horizonMs),
+  ]);
   return {
     symbol,
     maximumNotional: paperEntryExercise ? Math.min(25, numberEnv(env.MAXIMUM_NOTIONAL, 1_000)) : numberEnv(env.MAXIMUM_NOTIONAL, 1_000),
@@ -507,7 +510,7 @@ function defaultPlannerConfig(env: NodeJS.ProcessEnv, minimumFillProbability: nu
         : integerEnv(env.CONTINUATION_TAKER_MIN_LATENCY_SAMPLES, 0, 0, 10_000),
       routeShadowEnabled: parseBoolean(env.ENTRY_ROUTE_SHADOW_ENABLED, true),
       routeShadowHorizonsMs: integerListEnv(env.ENTRY_ROUTE_SHADOW_HORIZONS_MS,
-        [1_000, 5_000, 30_000, 60_000, 300_000, 3_600_000, 7_200_000, 14_400_000]),
+        [1_000, 5_000, 30_000, 60_000, 300_000, 900_000, 3_600_000, 7_200_000, 14_400_000]),
     } };
 }
 function parseMode(value: string): TradingMode {

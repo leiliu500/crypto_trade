@@ -275,14 +275,14 @@ test("the uncalibrated pullback gate is symmetric for long and short entries", (
   }
 });
 
-test("normal analytical paper mode can execute an uncalibrated pullback through economic gates", () => {
+test("analytical paper pullbacks require retained medium and slow trend direction", () => {
   const cfg = { ...testConfig(), economicEdgeMode: "ANALYTIC_PAPER" as const };
   const engine = new DeterministicEntryEngine(cfg);
   let result = null;
   for (let index = 0; index < 20; index += 1) {
     const value = context(1, 1_000 + index * 50);
     value.features.trendFastBps = -12;
-    value.features.trendMediumBps = -5;
+    value.features.trendMediumBps = 5;
     value.features.slowTrendAlignment = -.15;
     value.features.longPullback = {
       ready: true, structuralMoveBps: 150, pullbackDepthBps: 100, recoveryBps: 20,
@@ -296,7 +296,7 @@ test("normal analytical paper mode can execute an uncalibrated pullback through 
   assert.ok(!result?.diagnostics.reasons.includes("PULLBACK_CALIBRATION_REQUIRED"));
   const current = context(1, 2_000);
   current.features.trendFastBps = -12;
-  current.features.trendMediumBps = -5;
+  current.features.trendMediumBps = 5;
   current.features.slowTrendAlignment = -.15;
   current.features.longPullback = {
     ready: true, structuralMoveBps: 150, pullbackDepthBps: 100, recoveryBps: 20,
@@ -304,6 +304,30 @@ test("normal analytical paper mode can execute an uncalibrated pullback through 
   };
   assert.equal(engine.signalStillValid(1, current.features, current.regime,
     "PULLBACK_RECOVERY", "ANALYTIC"), true);
+});
+
+test("analytical paper pullbacks fail closed when the medium trend opposes the entry", () => {
+  const cfg = { ...testConfig(), economicEdgeMode: "ANALYTIC_PAPER" as const };
+  const engine = new DeterministicEntryEngine(cfg);
+  let latest = context(1);
+  for (let index = 0; index < 20; index += 1) {
+    latest = context(1, 1_000 + index * 50);
+    latest.features.trendFastBps = -12;
+    latest.features.trendMediumBps = -5;
+    latest.features.longPullback = {
+      ready: true, structuralMoveBps: 150, pullbackDepthBps: 100, recoveryBps: 20,
+      remainingRoomBps: 80, structuralExtremeAgeMs: 3_600_000, reversalExtremeAgeMs: 300_000,
+    };
+    assert.equal(engine.evaluate(latest), null);
+  }
+  const diagnostics = engine.latestEvaluation()!.long;
+  assert.equal(diagnostics.pullbackCalibrationPass, true);
+  assert.equal(diagnostics.pullbackTrendConfirmationPass, false);
+  assert.ok(diagnostics.reasons.includes("PULLBACK_TREND_CONFIRMATION_REQUIRED"));
+  assert.deepEqual(engine.assessSignalValidity(1, latest.features, latest.regime,
+    "PULLBACK_RECOVERY", "ANALYTIC"), {
+    valid: false, immediateCancel: true, reasons: ["PULLBACK_TREND_CONFIRMATION_REQUIRED"],
+  });
 });
 
 test("a sufficiently sampled calibrated pullback may enter without continuation alignment", () => {
