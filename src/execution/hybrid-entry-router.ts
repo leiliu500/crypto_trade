@@ -4,6 +4,8 @@ import type { LiquidityDecision } from "../strategy/dynamic-liquidity.js";
 import type { ExecutionPlan } from "./planner.js";
 
 export interface HybridEntryConfig {
+  /** Allows analytical continuation evidence to route only in the normal paper execution mode. */
+  allowAnalyticPaperExecution: boolean;
   continuationTakerEnabled: boolean;
   continuationTakerSizeMultiplier: number;
   continuationTakerMinimumScore: number;
@@ -68,13 +70,16 @@ export class HybridEntryRouter {
     const alignedQiK = input.side * input.features.qiK;
     const maximumLatencyMs = input.alphaHalfLifeMs * this.cfg.continuationTakerMaximumLatencyHalfLifeFraction;
     const reasons: string[] = [];
-    // Analytical continuation estimates remain an observation path. Only a
-    // matching calibrated bucket with the required independent sample count
-    // may authorize capital; regime alignment alone is not profit evidence.
+    // Live/shadow routing still requires a matching calibrated bucket. Normal
+    // paper execution may deliberately collect fill and outcome evidence from
+    // analytical signals while retaining every cost, risk, and route gate.
     const calibratedEvidence = input.edgeSource === "CALIBRATED"
       && Number.isFinite(input.edgeEffectiveSampleCount)
       && input.edgeEffectiveSampleCount >= input.minimumEffectiveSampleCount;
-    const executionEvidencePass = input.family !== "CONTINUATION" || calibratedEvidence;
+    const analyticPaperEvidence = this.cfg.allowAnalyticPaperExecution
+      && input.edgeSource === "ANALYTIC";
+    const executionEvidencePass = input.family !== "CONTINUATION"
+      || calibratedEvidence || analyticPaperEvidence;
     if (!executionEvidencePass) reasons.push("UNCALIBRATED_CONTINUATION");
     if (!this.cfg.continuationTakerEnabled) reasons.push("TAKER_DISABLED");
     if (input.family !== "CONTINUATION") reasons.push("PULLBACK_MAKER_ONLY");

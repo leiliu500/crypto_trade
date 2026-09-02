@@ -413,7 +413,8 @@ function loadSymbolConfig(symbol: string, env: NodeJS.ProcessEnv, mode: TradingM
   validatePositionTiming(position);
   validateStrategyHorizons(deterministicSignal.analyticHorizons.map((item) => item.horizonMs), position.maximumHoldMs);
   const planner = defaultPlannerConfig(env, deterministicSignal.minimumMakerFillProbability,
-    paperEntryExercise ? 5 : 0, paperEntryExercise, mode);
+    paperEntryExercise ? 5 : 0, paperEntryExercise, mode,
+    mode === "paper" && deterministicSignal.economicEdgeMode === "ANALYTIC_PAPER");
   validateRouteShadowHorizons(planner, deterministicSignal.analyticHorizons.map((item) => item.horizonMs));
   return {
     symbol,
@@ -458,7 +459,7 @@ function validatePositionTiming(position: PositionConfig): void {
   }
 }
 function defaultPlannerConfig(env: NodeJS.ProcessEnv, minimumFillProbability: number, takerLimitBufferBps: number,
-  paperEntryExercise = false, mode: TradingMode = "shadow"): PlannerConfig {
+  paperEntryExercise = false, mode: TradingMode = "shadow", allowAnalyticPaperExecution = false): PlannerConfig {
   return { makerTtlMs: 1_500, alphaHalfLifeMs: 2_772,
     pullbackMakerTtlMs: integerEnv(env.PULLBACK_MAKER_TTL_MS, 20_000, 1_000, 300_000),
     pullbackKinematicsGraceMs: integerEnv(env.PULLBACK_KINEMATICS_GRACE_MS, 5_000, 1, 299_999),
@@ -486,6 +487,7 @@ function defaultPlannerConfig(env: NodeJS.ProcessEnv, minimumFillProbability: nu
     staleOrderCostBps: numberEnv(env.MAKER_STALE_ORDER_COST_BPS, 1),
     maximumImpactBps: 10, maximumIterations: 5,
     hybridEntry: {
+      allowAnalyticPaperExecution,
       // Live activation remains fail-closed until route-shadow evidence is deployment-ready.
       continuationTakerEnabled: mode !== "live" && parseBoolean(env.CONTINUATION_TAKER_ENABLED, true),
       continuationTakerSizeMultiplier: fractionEnv(env.CONTINUATION_TAKER_SIZE_MULTIPLIER, .25),
@@ -778,6 +780,9 @@ function parseEconomicEdgeMode(value: string | undefined, tradingMode: TradingMo
   }
   if (tradingMode !== "live" && parsed === "CALIBRATED_LIVE") {
     throw new Error("CALIBRATED_LIVE economic mode is reserved for live trading");
+  }
+  if (tradingMode !== "paper" && parsed === "ANALYTIC_PAPER") {
+    throw new Error("ANALYTIC_PAPER economic mode is reserved for paper trading");
   }
   return parsed;
 }
