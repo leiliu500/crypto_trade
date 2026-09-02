@@ -43,7 +43,7 @@ export const DEFAULT_DETERMINISTIC_SIGNAL_CONFIG: DeterministicSignalConfig = {
   maximumReasonableGrossBps: 2_000,
   calibratedEdges: [],
   pullbackRecovery: {
-    enabled: true, horizonMs: 2 * 60 * 60_000,
+    enabled: true, horizonMs: 15 * 60_000,
     minimumStructuralMoveBps: 60, minimumPullbackDepthBps: 45, minimumRecoveryBps: 8,
     minimumRetainedTrendBps: 7.5, minimumRemainingRoomBps: 40, maximumRecoveryFraction: .70,
     captureFraction: .75, baseUncertaintyBps: 5, roomUncertaintyFraction: .20, maximumGrossBps: 450,

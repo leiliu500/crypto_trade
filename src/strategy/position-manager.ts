@@ -79,7 +79,16 @@ export class PositionManager {
     const protectionActivationPx = Math.max(this.cfg.trailActivationR * risk, costBasedActivation);
     const protectedTrade = p.mfePx >= protectionActivationPx;
     let candidateFloor = -risk;
-    if (p.breakEvenArmed) candidateFloor = Math.max(candidateFloor, p.roundTripCostPx);
+    if (p.breakEvenArmed) {
+      // Once a move has cleared both the risk-progress and cost-coverage
+      // thresholds, retain a small part of the maximum net profit even before
+      // the full volatility trail activates. This prevents a legitimate
+      // winner from reverting all the way to break-even while preserving most
+      // of its room to trend.
+      const earlyProfitFloor = p.roundTripCostPx
+        + this.cfg.lockMin * Math.max(0, p.mfePx - p.roundTripCostPx);
+      candidateFloor = Math.max(candidateFloor, earlyProfitFloor);
+    }
     if (protectedTrade) {
       p.phase = f.efficiency >= .65 && holdLowerBoundBps > 0 ? "TREND_HOLD" : "PROTECTED";
       const maturity = 1 - Math.exp(-this.cfg.lockMaturityRate * Math.max(0, p.mfePx / risk - this.cfg.trailActivationR));

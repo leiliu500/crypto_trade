@@ -88,7 +88,7 @@ export interface RuleDiagnostics {
   scorePass: boolean; rawDirectionalPass: boolean; candidatePass: boolean; edgeResolvedPass: boolean;
   healthPass: boolean; liquidityPass: boolean; regimePass: boolean; directionAuthorizationPass: boolean;
   persistencePass: boolean; antiChasePass: boolean;
-  pullbackCalibrationPass: boolean;
+  pullbackCalibrationPass: boolean; pullbackTrendConfirmationPass: boolean;
   exposurePass: boolean; cooldownPass: boolean; costPass: boolean; arbitrationPass: boolean; slowTrendPass: boolean;
   continuationTrendPass: boolean; pullbackRecoveryPass: boolean;
   pullbackStructuralMoveBps: number; pullbackDepthBps: number; pullbackRecoveryBps: number; pullbackRemainingRoomBps: number;
@@ -206,6 +206,10 @@ export class DeterministicEntryEngine {
       && !(this.cfg.economicEdgeMode === "ANALYTIC_PAPER" && edgeSource === "ANALYTIC")) {
       return invalidSignal(true, "PULLBACK_CALIBRATION_REQUIRED");
     }
+    if (family === "PULLBACK_RECOVERY" && edgeSource === "ANALYTIC"
+      && !this.analyticPullbackTrendPass(side, features)) {
+      return invalidSignal(true, "PULLBACK_TREND_CONFIRMATION_REQUIRED");
+    }
     const structure = this.structuralSetup(side, features);
     if (family === "CONTINUATION" ? !structure.continuationPass
       : family === "PULLBACK_RECOVERY" ? !structure.pullbackPass : !structure.pass) {
@@ -243,7 +247,7 @@ export class DeterministicEntryEngine {
   private commonPass(d: RuleDiagnostics): boolean {
     return d.candidatePass && d.healthPass && d.liquidityPass && d.antiChasePass && d.exposurePass
       && d.cooldownPass && d.edgeResolvedPass && d.costPass && d.slowTrendPass && d.pullbackCalibrationPass
-      && d.directionAuthorizationPass;
+      && d.pullbackTrendConfirmationPass && d.directionAuthorizationPass;
   }
 
   private diagnostics(trigger: SideTriggerDiagnostics, oppositeScore: number, context: EntryContext,
@@ -303,10 +307,19 @@ export class DeterministicEntryEngine {
       ? availableCosts.filter((item) => item.path === "MAKER_TAKER" || item.path === "MAKER_MAKER_TAKER_FALLBACK") : availableCosts;
     const decision = this.costGate.evaluate(edges, costs);
     const economic = decision.selected ?? decision.bestRejected;
+    const calibratedPullbackPass = economic?.edge.source === "CALIBRATED"
+      && economic.edge.effectiveSampleCount >= this.cfg.minimumEffectiveSampleCount;
+    const analyticPaperPullbackPass = this.cfg.economicEdgeMode === "ANALYTIC_PAPER"
+      && economic?.edge.source === "ANALYTIC";
     const pullbackCalibrationPass = structure.family !== "PULLBACK_RECOVERY"
-      || (economic?.edge.source === "CALIBRATED"
-        && economic.edge.effectiveSampleCount >= this.cfg.minimumEffectiveSampleCount)
-      || (this.cfg.economicEdgeMode === "ANALYTIC_PAPER" && economic?.edge.source === "ANALYTIC");
+      || calibratedPullbackPass || analyticPaperPullbackPass;
+    // A calibrated bucket may prove a counter-trend pullback profitable. The
+    // uncalibrated analytical paper path has no such evidence, so require the
+    // causal 15/60-minute trends to retain the proposed direction. The fast
+    // five-minute return may still oppose the entry during the pullback.
+    const pullbackTrendConfirmationPass = structure.family !== "PULLBACK_RECOVERY"
+      || calibratedPullbackPass
+      || (analyticPaperPullbackPass && this.analyticPullbackTrendPass(direction, f));
     // Signal uncertainty is already incorporated in conservativeGrossBps and is not charged again.
     const grossOpportunityBps = economic?.edge.conservativeGrossBps ?? 0;
     const uncertaintyReserveBps = economic?.edge.signalUncertaintyBps ?? 0;
@@ -332,6 +345,7 @@ export class DeterministicEntryEngine {
     if (!structure.continuationPass) reasons.push("CONTINUATION_TREND_GATE");
     if (!structure.pullbackPass) reasons.push("PULLBACK_RECOVERY_GATE");
     if (!pullbackCalibrationPass) reasons.push("PULLBACK_CALIBRATION_REQUIRED");
+    if (!pullbackTrendConfirmationPass) reasons.push("PULLBACK_TREND_CONFIRMATION_REQUIRED");
     return {
       family: structure.family, side: direction, phase, score: trigger.score, oppositeScore, scoreMargin: trigger.score - oppositeScore, votes,
       persistence: trigger.occupancy, evidence: trigger.evidence, confirmationMs: trigger.confirmationMs,
@@ -351,7 +365,7 @@ export class DeterministicEntryEngine {
       edgeEffectiveSampleCount: economic?.edge.effectiveSampleCount ?? 0,
       scorePass, rawDirectionalPass, candidatePass, edgeResolvedPass, healthPass, liquidityPass, regimePass,
       directionAuthorizationPass,
-      pullbackCalibrationPass, persistencePass, antiChasePass, exposurePass, cooldownPass, costPass, arbitrationPass,
+      pullbackCalibrationPass, pullbackTrendConfirmationPass, persistencePass, antiChasePass, exposurePass, cooldownPass, costPass, arbitrationPass,
       slowTrendPass,
       continuationTrendPass: structure.continuationPass, pullbackRecoveryPass: structure.pullbackPass,
       pullbackStructuralMoveBps: pullback.structuralMoveBps, pullbackDepthBps: pullback.pullbackDepthBps,
@@ -432,6 +446,12 @@ export class DeterministicEntryEngine {
       && f.slowTrendEfficiency >= this.cfg.minimumSlowTrendEfficiency
       && side * f.trendSlowBps >= this.cfg.minimumSlowTrendMoveBps
       && side * f.trendFastBps > 0 && side * f.trendMediumBps > 0;
+  }
+
+  private analyticPullbackTrendPass(side: Direction, f: DeterministicFeatures): boolean {
+    return f.slowTrendReady
+      && side * f.trendMediumBps > 0
+      && side * f.trendSlowBps >= this.cfg.minimumSlowTrendMoveBps;
   }
 
   private continuationDirectionAuthorized(side: Direction, regime: RegimeDecision): boolean {
