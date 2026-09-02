@@ -481,7 +481,7 @@ function defaultPlannerConfig(env: NodeJS.ProcessEnv, minimumFillProbability: nu
     minimumExpectedValueBps: paperEntryExercise ? 0 : numberEnv(env.MAKER_MINIMUM_EXPECTED_VALUE_BPS, .25),
     minimumRewardRiskRatio: paperEntryExercise ? 0 : numberEnv(env.ENTRY_MINIMUM_REWARD_RISK_RATIO, .20),
     takerLimitBufferBps, cancelAheadFraction: .5,
-    fillHazardIntercept: finiteNumberEnv(env.MAKER_FILL_HAZARD_INTERCEPT, -3.25),
+    fillHazardIntercept: finiteNumberEnv(env.MAKER_FILL_HAZARD_INTERCEPT, -4),
     fillHazardAggressiveWeight: numberEnv(env.MAKER_FILL_HAZARD_AGGRESSIVE_WEIGHT, .1),
     fillHazardFlowWeight: numberEnv(env.MAKER_FILL_HAZARD_FLOW_WEIGHT, 1),
     fillHazardImbalanceWeight: numberEnv(env.MAKER_FILL_HAZARD_IMBALANCE_WEIGHT, .5),
@@ -491,6 +491,7 @@ function defaultPlannerConfig(env: NodeJS.ProcessEnv, minimumFillProbability: nu
     maximumImpactBps: 10, maximumIterations: 5,
     hybridEntry: {
       allowAnalyticPaperExecution,
+      analyticPaperSizeMultiplier: fractionEnv(env.ANALYTIC_PAPER_SIZE_MULTIPLIER, .1),
       // Live activation remains fail-closed until route-shadow evidence is deployment-ready.
       continuationTakerEnabled: mode !== "live" && parseBoolean(env.CONTINUATION_TAKER_ENABLED, true),
       continuationTakerSizeMultiplier: fractionEnv(env.CONTINUATION_TAKER_SIZE_MULTIPLIER, .25),

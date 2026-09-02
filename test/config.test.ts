@@ -62,7 +62,7 @@ test("JSON baseline wins over legacy tunable environment values and symbol overl
       [3_600_000, 7_200_000, 14_400_000]);
     assert.equal(cfg.deterministicSignal.requireMakerEntry, true);
     assert.equal(cfg.deterministicSignal.allowTakerContinuation, true);
-    assert.equal(cfg.configurationVersion, "btc-eth-aligned-pullback-v9.2.0");
+    assert.equal(cfg.configurationVersion, "btc-eth-research-safe-v9.3.0");
     assert.equal(cfg.position.minimumHoldMs, 60_000);
     assert.equal(cfg.position.unproductiveExitMs, 900_000);
     assert.equal(cfg.position.reentryCooldownMs, 900_000);
@@ -82,11 +82,12 @@ test("JSON baseline wins over legacy tunable environment values and symbol overl
     assert.equal(cfg.planner.adverseFlowConfirmationEvents, 3);
     assert.equal(cfg.planner.adverseOfiThreshold, .3);
     assert.equal(cfg.planner.adverseTfiThreshold, .15);
-    assert.equal(cfg.planner.fillHazardIntercept, -3.25);
+    assert.equal(cfg.planner.fillHazardIntercept, -4);
     assert.equal(cfg.planner.minimumExpectedValueBps, .25);
     assert.equal(cfg.planner.minimumRewardRiskRatio, .2);
     assert.equal(cfg.planner.hybridEntry.continuationTakerEnabled, true);
     assert.equal(cfg.planner.hybridEntry.allowAnalyticPaperExecution, false);
+    assert.equal(cfg.planner.hybridEntry.analyticPaperSizeMultiplier, .1);
     assert.equal(cfg.planner.hybridEntry.continuationTakerSizeMultiplier, .25);
     assert.equal(cfg.planner.hybridEntry.continuationTakerMinimumNetEdgeBps, 8);
     assert.equal(cfg.planner.hybridEntry.continuationTakerMinimumLatencySamples, 0);
@@ -126,6 +127,7 @@ test("analytical execution is enabled only for normal paper economic mode", () =
   });
   assert.equal(paper.deterministicSignal.economicEdgeMode, "ANALYTIC_PAPER");
   assert.equal(paper.planner.hybridEntry.allowAnalyticPaperExecution, true);
+  assert.equal(paper.planner.hybridEntry.analyticPaperSizeMultiplier, .1);
 
   const calibratedPaper = loadConfig({
     TRADING_MODE: "paper", ALPACA_PAPER: "true", ALPACA_API_KEY: "paper-key", ALPACA_API_SECRET: "paper-secret",

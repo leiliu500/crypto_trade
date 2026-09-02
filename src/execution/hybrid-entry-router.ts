@@ -6,6 +6,8 @@ import type { ExecutionPlan } from "./planner.js";
 export interface HybridEntryConfig {
   /** Allows analytical continuation evidence to route only in the normal paper execution mode. */
   allowAnalyticPaperExecution: boolean;
+  /** Caps uncalibrated analytical paper orders while they collect research evidence. */
+  analyticPaperSizeMultiplier: number;
   continuationTakerEnabled: boolean;
   continuationTakerSizeMultiplier: number;
   continuationTakerMinimumScore: number;
@@ -124,6 +126,9 @@ export class HybridEntryRouter {
 }
 
 export function validateHybridEntryConfig(cfg: HybridEntryConfig): void {
+  if (!(cfg.analyticPaperSizeMultiplier > 0 && cfg.analyticPaperSizeMultiplier <= 1)) {
+    throw new Error("Analytical paper size multiplier must be in (0,1]");
+  }
   if (!(cfg.continuationTakerSizeMultiplier > 0 && cfg.continuationTakerSizeMultiplier <= 1)) {
     throw new Error("Continuation taker size multiplier must be in (0,1]");
   }

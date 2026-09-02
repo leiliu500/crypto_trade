@@ -60,6 +60,12 @@ export interface ExecutionPlan {
   featureHash: string;
   strategyVersion: string;
   modelVersion: string;
+  configurationVersion?: string;
+  regime?: string;
+  edgeSource?: "CALIBRATED" | "ANALYTIC" | "UNRESOLVED";
+  edgeEffectiveSampleCount?: number;
+  /** True when an uncalibrated paper order exists only to collect bounded research evidence. */
+  researchOnly?: boolean;
   expectedCost: CostEstimate;
   risk: RiskApproval;
   fillProbability: number;
@@ -86,6 +92,11 @@ export interface PlannerBuildOptions {
   executionPath?: ExecutionPath;
   economicHorizonMs?: number;
   entryFamily?: EntryFamily;
+  configurationVersion?: string;
+  regime?: string;
+  edgeSource?: "CALIBRATED" | "ANALYTIC" | "UNRESOLVED";
+  edgeEffectiveSampleCount?: number;
+  researchOnly?: boolean;
   /** Slow-horizon volatility used only for risk sizing; execution latency retains fast feature volatility. */
   riskSigmaHBps?: number;
 }
@@ -217,6 +228,11 @@ export class ExecutionPlanner {
       originatingSequence: book.sequence,
       featureHash: createHash("sha256").update(JSON.stringify(features)).digest("hex").slice(0, 24),
       strategyVersion: this.strategyVersion, modelVersion: this.modelVersion,
+      ...(options.configurationVersion === undefined ? {} : { configurationVersion: options.configurationVersion }),
+      ...(options.regime === undefined ? {} : { regime: options.regime }),
+      ...(options.edgeSource === undefined ? {} : { edgeSource: options.edgeSource }),
+      ...(options.edgeEffectiveSampleCount === undefined ? {} : { edgeEffectiveSampleCount: options.edgeEffectiveSampleCount }),
+      ...(options.researchOnly === undefined ? {} : { researchOnly: options.researchOnly }),
       expectedCost: selected.cost, risk: selected.risk, fillProbability: selected.fillProbability,
       conservativeNetEdgeBps: selected.intent.lowerBoundNetBps,
       conservativeExpectedValueBps: selected.expectedValueBps,

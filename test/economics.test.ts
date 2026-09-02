@@ -61,8 +61,19 @@ test("taker book walking counts top-of-book crossing and incremental impact once
   assert.ok(Math.abs(paths.find((item) => item.path === "TAKER_TAKER")!.estimatedCostBps - 51.5) < 1e-6);
   const boundedExit = paths.find((item) => item.path === "MAKER_MAKER_TAKER_FALLBACK")!;
   assert.equal(boundedExit.supported, true);
-  assert.ok(boundedExit.estimatedCostBps > 30 && boundedExit.estimatedCostBps < 40);
-  assert.ok(boundedExit.estimatedCostBps < paths.find((item) => item.path === "MAKER_TAKER")!.estimatedCostBps);
+  assert.ok(boundedExit.estimatedCostBps > 40);
+  assert.ok(boundedExit.estimatedCostBps > paths.find((item) => item.path === "MAKER_TAKER")!.estimatedCostBps);
+});
+
+test("maker entry economics remain profitable only after a full taker exit", () => {
+  const model = new CostModel({ makerFeeBps: 2, takerFeeBps: 5, makerExitFillProbability: .99,
+    makerExitFallbackAdverseBps: 2, latencyAdverseFraction: 0, adverseSelectionBps: 1,
+    fundingBps: 0, borrowBps: 0 });
+  const estimate = model.estimate(features, book, 1, 1, true)!;
+  assert.equal(estimate.feeBps, 7);
+  assert.ok(Math.abs(estimate.spreadBps - .5) < 1e-9);
+  assert.equal(estimate.adverseSelectionBps, 3);
+  assert.ok(Math.abs(estimate.roundTripBps - 10.5) < 1e-9);
 });
 
 test("multi-horizon gate selects the strongest conservative edge across horizon and path", () => {

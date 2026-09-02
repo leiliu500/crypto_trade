@@ -67,12 +67,12 @@ export class DynamicLiquidityPolicy {
     const reasons: string[] = [];
     if (input.stale) reasons.push("FEATURES_STALE");
     if (input.providerAgeMs < 0) reasons.push("PROVIDER_AGE_INVALID");
-    if (input.spreadBps > tradeThresholdBps) reasons.push("SPREAD_ABOVE_DYNAMIC_TRADE_THRESHOLD");
+    if (meaningfullyAbove(input.spreadBps, tradeThresholdBps)) reasons.push("SPREAD_ABOVE_DYNAMIC_TRADE_THRESHOLD");
     if (input.spreadZ > this.cfg.maximumSpreadZ) reasons.push("SPREAD_Z_ABOVE_LIMIT");
     if (input.depthZ < this.cfg.minimumDepthZ) reasons.push("DEPTH_Z_BELOW_LIMIT");
     if (input.impactBps > this.cfg.maximumImpactBps) reasons.push("IMPACT_ABOVE_LIMIT");
     const stress = input.stale || input.providerAgeMs < 0
-      || input.spreadBps > stressThresholdBps || input.depthZ < this.cfg.minimumDepthZ;
+      || meaningfullyAbove(input.spreadBps, stressThresholdBps) || input.depthZ < this.cfg.minimumDepthZ;
     return { pass: reasons.length === 0, stress, sampleCount, medianSpreadBps, tradeThresholdBps, stressThresholdBps, reasons };
   }
 
@@ -97,6 +97,12 @@ export class DynamicLiquidityPolicy {
     this.cachedThresholds = { sampleCount, medianSpreadBps: center, tradeThresholdBps, stressThresholdBps };
     return this.cachedThresholds;
   }
+}
+
+/** Absorbs bps drift from representing the same discrete tick spread at a changing midpoint. */
+function meaningfullyAbove(value: number, threshold: number): boolean {
+  const tolerance = Math.max(1e-9, Math.abs(threshold) * 1e-4);
+  return value > threshold + tolerance;
 }
 
 function quantileSorted(sorted: readonly number[], q: number): number {

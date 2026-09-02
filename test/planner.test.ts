@@ -28,6 +28,7 @@ const intent: TradeIntent = {
 
 const hybridEntry: PlannerConfig["hybridEntry"] = {
   allowAnalyticPaperExecution: false,
+  analyticPaperSizeMultiplier: .1,
   continuationTakerEnabled: true, continuationTakerSizeMultiplier: .25,
   continuationTakerMinimumScore: .3, continuationTakerMinimumNetEdgeBps: 8,
   continuationTakerMinimumExpectedValueBps: 1, continuationTakerMinimumOfi: .5,
@@ -186,6 +187,30 @@ test("conservative calibration still fires a maker order when edge, fill chance,
   assert.equal(plan.conservativeNetEdgeBps, 100);
   assert.ok((plan.conservativeExpectedValueBps ?? 0) > 0);
   assert.ok((plan.rewardRiskRatio ?? 0) >= .25);
+});
+
+test("analytical research plans retain cohort metadata and reduced deterministic size", () => {
+  const execution = planner(0, 5);
+  const riskContext = {
+    equity: 100_000, equityHighWater: 100_000, initialStopDistance: 1, jumpBuffer: 0,
+    maximumNotional: 1_000, lotSize: .001, regimeScale: 1, exposureCapacityQty: 10,
+  };
+  const normal = execution.build(intent, features, book,
+    { symbol: "BTC/USD", minOrderSize: .001, minTradeIncrement: .001, priceIncrement: .01,
+      maximumOrderQty: 100, shortable: true }, riskContext, false,
+    { createdMs: 1_000, executionPath: "MAKER_TAKER" })!;
+  const research = execution.build(intent, features, book,
+    { symbol: "BTC/USD", minOrderSize: .001, minTradeIncrement: .001, priceIncrement: .01,
+      maximumOrderQty: 100, shortable: true }, riskContext, false,
+    { createdMs: 1_000, executionPath: "MAKER_TAKER", quantityMultiplier: .1,
+      configurationVersion: "research-v1", regime: "TREND_UP", edgeSource: "ANALYTIC",
+      edgeEffectiveSampleCount: 0, researchOnly: true })!;
+  assert.ok(research.qty < normal.qty);
+  assert.equal(research.configurationVersion, "research-v1");
+  assert.equal(research.regime, "TREND_UP");
+  assert.equal(research.edgeSource, "ANALYTIC");
+  assert.equal(research.edgeEffectiveSampleCount, 0);
+  assert.equal(research.researchOnly, true);
 });
 
 test("the economic execution path constrains the final order style", () => {

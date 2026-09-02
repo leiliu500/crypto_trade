@@ -52,17 +52,18 @@ export class CostModel {
     const reference = features.mid;
     const top = direction === 1 ? book.asks[0]!.px : book.bids[0]!.px;
     const oneWayCrossBps = Math.max(0, direction * (top - reference) / reference * 10_000);
+    // Entry qualification must remain solvent when a risk/evidence exit cannot
+    // rest. Price every maker entry with a full taker exit; a later maker exit
+    // is an execution improvement, never a prerequisite for positive edge.
     const makerFirstExit = makerEntry;
-    const fallbackProbability = makerFirstExit ? 1 - this.cfg.makerExitFillProbability : 1;
-    const expectedExitSpreadBps = fallbackProbability * features.spreadBps / 2;
+    const expectedExitSpreadBps = features.spreadBps / 2;
     const spreadBps = (makerEntry ? 0 : oneWayCrossBps) + expectedExitSpreadBps;
     const entryFee = makerEntry ? this.cfg.makerFeeBps : this.cfg.takerFeeBps;
-    const exitFee = makerFirstExit ? this.cfg.makerFeeBps : this.cfg.takerFeeBps;
+    const exitFee = this.cfg.takerFeeBps;
     const feeBps = entryFee + exitFee;
     const impactBps = sweep ? Math.max(0, direction * (sweep.vwap - top) / reference * 10_000) : 0;
     const latencyBps = Math.max(0, Math.abs(features.velocityZ) * features.sigmaHBps * this.cfg.latencyAdverseFraction);
-    const fallbackPremiumBps = makerFirstExit ? fallbackProbability * (Math.max(0, this.cfg.takerFeeBps - this.cfg.makerFeeBps)
-      + this.cfg.makerExitFallbackAdverseBps) : 0;
+    const fallbackPremiumBps = makerFirstExit ? this.cfg.makerExitFallbackAdverseBps : 0;
     const adverseSelectionBps = this.cfg.adverseSelectionBps + fallbackPremiumBps;
     const roundTripBps = spreadBps + feeBps + impactBps + latencyBps + adverseSelectionBps + this.cfg.fundingBps + this.cfg.borrowBps;
     const result: CostEstimate = {
@@ -92,7 +93,9 @@ export class CostModel {
     const entryMaker = path !== "TAKER_TAKER";
     const exitMaker = path === "MAKER_MAKER";
     const makerExitWithFallback = path === "MAKER_MAKER_TAKER_FALLBACK";
-    const fallbackProbability = makerExitWithFallback ? 1 - this.cfg.makerExitFillProbability : 0;
+    // The entry gate prices the fallback branch at probability one. A maker
+    // exit may improve realized cost, but forced risk exits are normally taker.
+    const fallbackProbability = makerExitWithFallback ? 1 : 0;
     const levels = direction === 1 ? book.asks : book.bids;
     const sweep = !entryMaker && qty > 0 ? estimateSweep(levels, qty) : undefined;
     if (!entryMaker && qty > 0 && !sweep) return null;
@@ -102,9 +105,9 @@ export class CostModel {
     const marketImpactBps = sweep ? Math.max(0, direction * (sweep.vwap - top) / features.mid * 10_000) : 0;
     const latencyBps = Math.max(0, Math.abs(features.velocityZ) * features.sigmaHBps * this.cfg.latencyAdverseFraction);
     const entryFeeBps = entryMaker ? this.cfg.makerFeeBps : this.cfg.takerFeeBps;
-    const exitFeeBps = exitMaker || makerExitWithFallback ? this.cfg.makerFeeBps : this.cfg.takerFeeBps;
-    const adverseSelectionBps = this.cfg.adverseSelectionBps + (makerExitWithFallback
-      ? fallbackProbability * (Math.max(0, this.cfg.takerFeeBps - this.cfg.makerFeeBps) + this.cfg.makerExitFallbackAdverseBps) : 0);
+    const exitFeeBps = exitMaker ? this.cfg.makerFeeBps : this.cfg.takerFeeBps;
+    const adverseSelectionBps = this.cfg.adverseSelectionBps
+      + (makerExitWithFallback ? this.cfg.makerExitFallbackAdverseBps : 0);
     const components = [entryExecutionBps, exitExecutionBps, entryFeeBps, exitFeeBps, marketImpactBps,
       latencyBps, adverseSelectionBps, this.cfg.fundingBps, this.cfg.borrowBps];
     const estimatedCostBps = components.reduce((sum, value) => sum + value, 0);

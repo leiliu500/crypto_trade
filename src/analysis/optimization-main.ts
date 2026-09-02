@@ -107,6 +107,12 @@ function optimizationOrder(row: OrderRow): OptimizationOrder[] {
     createdMs,
     updatedMs,
     entryFamily: text(plan.entryFamily),
+    configurationVersion: text(plan.configurationVersion),
+    regime: text(plan.regime),
+    edgeSource: text(plan.edgeSource),
+    edgeEffectiveSampleCount: nullableFiniteNumber(plan.edgeEffectiveSampleCount),
+    economicHorizonMs: nullablePositiveInteger(plan.economicHorizonMs),
+    researchOnly: plan.researchOnly === true,
     cancellationReason: row.cancellation_reason,
     exitReason: text(plan.exitReason),
     livePosition: livePosition(plan.livePosition),
@@ -155,10 +161,14 @@ function livePosition(value: unknown): OptimizationLivePosition | null {
   const openedMs = Number(position.openedMs);
   const closedAtMs = position.closedAtMs === null ? null : Number(position.closedAtMs);
   const realizedPnl = position.realizedPnl === null ? null : Number(position.realizedPnl);
+  const realizedPnlBps = position.realizedPnlBps === null || position.realizedPnlBps === undefined
+    ? null : Number(position.realizedPnlBps);
   if (!Number.isFinite(openedMs) || (closedAtMs !== null && !Number.isFinite(closedAtMs))
-    || (realizedPnl !== null && !Number.isFinite(realizedPnl))) return null;
+    || (realizedPnl !== null && !Number.isFinite(realizedPnl))
+    || (realizedPnlBps !== null && !Number.isFinite(realizedPnlBps))) return null;
   const pnlHistory = Array.isArray(position.pnlHistory) ? position.pnlHistory.flatMap(pnlPoint) : [];
-  return { openedMs, closedAtMs, realizedPnl, entryOrderId: text(position.entryOrderId), pnlHistory };
+  return { openedMs, closedAtMs, realizedPnl, realizedPnlBps,
+    entryOrderId: text(position.entryOrderId), pnlHistory };
 }
 
 function pnlPoint(value: unknown): DashboardPnlPoint[] {
