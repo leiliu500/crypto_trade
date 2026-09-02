@@ -43,6 +43,13 @@ test("dynamic liquidity histories are isolated per symbol runtime", () => {
   assert.equal(doge.evaluate(input(8)).tradeThresholdBps, 8);
 });
 
+test("the same one-tick spread is not rejected by midpoint conversion jitter", () => {
+  const policy = new DynamicLiquidityPolicy(config());
+  for (const spread of [0.129338, 0.129338, 0.129338]) policy.observe(spread);
+  assert.equal(policy.evaluate(input(0.129340)).pass, true);
+  assert.equal(policy.evaluate(input(0.1295)).pass, false);
+});
+
 test("provider age uses the feature engine's dynamic stale decision instead of a second fixed limit", () => {
   const policy = new DynamicLiquidityPolicy(config());
   for (const spread of [1, 1, 1]) policy.observe(spread);

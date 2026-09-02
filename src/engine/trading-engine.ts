@@ -749,13 +749,22 @@ export class TradingEngine extends EventEmitter {
       exposureCapacityQty: runtime.config.maximumNotional / features.mid,
     };
     const family = routed.intent.diagnostics.family;
+    const researchOnly = runtime.config.planner.hybridEntry.allowAnalyticPaperExecution
+      && routed.intent.diagnostics.edgeSource === "ANALYTIC";
+    const researchSizeMultiplier = researchOnly
+      ? runtime.config.planner.hybridEntry.analyticPaperSizeMultiplier : 1;
     const makerPath = routed.intent.executionPath && routed.intent.executionPath !== "TAKER_TAKER"
       ? routed.intent.executionPath : "MAKER_MAKER_TAKER_FALLBACK";
     const makerIntent = entryIntentForPath(routed.intent, makerPath);
     const makerPlan = runtime.planner.build(plannerIntent(makerIntent, 1), features, book, runtime.asset,
       baseRisk, false, {
         createdMs: features.receiveTsMs, decisionId: routed.intent.decisionId,
-        quantityMultiplier: routed.sizeMultiplier, riskSigmaHBps, executionPath: makerPath,
+        quantityMultiplier: routed.sizeMultiplier * researchSizeMultiplier,
+        riskSigmaHBps, executionPath: makerPath,
+        configurationVersion: runtime.config.configurationVersion, regime: regime.name,
+        edgeSource: routed.intent.diagnostics.edgeSource,
+        edgeEffectiveSampleCount: routed.intent.diagnostics.edgeEffectiveSampleCount,
+        researchOnly,
         ...(routed.intent.selectedHorizonMs === undefined ? {} : { economicHorizonMs: routed.intent.selectedHorizonMs }),
         entryFamily: family,
         revalidateCost: (exactCost) => {
@@ -771,9 +780,13 @@ export class TradingEngine extends EventEmitter {
     const takerPlan = buildTaker ? runtime.planner.build(plannerIntent(takerIntent, 1), features, book, runtime.asset,
       baseRisk, false, {
         createdMs: features.receiveTsMs, decisionId: routed.intent.decisionId,
-        quantityMultiplier: routed.sizeMultiplier
+        quantityMultiplier: routed.sizeMultiplier * researchSizeMultiplier
           * runtime.config.planner.hybridEntry.continuationTakerSizeMultiplier,
         riskSigmaHBps, executionPath: "TAKER_TAKER",
+        configurationVersion: runtime.config.configurationVersion, regime: regime.name,
+        edgeSource: routed.intent.diagnostics.edgeSource,
+        edgeEffectiveSampleCount: routed.intent.diagnostics.edgeEffectiveSampleCount,
+        researchOnly,
         ...(routed.intent.selectedHorizonMs === undefined ? {} : { economicHorizonMs: routed.intent.selectedHorizonMs }),
         entryFamily: family,
         revalidateCost: (exactCost) => {
@@ -799,7 +812,7 @@ export class TradingEngine extends EventEmitter {
       configurationVersion: runtime.config.configurationVersion, symbol: book.symbol,
       decisionId: routed.intent.decisionId, family, side: routed.intent.side,
       selectedStyle: routeDecision.selectedStyle, executionEvidencePass: routeDecision.executionEvidencePass,
-      takerEligible: routeDecision.takerEligible,
+      takerEligible: routeDecision.takerEligible, researchOnly, researchSizeMultiplier,
       evidence: {
         regime: regime.name, regimePass: routed.intent.diagnostics.regimePass,
         edgeSource: routed.intent.diagnostics.edgeSource,
@@ -1406,7 +1419,8 @@ export class TradingEngine extends EventEmitter {
     // A losing or not-yet-cost-covering exit is risk removal, not price
     // optimization. Resting it for another maker TTL reproduced the observed
     // partial-fill/fallback losses after the time stop had already fired.
-    const makerEligible = runtime.position.executionPath === "MAKER_MAKER_TAKER_FALLBACK"
+    const makerEligible = (runtime.position.executionPath === "MAKER_MAKER_TAKER_FALLBACK"
+      || runtime.position.executionPath === "MAKER_TAKER")
       && makerExitEligible(reason) && signedMovePx > runtime.position.roundTripCostPx;
     const style = forcedStyle ?? (makerEligible ? "maker" : "taker");
     const exitSide = -runtime.position.side as 1 | -1;
@@ -1424,7 +1438,8 @@ export class TradingEngine extends EventEmitter {
       style, timeInForce: style === "maker" ? "gtc" : "ioc",
       createdMs: nowMs, expiresMs: nowMs + (style === "maker" ? runtime.config.position.makerExitTtlMs : 1_000), originatingSequence: book.sequence,
       featureHash: createHash("sha256").update(JSON.stringify(features)).digest("hex").slice(0, 24), strategyVersion: runtime.config.strategyVersion,
-      modelVersion: runtime.config.modelVersion, expectedCost: cost, risk,
+      modelVersion: runtime.config.modelVersion, configurationVersion: runtime.config.configurationVersion,
+      expectedCost: cost, risk,
       fillProbability: style === "maker" ? runtime.cost.makerExitFillProbability() : 1,
       expectedValue: -qty * features.mid * cost.roundTripBps / 10_000, reduceOnlyIntent: true,
       exitReason: reason,
@@ -1837,14 +1852,14 @@ function entryIntentForPath(intent: DeterministicTradeIntent, executionPath: Exe
     diagnostics: { ...intent.diagnostics, executionPath },
   };
 }
-function entryPlanSummary(plan: ExecutionPlan | null): Record<string, number | string | null> | null {
+function entryPlanSummary(plan: ExecutionPlan | null): Record<string, number | string | boolean | null> | null {
   if (!plan) return null;
   return {
     style: plan.style, executionPath: plan.executionPath ?? null, qty: plan.qty, limitPx: plan.limitPx,
     fillProbability: plan.fillProbability, conservativeNetEdgeBps: plan.conservativeNetEdgeBps ?? null,
     conservativeExpectedValueBps: plan.conservativeExpectedValueBps ?? null,
     rewardRiskRatio: plan.rewardRiskRatio ?? null, roundTripCostBps: plan.expectedCost.roundTripBps,
-    economicHorizonMs: plan.economicHorizonMs ?? null,
+    economicHorizonMs: plan.economicHorizonMs ?? null, researchOnly: plan.researchOnly === true,
   };
 }
 function assetRulesVersion(asset: AssetRules): string {

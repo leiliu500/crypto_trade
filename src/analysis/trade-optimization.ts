@@ -4,6 +4,7 @@ export interface OptimizationLivePosition {
   openedMs: number;
   closedAtMs: number | null;
   realizedPnl: number | null;
+  realizedPnlBps?: number | null;
   entryOrderId: string | null;
   pnlHistory: readonly DashboardPnlPoint[];
 }
@@ -23,6 +24,12 @@ export interface OptimizationOrder {
   createdMs: number;
   updatedMs: number;
   entryFamily: string | null;
+  configurationVersion?: string | null;
+  regime?: string | null;
+  edgeSource?: string | null;
+  edgeEffectiveSampleCount?: number | null;
+  economicHorizonMs?: number | null;
+  researchOnly?: boolean;
   cancellationReason: string | null;
   exitReason: string | null;
   livePosition: OptimizationLivePosition | null;
@@ -94,6 +101,21 @@ export interface CalibrationSlice {
   logLoss: number | null;
 }
 
+export interface RealizedPerformanceCohort {
+  samples: number;
+  wins: number;
+  losses: number;
+  winRate: number | null;
+  totalPnl: number;
+  meanPnl: number | null;
+  meanNetReturnBps: number | null;
+  lower95NetReturnBps: number | null;
+  observedDurationMs: number;
+  dataReady: boolean;
+  deploymentReady: boolean;
+  reason: string | null;
+}
+
 export interface TradeOptimizationReport {
   requirements: {
     minimumDurationMs: number;
@@ -124,6 +146,13 @@ export interface TradeOptimizationReport {
     dataReady: boolean;
     deploymentReady: boolean;
     reason: string | null;
+  };
+  realizedPerformance: RealizedPerformanceCohort & {
+    closedTrades: number;
+    cleanMatchedTrades: number;
+    excludedUncleanOrUnmatchedTrades: number;
+    groups: Record<string, RealizedPerformanceCohort>;
+    deployableGroups: string[];
   };
   unproductiveExitShadow: {
     closedTrades: number;
@@ -164,6 +193,11 @@ export interface TradeOptimizationReport {
 
 interface FillAttempt extends OptimizationOrder { probability: number; label: 0 | 1; }
 interface TimeoutCandidate { openedMs: number; actualPnl: number; counterfactualPnl: number; exitReason: string; }
+interface RealizedTrade {
+  openedMs: number; pnl: number; netReturnBps: number; configurationVersion: string | null;
+  symbol: string; side: 1 | -1; family: string | null; regime: string | null; edgeSource: string | null;
+  economicHorizonMs: number | null; researchOnly: boolean;
+}
 
 const TERMINAL_ORDER_STATES = new Set(["FILLED", "CANCELED", "REJECTED", "EXPIRED"]);
 
@@ -175,6 +209,7 @@ export function analyzeTradeOptimization(orders: readonly OptimizationOrder[], o
   const routeShadowMaximumMarkDelayMs = options.routeShadowMaximumMarkDelayMs ?? 1_000;
   const cleanOrders = orders.filter((order) => order.telemetryDroppedRecords === 0);
   const makerFill = makerFillReport(orders, options, minimumFillAuc);
+  const realizedPerformance = realizedPerformanceReport(orders, options);
   const unproductiveExitShadow = timeoutReport(orders, options);
   const entryRouteShadow = routeShadowReport(routeShadows, options, routeShadowDecisionHorizonMs,
     routeShadowMaximumMarkDelayMs);
@@ -194,9 +229,92 @@ export function analyzeTradeOptimization(orders: readonly OptimizationOrder[], o
       excludedOrdersFromRunsWithDropsOrNoHealth: orders.length - cleanOrders.length,
     },
     makerFill,
+    realizedPerformance,
     unproductiveExitShadow,
     entryRouteShadow,
   };
+}
+
+function realizedPerformanceReport(orders: readonly OptimizationOrder[],
+  options: TradeOptimizationOptions): TradeOptimizationReport["realizedPerformance"] {
+  const entries = new Map(orders.filter((order) => !order.reduceOnlyIntent)
+    .map((order) => [order.clientOrderId, order]));
+  const closed = orders.filter((order) => order.reduceOnlyIntent && order.status.toUpperCase() === "FILLED"
+    && order.livePosition !== null && order.livePosition.closedAtMs !== null
+    && order.livePosition.realizedPnl !== null);
+  const trades: RealizedTrade[] = [];
+  for (const exit of closed) {
+    const position = exit.livePosition;
+    const entry = position?.entryOrderId ? entries.get(position.entryOrderId) : undefined;
+    if (!position || !entry || exit.telemetryDroppedRecords !== 0 || entry.telemetryDroppedRecords !== 0
+      || position.realizedPnl === null) continue;
+    const netReturnBps = realizedNetReturnBps(position);
+    if (netReturnBps === null) continue;
+    trades.push({
+      openedMs: position.openedMs, pnl: position.realizedPnl, netReturnBps,
+      configurationVersion: entry.configurationVersion ?? null, symbol: entry.symbol, side: entry.side,
+      family: entry.entryFamily, regime: entry.regime ?? null, edgeSource: entry.edgeSource ?? null,
+      economicHorizonMs: entry.economicHorizonMs ?? null, researchOnly: entry.researchOnly === true,
+    });
+  }
+  const groups = groupRealizedPerformance(trades, options);
+  const deployableGroups = Object.entries(groups).filter(([, group]) => group.deploymentReady).map(([key]) => key);
+  const aggregate = realizedPerformanceCohort(trades, options, false);
+  const reason = deployableGroups.length > 0 ? null
+    : trades.length === 0 ? "No clean closed trade can be matched to its entry metadata and net return"
+      : "No calibrated realized-performance cohort has enough independent duration/samples and a positive lower 95% net-return bound";
+  return {
+    ...aggregate, deploymentReady: deployableGroups.length > 0, reason,
+    closedTrades: closed.length, cleanMatchedTrades: trades.length,
+    excludedUncleanOrUnmatchedTrades: closed.length - trades.length, groups, deployableGroups,
+  };
+}
+
+function groupRealizedPerformance(trades: readonly RealizedTrade[],
+  options: TradeOptimizationOptions): Record<string, RealizedPerformanceCohort> {
+  const groups = new Map<string, RealizedTrade[]>();
+  for (const trade of trades) {
+    const key = [trade.configurationVersion ?? "legacy", trade.symbol, trade.side === 1 ? "long" : "short",
+      trade.family ?? "UNKNOWN", trade.regime ?? "legacy", trade.edgeSource ?? "legacy",
+      trade.economicHorizonMs ?? "legacy", trade.researchOnly ? "research" : "deployable"].join(":");
+    const values = groups.get(key) ?? [];
+    values.push(trade);
+    groups.set(key, values);
+  }
+  return Object.fromEntries([...groups].sort(([a], [b]) => a.localeCompare(b))
+    .map(([key, values]) => [key, realizedPerformanceCohort(values, options, true)]));
+}
+
+function realizedPerformanceCohort(trades: readonly RealizedTrade[], options: TradeOptimizationOptions,
+  requireCalibrated: boolean): RealizedPerformanceCohort {
+  const returns = trades.map((trade) => trade.netReturnBps);
+  const observedDurationMs = span(trades.map((trade) => trade.openedMs));
+  const calibrated = !requireCalibrated || trades.every((trade) => trade.edgeSource === "CALIBRATED" && !trade.researchOnly);
+  const dataReady = calibrated && trades.length >= options.minimumSamples && observedDurationMs >= options.minimumDurationMs;
+  const lower95NetReturnBps = lowerConfidenceMean(returns);
+  const deploymentReady = dataReady && (lower95NetReturnBps ?? Number.NEGATIVE_INFINITY) > 0;
+  const reason = deploymentReady ? null
+    : !calibrated ? "Analytical/research trades cannot authorize deployment"
+      : trades.length < options.minimumSamples ? `Only ${trades.length} trades; ${options.minimumSamples} required`
+        : observedDurationMs < options.minimumDurationMs
+          ? `Observed span is ${observedDurationMs} ms; ${options.minimumDurationMs} ms required`
+          : `Lower 95% realized net return is ${lower95NetReturnBps}; it must be positive`;
+  return {
+    samples: trades.length, wins: returns.filter((value) => value > 0).length,
+    losses: returns.filter((value) => value <= 0).length,
+    winRate: trades.length ? returns.filter((value) => value > 0).length / trades.length : null,
+    totalPnl: sum(trades.map((trade) => trade.pnl)), meanPnl: trades.length ? mean(trades.map((trade) => trade.pnl)) : null,
+    meanNetReturnBps: returns.length ? mean(returns) : null, lower95NetReturnBps,
+    observedDurationMs, dataReady, deploymentReady, reason,
+  };
+}
+
+function realizedNetReturnBps(position: OptimizationLivePosition): number | null {
+  if (position.realizedPnlBps !== undefined && position.realizedPnlBps !== null
+    && Number.isFinite(position.realizedPnlBps)) return position.realizedPnlBps;
+  const history = position.pnlHistory.filter(validPnlPoint).sort((left, right) => left.atMs - right.atMs);
+  const close = [...history].reverse().find((point) => point.kind === "close") ?? history.at(-1);
+  return close && Number.isFinite(close.unrealizedPnlBps) ? close.unrealizedPnlBps : null;
 }
 
 function routeShadowReport(marks: readonly OptimizationRouteShadowMark[], options: TradeOptimizationOptions,

@@ -7,6 +7,7 @@ import type { LiquidityDecision } from "../src/strategy/dynamic-liquidity.js";
 
 const config: HybridEntryConfig = {
   allowAnalyticPaperExecution: false,
+  analyticPaperSizeMultiplier: .1,
   continuationTakerEnabled: true, continuationTakerSizeMultiplier: .25,
   continuationTakerMinimumScore: .3, continuationTakerMinimumNetEdgeBps: 8,
   continuationTakerMinimumExpectedValueBps: 1, continuationTakerMinimumOfi: .5,

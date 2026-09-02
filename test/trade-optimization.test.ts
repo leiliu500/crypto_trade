@@ -48,6 +48,34 @@ test("ten-minute timeout shadow stays below the active fifteen-minute exit and u
   assert.equal(insufficient.unproductiveExitShadow.reason, "Only 2 clean 10-minute unproductive trades; 3 required");
 });
 
+test("realized deployment evidence is matched to calibrated entry cohorts and uses net returns", () => {
+  const firstEntry = { ...maker("entry-a", 0, .8, 1), configurationVersion: "stable-v1",
+    regime: "TREND_UP", edgeSource: "CALIBRATED", edgeEffectiveSampleCount: 150,
+    economicHorizonMs: 900_000, researchOnly: false };
+  const secondEntry = { ...maker("entry-b", 8 * DAY, .8, 1), configurationVersion: "stable-v1",
+    regime: "TREND_UP", edgeSource: "CALIBRATED", edgeEffectiveSampleCount: 150,
+    economicHorizonMs: 900_000, researchOnly: false };
+  const orders = [firstEntry, secondEntry,
+    exit("a", 0, 1, .5, "PROFIT_FLOOR", 12, 10),
+    exit("b", 8 * DAY, 2, 1, "PROFIT_FLOOR", 14, 12)];
+  const report = analyzeTradeOptimization(orders, safeguards(2));
+  assert.equal(report.realizedPerformance.closedTrades, 2);
+  assert.equal(report.realizedPerformance.cleanMatchedTrades, 2);
+  assert.equal(report.realizedPerformance.totalPnl, 3);
+  assert.equal(report.realizedPerformance.meanNetReturnBps, 11);
+  assert.equal(report.realizedPerformance.deploymentReady, true);
+  assert.equal(report.realizedPerformance.deployableGroups.length, 1);
+
+  const research = analyzeTradeOptimization([
+    { ...firstEntry, edgeSource: "ANALYTIC", researchOnly: true },
+    { ...secondEntry, edgeSource: "ANALYTIC", researchOnly: true },
+    ...orders.slice(2),
+  ], safeguards(2));
+  assert.equal(research.realizedPerformance.dataReady, true);
+  assert.equal(research.realizedPerformance.deploymentReady, false);
+  assert.equal(research.realizedPerformance.deployableGroups.length, 0);
+});
+
 test("route shadows compare executable taker markout with zero for missed maker fills", () => {
   const shadows = [
     routeShadow("a", 0, null, 8),
@@ -107,7 +135,7 @@ function maker(clientOrderId: string, createdMs: number, fillProbability: number
 }
 
 function exit(clientOrderId: string, openedMs: number, actualPnl: number, pnlAt10m: number, exitReason: string,
-  maximumPnlBps = -1): OptimizationOrder {
+  maximumPnlBps = -1, finalPnlBps = -2): OptimizationOrder {
   const target = openedMs + 10 * 60_000;
   return {
     clientOrderId, runId: "clean", telemetryDroppedRecords: 0, symbol: "ETH/USD", side: -1, style: "taker",
@@ -119,7 +147,8 @@ function exit(clientOrderId: string, openedMs: number, actualPnl: number, pnlAt1
       pnlHistory: [
         { atMs: openedMs + 1_000, currentPx: 100, unrealizedPnl: -.1, unrealizedPnlBps: maximumPnlBps, changePnl: null, kind: "mark" },
         { atMs: target, currentPx: 99, unrealizedPnl: pnlAt10m, unrealizedPnlBps: maximumPnlBps, changePnl: -.1, kind: "mark" },
-        { atMs: openedMs + 15 * 60_000, currentPx: 98, unrealizedPnl: actualPnl, unrealizedPnlBps: -2, changePnl: -.1, kind: "close" },
+        { atMs: openedMs + 15 * 60_000, currentPx: 98, unrealizedPnl: actualPnl,
+          unrealizedPnlBps: finalPnlBps, changePnl: -.1, kind: "close" },
       ],
     },
   };
