@@ -202,7 +202,8 @@ export class DeterministicEntryEngine {
     family?: EntryFamily, edgeSource?: RuleDiagnostics["edgeSource"]): SignalValidityAssessment {
     if (features.stale) return invalidSignal(true, "STALE_FEATURES");
     if (!features.kinematicsReady) return invalidSignal(true, "KINEMATICS_UNAVAILABLE");
-    if (family === "PULLBACK_RECOVERY" && edgeSource !== "CALIBRATED") {
+    if (family === "PULLBACK_RECOVERY" && edgeSource !== "CALIBRATED"
+      && !(this.cfg.economicEdgeMode === "ANALYTIC_PAPER" && edgeSource === "ANALYTIC")) {
       return invalidSignal(true, "PULLBACK_CALIBRATION_REQUIRED");
     }
     const structure = this.structuralSetup(side, features);
@@ -304,7 +305,8 @@ export class DeterministicEntryEngine {
     const economic = decision.selected ?? decision.bestRejected;
     const pullbackCalibrationPass = structure.family !== "PULLBACK_RECOVERY"
       || (economic?.edge.source === "CALIBRATED"
-        && economic.edge.effectiveSampleCount >= this.cfg.minimumEffectiveSampleCount);
+        && economic.edge.effectiveSampleCount >= this.cfg.minimumEffectiveSampleCount)
+      || (this.cfg.economicEdgeMode === "ANALYTIC_PAPER" && economic?.edge.source === "ANALYTIC");
     // Signal uncertainty is already incorporated in conservativeGrossBps and is not charged again.
     const grossOpportunityBps = economic?.edge.conservativeGrossBps ?? 0;
     const uncertaintyReserveBps = economic?.edge.signalUncertaintyBps ?? 0;

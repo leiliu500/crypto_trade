@@ -6,6 +6,7 @@ import type { ExecutionPlan } from "../src/execution/planner.js";
 import type { LiquidityDecision } from "../src/strategy/dynamic-liquidity.js";
 
 const config: HybridEntryConfig = {
+  allowAnalyticPaperExecution: false,
   continuationTakerEnabled: true, continuationTakerSizeMultiplier: .25,
   continuationTakerMinimumScore: .3, continuationTakerMinimumNetEdgeBps: 8,
   continuationTakerMinimumExpectedValueBps: 1, continuationTakerMinimumOfi: .5,
@@ -97,6 +98,33 @@ test("uncalibrated continuations remain shadow-only even when regime and both ex
   assert.equal(decision.takerEligible, false);
   assert.equal(decision.selectedPlan, null);
   assert.equal(decision.selectedStyle, null);
+  assert.ok(decision.reasons.includes("UNCALIBRATED_CONTINUATION"));
+});
+
+test("normal paper mode can execute an analytical continuation through the same route gates", () => {
+  const decision = new HybridEntryRouter({ ...config, allowAnalyticPaperExecution: true }).select({
+    family: "CONTINUATION", side: 1, regimePass: true, edgeSource: "ANALYTIC",
+    edgeEffectiveSampleCount: 0, minimumEffectiveSampleCount: 100,
+    signalScore: .7, features, liquidity,
+    latencySamples: 50, latencyP95Ms: 400, alphaHalfLifeMs: 4_000,
+    makerPlan: plan("maker", 2, 12), takerPlan: plan("taker", 9, 14),
+  });
+  assert.equal(decision.executionEvidencePass, true);
+  assert.equal(decision.takerEligible, true);
+  assert.equal(decision.selectedStyle, "taker");
+  assert.ok(!decision.reasons.includes("UNCALIBRATED_CONTINUATION"));
+});
+
+test("paper permission cannot turn an unresolved continuation into an execution route", () => {
+  const decision = new HybridEntryRouter({ ...config, allowAnalyticPaperExecution: true }).select({
+    family: "CONTINUATION", side: 1, regimePass: true, edgeSource: "UNRESOLVED",
+    edgeEffectiveSampleCount: 0, minimumEffectiveSampleCount: 100,
+    signalScore: .7, features, liquidity,
+    latencySamples: 50, latencyP95Ms: 400, alphaHalfLifeMs: 4_000,
+    makerPlan: plan("maker", 2, 12), takerPlan: plan("taker", 9, 14),
+  });
+  assert.equal(decision.executionEvidencePass, false);
+  assert.equal(decision.selectedPlan, null);
   assert.ok(decision.reasons.includes("UNCALIBRATED_CONTINUATION"));
 });
 

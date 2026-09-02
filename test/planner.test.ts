@@ -27,6 +27,7 @@ const intent: TradeIntent = {
 };
 
 const hybridEntry: PlannerConfig["hybridEntry"] = {
+  allowAnalyticPaperExecution: false,
   continuationTakerEnabled: true, continuationTakerSizeMultiplier: .25,
   continuationTakerMinimumScore: .3, continuationTakerMinimumNetEdgeBps: 8,
   continuationTakerMinimumExpectedValueBps: 1, continuationTakerMinimumOfi: .5,

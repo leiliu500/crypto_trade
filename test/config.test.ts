@@ -62,7 +62,7 @@ test("JSON baseline wins over legacy tunable environment values and symbol overl
       [3_600_000, 7_200_000, 14_400_000]);
     assert.equal(cfg.deterministicSignal.requireMakerEntry, true);
     assert.equal(cfg.deterministicSignal.allowTakerContinuation, true);
-    assert.equal(cfg.configurationVersion, "btc-eth-profit-evidence-v9.0.0");
+    assert.equal(cfg.configurationVersion, "btc-eth-analytic-paper-v9.1.0");
     assert.equal(cfg.position.minimumHoldMs, 60_000);
     assert.equal(cfg.position.unproductiveExitMs, 900_000);
     assert.equal(cfg.position.reentryCooldownMs, 900_000);
@@ -86,6 +86,7 @@ test("JSON baseline wins over legacy tunable environment values and symbol overl
     assert.equal(cfg.planner.minimumExpectedValueBps, .25);
     assert.equal(cfg.planner.minimumRewardRiskRatio, .2);
     assert.equal(cfg.planner.hybridEntry.continuationTakerEnabled, true);
+    assert.equal(cfg.planner.hybridEntry.allowAnalyticPaperExecution, false);
     assert.equal(cfg.planner.hybridEntry.continuationTakerSizeMultiplier, .25);
     assert.equal(cfg.planner.hybridEntry.continuationTakerMinimumNetEdgeBps, 8);
     assert.equal(cfg.planner.hybridEntry.continuationTakerMinimumLatencySamples, 0);
@@ -113,8 +114,26 @@ test("continuation taker activation remains fail-closed in live mode", () => {
     CRYPTO_SHORT_OPTIONS_ENABLED: "false", CONTINUATION_TAKER_ENABLED: "true",
   });
   assert.equal(cfg.planner.hybridEntry.continuationTakerEnabled, false);
+  assert.equal(cfg.planner.hybridEntry.allowAnalyticPaperExecution, false);
   assert.equal(cfg.planner.hybridEntry.continuationTakerMinimumLatencySamples, 20);
   assert.equal(cfg.planner.hybridEntry.routeShadowEnabled, true);
+});
+
+test("analytical execution is enabled only for normal paper economic mode", () => {
+  const paper = loadConfig({
+    TRADING_MODE: "paper", ALPACA_PAPER: "true", ALPACA_API_KEY: "paper-key", ALPACA_API_SECRET: "paper-secret",
+  });
+  assert.equal(paper.deterministicSignal.economicEdgeMode, "ANALYTIC_PAPER");
+  assert.equal(paper.planner.hybridEntry.allowAnalyticPaperExecution, true);
+
+  const calibratedPaper = loadConfig({
+    TRADING_MODE: "paper", ALPACA_PAPER: "true", ALPACA_API_KEY: "paper-key", ALPACA_API_SECRET: "paper-secret",
+    RULE_ECONOMIC_EDGE_MODE: "CALIBRATED_PAPER",
+  });
+  assert.equal(calibratedPaper.planner.hybridEntry.allowAnalyticPaperExecution, false);
+
+  assert.throws(() => loadConfig({ TRADING_MODE: "replay", RULE_ECONOMIC_EDGE_MODE: "ANALYTIC_PAPER" }),
+    /reserved for paper trading/);
 });
 
 test("route shadow must cover every configured economic horizon", () => {
