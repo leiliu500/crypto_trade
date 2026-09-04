@@ -62,7 +62,8 @@ test("JSON baseline wins over legacy tunable environment values and symbol overl
       [3_600_000, 7_200_000, 14_400_000]);
     assert.equal(cfg.deterministicSignal.requireMakerEntry, true);
     assert.equal(cfg.deterministicSignal.allowTakerContinuation, true);
-    assert.equal(cfg.configurationVersion, "btc-eth-research-safe-v9.3.0");
+    assert.equal(cfg.configurationVersion, "btc-eth-policy-aware-fill-v9.5.0");
+    assert.equal(cfg.deterministicSignal.pullbackRecovery.maximumReversalAgeMs, 600_000);
     assert.equal(cfg.position.minimumHoldMs, 60_000);
     assert.equal(cfg.position.unproductiveExitMs, 900_000);
     assert.equal(cfg.position.reentryCooldownMs, 900_000);
@@ -121,7 +122,7 @@ test("continuation taker activation remains fail-closed in live mode", () => {
   assert.equal(cfg.planner.hybridEntry.routeShadowEnabled, true);
 });
 
-test("analytical execution is enabled only for normal paper economic mode", () => {
+test("paper mode defaults to analytical execution while calibrated-only paper remains available", () => {
   const paper = loadConfig({
     TRADING_MODE: "paper", ALPACA_PAPER: "true", ALPACA_API_KEY: "paper-key", ALPACA_API_SECRET: "paper-secret",
   });

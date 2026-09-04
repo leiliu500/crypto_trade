@@ -10,6 +10,7 @@ import { DeterministicHoldEngine } from "../src/strategy/deterministic-hold.js";
 import { DEFAULT_DETERMINISTIC_HOLD_CONFIG, DEFAULT_DETERMINISTIC_REGIME_CONFIG, DEFAULT_EXTENSION_CONFIG } from "../src/config/deterministic-defaults.js";
 import { SignalRouter } from "../src/strategy/signal-router.js";
 import { analyticEdges, validateMultiHorizonAnalyticConfig } from "../src/economics/analytic-edge.js";
+import { pullbackRecoveryPass } from "../src/strategy/pullback-recovery.js";
 
 const cost = (roundTripBps = .2) => ({
   roundTripBps, spreadBps: .1, feeBps: .05, impactBps: .02, latencyBps: .01,
@@ -283,7 +284,7 @@ test("analytical paper pullbacks require retained medium and slow trend directio
     const value = context(1, 1_000 + index * 50);
     value.features.trendFastBps = -12;
     value.features.trendMediumBps = 5;
-    value.features.slowTrendAlignment = -.15;
+    value.features.slowTrendAlignment = .15;
     value.features.longPullback = {
       ready: true, structuralMoveBps: 150, pullbackDepthBps: 100, recoveryBps: 20,
       remainingRoomBps: 80, structuralExtremeAgeMs: 3_600_000, reversalExtremeAgeMs: 300_000,
@@ -297,7 +298,7 @@ test("analytical paper pullbacks require retained medium and slow trend directio
   const current = context(1, 2_000);
   current.features.trendFastBps = -12;
   current.features.trendMediumBps = 5;
-  current.features.slowTrendAlignment = -.15;
+  current.features.slowTrendAlignment = .15;
   current.features.longPullback = {
     ready: true, structuralMoveBps: 150, pullbackDepthBps: 100, recoveryBps: 20,
     remainingRoomBps: 80, structuralExtremeAgeMs: 3_600_000, reversalExtremeAgeMs: 300_000,
@@ -470,6 +471,19 @@ test("partial pullbacks do not bypass structural or exact economic gates", () =>
   assert.equal(result, null);
   assert.equal(engine.latestEvaluation()?.long.pullbackRecoveryPass, false);
   assert.ok(engine.latestEvaluation()?.long.reasons.includes("STRUCTURAL_SETUP_GATE"));
+});
+
+test("a stale pullback reversal cannot be recycled as a fresh structural setup", () => {
+  const cfg = testConfig().pullbackRecovery;
+  const value = alignedFeatures(1);
+  value.longPullback = {
+    ready: true, structuralMoveBps: 150, pullbackDepthBps: 100, recoveryBps: 20,
+    remainingRoomBps: 80, structuralExtremeAgeMs: 3_600_000,
+    reversalExtremeAgeMs: cfg.maximumReversalAgeMs,
+  };
+  assert.equal(pullbackRecoveryPass(1, value, cfg), true);
+  value.longPullback.reversalExtremeAgeMs += 1;
+  assert.equal(pullbackRecoveryPass(1, value, cfg), false);
 });
 
 test("fee-sized pullback room must still clear the unchanged robust cost gate", () => {

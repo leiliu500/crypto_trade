@@ -215,7 +215,7 @@ export class PostgresTelemetryStore extends EventEmitter {
     const result = await this.pool.query<PersistedPositionStateRow>(
       `WITH event_positions AS (
          SELECT symbol,position,occurred_at AS observed_at,NULL::text AS round_trip_bps,
-           NULL::text AS economic_horizon_ms,NULL::text AS execution_path
+           NULL::text AS economic_horizon_ms,NULL::text AS execution_path,NULL::text AS entry_family
          FROM (
            SELECT DISTINCT ON (run_id,symbol) symbol,run_id,payload->'position' AS position,occurred_at
            FROM system_events
@@ -225,11 +225,12 @@ export class PostgresTelemetryStore extends EventEmitter {
          ) latest_run_positions
        ), snapshot_positions AS (
          SELECT p.symbol,p.payload AS position,p.updated_at AS observed_at,
-           entry.round_trip_bps,entry.economic_horizon_ms,entry.execution_path
+           entry.round_trip_bps,entry.economic_horizon_ms,entry.execution_path,entry.entry_family
          FROM positions p
          LEFT JOIN LATERAL (
            SELECT o.plan#>>'{expectedCost,roundTripBps}' AS round_trip_bps,
-             o.plan->>'economicHorizonMs' AS economic_horizon_ms,o.plan->>'executionPath' AS execution_path
+             o.plan->>'economicHorizonMs' AS economic_horizon_ms,o.plan->>'executionPath' AS execution_path,
+             o.plan->>'entryFamily' AS entry_family
            FROM orders o
            WHERE o.symbol = p.symbol AND o.status = 'FILLED' AND NOT o.reduce_only_intent
              AND o.side = COALESCE((p.payload->>'side')::smallint,p.side)
@@ -243,7 +244,7 @@ export class PostgresTelemetryStore extends EventEmitter {
          ) entry ON true
          WHERE p.symbol = ANY($1::text[]) AND p.updated_at >= now() - interval '1 day'
        )
-       SELECT DISTINCT ON (symbol) position,round_trip_bps,economic_horizon_ms,execution_path,symbol,observed_at
+       SELECT DISTINCT ON (symbol) position,round_trip_bps,economic_horizon_ms,execution_path,entry_family,symbol,observed_at
        FROM (
          SELECT * FROM event_positions
          UNION ALL
@@ -761,6 +762,7 @@ interface PersistedPositionStateRow {
   round_trip_bps: string | number | null;
   economic_horizon_ms: string | number | null;
   execution_path: string | null;
+  entry_family: string | null;
 }
 interface PersistedSessionPnlRow { realized_pnl: string | number; }
 interface PersistedDecisionVenueLatencyRow { occurred_at: Date | string; decision_ms: string | number; }
@@ -791,9 +793,13 @@ function restorePositionState(value: unknown, fallback?: Partial<PersistedPositi
   const executionPath = typeof persistedExecutionPath === "string"
     && ["MAKER_MAKER", "MAKER_TAKER", "MAKER_MAKER_TAKER_FALLBACK", "TAKER_TAKER"].includes(persistedExecutionPath)
     ? persistedExecutionPath as NonNullable<Position["executionPath"]> : null;
+  const persistedEntryFamily = position.entryFamily ?? fallback?.entry_family;
+  const entryFamily = persistedEntryFamily === "CONTINUATION" || persistedEntryFamily === "PULLBACK_RECOVERY"
+    ? persistedEntryFamily : null;
   return {
     symbol, side, qty, entryPx, openedMs, initialRiskPx, roundTripCostPx, mfePx, maePx, floorPx,
     breakEvenArmed: Boolean(position.breakEvenArmed), phase,
+    ...(entryFamily === null ? {} : { entryFamily }),
     ...(Number.isFinite(selectedHorizonMs) && selectedHorizonMs > 0 ? { selectedHorizonMs } : {}),
     ...(executionPath === null ? {} : { executionPath }),
     ...(Number.isFinite(lastReductionProbability) ? { lastReductionProbability } : {}),

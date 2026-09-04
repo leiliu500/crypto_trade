@@ -50,8 +50,9 @@ export class MultiHorizonCostGate {
     if (cost.path !== "TAKER_TAKER" && cost.fillProbability < this.cfg.minimumMakerFillProbability) {
       rejectionReasons.push("MAKER_FILL_PROBABILITY");
     }
-    if (this.mode === "CALIBRATED_LIVE" && edge.source !== "CALIBRATED") rejectionReasons.push("CALIBRATED_EDGE_REQUIRED");
-    if ((this.mode === "CALIBRATED_LIVE" || edge.source === "CALIBRATED")
+    const calibratedMode = this.mode === "CALIBRATED_PAPER" || this.mode === "CALIBRATED_LIVE";
+    if (calibratedMode && edge.source !== "CALIBRATED") rejectionReasons.push("CALIBRATED_EDGE_REQUIRED");
+    if ((calibratedMode || edge.source === "CALIBRATED")
       && edge.effectiveSampleCount < this.cfg.minimumEffectiveSampleCount) rejectionReasons.push("INSUFFICIENT_EFFECTIVE_SAMPLES");
     if (lowerBoundNetBps < this.cfg.minimumNetEdgeBps) rejectionReasons.push("COST_QUALITY_GATE");
     const qualityUnitGross = edge.quality > 1e-12 ? edge.grossBeforeUncertaintyBps / edge.quality : 0;

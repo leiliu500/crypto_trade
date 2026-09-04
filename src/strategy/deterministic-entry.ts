@@ -210,6 +210,10 @@ export class DeterministicEntryEngine {
       && !this.analyticPullbackTrendPass(side, features)) {
       return invalidSignal(true, "PULLBACK_TREND_CONFIRMATION_REQUIRED");
     }
+    if (family === "PULLBACK_RECOVERY" && edgeSource === "ANALYTIC"
+      && !(side === 1 ? regime.allowLong : regime.allowShort)) {
+      return invalidSignal(true, "REGIME_GATE");
+    }
     const structure = this.structuralSetup(side, features);
     if (family === "CONTINUATION" ? !structure.continuationPass
       : family === "PULLBACK_RECOVERY" ? !structure.pullbackPass : !structure.pass) {
@@ -277,8 +281,7 @@ export class DeterministicEntryEngine {
     // both independent book views agree. This prevents a slow-trend signal
     // from entering at a local turn while immediate price pressure opposes it.
     const neutralRegime = !context.regime.allowLong && !context.regime.allowShort;
-    const directionAuthorizationPass = structure.family === "PULLBACK_RECOVERY"
-      || regimePass || (neutralRegime && strong && votes.book >= 2);
+    const continuationDirectionAuthorizationPass = regimePass || (neutralRegime && strong && votes.book >= 2);
     // During a causally aligned continuation, a moderately widened spread may
     // proceed to exact economics when it is still below the learned stress
     // threshold and every non-spread liquidity check remains healthy. The
@@ -311,6 +314,12 @@ export class DeterministicEntryEngine {
       && economic.edge.effectiveSampleCount >= this.cfg.minimumEffectiveSampleCount;
     const analyticPaperPullbackPass = this.cfg.economicEdgeMode === "ANALYTIC_PAPER"
       && economic?.edge.source === "ANALYTIC";
+    // Counter-regime pullbacks need cohort-level evidence. Analytical research
+    // may observe them in shadow, but may execute only in an explicitly
+    // authorized directional regime.
+    const directionAuthorizationPass = structure.family === "PULLBACK_RECOVERY"
+      ? calibratedPullbackPass || (analyticPaperPullbackPass && regimePass)
+      : continuationDirectionAuthorizationPass;
     const pullbackCalibrationPass = structure.family !== "PULLBACK_RECOVERY"
       || calibratedPullbackPass || analyticPaperPullbackPass;
     // A calibrated bucket may prove a counter-trend pullback profitable. The
@@ -450,6 +459,8 @@ export class DeterministicEntryEngine {
 
   private analyticPullbackTrendPass(side: Direction, f: DeterministicFeatures): boolean {
     return f.slowTrendReady
+      && side * f.slowTrendAlignment >= this.cfg.minimumSlowTrendAlignment
+      && f.slowTrendEfficiency >= this.cfg.minimumSlowTrendEfficiency
       && side * f.trendMediumBps > 0
       && side * f.trendSlowBps >= this.cfg.minimumSlowTrendMoveBps;
   }

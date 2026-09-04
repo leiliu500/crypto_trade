@@ -142,7 +142,7 @@ The default deterministic configuration in `config/base.json` includes:
 
 ```text
 SIGNAL_MODE=DETERMINISTIC_ONLY
-DETERMINISTIC_CONFIG_VERSION=btc-eth-research-safe-v9.3.0
+DETERMINISTIC_CONFIG_VERSION=btc-eth-policy-aware-fill-v9.5.0
 PULLBACK_MAKER_TTL_MS=20000
 PULLBACK_KINEMATICS_GRACE_MS=5000
 PULLBACK_KINEMATICS_GRACE_EVENTS=2
@@ -175,7 +175,7 @@ Continuation economics are evaluated over 1-, 2-, and 4-hour horizons, with the 
 
 The zero latency-sample floor applies only to non-live evidence collection so the first paper acknowledgment can bootstrap measurement. Once any sample exists, its observed p95 must still fit the alpha budget. Live IOC routing is hard-disabled and its effective configuration retains at least 20 samples.
 
-Normal paper mode (`ANALYTIC_PAPER`) may route analytical continuation and maker-only pullback/recovery entries after every ordinary health, signal, liquidity, exact-cost, reward/risk, sizing, and portfolio gate passes. These uncalibrated orders are explicitly `researchOnly` and use `ANALYTIC_PAPER_SIZE_MULTIPLIER=0.10`; they collect evidence but cannot authorize deployment. Uncalibrated analytical pullbacks additionally require the causal 15- and 60-minute trends to retain the entry direction; a calibrated bucket with enough effective samples may establish a different profitable cohort. Shadow/replay and live modes still require a matching calibrated bucket with `RULE_MIN_EFFECTIVE_SAMPLES`; live continuation IOC routing also remains hard-disabled. Plans and route-shadow marks carry configuration, regime, evidence source, research status, and the selected economic horizon so outcomes cannot be pooled across incompatible policies.
+Normal paper mode defaults to `ANALYTIC_PAPER`, so qualifying analytical continuation and maker-only pullback signals may submit, fill, manage, and exit simulated orders. These uncalibrated orders are marked `researchOnly`, sized by `ANALYTIC_PAPER_SIZE_MULTIPLIER=0.10`, and cannot authorize live deployment. Analytical pullbacks additionally require an authorized directional regime, aligned and efficient 15-/60-minute trends, and a reversal extreme no older than `RULE_PULLBACK_MAX_REVERSAL_AGE_MS`. `CALIBRATED_PAPER` remains available as an explicit fail-closed mode. Plans and persisted order cards carry configuration, regime, evidence source, research status, conservative edge/EV, reward-risk, and the selected economic horizon so outcomes cannot be pooled across incompatible policies. Live mode still requires calibrated evidence and keeps continuation IOC routing hard-disabled.
 
 `record` appends raw order-book and trade events to `data/events.jsonl`. Paper, shadow, and live modes also continuously append independently compressed gzip batches to `data/continuous-events.jsonl.gz` when `CONTINUOUS_RECORDING_ENABLED` is true. The batched writer keeps compression off the market-data hot path and makes completed batches replayable while the engine remains online. Run `npm run recall -- data/continuous-events.jsonl.gz` to analyze one capture, or pass archived and active files in chronological order to accumulate coverage across restarts: `npm run recall -- data/continuous-events.ARCHIVE.jsonl.gz data/continuous-events.jsonl.gz`.
 

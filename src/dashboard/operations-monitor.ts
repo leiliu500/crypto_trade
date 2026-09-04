@@ -324,6 +324,7 @@ export class OperationsMonitor extends EventEmitter {
         initialRiskPx: position.initialRiskPx, roundTripCostPx: position.roundTripCostPx, floorPx: position.floorPx,
         stopPx: position.entryPx + position.side * position.floorPx,
         mfePx: position.mfePx, maePx: position.maePx, breakEvenArmed: position.breakEvenArmed,
+        entryFamily: position.entryFamily ?? null,
         selectedHorizonMs: position.selectedHorizonMs ?? null, executionPath: position.executionPath ?? null,
         latestAction: latest?.action ?? "MONITOR", latestReason: latest?.reason ?? null,
         holdEdgeBps: latest?.holdEdgeBps ?? null, reversalProbability: latest?.reversalProbability ?? null,
@@ -355,6 +356,14 @@ export class OperationsMonitor extends EventEmitter {
         side: order.plan.side,
         style: order.plan.style,
         entryFamily: order.plan.entryFamily ?? null,
+        configurationVersion: order.plan.configurationVersion ?? null,
+        regime: order.plan.regime ?? null,
+        edgeSource: order.plan.edgeSource ?? null,
+        edgeEffectiveSampleCount: order.plan.edgeEffectiveSampleCount ?? null,
+        researchOnly: order.plan.researchOnly === true,
+        conservativeNetEdgeBps: order.plan.conservativeNetEdgeBps ?? null,
+        conservativeExpectedValueBps: order.plan.conservativeExpectedValueBps ?? null,
+        rewardRiskRatio: order.plan.rewardRiskRatio ?? null,
         economicHorizonMs: order.plan.economicHorizonMs ?? null,
         executionPath: order.plan.executionPath ?? null,
         exitReason: order.plan.exitReason ?? null,
@@ -972,6 +981,8 @@ interface DashboardRealizedTrade {
   breakdown: NonNullable<DashboardLivePosition["realizedBreakdown"]>;
 }
 function legFeeBps(order: DashboardOrderCard): number {
+  const exact = order.expectedCost.entryFeeBps;
+  if (exact !== undefined && Number.isFinite(exact)) return Math.max(0, exact);
   return Number.isFinite(order.expectedCost.feeBps) ? Math.max(0, order.expectedCost.feeBps / 2) : 0;
 }
 function quantityTolerance(qty: number): number { return Math.max(1e-8, Math.abs(qty) * 1e-6); }

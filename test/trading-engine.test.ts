@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import type { AlpacaPosition } from "../src/alpaca/types.js";
 import type { BookState, Features } from "../src/core/market.js";
+import type { DeterministicFeatures } from "../src/strategy/deterministic-features.js";
 import { loadConfig } from "../src/config.js";
 import type { OrderGateway } from "../src/alpaca/gateway.js";
 import type { AssetRules, ExecutionPlan } from "../src/execution/planner.js";
@@ -870,6 +871,43 @@ test("transient hold evidence cannot bypass the position manager minimum hold", 
   await new Promise<void>((resolve) => setImmediate(resolve));
 
   assert.equal(plans.length, 0);
+});
+
+test("micro exit evidence cannot cut an aligned continuation but reactivates when slow structure breaks", () => {
+  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "replay", CONFIG_DIR: "config" }), { now: () => 61_000 });
+  let observedHoldExitEvidence: boolean | undefined;
+  const internals = engine as unknown as {
+    runtimes: Map<string, {
+      position?: Position;
+      regimeEngine: { classify: (features: DeterministicFeatures) => unknown };
+      holdEngine: { evaluate: (...args: unknown[]) => unknown };
+      positionManager: { update: (...args: unknown[]) => unknown };
+      cost: { estimate: (...args: unknown[]) => unknown };
+    }>;
+    evaluatePosition: (runtime: unknown, book: BookState, features: DeterministicFeatures) => unknown;
+  };
+  const runtime = internals.runtimes.get("BTC/USD")!;
+  runtime.position = { symbol: "BTC/USD", side: 1, qty: .01, entryPx: 100, openedMs: 0,
+    initialRiskPx: 10, roundTripCostPx: .4, mfePx: 0, maePx: 0, floorPx: -10,
+    breakEvenArmed: false, phase: "OPEN", entryFamily: "CONTINUATION", selectedHorizonMs: 7_200_000 };
+  runtime.regimeEngine = { classify: () => ({ name: "TREND_UP", allowLong: true, allowShort: false, riskScale: 1 }) };
+  runtime.holdEngine = { evaluate: () => ({ continuationScore: -1, reversalScore: 1, holdGrossBps: 0,
+    uncertaintyBps: 1, holdLowerBoundBps: -1, exitEvidence: true, reversalVotes: 5 }) };
+  runtime.positionManager = { update: (...args: unknown[]) => {
+    observedHoldExitEvidence = args[7] as boolean;
+    return { action: "HOLD", floorPx: -10, stopPx: 90, signedMovePx: 0 };
+  } };
+  runtime.cost = { estimate: () => ({ roundTripBps: 10, spreadBps: 1, feeBps: 7,
+    impactBps: 0, latencyBps: 0, adverseSelectionBps: 2, fundingBps: 0, borrowBps: 0 }) };
+  const book = { symbol: "BTC/USD", bids: [{ px: 100, qty: 1 }], asks: [{ px: 100.01, qty: 1 }],
+    exchangeTsMs: 61_000, receiveTsMs: 61_000, sequence: 1n, valid: true, sourceReset: true } satisfies BookState;
+  const aligned = { ...basicFeatures(61_000), slowTrendReady: true, slowTrendAlignment: .7,
+    slowTrendEfficiency: .5, trendMediumBps: 35, trendSlowBps: 60 } as DeterministicFeatures;
+
+  internals.evaluatePosition(runtime, book, aligned);
+  assert.equal(observedHoldExitEvidence, false);
+  internals.evaluatePosition(runtime, book, { ...aligned, slowTrendAlignment: -.7 });
+  assert.equal(observedHoldExitEvidence, true);
 });
 
 test("closing a position arms the configured re-entry cooldown", () => {

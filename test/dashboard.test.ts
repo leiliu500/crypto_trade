@@ -21,6 +21,11 @@ test("operations monitor retains an order's full P&L history after the position 
   assert.equal(snapshot.entriesAllowed, true);
   assert.equal(snapshot.orders[0]?.fillPercent, 50);
   assert.equal(snapshot.orders[0]?.remainingQty, .5);
+  assert.equal(snapshot.orders[0]?.configurationVersion, "test-policy");
+  assert.equal(snapshot.orders[0]?.regime, "TREND_UP");
+  assert.equal(snapshot.orders[0]?.edgeSource, "CALIBRATED");
+  assert.equal(snapshot.orders[0]?.edgeEffectiveSampleCount, 150);
+  assert.equal(snapshot.orders[0]?.researchOnly, false);
   assert.equal(snapshot.orders[0]?.livePosition?.active, true);
   assert.equal(snapshot.orders[0]?.livePosition?.closedAtMs, null);
   assert.equal(snapshot.orders[0]?.livePosition?.unrealizedPnl, .8);
@@ -385,6 +390,43 @@ test("filled reduce-only exit cards inherit complete history and actual realized
   assert.ok(repairedExit.livePosition?.realizedBreakdown);
   assert.equal(repairedExit.livePosition?.pnlHistory.length, 3);
   assert.equal(repairedExit.livePosition?.pnlHistory.at(-1)?.kind, "close");
+});
+
+test("closed-trade P&L uses exact asymmetric fees from each execution leg", () => {
+  const monitor = new OperationsMonitor();
+  const opened = engineState();
+  opened.orders[0]!.status = "FILLED";
+  opened.orders[0]!.filledQty = 1;
+  opened.orders[0]!.averageFillPx = 100;
+  opened.orders[0]!.plan.expectedCost = { ...opened.orders[0]!.plan.expectedCost,
+    feeBps: 7, entryFeeBps: 2, exitFeeBps: 5 };
+  monitor.ingestEngineSnapshot(opened);
+
+  const closed = engineState();
+  closed.generatedAtMs += 2_000;
+  closed.positions = [];
+  const entry = closed.orders[0]!;
+  entry.status = "FILLED";
+  entry.filledQty = 1;
+  entry.averageFillPx = 100;
+  entry.plan.expectedCost = { ...entry.plan.expectedCost, feeBps: 7, entryFeeBps: 2, exitFeeBps: 5 };
+  closed.orders = [...closed.orders, {
+    ...entry,
+    plan: { ...entry.plan, clientOrderId: "exact-fee-exit", side: -1, style: "taker", reduceOnlyIntent: true,
+      createdMs: closed.generatedAtMs - 500, expiresMs: closed.generatedAtMs + 500,
+      expectedCost: { ...entry.plan.expectedCost, feeBps: 10, entryFeeBps: 5, exitFeeBps: 5 } },
+    alpacaOrderId: "exact-fee-exit-remote", status: "FILLED", filledQty: 1, averageFillPx: 99,
+    lastUpdateMs: closed.generatedAtMs,
+  }];
+  monitor.ingestEngineSnapshot(closed);
+  const breakdown = monitor.snapshot().orders.find((order) => order.clientOrderId === "exact-fee-exit")
+    ?.livePosition?.realizedBreakdown;
+  monitor.stop();
+
+  assert.ok(breakdown);
+  assert.ok(Math.abs(breakdown.entryFee - .02) < 1e-12);
+  assert.ok(Math.abs(breakdown.exitFee - .0495) < 1e-12);
+  assert.ok(Math.abs(breakdown.realizedPnl + 1.0695) < 1e-12);
 });
 
 test("partial exits allocate entry fees once and aggregate as one realized trade", () => {
@@ -903,11 +945,14 @@ function engineState(): EngineOperationalSnapshot {
     risk: { health: { publicStream: true, privateStream: true, accountReconciled: true, bookValid: true, clockValid: true, riskRecomputed: true }, reasons: [], equity: 10_000, equityHighWater: 10_100 },
     markets: [{ symbol: "BTC/USD", bookValid: true, bestBid: 101, bestAsk: 102, sequence: "8", exchangeTsMs: now - 2, receiveTsMs: now - 1, features: null }],
     positions: [{ symbol: "BTC/USD", side: 1, qty: 1, entryPx: 100, openedMs: now - 5_000, initialRiskPx: 2, roundTripCostPx: .2,
-      mfePx: 2, maePx: .5, floorPx: .2, breakEvenArmed: true, phase: "PROTECTED" }],
+      mfePx: 2, maePx: .5, floorPx: .2, breakEvenArmed: true, phase: "PROTECTED", entryFamily: "CONTINUATION" }],
     orders: [{
       plan: { clientOrderId: "client-1", decisionId: "decision-1", riskApprovalId: "risk-1", symbol: "BTC/USD", side: 1, qty: 1, limitPx: 101,
         style: "maker", timeInForce: "gtc", createdMs: now - 1_000, expiresMs: now + 1_000, originatingSequence: 8n, featureHash: "hash",
-        strategyVersion: "test", modelVersion: "test-model", expectedCost: { roundTripBps: 2, spreadBps: .5, feeBps: 1, impactBps: .1, latencyBps: .2, adverseSelectionBps: .2, fundingBps: 0, borrowBps: 0 },
+        strategyVersion: "test", modelVersion: "test-model", configurationVersion: "test-policy", regime: "TREND_UP",
+        edgeSource: "CALIBRATED", edgeEffectiveSampleCount: 150, researchOnly: false,
+        conservativeNetEdgeBps: 12, conservativeExpectedValueBps: 4, rewardRiskRatio: .5,
+        entryFamily: "CONTINUATION", expectedCost: { roundTripBps: 2, spreadBps: .5, feeBps: 1, impactBps: .1, latencyBps: .2, adverseSelectionBps: .2, fundingBps: 0, borrowBps: 0 },
         risk: { qty: 1, riskBudget: 5, maximumLossPerUnit: 2, modeledMaximumLoss: 2, drawdownScale: 1, qualityScale: 1, volatilityScale: 1, bindingLimit: "risk" },
         fillProbability: .8, expectedValue: 2, reduceOnlyIntent: false },
       alpacaOrderId: "alpaca-1", status: "PARTIALLY_FILLED", filledQty: .5, averageFillPx: 100.5, lastUpdateMs: now,
