@@ -1,6 +1,6 @@
 # Multi-venue minimal-latency crypto engine
 
-A production-oriented TypeScript implementation of the attached mathematical design. The active paper path reconstructs Kraken's linear perpetual-futures L2 book, computes causal microstructure features on every event, and uses explicit deterministic entry, regime, cost, anti-chasing, persistence, reset, and exit rules. The default path does not construct or load a predictive model. The retained Alpaca adapter includes an optional, disabled-by-default route that converts qualified bearish BTC or ETH intents into finite-risk long puts on a crypto ETF proxy.
+A production-oriented TypeScript implementation of the attached mathematical design. The active paper path reconstructs Kraken's linear perpetual-futures L2 book, computes causal microstructure features on every event, and uses explicit deterministic entry, regime, cost, anti-chasing, persistence, reset, and exit rules. The default path does not construct or load a predictive model.
 
 It does **not** promise profit or zero latency. The checked-in `.env.example` selects the Kraken Futures adapter and starts in shadow mode; `npm run paper` enables its local paper broker. Kraken market data is production public data, while orders, fills, balances, and positions remain strictly local. Kraken live order routing is intentionally unavailable.
 
@@ -9,7 +9,7 @@ It does **not** promise profit or zero latency. The checked-in `.env.example` se
 The hot path is:
 
 ```text
-Kraken Futures public WebSocket (or the retained Alpaca adapter)
+Kraken Futures public WebSocket
   -> reset/delta L2 book validation
   -> causal microstructure + sampled 5/15/60-minute trend state
   -> prior-event adaptive microprice-noise threshold
@@ -28,7 +28,7 @@ Kraken Futures public WebSocket (or the retained Alpaca adapter)
 The main contracts are:
 
 - Candidate: a bounded directional score, two-of-three book/flow/motion quorum with motion mandatory, decayed occupancy, leaky evidence, confirmation time/events, arbitration, cooldown, and midpoint-at-arm chase limit must pass. A directional regime is still reported but cannot suppress a micro candidate.
-- Entry: every health, dynamic-liquidity, venue, exposure, edge, cost, sizing, execution-plan, and portfolio gate must then pass. The final plan must also have positive lower-confidence order value and a conservative net-edge/maximum-loss ratio of at least `0.20`. Pullback/recovery stays maker-only. A continuation may use a reduced-size capped IOC only when its exact robust edge, lower-confidence EV, aligned OFI/TFI/book imbalance, liquidity state, and measured decision-to-venue latency all pass; otherwise the independently valid maker plan remains the fallback. Early breakout is a separate paper-research family: it requires fresh displacement and velocity with bounded opposing structural drift, qualifies only against exact taker/taker economics, and never falls back to maker. Candidate sensitivity never bypasses order economics.
+- Entry: every health, dynamic-liquidity, venue, exposure, edge, cost, sizing, execution-plan, and portfolio gate must then pass. The final plan must also have positive lower-confidence order value and a conservative net-edge/maximum-loss ratio of at least `0.20`. Pullback/recovery stays maker-only. A continuation may use a reduced-size capped IOC only when its exact robust edge, lower-confidence EV, aligned OFI/TFI/book imbalance, liquidity state, and measured decision-to-venue latency all pass; otherwise the independently valid maker plan remains the fallback. Early breakout is a separate paper-research family: it requires fresh displacement and velocity with bounded opposing structural drift, qualifies only against exact taker/taker economics, and never falls back to maker. An uncalibrated analytical breakout additionally requires an agreeing directional regime before paper execution; neutral candidates remain in route shadow until their own calibrated cohort proves positive. Candidate sensitivity never bypasses order economics.
 - Cost: `deterministic opportunity − uncertainty reserve − (exact fixed fees + stressed variable execution cost) >= minimum edge`. The `1.75` safety factor applies only to uncertain execution, impact, latency, and adverse-selection components; known venue fees remain exact. Every maker entry is qualified against a full taker exit. A later profitable maker exit is treated only as realized improvement and is never required for the entry to look economic.
 - Horizon: microstructure selects entry timing. A bounded five-second sampler supplies causal 5/15/60-minute trend returns, slow efficiency, and slow realized variance. Continuation economics use 1/2/4-hour horizons and select the strongest conservative post-cost edge. Entry loss sizing caps that forecast volatility at the family's unproductive-exit horizon, so a long alpha horizon cannot widen the stop. Early-breakout research uses a separate 30-minute economic horizon and a two-minute no-progress exit. A separate 30-second sampler supplies the ordered four-hour state for 15-minute pullback/recovery entries.
 - Entry families: continuation keeps its existing aligned 5/15/60-minute gate. Pullback/recovery separately requires a prior structural move, a fee-scale retracement, a confirmed rebound, retained trend, and unrecovered room. Early breakout requires ready structural history, positive fast trend, a new two-second extreme or aligned 500-millisecond impulse, aligned velocity, stable flow, and bounded opposing 15/60-minute drift. None of these families relaxes another family's thresholds.
@@ -51,37 +51,11 @@ The public WebSocket subscribes to Kraken `book` and `trade` feeds. A snapshot i
 
 The paper broker is local-only and provides the normal order lifecycle: submit, acknowledge, IOC/GTC, cancel/cancel-all, partial fill, open-order reconciliation, long/short positions, reduce-only exits, fees, realized P&L, and mark-to-market equity. Account state is atomically persisted at `KRAKEN_PAPER_STATE_FILE`, including positions, cash/P&L, orders, and fills. On restart, positions and balances are restored; any order that was still resting is marked canceled because fills during downtime cannot be reconstructed safely. IOC fills walk the observed book subject to the order's limit. Resting maker fills require contra-side Kraken trades to consume simulated queue-ahead volume. This is deliberately conservative but cannot reproduce real queue identity, venue latency, margin liquidation, funding realization, API rejection, or outages.
 
-No Kraken API key is read in this mode, and no Kraken private REST or WebSocket order method is called. A Kraken Pro browser sign-in is unrelated to the local simulator. `TRADING_MODE=live` with `TRADING_VENUE=kraken_futures` fails at configuration load.
+No Kraken API key is read in this mode, and no Kraken private REST or WebSocket order method is called. A Kraken Pro browser sign-in is unrelated to the local simulator. Real-money order routing is not implemented.
 
-## Alpaca API coverage
+## Execution constraints
 
-The retained Alpaca adapter uses the current Alpaca Trading API and Crypto Data API directly:
-
-- Trading resources: account, account configuration, account portfolio history, activities, assets, clock, order create/list/get/by-client-ID/replace/cancel/cancel-all, position list/get/close/close-all.
-- Crypto latest data: order books, quotes, trades, bars, and snapshots.
-- Crypto historical data: bars, quotes, and trades with page-token-capable query types.
-- Options control plane: current-day contract discovery and option-order/position reconciliation.
-- Public stream: trades, quotes, and order-book reset/deltas at `v1beta3/crypto/{loc}`.
-- Proxy/options streams: IBIT/ETHA quotes from the stock WebSocket and explicitly subscribed contract quotes/trades from Alpaca's msgpack-only options WebSocket. REST snapshots never authorize an option order.
-- Private stream: all `trade_updates`, including new, partial fill, fill, cancel, expiry, replace, reject, pending, suspended, and uncommon states.
-- Every trading response retains Alpaca's `X-Request-ID` for operational diagnosis.
-
-Startup preflight reads all latest crypto resources, account configuration, and clock. Reconciliation reads account, dynamic asset precision, all open crypto orders, positions, and 24-hour portfolio history. REST market data is never awaited in the trading hot path.
-
-Alpaca venue constraints are enforced:
-
-- Spot crypto assets currently report `shortable=false`. With `CRYPTO_SHORT_OPTIONS_ENABLED=false` (the default), short intents remain audit-only. When explicitly enabled, a qualified `BTC/USD` short buys an IBIT put and a qualified `ETH/USD` short buys an ETHA put; this is proxy exposure, not a short sale of the coin.
-- The options route is deliberately long-put-only. It does not sell naked calls or construct a synthetic short, so modeled maximum loss is the premium paid. It requires Alpaca options level 2, whole contracts, `day` orders, regular US options hours, fresh stock and option WebSocket quotes, a configured spread limit, and sufficient options buying power.
-- Only contracts whose expiration date equals the current `America/New_York` trading date are eligible. Greeks are not required because Alpaca generally cannot calculate them for 0DTE; the selector uses proxy moneyness, live bid/ask liquidity, and open interest. If the proxy has no listed expiration that day, the route fails closed.
-- New 0DTE entries are allowed only from 09:35 through 14:59 ET. Positions are sent a streamed, marketable-limit exit from 15:15 ET; any position still present at 15:25 ET uses an emergency market `sell_to_close` before Alpaca's expiration-risk processing window. Every entry is intraday-only and the engine never intentionally carries it through expiration.
-- Option orders remain interlocked through terminal-order reconciliation, including partial fills and momentarily inconsistent order/position snapshots. Ambiguous POST outcomes are resolved by client order ID and are never resubmitted speculatively. Opening orders encode the originating crypto reference price in their owned client ID so stop/target management survives a process restart, and any signal-router size reduction scales the maximum premium budget before whole-contract rounding.
-- The proxy route's premium cap is a loss bound, not evidence that a crypto signal has profitable 0DTE option expectancy. Paper fills must be used to calibrate proxy basis, option spread/slippage, and time decay before live enablement.
-- Alpaca crypto supports market, limit, and stop-limit orders with GTC/IOC. Pullback/recovery entries remain non-marketable GTC limits. Continuations build independent maker and reduced-size IOC candidates before submission; the IOC is selected only by the explicit hybrid route above and is hard-disabled in live mode until shadow evidence is deployment-ready. It never chases after a resting maker order becomes stale. Continuation maker entries retain the micro-alpha TTL; pullback/recovery entries use a separate 20-second maker TTL. Every submitted plan has an independent wall-clock deadline, so quiet market data cannot leave it resting past expiry. Cancellation intent is latched while an order POST is in flight and is executed immediately after acknowledgment. A resting continuation confirms transient micro-signal and micro-regime failures for the configured 750 milliseconds and three events, while persistent adverse flow cancels after 100 milliseconds and two events—inside its maker TTL. Pullback adverse flow retains the two-second, three-event confirmation; corroborated OFI and trade flow cancel immediately. Structural-trend, stale-data, and exact-cost failures remain immediate. A single transient kinematics reset cannot cancel a resting pullback order: cancellation requires both the configured five-second grace and two consecutive unavailable events. Maker-fill estimates use dimensionless queue share, a conservative observed-fill intercept, and competing signal decay. Final planning records distinct fill-probability, lower-confidence expected-value, reward/risk, exact-cost, risk-size, impact, and exchange-size rejection reasons. Every maker entry is cost-qualified with a complete taker exit; an already-profitable, cost-covered non-urgent exit may still try a maker fill for at most five seconds before its IOC fallback. Losing or cost-uncovered time/evidence exits and all hard-stop, early-adverse, and profit-floor exits use a price-capped IOC immediately. Every final quantity is exact-cost revalidated. Account reconciliation fetches the exact authoritative status of locally tracked orders missing from Alpaca's open-order list instead of assuming they were canceled.
-- There are no perpetuals, leverage, liquidation, funding, or native reduce-only flags on this venue. Funding/borrow are therefore zero, and exits are client-side clamped to the known long position.
-- Alpaca's documented order-book schema exposes reset and price-level deltas, but no exchange sequence number or checksum. The engine requires a reset after connection, rejects timestamp reversal/crossed books/duplicates, and never misrepresents its local counter as an exchange sequence guarantee.
-- Minimum size, quantity increment, and price increment come from the live Alpaca Assets resource rather than hard-coded symbol rules.
-
-Official references: [real-time crypto data](https://docs.alpaca.markets/docs/real-time-crypto-pricing-data), [crypto trading](https://docs.alpaca.markets/docs/crypto-trading), [real-time options data](https://docs.alpaca.markets/docs/real-time-option-data), [options trading](https://docs.alpaca.markets/docs/options-trading), [orders](https://docs.alpaca.markets/reference/postorder), and [trade updates](https://docs.alpaca.markets/docs/websocket-streaming).
+Pullback/recovery entries remain non-marketable GTC limits. Continuations build independent maker and reduced-size IOC candidates before submission. Every submitted plan has an independent wall-clock deadline, so quiet market data cannot leave it resting past expiry. Cancellation intent is latched while an order send is in flight and is executed immediately after acknowledgment. Account reconciliation fetches the exact authoritative status of locally tracked orders missing from the open-order list instead of assuming they were canceled. Minimum size, quantity increment, and price increment come from Kraken Futures instrument metadata.
 
 ## Setup
 
@@ -100,15 +74,13 @@ $env:TRADING_MODE = 'paper'
 npm run paper
 ```
 
-The standard Alpaca names `APCA_API_KEY_ID` and `APCA_API_SECRET_KEY` remain accepted when `TRADING_VENUE=alpaca`. Secrets are never included in application logs. `.env` is ignored by Git.
+No exchange credentials are required. `.env` is ignored by Git.
 
 Tunable parameters are JSON-backed:
 
 - `config/base.json` contains the enabled symbol list and baseline parameter values.
 - Files such as `config/btc_usd.json`, `config/doge_usd.json`, `config/eth_usd.json`, `config/link_usd.json`, `config/sol_usd.json`, and `config/xrp_usd.json` contain symbol-specific overrides. A symbol such as `XRP/USD` maps to `xrp_usd.json`.
-- A symbol file only needs to include values that differ from the baseline. Its keys must already exist in `base.json`, and global dashboard/database parameters cannot be overridden per symbol.
-- Global `OPTIONS_SHORT_*` values in `config/base.json` configure the proxy map, WebSocket feeds, ATM moneyness band, quote/spread limits, premium cap, contract subscription cap, entry/exit times, and intraday stops. The checked-in option feed is `opra`; the Alpaca account must have access to that feed.
-- `CONFIG_DIR` can select another configuration directory. JSON values take precedence over legacy tunable environment variables, so tuning has one source of truth.
+- A symbol file only needs to include values that differ from the baseline. Its keys must already exist in `base.json`, and global dashboard/database parameters cannot be overridden per symbol.- `CONFIG_DIR` can select another configuration directory. JSON values take precedence over legacy tunable environment variables, so tuning has one source of truth.
 
 Keep credentials and connection secrets out of all JSON files.
 
@@ -120,7 +92,6 @@ Keep credentials and connection secrets out of all JSON files.
 | `replay` | Reconstructs and validates a recorded event stream. |
 | `shadow` | Runs the full decision pipeline and emits plans without submitting them. |
 | `paper` | Runs capped deterministic-rule orders through the selected paper adapter. Kraken orders remain local. |
-| `live` | Alpaca real-money orders only. Kraken live routing is not implemented. |
 
 Commands:
 
@@ -142,7 +113,7 @@ The default deterministic configuration in `config/base.json` includes:
 
 ```text
 SIGNAL_MODE=DETERMINISTIC_ONLY
-DETERMINISTIC_CONFIG_VERSION=btc-eth-early-breakout-v9.6.0
+DETERMINISTIC_CONFIG_VERSION=btc-eth-regime-confirmed-breakout-v9.7.0
 PULLBACK_MAKER_TTL_MS=20000
 PULLBACK_KINEMATICS_GRACE_MS=5000
 PULLBACK_KINEMATICS_GRACE_EVENTS=2
@@ -183,11 +154,11 @@ BREAKOUT_POSITION_MAXIMUM_HOLD_MS=1800000
 
 Continuation economics are evaluated over 1-, 2-, and 4-hour horizons, with the strongest conservative post-cost edge selected. Entry loss sizing is independently capped at the 15-minute unproductive-exit horizon, so a long trend forecast cannot create a four-hour stop. This preserves enough horizon for conservative edge to clear costs while still rejecting entries below the order-EV and reward/risk floors.
 
-The zero latency-sample floor applies only to non-live evidence collection so the first paper acknowledgment can bootstrap measurement. Once any sample exists, its observed p95 must still fit the alpha budget. Live IOC routing is hard-disabled and its effective configuration retains at least 20 samples.
+The zero latency-sample floor lets the first paper acknowledgment bootstrap measurement. Once any sample exists, its observed p95 must still fit the alpha budget.
 
-Normal paper mode defaults to `ANALYTIC_PAPER`, so qualifying analytical continuation, maker-only pullback, and IOC-only early-breakout signals may submit, fill, manage, and exit simulated orders. These uncalibrated orders are marked `researchOnly`, sized by `ANALYTIC_PAPER_SIZE_MULTIPLIER=0.10`, and cannot authorize live deployment. The additional early-breakout multiplier limits those paper positions to 2.5% of normal deterministic size. Analytical pullbacks additionally require an authorized directional regime, aligned and efficient 15-/60-minute trends, and a reversal extreme no older than `RULE_PULLBACK_MAX_REVERSAL_AGE_MS`. `CALIBRATED_PAPER` remains available as an explicit fail-closed mode. Plans and persisted order cards carry configuration, regime, evidence source, research status, conservative edge/EV, reward-risk, and the selected economic horizon so outcomes cannot be pooled across incompatible policies. Live mode still requires calibrated evidence and keeps all IOC entry routing hard-disabled.
+Normal paper mode defaults to `ANALYTIC_PAPER`, so qualifying analytical continuation, maker-only pullback, and IOC-only early-breakout signals may submit, fill, manage, and exit simulated orders. These uncalibrated orders are marked `researchOnly`, sized by `ANALYTIC_PAPER_SIZE_MULTIPLIER=0.10`, and cannot authorize deployment. The additional early-breakout multiplier limits those paper positions to 2.5% of normal deterministic size. Analytical pullbacks additionally require an authorized directional regime, aligned and efficient 15-/60-minute trends, and a reversal extreme no older than `RULE_PULLBACK_MAX_REVERSAL_AGE_MS`. `CALIBRATED_PAPER` remains available as an explicit fail-closed mode. Plans and persisted order cards carry configuration, regime, evidence source, research status, conservative edge/EV, reward-risk, and the selected economic horizon so outcomes cannot be pooled across incompatible policies.
 
-`record` appends raw order-book and trade events to `data/events.jsonl`. Paper, shadow, and live modes also continuously append independently compressed gzip batches to `data/continuous-events.jsonl.gz` when `CONTINUOUS_RECORDING_ENABLED` is true. The batched writer keeps compression off the market-data hot path and makes completed batches replayable while the engine remains online. Run `npm run recall -- data/continuous-events.jsonl.gz` to analyze one capture, or pass archived and active files in chronological order to accumulate coverage across restarts: `npm run recall -- data/continuous-events.ARCHIVE.jsonl.gz data/continuous-events.jsonl.gz`.
+`record` appends raw order-book and trade events to `data/events.jsonl`. Paper and shadow modes also continuously append independently compressed gzip batches to `data/continuous-events.jsonl.gz` when `CONTINUOUS_RECORDING_ENABLED` is true. The batched writer keeps compression off the market-data hot path and makes completed batches replayable while the engine remains online. Run `npm run recall -- data/continuous-events.jsonl.gz` to analyze one capture, or pass archived and active files in chronological order to accumulate coverage across restarts: `npm run recall -- data/continuous-events.ARCHIVE.jsonl.gz data/continuous-events.jsonl.gz`.
 
 `recall` reconstructs the same causal features, adaptive micro trigger, occupancy/evidence state, cost, and deterministic-entry pipeline, then labels the best executable move available over the configured future horizon. It reports opportunity recall, signal precision, family-specific pullback and early-breakout outcomes, gate-block frequencies, and non-finite feature incidents. Kraken Futures runs treat long and native-short signals symmetrically in acceptance and calibration; venues without native crypto shorts retain the short side as audit-only. Labels deduct two taker fees plus fixed costs but omit latency and impact, so the result is an optimistic upper bound rather than a profit claim.
 
@@ -201,20 +172,6 @@ Recall and tuning safeguards live in `config/base.json` under the `RECALL_*` par
 
 No `MODEL_CONFIG_JSON` is read in this mode. `ENTRY_MODE=rules` remains a compatibility alias. The optional `DETERMINISTIC_WITH_MODEL_VETO` and `DETERMINISTIC_WITH_MODEL_RANKING` modes require a versioned `MODEL_CONFIG_JSON` and fail closed when it is absent. The router is structurally unable to turn a null deterministic intent into an order.
 
-Live mode additionally requires:
-
-```text
-ALPACA_PAPER=false
-ALLOW_LIVE_TRADING=true
-LIVE_TRADING_CONFIRMATION=I_UNDERSTAND_LIVE_ORDERS_USE_REAL_MONEY
-```
-
-Enabling the separate 0DTE route requires `CRYPTO_SHORT_OPTIONS_ENABLED=true`. In live mode it also requires:
-
-```text
-OPTIONS_SHORT_LIVE_CONFIRMATION=I_UNDERSTAND_0DTE_OPTIONS_CAN_EXPIRE_WORTHLESS
-```
-
 ## AWS EC2 deployment with Docker Compose
 
 The Compose stack builds and runs the trading engine and PostgreSQL together. The dashboard listens on port `3001`, PostgreSQL remains bound only to EC2 loopback, and named volumes preserve database and recorded event data across container replacements.
@@ -223,7 +180,7 @@ On an EC2 instance with Docker Engine and the Compose plugin installed:
 
 ```bash
 cp .env.example .env
-# Add the Alpaca credentials to .env and keep TRADING_MODE=shadow for the first run.
+# Keep TRADING_MODE=shadow for the first run.
 docker-compose up -d --build
 docker-compose ps
 docker-compose logs -f engine
@@ -245,7 +202,7 @@ Stop the stack with `docker-compose down`. This preserves named volumes; adding 
 
 ## Operations dashboard and PostgreSQL
 
-The dashboard is enabled by default at `http://127.0.0.1:3001` for a local process, or `http://EC2_PUBLIC_IP:3001` for the Compose deployment. It shows execution-gate liveness, Alpaca public/private stream state, reconciliation and book validity, micro score/phase/block reasons, occupancy, evidence, adaptive noise and movement threshold, arm-anchored chase, per-direction groups, gross opportunity, uncertainty, round-trip cost and lower-bound edge, risk halts, latency, hold/reversal exit dynamics, order fill progression, lifecycle timelines, and the operational audit stream. Its pipeline counters expose `MICRO_EVENT`, `MICRO_ARMED`, and `MICRO_CANDIDATE` separately from cost qualification and order sends. It is read-only, uses no third-party browser assets, and redacts credential-shaped event fields.
+The dashboard is enabled by default at `http://127.0.0.1:3001` for a local process, or `http://EC2_PUBLIC_IP:3001` for the Compose deployment. It shows execution-gate liveness, Kraken market and local paper-order stream state, reconciliation and book validity, micro score/phase/block reasons, occupancy, evidence, adaptive noise and movement threshold, arm-anchored chase, per-direction groups, gross opportunity, uncertainty, round-trip cost and lower-bound edge, risk halts, latency, hold/reversal exit dynamics, order fill progression, lifecycle timelines, and the operational audit stream. Its pipeline counters expose `MICRO_EVENT`, `MICRO_ARMED`, and `MICRO_CANDIDATE` separately from cost qualification and order sends. It is read-only, uses no third-party browser assets, and redacts credential-shaped event fields.
 
 Start the PostgreSQL 16 service and validate its schema:
 
@@ -270,8 +227,8 @@ npm run dashboard:demo
 
 The test suite enforces exact decimal conversion, reset/delta and duplicate behavior, crossed-book rejection, causal feature replay equality, slow-window warm-up and trend alignment, ordered pullback/recovery detection, fee-sized recovery economics, pullback maker-only routing, tightly gated continuation IOC routing, IOC-only early-breakout routing with no maker fallback, family-specific calibration, causal queue-ahead shadow fills, mandatory staleness/health gates, adaptive prior-noise decisions, independent evidence quorums, tiny persistent movement detection, spike rejection, opposing-evidence decay, event-gap reset, one candidate per episode, arm-anchored anti-chasing, long/short symmetry, inclusive exact-cost thresholds, model non-creation, deterministic hold/reversal, maximum-loss sizing, monotone floors, operational reconciliation, private-event idempotence, and non-retry of order POSTs.
 
-The replay package includes event validation, opportunity-recall analysis, forward-return calibration candidates, profitable-after-robust-cost acceptance gates, arrival-time IOC/maker fill simulation primitives, chronological walk-forward fold construction with purge/embargo, conservative stress profiles, and reusable trade-metric calculations. Set `RECALL_REQUIRE_PROFITABLE_ENTRY=true` to make `npm run recall` exit nonzero unless a full replay contains at least one profitable venue-eligible intent; the legacy `RECALL_REQUIRE_PROFITABLE_LONG=true` gate remains long-specific. Continuation entries accept a same-side micro regime, or a neutral regime when the slower structural trend, strong micro-confirmation path, top-of-book pressure, and aggregate-book imbalance all agree; an explicitly opposite-side regime remains a hard block. In normal paper mode, analytical pullback/recovery signals may submit maker-only entries and early breakouts may submit reduced-size IOC-only entries so their actual local outcomes can be measured. Outside analytical paper, each family remains observation-only until a matching symbol, side, regime, and execution-path calibration bucket has the required effective samples; live IOC activation remains code-level disabled. Calibration remains non-deployable until the configured duration and independent-sample requirements pass; short recordings and paper trades are evidence inputs, not automatic authorization for live trading.
+The replay package includes event validation, opportunity-recall analysis, forward-return calibration candidates, profitable-after-robust-cost acceptance gates, arrival-time IOC/maker fill simulation primitives, chronological walk-forward fold construction with purge/embargo, conservative stress profiles, and reusable trade-metric calculations. Set `RECALL_REQUIRE_PROFITABLE_ENTRY=true` to make `npm run recall` exit nonzero unless a full replay contains at least one profitable venue-eligible intent; the legacy `RECALL_REQUIRE_PROFITABLE_LONG=true` gate remains long-specific. Continuation entries accept a same-side micro regime, or a neutral regime when the slower structural trend, strong micro-confirmation path, top-of-book pressure, and aggregate-book imbalance all agree; an explicitly opposite-side regime remains a hard block. In normal paper mode, analytical pullback/recovery signals may submit maker-only entries and early breakouts may submit reduced-size IOC-only entries so their actual local outcomes can be measured. Outside analytical paper, each family remains observation-only until a matching symbol, side, regime, and execution-path calibration bucket has the required effective samples. Calibration remains non-deployable until the configured duration and independent-sample requirements pass; short recordings and paper trades are evidence inputs, not automatic authorization for live trading.
 
-Run `npm run optimize:report` against the configured PostgreSQL database to audit maker-fill calibration, realized net performance, causal entry-route shadows, and a read-only 10-minute unproductive-position exit counterfactual against the active 15-minute exit. Use `npm run optimize:report:production` in the compiled production container. Realized trades are matched back to their entry plan and grouped by configuration, symbol, side, family, regime, edge source, horizon, and research status; analytical/research trades can never make a cohort deployment-ready. The route shadow simulates displayed queue ahead from observed contra-side trades and marks each policy at its executable exit quantity at 1, 5, 30, and 60 seconds, 5 and 15 minutes, and 1, 2, and 4 hours; an unfilled maker scores zero and a partial fill is weighted by its fill fraction. A taker-only candidate remains valid profitability evidence and is compared with no trade instead of being discarded. Delayed marks beyond one second are excluded rather than relabeled as their target horizon. Deployment is assessed only at each signal's selected economic horizon and separately by configuration, symbol, side, family, regime, edge source, and horizon. The report excludes records from runs with dropped telemetry and does not authorize a parameter change until a cohort meets the same minimum tuning duration and effective-sample requirements. Maker-fill deployment additionally requires ROC AUC of at least 0.55, realized performance requires a positive lower 95% net-return bound, the timeout shadow requires a positive lower 95% confidence bound for its P&L improvement, and route deployment requires positive lower 95% confidence bounds for both absolute post-cost return and return versus the available maker policy or no-trade alternative. Live continuation IOC activation remains code-level disabled regardless of the report.
+Run `npm run optimize:report` against the configured PostgreSQL database to audit maker-fill calibration, realized net performance, causal entry-route shadows, and a read-only 10-minute unproductive-position exit counterfactual against the active 15-minute exit. Use `npm run optimize:report:production` in the compiled production container. Realized trades are matched back to their entry plan and grouped by configuration, symbol, side, family, regime, edge source, horizon, and research status; analytical/research trades can never make a cohort deployment-ready. The route shadow simulates displayed queue ahead from observed contra-side trades and marks each policy at its executable exit quantity at 1, 5, 30, and 60 seconds, 5 and 15 minutes, and 1, 2, and 4 hours; an unfilled maker scores zero and a partial fill is weighted by its fill fraction. A taker-only candidate remains valid profitability evidence and is compared with no trade instead of being discarded. Delayed marks beyond one second are excluded rather than relabeled as their target horizon. Deployment is assessed only at each signal's selected economic horizon and separately by configuration, symbol, side, family, regime, edge source, and horizon. The report excludes records from runs with dropped telemetry and does not authorize a parameter change until a cohort meets the same minimum tuning duration and effective-sample requirements. Maker-fill deployment additionally requires ROC AUC of at least 0.55, realized performance requires a positive lower 95% net-return bound, the timeout shadow requires a positive lower 95% confidence bound for its P&L improvement, and route deployment requires positive lower 95% confidence bounds for both absolute post-cost return and return versus the available maker policy or no-trade alternative. Real-money deployment remains outside this system.
 
-Start with recorder → replay → shadow → paper → minimum-size live. Do not scale until live fill quality, latency, costs, and calibration agree with conservative out-of-sample results.
+Start with recorder → replay → shadow → paper. Do not scale paper assumptions into real capital without an independently reviewed live execution and risk system.

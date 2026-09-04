@@ -134,6 +134,34 @@ test("analytical paper early breakout is IOC-only even when maker EV is higher",
   assert.deepEqual(decision.reasons, []);
 });
 
+test("analytical paper early breakout remains shadow-only without a directional regime", () => {
+  const decision = new HybridEntryRouter({ ...config, allowAnalyticPaperExecution: true }).select({
+    family: "EARLY_BREAKOUT", side: 1, regimePass: false, edgeSource: "ANALYTIC",
+    edgeEffectiveSampleCount: 0, minimumEffectiveSampleCount: 100,
+    signalScore: .7, features, directionalBreakoutBps: .1, liquidity,
+    latencySamples: 50, latencyP95Ms: 400, alphaHalfLifeMs: 4_000,
+    makerPlan: null, takerPlan: plan("taker", 2, 12),
+  });
+  assert.equal(decision.executionEvidencePass, true);
+  assert.equal(decision.takerEligible, false);
+  assert.equal(decision.selectedPlan, null);
+  assert.ok(decision.reasons.includes("EARLY_BREAKOUT_REGIME_NOT_DIRECTIONAL"));
+});
+
+test("calibrated early breakout can use cohort evidence in a neutral regime", () => {
+  const decision = new HybridEntryRouter(config).select({
+    family: "EARLY_BREAKOUT", side: 1, regimePass: false, edgeSource: "CALIBRATED",
+    edgeEffectiveSampleCount: 100, minimumEffectiveSampleCount: 100,
+    signalScore: .7, features, directionalBreakoutBps: .1, liquidity,
+    latencySamples: 50, latencyP95Ms: 400, alphaHalfLifeMs: 4_000,
+    makerPlan: null, takerPlan: plan("taker", 2, 12),
+  });
+  assert.equal(decision.executionEvidencePass, true);
+  assert.equal(decision.takerEligible, true);
+  assert.equal(decision.selectedStyle, "taker");
+  assert.ok(!decision.reasons.includes("EARLY_BREAKOUT_REGIME_NOT_DIRECTIONAL"));
+});
+
 test("early breakout never falls back to maker when its IOC route fails", () => {
   const decision = new HybridEntryRouter({ ...config, allowAnalyticPaperExecution: true }).select({
     family: "EARLY_BREAKOUT", side: 1, regimePass: true, edgeSource: "ANALYTIC",

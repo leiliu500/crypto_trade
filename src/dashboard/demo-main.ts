@@ -14,7 +14,7 @@ const host = process.env.DASHBOARD_HOST ?? "0.0.0.0";
 const server = new DashboardServer(monitor, { host, port: Number.isInteger(port) ? port : 3_001 });
 const url = await server.start();
 
-monitor.recordEvent("publicStreamReady", { feed: "Alpaca crypto v1beta3", symbols: ["BTC/USD", "ETH/USD", "SOL/USD"] }, Date.now() - 20_000);
+monitor.recordEvent("publicStreamReady", { feed: "Kraken Futures", symbols: ["BTC/USD", "ETH/USD", "SOL/USD"] }, Date.now() - 20_000);
 monitor.recordEvent("privateStreamReady", { stream: "trade_updates" }, Date.now() - 19_800);
 monitor.recordEvent("reconciled", { orders: 4, positions: 1 }, Date.now() - 19_400);
 
@@ -87,10 +87,10 @@ function features(symbol: string, mid: number, spread: number, nowMs: number, si
 function demoOrders(nowMs: number, progress: number, btc: number): readonly TrackedOrder[] {
   const activeQty = .12, activeFilled = activeQty * progress;
   return [
-    tracked(plan("mlce-btc-entry-a41f8c", "decision-01", "BTC/USD", 1, activeQty, 68_180, nowMs - 8_400, false, .78, 22.45), "PARTIALLY_FILLED", activeFilled, 68_176.4, nowMs - 180, "alpaca-paper-1001"),
-    tracked(plan("mlce-eth-entry-f92d31", "decision-02", "ETH/USD", 1, 1.85, 3_628.1, nowMs - 42_000, false, 1, 16.82), "FILLED", 1.85, 3_626.8, nowMs - 39_100, "alpaca-paper-1002"),
-    tracked(plan("mlce-sol-entry-7cc210", "decision-03", "SOL/USD", 1, 22, 177.82, nowMs - 78_000, false, .71, 11.12), "CANCELED", 0, 0, nowMs - 76_800, "alpaca-paper-1003"),
-    tracked(plan("mlce-exit-btc-91aa04", "decision-04", "BTC/USD", -1, .025, btc - 1.1, nowMs - 1_700, true, 1, -1.64), "OPEN", 0, 0, nowMs - 240, "alpaca-paper-1004"),
+    tracked(plan("mlce-btc-entry-a41f8c", "decision-01", "BTC/USD", 1, activeQty, 68_180, nowMs - 8_400, false, .78, 22.45), "PARTIALLY_FILLED", activeFilled, 68_176.4, nowMs - 180, "kraken-paper-1001"),
+    tracked(plan("mlce-eth-entry-f92d31", "decision-02", "ETH/USD", 1, 1.85, 3_628.1, nowMs - 42_000, false, 1, 16.82), "FILLED", 1.85, 3_626.8, nowMs - 39_100, "kraken-paper-1002"),
+    tracked(plan("mlce-sol-entry-7cc210", "decision-03", "SOL/USD", 1, 22, 177.82, nowMs - 78_000, false, .71, 11.12), "CANCELED", 0, 0, nowMs - 76_800, "kraken-paper-1003"),
+    tracked(plan("mlce-exit-btc-91aa04", "decision-04", "BTC/USD", -1, .025, btc - 1.1, nowMs - 1_700, true, 1, -1.64), "OPEN", 0, 0, nowMs - 240, "kraken-paper-1004"),
   ];
 }
 function plan(clientOrderId: string, decisionId: string, symbol: string, side: 1 | -1, qty: number, limitPx: number, createdMs: number, reduceOnlyIntent: boolean, fillProbability: number, expectedValue: number): ExecutionPlan {
@@ -100,6 +100,6 @@ function plan(clientOrderId: string, decisionId: string, symbol: string, side: 1
     risk: { qty, riskBudget: 102.48, maximumLossPerUnit: 441.2, modeledMaximumLoss: Math.min(102.48, qty * 441.2), drawdownScale: .99, qualityScale: .84, volatilityScale: .92, bindingLimit: "risk" },
     fillProbability, expectedValue, reduceOnlyIntent };
 }
-function tracked(planValue: ExecutionPlan, status: TrackedOrder["status"], filledQty: number, averageFillPx: number, lastUpdateMs: number, alpacaOrderId: string): TrackedOrder {
-  return { plan: planValue, alpacaOrderId, status, filledQty, averageFillPx, lastUpdateMs };
+function tracked(planValue: ExecutionPlan, status: TrackedOrder["status"], filledQty: number, averageFillPx: number, lastUpdateMs: number, venueOrderId: string): TrackedOrder {
+  return { plan: planValue, venueOrderId, status, filledQty, averageFillPx, lastUpdateMs };
 }

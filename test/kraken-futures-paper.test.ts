@@ -11,11 +11,11 @@ import { decodeKrakenFuturesMessage } from "../src/kraken/market-stream.js";
 import { KrakenPaperBroker, type KrakenFuturesInstrumentRules } from "../src/kraken/paper-broker.js";
 import { projectKrakenPaperHistory } from "../src/kraken/paper-history.js";
 
-test("Kraken Futures paper configuration needs no funded-account credentials and rejects live routing", () => {
+test("Kraken Futures paper configuration needs no funded-account credentials and rejects unsupported modes", () => {
   const cfg = loadConfig({ TRADING_MODE: "paper", TRADING_VENUE: "kraken_futures", CONFIG_DIR: "config" });
   assert.equal(cfg.venue, "kraken_futures");
   assert.equal(cfg.paper, true);
-  assert.equal(cfg.credentials.keyId, "");
+  assert.equal("credentials" in cfg, false);
   assert.deepEqual(cfg.krakenFutures.productsBySymbol, { "BTC/USD": "PF_XBTUSD", "ETH/USD": "PF_ETHUSD" });
   assert.equal(cfg.krakenFutures.paperStateFile, "data/kraken-paper-state.json");
   assert.equal(cfg.symbolConfigs["BTC/USD"]?.cost.makerFeeBps, 2);
@@ -23,9 +23,7 @@ test("Kraken Futures paper configuration needs no funded-account credentials and
   assert.throws(() => loadConfig({ TRADING_MODE: "paper", TRADING_VENUE: "kraken_futures", CONFIG_DIR: "config",
     KRAKEN_PAPER_INITIAL_EQUITY: "0" }), /must be positive/);
   assert.throws(() => loadConfig({ TRADING_MODE: "live", TRADING_VENUE: "kraken_futures", CONFIG_DIR: "config" }),
-    /live order routing is not implemented/);
-  assert.throws(() => loadConfig({ TRADING_MODE: "paper", TRADING_VENUE: "kraken_futures", CONFIG_DIR: "config",
-    CRYPTO_SHORT_OPTIONS_ENABLED: "true" }), /incompatible with native Kraken Futures shorts/);
+    /Unknown trading mode/);
 });
 
 test("Kraken Futures book decoder resets from snapshots, preserves exchange sequences, and fails on gaps", () => {

@@ -17,11 +17,10 @@ import type { ExtensionConfig } from "./strategy/deterministic-features.js";
 import type { DeterministicRegimeConfig } from "./strategy/deterministic-regime.js";
 import type { DeterministicHoldConfig } from "./strategy/deterministic-hold.js";
 import type { DynamicLiquidityConfig } from "./strategy/dynamic-liquidity.js";
-import type { CryptoOptionShortConfig } from "./options/crypto-option-short.js";
 import { DEFAULT_DETERMINISTIC_HOLD_CONFIG, DEFAULT_DETERMINISTIC_REGIME_CONFIG, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG, DEFAULT_EXTENSION_CONFIG } from "./config/deterministic-defaults.js";
 
-export type TradingMode = "record" | "replay" | "shadow" | "paper" | "live";
-export type TradingVenue = "alpaca" | "kraken_futures";
+export type TradingMode = "record" | "replay" | "shadow" | "paper";
+export type TradingVenue = "kraken_futures";
 export interface SymbolConfig {
   symbol: string;
   maximumNotional: number;
@@ -51,12 +50,10 @@ export interface SymbolConfig {
 export interface EngineConfig extends Omit<SymbolConfig, "symbol"> {
   mode: TradingMode;
   venue: TradingVenue;
-  credentials: { keyId: string; secretKey: string };
   paper: boolean;
   paperEntryExercise: boolean;
   symbols: string[];
   symbolConfigs: Readonly<Record<string, SymbolConfig>>;
-  cryptoLocation: string;
   krakenFutures: {
     websocketUrl: string;
     productsBySymbol: Readonly<Record<string, string>>;
@@ -79,7 +76,6 @@ export interface EngineConfig extends Omit<SymbolConfig, "symbol"> {
   databaseFlushIntervalMs: number;
   databaseMaxQueue: number;
   databaseMarketSampleMs: number;
-  optionShort: CryptoOptionShortConfig;
   recall: {
     sampleIntervalMs: number;
     opportunityHorizonMs: number;
@@ -97,62 +93,29 @@ interface ParameterFile { schemaVersion: number; symbols: string[]; parameters: 
 interface SymbolParameterFile { schemaVersion: number; symbol: string; parameters: Record<string, ParameterValue> }
 
 const RUNTIME_ONLY_KEYS = new Set([
-  "ALPACA_API_KEY", "ALPACA_API_SECRET", "APCA_API_KEY_ID", "APCA_API_SECRET_KEY", "ALPACA_PAPER",
-  "TRADING_MODE", "ALLOW_LIVE_TRADING", "LIVE_TRADING_CONFIRMATION", "PAPER_ENTRY_EXERCISE", "DATABASE_URL",
-  "CRYPTO_SHORT_OPTIONS_ENABLED", "OPTIONS_SHORT_LIVE_CONFIRMATION",
+  "TRADING_MODE", "PAPER_ENTRY_EXERCISE", "DATABASE_URL",
   "POSTGRES_DB", "POSTGRES_USER", "POSTGRES_PASSWORD", "POSTGRES_HOST", "POSTGRES_PORT", "CONFIG_DIR",
   "TRADING_VENUE", "KRAKEN_FUTURES_WEBSOCKET_URL", "KRAKEN_FUTURES_SYMBOL_MAP_JSON", "KRAKEN_PAPER_INITIAL_EQUITY",
   "KRAKEN_PAPER_STATE_FILE",
   "KRAKEN_FUTURES_MAKER_FEE_BPS", "KRAKEN_FUTURES_TAKER_FEE_BPS", "KRAKEN_FUTURES_FUNDING_RESERVE_BPS",
 ]);
 const GLOBAL_PARAMETER_KEYS = new Set([
-  "ALPACA_CRYPTO_LOCATION", "REPLAY_FILE", "RECORD_FILE", "CONTINUOUS_RECORDING_ENABLED", "CONTINUOUS_RECORD_FILE",
+  "REPLAY_FILE", "RECORD_FILE", "CONTINUOUS_RECORDING_ENABLED", "CONTINUOUS_RECORD_FILE",
   "DASHBOARD_ENABLED", "DASHBOARD_HOST", "DASHBOARD_PORT",
   "DATABASE_ENABLED", "DATABASE_REQUIRED", "DATABASE_FLUSH_INTERVAL_MS", "DATABASE_MAX_QUEUE", "DATABASE_MARKET_SAMPLE_MS",
   "MAXIMUM_GROSS_NOTIONAL", "RECALL_SAMPLE_INTERVAL_MS", "RECALL_OPPORTUNITY_HORIZON_MS", "RECALL_MIN_NET_MOVE_BPS",
   "RECALL_MIN_TUNING_DURATION_MS", "RECALL_MIN_TUNING_OPPORTUNITIES",
-  "OPTIONS_SHORT_PROXY_MAP_JSON", "OPTIONS_SHORT_DATA_FEED", "OPTIONS_SHORT_STOCK_DATA_FEED", "OPTIONS_SHORT_TARGET_MONEYNESS",
-  "OPTIONS_SHORT_MAX_MONEYNESS_DISTANCE", "OPTIONS_SHORT_MAX_QUOTE_AGE_MS", "OPTIONS_SHORT_MAX_SPREAD_BPS",
-  "OPTIONS_SHORT_MAX_PREMIUM_DOLLARS", "OPTIONS_SHORT_MAX_CONTRACTS", "OPTIONS_SHORT_MAX_STREAM_CONTRACTS",
-  "OPTIONS_SHORT_ENTRY_START_ET_MINUTE",
-  "OPTIONS_SHORT_ENTRY_CUTOFF_ET_MINUTE", "OPTIONS_SHORT_FORCE_EXIT_ET_MINUTE",
-  "OPTIONS_SHORT_EMERGENCY_EXIT_ET_MINUTE", "OPTIONS_SHORT_MAX_HOLD_MS", "OPTIONS_SHORT_STOP_LOSS_BPS",
-  "OPTIONS_SHORT_TAKE_PROFIT_BPS", "OPTIONS_SHORT_ENTRY_LIMIT_BUFFER_BPS", "OPTIONS_SHORT_EXIT_LIMIT_BUFFER_BPS",
-  "OPTIONS_SHORT_ORDER_TTL_MS",
 ]);
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env, modeOverride?: string): EngineConfig {
   const files = loadParameterFiles(env.CONFIG_DIR ?? "config");
   const configuredEnv = applyParameters(env, files.base.parameters);
   const mode = parseMode(modeOverride ?? env.TRADING_MODE ?? "shadow");
-  const venue = parseVenue(env.TRADING_VENUE ?? "alpaca");
-  const keyId = firstNonBlank(env.ALPACA_API_KEY, env.APCA_API_KEY_ID);
-  const secretKey = firstNonBlank(env.ALPACA_API_SECRET, env.APCA_API_SECRET_KEY);
-  const alpacaPaper = parseBoolean(env.ALPACA_PAPER, true);
-  const paper = venue === "kraken_futures" ? mode === "paper" : alpacaPaper;
+  const venue = parseVenue(env.TRADING_VENUE ?? "kraken_futures");
+  const paper = mode === "paper";
   const paperEntryExercise = parseBoolean(env.PAPER_ENTRY_EXERCISE, false);
-  if (venue === "alpaca" && mode === "paper" && !paper) throw new Error("Paper mode requires ALPACA_PAPER=true; refusing to route paper-mode orders to the live endpoint");
   if (paperEntryExercise && (mode !== "paper" || !paper)) {
-    throw new Error("PAPER_ENTRY_EXERCISE is restricted to the Alpaca paper endpoint or Kraken paper mode");
-  }
-  if (venue === "alpaca" && ["record", "shadow", "paper", "live"].includes(mode) && (!keyId || !secretKey)) {
-    throw new Error("Alpaca credentials are required via ALPACA_API_KEY/ALPACA_API_SECRET or APCA_API_KEY_ID/APCA_API_SECRET_KEY");
-  }
-  if (venue === "kraken_futures" && mode === "live") {
-    throw new Error("Kraken Futures live order routing is not implemented; use paper or shadow mode");
-  }
-  if (venue === "kraken_futures" && parseBoolean(env.CRYPTO_SHORT_OPTIONS_ENABLED, false)) {
-    throw new Error("CRYPTO_SHORT_OPTIONS_ENABLED is incompatible with native Kraken Futures shorts");
-  }
-  if (mode === "live") {
-    if (paper) throw new Error("Live mode cannot run with ALPACA_PAPER=true");
-    if (env.ALLOW_LIVE_TRADING !== "true" || env.LIVE_TRADING_CONFIRMATION !== "I_UNDERSTAND_LIVE_ORDERS_USE_REAL_MONEY") {
-      throw new Error("Live trading interlock is not armed");
-    }
-    if (parseBoolean(env.CRYPTO_SHORT_OPTIONS_ENABLED, false)
-      && env.OPTIONS_SHORT_LIVE_CONFIRMATION !== "I_UNDERSTAND_0DTE_OPTIONS_CAN_EXPIRE_WORTHLESS") {
-      throw new Error("Live 0DTE option shorts require OPTIONS_SHORT_LIVE_CONFIRMATION=I_UNDERSTAND_0DTE_OPTIONS_CAN_EXPIRE_WORTHLESS");
-    }
+    throw new Error("PAPER_ENTRY_EXERCISE is restricted to Kraken paper mode");
   }
   let baseline = loadSymbolConfig("__base__", configuredEnv, mode);
   const symbolConfigs: Record<string, SymbolConfig> = {};
@@ -161,29 +124,25 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env, modeOverride?: 
     if (!overlay) throw new Error(`Missing symbol configuration for ${symbol}`);
     symbolConfigs[symbol] = loadSymbolConfig(symbol, applyParameters(configuredEnv, overlay.parameters), mode);
   }
-  if (venue === "kraken_futures") {
-    const makerFeeBps = paperEntryExercise ? 0 : numberEnv(env.KRAKEN_FUTURES_MAKER_FEE_BPS, 2);
-    const takerFeeBps = paperEntryExercise ? 0 : numberEnv(env.KRAKEN_FUTURES_TAKER_FEE_BPS, 5);
-    const fundingBps = paperEntryExercise ? 0 : numberEnv(env.KRAKEN_FUTURES_FUNDING_RESERVE_BPS, 0);
-    const applyKrakenCosts = (value: SymbolConfig): SymbolConfig => ({ ...value,
-      cost: { ...value.cost, makerFeeBps, takerFeeBps, fundingBps, borrowBps: 0 } });
-    baseline = applyKrakenCosts(baseline);
-    for (const symbol of files.base.symbols) symbolConfigs[symbol] = applyKrakenCosts(symbolConfigs[symbol]!);
-  }
+  const makerFeeBps = paperEntryExercise ? 0 : numberEnv(env.KRAKEN_FUTURES_MAKER_FEE_BPS, 2);
+  const takerFeeBps = paperEntryExercise ? 0 : numberEnv(env.KRAKEN_FUTURES_TAKER_FEE_BPS, 5);
+  const fundingBps = paperEntryExercise ? 0 : numberEnv(env.KRAKEN_FUTURES_FUNDING_RESERVE_BPS, 0);
+  const applyKrakenCosts = (value: SymbolConfig): SymbolConfig => ({ ...value,
+    cost: { ...value.cost, makerFeeBps, takerFeeBps, fundingBps, borrowBps: 0 } });
+  baseline = applyKrakenCosts(baseline);
+  for (const symbol of files.base.symbols) symbolConfigs[symbol] = applyKrakenCosts(symbolConfigs[symbol]!);
   const { symbol: _baselineSymbol, ...baselineConfig } = baseline;
   const productsBySymbol = parseStringMap(env.KRAKEN_FUTURES_SYMBOL_MAP_JSON
     ?? '{"BTC/USD":"PF_XBTUSD","ETH/USD":"PF_ETHUSD"}', "KRAKEN_FUTURES_SYMBOL_MAP_JSON");
-  if (venue === "kraken_futures") {
-    for (const symbol of files.base.symbols) {
-      if (!productsBySymbol[symbol]) throw new Error(`KRAKEN_FUTURES_SYMBOL_MAP_JSON is missing ${symbol}`);
-    }
+  for (const symbol of files.base.symbols) {
+    if (!productsBySymbol[symbol]) throw new Error(`KRAKEN_FUTURES_SYMBOL_MAP_JSON is missing ${symbol}`);
   }
   const krakenPaperInitialEquity = numberEnv(env.KRAKEN_PAPER_INITIAL_EQUITY, 100_000);
   if (!(krakenPaperInitialEquity > 0)) throw new Error("KRAKEN_PAPER_INITIAL_EQUITY must be positive");
   return {
     ...baselineConfig,
-    mode, venue, credentials: { keyId, secretKey }, paper, paperEntryExercise, symbols: [...files.base.symbols], symbolConfigs,
-    cryptoLocation: configuredEnv.ALPACA_CRYPTO_LOCATION ?? "us", recordFile: configuredEnv.RECORD_FILE ?? "data/events.jsonl", replayFile: configuredEnv.REPLAY_FILE ?? "data/events.jsonl",
+    mode, venue, paper, paperEntryExercise, symbols: [...files.base.symbols], symbolConfigs,
+    recordFile: configuredEnv.RECORD_FILE ?? "data/events.jsonl", replayFile: configuredEnv.REPLAY_FILE ?? "data/events.jsonl",
     krakenFutures: {
       websocketUrl: env.KRAKEN_FUTURES_WEBSOCKET_URL ?? "wss://futures.kraken.com/ws/v1",
       productsBySymbol,
@@ -203,7 +162,6 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env, modeOverride?: 
     databaseFlushIntervalMs: integerEnv(configuredEnv.DATABASE_FLUSH_INTERVAL_MS, 250, 25, 60_000),
     databaseMaxQueue: integerEnv(configuredEnv.DATABASE_MAX_QUEUE, 10_000, 100, 1_000_000),
     databaseMarketSampleMs: integerEnv(configuredEnv.DATABASE_MARKET_SAMPLE_MS, 1_000, 100, 60_000),
-    optionShort: loadCryptoOptionShortConfig(env, configuredEnv),
     recall: {
       sampleIntervalMs: integerEnv(configuredEnv.RECALL_SAMPLE_INTERVAL_MS, 1_000, 10, 60_000),
       opportunityHorizonMs: integerEnv(configuredEnv.RECALL_OPPORTUNITY_HORIZON_MS, 60_000, 1_000, 86_400_000),
@@ -215,51 +173,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env, modeOverride?: 
 }
 
 function parseVenue(value: string): TradingVenue {
-  if (value === "alpaca" || value === "kraken_futures") return value;
+  if (value === "kraken_futures") return value;
   throw new Error(`Invalid TRADING_VENUE: ${value}`);
-}
-
-function loadCryptoOptionShortConfig(runtimeEnv: NodeJS.ProcessEnv, configuredEnv: NodeJS.ProcessEnv): CryptoOptionShortConfig {
-  const proxyByCryptoSymbol = parseStringMap(configuredEnv.OPTIONS_SHORT_PROXY_MAP_JSON
-    ?? '{"BTC/USD":"IBIT","ETH/USD":"ETHA"}', "OPTIONS_SHORT_PROXY_MAP_JSON");
-  const feed = (configuredEnv.OPTIONS_SHORT_DATA_FEED ?? "opra").toLowerCase();
-  if (feed !== "opra" && feed !== "indicative") throw new Error(`Invalid OPTIONS_SHORT_DATA_FEED: ${feed}`);
-  const stockFeed = (configuredEnv.OPTIONS_SHORT_STOCK_DATA_FEED ?? "iex").toLowerCase();
-  if (stockFeed !== "iex" && stockFeed !== "sip") throw new Error(`Invalid OPTIONS_SHORT_STOCK_DATA_FEED: ${stockFeed}`);
-  const value: CryptoOptionShortConfig = {
-    enabled: parseBoolean(runtimeEnv.CRYPTO_SHORT_OPTIONS_ENABLED, false),
-    proxyByCryptoSymbol,
-    dataFeed: feed,
-    stockDataFeed: stockFeed,
-    targetMoneyness: numberEnv(configuredEnv.OPTIONS_SHORT_TARGET_MONEYNESS, 1),
-    maximumMoneynessDistance: numberEnv(configuredEnv.OPTIONS_SHORT_MAX_MONEYNESS_DISTANCE, .03),
-    maximumQuoteAgeMs: integerEnv(configuredEnv.OPTIONS_SHORT_MAX_QUOTE_AGE_MS, 3_000, 100, 60_000),
-    maximumSpreadBps: numberEnv(configuredEnv.OPTIONS_SHORT_MAX_SPREAD_BPS, 500),
-    maximumPremiumDollars: numberEnv(configuredEnv.OPTIONS_SHORT_MAX_PREMIUM_DOLLARS, 250),
-    maximumContracts: integerEnv(configuredEnv.OPTIONS_SHORT_MAX_CONTRACTS, 1, 1, 100),
-    maximumStreamContracts: integerEnv(configuredEnv.OPTIONS_SHORT_MAX_STREAM_CONTRACTS, 180, 1, 1_000),
-    entryStartEtMinute: integerEnv(configuredEnv.OPTIONS_SHORT_ENTRY_START_ET_MINUTE, 575, 570, 959),
-    entryCutoffEtMinute: integerEnv(configuredEnv.OPTIONS_SHORT_ENTRY_CUTOFF_ET_MINUTE, 900, 570, 959),
-    forceExitEtMinute: integerEnv(configuredEnv.OPTIONS_SHORT_FORCE_EXIT_ET_MINUTE, 915, 570, 959),
-    emergencyExitEtMinute: integerEnv(configuredEnv.OPTIONS_SHORT_EMERGENCY_EXIT_ET_MINUTE, 925, 570, 959),
-    maximumHoldMs: integerEnv(configuredEnv.OPTIONS_SHORT_MAX_HOLD_MS, 14_400_000, 60_000, 28_800_000),
-    stopLossUnderlyingBps: numberEnv(configuredEnv.OPTIONS_SHORT_STOP_LOSS_BPS, 100),
-    takeProfitUnderlyingBps: numberEnv(configuredEnv.OPTIONS_SHORT_TAKE_PROFIT_BPS, 150),
-    entryLimitBufferBps: numberEnv(configuredEnv.OPTIONS_SHORT_ENTRY_LIMIT_BUFFER_BPS, 50),
-    exitLimitBufferBps: numberEnv(configuredEnv.OPTIONS_SHORT_EXIT_LIMIT_BUFFER_BPS, 100),
-    orderTtlMs: integerEnv(configuredEnv.OPTIONS_SHORT_ORDER_TTL_MS, 5_000, 500, 60_000),
-  };
-  if (!(value.targetMoneyness > 0) || !(value.maximumMoneynessDistance > 0 && value.maximumMoneynessDistance < 1)) {
-    throw new Error("0DTE option moneyness configuration is invalid");
-  }
-  if (!(value.maximumPremiumDollars > 0) || !(value.maximumSpreadBps > 0)
-    || !(value.entryStartEtMinute < value.entryCutoffEtMinute
-      && value.entryCutoffEtMinute < value.forceExitEtMinute
-      && value.forceExitEtMinute < value.emergencyExitEtMinute
-      && value.emergencyExitEtMinute < 930)) {
-    throw new Error("0DTE option risk limits or ET session cutoffs are invalid");
-  }
-  return value;
 }
 
 function parseStringMap(raw: string, name: string): Readonly<Record<string, string>> {
@@ -509,8 +424,7 @@ function defaultPlannerConfig(env: NodeJS.ProcessEnv, minimumFillProbability: nu
     hybridEntry: {
       allowAnalyticPaperExecution,
       analyticPaperSizeMultiplier: fractionEnv(env.ANALYTIC_PAPER_SIZE_MULTIPLIER, .1),
-      // Live activation remains fail-closed until route-shadow evidence is deployment-ready.
-      continuationTakerEnabled: mode !== "live" && parseBoolean(env.CONTINUATION_TAKER_ENABLED, true),
+      continuationTakerEnabled: parseBoolean(env.CONTINUATION_TAKER_ENABLED, true),
       continuationTakerSizeMultiplier: fractionEnv(env.CONTINUATION_TAKER_SIZE_MULTIPLIER, .25),
       continuationTakerMinimumScore: numberEnv(env.CONTINUATION_TAKER_MIN_SCORE, .30),
       continuationTakerMinimumNetEdgeBps: numberEnv(env.CONTINUATION_TAKER_MIN_NET_EDGE_BPS, 8),
@@ -522,13 +436,8 @@ function defaultPlannerConfig(env: NodeJS.ProcessEnv, minimumFillProbability: nu
         fractionEnv(env.CONTINUATION_TAKER_MAX_LATENCY_HALF_LIFE_FRACTION, .25),
       // Evidence modes must be able to collect their first acknowledgment instead of
       // deadlocking behind a sample count they can only obtain by sending an order.
-      // Live routing is disabled above and retains a 20-sample floor for any future activation.
-      continuationTakerMinimumLatencySamples: mode === "live"
-        ? Math.max(20, integerEnv(env.CONTINUATION_TAKER_MIN_LATENCY_SAMPLES, 20, 0, 10_000))
-        : integerEnv(env.CONTINUATION_TAKER_MIN_LATENCY_SAMPLES, 0, 0, 10_000),
-      // This route is evidence-only outside normal paper mode and is always
-      // disabled for live order routing until a calibrated breakout cohort exists.
-      earlyBreakoutTakerEnabled: mode !== "live" && parseBoolean(env.EARLY_BREAKOUT_TAKER_ENABLED, true),
+      continuationTakerMinimumLatencySamples: integerEnv(env.CONTINUATION_TAKER_MIN_LATENCY_SAMPLES, 0, 0, 10_000),
+      earlyBreakoutTakerEnabled: parseBoolean(env.EARLY_BREAKOUT_TAKER_ENABLED, true),
       earlyBreakoutTakerSizeMultiplier: fractionEnv(env.EARLY_BREAKOUT_TAKER_SIZE_MULTIPLIER, .25),
       earlyBreakoutMinimumScore: numberEnv(env.EARLY_BREAKOUT_TAKER_MIN_SCORE, .35),
       earlyBreakoutMinimumNetEdgeBps: numberEnv(env.EARLY_BREAKOUT_TAKER_MIN_NET_EDGE_BPS, 8),
@@ -541,7 +450,7 @@ function defaultPlannerConfig(env: NodeJS.ProcessEnv, minimumFillProbability: nu
     } };
 }
 function parseMode(value: string): TradingMode {
-  if (!["record", "replay", "shadow", "paper", "live"].includes(value)) throw new Error(`Unknown trading mode: ${value}`);
+  if (!["record", "replay", "shadow", "paper"].includes(value)) throw new Error(`Unknown trading mode: ${value}`);
   return value as TradingMode;
 }
 
@@ -568,9 +477,6 @@ function parseSignalMode(value: string | undefined): SignalMode {
   throw new Error(`Unknown SIGNAL_MODE: ${value}`);
 }
 function parseBoolean(value: string | undefined, fallback: boolean): boolean { return value === undefined ? fallback : value.toLowerCase() === "true"; }
-function firstNonBlank(...values: (string | undefined)[]): string {
-  return values.find((value) => value?.trim())?.trim() ?? "";
-}
 function numberEnv(value: string | undefined, fallback: number): number { const n = value === undefined ? fallback : Number(value); if (!Number.isFinite(n) || n < 0) throw new Error(`Invalid numeric configuration: ${value}`); return n; }
 function fractionEnv(value: string | undefined, fallback: number): number { const n = numberEnv(value, fallback); if (n > 1) throw new Error(`Invalid fractional configuration: ${value}`); return n; }
 function finiteNumberEnv(value: string | undefined, fallback: number): number { const n = value === undefined ? fallback : Number(value); if (!Number.isFinite(n)) throw new Error(`Invalid finite numeric configuration: ${value}`); return n; }
@@ -817,19 +723,13 @@ function parseEdgeSourceMode(value: string | undefined): EdgeSourceMode {
   return normalized as EdgeSourceMode;
 }
 function parseEconomicEdgeMode(value: string | undefined, tradingMode: TradingMode): EconomicEdgeMode {
-  const fallback: EconomicEdgeMode = tradingMode === "live" ? "CALIBRATED_LIVE"
-    : tradingMode === "paper" ? "ANALYTIC_PAPER" : "ANALYTIC_SHADOW";
+  const fallback: EconomicEdgeMode = tradingMode === "paper" ? "ANALYTIC_PAPER" : "ANALYTIC_SHADOW";
   const normalized = (value ?? fallback).toUpperCase();
   if (!["ANALYTIC_SHADOW", "ANALYTIC_PAPER", "CALIBRATED_PAPER", "CALIBRATED_LIVE"].includes(normalized)) {
     throw new Error(`Unknown RULE_ECONOMIC_EDGE_MODE: ${value}`);
   }
   const parsed = normalized as EconomicEdgeMode;
-  if (tradingMode === "live" && parsed !== "CALIBRATED_LIVE") {
-    throw new Error("Live trading requires RULE_ECONOMIC_EDGE_MODE=CALIBRATED_LIVE");
-  }
-  if (tradingMode !== "live" && parsed === "CALIBRATED_LIVE") {
-    throw new Error("CALIBRATED_LIVE economic mode is reserved for live trading");
-  }
+  if (parsed === "CALIBRATED_LIVE") throw new Error("CALIBRATED_LIVE economic mode is unavailable");
   if (tradingMode !== "paper" && parsed === "ANALYTIC_PAPER") {
     throw new Error("ANALYTIC_PAPER economic mode is reserved for paper trading");
   }

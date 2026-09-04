@@ -1,5 +1,5 @@
 /**
- * Exact decimal conversion at the Alpaca adapter boundary. Values remain bigint
+ * Exact decimal conversion at an exchange adapter boundary. Values remain bigint
  * ticks/lots until strategy math explicitly converts validated units to number.
  */
 export interface DecimalGrid {

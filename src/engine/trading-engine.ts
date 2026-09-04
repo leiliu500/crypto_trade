@@ -28,14 +28,10 @@ import { DeterministicEntryEngine, type DeterministicEvaluation, type Determinis
 import { DeterministicHoldEngine } from "../strategy/deterministic-hold.js";
 import { DynamicLiquidityPolicy, type LiquidityDecision } from "../strategy/dynamic-liquidity.js";
 import { SignalRouter, type OptionalSignalModel } from "../strategy/signal-router.js";
-import { AlpacaOrderGateway, type OrderGateway } from "../alpaca/gateway.js";
-import { AlpacaMarketStream } from "../alpaca/market-stream.js";
-import { AlpacaApiError, AlpacaRestClient } from "../alpaca/rest.js";
-import { AlpacaTradeStream } from "../alpaca/trade-stream.js";
-import type { AlpacaAsset, AlpacaOrder, AlpacaPosition } from "../alpaca/types.js";
+import { VenueApiError, type OrderGateway, type VenueClient } from "../venue/client.js";
+import type { VenueAsset, VenueOrder, VenuePosition } from "../venue/types.js";
 import { EntryPipelineAudit, type EntryPipelineSnapshot, type EntryPipelineStage } from "./entry-pipeline-audit.js";
 import { HealthWatchdog, type WatchdogFault } from "./watchdog.js";
-import { CryptoOptionShortController, type CryptoOptionShortSnapshot } from "../options/crypto-option-short.js";
 import type { ExecutionPath } from "../economics/types.js";
 
 const PAPER_DEMO_TARGET_NOTIONAL = 11;
@@ -79,7 +75,6 @@ export interface EngineOperationalSnapshot {
   positions: readonly Position[];
   markets: readonly EngineMarketSnapshot[];
   latency: ReturnType<LatencyTracker["summary"]>;
-  optionShort?: CryptoOptionShortSnapshot;
 }
 
 interface SymbolRuntime {
@@ -145,12 +140,11 @@ interface PendingAdverseFlowAssessment {
 }
 
 export interface EngineDependencies {
-  rest?: AlpacaRestClient;
+  rest?: VenueClient;
   gateway?: OrderGateway;
   marketStream?: EngineMarketStream;
   tradeStream?: EngineTradeStream;
   now?: () => number;
-  optionShort?: CryptoOptionShortController;
 }
 
 export interface EngineMarketStream extends EventEmitter {
@@ -164,9 +158,31 @@ export interface EngineTradeStream extends EventEmitter {
   close(): void;
 }
 
+class InertMarketStream extends EventEmitter implements EngineMarketStream {
+  public connect(): void {}
+  public close(): void {}
+  public reconnectNow(): void {}
+}
+
+class InertTradeStream extends EventEmitter implements EngineTradeStream {
+  public connect(): void {}
+  public close(): void {}
+}
+
+function unavailableVenueClient(): VenueClient {
+  return new Proxy({} as VenueClient, {
+    get: (_target, property) => () => Promise.reject(new Error(`Venue client dependency is required for ${String(property)}`)),
+  });
+}
+
+function unavailableOrderGateway(): OrderGateway {
+  const unavailable = (): Promise<never> => Promise.reject(new Error("Order gateway dependency is required"));
+  return { send: unavailable, cancel: unavailable, cancelAll: unavailable };
+}
+
 export class TradingEngine extends EventEmitter {
   private readonly runtimes = new Map<string, SymbolRuntime>();
-  private readonly rest: AlpacaRestClient;
+  private readonly rest: VenueClient;
   private readonly gateway: OrderGateway;
   private readonly marketStream: EngineMarketStream;
   private readonly tradeStream: EngineTradeStream;
@@ -176,7 +192,6 @@ export class TradingEngine extends EventEmitter {
   private readonly portfolio: PortfolioRiskEngine;
   private readonly now: () => number;
   private readonly watchdog: HealthWatchdog;
-  private readonly optionShort: CryptoOptionShortController;
   private readonly recorder?: EventRecorder;
   private readonly reportedPositionDust = new Map<string, number>();
   private readonly cancelReconcileInFlight = new Set<string>();
@@ -199,11 +214,10 @@ export class TradingEngine extends EventEmitter {
     super();
     this.now = dependencies.now ?? Date.now;
     this.realizedSessionDayStartMs = utcDayStartMs(this.now());
-    this.rest = dependencies.rest ?? new AlpacaRestClient({ credentials: cfg.credentials, paper: cfg.paper, cryptoLocation: cfg.cryptoLocation });
-    this.gateway = dependencies.gateway ?? new AlpacaOrderGateway(this.rest);
-    this.marketStream = dependencies.marketStream ?? new AlpacaMarketStream({ credentials: cfg.credentials, symbols: cfg.symbols, location: cfg.cryptoLocation });
-    this.tradeStream = dependencies.tradeStream ?? new AlpacaTradeStream({ credentials: cfg.credentials, paper: cfg.paper });
-    this.optionShort = dependencies.optionShort ?? new CryptoOptionShortController(cfg.optionShort, cfg.credentials, cfg.mode, this.rest, { now: this.now });
+    this.rest = dependencies.rest ?? unavailableVenueClient();
+    this.gateway = dependencies.gateway ?? unavailableOrderGateway();
+    this.marketStream = dependencies.marketStream ?? new InertMarketStream();
+    this.tradeStream = dependencies.tradeStream ?? new InertTradeStream();
     this.riskState = new RiskState(cfg.rollingLossFraction, cfg.sessionLossFraction, cfg.sizing.maximumDrawdown);
     this.portfolio = new PortfolioRiskEngine(cfg.portfolio);
     this.watchdog = new HealthWatchdog(
@@ -211,7 +225,7 @@ export class TradingEngine extends EventEmitter {
       (fault) => this.onWatchdogFault(fault), this.now,
     );
     if (cfg.mode === "record") this.recorder = new EventRecorder(cfg.recordFile);
-    else if (cfg.continuousRecordingEnabled && ["shadow", "paper", "live"].includes(cfg.mode)) {
+    else if (cfg.continuousRecordingEnabled && ["shadow", "paper"].includes(cfg.mode)) {
       this.recorder = new EventRecorder(cfg.continuousRecordFile, { rotateExisting: true });
     }
     for (const symbol of cfg.symbols) {
@@ -234,7 +248,6 @@ export class TradingEngine extends EventEmitter {
         positionManager: new PositionManager(symbolCfg.position), cluster: baseAsset(symbol),
       });
     }
-    this.bindOptionShort();
     this.bindStreams();
   }
 
@@ -247,7 +260,6 @@ export class TradingEngine extends EventEmitter {
       await this.reconcileAccount();
     }
     else this.riskState.setHealth({ accountReconciled: true, privateStream: true, riskRecomputed: true });
-    this.optionShort.start();
     this.marketStream.connect();
     if (this.cfg.mode !== "record") this.tradeStream.connect();
     this.watchdog.start();
@@ -294,7 +306,6 @@ export class TradingEngine extends EventEmitter {
     this.orderDeadlineTimers.clear();
     this.marketStream.close();
     this.tradeStream.close();
-    this.optionShort.stop();
     this.watchdog.stop();
     if (this.recorder) {
       this.recorder.write({ kind: "DISCONNECT", receiveTsMs: this.now(), stream: "public" });
@@ -321,9 +332,7 @@ export class TradingEngine extends EventEmitter {
     if (!book.valid || !features || !features.warmedUp || features.stale || !featureNumbersAreFinite(features)) {
       throw new Error(`Paper demo market is not ready: ${symbol}`);
     }
-    // Alpaca enforces a $10 minimum cost basis for USD crypto orders even when
-    // the asset endpoint reports a smaller dynamic quantity. Targeting $11
-    // leaves a small price-movement buffer while remaining tightly capped.
+    // Target a small but non-dust order with a price-movement buffer.
     const targetQty = PAPER_DEMO_TARGET_NOTIONAL / book.asks[0]!.px;
     const qty = ceilQuantity(Math.max(runtime.asset.minOrderSize, targetQty), runtime.asset.minTradeIncrement);
     const sweep = estimateSweep(book.asks, qty);
@@ -362,7 +371,7 @@ export class TradingEngine extends EventEmitter {
       diagnostic: "PAPER_LIFECYCLE_DEMO", bypassedStrategyGates: true,
       reason: "User-requested minimum-size paper order lifecycle demonstration",
       configurationVersion: runtime.config.configurationVersion, strategyVersion: runtime.config.strategyVersion,
-      adapterVersion: this.cfg.venue === "kraken_futures" ? "kraken-futures-paper-v1" : "alpaca-v1",
+      adapterVersion: "kraken-futures-paper-v1",
       symbolRulesetVersion: assetRulesVersion(runtime.asset), features, plan, mode: this.cfg.mode,
     });
     if (!await this.submit(plan)) throw new Error(`Paper demo entry submission failed for ${symbol}`);
@@ -372,15 +381,11 @@ export class TradingEngine extends EventEmitter {
   public async reconcileAccount(): Promise<boolean> {
     this.riskState.setHealth({ accountReconciled: false, riskRecomputed: false });
     try {
-      const optionOrdersPromise = this.cfg.optionShort.enabled
-        ? this.rest.listOrders({ status: "all", asset_class: "us_option", limit: 500 })
-        : Promise.resolve({ data: [] as AlpacaOrder[], status: 200 });
-      const [accountResponse, assetsResponse, ordersResponse, positionsResponse, historyResponse, activitiesResponse, optionOrdersResponse] = await Promise.all([
-        this.rest.getAccount(), this.rest.listAssets({ status: "active", asset_class: "crypto", exchange: "CRYPTO" }),
-        this.rest.listOrders({ status: "open", asset_class: "crypto", limit: 500 }), this.rest.listPositions(),
+      const [accountResponse, assetsResponse, ordersResponse, positionsResponse, historyResponse, activitiesResponse] = await Promise.all([
+        this.rest.getAccount(), this.rest.listAssets({ status: "active" }),
+        this.rest.listOrders({ status: "open", limit: 500 }), this.rest.listPositions(),
         this.rest.getPortfolioHistory({ period: "1D", timeframe: "1Min" }),
-        this.rest.getActivities({ category: "trade_activity", direction: "desc", page_size: 100 }),
-        optionOrdersPromise,
+        this.rest.getActivities({ direction: "desc", page_size: 100 }),
       ]);
       const account = accountResponse.data;
       if (account.account_blocked || account.trading_blocked || (account.crypto_status && account.crypto_status !== "ACTIVE")) throw new Error("Trading account is not available");
@@ -396,20 +401,14 @@ export class TradingEngine extends EventEmitter {
       const refreshedPositionsResponse = fillAdvancedDuringOrderResolution ? await this.rest.listPositions() : undefined;
       const reconciledPositions = refreshedPositionsResponse?.data ?? positionsResponse.data;
       this.reconcilePositions(reconciledPositions);
-      await this.optionShort.reconcile(account, reconciledPositions, optionOrdersResponse.data);
       const portfolioSessionPnl = sessionPnlFromPortfolioHistory(historyResponse.data);
-      if (this.cfg.venue === "kraken_futures") {
-        if (portfolioSessionPnl !== null) this.realizedSessionPnl = portfolioSessionPnl;
-      } else if (portfolioSessionPnl !== null && portfolioSessionPnl < 0) {
-        this.realizedSessionPnl = Math.min(this.realizedSessionPnl, portfolioSessionPnl);
-      }
+      if (portfolioSessionPnl !== null) this.realizedSessionPnl = portfolioSessionPnl;
       this.recomputePortfolioRisk();
       this.riskState.setHealth({ accountReconciled: true, riskRecomputed: true });
       this.riskState.resumeAfterReconciliation();
       this.emit("reconciled", { recentTradeActivities: activitiesResponse.data.length,
         requestIds: [accountResponse.requestId, assetsResponse.requestId, ordersResponse.requestId, positionsResponse.requestId,
-          refreshedPositionsResponse?.requestId, historyResponse.requestId, activitiesResponse.requestId,
-          (optionOrdersResponse as { requestId?: string }).requestId].filter(Boolean) });
+          refreshedPositionsResponse?.requestId, historyResponse.requestId, activitiesResponse.requestId].filter(Boolean) });
       return true;
     } catch (error) {
       this.riskState.halt("ACCOUNT_UNKNOWN");
@@ -420,7 +419,7 @@ export class TradingEngine extends EventEmitter {
 
   public state(): EngineOperationalSnapshot {
     const generatedAtMs = this.now();
-    if (this.rollKrakenRealizedSessionPnl(generatedAtMs)) this.recomputePortfolioRisk();
+    if (this.rollRealizedSessionPnl(generatedAtMs)) this.recomputePortfolioRisk();
     const markets = [...this.runtimes.entries()].map(([symbol, runtime]): EngineMarketSnapshot => {
       const book = runtime.book.snapshot();
       return {
@@ -435,8 +434,7 @@ export class TradingEngine extends EventEmitter {
         regime: runtime.latestRegime ? { ...runtime.latestRegime } : null,
         ruleEvaluation: runtime.latestRuleEvaluation ? cloneEvaluation(runtime.latestRuleEvaluation) : null,
         entryReady: Boolean(runtime.latestRuleEvaluation?.intent
-          && (runtime.latestRuleEvaluation.intent.side === 1 || runtime.asset?.shortable === true
-            || this.optionShort.canRoute(symbol))),
+          && (runtime.latestRuleEvaluation.intent.side === 1 || runtime.asset?.shortable === true)),
         liquidity: runtime.latestLiquidity ? cloneLiquidity(runtime.latestLiquidity) : null,
         entryPipeline: runtime.entryAudit.snapshot(),
       };
@@ -463,7 +461,6 @@ export class TradingEngine extends EventEmitter {
       positions: [...this.runtimes.values()].flatMap((runtime) => runtime.position ? [{ ...runtime.position }] : []),
       markets,
       latency: this.latency.summary(generatedAtMs),
-      optionShort: this.optionShort.snapshot(),
     };
   }
 
@@ -492,8 +489,8 @@ export class TradingEngine extends EventEmitter {
       publicStreamHealthy: risk.health.publicStream, privateStreamHealthy: risk.health.privateStream,
       accountReconciled: risk.health.accountReconciled, clockHealthy: risk.health.clockValid,
       entriesAllowed: this.riskState.entriesAllowed(),
-      noExistingPosition: !runtime.position && !this.optionShort.hasExposure(runtime.book.symbol),
-      noPendingEntry: !this.pendingForSymbol(runtime.book.symbol) && !this.optionShort.hasPending(runtime.book.symbol),
+      noExistingPosition: !runtime.position,
+      noPendingEntry: !this.pendingForSymbol(runtime.book.symbol),
     };
   }
 
@@ -503,10 +500,10 @@ export class TradingEngine extends EventEmitter {
       this.rest.snapshots(this.cfg.symbols), this.rest.latestQuotes(this.cfg.symbols), this.rest.latestTrades(this.cfg.symbols),
       this.rest.latestBars(this.cfg.symbols),
     ]);
-    const alpacaClockMs = Date.parse(clock.data.timestamp);
-    const clockValid = Number.isFinite(alpacaClockMs) && Math.abs(this.now() - alpacaClockMs) <= 60_000;
+    const venueClockMs = Date.parse(clock.data.timestamp);
+    const clockValid = Number.isFinite(venueClockMs) && Math.abs(this.now() - venueClockMs) <= 60_000;
     this.riskState.setHealth({ clockValid });
-    if (!clockValid) { this.riskState.halt("CLOCK_INVALID"); throw new Error("Alpaca clock differs from the local clock by more than 60 seconds"); }
+    if (!clockValid) { this.riskState.halt("CLOCK_INVALID"); throw new Error("Venue clock differs from the local clock by more than 60 seconds"); }
     this.emit("preflight", {
       accountConfiguration: configuration.data,
       clock: clock.data,
@@ -541,29 +538,6 @@ export class TradingEngine extends EventEmitter {
     this.tradeStream.on("heartbeat", () => this.watchdog.markPrivate());
     this.tradeStream.on("disconnect", () => { this.riskState.setHealth({ privateStream: false }); this.riskState.halt("PRIVATE_STREAM_DOWN"); void this.cancelAllSafely("PRIVATE_STREAM_DOWN"); });
     this.tradeStream.on("streamError", (error) => this.emit("engineError", error));
-  }
-
-  private bindOptionShort(): void {
-    this.optionShort.on("decision", (event) => this.emit("optionShortDecision", event));
-    this.optionShort.on("blocked", (event) => this.emit("optionShortBlocked", event));
-    this.optionShort.on("orderAccepted", (event) => this.emit("optionShortOrderAccepted", event));
-    this.optionShort.on("orderCancelRequested", (event) => this.emit("optionShortOrderCancelRequested", event));
-    this.optionShort.on("orderCancelUnknown", (event) => this.emit("optionShortOrderCancelUnknown", event));
-    this.optionShort.on("orderReconciled", (event) => this.emit("optionShortOrderReconciled", event));
-    this.optionShort.on("reconciled", (event) => this.emit("optionShortReconciled", event));
-    this.optionShort.on("universe", (event) => this.emit("optionShortUniverse", event));
-    this.optionShort.on("stockStreamReady", () => this.emit("optionShortStockStreamReady"));
-    this.optionShort.on("optionStreamReady", () => this.emit("optionShortMarketStreamReady"));
-    this.optionShort.on("stockStreamDown", () => this.emit("optionShortStockStreamDown"));
-    this.optionShort.on("optionStreamDown", () => this.emit("optionShortMarketStreamDown"));
-    this.optionShort.on("mark", (event) => this.emit("optionShortMark", event));
-    this.optionShort.on("reconcileRequested", () => { void this.reconcileAccount(); });
-    this.optionShort.on("orderError", (event) => {
-      this.emit("optionShortOrderError", event);
-      this.emit("engineError", event.error ?? event);
-      void this.reconcileAccount();
-    });
-    this.optionShort.on("streamError", (error) => this.emit("engineError", error));
   }
 
   private onBook(delta: BookDelta): void {
@@ -700,28 +674,6 @@ export class TradingEngine extends EventEmitter {
       symbolRulesetVersion: assetRulesVersion(runtime.asset), features, regime, evaluation: runtime.latestRuleEvaluation,
     });
     if (evaluation) this.auditEvaluation(runtime, evaluation, features.receiveTsMs);
-
-    if (this.optionShort.hasExposure(book.symbol) || this.optionShort.hasPending(book.symbol)) {
-      void this.optionShort.manage({
-        cryptoSymbol: book.symbol, cryptoPrice: features.mid,
-        bullishReversal: evaluation?.candidate?.side === 1,
-      });
-      return;
-    }
-
-    if (deterministicIntent?.side === -1 && this.optionShort.canRoute(book.symbol)) {
-      const optionRouted = runtime.signalRouter.route(deterministicIntent, features);
-      if (!optionRouted || optionRouted.sizeMultiplier <= 0) {
-        this.rejectEntry(runtime, "EXECUTION_PLAN_PASS", "SIGNAL_ROUTER_BLOCK", features.receiveTsMs);
-        return;
-      }
-      void this.optionShort.tryOpen({
-        cryptoSymbol: book.symbol, cryptoPrice: features.mid, decisionId: optionRouted.intent.decisionId,
-        reason: `${optionRouted.intent.source}:${optionRouted.intent.diagnostics.family}`,
-        sizeMultiplier: optionRouted.sizeMultiplier,
-      });
-      return;
-    }
 
     const venueIntent = deterministicIntent && (deterministicIntent.side === 1 || runtime.asset.shortable) ? deterministicIntent : null;
     const routed = runtime.signalRouter.route(venueIntent, features);
@@ -900,7 +852,7 @@ export class TradingEngine extends EventEmitter {
     runtime.entryAudit.pass("PORTFOLIO_PASS");
     this.emit("decision", {
       configurationVersion: runtime.config.configurationVersion, strategyVersion: runtime.config.strategyVersion,
-      adapterVersion: this.cfg.venue === "kraken_futures" ? "kraken-futures-paper-v1" : "alpaca-v1",
+      adapterVersion: "kraken-futures-paper-v1",
       symbolRulesetVersion: assetRulesVersion(runtime.asset),
       regime, deterministicIntent: selectedIntent, routing: { ...routed, intent: selectedIntent },
       routeDecision, features, plan, mode: this.cfg.mode,
@@ -991,7 +943,7 @@ export class TradingEngine extends EventEmitter {
       return;
     }
     runtime.entryAudit.pass("LIQUIDITY_PASS");
-    const venuePass = candidate.side === 1 || runtime.asset?.shortable === true || this.optionShort.canRoute(runtime.book.symbol);
+    const venuePass = candidate.side === 1 || runtime.asset?.shortable === true;
     if (!venuePass) { this.rejectEntry(runtime, "VENUE_DIRECTION_PASS", "SPOT_SHORT_UNAVAILABLE", atMs); return; }
     runtime.entryAudit.pass("VENUE_DIRECTION_PASS");
     if (!diagnostics.exposurePass) { this.rejectEntry(runtime, "EXPOSURE_PASS", "EXISTING_POSITION_OR_PENDING_ENTRY", atMs); return; }
@@ -1047,11 +999,6 @@ export class TradingEngine extends EventEmitter {
   private onPrivateEvent(event: PrivateOrderEvent): void {
     this.watchdog.markPrivate(event.timestampMs);
     this.recorder?.write({ kind: "PRIVATE", event });
-    if (this.optionShort.ownsOrder(event.clientOrderId)) {
-      this.emit("optionShortOrderUpdate", event);
-      void this.reconcileAccount();
-      return;
-    }
     const fill = this.orderState.apply(event);
     const tracked = this.orderState.get(event.clientOrderId);
     if (tracked) this.emit("orderUpdate", { event, order: tracked });
@@ -1069,7 +1016,7 @@ export class TradingEngine extends EventEmitter {
 
   private async submit(plan: ExecutionPlan): Promise<boolean> {
     if (this.cfg.mode === "shadow") return false;
-    if (this.cfg.mode !== "paper" && this.cfg.mode !== "live") return false;
+    if (this.cfg.mode !== "paper") return false;
     try {
       this.orderState.reserve(plan);
       this.scheduleOrderDeadline(plan);
@@ -1094,7 +1041,7 @@ export class TradingEngine extends EventEmitter {
       return true;
     } catch (error) {
       const tracked = this.orderState.get(plan.clientOrderId);
-      if (tracked && error instanceof AlpacaApiError && error.status >= 400) {
+      if (tracked && error instanceof VenueApiError && error.status >= 400) {
         this.orderState.apply({ id: randomUUID(), event: "rejected", orderId: "", clientOrderId: plan.clientOrderId, symbol: plan.symbol, filledQty: 0, eventQty: 0, eventPx: 0, timestampMs: this.now() });
         this.clearOrderDeadline(plan.clientOrderId);
       } else if (tracked) {
@@ -1503,7 +1450,7 @@ export class TradingEngine extends EventEmitter {
   }
 
   private applyFill(fill: FillDelta): void {
-    this.rollKrakenRealizedSessionPnl(this.now());
+    this.rollRealizedSessionPnl(this.now());
     const runtime = this.runtimes.get(fill.symbol);
     if (!runtime) return;
     const tracked = this.orderState.get(fill.clientOrderId);
@@ -1551,7 +1498,7 @@ export class TradingEngine extends EventEmitter {
     this.emit("fill", fill);
   }
 
-  private reconcilePositions(positions: readonly AlpacaPosition[]): void {
+  private reconcilePositions(positions: readonly VenuePosition[]): void {
     const previousPositions = new Map([...this.runtimes.entries()]
       .flatMap(([symbol, runtime]) => runtime.position ? [[symbol, runtime.position] as const] : []));
     const previouslyOpen = new Set(previousPositions.keys());
@@ -1614,8 +1561,7 @@ export class TradingEngine extends EventEmitter {
     this.riskState.updateLosses(Math.max(0, -this.realizedSessionPnl), Math.max(0, -this.realizedSessionPnl), this.portfolio.stressedOpenLoss());
   }
 
-  private rollKrakenRealizedSessionPnl(nowMs: number): boolean {
-    if (this.cfg.venue !== "kraken_futures") return false;
+  private rollRealizedSessionPnl(nowMs: number): boolean {
     const dayStartMs = utcDayStartMs(nowMs);
     if (dayStartMs === this.realizedSessionDayStartMs) return false;
     this.realizedSessionDayStartMs = dayStartMs;
@@ -1641,19 +1587,19 @@ export class TradingEngine extends EventEmitter {
     if (firstRequest) this.emit("orderCancelRequested", {
       symbol: tracked.plan.symbol,
       clientOrderId: tracked.plan.clientOrderId,
-      alpacaOrderId: tracked.alpacaOrderId ?? null,
+      venueOrderId: tracked.venueOrderId ?? null,
       reason,
       requestedAtMs,
       filledQty: tracked.filledQty,
       requestedQty: tracked.plan.qty,
       details,
     });
-    if (!tracked.alpacaOrderId) return;
+    if (!tracked.venueOrderId) return;
     try {
-      await this.gateway.cancel(tracked.alpacaOrderId);
+      await this.gateway.cancel(tracked.venueOrderId);
       await this.reconcilePendingCancellation(tracked, true);
     } catch (error) {
-      if (error instanceof AlpacaApiError && [404, 422].includes(error.status)) {
+      if (error instanceof VenueApiError && [404, 422].includes(error.status)) {
         await this.reconcilePendingCancellation(tracked, true);
         return;
       }
@@ -1664,7 +1610,7 @@ export class TradingEngine extends EventEmitter {
   }
   private async reconcilePendingCancellation(tracked: ReturnType<OrderStateReconciler["all"]>[number], force = false): Promise<void> {
     const clientOrderId = tracked.plan.clientOrderId;
-    const orderId = tracked.alpacaOrderId;
+    const orderId = tracked.venueOrderId;
     if (!orderId || this.cancelReconcileInFlight.has(clientOrderId)) return;
     const nowMs = this.now();
     const lastAttemptMs = this.cancelReconcileLastAttemptMs.get(clientOrderId) ?? tracked.lastUpdateMs;
@@ -1717,7 +1663,7 @@ export class TradingEngine extends EventEmitter {
     }
   }
   private async cancelAllSafely(reason: OrderCancelRequestReason): Promise<void> {
-    if (this.cfg.mode !== "paper" && this.cfg.mode !== "live") return;
+    if (this.cfg.mode !== "paper") return;
     const requestedAtMs = this.now();
     for (const tracked of this.orderState.all()) {
       if (!["RESERVED", "SENDING", "OPEN", "PARTIALLY_FILLED", "CANCEL_PENDING", "UNKNOWN"].includes(tracked.status)) continue;
@@ -1726,7 +1672,7 @@ export class TradingEngine extends EventEmitter {
       if (firstRequest) this.emit("orderCancelRequested", {
         symbol: tracked.plan.symbol,
         clientOrderId: tracked.plan.clientOrderId,
-        alpacaOrderId: tracked.alpacaOrderId ?? null,
+        venueOrderId: tracked.venueOrderId ?? null,
         reason,
         requestedAtMs,
         filledQty: tracked.filledQty,
@@ -1769,11 +1715,11 @@ export class TradingEngine extends EventEmitter {
     }
     await this.cancelTracked(tracked, "TTL_EXPIRED", {
       source: "deadline-timer", nowMs, expiresMs: tracked.plan.expiresMs,
-      status: tracked.status, alpacaOrderIdAvailable: Boolean(tracked.alpacaOrderId),
+      status: tracked.status, venueOrderIdAvailable: Boolean(tracked.venueOrderId),
     });
   }
 
-  private async reconcileTrackedOrders(openOrders: readonly AlpacaOrder[]): Promise<boolean> {
+  private async reconcileTrackedOrders(openOrders: readonly VenueOrder[]): Promise<boolean> {
     const previousFilledByClientId = new Map(this.orderState.all().map((tracked) =>
       [tracked.plan.clientOrderId, tracked.filledQty] as const));
     const snapshots = openOrders.map(remoteOrderSnapshot);
@@ -1781,8 +1727,8 @@ export class TradingEngine extends EventEmitter {
     const absent = this.orderState.all().filter((tracked) =>
       isPendingOrderStatus(tracked.status) && !openClientOrderIds.has(tracked.plan.clientOrderId));
     const exact = await Promise.all(absent.map(async (tracked) => {
-      const response = tracked.alpacaOrderId
-        ? await this.rest.getOrder(tracked.alpacaOrderId)
+      const response = tracked.venueOrderId
+        ? await this.rest.getOrder(tracked.venueOrderId)
         : await this.rest.getOrderByClientId(tracked.plan.clientOrderId);
       return remoteOrderSnapshot(response.data);
     }));
@@ -1839,11 +1785,11 @@ export class TradingEngine extends EventEmitter {
   }
 }
 
-function assetRules(asset: AlpacaAsset): AssetRules {
+function assetRules(asset: VenueAsset): AssetRules {
   const minTradeIncrement = Number(asset.min_trade_increment ?? "0");
   const priceIncrement = Number(asset.price_increment ?? "0");
   const minOrderSize = Number(asset.min_order_size ?? asset.min_trade_increment ?? "0");
-  if (!asset.tradable || !(minTradeIncrement > 0) || !(priceIncrement > 0) || !(minOrderSize > 0)) throw new Error(`Invalid Alpaca asset rules for ${asset.symbol}`);
+  if (!asset.tradable || !(minTradeIncrement > 0) || !(priceIncrement > 0) || !(minOrderSize > 0)) throw new Error(`Invalid venue asset rules for ${asset.symbol}`);
   return { symbol: asset.symbol, minOrderSize, minTradeIncrement, priceIncrement, maximumOrderQty: Number.MAX_SAFE_INTEGER * minTradeIncrement, shortable: asset.shortable };
 }
 function baseAsset(symbol: string): string { return symbol.split("/")[0] ?? symbol; }
@@ -1851,7 +1797,7 @@ function normalizeSymbol(symbol: string): string { return symbol.includes("/") ?
 function isPendingOrderStatus(status: TrackedOrder["status"]): boolean {
   return ["RESERVED", "SENDING", "OPEN", "PARTIALLY_FILLED", "CANCEL_PENDING", "UNKNOWN"].includes(status);
 }
-function remoteOrderSnapshot(order: AlpacaOrder): RemoteOrderSnapshot {
+function remoteOrderSnapshot(order: VenueOrder): RemoteOrderSnapshot {
   const averageFillPx = Number(order.filled_avg_price ?? 0);
   const updatedMs = Date.parse(order.updated_at);
   return {

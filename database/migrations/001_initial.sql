@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS health_snapshots (
 CREATE TABLE IF NOT EXISTS orders (
   client_order_id text PRIMARY KEY,
   run_id uuid REFERENCES engine_runs(id) ON DELETE SET NULL,
-  alpaca_order_id text,
+  venue_order_id text,
   symbol text NOT NULL,
   side smallint NOT NULL CHECK (side IN (-1, 1)),
   style text NOT NULL,
@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS order_events (
   id bigserial PRIMARY KEY,
   run_id uuid REFERENCES engine_runs(id) ON DELETE SET NULL,
   client_order_id text NOT NULL,
-  alpaca_order_id text,
+  venue_order_id text,
   event_type text NOT NULL,
   status text,
   event_qty numeric(30, 12),

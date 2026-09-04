@@ -127,7 +127,7 @@ C_roundTrip = spread + maker/taker fees + walked impact
             + latency loss + adverse selection + funding + borrow
 ```
 
-For Alpaca spot, funding and borrow are zero. `src/strategy/deterministic-entry.ts` applies:
+For Kraken Futures paper trading, borrow is zero and funding uses the configured conservative reserve. `src/strategy/deterministic-entry.ts` applies:
 
 ```text
 fixedCost = entryFee + exitFee + funding + borrow
@@ -143,7 +143,7 @@ The cost gate is run first at minimum quantity and again during every sizing ite
 
 ## Direction and execution
 
-The micro trigger arbitrates direction directly from bounded long/short scores; chop/unknown regime labels do not erase candidates or force risk sizing to zero. Liquidity is evaluated separately from prior spread observations, and the current spread is then observed even when no candidate exists. Alpaca's live Asset record is authoritative: because spot crypto is not shortable, a short candidate remains observable but execution permission is forced false.
+The micro trigger arbitrates direction directly from bounded long/short scores; chop/unknown regime labels do not erase candidates or force risk sizing to zero. Liquidity is evaluated separately from prior spread observations, and the current spread is then observed even when no candidate exists. Kraken linear perpetuals support native long and short exposure; instrument metadata remains authoritative for tradeability and precision.
 
 `src/execution/planner.ts` compares:
 
@@ -207,10 +207,10 @@ Drawdown scaling is `(1-DD/Dmax)²`; reaching `Dmax` is a non-operational halt t
 
 ## Position state and monotone floor
 
-For Alpaca long spot exposure:
+For Kraken long or short futures exposure:
 
 ```text
-u = executableBid - averageEntry
+u = side (executableExitPrice - averageEntry)
 MFE = max(MFE, u)
 MAE = max(MAE, -u)
 ```
@@ -230,7 +230,7 @@ It exits on hard risk, floor breach, stale data, or confirmed hold-engine exit e
 
 ## Order and failure state
 
-`src/execution/order-state.ts` idempotently handles all Alpaca private events. Any partial fill immediately produces position exposure. A network/send timeout never triggers automatic POST retry; it becomes unknown state and forces REST reconciliation. GETs alone use bounded retries for 429/5xx.
+`src/execution/order-state.ts` idempotently handles all private order events. Any partial fill immediately produces position exposure. An ambiguous send never triggers automatic retry; it becomes unknown state and forces reconciliation.
 
 A resting pullback/recovery entry treats a single non-stale kinematics reset as temporary estimator unavailability. It remains eligible only until its normal TTL and only while structural signal, exact cost, flow, and book-health checks remain valid. `KINEMATICS_UNAVAILABLE` cancellation requires both `PULLBACK_KINEMATICS_GRACE_MS` elapsed and `PULLBACK_KINEMATICS_GRACE_EVENTS` consecutive reset events. TTL is evaluated first so cancellation telemetry reflects the binding cause.
 
@@ -238,4 +238,4 @@ A pending maker entry treats one opposing flow sensor as provisional. If either 
 
 The open-order endpoint is not authoritative evidence that an absent order was canceled: it may already be filled, rejected, or expired. Account reconciliation therefore performs an exact ID or client-ID lookup for every locally pending order missing from the open list before applying a terminal state. Failure to obtain that authoritative state keeps reconciliation unhealthy rather than guessing.
 
-Alpaca does not expose a dead-man switch, exchange checksum, or sequence in the documented crypto stream. The implementation cancels all orders on data/private-stream failure, invalidates the book, waits for a new `r=true` reset, reconciles account/orders/positions, recomputes risk, and only then clears operational halts.
+The Kraken feed supplies exchange sequences but no private dead-man switch is involved in the local simulator. The implementation cancels local orders on data/private-stream failure, invalidates the book, waits for a new snapshot, reconciles account/orders/positions, recomputes risk, and only then clears operational halts.

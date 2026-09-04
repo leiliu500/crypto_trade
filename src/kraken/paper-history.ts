@@ -294,7 +294,7 @@ function projectOrder(value: KrakenPaperHistoricalOrder, nowMs: number): Dashboa
   return [{
     clientOrderId: plan.clientOrderId,
     decisionId: plan.decisionId,
-    alpacaOrderId: remote.id,
+    venueOrderId: remote.id,
     historical: true,
     symbol: plan.symbol,
     side: plan.side,

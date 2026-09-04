@@ -6,12 +6,11 @@ import type { MarketTrade } from "../core/market.js";
 import type { BookDelta } from "../core/order-book.js";
 import type { ExecutionPlan } from "../execution/planner.js";
 import type { PrivateOrderEvent } from "../execution/order-state.js";
-import type { OrderGateway } from "../alpaca/gateway.js";
-import { AlpacaApiError, AlpacaRestClient } from "../alpaca/rest.js";
+import { VenueApiError, type OrderGateway, type VenueClient } from "../venue/client.js";
 import type {
-  ActivitiesQuery, AlpacaAccount, AlpacaAccountConfiguration, AlpacaActivity, AlpacaApiResponse, AlpacaAsset,
-  AlpacaBar, AlpacaClock, AlpacaOrder, AlpacaOrderbook, AlpacaPosition, AlpacaSnapshot, HistoricalQuery, ListOrdersQuery,
-} from "../alpaca/types.js";
+  ActivitiesQuery, VenueAccount, VenueAccountConfiguration, VenueActivity, VenueApiResponse, VenueAsset,
+  VenueBar, VenueClock, VenueOrder, VenueOrderbook, VenuePosition, VenueSnapshot, HistoricalQuery, ListOrdersQuery,
+} from "../venue/types.js";
 
 export interface KrakenFuturesInstrumentRules {
   symbol: string;
@@ -34,12 +33,12 @@ export interface KrakenPaperBrokerConfig {
 
 interface PaperBook { bids: Map<number, number>; asks: Map<number, number>; timestampMs: number; }
 interface PaperPosition { symbol: string; side: 1 | -1; qty: number; entryPx: number; }
-interface PaperOrder { plan: ExecutionPlan; remote: AlpacaOrder; queueAhead: number; }
-interface SerializedPaperOrder { plan: Omit<ExecutionPlan, "originatingSequence"> & { originatingSequence: string }; remote: AlpacaOrder; queueAhead: number; }
-export interface KrakenPaperHistoricalOrder { plan: ExecutionPlan; remote: AlpacaOrder; }
+interface PaperOrder { plan: ExecutionPlan; remote: VenueOrder; queueAhead: number; }
+interface SerializedPaperOrder { plan: Omit<ExecutionPlan, "originatingSequence"> & { originatingSequence: string }; remote: VenueOrder; queueAhead: number; }
+export interface KrakenPaperHistoricalOrder { plan: ExecutionPlan; remote: VenueOrder; }
 export interface KrakenPaperHistory {
   orders: readonly KrakenPaperHistoricalOrder[];
-  activities: readonly AlpacaActivity[];
+  activities: readonly VenueActivity[];
   makerFeeBpsBySymbol: Readonly<Record<string, number>>;
   takerFeeBpsBySymbol: Readonly<Record<string, number>>;
 }
@@ -53,7 +52,7 @@ interface KrakenPaperState {
   utcSessionStartingCashEquity: number;
   positions: PaperPosition[];
   orders: SerializedPaperOrder[];
-  activities: AlpacaActivity[];
+  activities: VenueActivity[];
 }
 const KRAKEN_HTTP_TIMEOUT_MS = 10_000;
 const MAX_PAPER_ACTIVITIES = 10_000;
@@ -72,20 +71,19 @@ export class KrakenPaperTradeStream extends EventEmitter {
  * Local-only order simulator. Public Kraken data enters through onBook/onTrade;
  * this class never calls a Kraken private order endpoint.
  */
-export class KrakenPaperBroker extends AlpacaRestClient implements OrderGateway {
+export class KrakenPaperBroker implements VenueClient, OrderGateway {
   public readonly tradeStream = new KrakenPaperTradeStream();
   private readonly books = new Map<string, PaperBook>();
   private readonly ordersById = new Map<string, PaperOrder>();
   private readonly orderIdByClientId = new Map<string, string>();
   private readonly positions = new Map<string, PaperPosition>();
-  private readonly activities: AlpacaActivity[] = [];
+  private readonly activities: VenueActivity[] = [];
   private readonly paperFetcher: typeof fetch;
   private cashEquity: number;
   private utcSessionDate: string;
   private utcSessionStartingCashEquity: number;
 
   public constructor(private readonly paperCfg: KrakenPaperBrokerConfig, fetcher: typeof fetch = fetch) {
-    super({ credentials: { keyId: "local-paper", secretKey: "local-paper" }, paper: true });
     if (!(paperCfg.initialEquity > 0)) throw new Error("Kraken paper initial equity must be positive");
     this.paperFetcher = fetcher;
     this.cashEquity = paperCfg.initialEquity;
@@ -122,12 +120,12 @@ export class KrakenPaperBroker extends AlpacaRestClient implements OrderGateway 
     }
   }
 
-  public async send(plan: ExecutionPlan): Promise<AlpacaOrder> {
-    if (this.orderIdByClientId.has(plan.clientOrderId)) throw new AlpacaApiError("duplicate client order id", 400);
+  public async send(plan: ExecutionPlan): Promise<VenueOrder> {
+    if (this.orderIdByClientId.has(plan.clientOrderId)) throw new VenueApiError("duplicate client order id", 400);
     this.validatePlan(plan);
     const now = new Date().toISOString();
     const id = `kraken-paper-${randomUUID()}`;
-    const remote: AlpacaOrder = {
+    const remote: VenueOrder = {
       id, client_order_id: plan.clientOrderId, asset_id: this.paperCfg.productsBySymbol[plan.symbol] ?? plan.symbol,
       symbol: plan.symbol, asset_class: "crypto", qty: String(plan.qty), notional: null, filled_qty: "0",
       filled_avg_price: null, order_class: "simple", order_type: "limit", type: "limit",
@@ -149,7 +147,7 @@ export class KrakenPaperBroker extends AlpacaRestClient implements OrderGateway 
 
   public async cancel(orderId: string): Promise<void> {
     const paperOrder = this.ordersById.get(orderId);
-    if (!paperOrder) throw new AlpacaApiError("paper order not found", 404);
+    if (!paperOrder) throw new VenueApiError("paper order not found", 404);
     if (isTerminal(paperOrder.remote.status)) return;
     this.cancelPaperOrder(paperOrder);
   }
@@ -158,7 +156,7 @@ export class KrakenPaperBroker extends AlpacaRestClient implements OrderGateway 
     for (const order of this.ordersById.values()) if (!isTerminal(order.remote.status)) this.cancelPaperOrder(order);
   }
 
-  public override async getAccount(): Promise<AlpacaApiResponse<AlpacaAccount>> {
+  public async getAccount(): Promise<VenueApiResponse<VenueAccount>> {
     const equity = this.equity();
     return response({
       id: "kraken-local-paper", account_number: "LOCAL-PAPER", status: "ACTIVE", crypto_status: "ACTIVE", currency: "USD",
@@ -169,52 +167,51 @@ export class KrakenPaperBroker extends AlpacaRestClient implements OrderGateway 
     });
   }
 
-  public override async getAccountConfiguration(): Promise<AlpacaApiResponse<AlpacaAccountConfiguration>> {
+  public async getAccountConfiguration(): Promise<VenueApiResponse<VenueAccountConfiguration>> {
     return response({ dtbp_check: "entry", fractional_trading: true, max_margin_multiplier: "1", no_shorting: false,
       pdt_check: "entry", suspend_trade: false, trade_confirm_email: "none" });
   }
 
-  public override async getClock(): Promise<AlpacaApiResponse<AlpacaClock>> {
+  public async getClock(): Promise<VenueApiResponse<VenueClock>> {
     const now = new Date().toISOString();
     return response({ timestamp: now, is_open: true, next_open: now, next_close: now });
   }
 
-  public override async listAssets(): Promise<AlpacaApiResponse<AlpacaAsset[]>> {
+  public async listAssets(): Promise<VenueApiResponse<VenueAsset[]>> {
     return response([...this.paperCfg.instruments.values()].map((instrument) => this.asset(instrument)));
   }
 
-  public override async getAsset(symbolOrId: string): Promise<AlpacaApiResponse<AlpacaAsset>> {
+  public async getAsset(symbolOrId: string): Promise<VenueApiResponse<VenueAsset>> {
     const instrument = this.paperCfg.instruments.get(symbolOrId)
       ?? [...this.paperCfg.instruments.values()].find((candidate) => candidate.productId === symbolOrId);
-    if (!instrument) throw new AlpacaApiError("paper instrument not found", 404);
+    if (!instrument) throw new VenueApiError("paper instrument not found", 404);
     return response(this.asset(instrument));
   }
 
-  public override async listOrders(query: ListOrdersQuery = {}): Promise<AlpacaApiResponse<AlpacaOrder[]>> {
-    if (query.asset_class === "us_option") return response([]);
+  public async listOrders(query: ListOrdersQuery = {}): Promise<VenueApiResponse<VenueOrder[]>> {
     let orders = [...this.ordersById.values()].map(({ remote }) => cloneOrder(remote));
     if (query.status === "open") orders = orders.filter((order) => !isTerminal(order.status));
     else if (query.status === "closed") orders = orders.filter((order) => isTerminal(order.status));
     return response(orders.slice(0, query.limit ?? orders.length));
   }
 
-  public override async getOrder(orderId: string): Promise<AlpacaApiResponse<AlpacaOrder>> {
+  public async getOrder(orderId: string): Promise<VenueApiResponse<VenueOrder>> {
     const order = this.ordersById.get(orderId);
-    if (!order) throw new AlpacaApiError("paper order not found", 404);
+    if (!order) throw new VenueApiError("paper order not found", 404);
     return response(cloneOrder(order.remote));
   }
 
-  public override async getOrderByClientId(clientOrderId: string): Promise<AlpacaApiResponse<AlpacaOrder>> {
+  public async getOrderByClientId(clientOrderId: string): Promise<VenueApiResponse<VenueOrder>> {
     const orderId = this.orderIdByClientId.get(clientOrderId);
-    if (!orderId) throw new AlpacaApiError("paper order not found", 404);
+    if (!orderId) throw new VenueApiError("paper order not found", 404);
     return this.getOrder(orderId);
   }
 
-  public override async listPositions(): Promise<AlpacaApiResponse<AlpacaPosition[]>> {
+  public async listPositions(): Promise<VenueApiResponse<VenuePosition[]>> {
     return response([...this.positions.values()].map((position) => this.remotePosition(position)));
   }
 
-  public override async getPortfolioHistory(): Promise<AlpacaApiResponse<unknown>> {
+  public async getPortfolioHistory(): Promise<VenueApiResponse<unknown>> {
     if (this.rollUtcCashSession(Date.now())) this.persistState();
     return response({
       equity: [this.utcSessionStartingCashEquity, this.cashEquity],
@@ -222,7 +219,7 @@ export class KrakenPaperBroker extends AlpacaRestClient implements OrderGateway 
     });
   }
 
-  public override async getActivities(_query: ActivitiesQuery = {}): Promise<AlpacaApiResponse<AlpacaActivity[]>> {
+  public async getActivities(_query: ActivitiesQuery = {}): Promise<VenueApiResponse<VenueActivity[]>> {
     return response(this.activities.map((activity) => ({ ...activity })));
   }
 
@@ -238,8 +235,8 @@ export class KrakenPaperBroker extends AlpacaRestClient implements OrderGateway 
     };
   }
 
-  public override async latestOrderbooks(symbols: readonly string[]): Promise<AlpacaApiResponse<{ orderbooks: Record<string, AlpacaOrderbook> }>> {
-    const orderbooks: Record<string, AlpacaOrderbook> = {};
+  public async latestOrderbooks(symbols: readonly string[]): Promise<VenueApiResponse<{ orderbooks: Record<string, VenueOrderbook> }>> {
+    const orderbooks: Record<string, VenueOrderbook> = {};
     await Promise.all(symbols.map(async (symbol) => {
       const book = this.books.get(symbol);
       if (book) {
@@ -265,8 +262,8 @@ export class KrakenPaperBroker extends AlpacaRestClient implements OrderGateway 
     return response({ orderbooks });
   }
 
-  public override async snapshots(symbols: readonly string[]): Promise<AlpacaApiResponse<{ snapshots: Record<string, AlpacaSnapshot> }>> {
-    const snapshots: Record<string, AlpacaSnapshot> = {};
+  public async snapshots(symbols: readonly string[]): Promise<VenueApiResponse<{ snapshots: Record<string, VenueSnapshot> }>> {
+    const snapshots: Record<string, VenueSnapshot> = {};
     for (const symbol of symbols) {
       const book = this.books.get(symbol);
       const bid = book ? sorted(book.bids, true)[0] : undefined, ask = book ? sorted(book.asks, false)[0] : undefined;
@@ -275,15 +272,15 @@ export class KrakenPaperBroker extends AlpacaRestClient implements OrderGateway 
     return response({ snapshots });
   }
 
-  public override async latestQuotes(symbols: readonly string[]): Promise<AlpacaApiResponse<unknown>> { return response((await this.snapshots(symbols)).data); }
-  public override async latestTrades(_symbols: readonly string[]): Promise<AlpacaApiResponse<unknown>> { return response({ trades: {} }); }
-  public override async latestBars(_symbols: readonly string[]): Promise<AlpacaApiResponse<unknown>> { return response({ bars: {} }); }
+  public async latestQuotes(symbols: readonly string[]): Promise<VenueApiResponse<unknown>> { return response((await this.snapshots(symbols)).data); }
+  public async latestTrades(_symbols: readonly string[]): Promise<VenueApiResponse<unknown>> { return response({ trades: {} }); }
+  public async latestBars(_symbols: readonly string[]): Promise<VenueApiResponse<unknown>> { return response({ bars: {} }); }
 
-  public override async bars(query: HistoricalQuery): Promise<AlpacaApiResponse<unknown>> {
+  public async bars(query: HistoricalQuery): Promise<VenueApiResponse<unknown>> {
     const symbols = query.symbols.split(",").map((value) => value.trim()).filter(Boolean);
     const from = query.start ? Math.floor(Date.parse(query.start) / 1_000) : undefined;
     const to = query.end ? Math.floor(Date.parse(query.end) / 1_000) : undefined;
-    const bars: Record<string, AlpacaBar[]> = {};
+    const bars: Record<string, VenueBar[]> = {};
     await Promise.all(symbols.map(async (symbol) => {
       const product = this.paperCfg.productsBySymbol[symbol];
       if (!product) { bars[symbol] = []; return; }
@@ -304,14 +301,14 @@ export class KrakenPaperBroker extends AlpacaRestClient implements OrderGateway 
 
   private validatePlan(plan: ExecutionPlan): void {
     const instrument = this.paperCfg.instruments.get(plan.symbol);
-    if (!instrument) throw new AlpacaApiError(`unsupported Kraken paper symbol ${plan.symbol}`, 400);
+    if (!instrument) throw new VenueApiError(`unsupported Kraken paper symbol ${plan.symbol}`, 400);
     if (!(plan.qty > 0) || plan.qty > instrument.maximumOrderQty || !multipleOf(plan.qty, instrument.quantityIncrement)) {
-      throw new AlpacaApiError("invalid paper order quantity", 400);
+      throw new VenueApiError("invalid paper order quantity", 400);
     }
-    if (!(plan.limitPx > 0) || !multipleOf(plan.limitPx, instrument.tickSize)) throw new AlpacaApiError("invalid paper limit price", 400);
+    if (!(plan.limitPx > 0) || !multipleOf(plan.limitPx, instrument.tickSize)) throw new VenueApiError("invalid paper limit price", 400);
     const current = this.positions.get(plan.symbol);
-    if (plan.reduceOnlyIntent && (!current || current.side === plan.side)) throw new AlpacaApiError("reduce-only paper order would increase exposure", 422);
-    if (!plan.reduceOnlyIntent && current) throw new AlpacaApiError("paper position already exists", 422);
+    if (plan.reduceOnlyIntent && (!current || current.side === plan.side)) throw new VenueApiError("reduce-only paper order would increase exposure", 422);
+    if (!plan.reduceOnlyIntent && current) throw new VenueApiError("paper position already exists", 422);
   }
 
   private executeIoc(paperOrder: PaperOrder): void {
@@ -458,14 +455,14 @@ export class KrakenPaperBroker extends AlpacaRestClient implements OrderGateway 
       timestampMs: Date.parse(paperOrder.remote.updated_at), positionQty };
   }
 
-  private asset(instrument: KrakenFuturesInstrumentRules): AlpacaAsset {
+  private asset(instrument: KrakenFuturesInstrumentRules): VenueAsset {
     return { id: instrument.productId, class: "crypto", asset_class: "crypto", exchange: "KRAKEN_FUTURES",
       symbol: instrument.symbol, name: instrument.productId, status: "active", tradable: true, marginable: true,
       shortable: true, easy_to_borrow: true, fractionable: true, min_order_size: String(instrument.quantityIncrement),
       min_trade_increment: String(instrument.quantityIncrement), price_increment: String(instrument.tickSize) };
   }
 
-  private remotePosition(position: PaperPosition): AlpacaPosition {
+  private remotePosition(position: PaperPosition): VenuePosition {
     const current = this.mark(position.symbol) ?? position.entryPx;
     const unrealized = position.side * (current - position.entryPx) * position.qty;
     return { asset_id: this.paperCfg.productsBySymbol[position.symbol] ?? position.symbol, symbol: position.symbol,
@@ -510,8 +507,8 @@ export async function loadKrakenFuturesInstruments(productsBySymbol: Readonly<Re
   return resolved;
 }
 
-function response<T>(data: T): AlpacaApiResponse<T> { return { data, status: 200, requestId: `kraken-paper-${randomUUID()}` }; }
-function cloneOrder(order: AlpacaOrder): AlpacaOrder { return { ...order }; }
+function response<T>(data: T): VenueApiResponse<T> { return { data, status: 200, requestId: `kraken-paper-${randomUUID()}` }; }
+function cloneOrder(order: VenueOrder): VenueOrder { return { ...order }; }
 function clonePlan(plan: ExecutionPlan): ExecutionPlan {
   return {
     ...plan,
@@ -600,17 +597,17 @@ function validatePaperState(raw: unknown, cfg: KrakenPaperBrokerConfig, stateFil
     }
   } else {
     utcSessionStartingCashEquity = replayUtcSessionStartingCashEquity(
-      cfg.initialEquity, cashEquity, orders, activityRecords as AlpacaActivity[], cfg, Date.parse(`${today}T00:00:00.000Z`),
+      cfg.initialEquity, cashEquity, orders, activityRecords as VenueActivity[], cfg, Date.parse(`${today}T00:00:00.000Z`),
     ) ?? cashEquity;
   }
   return { schemaVersion: 3, initialEquity: cfg.initialEquity, productsBySymbol: sortedRecord(cfg.productsBySymbol),
     savedAt: typeof state.savedAt === "string" ? state.savedAt : "", cashEquity,
     utcSessionDate, utcSessionStartingCashEquity,
-    positions, orders, activities: activityRecords as AlpacaActivity[] };
+    positions, orders, activities: activityRecords as VenueActivity[] };
 }
 
 function replayUtcSessionStartingCashEquity(initialEquity: number, persistedCashEquity: number,
-  orders: readonly SerializedPaperOrder[], activities: readonly AlpacaActivity[], cfg: KrakenPaperBrokerConfig,
+  orders: readonly SerializedPaperOrder[], activities: readonly VenueActivity[], cfg: KrakenPaperBrokerConfig,
   dayStartMs: number): number | null {
   const ordersById = new Map(orders.map((order) => [order.remote.id, order]));
   const positions = new Map<string, PaperPosition>();

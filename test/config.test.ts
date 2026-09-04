@@ -11,18 +11,6 @@ test("dashboard defaults are ready for the EC2 container endpoint", () => {
   assert.equal(cfg.dashboardPort, 3_001);
 });
 
-test("empty custom credential variables fall back to standard Alpaca aliases", () => {
-  const cfg = loadConfig({
-    TRADING_MODE: "paper",
-    ALPACA_PAPER: "true",
-    ALPACA_API_KEY: "",
-    ALPACA_API_SECRET: "",
-    APCA_API_KEY_ID: "paper-key",
-    APCA_API_SECRET_KEY: "paper-secret",
-  });
-  assert.deepEqual(cfg.credentials, { keyId: "paper-key", secretKey: "paper-secret" });
-});
-
 test("JSON baseline wins over legacy tunable environment values and symbol overlays stay isolated", () => {
   const directory = mkdtempSync(join(tmpdir(), "crypto-trade-config-"));
   try {
@@ -62,7 +50,7 @@ test("JSON baseline wins over legacy tunable environment values and symbol overl
       [3_600_000, 7_200_000, 14_400_000]);
     assert.equal(cfg.deterministicSignal.requireMakerEntry, true);
     assert.equal(cfg.deterministicSignal.allowTakerContinuation, true);
-    assert.equal(cfg.configurationVersion, "btc-eth-early-breakout-v9.6.0");
+    assert.equal(cfg.configurationVersion, "btc-eth-regime-confirmed-breakout-v9.7.0");
     assert.equal(cfg.deterministicSignal.pullbackRecovery.maximumReversalAgeMs, 600_000);
     assert.equal(cfg.position.minimumHoldMs, 60_000);
     assert.equal(cfg.position.unproductiveExitMs, 900_000);
@@ -113,32 +101,14 @@ test("JSON baseline wins over legacy tunable environment values and symbol overl
   } finally { rmSync(directory, { recursive: true, force: true }); }
 });
 
-test("continuation taker activation remains fail-closed in live mode", () => {
-  const cfg = loadConfig({
-    TRADING_MODE: "live", ALPACA_PAPER: "false", ALPACA_API_KEY: "key", ALPACA_API_SECRET: "secret",
-    ALLOW_LIVE_TRADING: "true", LIVE_TRADING_CONFIRMATION: "I_UNDERSTAND_LIVE_ORDERS_USE_REAL_MONEY",
-    CRYPTO_SHORT_OPTIONS_ENABLED: "false", CONTINUATION_TAKER_ENABLED: "true",
-  });
-  assert.equal(cfg.planner.hybridEntry.continuationTakerEnabled, false);
-  assert.equal(cfg.planner.hybridEntry.earlyBreakoutTakerEnabled, false);
-  assert.equal(cfg.planner.hybridEntry.allowAnalyticPaperExecution, false);
-  assert.equal(cfg.planner.hybridEntry.continuationTakerMinimumLatencySamples, 20);
-  assert.equal(cfg.planner.hybridEntry.routeShadowEnabled, true);
-});
-
 test("paper mode defaults to analytical execution while calibrated-only paper remains available", () => {
-  const paper = loadConfig({
-    TRADING_MODE: "paper", ALPACA_PAPER: "true", ALPACA_API_KEY: "paper-key", ALPACA_API_SECRET: "paper-secret",
-  });
+  const paper = loadConfig({ TRADING_MODE: "paper" });
   assert.equal(paper.deterministicSignal.economicEdgeMode, "ANALYTIC_PAPER");
   assert.equal(paper.planner.hybridEntry.allowAnalyticPaperExecution, true);
   assert.equal(paper.planner.hybridEntry.analyticPaperSizeMultiplier, .1);
   assert.equal(paper.planner.hybridEntry.earlyBreakoutTakerEnabled, true);
 
-  const calibratedPaper = loadConfig({
-    TRADING_MODE: "paper", ALPACA_PAPER: "true", ALPACA_API_KEY: "paper-key", ALPACA_API_SECRET: "paper-secret",
-    RULE_ECONOMIC_EDGE_MODE: "CALIBRATED_PAPER",
-  });
+  const calibratedPaper = loadConfig({ TRADING_MODE: "paper", RULE_ECONOMIC_EDGE_MODE: "CALIBRATED_PAPER" });
   assert.equal(calibratedPaper.planner.hybridEntry.allowAnalyticPaperExecution, false);
 
   assert.throws(() => loadConfig({ TRADING_MODE: "replay", RULE_ECONOMIC_EDGE_MODE: "ANALYTIC_PAPER" }),
@@ -209,18 +179,13 @@ test("per-symbol spread caps are restricted to active symbols and paper safety l
   assert.equal(replay.symbolConfigs["DOGE/USD"], undefined);
   assert.equal(replay.symbolConfigs["LINK/USD"], undefined);
 
-  const paper = loadConfig({
-    TRADING_MODE: "paper", ALPACA_PAPER: "true", ALPACA_API_KEY: "paper-key", ALPACA_API_SECRET: "paper-secret",
-  });
+  const paper = loadConfig({ TRADING_MODE: "paper" });
   assert.equal(paper.symbolConfigs["BTC/USD"]?.dynamicLiquidity.absoluteTradeCapBps, 30);
   assert.equal(paper.symbolConfigs["ETH/USD"]?.dynamicLiquidity.absoluteTradeCapBps, 30);
 });
 
 test("paper entry exercise is isolated, capped, labeled, and rejected outside paper", () => {
-  const paper = loadConfig({
-    TRADING_MODE: "paper", ALPACA_PAPER: "true", ALPACA_API_KEY: "paper-key", ALPACA_API_SECRET: "paper-secret",
-    PAPER_ENTRY_EXERCISE: "true",
-  });
+  const paper = loadConfig({ TRADING_MODE: "paper", PAPER_ENTRY_EXERCISE: "true" });
   assert.equal(paper.paperEntryExercise, true);
   assert.match(paper.configurationVersion, /paper-entry-exercise$/);
   assert.equal(paper.maximumNotional, 25);
@@ -239,5 +204,5 @@ test("paper entry exercise is isolated, capped, labeled, and rejected outside pa
     && horizon.breakoutWeight === 1 && horizon.baseUncertaintyBps === 0 && horizon.sigmaUncertaintyFraction === 0));
   assert.equal(paper.deterministicSignal.analyticEdge.spreadUncertaintyWeight, 0);
   assert.equal(paper.deterministicSignal.analyticEdge.flipUncertaintyWeight, 0);
-  assert.throws(() => loadConfig({ TRADING_MODE: "replay", PAPER_ENTRY_EXERCISE: "true" }), /restricted to the Alpaca paper endpoint/);
+  assert.throws(() => loadConfig({ TRADING_MODE: "replay", PAPER_ENTRY_EXERCISE: "true" }), /restricted to Kraken paper mode/);
 });
