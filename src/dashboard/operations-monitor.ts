@@ -4,9 +4,8 @@ import type { EngineMarketSnapshot, EngineOperationalSnapshot, TradingEngine } f
 import type { PositionDecision } from "../strategy/position-manager.js";
 import type {
   DashboardEvent, DashboardLivePosition, DashboardMarketCard, DashboardOrderCard, DashboardPnlPoint,
-  DashboardOptionShort, DashboardOptionShortTrade, DashboardPositionCard, DashboardSessionPnlBreakdown, DashboardSnapshot,
-  DatabaseHealth, EventSeverity,
-  OptionShortPnlTelemetry, OrderTimelineEntry, TelemetryRecord,
+  DashboardPositionCard, DashboardSessionPnlBreakdown, DashboardSnapshot, DatabaseHealth, EventSeverity,
+  OrderTimelineEntry, TelemetryRecord,
 } from "./types.js";
 import { disabledDatabaseHealth } from "./types.js";
 
@@ -16,10 +15,6 @@ const ENGINE_EVENTS = [
   "positionDecision", "positionDust", "exitDecision", "fill", "watchdogFault", "entryBlocked", "pendingKinematicsGrace",
   "pendingSignalGrace", "pendingSignalRecovered", "pendingAdverseFlowGrace", "pendingAdverseFlowRecovered",
   "missedEntryRetryArmed", "entryRouteEvaluated", "entryRouteShadowStarted", "entryRouteShadowMark",
-  "optionShortDecision", "optionShortBlocked", "optionShortOrderAccepted", "optionShortOrderCancelRequested",
-  "optionShortOrderCancelUnknown", "optionShortOrderReconciled", "optionShortOrderUpdate", "optionShortOrderError",
-  "optionShortReconciled", "optionShortUniverse", "optionShortStockStreamReady",
-  "optionShortMarketStreamReady", "optionShortStockStreamDown", "optionShortMarketStreamDown",
 ] as const;
 const TERMINAL_ORDER_STATES = new Set(["FILLED", "CANCELED", "REJECTED", "EXPIRED"]);
 const DEFAULT_MAXIMUM_PNL_HISTORY = 2_000;
@@ -69,8 +64,6 @@ export class OperationsMonitor extends EventEmitter {
   private readonly positionDecisions = new Map<string, LatestPositionDecision>();
   private readonly positionPnlHistories = new Map<string, PositionPnlSeries>();
   private readonly observedPositions = new Map<string, DashboardPositionCard>();
-  private readonly optionPnlHistories = new Map<string, PositionPnlSeries>();
-  private readonly optionTrades = new Map<string, DashboardOptionShortTrade>();
   private readonly orderPositionPnl = new Map<string, DashboardLivePosition>();
   private readonly historicalOrders = new Map<string, DashboardOrderCard>();
   private readonly boundListeners = new Map<string, (...args: unknown[]) => void>();
@@ -79,9 +72,6 @@ export class OperationsMonitor extends EventEmitter {
   private lastMarketTelemetryMs = 0;
   private lastHealthTelemetryMs = 0;
   private readonly lastOrderTelemetry = new Map<string, string>();
-  private readonly lastOptionOrderTelemetry = new Map<string, string>();
-  private readonly lastOptionTradeTelemetry = new Map<string, string>();
-  private readonly lastOptionPnlTelemetry = new Map<string, string>();
   private databaseHealth = disabledDatabaseHealth();
   private snapshotValue: DashboardSnapshot = emptySnapshot();
   private utcSession?: UtcSessionProjection;
@@ -104,9 +94,6 @@ export class OperationsMonitor extends EventEmitter {
       this.boundListeners.set(eventName, listener);
       engine.on(eventName, listener);
     }
-    const optionMarkListener = (): void => this.poll();
-    this.boundListeners.set("optionShortMark", optionMarkListener);
-    engine.on("optionShortMark", optionMarkListener);
     this.poll();
     this.timer = setInterval(() => this.poll(), this.pollIntervalMs);
     this.timer.unref();
@@ -168,7 +155,7 @@ export class OperationsMonitor extends EventEmitter {
     this.captureTimeline(event);
     this.capturePositionDecision(type, payload);
     this.emit("telemetry", { kind: "event", atMs, payload: event } satisfies TelemetryRecord);
-    if (["decision", "positionDecision", "exitDecision", "optionShortDecision"].includes(type)) {
+    if (["decision", "positionDecision", "exitDecision"].includes(type)) {
       this.emit("telemetry", { kind: "decision", atMs, payload: { type, event: payload } } satisfies TelemetryRecord);
     }
     if (type === "fill") this.emit("telemetry", { kind: "fill", atMs, payload } satisfies TelemetryRecord);
@@ -350,7 +337,7 @@ export class OperationsMonitor extends EventEmitter {
       return {
         clientOrderId: order.plan.clientOrderId,
         decisionId: order.plan.decisionId,
-        alpacaOrderId: order.alpacaOrderId ?? null,
+        venueOrderId: order.venueOrderId ?? null,
         historical: false,
         symbol: order.plan.symbol,
         side: order.plan.side,
@@ -419,13 +406,12 @@ export class OperationsMonitor extends EventEmitter {
       exitStyle: realizedBreakdown?.exitStyle ?? null,
     };
     const health = state.risk.health;
-    const kraken = state.venue === "kraken_futures";
     const liveness: DashboardSnapshot["liveness"] = [
       check("engine", "Engine process", state.started, state.started ? `Up ${formatDuration(state.uptimeMs)}` : "Not started", nowMs),
-      check("public", kraken ? "Kraken Futures market stream" : "Alpaca market stream", health.publicStream,
-        health.publicStream ? (kraken ? "Subscribed · receiving" : "Authenticated · receiving") : "Disconnected", nowMs),
-      check("private", kraken ? "Local paper order stream" : "Alpaca trade updates", health.privateStream,
-        health.privateStream ? (kraken ? "Simulator connected" : "Authenticated · receiving") : "Disconnected", nowMs),
+      check("public", "Kraken Futures market stream", health.publicStream,
+        health.publicStream ? "Subscribed · receiving" : "Disconnected", nowMs),
+      check("private", "Local paper order stream", health.privateStream,
+        health.privateStream ? "Simulator connected" : "Disconnected", nowMs),
       check("account", "Account reconciliation", health.accountReconciled, health.accountReconciled ? "Positions and orders reconciled" : "Unknown account state", nowMs),
       check("book", "Local order books", health.bookValid, health.bookValid ? `${markets.length} book${markets.length === 1 ? "" : "s"} valid` : "Invalid or warming up", nowMs),
       check("clock", "Clock sanity", health.clockValid, health.clockValid ? "Timestamps valid" : "Clock invalid", nowMs),
@@ -437,7 +423,6 @@ export class OperationsMonitor extends EventEmitter {
     const entriesAllowed = coreHealthy && state.risk.reasons.length === 0;
     const overall = state.risk.reasons.length > 0 || (!health.publicStream && state.started) ? "critical"
       : !coreHealthy || (this.databaseHealth.status !== "disabled" && !this.databaseHealth.connected) ? "degraded" : "healthy";
-    const optionShort = this.projectOptionShort(state.optionShort, nowMs);
     return {
       version: 1, generatedAtMs: nowMs, mode: state.mode, paper: state.paper, paperEntryExercise: state.paperEntryExercise,
       strategyVersion: state.strategyVersion, modelVersion: state.modelVersion,
@@ -451,7 +436,7 @@ export class OperationsMonitor extends EventEmitter {
       realizedSessionPnl: state.realizedSessionPnl,
       realizedSessionBreakdown,
       latencyP95Ms: state.latency.decisionToVenue?.count ? state.latency.decisionToVenue.p95 : null,
-      liveness, database: { ...this.databaseHealth }, markets, positions, orders: visibleOrders, optionShort,
+      liveness, database: { ...this.databaseHealth }, markets, positions, orders: visibleOrders,
       events: this.events.filter((event) => isCurrentUtcDay(event.atMs, nowMs)),
     };
   }
@@ -487,9 +472,7 @@ export class OperationsMonitor extends EventEmitter {
       this.utcSession = {
         dayStartMs,
         startingEquity: openingEquity,
-        // Kraken's paper broker already resets this counter at UTC midnight.
-        // Other venues retain a cumulative process value that must be rebased here.
-        realizedBaseline: state.venue === "kraken_futures" ? 0 : state.realizedSessionPnl,
+        realizedBaseline: 0,
         unrealizedBaseline: markUnrealizedPnl,
         equityHighWater: openingEquity,
         lastEquity: openingEquity,
@@ -538,99 +521,6 @@ export class OperationsMonitor extends EventEmitter {
       });
       series.lastAppendMs = atMs;
     }
-    if (series.points.length > this.maximumPnlHistory) {
-      series.points.splice(0, series.points.length - this.maximumPnlHistory);
-    }
-    return series.points;
-  }
-
-  private projectOptionShort(optionShort: EngineOperationalSnapshot["optionShort"], nowMs: number): DashboardOptionShort {
-    const currentSessionDate = newYorkDate(nowMs);
-    if (!optionShort) return emptyOptionShort(currentSessionDate);
-    const activeKeys = new Set<string>();
-    for (const exposure of optionShort.exposures) {
-      const key = `${exposure.contractSymbol}:${exposure.openedMs}`;
-      activeKeys.add(key);
-      const currentPremium = exposure.markPremium ?? null;
-      const premiumAtRiskDollars = exposure.averageEntryPremium * exposure.qty * 100;
-      const unrealizedPnl = currentPremium === null ? null
-        : (currentPremium - exposure.averageEntryPremium) * exposure.qty * 100;
-      const unrealizedPnlBps = unrealizedPnl === null || !(premiumAtRiskDollars > 0) ? null
-        : unrealizedPnl / premiumAtRiskDollars * 10_000;
-      const previous = this.optionTrades.get(key);
-      const pnlHistory = currentPremium === null || unrealizedPnl === null || unrealizedPnlBps === null
-        ? previous?.pnlHistory ?? []
-        : this.trackOptionPnl(key, exposure.openedMs, exposure.markTimestampMs ?? nowMs,
-          currentPremium, unrealizedPnl, unrealizedPnlBps);
-      this.optionTrades.set(key, {
-        cryptoSymbol: exposure.cryptoSymbol,
-        proxySymbol: exposure.proxySymbol,
-        contractSymbol: exposure.contractSymbol,
-        expirationDate: exposure.expirationDate,
-        active: true,
-        closedAtMs: null,
-        qty: exposure.qty,
-        averageEntryPremium: exposure.averageEntryPremium,
-        premiumAtRiskDollars,
-        currentDay: exposure.expirationDate === currentSessionDate,
-        openedMs: exposure.openedMs,
-        ageMs: Math.max(0, nowMs - exposure.openedMs),
-        entryCryptoPrice: exposure.entryCryptoPrice ?? null,
-        currentPremium,
-        quoteAtMs: exposure.markTimestampMs ?? null,
-        quoteAgeMs: exposure.markTimestampMs === undefined ? null : Math.max(0, nowMs - exposure.markTimestampMs),
-        unrealizedPnl,
-        unrealizedPnlBps,
-        pnlHistory,
-      });
-    }
-    for (const [key, trade] of this.optionTrades) {
-      if (!trade.active || activeKeys.has(key)) continue;
-      this.optionTrades.set(key, { ...trade, active: false, closedAtMs: nowMs,
-        ageMs: Math.max(0, nowMs - trade.openedMs) });
-    }
-    const trades = [...this.optionTrades.values()].sort((a, b) => b.openedMs - a.openedMs);
-    for (const trade of trades.slice(50)) this.optionTrades.delete(`${trade.contractSymbol}:${trade.openedMs}`);
-    const currentTrades = trades.filter((trade) => trade.expirationDate === currentSessionDate
-      && newYorkDate(trade.openedMs) === currentSessionDate);
-    const currentPendingOrders = optionShort.pendingOrders.map((order) => {
-      const expirationDate = optionExpirationDate(order.contractSymbol);
-      return {
-        ...order,
-        alpacaOrderId: order.alpacaOrderId ?? null,
-        expirationDate,
-        currentDay: expirationDate === currentSessionDate,
-        expiresInMs: order.expiresMs - nowMs,
-        settling: ["SETTLING", "UNKNOWN"].includes(order.status.toUpperCase()),
-      };
-    }).filter((order) => order.currentDay);
-    return {
-      enabled: optionShort.enabled,
-      ready: optionShort.enabled && optionShort.accountReady && optionShort.stockStreamReady && optionShort.optionStreamReady
-        && optionShort.subscribedContracts > 0,
-      accountReady: optionShort.accountReady,
-      stockStreamReady: optionShort.stockStreamReady,
-      optionStreamReady: optionShort.optionStreamReady,
-      subscribedContracts: optionShort.subscribedContracts,
-      currentSessionDate,
-      trades: currentTrades.slice(0, 50),
-      pendingOrders: currentPendingOrders,
-      recentActivity: this.events.filter((event) => event.type.startsWith("optionShort")
-        && newYorkDate(event.atMs) === currentSessionDate).slice(0, 8),
-    };
-  }
-
-  private trackOptionPnl(key: string, openedMs: number, atMs: number, currentPremium: number,
-    unrealizedPnl: number, unrealizedPnlBps: number): readonly DashboardPnlPoint[] {
-    let series = this.optionPnlHistories.get(key);
-    if (!series || series.openedMs !== openedMs) {
-      series = { openedMs, points: [], lastAppendMs: null };
-      this.optionPnlHistories.set(key, series);
-    }
-    const last = series.points.at(-1);
-    if (last?.currentPx === currentPremium && last.unrealizedPnl === unrealizedPnl) return series.points;
-    series.points.push({ atMs, currentPx: currentPremium, unrealizedPnl, unrealizedPnlBps,
-      changePnl: last ? unrealizedPnl - last.unrealizedPnl : null, kind: "mark" });
     if (series.points.length > this.maximumPnlHistory) {
       series.points.splice(0, series.points.length - this.maximumPnlHistory);
     }
@@ -769,29 +659,6 @@ export class OperationsMonitor extends EventEmitter {
       this.emit("telemetry", { kind: "order", atMs: nowMs, payload: order } satisfies TelemetryRecord);
     }
     this.emitPositionClosures(nowMs);
-    for (const order of this.snapshotValue.optionShort.pendingOrders) {
-      const signature = `${order.alpacaOrderId ?? ""}:${order.status}:${order.filledQty}:${order.expiresMs}`;
-      if (this.lastOptionOrderTelemetry.get(order.clientOrderId) === signature) continue;
-      this.lastOptionOrderTelemetry.set(order.clientOrderId, signature);
-      this.emit("telemetry", { kind: "option_order", atMs: nowMs, payload: order } satisfies TelemetryRecord);
-    }
-    for (const trade of this.snapshotValue.optionShort.trades) {
-      const tradeKey = optionTradeKey(trade);
-      const signature = `${trade.active}:${trade.qty}:${trade.currentPremium ?? ""}:${trade.unrealizedPnl ?? ""}:${trade.closedAtMs ?? ""}`;
-      if (this.lastOptionTradeTelemetry.get(tradeKey) !== signature) {
-        this.lastOptionTradeTelemetry.set(tradeKey, signature);
-        this.emit("telemetry", { kind: "option_trade", atMs: nowMs,
-          payload: { ...trade, pnlHistory: [] } } satisfies TelemetryRecord);
-      }
-      const point = trade.pnlHistory.at(-1);
-      if (!point) continue;
-      const pointSignature = `${point.atMs}:${point.currentPx}:${point.unrealizedPnl}`;
-      if (this.lastOptionPnlTelemetry.get(tradeKey) === pointSignature) continue;
-      this.lastOptionPnlTelemetry.set(tradeKey, pointSignature);
-      this.emit("telemetry", { kind: "option_pnl", atMs: point.atMs,
-        payload: { tradeKey, cryptoSymbol: trade.cryptoSymbol, contractSymbol: trade.contractSymbol,
-          point } satisfies OptionShortPnlTelemetry } satisfies TelemetryRecord);
-    }
     if (nowMs - this.lastHealthTelemetryMs >= this.healthSampleMs) {
       this.lastHealthTelemetryMs = nowMs;
       this.emit("telemetry", { kind: "health", atMs: nowMs, payload: this.snapshotValue } satisfies TelemetryRecord);
@@ -844,10 +711,6 @@ export class OperationsMonitor extends EventEmitter {
   }
 }
 
-function optionTradeKey(trade: Pick<DashboardOptionShortTrade, "contractSymbol" | "openedMs">): string {
-  return `${trade.contractSymbol}:${trade.openedMs}`;
-}
-
 function projectRule(rule: NonNullable<EngineMarketSnapshot["ruleEvaluation"]>["long"]): DashboardMarketCard["longRule"] {
   return {
     family: rule.family, side: rule.side, phase: rule.phase, score: rule.score,
@@ -882,21 +745,7 @@ function emptySnapshot(): DashboardSnapshot {
     sessionStartingEquity: 0, sessionPnl: 0, sessionRealizedPnl: 0, sessionUnrealizedPnl: 0, realizedSessionPnl: 0,
     realizedSessionBreakdown: null,
     latencyP95Ms: null, liveness: [], database: disabledDatabaseHealth(), markets: [], positions: [], orders: [],
-    optionShort: emptyOptionShort(), events: [] };
-}
-function emptyOptionShort(currentSessionDate = "-"): DashboardOptionShort {
-  return { enabled: false, ready: false, accountReady: false, stockStreamReady: false, optionStreamReady: false,
-    subscribedContracts: 0, currentSessionDate, trades: [], pendingOrders: [], recentActivity: [] };
-}
-function newYorkDate(atMs: number): string {
-  const parts = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", year: "numeric", month: "2-digit",
-    day: "2-digit" }).formatToParts(new Date(atMs));
-  const value = (type: Intl.DateTimeFormatPartTypes): string => parts.find((part) => part.type === type)?.value ?? "";
-  return `${value("year")}-${value("month")}-${value("day")}`;
-}
-function optionExpirationDate(contractSymbol: string): string | null {
-  const match = contractSymbol.match(/(\d{2})(\d{2})(\d{2})[CP]\d{8}$/);
-  return match ? `20${match[1]}-${match[2]}-${match[3]}` : null;
+    events: [] };
 }
 function check(id: string, label: string, healthy: boolean, detail: string, updatedAtMs: number) { return { id, label, healthy, detail, updatedAtMs }; }
 function midpoint(bid: number | null, ask: number | null): number | null { return bid === null || ask === null ? null : (bid + ask) / 2; }

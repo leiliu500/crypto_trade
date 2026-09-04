@@ -15,7 +15,7 @@ test("exact decimal grids never emit off-increment quantities", () => {
   assert.throws(() => decimalToUnits("1.23451", 4));
 });
 
-test("Alpaca reset/delta book is idempotent and fails closed", () => {
+test("reset/delta book handling is idempotent and fails closed", () => {
   const book = new LocalOrderBook("BTC/USD");
   const reset = { symbol: "BTC/USD", bids: [{ px: 100, qty: 2 }], asks: [{ px: 101, qty: 3 }], reset: true, exchangeTsMs: 1_000, receiveTsMs: 1_010, sourceId: "a" };
   const first = book.apply(reset);
@@ -73,7 +73,7 @@ test("provider timestamps slightly ahead of the local clock are clamped within a
   assert.equal(excessiveLead.adjustedAgeMs, -51);
 });
 
-test("250 ms provider future-skew tolerance accepts the observed Alpaca clock lead", () => {
+test("250 ms provider future-skew tolerance accepts the observed venue clock lead", () => {
   const gate = new RobustAgeGate(2_000, 300_000, 6, 20, 250);
   assert.deepEqual(gate.observe(-127, 1), { stale: false, reason: null, thresholdMs: 2_000, adjustedAgeMs: 0 });
   const excessiveLead = gate.observe(-251, 2);

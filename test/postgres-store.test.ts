@@ -225,7 +225,7 @@ test("paper-history backfill is transactional and keeps unknown original run ids
   try {
     const atMs = Date.parse("2026-08-28T16:00:00.000Z");
     const historicalOrder = {
-      clientOrderId: "paper-history", decisionId: "decision", alpacaOrderId: "remote", historical: true,
+      clientOrderId: "paper-history", decisionId: "decision", venueOrderId: "remote", historical: true,
       symbol: "BTC/USD", side: 1 as const, style: "maker", timeInForce: "gtc", status: "FILLED",
       statusLabel: "Filled", terminal: true, requestedQty: .001, filledQty: .001, remainingQty: 0,
       fillPercent: 100, averageFillPx: 80_000, limitPx: 80_000, expectedValue: 1, fillProbability: .1,

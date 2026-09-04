@@ -93,12 +93,20 @@ export class HybridEntryRouter {
       && input.edgeEffectiveSampleCount >= input.minimumEffectiveSampleCount;
     const analyticPaperEvidence = this.cfg.allowAnalyticPaperExecution
       && input.edgeSource === "ANALYTIC";
-    const evidenceRequired = input.family === "CONTINUATION" || input.family === "EARLY_BREAKOUT";
+    const earlyBreakout = input.family === "EARLY_BREAKOUT";
+    const evidenceRequired = input.family === "CONTINUATION" || earlyBreakout;
     const executionEvidencePass = !evidenceRequired
       || calibratedEvidence || analyticPaperEvidence;
     if (!executionEvidencePass) reasons.push(input.family === "EARLY_BREAKOUT"
       ? "UNCALIBRATED_EARLY_BREAKOUT" : "UNCALIBRATED_CONTINUATION");
-    const earlyBreakout = input.family === "EARLY_BREAKOUT";
+    // The analytical breakout model has no outcome-backed bucket that can
+    // justify paying two taker fees in a neutral regime. Keep those candidates
+    // in route shadow, but require directional regime agreement before paper
+    // execution. A sufficiently sampled calibrated bucket may still prove a
+    // neutral-regime breakout independently.
+    if (earlyBreakout && analyticPaperEvidence && !input.regimePass) {
+      reasons.push("EARLY_BREAKOUT_REGIME_NOT_DIRECTIONAL");
+    }
     const takerFamily = input.family === "CONTINUATION" || earlyBreakout;
     const takerEnabled = earlyBreakout ? this.cfg.earlyBreakoutTakerEnabled : this.cfg.continuationTakerEnabled;
     if (!takerEnabled) reasons.push(earlyBreakout ? "EARLY_BREAKOUT_TAKER_DISABLED" : "TAKER_DISABLED");

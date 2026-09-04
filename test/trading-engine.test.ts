@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import type { AlpacaPosition } from "../src/alpaca/types.js";
+import type { VenuePosition } from "../src/venue/types.js";
 import type { BookState, Features } from "../src/core/market.js";
 import type { DeterministicFeatures } from "../src/strategy/deterministic-features.js";
 import { loadConfig } from "../src/config.js";
-import type { OrderGateway } from "../src/alpaca/gateway.js";
+import type { OrderGateway } from "../src/venue/client.js";
 import type { AssetRules, ExecutionPlan } from "../src/execution/planner.js";
 import { TradingEngine } from "../src/engine/trading-engine.js";
 import type { FillDelta, TrackedOrder } from "../src/execution/order-state.js";
@@ -14,13 +14,13 @@ test("reconciliation emits a position-dust event once per distinct residual", ()
   const engine = new TradingEngine(loadConfig({ TRADING_MODE: "replay", CONFIG_DIR: "config" }));
   const internals = engine as unknown as {
     runtimes: Map<string, { asset?: AssetRules }>;
-    reconcilePositions: (positions: readonly AlpacaPosition[]) => void;
+    reconcilePositions: (positions: readonly VenuePosition[]) => void;
   };
   internals.runtimes.get("BTC/USD")!.asset = {
     symbol: "BTC/USD", minOrderSize: 0.00000001, minTradeIncrement: 0.000000001,
     priceIncrement: 0.000000001, maximumOrderQty: 1, shortable: false,
   };
-  const dust: AlpacaPosition = {
+  const dust: VenuePosition = {
     asset_id: "btc", symbol: "BTCUSD", exchange: "CRYPTO", asset_class: "crypto",
     qty: "0.000000001", avg_entry_price: "68500", side: "long", market_value: "0.0000685",
     cost_basis: "0.0000685", unrealized_pl: "0", unrealized_plpc: "0",
@@ -45,7 +45,7 @@ test("account reconciliation preserves restored holding and risk state for a mat
   const engine = new TradingEngine(loadConfig({ TRADING_MODE: "replay", CONFIG_DIR: "config" }), { now: () => 2_000_000 });
   const internals = engine as unknown as {
     runtimes: Map<string, { asset?: AssetRules }>;
-    reconcilePositions: (positions: readonly AlpacaPosition[]) => void;
+    reconcilePositions: (positions: readonly VenuePosition[]) => void;
   };
   internals.runtimes.get("BTC/USD")!.asset = {
     symbol: "BTC/USD", minOrderSize: 0.00001, minTradeIncrement: 0.000000001,
@@ -56,7 +56,7 @@ test("account reconciliation preserves restored holding and risk state for a mat
     breakEvenArmed: true, phase: "EXITING", selectedHorizonMs: 7_200_000,
     executionPath: "MAKER_MAKER_TAKER_FALLBACK", adverseEvidenceSinceMs: 1_900_000 };
   assert.equal(engine.restorePositionStates([restored]), 1);
-  const remote: AlpacaPosition = {
+  const remote: VenuePosition = {
     asset_id: "btc", symbol: "BTCUSD", exchange: "CRYPTO", asset_class: "crypto",
     qty: "0.00099", avg_entry_price: "78000", side: "long", market_value: "77.22",
     cost_basis: "77.22", unrealized_pl: "0", unrealized_plpc: "0", current_price: "78000", lastday_price: "78000",
@@ -104,8 +104,7 @@ test("non-urgent exits fall back to a capped IOC at expiry even when kinematics 
       filled_qty: "0", filled_avg_price: null, status: "canceled", updated_at: new Date(nowMs).toISOString(),
     } }),
   };
-  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", ALPACA_PAPER: "true",
-    ALPACA_API_KEY: "test", ALPACA_API_SECRET: "test", CONFIG_DIR: "config" }), {
+  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", CONFIG_DIR: "config" }), {
     gateway, rest: rest as never, now: () => nowMs,
   });
   const internals = engine as unknown as {
@@ -161,14 +160,13 @@ test("a maker fallback in progress blocks a competing maker exit but permits its
     cancel: async () => undefined,
     cancelAll: async () => undefined,
   };
-  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", ALPACA_PAPER: "true",
-    ALPACA_API_KEY: "test", ALPACA_API_SECRET: "test", CONFIG_DIR: "config" }), { gateway, now: () => 1_000 });
+  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", CONFIG_DIR: "config" }), { gateway, now: () => 1_000 });
   const internals = engine as unknown as {
     runtimes: Map<string, { asset?: AssetRules; position?: Position }>;
     makerExitFallbackInFlight: Set<string>;
     orderState: {
       reserve: (plan: ExecutionPlan) => void;
-      markAccepted: (clientOrderId: string, alpacaOrderId: string, atMs: number) => void;
+      markAccepted: (clientOrderId: string, venueOrderId: string, atMs: number) => void;
       reconcileOrder: (value: { id: string; clientOrderId: string; filledQty: number; status: string }) => unknown;
     };
     submitExit: (runtime: unknown, qty: number, reason: string, book: BookState, features: Features,
@@ -204,8 +202,7 @@ test("hard stops bypass maker exit optimization", async () => {
     send: async (plan) => { plans.push(plan); return { id: "hard-stop-order" } as never; },
     cancel: async () => undefined, cancelAll: async () => undefined,
   };
-  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", ALPACA_PAPER: "true",
-    ALPACA_API_KEY: "test", ALPACA_API_SECRET: "test", CONFIG_DIR: "config" }), { gateway, now: () => 1_000 });
+  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", CONFIG_DIR: "config" }), { gateway, now: () => 1_000 });
   const internals = engine as unknown as {
     runtimes: Map<string, { asset?: AssetRules; position?: Position }>;
     submitExit: (runtime: unknown, qty: number, reason: string, book: BookState, features: Features) => Promise<void>;
@@ -235,8 +232,7 @@ test("losing time and evidence exits use IOC immediately instead of resting for 
     send: async (plan) => { plans.push(plan); return { id: "loss-exit-order" } as never; },
     cancel: async () => undefined, cancelAll: async () => undefined,
   };
-  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", ALPACA_PAPER: "true",
-    ALPACA_API_KEY: "test", ALPACA_API_SECRET: "test", CONFIG_DIR: "config" }), { gateway, now: () => 1_000 });
+  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", CONFIG_DIR: "config" }), { gateway, now: () => 1_000 });
   const internals = engine as unknown as {
     runtimes: Map<string, { asset?: AssetRules; position?: Position }>;
     submitExit: (runtime: unknown, qty: number, reason: string, book: BookState, features: Features) => Promise<void>;
@@ -269,15 +265,14 @@ test("a partial entry retains its remainder during the pullback kinematics grace
     id: "partial-entry", client_order_id: plan.clientOrderId, symbol: "BTCUSD",
     filled_qty: "0.004", filled_avg_price: "100", status: "canceled", updated_at: new Date(2_000).toISOString(),
   } }) };
-  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", ALPACA_PAPER: "true",
-    ALPACA_API_KEY: "test", ALPACA_API_SECRET: "test", CONFIG_DIR: "config" }), {
+  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", CONFIG_DIR: "config" }), {
     gateway, rest: rest as never, now: () => 2_000,
   });
   const internals = engine as unknown as {
     runtimes: Map<string, { position?: Position }>;
     orderState: {
       reserve: (value: ExecutionPlan) => void;
-      markAccepted: (clientOrderId: string, alpacaOrderId: string, atMs: number) => void;
+      markAccepted: (clientOrderId: string, venueOrderId: string, atMs: number) => void;
       apply: (event: unknown) => unknown;
       get: (clientOrderId: string) => TrackedOrder | undefined;
     };
@@ -317,7 +312,7 @@ test("terminal zero-fill TTL orders arm shared BTC and ETH retries but partial f
     }>;
     orderState: {
       reserve: (value: ExecutionPlan) => void;
-      markAccepted: (clientOrderId: string, alpacaOrderId: string, atMs: number) => void;
+      markAccepted: (clientOrderId: string, venueOrderId: string, atMs: number) => void;
       requestCancel: (clientOrderId: string, reason: "TTL_EXPIRED", atMs: number) => void;
       reconcileOrder: (value: { id: string; clientOrderId: string; filledQty: number; status: string }) => TrackedOrder;
     };
@@ -370,8 +365,7 @@ test("hard stops remain active while kinematics are unavailable", async () => {
     cancel: async () => undefined,
     cancelAll: async () => undefined,
   };
-  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", ALPACA_PAPER: "true",
-    ALPACA_API_KEY: "test", ALPACA_API_SECRET: "test", CONFIG_DIR: "config" }), { gateway, now: () => 2_000 });
+  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", CONFIG_DIR: "config" }), { gateway, now: () => 2_000 });
   const internals = engine as unknown as {
     runtimes: Map<string, { asset?: AssetRules; position?: Position }>;
     enforceProtectiveExitWithoutKinematics: (runtime: unknown, book: BookState, features: Features) => Promise<void>;
@@ -394,12 +388,11 @@ test("hard stops remain active while kinematics are unavailable", async () => {
 });
 
 test("session P&L includes credited-asset entry fees and quote-currency exit fees", () => {
-  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", ALPACA_PAPER: "true",
-    ALPACA_API_KEY: "test", ALPACA_API_SECRET: "test", CONFIG_DIR: "config" }));
+  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", CONFIG_DIR: "config" }));
   const internals = engine as unknown as {
     orderState: {
       reserve: (value: ExecutionPlan) => void;
-      markAccepted: (clientOrderId: string, alpacaOrderId: string, atMs: number) => void;
+      markAccepted: (clientOrderId: string, venueOrderId: string, atMs: number) => void;
       apply: (event: unknown) => FillDelta | null;
     };
     applyFill: (fill: FillDelta) => void;
@@ -412,7 +405,7 @@ test("session P&L includes credited-asset entry fees and quote-currency exit fee
     eventPx: 100, timestampMs: 1_002, positionQty: .9985 });
   assert.ok(entryFill);
   internals.applyFill(entryFill!);
-  assert.ok(Math.abs(engine.state().realizedSessionPnl + .15) < 1e-12);
+  assert.ok(Math.abs(engine.state().realizedSessionPnl + .02) < 1e-12);
 
   const exit: ExecutionPlan = { ...entry, clientOrderId: "fee-exit", decisionId: "fee-exit-decision",
     riskApprovalId: "fee-exit-risk", side: -1, qty: .9985, limitPx: 101, style: "taker", timeInForce: "ioc",
@@ -424,7 +417,7 @@ test("session P&L includes credited-asset entry fees and quote-currency exit fee
     eventPx: 101, timestampMs: 1_004, positionQty: 0 });
   assert.ok(exitFill);
   internals.applyFill(exitFill!);
-  assert.ok(Math.abs(engine.state().realizedSessionPnl - .59637875) < 1e-12);
+  assert.ok(Math.abs(engine.state().realizedSessionPnl - .92807575) < 1e-12);
 });
 
 test("a deadline that fires while order submission is in flight cancels immediately after acknowledgment", async () => {
@@ -443,22 +436,21 @@ test("a deadline that fires while order submission is in flight cancels immediat
     id: "deadline-order", client_order_id: plan.clientOrderId, symbol: "BTCUSD",
     filled_qty: "0", filled_avg_price: null, status: "canceled", updated_at: new Date().toISOString(),
   } }) };
-  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", ALPACA_PAPER: "true",
-    ALPACA_API_KEY: "test", ALPACA_API_SECRET: "test", CONFIG_DIR: "config" }), {
+  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", CONFIG_DIR: "config" }), {
     gateway, rest: rest as never, now: Date.now,
   });
   const internals = engine as unknown as {
     orderState: { get: (clientOrderId: string) => TrackedOrder | undefined };
     submit: (value: ExecutionPlan) => Promise<boolean>;
   };
-  const requested = new Promise<{ reason: string; alpacaOrderId: string | null }>((resolve) => {
+  const requested = new Promise<{ reason: string; venueOrderId: string | null }>((resolve) => {
     engine.once("orderCancelRequested", resolve);
   });
 
   const submission = internals.submit(plan);
   const request = await within(requested, "in-flight deadline request");
   assert.equal(request.reason, "TTL_EXPIRED");
-  assert.equal(request.alpacaOrderId, null);
+  assert.equal(request.venueOrderId, null);
   assert.equal(internals.orderState.get(plan.clientOrderId)?.status, "SENDING");
   assert.equal(internals.orderState.get(plan.clientOrderId)?.cancelRequestReason, "TTL_EXPIRED");
 
@@ -484,8 +476,7 @@ test("an accepted maker order expires on its wall-clock deadline without another
     id: "event-free-order", client_order_id: plan.clientOrderId, symbol: "BTCUSD",
     filled_qty: "0", filled_avg_price: null, status: "canceled", updated_at: new Date().toISOString(),
   } }) };
-  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", ALPACA_PAPER: "true",
-    ALPACA_API_KEY: "test", ALPACA_API_SECRET: "test", CONFIG_DIR: "config" }), {
+  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", CONFIG_DIR: "config" }), {
     gateway, rest: rest as never, now: Date.now,
   });
   const internals = engine as unknown as {
@@ -517,8 +508,7 @@ test("an emergency cancel-all intent survives a delayed order acknowledgment", a
     id: "emergency-order", client_order_id: plan.clientOrderId, symbol: "BTCUSD",
     filled_qty: "0", filled_avg_price: null, status: "canceled", updated_at: new Date(nowMs).toISOString(),
   } }) };
-  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", ALPACA_PAPER: "true",
-    ALPACA_API_KEY: "test", ALPACA_API_SECRET: "test", CONFIG_DIR: "config" }), {
+  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", CONFIG_DIR: "config" }), {
     gateway, rest: rest as never, now: () => nowMs,
   });
   const internals = engine as unknown as {
@@ -550,14 +540,13 @@ test("account reconciliation fetches exact status before terminalizing an order 
       updated_at: new Date(3_000).toISOString(),
     } };
   } };
-  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", ALPACA_PAPER: "true",
-    ALPACA_API_KEY: "test", ALPACA_API_SECRET: "test", CONFIG_DIR: "config" }), {
+  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", CONFIG_DIR: "config" }), {
     rest: rest as never, now: () => 3_000,
   });
   const internals = engine as unknown as {
     orderState: {
       reserve: (value: ExecutionPlan) => void;
-      markAccepted: (clientOrderId: string, alpacaOrderId: string, atMs: number) => void;
+      markAccepted: (clientOrderId: string, venueOrderId: string, atMs: number) => void;
       get: (clientOrderId: string) => TrackedOrder | undefined;
     };
     reconcileTrackedOrders: (openOrders: readonly []) => Promise<boolean>;
@@ -586,15 +575,14 @@ test("a pullback maker entry survives one transient kinematics reset and cancels
     id: "pullback-order", client_order_id: plan.clientOrderId, symbol: "BTCUSD",
     filled_qty: "0", filled_avg_price: null, status: "canceled", updated_at: new Date(nowMs).toISOString(),
   } }) };
-  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", ALPACA_PAPER: "true",
-    ALPACA_API_KEY: "test", ALPACA_API_SECRET: "test", CONFIG_DIR: "config" }), {
+  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", CONFIG_DIR: "config" }), {
     gateway, rest: rest as never, now: () => nowMs,
   });
   const internals = engine as unknown as {
     runtimes: Map<string, unknown>;
     orderState: {
       reserve: (value: ExecutionPlan) => void;
-      markAccepted: (clientOrderId: string, alpacaOrderId: string, atMs: number) => void;
+      markAccepted: (clientOrderId: string, venueOrderId: string, atMs: number) => void;
       get: (clientOrderId: string) => TrackedOrder | undefined;
     };
     handlePendingKinematicsUnavailable: (runtime: unknown, tracked: TrackedOrder, features: Features) => Promise<void>;
@@ -636,8 +624,7 @@ test("a pullback maker entry requires persistent signal invalidation before canc
     id: "pullback-signal-order", client_order_id: plan.clientOrderId, symbol: "BTCUSD",
     filled_qty: "0", filled_avg_price: null, status: "canceled", updated_at: new Date(nowMs).toISOString(),
   } }) };
-  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", ALPACA_PAPER: "true",
-    ALPACA_API_KEY: "test", ALPACA_API_SECRET: "test", CONFIG_DIR: "config" }), {
+  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", CONFIG_DIR: "config" }), {
     gateway, rest: rest as never, now: () => nowMs,
   });
   const internals = engine as unknown as {
@@ -649,7 +636,7 @@ test("a pullback maker entry requires persistent signal invalidation before canc
     }>;
     orderState: {
       reserve: (value: ExecutionPlan) => void;
-      markAccepted: (clientOrderId: string, alpacaOrderId: string, atMs: number) => void;
+      markAccepted: (clientOrderId: string, venueOrderId: string, atMs: number) => void;
       get: (clientOrderId: string) => TrackedOrder | undefined;
     };
     reevaluatePending: (runtime: unknown, tracked: TrackedOrder, book: BookState, features: Features) => void;
@@ -808,15 +795,14 @@ test("an expired pullback maker order reports TTL before a simultaneous kinemati
     id: "expired-pullback-order", client_order_id: plan.clientOrderId, symbol: "BTCUSD",
     filled_qty: "0", filled_avg_price: null, status: "canceled", updated_at: new Date(nowMs).toISOString(),
   } }) };
-  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", ALPACA_PAPER: "true",
-    ALPACA_API_KEY: "test", ALPACA_API_SECRET: "test", CONFIG_DIR: "config" }), {
+  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", CONFIG_DIR: "config" }), {
     gateway, rest: rest as never, now: () => nowMs,
   });
   const internals = engine as unknown as {
     runtimes: Map<string, unknown>;
     orderState: {
       reserve: (value: ExecutionPlan) => void;
-      markAccepted: (clientOrderId: string, alpacaOrderId: string, atMs: number) => void;
+      markAccepted: (clientOrderId: string, venueOrderId: string, atMs: number) => void;
       get: (clientOrderId: string) => TrackedOrder | undefined;
     };
     handlePendingKinematicsUnavailable: (runtime: unknown, tracked: TrackedOrder, features: Features) => Promise<void>;
@@ -837,8 +823,7 @@ test("transient hold evidence cannot bypass the position manager minimum hold", 
     cancel: async () => undefined,
     cancelAll: async () => undefined,
   };
-  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", ALPACA_PAPER: "true",
-    ALPACA_API_KEY: "test", ALPACA_API_SECRET: "test", CONFIG_DIR: "config" }), {
+  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", CONFIG_DIR: "config" }), {
     gateway, now: () => 61_000,
   });
   const internals = engine as unknown as {
@@ -977,8 +962,7 @@ function pendingEntryHarness(clientOrderId: string, initialSignalValid: boolean,
     id: `${clientOrderId}-order`, client_order_id: plan.clientOrderId, symbol: "BTCUSD",
     filled_qty: "0", filled_avg_price: null, status: "canceled", updated_at: new Date(nowMs).toISOString(),
   } }) };
-  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", ALPACA_PAPER: "true",
-    ALPACA_API_KEY: "test", ALPACA_API_SECRET: "test", CONFIG_DIR: "config" }), {
+  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", CONFIG_DIR: "config" }), {
     gateway, rest: rest as never, now: () => nowMs,
   });
   const internals = engine as unknown as {
@@ -990,7 +974,7 @@ function pendingEntryHarness(clientOrderId: string, initialSignalValid: boolean,
     }>;
     orderState: {
       reserve: (value: ExecutionPlan) => void;
-      markAccepted: (trackedClientOrderId: string, alpacaOrderId: string, atMs: number) => void;
+      markAccepted: (trackedClientOrderId: string, venueOrderId: string, atMs: number) => void;
       get: (trackedClientOrderId: string) => TrackedOrder | undefined;
     };
     reevaluatePending: (runtime: unknown, tracked: TrackedOrder, book: BookState, features: Features) => void;

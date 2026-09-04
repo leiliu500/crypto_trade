@@ -2,8 +2,8 @@ import { randomUUID } from "node:crypto";
 import { EventEmitter } from "node:events";
 import { Pool, type PoolClient } from "pg";
 import type {
-  DashboardEvent, DashboardMarketCard, DashboardOptionShortOrder, DashboardOptionShortTrade, DashboardOrderCard,
-  DashboardPositionCard, DashboardSnapshot, DatabaseHealth, OptionShortPnlTelemetry, TelemetryRecord,
+  DashboardEvent, DashboardMarketCard, DashboardOrderCard, DashboardPositionCard, DashboardSnapshot,
+  DatabaseHealth, TelemetryRecord,
 } from "../dashboard/types.js";
 import type { HistoricalFillRecord } from "../kraken/paper-history.js";
 import type { Position } from "../strategy/position-manager.js";
@@ -32,16 +32,6 @@ export interface PersistedMarketMid {
 
 export interface PersistedDecisionVenueLatency { atMs: number; milliseconds: number; }
 export interface HistoricalBackfillResult { ordersInserted: number; fillsInserted: number; }
-
-const OPTION_ORDER_LIFECYCLE_EVENTS = new Set([
-  "optionShortDecision",
-  "optionShortOrderAccepted",
-  "optionShortOrderCancelRequested",
-  "optionShortOrderCancelUnknown",
-  "optionShortOrderReconciled",
-  "optionShortOrderUpdate",
-  "optionShortOrderError",
-]);
 
 /** Bounded, batched writer: enqueue never performs network I/O on strategy callbacks. */
 export class PostgresTelemetryStore extends EventEmitter {
@@ -144,12 +134,12 @@ export class PostgresTelemetryStore extends EventEmitter {
       await client.query("BEGIN");
       for (const order of orders) {
         const inserted = await client.query(`INSERT INTO orders
-          (client_order_id,run_id,alpaca_order_id,symbol,side,style,time_in_force,status,cancel_request_reason,
+          (client_order_id,run_id,venue_order_id,symbol,side,style,time_in_force,status,cancel_request_reason,
            cancellation_reason,requested_qty,filled_qty,average_fill_price,limit_price,expected_value,
            fill_probability,reduce_only_intent,created_at,expires_at,updated_at,plan)
           VALUES ($1,NULL,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20::jsonb)
           ON CONFLICT (client_order_id) DO NOTHING`,
-        [order.clientOrderId, order.alpacaOrderId, order.symbol, order.side, order.style, order.timeInForce,
+        [order.clientOrderId, order.venueOrderId, order.symbol, order.side, order.style, order.timeInForce,
           order.status, order.cancelRequestReason, order.cancellationReason, order.requestedQty, order.filledQty,
           order.averageFillPx || null, order.limitPx, order.expectedValue, order.fillProbability,
           order.reduceOnlyIntent, date(order.createdMs), date(order.expiresMs), date(order.updatedMs), json(order)]);
@@ -163,13 +153,13 @@ export class PostgresTelemetryStore extends EventEmitter {
           [order.clientOrderId, json(order)]);
         }
         await client.query(`INSERT INTO order_events
-          (run_id,client_order_id,alpaca_order_id,event_type,status,cancellation_reason,event_qty,event_price,
+          (run_id,client_order_id,venue_order_id,event_type,status,cancellation_reason,event_qty,event_price,
            filled_qty,occurred_at,payload)
           SELECT NULL,$1,$2,'history_import',$3,$4,NULL,$5,$6,$7,$8::jsonb
           WHERE NOT EXISTS (
             SELECT 1 FROM order_events WHERE client_order_id=$1 AND event_type='history_import'
           )`,
-        [order.clientOrderId, order.alpacaOrderId, order.status, order.cancellationReason,
+        [order.clientOrderId, order.venueOrderId, order.status, order.cancellationReason,
           order.averageFillPx || null, order.filledQty, date(order.updatedMs), json(order)]);
       }
       for (const fill of fills) {
@@ -363,18 +353,11 @@ export class PostgresTelemetryStore extends EventEmitter {
     if (record.kind === "market") return this.persistMarket(client, record.payload as DashboardMarketCard, runId, record.atMs);
     if (record.kind === "fill") return this.persistFill(client, record.payload, runId, record.atMs);
     if (record.kind === "decision") return this.persistDecision(client, record.payload, runId, record.atMs);
-    if (record.kind === "option_order") return this.persistOptionOrderSnapshot(client,
-      record.payload as DashboardOptionShortOrder, runId, record.atMs);
-    if (record.kind === "option_trade") return this.persistOptionTrade(client,
-      record.payload as DashboardOptionShortTrade, runId, record.atMs);
-    if (record.kind === "option_pnl") return this.persistOptionPnl(client,
-      record.payload as OptionShortPnlTelemetry, runId);
   }
 
   private async persistEvent(client: PoolClient, event: DashboardEvent, runId: string, atMs: number): Promise<void> {
     await client.query("INSERT INTO system_events (run_id,event_type,severity,symbol,client_order_id,occurred_at,payload) VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb)",
       [runId, event.type, event.severity, event.symbol, event.clientOrderId, date(atMs), json(event.payload)]);
-    if (OPTION_ORDER_LIFECYCLE_EVENTS.has(event.type)) await this.persistOptionOrderLifecycle(client, event, runId, atMs);
   }
 
   private async persistHealth(client: PoolClient, snapshot: DashboardSnapshot, runId: string, atMs: number): Promise<void> {
@@ -388,16 +371,16 @@ export class PostgresTelemetryStore extends EventEmitter {
   }
 
   private async persistOrder(client: PoolClient, order: DashboardOrderCard, runId: string): Promise<void> {
-    await client.query(`INSERT INTO orders (client_order_id,run_id,alpaca_order_id,symbol,side,style,time_in_force,status,cancel_request_reason,cancellation_reason,requested_qty,filled_qty,average_fill_price,limit_price,expected_value,fill_probability,reduce_only_intent,created_at,expires_at,updated_at,plan)
+    await client.query(`INSERT INTO orders (client_order_id,run_id,venue_order_id,symbol,side,style,time_in_force,status,cancel_request_reason,cancellation_reason,requested_qty,filled_qty,average_fill_price,limit_price,expected_value,fill_probability,reduce_only_intent,created_at,expires_at,updated_at,plan)
       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21::jsonb)
-      ON CONFLICT (client_order_id) DO UPDATE SET alpaca_order_id=EXCLUDED.alpaca_order_id,status=EXCLUDED.status,cancel_request_reason=EXCLUDED.cancel_request_reason,cancellation_reason=EXCLUDED.cancellation_reason,filled_qty=EXCLUDED.filled_qty,average_fill_price=EXCLUDED.average_fill_price,updated_at=EXCLUDED.updated_at,plan=EXCLUDED.plan`,
-      [order.clientOrderId, runId, order.alpacaOrderId, order.symbol, order.side, order.style, order.timeInForce, order.status,
+      ON CONFLICT (client_order_id) DO UPDATE SET venue_order_id=EXCLUDED.venue_order_id,status=EXCLUDED.status,cancel_request_reason=EXCLUDED.cancel_request_reason,cancellation_reason=EXCLUDED.cancellation_reason,filled_qty=EXCLUDED.filled_qty,average_fill_price=EXCLUDED.average_fill_price,updated_at=EXCLUDED.updated_at,plan=EXCLUDED.plan`,
+      [order.clientOrderId, runId, order.venueOrderId, order.symbol, order.side, order.style, order.timeInForce, order.status,
         order.cancelRequestReason, order.cancellationReason, order.requestedQty, order.filledQty, order.averageFillPx || null,
         order.limitPx, order.expectedValue, order.fillProbability, order.reduceOnlyIntent, date(order.createdMs), date(order.expiresMs),
         date(order.updatedMs), json(order)]);
     if (this.lastOrderStatus.get(order.clientOrderId) !== order.status) {
-      await client.query("INSERT INTO order_events (run_id,client_order_id,alpaca_order_id,event_type,status,cancellation_reason,event_qty,event_price,filled_qty,occurred_at,payload) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11::jsonb)",
-        [runId, order.clientOrderId, order.alpacaOrderId, "state_change", order.status, order.cancellationReason, null,
+      await client.query("INSERT INTO order_events (run_id,client_order_id,venue_order_id,event_type,status,cancellation_reason,event_qty,event_price,filled_qty,occurred_at,payload) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11::jsonb)",
+        [runId, order.clientOrderId, order.venueOrderId, "state_change", order.status, order.cancellationReason, null,
           order.averageFillPx || null, order.filledQty, date(order.updatedMs), json(order)]);
       this.lastOrderStatus.set(order.clientOrderId, order.status);
     }
@@ -435,7 +418,7 @@ export class PostgresTelemetryStore extends EventEmitter {
 
   private async persistDecision(client: PoolClient, payload: unknown, runId: string, atMs: number): Promise<void> {
     const wrapper = object(payload); const event = object(wrapper.event); const nestedPlan = object(event.plan);
-    const plan = wrapper.type === "optionShortDecision" && Object.keys(nestedPlan).length === 0 ? event : nestedPlan;
+    const plan = nestedPlan;
     const intent = object(event.deterministicIntent ?? event.intent); const regime = object(event.regime); const decision = object(event.decision);
     const symbol = String(plan.cryptoSymbol ?? plan.symbol ?? object(event.position).symbol ?? event.cryptoSymbol ?? event.symbol ?? "unknown");
     const side = plan.side === "buy" ? 1 : plan.side === "sell" ? -1 : nullableNumber(plan.side ?? intent.side);
@@ -444,120 +427,6 @@ export class PostgresTelemetryStore extends EventEmitter {
         regime.name ?? regime.regime ?? null, nullableNumber(intent.probability), nullableNumber(intent.grossOpportunityBps ?? intent.predictedGrossBps), nullableNumber(intent.lowerBoundNetBps),
         nullableNumber(object(plan.expectedCost).roundTripBps), plan.purpose ?? decision.action ?? event.action ?? null,
         plan.reason ?? decision.reason ?? event.reason ?? null, date(atMs), json(wrapper)]);
-  }
-
-  private async persistOptionOrderSnapshot(client: PoolClient, order: DashboardOptionShortOrder, runId: string,
-    atMs: number): Promise<void> {
-    await this.upsertOptionOrder(client, {
-      clientOrderId: order.clientOrderId,
-      alpacaOrderId: order.alpacaOrderId,
-      cryptoSymbol: order.cryptoSymbol,
-      proxySymbol: null,
-      contractSymbol: order.contractSymbol,
-      expirationDate: order.expirationDate,
-      purpose: order.purpose,
-      side: order.purpose === "OPEN_SHORT" ? "buy" : "sell",
-      positionIntent: order.purpose === "OPEN_SHORT" ? "buy_to_open" : "sell_to_close",
-      orderType: null,
-      timeInForce: "day",
-      status: order.status,
-      requestedQty: null,
-      filledQty: order.filledQty,
-      averageFillPremium: null,
-      limitPremium: null,
-      maximumPremiumRisk: null,
-      decisionId: null,
-      reason: null,
-      marketData: null,
-      createdMs: atMs,
-      expiresMs: order.expiresMs,
-      updatedMs: atMs,
-      payload: order,
-    }, runId);
-  }
-
-  private async persistOptionOrderLifecycle(client: PoolClient, event: DashboardEvent, runId: string,
-    atMs: number): Promise<void> {
-    const order = optionOrderFromEvent(event, atMs);
-    if (!order) return;
-    await this.upsertOptionOrder(client, order, runId);
-    const payload = object(event.payload);
-    const rawOrder = object(payload.order);
-    const eventQty = nullableNumber(payload.eventQty ?? rawOrder.eventQty ?? rawOrder.qty);
-    const eventPrice = nullableNumber(payload.eventPx ?? rawOrder.eventPx ?? rawOrder.filled_avg_price
-      ?? rawOrder.averageFillPremium ?? rawOrder.limit_price);
-    await client.query(`INSERT INTO option_short_order_events
-      (source_event_id,run_id,client_order_id,alpaca_order_id,event_type,purpose,status,event_qty,event_price,filled_qty,reason,occurred_at,payload)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13::jsonb)
-      ON CONFLICT (source_event_id) DO NOTHING`,
-    [event.id, runId, order.clientOrderId, order.alpacaOrderId, event.type, order.purpose, order.status,
-      eventQty, eventPrice, order.filledQty, order.reason, date(atMs), json(event.payload)]);
-  }
-
-  private async upsertOptionOrder(client: PoolClient, order: OptionOrderRecord, runId: string): Promise<void> {
-    await client.query(`INSERT INTO option_short_orders
-      (client_order_id,run_id,alpaca_order_id,crypto_symbol,proxy_symbol,contract_symbol,expiration_date,purpose,side,
-       position_intent,order_type,time_in_force,status,requested_qty,filled_qty,average_fill_premium,limit_premium,
-       maximum_premium_risk,decision_id,reason,market_data,created_at,expires_at,updated_at,payload)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25::jsonb)
-      ON CONFLICT (client_order_id) DO UPDATE SET
-        run_id=EXCLUDED.run_id,
-        alpaca_order_id=COALESCE(EXCLUDED.alpaca_order_id,option_short_orders.alpaca_order_id),
-        crypto_symbol=CASE WHEN EXCLUDED.crypto_symbol='unknown' THEN option_short_orders.crypto_symbol ELSE EXCLUDED.crypto_symbol END,
-        proxy_symbol=COALESCE(EXCLUDED.proxy_symbol,option_short_orders.proxy_symbol),
-        contract_symbol=CASE WHEN EXCLUDED.contract_symbol='unknown' THEN option_short_orders.contract_symbol ELSE EXCLUDED.contract_symbol END,
-        expiration_date=COALESCE(EXCLUDED.expiration_date,option_short_orders.expiration_date),
-        purpose=EXCLUDED.purpose,
-        side=COALESCE(EXCLUDED.side,option_short_orders.side),
-        position_intent=COALESCE(EXCLUDED.position_intent,option_short_orders.position_intent),
-        order_type=COALESCE(EXCLUDED.order_type,option_short_orders.order_type),
-        time_in_force=COALESCE(EXCLUDED.time_in_force,option_short_orders.time_in_force),
-        status=EXCLUDED.status,
-        requested_qty=COALESCE(EXCLUDED.requested_qty,option_short_orders.requested_qty),
-        filled_qty=COALESCE(EXCLUDED.filled_qty,option_short_orders.filled_qty),
-        average_fill_premium=COALESCE(EXCLUDED.average_fill_premium,option_short_orders.average_fill_premium),
-        limit_premium=COALESCE(EXCLUDED.limit_premium,option_short_orders.limit_premium),
-        maximum_premium_risk=COALESCE(EXCLUDED.maximum_premium_risk,option_short_orders.maximum_premium_risk),
-        decision_id=COALESCE(EXCLUDED.decision_id,option_short_orders.decision_id),
-        reason=COALESCE(EXCLUDED.reason,option_short_orders.reason),
-        market_data=COALESCE(EXCLUDED.market_data,option_short_orders.market_data),
-        created_at=LEAST(EXCLUDED.created_at,option_short_orders.created_at),
-        expires_at=COALESCE(EXCLUDED.expires_at,option_short_orders.expires_at),
-        updated_at=GREATEST(EXCLUDED.updated_at,option_short_orders.updated_at),
-        payload=option_short_orders.payload || EXCLUDED.payload`,
-    [order.clientOrderId, runId, order.alpacaOrderId, order.cryptoSymbol, order.proxySymbol, order.contractSymbol,
-      order.expirationDate, order.purpose, order.side, order.positionIntent, order.orderType, order.timeInForce, order.status,
-      order.requestedQty, order.filledQty, order.averageFillPremium, order.limitPremium, order.maximumPremiumRisk,
-      order.decisionId, order.reason, order.marketData, date(order.createdMs), nullableDate(order.expiresMs),
-      date(order.updatedMs), json(order.payload)]);
-  }
-
-  private async persistOptionTrade(client: PoolClient, trade: DashboardOptionShortTrade, runId: string,
-    atMs: number): Promise<void> {
-    const tradeKey = `${trade.contractSymbol}:${trade.openedMs}`;
-    await client.query(`INSERT INTO option_short_trades
-      (trade_key,run_id,crypto_symbol,proxy_symbol,contract_symbol,expiration_date,status,qty,entry_premium,
-       premium_at_risk,entry_crypto_price,current_premium,unrealized_pnl,unrealized_pnl_bps,opened_at,closed_at,updated_at,payload)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18::jsonb)
-      ON CONFLICT (trade_key) DO UPDATE SET run_id=EXCLUDED.run_id,status=EXCLUDED.status,qty=EXCLUDED.qty,
-       current_premium=COALESCE(EXCLUDED.current_premium,option_short_trades.current_premium),
-       unrealized_pnl=COALESCE(EXCLUDED.unrealized_pnl,option_short_trades.unrealized_pnl),
-       unrealized_pnl_bps=COALESCE(EXCLUDED.unrealized_pnl_bps,option_short_trades.unrealized_pnl_bps),
-       closed_at=COALESCE(EXCLUDED.closed_at,option_short_trades.closed_at),updated_at=EXCLUDED.updated_at,payload=EXCLUDED.payload`,
-    [tradeKey, runId, trade.cryptoSymbol, trade.proxySymbol, trade.contractSymbol, trade.expirationDate,
-      trade.active ? "OPEN" : "CLOSED", trade.qty, trade.averageEntryPremium, trade.premiumAtRiskDollars,
-      trade.entryCryptoPrice, trade.currentPremium, trade.unrealizedPnl, trade.unrealizedPnlBps, date(trade.openedMs),
-      nullableDate(trade.closedAtMs), date(atMs), json(trade)]);
-  }
-
-  private async persistOptionPnl(client: PoolClient, telemetry: OptionShortPnlTelemetry, runId: string): Promise<void> {
-    const point = telemetry.point;
-    await client.query(`INSERT INTO option_short_pnl_events
-      (run_id,trade_key,crypto_symbol,contract_symbol,captured_at,current_premium,unrealized_pnl,unrealized_pnl_bps,change_pnl,mark_kind,payload)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11::jsonb)
-      ON CONFLICT (trade_key,captured_at,current_premium,unrealized_pnl) DO NOTHING`,
-    [runId, telemetry.tradeKey, telemetry.cryptoSymbol, telemetry.contractSymbol, date(point.atMs), point.currentPx,
-      point.unrealizedPnl, point.unrealizedPnlBps, point.changePnl, point.kind ?? "mark", json(telemetry)]);
   }
 
   private publishHealth(): void { this.emit("health", this.health()); }
@@ -596,7 +465,7 @@ export function compactHealthSnapshot(snapshot: DashboardSnapshot): Record<strin
 function telemetryPriority(record: TelemetryRecord): number {
   if (record.kind === "fill") return 3;
   if (record.kind === "position" && object(record.payload).active === false) return 2;
-  if (["order", "decision", "option_order", "option_trade", "option_pnl"].includes(record.kind)) return 2;
+  if (["order", "decision"].includes(record.kind)) return 2;
   if (record.kind === "event") {
     const eventType = object(record.payload).type;
     return typeof eventType === "string" && ["fill", "orderAccepted", "orderUpdate", "orderRejected",
@@ -606,7 +475,6 @@ function telemetryPriority(record: TelemetryRecord): number {
 }
 
 function date(ms: number): Date { return new Date(ms); }
-function nullableDate(ms: number | null): Date | null { return ms === null ? null : date(ms); }
 function object(value: unknown): Record<string, unknown> { return value && typeof value === "object" ? value as Record<string, unknown> : {}; }
 function number(value: unknown, fallback: number): number { const parsed = Number(value); return Number.isFinite(parsed) ? parsed : fallback; }
 function nullableNumber(value: unknown): number | null {
@@ -615,131 +483,6 @@ function nullableNumber(value: unknown): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 function json(value: unknown): string { return JSON.stringify(value, (_key, item: unknown) => typeof item === "bigint" ? item.toString() : typeof item === "number" && !Number.isFinite(item) ? null : item ?? null); }
-
-interface OptionOrderRecord {
-  clientOrderId: string;
-  alpacaOrderId: string | null;
-  cryptoSymbol: string;
-  proxySymbol: string | null;
-  contractSymbol: string;
-  expirationDate: string | null;
-  purpose: "OPEN_SHORT" | "CLOSE_SHORT";
-  side: "buy" | "sell" | null;
-  positionIntent: "buy_to_open" | "sell_to_close" | null;
-  orderType: string | null;
-  timeInForce: string;
-  status: string;
-  requestedQty: number | null;
-  filledQty: number;
-  averageFillPremium: number | null;
-  limitPremium: number | null;
-  maximumPremiumRisk: number | null;
-  decisionId: string | null;
-  reason: string | null;
-  marketData: string | null;
-  createdMs: number;
-  expiresMs: number | null;
-  updatedMs: number;
-  payload: unknown;
-}
-
-function optionOrderFromEvent(event: DashboardEvent, atMs: number): OptionOrderRecord | null {
-  const payload = object(event.payload);
-  const plan = event.type === "optionShortDecision" ? payload : object(payload.plan);
-  const rawOrder = object(payload.order);
-  const clientOrderId = text(event.clientOrderId ?? plan.clientOrderId ?? rawOrder.clientOrderId
-    ?? rawOrder.client_order_id ?? payload.clientOrderId ?? payload.client_order_id);
-  if (!clientOrderId) return null;
-
-  const encodedPurpose = /^mlce-opt-([oc])-/.exec(clientOrderId)?.[1];
-  const purposeValue = String(plan.purpose ?? rawOrder.purpose ?? payload.purpose
-    ?? (encodedPurpose === "o" ? "OPEN_SHORT" : encodedPurpose === "c" ? "CLOSE_SHORT" : ""));
-  if (purposeValue !== "OPEN_SHORT" && purposeValue !== "CLOSE_SHORT") return null;
-  const purpose = purposeValue;
-  const cryptoSymbol = text(plan.cryptoSymbol ?? rawOrder.cryptoSymbol ?? payload.cryptoSymbol
-    ?? (event.symbol?.includes("/") ? event.symbol : null)) ?? "unknown";
-  const contractSymbol = text(plan.contractSymbol ?? rawOrder.contractSymbol ?? rawOrder.symbol
-    ?? payload.contractSymbol ?? payload.symbol ?? (event.symbol && !event.symbol.includes("/") ? event.symbol : null)) ?? "unknown";
-  const expirationDate = text(plan.expirationDate ?? rawOrder.expirationDate ?? payload.expirationDate)
-    ?? optionExpirationDate(contractSymbol);
-  const sideValue = text(plan.side ?? rawOrder.side ?? payload.side)
-    ?? (purpose === "OPEN_SHORT" ? "buy" : "sell");
-  const intentValue = text(plan.positionIntent ?? rawOrder.positionIntent ?? rawOrder.position_intent ?? payload.positionIntent)
-    ?? (purpose === "OPEN_SHORT" ? "buy_to_open" : "sell_to_close");
-  const createdMs = eventTime(plan.createdMs ?? rawOrder.createdMs ?? rawOrder.submitted_at ?? rawOrder.created_at, atMs);
-  const expiresValue = plan.expiresMs ?? rawOrder.expiresMs ?? payload.expiresMs;
-  const expiresMs = expiresValue === null || expiresValue === undefined ? null : eventTime(expiresValue, atMs);
-
-  return {
-    clientOrderId,
-    alpacaOrderId: text(rawOrder.id ?? rawOrder.alpacaOrderId ?? payload.alpacaOrderId),
-    cryptoSymbol,
-    proxySymbol: text(plan.proxySymbol ?? rawOrder.proxySymbol ?? payload.proxySymbol),
-    contractSymbol,
-    expirationDate,
-    purpose,
-    side: sideValue === "buy" || sideValue === "sell" ? sideValue : null,
-    positionIntent: intentValue === "buy_to_open" || intentValue === "sell_to_close" ? intentValue : null,
-    orderType: text(plan.orderType ?? rawOrder.order_type ?? rawOrder.type ?? payload.orderType),
-    timeInForce: text(plan.timeInForce ?? rawOrder.time_in_force ?? payload.timeInForce) ?? "day",
-    status: optionOrderStatus(event.type, payload, rawOrder),
-    requestedQty: nullableNumber(plan.qty ?? rawOrder.qty ?? payload.qty),
-    filledQty: number(payload.filledQty ?? rawOrder.filledQty ?? rawOrder.filled_qty, 0),
-    averageFillPremium: nullableNumber(rawOrder.averageFillPremium ?? rawOrder.filled_avg_price ?? payload.averageFillPremium),
-    limitPremium: nullableNumber(plan.limitPrice ?? rawOrder.limitPremium ?? rawOrder.limit_price ?? payload.limitPrice),
-    maximumPremiumRisk: nullableNumber(plan.maximumPremiumRiskDollars ?? rawOrder.maximumPremiumRiskDollars),
-    decisionId: text(plan.decisionId ?? rawOrder.decisionId ?? payload.decisionId),
-    reason: text(payload.reason ?? plan.reason ?? rawOrder.reason),
-    marketData: text(plan.marketData ?? rawOrder.marketData ?? payload.marketData),
-    createdMs,
-    expiresMs,
-    updatedMs: eventTime(rawOrder.updatedMs ?? rawOrder.updated_at ?? payload.timestampMs, atMs),
-    payload: event.payload,
-  };
-}
-
-function optionOrderStatus(eventType: string, payload: Record<string, unknown>, rawOrder: Record<string, unknown>): string {
-  const explicit = text(rawOrder.status ?? payload.status);
-  if (explicit) return explicit;
-  if (eventType === "optionShortDecision") return "DECIDED";
-  if (eventType === "optionShortOrderCancelRequested") return "pending_cancel";
-  if (eventType === "optionShortOrderCancelUnknown") return "UNKNOWN";
-  if (eventType === "optionShortOrderError") return "ERROR";
-  if (eventType === "optionShortOrderAccepted") return "accepted";
-  const update = text(payload.event)?.toLowerCase();
-  if (update) return ({
-    new: "new",
-    fill: "filled",
-    partial_fill: "partially_filled",
-    canceled: "canceled",
-    expired: "expired",
-    rejected: "rejected",
-    order_rejected: "rejected",
-    pending_cancel: "pending_cancel",
-    done_for_day: "done_for_day",
-    replaced: "replaced",
-  } as Record<string, string>)[update] ?? update;
-  return "UNKNOWN";
-}
-
-function optionExpirationDate(contractSymbol: string): string | null {
-  const match = /(\d{2})(\d{2})(\d{2})[CP]\d{8}$/.exec(contractSymbol);
-  if (!match) return null;
-  return `20${match[1]}-${match[2]}-${match[3]}`;
-}
-
-function eventTime(value: unknown, fallbackMs: number): number {
-  if (typeof value === "number" && Number.isFinite(value)) return value;
-  if (typeof value === "string" && value) {
-    const numeric = Number(value);
-    if (Number.isFinite(numeric)) return numeric;
-    const parsed = Date.parse(value);
-    if (Number.isFinite(parsed)) return parsed;
-  }
-  return fallbackMs;
-}
-
-function text(value: unknown): string | null { return typeof value === "string" && value ? value : null; }
 
 interface PersistedOrderRow {
   client_order_id: string;

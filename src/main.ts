@@ -6,8 +6,8 @@ import { OperationsMonitor } from "./dashboard/operations-monitor.js";
 import { DashboardServer } from "./dashboard/server.js";
 import type { DatabaseHealth, TelemetryRecord } from "./dashboard/types.js";
 import { PostgresTelemetryStore } from "./database/postgres-store.js";
-import { AlpacaRestClient } from "./alpaca/rest.js";
-import { loadVenueSlowTrendHistory } from "./alpaca/market-history.js";
+import type { VenueClient } from "./venue/client.js";
+import { loadVenueSlowTrendHistory } from "./venue/market-history.js";
 import { KrakenFuturesMarketStream } from "./kraken/market-stream.js";
 import { KrakenPaperBroker, loadKrakenFuturesInstruments } from "./kraken/paper-broker.js";
 import { projectKrakenPaperHistory } from "./kraken/paper-history.js";
@@ -24,32 +24,23 @@ async function main(): Promise<void> {
     process.stdout.write(`${JSON.stringify(stats, null, 2)}\n`);
     return;
   }
-  let rest: AlpacaRestClient;
-  let engine: TradingEngine;
-  let paperBroker: KrakenPaperBroker | undefined;
-  if (cfg.venue === "kraken_futures") {
-    const instruments = await loadKrakenFuturesInstruments(cfg.krakenFutures.productsBySymbol);
-    const marketStream = new KrakenFuturesMarketStream({
-      websocketUrl: cfg.krakenFutures.websocketUrl,
-      productsBySymbol: cfg.krakenFutures.productsBySymbol,
-    });
-    const broker = new KrakenPaperBroker({
-      initialEquity: cfg.krakenFutures.initialEquity,
-      productsBySymbol: cfg.krakenFutures.productsBySymbol,
-      instruments,
-      makerFeeBpsBySymbol: Object.fromEntries(cfg.symbols.map((symbol) => [symbol, cfg.symbolConfigs[symbol]!.cost.makerFeeBps])),
-      takerFeeBpsBySymbol: Object.fromEntries(cfg.symbols.map((symbol) => [symbol, cfg.symbolConfigs[symbol]!.cost.takerFeeBps])),
-      stateFile: cfg.krakenFutures.paperStateFile,
-    });
-    paperBroker = broker;
-    marketStream.on("book", (delta) => broker.onBook(delta));
-    marketStream.on("trade", (trade) => broker.onTrade(trade));
-    rest = broker;
-    engine = new TradingEngine(cfg, { rest, gateway: broker, marketStream, tradeStream: broker.tradeStream });
-  } else {
-    rest = new AlpacaRestClient({ credentials: cfg.credentials, paper: cfg.paper, cryptoLocation: cfg.cryptoLocation });
-    engine = new TradingEngine(cfg, { rest });
-  }
+  const instruments = await loadKrakenFuturesInstruments(cfg.krakenFutures.productsBySymbol);
+  const marketStream = new KrakenFuturesMarketStream({
+    websocketUrl: cfg.krakenFutures.websocketUrl,
+    productsBySymbol: cfg.krakenFutures.productsBySymbol,
+  });
+  const paperBroker = new KrakenPaperBroker({
+    initialEquity: cfg.krakenFutures.initialEquity,
+    productsBySymbol: cfg.krakenFutures.productsBySymbol,
+    instruments,
+    makerFeeBpsBySymbol: Object.fromEntries(cfg.symbols.map((symbol) => [symbol, cfg.symbolConfigs[symbol]!.cost.makerFeeBps])),
+    takerFeeBpsBySymbol: Object.fromEntries(cfg.symbols.map((symbol) => [symbol, cfg.symbolConfigs[symbol]!.cost.takerFeeBps])),
+    stateFile: cfg.krakenFutures.paperStateFile,
+  });
+  marketStream.on("book", (delta) => paperBroker.onBook(delta));
+  marketStream.on("trade", (trade) => paperBroker.onTrade(trade));
+  const rest: VenueClient = paperBroker;
+  const engine = new TradingEngine(cfg, { rest, gateway: paperBroker, marketStream, tradeStream: paperBroker.tradeStream });
   const monitor = new OperationsMonitor({ marketSampleMs: cfg.databaseMarketSampleMs });
   let store: PostgresTelemetryStore | undefined;
   let slowTrendBootstrapComplete = false;
@@ -63,14 +54,12 @@ async function main(): Promise<void> {
         symbols: cfg.symbols, metadata: { venue: cfg.venue, configurationVersion: cfg.configurationVersion, signalMode: cfg.signalMode,
           paperEntryExercise: cfg.paperEntryExercise } });
       let paperHistoryBackfill = { ordersInserted: 0, fillsInserted: 0 };
-      if (paperBroker) {
-        try {
-          const history = projectKrakenPaperHistory(paperBroker.history());
-          paperHistoryBackfill = await candidate.backfillHistoricalOrders(history.orders, history.fills);
-        } catch (error) {
-          process.stderr.write(`${JSON.stringify({ type: "paper-history-backfill-degraded",
-            message: error instanceof Error ? error.message : String(error) })}\n`);
-        }
+      try {
+        const history = projectKrakenPaperHistory(paperBroker.history());
+        paperHistoryBackfill = await candidate.backfillHistoricalOrders(history.orders, history.fills);
+      } catch (error) {
+        process.stderr.write(`${JSON.stringify({ type: "paper-history-backfill-degraded",
+          message: error instanceof Error ? error.message : String(error) })}\n`);
       }
       const hydrationAtMs = Date.now();
       const hydrationDayStartMs = utcDayStartMs(hydrationAtMs);
@@ -110,9 +99,6 @@ async function main(): Promise<void> {
   }
   engine.on("decision", (event) => process.stdout.write(`${JSON.stringify({ type: "decision", event }, bigintReplacer)}\n`));
   engine.on("positionDecision", (event) => process.stdout.write(`${JSON.stringify({ type: "position", event }, bigintReplacer)}\n`));
-  engine.on("optionShortDecision", (event) => process.stdout.write(`${JSON.stringify({ type: "option-short-decision", event }, bigintReplacer)}\n`));
-  engine.on("optionShortBlocked", (event) => process.stdout.write(`${JSON.stringify({ type: "option-short-blocked", event }, bigintReplacer)}\n`));
-  engine.on("optionShortOrderAccepted", (event) => process.stdout.write(`${JSON.stringify({ type: "option-short-order", event }, bigintReplacer)}\n`));
   engine.on("engineError", (error) => process.stderr.write(`${JSON.stringify({ type: "error", message: error instanceof Error ? error.message : String(error) })}\n`));
   try {
     await engine.start();
@@ -153,7 +139,7 @@ const utcDayStartMs = (atMs: number): number => {
   return Date.UTC(value.getUTCFullYear(), value.getUTCMonth(), value.getUTCDate());
 };
 
-async function restoreStartupSlowTrendHistory(engine: TradingEngine, rest: AlpacaRestClient, cfg: EngineConfig,
+async function restoreStartupSlowTrendHistory(engine: TradingEngine, rest: VenueClient, cfg: EngineConfig,
   store?: PostgresTelemetryStore, asOfMs = Date.now()): Promise<Readonly<Record<string, SlowTrendRestoreResult>>> {
   const maximumLookbackMs = Math.max(...cfg.symbols.map((symbol) => {
     const extension = cfg.symbolConfigs[symbol]!.deterministicExtension;

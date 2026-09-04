@@ -104,10 +104,6 @@ test("Kraken Futures recall treats native shorts as venue-eligible", async () =>
       reset: true, exchangeTsMs: atMs, receiveTsMs: atMs, sourceId: "book-1",
     } })}\n`);
 
-    const alpaca = await analyzeOpportunityRecall(path, loadConfig({ TRADING_MODE: "replay" }));
-    assert.equal(alpaca.symbols["BTC/USD"]?.short.venueEligible, false);
-    assert.equal(alpaca.symbols["BTC/USD"]?.shortAuditOnly.venueEligible, false);
-
     const kraken = await analyzeOpportunityRecall([path, path], loadConfig({
       TRADING_MODE: "replay", TRADING_VENUE: "kraken_futures",
     }));

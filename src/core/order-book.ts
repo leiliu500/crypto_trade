@@ -22,7 +22,7 @@ interface TimedLevel { qty: number; updatedMs: number; }
 const emptyFlow = (): BookFlow => ({ bidAdded: 0, bidCanceled: 0, askAdded: 0, askCanceled: 0, bidReplenishmentRate: 0, askReplenishmentRate: 0 });
 
 /**
- * Alpaca sends a reset snapshot followed by price-level deltas, but currently
+ * The market feed sends a reset snapshot followed by price-level deltas, but currently
  * exposes no exchange sequence or checksum. We therefore fail closed on missing
  * reset, timestamp reversal, crossed books, duplicates, and reconnects; a local
  * monotonically increasing sequence is only an ordering aid, never represented

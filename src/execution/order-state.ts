@@ -22,7 +22,7 @@ export type OrderCancellationReason = OrderCancelRequestReason
   | "VENUE_CANCELED";
 export interface TrackedOrder {
   plan: ExecutionPlan;
-  alpacaOrderId?: string;
+  venueOrderId?: string;
   status: LocalOrderStatus;
   filledQty: number;
   averageFillPx: number;
@@ -50,9 +50,9 @@ export class OrderStateReconciler {
     this.orders.set(plan.clientOrderId, { plan, status: "RESERVED", filledQty: 0, averageFillPx: 0, lastUpdateMs: plan.createdMs });
   }
   public markSending(clientOrderId: string): void { const order = this.must(clientOrderId); order.status = "SENDING"; order.lastUpdateMs = Date.now(); }
-  public markAccepted(clientOrderId: string, alpacaOrderId: string, nowMs: number): void {
+  public markAccepted(clientOrderId: string, venueOrderId: string, nowMs: number): void {
     const order = this.must(clientOrderId);
-    order.alpacaOrderId = alpacaOrderId;
+    order.venueOrderId = venueOrderId;
     // A marketable IOC can fill on the private stream before the POST response
     // reaches us. The acknowledgment must never regress that newer state.
     if (["RESERVED", "SENDING", "UNKNOWN"].includes(order.status)) order.status = "OPEN";
@@ -73,7 +73,7 @@ export class OrderStateReconciler {
     if (this.privateEventIds.size > 100_000) this.privateEventIds.clear();
     const order = this.orders.get(event.clientOrderId);
     if (!order) return null;
-    order.alpacaOrderId = event.orderId;
+    order.venueOrderId = event.orderId;
     order.lastUpdateMs = event.timestampMs;
     const previousFilled = order.filledQty;
     order.filledQty = Math.max(order.filledQty, event.filledQty);
@@ -93,7 +93,7 @@ export class OrderStateReconciler {
   public reconcileOrder(remote: RemoteOrderSnapshot): TrackedOrder | undefined {
     const tracked = this.orders.get(remote.clientOrderId);
     if (!tracked) return undefined;
-    tracked.alpacaOrderId = remote.id;
+    tracked.venueOrderId = remote.id;
     tracked.filledQty = Math.max(tracked.filledQty, remote.filledQty);
     if (remote.averageFillPx !== undefined && remote.averageFillPx > 0) tracked.averageFillPx = remote.averageFillPx;
     tracked.status = this.mapStatus(remote.status, tracked.filledQty, tracked.plan.qty);
