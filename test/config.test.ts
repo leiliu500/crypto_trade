@@ -62,7 +62,7 @@ test("JSON baseline wins over legacy tunable environment values and symbol overl
       [3_600_000, 7_200_000, 14_400_000]);
     assert.equal(cfg.deterministicSignal.requireMakerEntry, true);
     assert.equal(cfg.deterministicSignal.allowTakerContinuation, true);
-    assert.equal(cfg.configurationVersion, "btc-eth-policy-aware-fill-v9.5.0");
+    assert.equal(cfg.configurationVersion, "btc-eth-early-breakout-v9.6.0");
     assert.equal(cfg.deterministicSignal.pullbackRecovery.maximumReversalAgeMs, 600_000);
     assert.equal(cfg.position.minimumHoldMs, 60_000);
     assert.equal(cfg.position.unproductiveExitMs, 900_000);
@@ -92,9 +92,12 @@ test("JSON baseline wins over legacy tunable environment values and symbol overl
     assert.equal(cfg.planner.hybridEntry.continuationTakerSizeMultiplier, .25);
     assert.equal(cfg.planner.hybridEntry.continuationTakerMinimumNetEdgeBps, 8);
     assert.equal(cfg.planner.hybridEntry.continuationTakerMinimumLatencySamples, 0);
+    assert.equal(cfg.planner.hybridEntry.earlyBreakoutTakerEnabled, true);
+    assert.equal(cfg.planner.hybridEntry.earlyBreakoutTakerSizeMultiplier, .25);
+    assert.equal(cfg.planner.hybridEntry.earlyBreakoutMinimumNetEdgeBps, 8);
     assert.equal(cfg.planner.hybridEntry.routeShadowEnabled, true);
     assert.deepEqual(cfg.planner.hybridEntry.routeShadowHorizonsMs,
-      [1_000, 5_000, 30_000, 60_000, 300_000, 900_000, 3_600_000, 7_200_000, 14_400_000]);
+      [1_000, 5_000, 30_000, 60_000, 300_000, 900_000, 1_800_000, 3_600_000, 7_200_000, 14_400_000]);
     assert.equal(cfg.deterministicSignal.minimumSlowTrendAlignment, 0.1);
     assert.equal(cfg.deterministicSignal.minimumSlowTrendEfficiency, 0.05);
     assert.equal(cfg.deterministicSignal.minimumSlowTrendMoveBps, 7.5);
@@ -117,6 +120,7 @@ test("continuation taker activation remains fail-closed in live mode", () => {
     CRYPTO_SHORT_OPTIONS_ENABLED: "false", CONTINUATION_TAKER_ENABLED: "true",
   });
   assert.equal(cfg.planner.hybridEntry.continuationTakerEnabled, false);
+  assert.equal(cfg.planner.hybridEntry.earlyBreakoutTakerEnabled, false);
   assert.equal(cfg.planner.hybridEntry.allowAnalyticPaperExecution, false);
   assert.equal(cfg.planner.hybridEntry.continuationTakerMinimumLatencySamples, 20);
   assert.equal(cfg.planner.hybridEntry.routeShadowEnabled, true);
@@ -129,6 +133,7 @@ test("paper mode defaults to analytical execution while calibrated-only paper re
   assert.equal(paper.deterministicSignal.economicEdgeMode, "ANALYTIC_PAPER");
   assert.equal(paper.planner.hybridEntry.allowAnalyticPaperExecution, true);
   assert.equal(paper.planner.hybridEntry.analyticPaperSizeMultiplier, .1);
+  assert.equal(paper.planner.hybridEntry.earlyBreakoutTakerEnabled, true);
 
   const calibratedPaper = loadConfig({
     TRADING_MODE: "paper", ALPACA_PAPER: "true", ALPACA_API_KEY: "paper-key", ALPACA_API_SECRET: "paper-secret",
@@ -151,7 +156,7 @@ test("route shadow must cover every configured economic horizon", () => {
       writeFileSync(join(directory, `${stem}.json`), readFileSync(`config/${stem}.json`, "utf8"));
     }
     assert.throws(() => loadConfig({ TRADING_MODE: "replay", CONFIG_DIR: directory }),
-      /must include every economic horizon; missing 900000,3600000,7200000,14400000/);
+      /must include every economic horizon; missing 900000,1800000,3600000,7200000,14400000/);
   } finally { rmSync(directory, { recursive: true, force: true }); }
 });
 

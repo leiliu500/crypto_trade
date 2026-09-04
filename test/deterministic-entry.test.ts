@@ -60,7 +60,8 @@ function context(side: 1 | -1 = 1, nowMs = 1_000): EntryContext {
 }
 
 const testConfig = () => ({ ...DEFAULT_DETERMINISTIC_SIGNAL_CONFIG, economicEdgeMode: "ANALYTIC_SHADOW" as const,
-  minimumNetEdgeBps: -10, requireMakerEntry: false });
+  minimumNetEdgeBps: -10, requireMakerEntry: false,
+  earlyBreakout: { ...DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.earlyBreakout, enabled: false } });
 
 function calibratedPullbackConfig(regime: "TREND_UP" | "CHOP" = "TREND_UP", lowerConfidenceGrossReturnBps = 15,
   effectiveSampleCount = 200) {
@@ -83,6 +84,16 @@ function persistentIntent(engine: DeterministicEntryEngine, side: 1 | -1 = 1, st
   }
   return intent;
 }
+
+test("fresh confirmed motion is classified as a separate early-breakout taker cohort", () => {
+  const cfg = testConfig();
+  cfg.earlyBreakout.enabled = true;
+  const intent = persistentIntent(new DeterministicEntryEngine(cfg));
+  assert.equal(intent?.source, "DETERMINISTIC_EARLY_BREAKOUT");
+  assert.equal(intent?.diagnostics.family, "EARLY_BREAKOUT");
+  assert.equal(intent?.executionPath, "TAKER_TAKER");
+  assert.equal(intent?.selectedHorizonMs, cfg.analyticEdge.economicHorizonMs);
+});
 
 function neutralContext(nowMs: number): EntryContext {
   const value = context(1, nowMs);
@@ -609,7 +620,13 @@ test("aligned continuation may cost-revalidate a below-stress spread but never a
     reasons: ["SPREAD_ABOVE_DYNAMIC_TRADE_THRESHOLD"],
   } as const;
   const evaluate = (stress: boolean) => {
-    const engine = new DeterministicEntryEngine(DEFAULT_DETERMINISTIC_SIGNAL_CONFIG);
+    const engine = new DeterministicEntryEngine({
+      ...DEFAULT_DETERMINISTIC_SIGNAL_CONFIG,
+      earlyBreakout: {
+        ...DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.earlyBreakout,
+        enabled: false,
+      },
+    });
     let intent = null;
     for (let index = 0; index < 20; index += 1) {
       const value = context(1, 1_000 + index * 50);

@@ -34,6 +34,10 @@ const hybridEntry: PlannerConfig["hybridEntry"] = {
   continuationTakerMinimumExpectedValueBps: 1, continuationTakerMinimumOfi: .5,
   continuationTakerMinimumTfi: .2, continuationTakerMinimumQiK: .15,
   continuationTakerMaximumLatencyHalfLifeFraction: .25, continuationTakerMinimumLatencySamples: 20,
+  earlyBreakoutTakerEnabled: true, earlyBreakoutTakerSizeMultiplier: .25,
+  earlyBreakoutMinimumScore: .35, earlyBreakoutMinimumNetEdgeBps: 8,
+  earlyBreakoutMinimumExpectedValueBps: 1, earlyBreakoutMinimumBreakoutBps: .05,
+  earlyBreakoutMinimumVelocityZ: .25,
   routeShadowEnabled: true, routeShadowHorizonsMs: [1_000, 5_000, 30_000],
 };
 

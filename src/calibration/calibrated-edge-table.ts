@@ -44,7 +44,7 @@ export class CalibratedEdgeTable {
 
 function validateBucket(bucket: CalibratedEdgeBucket, index: number): void {
   if (!bucket || typeof bucket !== "object" || typeof bucket.symbol !== "string" || !bucket.symbol
-    || !["CONTINUATION", "PULLBACK_RECOVERY"].includes(bucket.family)
+    || !["CONTINUATION", "PULLBACK_RECOVERY", "EARLY_BREAKOUT"].includes(bucket.family)
     || ![-1, 1].includes(bucket.side)
     || !["REVERSAL_UP", "REVERSAL_DOWN", "BREAKOUT_UP", "BREAKOUT_DOWN", "TREND_UP", "TREND_DOWN", "CHOP", "UNKNOWN"].includes(bucket.regime)
     || !["MAKER_MAKER", "MAKER_TAKER", "MAKER_MAKER_TAKER_FALLBACK", "TAKER_TAKER"].includes(bucket.path)) {

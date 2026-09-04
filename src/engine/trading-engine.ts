@@ -733,9 +733,13 @@ export class TradingEngine extends EventEmitter {
     // while an entry that makes no progress is force-exited much sooner. Size
     // the stop to that actual loss-control horizon instead of the full alpha
     // horizon; otherwise every legitimate long-horizon edge fails reward/risk.
+    const family = routed.intent.diagnostics.family;
+    const lossControlHorizonMs = family === "EARLY_BREAKOUT"
+      ? runtime.config.position.earlyBreakoutUnproductiveExitMs ?? runtime.config.position.unproductiveExitMs
+      : runtime.config.position.unproductiveExitMs;
     const riskSigmaHBps = routed.intent.selectedHorizonMs === undefined ? features.sigmaHBps
       : entryRiskSigmaBps(features.slowVarianceRate, routed.intent.selectedHorizonMs,
-        runtime.config.position.unproductiveExitMs);
+        lossControlHorizonMs);
     const initialStopDistance = Math.max(
       features.mid * riskSigmaHBps / 10_000 * runtime.config.initialStopSigma,
       runtime.config.minimumStopSpreadMultiple * features.spread,
@@ -748,7 +752,6 @@ export class TradingEngine extends EventEmitter {
       lotSize: runtime.asset.minTradeIncrement, regimeScale: 1,
       exposureCapacityQty: runtime.config.maximumNotional / features.mid,
     };
-    const family = routed.intent.diagnostics.family;
     const researchOnly = runtime.config.planner.hybridEntry.allowAnalyticPaperExecution
       && routed.intent.diagnostics.edgeSource === "ANALYTIC";
     const researchSizeMultiplier = researchOnly
@@ -756,8 +759,10 @@ export class TradingEngine extends EventEmitter {
     const makerPath = routed.intent.executionPath && routed.intent.executionPath !== "TAKER_TAKER"
       ? routed.intent.executionPath : "MAKER_MAKER_TAKER_FALLBACK";
     const makerIntent = entryIntentForPath(routed.intent, makerPath);
-    const makerPlan = runtime.planner.build(plannerIntent(makerIntent, 1), features, book, runtime.asset,
-      baseRisk, false, {
+    // An early breakout is a taker-only policy, including during counterfactual
+    // collection. Do not construct a resting order under a different policy.
+    const makerPlan = family === "EARLY_BREAKOUT" ? null
+      : runtime.planner.build(plannerIntent(makerIntent, 1), features, book, runtime.asset, baseRisk, false, {
         createdMs: features.receiveTsMs, decisionId: routed.intent.decisionId,
         quantityMultiplier: routed.sizeMultiplier * researchSizeMultiplier,
         riskSigmaHBps, executionPath: makerPath,
@@ -772,16 +777,20 @@ export class TradingEngine extends EventEmitter {
           return exact ? plannerIntent(exact, 1) : null;
         },
       });
-    const makerRejection = runtime.planner.latestBuildRejection();
-    const buildTaker = family === "CONTINUATION"
-      && (runtime.config.planner.hybridEntry.continuationTakerEnabled
-        || runtime.config.planner.hybridEntry.routeShadowEnabled);
+    const makerRejection = family === "EARLY_BREAKOUT" ? null : runtime.planner.latestBuildRejection();
+    const familyTakerEnabled = family === "EARLY_BREAKOUT"
+      ? runtime.config.planner.hybridEntry.earlyBreakoutTakerEnabled
+      : runtime.config.planner.hybridEntry.continuationTakerEnabled;
+    const buildTaker = (family === "CONTINUATION" || family === "EARLY_BREAKOUT")
+      && (familyTakerEnabled || runtime.config.planner.hybridEntry.routeShadowEnabled);
     const takerIntent = entryIntentForPath(routed.intent, "TAKER_TAKER");
     const takerPlan = buildTaker ? runtime.planner.build(plannerIntent(takerIntent, 1), features, book, runtime.asset,
       baseRisk, false, {
         createdMs: features.receiveTsMs, decisionId: routed.intent.decisionId,
         quantityMultiplier: routed.sizeMultiplier * researchSizeMultiplier
-          * runtime.config.planner.hybridEntry.continuationTakerSizeMultiplier,
+          * (family === "EARLY_BREAKOUT"
+            ? runtime.config.planner.hybridEntry.earlyBreakoutTakerSizeMultiplier
+            : runtime.config.planner.hybridEntry.continuationTakerSizeMultiplier),
         riskSigmaHBps, executionPath: "TAKER_TAKER",
         configurationVersion: runtime.config.configurationVersion, regime: regime.name,
         edgeSource: routed.intent.diagnostics.edgeSource,
@@ -802,6 +811,10 @@ export class TradingEngine extends EventEmitter {
       edgeEffectiveSampleCount: routed.intent.diagnostics.edgeEffectiveSampleCount,
       minimumEffectiveSampleCount: runtime.config.deterministicSignal.minimumEffectiveSampleCount,
       signalScore: routed.intent.diagnostics.score, features,
+      directionalBreakoutBps: Math.max(
+        routed.intent.side === 1 ? features.breakoutUpBps : features.breakoutDownBps,
+        routed.intent.side * features.impulseBps,
+      ),
       liquidity: routed.intent.side === 1 ? longLiquidity : shortLiquidity,
       latencySamples: latency.count, latencyP95Ms: latency.p95,
       alphaHalfLifeMs: runtime.config.planner.alphaHalfLifeMs, makerPlan, takerPlan,
@@ -826,6 +839,8 @@ export class TradingEngine extends EventEmitter {
         takerExpectedValueBps: routeDecision.takerExpectedValueBps,
         takerNetEdgeBps: routeDecision.takerNetEdgeBps,
         alignedOfi: routeDecision.alignedOfi, alignedTfi: routeDecision.alignedTfi, alignedQiK: routeDecision.alignedQiK,
+        directionalBreakoutBps: routeDecision.directionalBreakoutBps,
+        alignedVelocityZ: routeDecision.alignedVelocityZ,
         latencySamples: routeDecision.latencySamples, latencyP95Ms: routeDecision.latencyP95Ms,
         maximumLatencyMs: routeDecision.maximumLatencyMs,
       },
@@ -854,9 +869,13 @@ export class TradingEngine extends EventEmitter {
       });
     }
     if (!plan) {
-      const evidenceReason = routeDecision.reasons.find((value) => value === "UNCALIBRATED_CONTINUATION");
-      const reason = evidenceReason ?? makerRejection?.reason ?? routeDecision.reasons[0]
-        ?? takerRejection?.reason ?? "NO_SAFE_SIZE_OR_EXACT_COST_PLAN";
+      const evidenceReason = routeDecision.reasons.find((value) => value === "UNCALIBRATED_CONTINUATION"
+        || value === "UNCALIBRATED_EARLY_BREAKOUT");
+      const routeReason = routeDecision.reasons[0];
+      const reason = evidenceReason ?? (family === "EARLY_BREAKOUT"
+        ? routeReason ?? takerRejection?.reason ?? makerRejection?.reason
+        : makerRejection?.reason ?? routeReason ?? takerRejection?.reason)
+        ?? "NO_SAFE_SIZE_OR_EXACT_COST_PLAN";
       this.rejectEntry(runtime, "EXECUTION_PLAN_PASS", reason,
         features.receiveTsMs, {
           side: routed.intent.side, lowerBoundNetBps: routed.intent.lowerBoundNetBps,

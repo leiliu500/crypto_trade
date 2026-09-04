@@ -18,6 +18,14 @@ export interface HybridEntryConfig {
   continuationTakerMinimumQiK: number;
   continuationTakerMaximumLatencyHalfLifeFraction: number;
   continuationTakerMinimumLatencySamples: number;
+  /** Independent, reduced-size IOC route for fresh breakouts in evidence modes. */
+  earlyBreakoutTakerEnabled: boolean;
+  earlyBreakoutTakerSizeMultiplier: number;
+  earlyBreakoutMinimumScore: number;
+  earlyBreakoutMinimumNetEdgeBps: number;
+  earlyBreakoutMinimumExpectedValueBps: number;
+  earlyBreakoutMinimumBreakoutBps: number;
+  earlyBreakoutMinimumVelocityZ: number;
   routeShadowEnabled: boolean;
   routeShadowHorizonsMs: readonly number[];
 }
@@ -31,6 +39,7 @@ export interface HybridRouteInput {
   minimumEffectiveSampleCount: number;
   signalScore: number;
   features: Features;
+  directionalBreakoutBps?: number;
   liquidity: LiquidityDecision;
   latencySamples: number;
   latencyP95Ms: number;
@@ -51,6 +60,8 @@ export interface HybridRouteDecision {
   alignedOfi: number;
   alignedTfi: number;
   alignedQiK: number;
+  directionalBreakoutBps: number;
+  alignedVelocityZ: number;
   latencySamples: number;
   latencyP95Ms: number;
   maximumLatencyMs: number;
@@ -70,6 +81,8 @@ export class HybridEntryRouter {
     const alignedOfi = input.side * input.features.ofi;
     const alignedTfi = input.side * input.features.tfi;
     const alignedQiK = input.side * input.features.qiK;
+    const directionalBreakoutBps = input.directionalBreakoutBps ?? 0;
+    const alignedVelocityZ = input.side * input.features.velocityZ;
     const maximumLatencyMs = input.alphaHalfLifeMs * this.cfg.continuationTakerMaximumLatencyHalfLifeFraction;
     const reasons: string[] = [];
     // Live/shadow routing still requires a matching calibrated bucket. Normal
@@ -80,13 +93,19 @@ export class HybridEntryRouter {
       && input.edgeEffectiveSampleCount >= input.minimumEffectiveSampleCount;
     const analyticPaperEvidence = this.cfg.allowAnalyticPaperExecution
       && input.edgeSource === "ANALYTIC";
-    const executionEvidencePass = input.family !== "CONTINUATION"
+    const evidenceRequired = input.family === "CONTINUATION" || input.family === "EARLY_BREAKOUT";
+    const executionEvidencePass = !evidenceRequired
       || calibratedEvidence || analyticPaperEvidence;
-    if (!executionEvidencePass) reasons.push("UNCALIBRATED_CONTINUATION");
-    if (!this.cfg.continuationTakerEnabled) reasons.push("TAKER_DISABLED");
-    if (input.family !== "CONTINUATION") reasons.push("PULLBACK_MAKER_ONLY");
+    if (!executionEvidencePass) reasons.push(input.family === "EARLY_BREAKOUT"
+      ? "UNCALIBRATED_EARLY_BREAKOUT" : "UNCALIBRATED_CONTINUATION");
+    const earlyBreakout = input.family === "EARLY_BREAKOUT";
+    const takerFamily = input.family === "CONTINUATION" || earlyBreakout;
+    const takerEnabled = earlyBreakout ? this.cfg.earlyBreakoutTakerEnabled : this.cfg.continuationTakerEnabled;
+    if (!takerEnabled) reasons.push(earlyBreakout ? "EARLY_BREAKOUT_TAKER_DISABLED" : "TAKER_DISABLED");
+    if (!takerFamily) reasons.push("PULLBACK_MAKER_ONLY");
     if (!takerPlan) reasons.push("TAKER_PLAN_UNAVAILABLE");
-    if (!Number.isFinite(input.signalScore) || input.signalScore < this.cfg.continuationTakerMinimumScore) {
+    const minimumScore = earlyBreakout ? this.cfg.earlyBreakoutMinimumScore : this.cfg.continuationTakerMinimumScore;
+    if (!Number.isFinite(input.signalScore) || input.signalScore < minimumScore) {
       reasons.push("TAKER_SCORE_BELOW_MINIMUM");
     }
     if (!Number.isFinite(alignedOfi) || alignedOfi < this.cfg.continuationTakerMinimumOfi) {
@@ -104,22 +123,40 @@ export class HybridEntryRouter {
       || !Number.isFinite(maximumLatencyMs) || maximumLatencyMs <= 0 || input.latencyP95Ms > maximumLatencyMs) {
       reasons.push("TAKER_LATENCY_ABOVE_ALPHA_BUDGET");
     }
-    if (takerNetEdgeBps === null || takerNetEdgeBps < this.cfg.continuationTakerMinimumNetEdgeBps) {
+    const minimumNetEdgeBps = earlyBreakout
+      ? this.cfg.earlyBreakoutMinimumNetEdgeBps : this.cfg.continuationTakerMinimumNetEdgeBps;
+    if (takerNetEdgeBps === null || takerNetEdgeBps < minimumNetEdgeBps) {
       reasons.push("TAKER_NET_EDGE_BELOW_MINIMUM");
     }
+    if (earlyBreakout && (!Number.isFinite(directionalBreakoutBps)
+      || directionalBreakoutBps < this.cfg.earlyBreakoutMinimumBreakoutBps)) {
+      reasons.push("EARLY_BREAKOUT_DISTANCE_BELOW_MINIMUM");
+    }
+    if (earlyBreakout && (!Number.isFinite(alignedVelocityZ)
+      || alignedVelocityZ < this.cfg.earlyBreakoutMinimumVelocityZ)) {
+      reasons.push("EARLY_BREAKOUT_VELOCITY_BELOW_MINIMUM");
+    }
+    const minimumExpectedValueBps = earlyBreakout
+      ? this.cfg.earlyBreakoutMinimumExpectedValueBps : this.cfg.continuationTakerMinimumExpectedValueBps;
     if (takerExpectedValueBps === null
-      || takerExpectedValueBps < this.cfg.continuationTakerMinimumExpectedValueBps) {
+      || takerExpectedValueBps < minimumExpectedValueBps) {
       reasons.push("TAKER_EXPECTED_VALUE_BELOW_MINIMUM");
     }
     const takerEligible = reasons.length === 0;
     const takerWins = takerEligible && takerPlan !== null
-      && (makerPlan === null || (takerExpectedValueBps ?? Number.NEGATIVE_INFINITY)
+      && (earlyBreakout || makerPlan === null || (takerExpectedValueBps ?? Number.NEGATIVE_INFINITY)
         > (makerExpectedValueBps ?? Number.NEGATIVE_INFINITY));
-    const selectedPlan = executionEvidencePass ? (takerWins ? takerPlan : makerPlan) : null;
+    // Early breakouts are an IOC-only strategy. Never silently turn a failed
+    // taker qualification into a resting maker order with different fill and
+    // adverse-selection economics.
+    const selectedPlan = executionEvidencePass
+      ? earlyBreakout ? (takerEligible ? takerPlan : null) : takerWins ? takerPlan : makerPlan
+      : null;
     return {
       selectedPlan, selectedStyle: selectedPlan?.style ?? null, executionEvidencePass, takerEligible, reasons,
       makerExpectedValueBps, takerExpectedValueBps, takerNetEdgeBps,
-      alignedOfi, alignedTfi, alignedQiK, latencySamples: input.latencySamples,
+      alignedOfi, alignedTfi, alignedQiK, directionalBreakoutBps, alignedVelocityZ,
+      latencySamples: input.latencySamples,
       latencyP95Ms: input.latencyP95Ms, maximumLatencyMs,
     };
   }
@@ -132,13 +169,19 @@ export function validateHybridEntryConfig(cfg: HybridEntryConfig): void {
   if (!(cfg.continuationTakerSizeMultiplier > 0 && cfg.continuationTakerSizeMultiplier <= 1)) {
     throw new Error("Continuation taker size multiplier must be in (0,1]");
   }
+  if (!(cfg.earlyBreakoutTakerSizeMultiplier > 0 && cfg.earlyBreakoutTakerSizeMultiplier <= 1)) {
+    throw new Error("Early-breakout taker size multiplier must be in (0,1]");
+  }
   const nonNegative = [cfg.continuationTakerMinimumScore, cfg.continuationTakerMinimumNetEdgeBps,
     cfg.continuationTakerMinimumExpectedValueBps, cfg.continuationTakerMinimumOfi,
-    cfg.continuationTakerMinimumTfi, cfg.continuationTakerMinimumQiK];
+    cfg.continuationTakerMinimumTfi, cfg.continuationTakerMinimumQiK,
+    cfg.earlyBreakoutMinimumScore, cfg.earlyBreakoutMinimumNetEdgeBps,
+    cfg.earlyBreakoutMinimumExpectedValueBps, cfg.earlyBreakoutMinimumBreakoutBps,
+    cfg.earlyBreakoutMinimumVelocityZ];
   if (nonNegative.some((value) => !Number.isFinite(value) || value < 0)) {
     throw new Error("Continuation taker thresholds must be finite and non-negative");
   }
-  const unitThresholds = [cfg.continuationTakerMinimumScore, cfg.continuationTakerMinimumOfi,
+  const unitThresholds = [cfg.continuationTakerMinimumScore, cfg.earlyBreakoutMinimumScore, cfg.continuationTakerMinimumOfi,
     cfg.continuationTakerMinimumTfi, cfg.continuationTakerMinimumQiK];
   if (unitThresholds.some((value) => value > 1)) {
     throw new Error("Continuation taker score and alignment thresholds cannot exceed one");

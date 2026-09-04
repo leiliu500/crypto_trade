@@ -795,6 +795,7 @@ function restorePositionState(value: unknown, fallback?: Partial<PersistedPositi
     ? persistedExecutionPath as NonNullable<Position["executionPath"]> : null;
   const persistedEntryFamily = position.entryFamily ?? fallback?.entry_family;
   const entryFamily = persistedEntryFamily === "CONTINUATION" || persistedEntryFamily === "PULLBACK_RECOVERY"
+    || persistedEntryFamily === "EARLY_BREAKOUT"
     ? persistedEntryFamily : null;
   return {
     symbol, side, qty, entryPx, openedMs, initialRiskPx, roundTripCostPx, mfePx, maePx, floorPx,

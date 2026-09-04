@@ -10,6 +10,7 @@ import { BookPressureTracker, DeterministicFeatureExtensions, type Deterministic
 import { DeterministicRegimeEngine } from "../strategy/deterministic-regime.js";
 import { DynamicLiquidityPolicy } from "../strategy/dynamic-liquidity.js";
 import { pullbackState } from "../strategy/pullback-recovery.js";
+import type { EarlyBreakoutConfig } from "../strategy/early-breakout.js";
 import { readRecordedEvents } from "./replay.js";
 import type { CalibratedEdgeBucket } from "../calibration/calibrated-edge-table.js";
 import type { EntryFamily, ExecutionPath } from "../economics/types.js";
@@ -40,8 +41,18 @@ interface DirectionCandidateCounts {
   scorePass: number; arbitrationPass: number;
   antiChasePass: number; rawDirectionalPass: number; persistencePass: number; candidatePass: number;
   liquidityPass: number; slowTrendPass: number; edgeResolvedPass: number; preliminaryCostPass: number;
-  pullbackRecoveryPass: number;
+  pullbackRecoveryPass: number; earlyBreakoutPass: number; earlyBreakoutCandidatePass: number;
+  earlyBreakoutCostPass: number; maximumEarlyBreakoutLowerBoundNetBps: number | null;
+  bestEarlyBreakoutCandidate: EarlyBreakoutCandidateAudit | null;
+  earlyBreakoutCandidateExamples: EarlyBreakoutCandidateAudit[];
   maximumPersistence: number; maximumConfirmationMs: number; maximumConfirmationEvents: number;
+}
+interface EarlyBreakoutCandidateAudit {
+  atMs: number; passedChecks: number; totalChecks: number;
+  family: EntryFamily; score: number; costPass: boolean; lowerBoundNetBps: number;
+  grossOpportunityBps: number; uncertaintyReserveBps: number; robustCostBps: number;
+  fastTrendBps: number; mediumTrendBps: number; slowTrendBps: number; slowTrendAlignment: number;
+  displacementBps: number; velocityZ: number; flowFlipRate: number; failedChecks: string[];
 }
 interface OfflineRuntime {
   config: SymbolConfig;
@@ -89,6 +100,8 @@ export interface DirectionRecallReport {
   profitableSignals: number;
   pullbackSignalCount: number;
   profitablePullbackSignals: number;
+  earlyBreakoutSignalCount: number;
+  profitableEarlyBreakoutSignals: number;
   pullbackRecencyShadow: Record<string, PullbackRecencyShadow>;
   precision: number;
   rawSignalCount: number;
@@ -347,6 +360,8 @@ function processState(runtime: OfflineRuntime, book: BookState, base: Features, 
     if (latest.candidate) runtime.candidateSignals.push(auditSignal(features.receiveTsMs, latest.candidate.side, book));
     if (latest.candidate) {
       const diagnostics = latest.candidate.diagnostics;
+      observeEarlyBreakoutCandidate(runtime.directionCounters[latest.candidate.side === 1 ? "long" : "short"],
+        latest.candidate.side, features, runtime.config.deterministicSignal.earlyBreakout, diagnostics);
       const candidate: EconomicCandidateAudit = {
         family: diagnostics.family, side: latest.candidate.side, lowerBoundNetBps: diagnostics.lowerBoundNetBps,
         grossOpportunityBps: diagnostics.grossOpportunityBps,
@@ -364,7 +379,9 @@ function processState(runtime: OfflineRuntime, book: BookState, base: Features, 
         runtime.calibrationCandidates.push({
           atMs: features.receiveTsMs, side: latest.candidate.side, bid: book.bids[0]!.px, ask: book.asks[0]!.px,
           regime: classified.name, family: diagnostics.family, quality: diagnostics.edgeQuality, spreadBps: features.spreadBps,
-          horizonMs: diagnostics.edgeHorizonMs, executionPath: "MAKER_MAKER_TAKER_FALLBACK",
+          horizonMs: diagnostics.edgeHorizonMs,
+          executionPath: diagnostics.executionPath ?? (diagnostics.family === "EARLY_BREAKOUT"
+            ? "TAKER_TAKER" : "MAKER_MAKER_TAKER_FALLBACK"),
         });
       }
     }
@@ -395,6 +412,9 @@ function directionReport(runtime: OfflineRuntime, side: Direction, cfg: EngineCo
   const pullbackSignals = signals.filter((signal) => signal.family === "PULLBACK_RECOVERY");
   const profitablePullbackSignals = pullbackSignals.filter((signal) => signalNet.get(signal)!
     >= cfg.recall.minimumNetMoveBps).length;
+  const earlyBreakoutSignals = signals.filter((signal) => signal.family === "EARLY_BREAKOUT");
+  const profitableEarlyBreakoutSignals = earlyBreakoutSignals.filter((signal) => signalNet.get(signal)!
+    >= cfg.recall.minimumNetMoveBps).length;
   const pullbackRecencyShadow = Object.fromEntries(PULLBACK_RECENCY_SHADOW_MS.map((maximumReversalAgeMs) => {
     const gated = pullbackSignals.filter((signal) => signal.reversalExtremeAgeMs !== null
       && signal.reversalExtremeAgeMs <= maximumReversalAgeMs);
@@ -408,6 +428,7 @@ function directionReport(runtime: OfflineRuntime, side: Direction, cfg: EngineCo
     maximumNetMoveBps: maximumFinite(labels, 0),
     signalCount: signals.length, profitableSignals,
     pullbackSignalCount: pullbackSignals.length, profitablePullbackSignals,
+    earlyBreakoutSignalCount: earlyBreakoutSignals.length, profitableEarlyBreakoutSignals,
     pullbackRecencyShadow,
     precision: ratio(profitableSignals, signals.length),
     rawSignalCount: rawSignals.length, rawCapturedWindows: rawCaptured, rawRecall: ratio(rawCaptured, windows.length),
@@ -419,6 +440,7 @@ function directionReport(runtime: OfflineRuntime, side: Direction, cfg: EngineCo
 function emptyDirectionReport(venueEligible: boolean, signalCount: number, pullbackSignalCount: number): DirectionRecallReport {
   return { venueEligible, opportunityWindows: 0, capturedWindows: 0, recall: 0, maximumNetMoveBps: 0,
     signalCount, profitableSignals: 0, pullbackSignalCount, profitablePullbackSignals: 0,
+    earlyBreakoutSignalCount: 0, profitableEarlyBreakoutSignals: 0,
     pullbackRecencyShadow: {},
     precision: 0, rawSignalCount: 0, rawCapturedWindows: 0,
     rawRecall: 0, candidateSignalCount: 0, candidateCapturedWindows: 0, candidateRecall: 0 };
@@ -586,6 +608,10 @@ function emptyDirectionCounts(): DirectionCandidateCounts {
     quorumPass: 0, scorePass: 0, arbitrationPass: 0, antiChasePass: 0,
     rawDirectionalPass: 0, persistencePass: 0, candidatePass: 0, liquidityPass: 0, slowTrendPass: 0,
     edgeResolvedPass: 0, preliminaryCostPass: 0, pullbackRecoveryPass: 0,
+    earlyBreakoutPass: 0, earlyBreakoutCandidatePass: 0, earlyBreakoutCostPass: 0,
+    maximumEarlyBreakoutLowerBoundNetBps: null,
+    bestEarlyBreakoutCandidate: null,
+    earlyBreakoutCandidateExamples: [],
     maximumPersistence: 0, maximumConfirmationMs: 0, maximumConfirmationEvents: 0 };
 }
 function incrementDirection(counts: DirectionCandidateCounts, diagnostics: DeterministicEvaluation["long"]): void {
@@ -602,11 +628,52 @@ function incrementDirection(counts: DirectionCandidateCounts, diagnostics: Deter
   if (diagnostics.liquidityPass) counts.liquidityPass += 1;
   if (diagnostics.slowTrendPass) counts.slowTrendPass += 1;
   if (diagnostics.pullbackRecoveryPass) counts.pullbackRecoveryPass += 1;
+  if (diagnostics.earlyBreakoutPass) counts.earlyBreakoutPass += 1;
+  if (diagnostics.family === "EARLY_BREAKOUT" && diagnostics.candidatePass) counts.earlyBreakoutCandidatePass += 1;
+  if (diagnostics.family === "EARLY_BREAKOUT" && diagnostics.costPass) counts.earlyBreakoutCostPass += 1;
+  if (diagnostics.family === "EARLY_BREAKOUT" && Number.isFinite(diagnostics.lowerBoundNetBps)) {
+    counts.maximumEarlyBreakoutLowerBoundNetBps = counts.maximumEarlyBreakoutLowerBoundNetBps === null
+      ? diagnostics.lowerBoundNetBps
+      : Math.max(counts.maximumEarlyBreakoutLowerBoundNetBps, diagnostics.lowerBoundNetBps);
+  }
   if (diagnostics.edgeResolvedPass) counts.edgeResolvedPass += 1;
   if (diagnostics.costPass) counts.preliminaryCostPass += 1;
   counts.maximumPersistence = Math.max(counts.maximumPersistence, diagnostics.persistence);
   counts.maximumConfirmationMs = Math.max(counts.maximumConfirmationMs, diagnostics.confirmationMs);
   counts.maximumConfirmationEvents = Math.max(counts.maximumConfirmationEvents, diagnostics.confirmationEvents);
+}
+function observeEarlyBreakoutCandidate(counts: DirectionCandidateCounts, side: Direction,
+  f: DeterministicFeatures, cfg: EarlyBreakoutConfig, diagnostics: DeterministicEvaluation["long"]): void {
+  const displacementBps = Math.max(side === 1 ? f.breakoutUpBps : f.breakoutDownBps, side * f.impulseBps);
+  const checks: [string, boolean][] = [
+    ["SLOW_READY", f.slowTrendReady],
+    ["SLOW_DRIFT", side * f.trendSlowBps >= -cfg.maximumOpposingSlowTrendBps],
+    ["MEDIUM_DRIFT", side * f.trendMediumBps >= -cfg.maximumOpposingMediumTrendBps],
+    ["FAST_TREND", side * f.trendFastBps >= cfg.minimumFastTrendBps],
+    ["SLOW_ALIGNMENT", side * f.slowTrendAlignment >= -cfg.maximumOpposingSlowTrendAlignment],
+    ["DISPLACEMENT", displacementBps >= cfg.minimumBreakoutBps],
+    ["VELOCITY", side * f.velocityZ >= cfg.minimumVelocityZ],
+    ["FLOW_FLIP", f.flowFlipRate <= cfg.maximumFlowFlipRate],
+  ];
+  const passedChecks = checks.filter(([, pass]) => pass).length;
+  const audit: EarlyBreakoutCandidateAudit = {
+    atMs: f.receiveTsMs, passedChecks, totalChecks: checks.length,
+    family: diagnostics.family, score: diagnostics.score, costPass: diagnostics.costPass,
+    lowerBoundNetBps: diagnostics.lowerBoundNetBps,
+    grossOpportunityBps: diagnostics.grossOpportunityBps,
+    uncertaintyReserveBps: diagnostics.uncertaintyReserveBps,
+    robustCostBps: diagnostics.robustCostBps,
+    fastTrendBps: side * f.trendFastBps, mediumTrendBps: side * f.trendMediumBps,
+    slowTrendBps: side * f.trendSlowBps, slowTrendAlignment: side * f.slowTrendAlignment,
+    displacementBps, velocityZ: side * f.velocityZ, flowFlipRate: f.flowFlipRate,
+    failedChecks: checks.flatMap(([name, pass]) => pass ? [] : [name]),
+  };
+  if (!counts.bestEarlyBreakoutCandidate || counts.bestEarlyBreakoutCandidate.passedChecks <= passedChecks) {
+    counts.bestEarlyBreakoutCandidate = audit;
+  }
+  counts.earlyBreakoutCandidateExamples.push(audit);
+  counts.earlyBreakoutCandidateExamples.sort((left, right) => right.passedChecks - left.passedChecks);
+  if (counts.earlyBreakoutCandidateExamples.length > 20) counts.earlyBreakoutCandidateExamples.length = 20;
 }
 function liquidityInput(features: DeterministicFeatures, impactBps: number) {
   return {

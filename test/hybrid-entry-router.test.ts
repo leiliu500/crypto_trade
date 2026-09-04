@@ -13,6 +13,10 @@ const config: HybridEntryConfig = {
   continuationTakerMinimumExpectedValueBps: 1, continuationTakerMinimumOfi: .5,
   continuationTakerMinimumTfi: .2, continuationTakerMinimumQiK: .15,
   continuationTakerMaximumLatencyHalfLifeFraction: .25, continuationTakerMinimumLatencySamples: 20,
+  earlyBreakoutTakerEnabled: true, earlyBreakoutTakerSizeMultiplier: .25,
+  earlyBreakoutMinimumScore: .35, earlyBreakoutMinimumNetEdgeBps: 8,
+  earlyBreakoutMinimumExpectedValueBps: 1, earlyBreakoutMinimumBreakoutBps: .05,
+  earlyBreakoutMinimumVelocityZ: .25,
   routeShadowEnabled: true, routeShadowHorizonsMs: [1_000, 5_000, 30_000],
 };
 
@@ -114,6 +118,47 @@ test("normal paper mode can execute an analytical continuation through the same 
   assert.equal(decision.takerEligible, true);
   assert.equal(decision.selectedStyle, "taker");
   assert.ok(!decision.reasons.includes("UNCALIBRATED_CONTINUATION"));
+});
+
+test("analytical paper early breakout is IOC-only even when maker EV is higher", () => {
+  const decision = new HybridEntryRouter({ ...config, allowAnalyticPaperExecution: true }).select({
+    family: "EARLY_BREAKOUT", side: 1, regimePass: true, edgeSource: "ANALYTIC",
+    edgeEffectiveSampleCount: 0, minimumEffectiveSampleCount: 100,
+    signalScore: .7, features, directionalBreakoutBps: .1, liquidity,
+    latencySamples: 50, latencyP95Ms: 400, alphaHalfLifeMs: 4_000,
+    makerPlan: plan("maker", 20, 30), takerPlan: plan("taker", 2, 12),
+  });
+  assert.equal(decision.executionEvidencePass, true);
+  assert.equal(decision.takerEligible, true);
+  assert.equal(decision.selectedStyle, "taker");
+  assert.deepEqual(decision.reasons, []);
+});
+
+test("early breakout never falls back to maker when its IOC route fails", () => {
+  const decision = new HybridEntryRouter({ ...config, allowAnalyticPaperExecution: true }).select({
+    family: "EARLY_BREAKOUT", side: 1, regimePass: true, edgeSource: "ANALYTIC",
+    edgeEffectiveSampleCount: 0, minimumEffectiveSampleCount: 100,
+    signalScore: .7, features: { ...features, velocityZ: .1 }, directionalBreakoutBps: .1, liquidity,
+    latencySamples: 50, latencyP95Ms: 400, alphaHalfLifeMs: 4_000,
+    makerPlan: plan("maker", 20, 30), takerPlan: plan("taker", 2, 12),
+  });
+  assert.equal(decision.takerEligible, false);
+  assert.equal(decision.selectedPlan, null);
+  assert.equal(decision.selectedStyle, null);
+  assert.ok(decision.reasons.includes("EARLY_BREAKOUT_VELOCITY_BELOW_MINIMUM"));
+});
+
+test("uncalibrated early breakout remains non-executable outside analytical paper", () => {
+  const decision = new HybridEntryRouter(config).select({
+    family: "EARLY_BREAKOUT", side: 1, regimePass: true, edgeSource: "ANALYTIC",
+    edgeEffectiveSampleCount: 0, minimumEffectiveSampleCount: 100,
+    signalScore: .7, features, directionalBreakoutBps: .1, liquidity,
+    latencySamples: 50, latencyP95Ms: 400, alphaHalfLifeMs: 4_000,
+    makerPlan: plan("maker", 20, 30), takerPlan: plan("taker", 2, 12),
+  });
+  assert.equal(decision.executionEvidencePass, false);
+  assert.equal(decision.selectedPlan, null);
+  assert.ok(decision.reasons.includes("UNCALIBRATED_EARLY_BREAKOUT"));
 });
 
 test("paper permission cannot turn an unresolved continuation into an execution route", () => {
