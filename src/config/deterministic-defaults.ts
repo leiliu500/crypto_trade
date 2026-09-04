@@ -49,6 +49,16 @@ export const DEFAULT_DETERMINISTIC_SIGNAL_CONFIG: DeterministicSignalConfig = {
     maximumReversalAgeMs: 10 * 60_000,
     captureFraction: .75, baseUncertaintyBps: 5, roomUncertaintyFraction: .20, maximumGrossBps: 450,
   },
+  earlyBreakout: {
+    enabled: true,
+    minimumFastTrendBps: 1,
+    maximumOpposingMediumTrendBps: 10,
+    maximumOpposingSlowTrendBps: 15,
+    maximumOpposingSlowTrendAlignment: .25,
+    minimumBreakoutBps: .05,
+    minimumVelocityZ: .25,
+    maximumFlowFlipRate: .35,
+  },
   continuationQuality: {
     efficiencyWeight: .10, flowPersistenceWeight: .15, velocityWeight: .10,
     breakoutHoldWeight: .05, regimeStabilityWeight: .10, volatilitySuitabilityWeight: .10,

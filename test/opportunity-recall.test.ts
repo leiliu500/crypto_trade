@@ -124,6 +124,8 @@ test("forward calibration separates side and computes symmetric fixed-horizon re
   const shortKey = calibrationGroupKey(-1, "PULLBACK_RECOVERY", "TREND_UP", 7_200_000,
     "MAKER_MAKER_TAKER_FALLBACK");
   assert.notEqual(longKey, shortKey);
+  assert.notEqual(calibrationGroupKey(1, "CONTINUATION", "BREAKOUT_UP", 1_800_000, "TAKER_TAKER"),
+    calibrationGroupKey(1, "EARLY_BREAKOUT", "BREAKOUT_UP", 1_800_000, "TAKER_TAKER"));
   assert.ok(fixedHorizonGrossReturnBps(1, 100, 100.1, 101, 101.1) > 0);
   assert.ok(fixedHorizonGrossReturnBps(-1, 100, 100.1, 99, 99.1) > 0);
   assert.ok(fixedHorizonGrossReturnBps(-1, 100, 100.1, 101, 101.1) < 0);

@@ -165,6 +165,32 @@ test("hold-engine exit evidence is confirmed with OR semantics", () => {
     { action: "EXIT", reason: "EVIDENCE_EXIT" });
 });
 
+test("early-breakout positions use their separately bounded protection and exit timing", () => {
+  const manager = new PositionManager({ recoveryArmR: .5, trailActivationR: .75, minimumProgressR: .25,
+    minimumHoldMs: 60_000, unproductiveExitMs: 900_000, maximumHoldMs: 14_400_000,
+    reentryCooldownMs: 0, makerExitTtlMs: 5_000, evidenceConfirmationMs: 5_000,
+    profitActivationCostMultiple: 2.5,
+    earlyBreakoutMinimumHoldMs: 5_000, earlyBreakoutUnproductiveExitMs: 120_000,
+    earlyBreakoutMaximumHoldMs: 1_800_000, earlyBreakoutEvidenceConfirmationMs: 1_000,
+    earlyBreakoutProfitActivationCostMultiple: 1, earlyBreakoutMinimumProgressR: .05,
+    earlyBreakoutTrailActivationR: .1,
+    lockMin: .2, lockMax: .8, lockMaturityRate: 1, lockReversalWeight: .3, lockTrendDiscount: .1,
+    baseVolatilityMultiple: 2, trendVolatilityBonus: 1, reversalVolatilityPenalty: 1,
+    minimumVolatilityMultiple: .5, maximumVolatilityMultiple: 4,
+    partialExitThreshold: .9, maximumPartialExitFraction: .5, minimumPartialExitBenefitBps: 1 });
+  const position: Position = { symbol: "BTC/USD", side: 1, qty: 1, entryPx: 100, openedMs: 0,
+    initialRiskPx: 10, roundTripCostPx: 1, mfePx: 0, maePx: 0, floorPx: -10,
+    breakEvenArmed: false, phase: "OPEN", entryFamily: "EARLY_BREAKOUT", selectedHorizonMs: 1_800_000 };
+
+  assert.equal(manager.update(position, 101.1, 4_999, features({ sigmaHBps: 1 }), 1, 0, 0, false).action, "HOLD");
+  assert.equal(position.breakEvenArmed, true);
+  assert.ok(position.floorPx >= position.roundTripCostPx);
+
+  position.adverseEvidenceSinceMs = 4_000;
+  assert.deepEqual(manager.update(position, position.entryPx + position.floorPx + .01, 5_000,
+    features({ sigmaHBps: 1 }), 1, 0, 0, true), { action: "EXIT", reason: "EVIDENCE_EXIT" });
+});
+
 test("a no-progress loss is capped at a fraction of initial risk after the minimum hold", () => {
   const manager = new PositionManager({ recoveryArmR: .5, trailActivationR: .75, minimumProgressR: .25,
     minimumHoldMs: 1_000, unproductiveExitMs: 10_000, maximumHoldMs: 20_000,

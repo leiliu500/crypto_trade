@@ -322,6 +322,7 @@ export interface DashboardRuleDiagnostics {
   slowTrendPass: boolean;
   continuationTrendPass: boolean;
   pullbackRecoveryPass: boolean;
+  earlyBreakoutPass: boolean;
   tradeThresholdBps: number;
   stressThresholdBps: number;
   liquidityReasons: readonly string[];

@@ -6,6 +6,7 @@ import { CalibratedEdgeTable } from "../src/calibration/calibrated-edge-table.js
 import { minimumFeasibleHorizonMs } from "../src/economics/feasibility-audit.js";
 import { decimalRateToBps, percentToBps, validateFeeBps } from "../src/economics/fee-validation.js";
 import { analyticEdges } from "../src/economics/analytic-edge.js";
+import { EconomicEdgeResolver } from "../src/economics/economic-edge-resolver.js";
 import { MultiHorizonCostGate, robustCostBps } from "../src/economics/multi-horizon-cost-gate.js";
 import type { ConservativeEdge, CostBreakdown, ExecutionPath } from "../src/economics/types.js";
 import { DEFAULT_DETERMINISTIC_SIGNAL_CONFIG } from "../src/config/deterministic-defaults.js";
@@ -186,6 +187,41 @@ test("calibrated edge buckets remain execution-path specific", () => {
   const resolved = table.resolve({ symbol: "BTC/USD", family: "CONTINUATION", side: 1, regime: "TREND_UP", quality: .7, spreadBps: 1 });
   assert.equal(resolved[0]?.executionPath, "MAKER_TAKER");
   assert.equal(resolved[0]?.conservativeGrossBps, 20);
+});
+
+test("early-breakout economics use a separate taker cohort and fail closed outside evidence mode", () => {
+  const cfg = DEFAULT_DETERMINISTIC_SIGNAL_CONFIG;
+  const deterministicFeatures = {
+    ...features,
+    microEdgeBps: 1, impulseBps: .2, breakoutUpBps: .1, breakoutDownBps: 0,
+    anchorDistanceBps: 0, sigmaImpulseBps: .1, cusumUpScore: 3, cusumDownScore: 0,
+    flowFlipRate: .1, usableDepthQty: 100, usableDepthNotional: 10_000,
+    slowTrendReady: true, trendFastBps: 2, trendMediumBps: -5, trendSlowBps: 12,
+    slowTrendAlignment: .2, slowTrendEfficiency: .1, slowVarianceRate: 1e-8, slowSigmaBps: 5,
+    longPullback: { ready: false, structuralMoveBps: 0, pullbackDepthBps: 0, recoveryBps: 0,
+      remainingRoomBps: 0, structuralExtremeAgeMs: 0, reversalExtremeAgeMs: 0 },
+    shortPullback: { ready: false, structuralMoveBps: 0, pullbackDepthBps: 0, recoveryBps: 0,
+      remainingRoomBps: 0, structuralExtremeAgeMs: 0, reversalExtremeAgeMs: 0 },
+  } satisfies DeterministicFeatures;
+  const analyticConfig = { horizons: cfg.analyticHorizons,
+    spreadUncertaintyWeight: cfg.analyticEdge.spreadUncertaintyWeight,
+    flipUncertaintyWeight: cfg.analyticEdge.flipUncertaintyWeight };
+  const input = {
+    symbol: "BTC/USD", family: "EARLY_BREAKOUT" as const, side: 1 as const,
+    features: deterministicFeatures, regime: { name: "BREAKOUT_UP" as const, allowLong: true, allowShort: false, riskScale: .8 },
+    continuation: { score: .5, efficiency: .5, flowPersistence: .5, velocity: .5, breakoutHold: .5,
+      regimeStability: .5, volatilitySuitability: .5, slowTrendAlignment: .5, slowTrendEfficiency: .5 },
+    confirmationQuality: .8, score: .7, scoreReset: .04, persistence: .8, evidence: .1,
+  };
+  const paper = new EconomicEdgeResolver("ANALYTIC_PAPER", analyticConfig, cfg.analyticEdge,
+    cfg.pullbackRecovery, new CalibratedEdgeTable([])).resolve(input);
+  assert.equal(paper.length, 1);
+  assert.equal(paper[0]?.family, "EARLY_BREAKOUT");
+  assert.equal(paper[0]?.executionPath, "TAKER_TAKER");
+
+  const live = new EconomicEdgeResolver("CALIBRATED_LIVE", analyticConfig, cfg.analyticEdge,
+    cfg.pullbackRecovery, new CalibratedEdgeTable([])).resolve(input);
+  assert.deepEqual(live, []);
 });
 
 test("effective samples, feasibility, and post-pass economic sizing are bounded", () => {

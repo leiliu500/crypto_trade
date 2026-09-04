@@ -46,6 +46,13 @@ export interface PositionConfig {
   partialExitThreshold: number;
   maximumPartialExitFraction: number;
   minimumPartialExitBenefitBps: number;
+  earlyBreakoutMinimumHoldMs?: number;
+  earlyBreakoutUnproductiveExitMs?: number;
+  earlyBreakoutMaximumHoldMs?: number;
+  earlyBreakoutEvidenceConfirmationMs?: number;
+  earlyBreakoutProfitActivationCostMultiple?: number;
+  earlyBreakoutMinimumProgressR?: number;
+  earlyBreakoutTrailActivationR?: number;
 }
 export type PositionDecision =
   | { action: "HOLD"; floorPx: number; stopPx: number; signedMovePx: number }
@@ -64,6 +71,19 @@ export class PositionManager {
     if (f.stale) { p.phase = "EXITING"; return { action: "EXIT", reason: "DATA_INVALID" }; }
     if (u <= -risk) { p.phase = "EXITING"; return { action: "EXIT", reason: "HARD_STOP" }; }
     const elapsedMs = nowMs - p.openedMs;
+    const earlyBreakout = p.entryFamily === "EARLY_BREAKOUT";
+    const minimumHoldMs = earlyBreakout ? this.cfg.earlyBreakoutMinimumHoldMs ?? this.cfg.minimumHoldMs : this.cfg.minimumHoldMs;
+    const unproductiveExitMs = earlyBreakout
+      ? this.cfg.earlyBreakoutUnproductiveExitMs ?? this.cfg.unproductiveExitMs : this.cfg.unproductiveExitMs;
+    const evidenceConfirmationMs = earlyBreakout
+      ? this.cfg.earlyBreakoutEvidenceConfirmationMs ?? this.cfg.evidenceConfirmationMs : this.cfg.evidenceConfirmationMs;
+    const profitActivationCostMultiple = earlyBreakout
+      ? this.cfg.earlyBreakoutProfitActivationCostMultiple ?? this.cfg.profitActivationCostMultiple
+      : this.cfg.profitActivationCostMultiple;
+    const minimumProgressR = earlyBreakout
+      ? this.cfg.earlyBreakoutMinimumProgressR ?? this.cfg.minimumProgressR : this.cfg.minimumProgressR;
+    const trailActivationR = earlyBreakout
+      ? this.cfg.earlyBreakoutTrailActivationR ?? this.cfg.trailActivationR : this.cfg.trailActivationR;
     const hasRecovered = p.maePx >= this.cfg.recoveryArmR * risk && u >= p.roundTripCostPx;
     if (hasRecovered && !p.breakEvenArmed) {
       p.phase = "RECOVERY";
@@ -71,13 +91,13 @@ export class PositionManager {
       p.breakEvenArmed = true;
     }
     const costBasedActivation = p.roundTripCostPx > 0
-      ? this.cfg.profitActivationCostMultiple * p.roundTripCostPx : 0;
-    const breakEvenActivationPx = Math.max(this.cfg.minimumProgressR * risk, costBasedActivation);
+      ? profitActivationCostMultiple * p.roundTripCostPx : 0;
+    const breakEvenActivationPx = Math.max(minimumProgressR * risk, costBasedActivation);
     if (p.mfePx >= breakEvenActivationPx) p.breakEvenArmed = true;
     // Require both a meaningful fraction of initial risk and sufficient cost
     // coverage before trailing. The old min() activated at one cost unit and
     // repeatedly converted valid trends into tiny winners.
-    const protectionActivationPx = Math.max(this.cfg.trailActivationR * risk, costBasedActivation);
+    const protectionActivationPx = Math.max(trailActivationR * risk, costBasedActivation);
     const protectedTrade = p.mfePx >= protectionActivationPx;
     let candidateFloor = -risk;
     if (p.breakEvenArmed) {
@@ -92,7 +112,7 @@ export class PositionManager {
     }
     if (protectedTrade) {
       p.phase = f.efficiency >= .65 && holdLowerBoundBps > 0 ? "TREND_HOLD" : "PROTECTED";
-      const maturity = 1 - Math.exp(-this.cfg.lockMaturityRate * Math.max(0, p.mfePx / risk - this.cfg.trailActivationR));
+      const maturity = 1 - Math.exp(-this.cfg.lockMaturityRate * Math.max(0, p.mfePx / risk - trailActivationR));
       const lockFraction = clamp(
         this.cfg.lockMin + (this.cfg.lockMax - this.cfg.lockMin) * maturity
           + this.cfg.lockReversalWeight * reversalProbability - this.cfg.lockTrendDiscount * f.efficiency,
@@ -112,12 +132,12 @@ export class PositionManager {
     if (u <= p.floorPx) { p.phase = "EXITING"; return { action: "EXIT", reason: "PROFIT_FLOOR" }; }
 
     const meaningfulProgressPx = p.roundTripCostPx > 0
-      ? p.roundTripCostPx : this.cfg.minimumProgressR * risk;
-    if (elapsedMs >= this.cfg.minimumHoldMs && p.mfePx < meaningfulProgressPx
-      && u <= -this.cfg.minimumProgressR * risk) {
+      ? p.roundTripCostPx : minimumProgressR * risk;
+    if (elapsedMs >= minimumHoldMs && p.mfePx < meaningfulProgressPx
+      && u <= -minimumProgressR * risk) {
       p.phase = "EXITING"; return { action: "EXIT", reason: "EARLY_ADVERSE_STOP" };
     }
-    if (elapsedMs >= this.cfg.unproductiveExitMs && p.mfePx < meaningfulProgressPx) {
+    if (elapsedMs >= unproductiveExitMs && p.mfePx < meaningfulProgressPx) {
       p.phase = "EXITING"; return { action: "EXIT", reason: "UNPRODUCTIVE_TIME_STOP" };
     }
 
@@ -127,12 +147,14 @@ export class PositionManager {
     const adverseEvidence = holdExitEvidence ?? (holdLowerBoundBps <= 0 || reversalProbability >= .55);
     if (adverseEvidence) {
       p.adverseEvidenceSinceMs ??= nowMs;
-      if (elapsedMs >= this.cfg.minimumHoldMs && nowMs - p.adverseEvidenceSinceMs >= this.cfg.evidenceConfirmationMs) {
+      if (elapsedMs >= minimumHoldMs && nowMs - p.adverseEvidenceSinceMs >= evidenceConfirmationMs) {
         p.phase = "EXITING"; return { action: "EXIT", reason: "EVIDENCE_EXIT" };
       }
     } else delete p.adverseEvidenceSinceMs;
-    const maximumHoldMs = Math.min(this.cfg.maximumHoldMs, p.selectedHorizonMs ?? this.cfg.maximumHoldMs);
-    if (elapsedMs >= maximumHoldMs && p.mfePx < this.cfg.minimumProgressR * risk) {
+    const configuredMaximumHoldMs = earlyBreakout
+      ? this.cfg.earlyBreakoutMaximumHoldMs ?? this.cfg.maximumHoldMs : this.cfg.maximumHoldMs;
+    const maximumHoldMs = Math.min(configuredMaximumHoldMs, p.selectedHorizonMs ?? configuredMaximumHoldMs);
+    if (elapsedMs >= maximumHoldMs && p.mfePx < minimumProgressR * risk) {
       p.phase = "EXITING"; return { action: "EXIT", reason: "TIME_STOP" };
     }
     if (protectedTrade && reversalProbability > this.cfg.partialExitThreshold

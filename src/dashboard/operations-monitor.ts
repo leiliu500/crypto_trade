@@ -869,6 +869,7 @@ function projectRule(rule: NonNullable<EngineMarketSnapshot["ruleEvaluation"]>["
     cooldownPass: rule.cooldownPass, costPass: rule.costPass,
     arbitrationPass: rule.arbitrationPass, slowTrendPass: rule.slowTrendPass,
     continuationTrendPass: rule.continuationTrendPass, pullbackRecoveryPass: rule.pullbackRecoveryPass,
+    earlyBreakoutPass: rule.earlyBreakoutPass,
     tradeThresholdBps: rule.tradeThresholdBps,
     stressThresholdBps: rule.stressThresholdBps, liquidityReasons: [...rule.liquidityReasons], reasons: [...rule.reasons],
   };

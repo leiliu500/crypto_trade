@@ -3,7 +3,7 @@ import type { Direction } from "../core/market.js";
 export type ExecutionPath = "MAKER_MAKER" | "MAKER_TAKER" | "MAKER_MAKER_TAKER_FALLBACK" | "TAKER_TAKER";
 export type EdgeSource = "CALIBRATED" | "ANALYTIC";
 export type EconomicEdgeMode = "ANALYTIC_SHADOW" | "ANALYTIC_PAPER" | "CALIBRATED_PAPER" | "CALIBRATED_LIVE";
-export type EntryFamily = "CONTINUATION" | "PULLBACK_RECOVERY";
+export type EntryFamily = "CONTINUATION" | "PULLBACK_RECOVERY" | "EARLY_BREAKOUT";
 
 export interface ConservativeEdge {
   source: EdgeSource;

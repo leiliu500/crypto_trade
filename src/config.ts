@@ -411,12 +411,16 @@ function loadSymbolConfig(symbol: string, env: NodeJS.ProcessEnv, mode: TradingM
   };
   const position = defaultPositionConfig(env);
   validatePositionTiming(position);
-  validateStrategyHorizons(deterministicSignal.analyticHorizons.map((item) => item.horizonMs), position.maximumHoldMs);
+  validateStrategyHorizons([
+    deterministicSignal.analyticEdge.economicHorizonMs,
+    ...deterministicSignal.analyticHorizons.map((item) => item.horizonMs),
+  ], position.maximumHoldMs);
   const planner = defaultPlannerConfig(env, deterministicSignal.minimumMakerFillProbability,
     paperEntryExercise ? 5 : 0, paperEntryExercise, mode,
     mode === "paper" && deterministicSignal.economicEdgeMode === "ANALYTIC_PAPER");
   validateRouteShadowHorizons(planner, [
     deterministicSignal.pullbackRecovery.horizonMs,
+    deterministicSignal.analyticEdge.economicHorizonMs,
     ...deterministicSignal.analyticHorizons.map((item) => item.horizonMs),
   ]);
   return {
@@ -448,6 +452,13 @@ function defaultPositionConfig(env: NodeJS.ProcessEnv): PositionConfig {
     makerExitTtlMs: integerEnv(env.MAKER_EXIT_TTL_MS, 30_000, 1_000, 300_000),
     evidenceConfirmationMs: integerEnv(env.POSITION_EVIDENCE_CONFIRMATION_MS, 5_000, 0, 2_147_483_647),
     profitActivationCostMultiple: numberEnv(env.POSITION_PROFIT_ACTIVATION_COST_MULTIPLE, 2.5),
+    earlyBreakoutMinimumHoldMs: integerEnv(env.BREAKOUT_POSITION_MINIMUM_HOLD_MS, 5_000, 0, 2_147_483_647),
+    earlyBreakoutUnproductiveExitMs: integerEnv(env.BREAKOUT_POSITION_UNPRODUCTIVE_EXIT_MS, 120_000, 1, 2_147_483_647),
+    earlyBreakoutMaximumHoldMs: integerEnv(env.BREAKOUT_POSITION_MAXIMUM_HOLD_MS, 1_800_000, 1, 2_147_483_647),
+    earlyBreakoutEvidenceConfirmationMs: integerEnv(env.BREAKOUT_POSITION_EVIDENCE_CONFIRMATION_MS, 1_000, 0, 2_147_483_647),
+    earlyBreakoutProfitActivationCostMultiple: numberEnv(env.BREAKOUT_POSITION_PROFIT_ACTIVATION_COST_MULTIPLE, 1),
+    earlyBreakoutMinimumProgressR: fractionEnv(env.BREAKOUT_POSITION_MINIMUM_PROGRESS_R, .05),
+    earlyBreakoutTrailActivationR: fractionEnv(env.BREAKOUT_POSITION_TRAIL_ACTIVATION_R, .10),
     lockMin: .1, lockMax: .85, lockMaturityRate: .8, lockReversalWeight: .3, lockTrendDiscount: .15,
     baseVolatilityMultiple: 2, trendVolatilityBonus: 1, reversalVolatilityPenalty: 1.25, minimumVolatilityMultiple: .5, maximumVolatilityMultiple: 4,
     partialExitThreshold: .7, maximumPartialExitFraction: .5, minimumPartialExitBenefitBps: 2 };
@@ -459,6 +470,12 @@ function validatePositionTiming(position: PositionConfig): void {
   }
   if (position.unproductiveExitMs > position.maximumHoldMs) {
     throw new Error(`POSITION_UNPRODUCTIVE_EXIT_MS (${position.unproductiveExitMs}) must not exceed POSITION_MAXIMUM_HOLD_MS (${position.maximumHoldMs})`);
+  }
+  const breakoutMinimumHoldMs = position.earlyBreakoutMinimumHoldMs ?? position.minimumHoldMs;
+  const breakoutUnproductiveExitMs = position.earlyBreakoutUnproductiveExitMs ?? position.unproductiveExitMs;
+  const breakoutMaximumHoldMs = position.earlyBreakoutMaximumHoldMs ?? position.maximumHoldMs;
+  if (breakoutUnproductiveExitMs < breakoutMinimumHoldMs || breakoutUnproductiveExitMs > breakoutMaximumHoldMs) {
+    throw new Error("Breakout position timing must satisfy minimum hold <= unproductive exit <= maximum hold");
   }
 }
 function defaultPlannerConfig(env: NodeJS.ProcessEnv, minimumFillProbability: number, takerLimitBufferBps: number,
@@ -509,9 +526,18 @@ function defaultPlannerConfig(env: NodeJS.ProcessEnv, minimumFillProbability: nu
       continuationTakerMinimumLatencySamples: mode === "live"
         ? Math.max(20, integerEnv(env.CONTINUATION_TAKER_MIN_LATENCY_SAMPLES, 20, 0, 10_000))
         : integerEnv(env.CONTINUATION_TAKER_MIN_LATENCY_SAMPLES, 0, 0, 10_000),
+      // This route is evidence-only outside normal paper mode and is always
+      // disabled for live order routing until a calibrated breakout cohort exists.
+      earlyBreakoutTakerEnabled: mode !== "live" && parseBoolean(env.EARLY_BREAKOUT_TAKER_ENABLED, true),
+      earlyBreakoutTakerSizeMultiplier: fractionEnv(env.EARLY_BREAKOUT_TAKER_SIZE_MULTIPLIER, .25),
+      earlyBreakoutMinimumScore: numberEnv(env.EARLY_BREAKOUT_TAKER_MIN_SCORE, .35),
+      earlyBreakoutMinimumNetEdgeBps: numberEnv(env.EARLY_BREAKOUT_TAKER_MIN_NET_EDGE_BPS, 8),
+      earlyBreakoutMinimumExpectedValueBps: numberEnv(env.EARLY_BREAKOUT_TAKER_MIN_EXPECTED_VALUE_BPS, 1),
+      earlyBreakoutMinimumBreakoutBps: numberEnv(env.EARLY_BREAKOUT_TAKER_MIN_BREAKOUT_BPS, .05),
+      earlyBreakoutMinimumVelocityZ: numberEnv(env.EARLY_BREAKOUT_TAKER_MIN_VELOCITY_Z, .25),
       routeShadowEnabled: parseBoolean(env.ENTRY_ROUTE_SHADOW_ENABLED, true),
       routeShadowHorizonsMs: integerListEnv(env.ENTRY_ROUTE_SHADOW_HORIZONS_MS,
-        [1_000, 5_000, 30_000, 60_000, 300_000, 900_000, 3_600_000, 7_200_000, 14_400_000]),
+        [1_000, 5_000, 30_000, 60_000, 300_000, 900_000, 1_800_000, 3_600_000, 7_200_000, 14_400_000]),
     } };
 }
 function parseMode(value: string): TradingMode {
@@ -692,6 +718,23 @@ function loadDeterministicSignalConfig(env: NodeJS.ProcessEnv, mode: SignalMode,
       baseUncertaintyBps: numberEnv(env.RULE_PULLBACK_BASE_UNCERTAINTY_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.pullbackRecovery.baseUncertaintyBps),
       roomUncertaintyFraction: fractionEnv(env.RULE_PULLBACK_ROOM_UNCERTAINTY_FRACTION, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.pullbackRecovery.roomUncertaintyFraction),
       maximumGrossBps: numberEnv(env.RULE_PULLBACK_MAX_GROSS_BPS, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.pullbackRecovery.maximumGrossBps),
+    },
+    earlyBreakout: {
+      enabled: parseBoolean(env.RULE_EARLY_BREAKOUT_ENABLED, DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.earlyBreakout.enabled),
+      minimumFastTrendBps: numberEnv(env.RULE_EARLY_BREAKOUT_MIN_FAST_TREND_BPS,
+        DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.earlyBreakout.minimumFastTrendBps),
+      maximumOpposingMediumTrendBps: numberEnv(env.RULE_EARLY_BREAKOUT_MAX_OPPOSING_MEDIUM_TREND_BPS,
+        DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.earlyBreakout.maximumOpposingMediumTrendBps),
+      maximumOpposingSlowTrendBps: numberEnv(env.RULE_EARLY_BREAKOUT_MAX_OPPOSING_SLOW_TREND_BPS,
+        DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.earlyBreakout.maximumOpposingSlowTrendBps),
+      maximumOpposingSlowTrendAlignment: fractionEnv(env.RULE_EARLY_BREAKOUT_MAX_OPPOSING_SLOW_ALIGNMENT,
+        DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.earlyBreakout.maximumOpposingSlowTrendAlignment),
+      minimumBreakoutBps: numberEnv(env.RULE_EARLY_BREAKOUT_MIN_BREAKOUT_BPS,
+        DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.earlyBreakout.minimumBreakoutBps),
+      minimumVelocityZ: numberEnv(env.RULE_EARLY_BREAKOUT_MIN_VELOCITY_Z,
+        DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.earlyBreakout.minimumVelocityZ),
+      maximumFlowFlipRate: fractionEnv(env.RULE_EARLY_BREAKOUT_MAX_FLIP_RATE,
+        DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.earlyBreakout.maximumFlowFlipRate),
     },
     continuationQuality: {
       ...DEFAULT_DETERMINISTIC_SIGNAL_CONFIG.continuationQuality,
