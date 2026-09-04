@@ -40,3 +40,5 @@ export * from "./dashboard/operations-monitor.js";
 export * from "./dashboard/server.js";
 export * from "./database/migrations.js";
 export * from "./database/postgres-store.js";
+export * from "./research/alpha-research.js";
+export * from "./research/alpha-research-store.js";

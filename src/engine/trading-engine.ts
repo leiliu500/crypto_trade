@@ -33,6 +33,7 @@ import type { VenueAsset, VenueOrder, VenuePosition } from "../venue/types.js";
 import { EntryPipelineAudit, type EntryPipelineSnapshot, type EntryPipelineStage } from "./entry-pipeline-audit.js";
 import { HealthWatchdog, type WatchdogFault } from "./watchdog.js";
 import type { ExecutionPath } from "../economics/types.js";
+import type { CalibratedEdgeBucket } from "../calibration/calibrated-edge-table.js";
 
 const PAPER_DEMO_TARGET_NOTIONAL = 11;
 const CANCEL_PENDING_RECONCILE_DELAY_MS = 2_000;
@@ -263,6 +264,26 @@ export class TradingEngine extends EventEmitter {
     this.marketStream.connect();
     if (this.cfg.mode !== "record") this.tradeStream.connect();
     this.watchdog.start();
+  }
+
+  public installPromotedAlphaBuckets(buckets: readonly CalibratedEdgeBucket[]): number {
+    if (this.started) throw new Error("Alpha calibration must be installed before the engine starts");
+    let installed = 0;
+    for (const [symbol, runtime] of this.runtimes) {
+      const incoming = buckets.filter((bucket) => bucket.symbol === symbol);
+      if (incoming.length === 0) continue;
+      const merged = new Map<string, CalibratedEdgeBucket>();
+      for (const bucket of [...runtime.config.deterministicSignal.calibratedEdges, ...incoming]) {
+        const key = [bucket.symbol, bucket.family, bucket.side, bucket.regime, bucket.horizonMs, bucket.path,
+          bucket.minimumQuality, bucket.maximumQuality, bucket.minimumSpreadBps, bucket.maximumSpreadBps].join("|");
+        merged.set(key, bucket);
+      }
+      const deterministicSignal = { ...runtime.config.deterministicSignal, calibratedEdges: [...merged.values()] };
+      runtime.config = { ...runtime.config, deterministicSignal };
+      runtime.entryEngine = new DeterministicEntryEngine(deterministicSignal);
+      installed += incoming.length;
+    }
+    return installed;
   }
 
   public restoreSlowTrendHistory(history: ReadonlyMap<string, readonly SlowTrendObservation[]>, asOfMs = this.now()): Readonly<Record<string, SlowTrendRestoreResult>> {
@@ -801,21 +822,35 @@ export class TradingEngine extends EventEmitter {
       const restingLevels = routed.intent.side === 1 ? book.bids : book.asks;
       const shadowStarted = runtime.routeShadow.start({
         decisionId: routed.intent.decisionId, symbol: book.symbol, side: routed.intent.side, family,
-        configurationVersion: runtime.config.configurationVersion, regime: regime.name,
+        configurationVersion: runtime.config.configurationVersion, strategyVersion: runtime.config.strategyVersion,
+        regime: regime.name,
         regimePass: routed.intent.diagnostics.regimePass, edgeSource: routed.intent.diagnostics.edgeSource,
         edgeEffectiveSampleCount: routed.intent.diagnostics.edgeEffectiveSampleCount,
         economicHorizonMs: routed.intent.selectedHorizonMs ?? null,
-        createdMs: features.receiveTsMs, selectedStyle: routeDecision.selectedStyle, makerPlan, takerPlan,
+        createdMs: features.receiveTsMs, signalBid: book.bids[0]!.px, signalAsk: book.asks[0]!.px,
+        signalSpreadBps: features.spreadBps, signalQuality: routed.intent.quality,
+        predictedGrossBps: routed.intent.grossOpportunityBps,
+        predictedLowerBoundNetBps: routed.intent.lowerBoundNetBps,
+        predictedCostBps: routed.intent.robustCostBps ?? routed.intent.diagnostics.robustCostBps,
+        selectedStyle: routeDecision.selectedStyle, makerPlan, takerPlan,
         makerQueueAheadQty: restingLevels[0]?.qty ?? 0,
       });
       if (shadowStarted) this.emit("entryRouteShadowStarted", {
-        configurationVersion: runtime.config.configurationVersion, symbol: book.symbol,
+        configurationVersion: runtime.config.configurationVersion, strategyVersion: runtime.config.strategyVersion,
+        symbol: book.symbol,
         decisionId: routed.intent.decisionId, family, side: routed.intent.side,
         selectedStyle: routeDecision.selectedStyle,
         regime: regime.name, regimePass: routed.intent.diagnostics.regimePass,
         edgeSource: routed.intent.diagnostics.edgeSource,
         edgeEffectiveSampleCount: routed.intent.diagnostics.edgeEffectiveSampleCount,
         minimumEffectiveSampleCount: runtime.config.deterministicSignal.minimumEffectiveSampleCount,
+        economicHorizonMs: routed.intent.selectedHorizonMs ?? null,
+        signalAtMs: features.receiveTsMs, signalBid: book.bids[0]!.px, signalAsk: book.asks[0]!.px,
+        signalSpreadBps: features.spreadBps, signalQuality: routed.intent.quality,
+        predictedGrossBps: routed.intent.grossOpportunityBps,
+        predictedLowerBoundNetBps: routed.intent.lowerBoundNetBps,
+        predictedCostBps: routed.intent.robustCostBps ?? routed.intent.diagnostics.robustCostBps,
+        features,
         makerPlan: entryPlanSummary(makerPlan), takerPlan: entryPlanSummary(takerPlan),
         horizonsMs: runtime.config.planner.hybridEntry.routeShadowHorizonsMs,
       });

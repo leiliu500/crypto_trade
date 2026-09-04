@@ -53,6 +53,8 @@ async function main(): Promise<void> {
       const migrations = await candidate.start({ mode: cfg.mode, paper: cfg.paper, strategyVersion: cfg.strategyVersion, modelVersion: cfg.modelVersion,
         symbols: cfg.symbols, metadata: { venue: cfg.venue, configurationVersion: cfg.configurationVersion, signalMode: cfg.signalMode,
           paperEntryExercise: cfg.paperEntryExercise } });
+      const promotedAlphaBuckets = engine.installPromotedAlphaBuckets(
+        await candidate.loadPromotedAlphaBuckets(cfg.configurationVersion));
       let paperHistoryBackfill = { ordersInserted: 0, fillsInserted: 0 };
       try {
         const history = projectKrakenPaperHistory(paperBroker.history());
@@ -73,7 +75,8 @@ async function main(): Promise<void> {
       const slowTrendHistory = await restoreStartupSlowTrendHistory(engine, rest, cfg, candidate, hydrationAtMs);
       slowTrendBootstrapComplete = true;
       process.stdout.write(`${JSON.stringify({ type: "database-ready", migrations, restoredOrders: restoredOrders.length,
-        restoredPositionStates, restoredRealizedSessionPnl, restoredDecisionVenueLatencies, paperHistoryBackfill,
+        restoredPositionStates, restoredRealizedSessionPnl, restoredDecisionVenueLatencies, promotedAlphaBuckets,
+        paperHistoryBackfill,
         slowTrendHistory })}\n`);
     } catch (error) {
       await candidate.close().catch(() => undefined);

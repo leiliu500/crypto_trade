@@ -254,3 +254,53 @@ test("paper-history backfill is transactional and keeps unknown original run ids
     await originalPool.end();
   }
 });
+
+test("route-shadow telemetry is normalized into alpha research records", async () => {
+  const store = new PostgresTelemetryStore({
+    connectionString: "postgres://unused",
+    flushIntervalMs: 60_000,
+    maximumQueue: 3,
+  });
+  const calls: Array<{ sql: string; values: readonly unknown[] }> = [];
+  const client = {
+    query: async (sql: string, values: readonly unknown[]) => {
+      calls.push({ sql, values });
+      return { rows: [] };
+    },
+  };
+  const internals = store as unknown as {
+    persistAlphaSignal: (databaseClient: unknown, payload: unknown, runId: string, atMs: number) => Promise<void>;
+    persistAlphaMarkout: (databaseClient: unknown, payload: unknown, runId: string, atMs: number) => Promise<void>;
+  };
+  const signalAtMs = Date.parse("2026-09-04T12:00:00.000Z");
+  try {
+    await internals.persistAlphaSignal(client, {
+      decisionId: "decision-alpha", configurationVersion: "config-v1", strategyVersion: "strategy-v1",
+      symbol: "BTC/USD", family: "EARLY_BREAKOUT", side: 1, regime: "BREAKOUT_UP", regimePass: true,
+      edgeSource: "ANALYTIC", edgeEffectiveSampleCount: 0, economicHorizonMs: 30_000,
+      selectedStyle: "taker", signalAtMs, signalBid: 99, signalAsk: 100, signalSpreadBps: 100,
+      signalQuality: .75, predictedGrossBps: 20, predictedLowerBoundNetBps: 8, predictedCostBps: 12,
+      features: { ofi: .5 }, makerPlan: null,
+      takerPlan: { executionPath: "TAKER_TAKER", economicHorizonMs: 30_000,
+        roundTripCostBps: 12, conservativeNetEdgeBps: 8 },
+    }, "00000000-0000-0000-0000-000000000001", signalAtMs);
+    await internals.persistAlphaMarkout(client, {
+      decisionId: "decision-alpha", horizonMs: 30_000, signalAtMs, markedAtMs: signalAtMs + 30_005,
+      markDelayMs: 5, signalBid: 99, signalAsk: 100, markBid: 101, markAsk: 102,
+      makerAvailable: false, takerAvailable: true, makerFilledQty: 0, makerExpired: false,
+      takerEntryPx: 100, takerModeledCostBps: 12, takerPredictedNetBps: 8, takerNetBps: 90,
+      takerExecutableExitPx: 101,
+    }, "00000000-0000-0000-0000-000000000001", signalAtMs + 30_005);
+
+    assert.equal(calls.length, 2);
+    assert.match(calls[0]!.sql, /INSERT INTO alpha_signals/);
+    assert.equal(calls[0]!.values[5], "breakout");
+    assert.equal(calls[0]!.values[19], 20);
+    assert.deepEqual(JSON.parse(String(calls[0]!.values[24])), { ofi: .5 });
+    assert.match(calls[1]!.sql, /INSERT INTO alpha_markouts/);
+    assert.match(calls[1]!.sql, /WHERE EXISTS \(SELECT 1 FROM alpha_signals/);
+    assert.equal(calls[1]!.values[24], 90);
+  } finally {
+    await store.close();
+  }
+});

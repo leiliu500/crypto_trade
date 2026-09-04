@@ -9,6 +9,26 @@ import type { AssetRules, ExecutionPlan } from "../src/execution/planner.js";
 import { TradingEngine } from "../src/engine/trading-engine.js";
 import type { FillDelta, TrackedOrder } from "../src/execution/order-state.js";
 import type { Position } from "../src/strategy/position-manager.js";
+import type { CalibratedEdgeBucket } from "../src/calibration/calibrated-edge-table.js";
+
+test("promoted empirical edges install before startup without disabling paper submission", () => {
+  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", CONFIG_DIR: "config" }));
+  const bucket: CalibratedEdgeBucket = {
+    symbol: "BTC/USD", family: "EARLY_BREAKOUT", side: 1, regime: "BREAKOUT_UP",
+    minimumQuality: 0, maximumQuality: 1, minimumSpreadBps: 0, maximumSpreadBps: 1_000,
+    horizonMs: 30_000, path: "TAKER_TAKER", meanGrossReturnBps: 20,
+    lowerConfidenceGrossReturnBps: 12, effectiveSampleCount: 100,
+  };
+
+  assert.equal(engine.installPromotedAlphaBuckets([bucket]), 1);
+  const internals = engine as unknown as {
+    runtimes: Map<string, { config: { deterministicSignal: { calibratedEdges: readonly CalibratedEdgeBucket[] } } }>;
+  };
+  assert.ok(internals.runtimes.get("BTC/USD")!.config.deterministicSignal.calibratedEdges.some((value) =>
+    value.family === "EARLY_BREAKOUT" && value.path === "TAKER_TAKER"));
+  assert.equal(engine.state().mode, "paper");
+  assert.equal(engine.state().paper, true);
+});
 
 test("reconciliation emits a position-dust event once per distinct residual", () => {
   const engine = new TradingEngine(loadConfig({ TRADING_MODE: "replay", CONFIG_DIR: "config" }));
