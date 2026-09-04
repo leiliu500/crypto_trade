@@ -8,12 +8,20 @@ export interface EntryRouteShadowStart {
   side: Direction;
   family: string;
   configurationVersion: string;
+  strategyVersion: string;
   regime: string;
   regimePass: boolean;
   edgeSource: "CALIBRATED" | "ANALYTIC" | "UNRESOLVED";
   edgeEffectiveSampleCount: number;
   economicHorizonMs: number | null;
   createdMs: number;
+  signalBid: number;
+  signalAsk: number;
+  signalSpreadBps: number;
+  signalQuality: number;
+  predictedGrossBps: number;
+  predictedLowerBoundNetBps: number;
+  predictedCostBps: number;
   selectedStyle: "maker" | "taker" | null;
   makerPlan: ExecutionPlan | null;
   takerPlan: ExecutionPlan | null;
@@ -26,6 +34,7 @@ export interface EntryRouteShadowMark {
   side: Direction;
   family: string;
   configurationVersion: string;
+  strategyVersion: string;
   regime: string;
   regimePass: boolean;
   edgeSource: "CALIBRATED" | "ANALYTIC" | "UNRESOLVED";
@@ -33,8 +42,17 @@ export interface EntryRouteShadowMark {
   economicHorizonMs: number | null;
   selectedStyle: "maker" | "taker" | null;
   signalAtMs: number;
+  signalBid: number;
+  signalAsk: number;
+  signalSpreadBps: number;
+  signalQuality: number;
+  predictedGrossBps: number;
+  predictedLowerBoundNetBps: number;
+  predictedCostBps: number;
   horizonMs: number;
   markedAtMs: number;
+  markBid: number | null;
+  markAsk: number | null;
   markDelayMs: number;
   makerAvailable: boolean;
   takerAvailable: boolean;
@@ -50,6 +68,12 @@ export interface EntryRouteShadowMark {
   missedTakerAlphaBps: number | null;
   makerExecutableExitPx: number | null;
   takerExecutableExitPx: number | null;
+  makerEntryPx: number | null;
+  takerEntryPx: number | null;
+  makerModeledCostBps: number | null;
+  takerModeledCostBps: number | null;
+  makerPredictedNetBps: number | null;
+  takerPredictedNetBps: number | null;
 }
 
 interface PendingShadow extends EntryRouteShadowStart {
@@ -73,6 +97,9 @@ export class EntryRouteShadowTracker {
 
   public start(input: EntryRouteShadowStart): boolean {
     if (!input.makerPlan && !input.takerPlan) return false;
+    if (!(input.signalBid > 0 && input.signalAsk > input.signalBid)
+      || [input.signalSpreadBps, input.signalQuality, input.predictedGrossBps,
+        input.predictedLowerBoundNetBps, input.predictedCostBps].some((value) => !Number.isFinite(value))) return false;
     if (this.pending.has(input.decisionId)) return false;
     if (this.pending.size >= this.maximumPending) this.pending.delete(this.pending.keys().next().value as string);
     this.pending.set(input.decisionId, {
@@ -140,18 +167,25 @@ export class EntryRouteShadowTracker {
       && makerExecutableExitPx !== null
       ? makerFillFraction * netMarkoutBps(shadow.side, shadow.makerPlan.limitPx, makerExecutableExitPx,
         shadow.makerPlan.expectedCost.feeBps,
-        shadow.makerPlan.expectedCost.fundingBps + shadow.makerPlan.expectedCost.borrowBps) : null;
+        shadow.makerPlan.expectedCost.fundingBps + shadow.makerPlan.expectedCost.borrowBps,
+        shadow.makerPlan.expectedCost.latencyBps + shadow.makerPlan.expectedCost.adverseSelectionBps) : null;
     const takerEntryPx = shadow.takerPlan?.expectedCost.entryVwap;
     const takerNetBps = shadow.takerPlan && takerEntryPx !== undefined && takerEntryPx > 0
       && takerExecutableExitPx !== null
       ? netMarkoutBps(shadow.side, takerEntryPx, takerExecutableExitPx, shadow.takerPlan.expectedCost.feeBps,
-        shadow.takerPlan.expectedCost.fundingBps + shadow.takerPlan.expectedCost.borrowBps) : null;
+        shadow.takerPlan.expectedCost.fundingBps + shadow.takerPlan.expectedCost.borrowBps,
+        shadow.takerPlan.expectedCost.latencyBps + shadow.takerPlan.expectedCost.adverseSelectionBps) : null;
     return {
       decisionId: shadow.decisionId, symbol: shadow.symbol, side: shadow.side, family: shadow.family,
-      configurationVersion: shadow.configurationVersion, regime: shadow.regime, regimePass: shadow.regimePass,
+      configurationVersion: shadow.configurationVersion, strategyVersion: shadow.strategyVersion,
+      regime: shadow.regime, regimePass: shadow.regimePass,
       edgeSource: shadow.edgeSource, edgeEffectiveSampleCount: shadow.edgeEffectiveSampleCount,
       economicHorizonMs: shadow.economicHorizonMs,
-      selectedStyle: shadow.selectedStyle, signalAtMs: shadow.createdMs, horizonMs, markedAtMs: nowMs,
+      selectedStyle: shadow.selectedStyle, signalAtMs: shadow.createdMs,
+      signalBid: shadow.signalBid, signalAsk: shadow.signalAsk, signalSpreadBps: shadow.signalSpreadBps,
+      signalQuality: shadow.signalQuality, predictedGrossBps: shadow.predictedGrossBps,
+      predictedLowerBoundNetBps: shadow.predictedLowerBoundNetBps, predictedCostBps: shadow.predictedCostBps,
+      horizonMs, markedAtMs: nowMs, markBid: book.bids[0]?.px ?? null, markAsk: book.asks[0]?.px ?? null,
       markDelayMs: Math.max(0, nowMs - (shadow.createdMs + horizonMs)),
       makerAvailable: shadow.makerPlan !== null, takerAvailable: shadow.takerPlan !== null,
       makerFillProbability: shadow.makerPlan?.fillProbability ?? null,
@@ -163,10 +197,20 @@ export class EntryRouteShadowTracker {
       makerMinusTakerBps: makerNetBps === null || takerNetBps === null ? null : makerNetBps - takerNetBps,
       missedTakerAlphaBps: shadow.makerPlan && shadow.makerFilledQty === 0 ? takerNetBps : null,
       makerExecutableExitPx, takerExecutableExitPx,
+      makerEntryPx: shadow.makerPlan?.limitPx ?? null,
+      takerEntryPx: shadow.takerPlan?.expectedCost.entryVwap ?? shadow.takerPlan?.limitPx ?? null,
+      makerModeledCostBps: shadow.makerPlan?.expectedCost.roundTripBps ?? null,
+      takerModeledCostBps: shadow.takerPlan?.expectedCost.roundTripBps ?? null,
+      makerPredictedNetBps: shadow.makerPlan?.conservativeNetEdgeBps ?? null,
+      takerPredictedNetBps: shadow.takerPlan?.conservativeNetEdgeBps ?? null,
     };
   }
 }
 
-function netMarkoutBps(side: Direction, entryPx: number, exitPx: number, feeBps: number, carryingBps: number): number {
-  return side * (exitPx - entryPx) / entryPx * 10_000 - feeBps - carryingBps;
+function netMarkoutBps(side: Direction, entryPx: number, exitPx: number, feeBps: number, carryingBps: number,
+  latencyAndAdverseSelectionBps: number): number {
+  // Executable entry/exit prices already realize spread and depth impact. The
+  // remaining non-price costs must still be deducted from the route outcome.
+  return side * (exitPx - entryPx) / entryPx * 10_000
+    - feeBps - carryingBps - latencyAndAdverseSelectionBps;
 }

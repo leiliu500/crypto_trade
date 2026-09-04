@@ -8,8 +8,10 @@ test("route shadow consumes queue ahead causally and scales a partial maker mark
   const tracker = new EntryRouteShadowTracker([1_000]);
   assert.equal(tracker.start({
     decisionId: "decision", symbol: "BTC/USD", side: 1, family: "CONTINUATION", createdMs: 1_000,
-    configurationVersion: "test", regime: "TREND_UP", regimePass: true, edgeSource: "CALIBRATED",
+    configurationVersion: "test", strategyVersion: "test", regime: "TREND_UP", regimePass: true, edgeSource: "CALIBRATED",
     edgeEffectiveSampleCount: 100, economicHorizonMs: 1_000,
+    signalBid: 100, signalAsk: 101, signalSpreadBps: 100, signalQuality: .8,
+    predictedGrossBps: 20, predictedLowerBoundNetBps: 10, predictedCostBps: 10,
     selectedStyle: "maker", makerPlan: plan("maker", 2, 100), takerPlan: plan("taker", .5, 101),
     makerQueueAheadQty: 2,
   }), true);
@@ -36,8 +38,10 @@ test("unfilled maker policy is preserved as zero while missed executable taker a
   const tracker = new EntryRouteShadowTracker([1_000]);
   tracker.start({
     decisionId: "miss", symbol: "BTC/USD", side: 1, family: "CONTINUATION", createdMs: 1_000,
-    configurationVersion: "test", regime: "TREND_UP", regimePass: true, edgeSource: "CALIBRATED",
+    configurationVersion: "test", strategyVersion: "test", regime: "TREND_UP", regimePass: true, edgeSource: "CALIBRATED",
     edgeEffectiveSampleCount: 100, economicHorizonMs: 1_000,
+    signalBid: 100, signalAsk: 101, signalSpreadBps: 100, signalQuality: .8,
+    predictedGrossBps: 20, predictedLowerBoundNetBps: 10, predictedCostBps: 10,
     selectedStyle: "maker", makerPlan: plan("maker", 1, 100), takerPlan: plan("taker", .25, 101),
     makerQueueAheadQty: 10,
   });
@@ -48,6 +52,26 @@ test("unfilled maker policy is preserved as zero while missed executable taker a
   assert.equal(mark.missedTakerAlphaBps, mark.takerNetBps);
   assert.equal(mark.economicHorizonMs, 1_000);
   assert.equal(mark.edgeSource, "CALIBRATED");
+  assert.equal(mark.signalBid, 100);
+  assert.equal(mark.markBid, 102);
+  assert.equal(mark.takerModeledCostBps, 10);
+});
+
+test("route returns deduct latency and adverse-selection reserves not embedded in executable prices", () => {
+  const tracker = new EntryRouteShadowTracker([1_000]);
+  const takerPlan = plan("taker", 1, 100);
+  takerPlan.expectedCost = { ...takerPlan.expectedCost, roundTripBps: 15, latencyBps: 2,
+    adverseSelectionBps: 3 };
+  tracker.start({
+    decisionId: "reserves", symbol: "BTC/USD", side: 1, family: "EARLY_BREAKOUT", createdMs: 1_000,
+    configurationVersion: "test", strategyVersion: "test", regime: "BREAKOUT_UP", regimePass: true,
+    edgeSource: "ANALYTIC", edgeEffectiveSampleCount: 0, economicHorizonMs: 1_000,
+    signalBid: 99, signalAsk: 100, signalSpreadBps: 100, signalQuality: .8,
+    predictedGrossBps: 20, predictedLowerBoundNetBps: 5, predictedCostBps: 15,
+    selectedStyle: "taker", makerPlan: null, takerPlan, makerQueueAheadQty: 0,
+  });
+  const mark = tracker.mark("BTC/USD", book(101, 102, 2_000), 2_000)[0]!;
+  assert.ok(Math.abs((mark.takerNetBps ?? 0) - 85) < 1e-9);
 });
 
 function plan(style: "maker" | "taker", qty: number, entryPx: number): ExecutionPlan {

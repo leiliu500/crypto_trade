@@ -817,6 +817,14 @@ test("PostgreSQL migration defines the complete operational record set", async (
   assert.match(closedPositionsSql, /phase = 'CLOSED'/);
   assert.match(closedPositionsSql, /closed_at = closed\.closed_at/);
   assert.match(closedPositionsSql, /closed\.closed_at >= position\.updated_at/);
+  const alphaResearchSql = await readFile("database/migrations/007_alpha_research.sql", "utf8");
+  for (const table of ["alpha_signals", "alpha_markouts", "alpha_calibrations"]) {
+    assert.match(alphaResearchSql, new RegExp(`CREATE TABLE IF NOT EXISTS ${table}`));
+  }
+  assert.match(alphaResearchSql, /configuration_version text NOT NULL/);
+  assert.match(alphaResearchSql, /strategy_class IN \('trend', 'breakout', 'mean_reversion'\)/);
+  assert.match(alphaResearchSql, /INSERT INTO alpha_signals/);
+  assert.match(alphaResearchSql, /INSERT INTO alpha_markouts/);
 });
 
 function engineState(): EngineOperationalSnapshot {

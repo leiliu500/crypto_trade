@@ -8,6 +8,7 @@ import type {
 import type { HistoricalFillRecord } from "../kraken/paper-history.js";
 import type { Position } from "../strategy/position-manager.js";
 import { runMigrations } from "./migrations.js";
+import { CalibratedEdgeTable, type CalibratedEdgeBucket } from "../calibration/calibrated-edge-table.js";
 
 export interface PostgresStoreOptions {
   connectionString: string;
@@ -293,6 +294,18 @@ export class PostgresTelemetryStore extends EventEmitter {
     });
   }
 
+  public async loadPromotedAlphaBuckets(configurationVersion: string): Promise<readonly CalibratedEdgeBucket[]> {
+    const result = await this.pool.query<{ calibrated_bucket: unknown }>(
+      `SELECT calibrated_bucket FROM alpha_calibrations
+       WHERE configuration_version=$1 AND promoted=true AND calibrated_bucket IS NOT NULL
+       ORDER BY cohort_key`, [configurationVersion]);
+    const buckets = result.rows.map((row) => row.calibrated_bucket as CalibratedEdgeBucket);
+    // Construction validates every identity field and numeric range before a
+    // persisted research result can affect runtime order qualification.
+    new CalibratedEdgeTable(buckets);
+    return buckets;
+  }
+
   public async flush(): Promise<void> {
     if (this.activeFlush) return this.activeFlush;
     if (!this.runId || this.queue.length === 0) return;
@@ -358,6 +371,89 @@ export class PostgresTelemetryStore extends EventEmitter {
   private async persistEvent(client: PoolClient, event: DashboardEvent, runId: string, atMs: number): Promise<void> {
     await client.query("INSERT INTO system_events (run_id,event_type,severity,symbol,client_order_id,occurred_at,payload) VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb)",
       [runId, event.type, event.severity, event.symbol, event.clientOrderId, date(atMs), json(event.payload)]);
+    if (event.type === "entryRouteShadowStarted") await this.persistAlphaSignal(client, event.payload, runId, atMs);
+    if (event.type === "entryRouteShadowMark") await this.persistAlphaMarkout(client, event.payload, runId, atMs);
+  }
+
+  private async persistAlphaSignal(client: PoolClient, payload: unknown, runId: string, atMs: number): Promise<void> {
+    const value = object(payload);
+    const decisionId = typeof value.decisionId === "string" ? value.decisionId : null;
+    const symbol = typeof value.symbol === "string" ? value.symbol : null;
+    const family = typeof value.family === "string" ? value.family : null;
+    if (!decisionId || !symbol || !family) return;
+    const makerPlan = object(value.makerPlan), takerPlan = object(value.takerPlan);
+    const selectedPlan = value.selectedStyle === "taker" ? takerPlan
+      : value.selectedStyle === "maker" ? makerPlan
+        : Object.keys(makerPlan).length > 0 ? makerPlan : takerPlan;
+    const predictedCostBps = nullableNumber(value.predictedCostBps ?? selectedPlan.roundTripCostBps);
+    const predictedLowerBoundNetBps = nullableNumber(value.predictedLowerBoundNetBps
+      ?? selectedPlan.conservativeNetEdgeBps);
+    await client.query(
+      `INSERT INTO alpha_signals
+        (decision_id,run_id,configuration_version,strategy_version,symbol,strategy_class,family,side,regime,
+         regime_pass,edge_source,edge_effective_sample_count,economic_horizon_ms,selected_style,signal_at,
+         signal_bid,signal_ask,signal_spread_bps,signal_quality,predicted_gross_bps,
+         predicted_lower_bound_net_bps,predicted_cost_bps,maker_plan,taker_plan,features,payload)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23::jsonb,$24::jsonb,$25::jsonb,$26::jsonb)
+       ON CONFLICT (decision_id) DO UPDATE SET
+         run_id=EXCLUDED.run_id,signal_bid=COALESCE(EXCLUDED.signal_bid,alpha_signals.signal_bid),
+         signal_ask=COALESCE(EXCLUDED.signal_ask,alpha_signals.signal_ask),
+         signal_spread_bps=COALESCE(EXCLUDED.signal_spread_bps,alpha_signals.signal_spread_bps),
+         signal_quality=COALESCE(EXCLUDED.signal_quality,alpha_signals.signal_quality),
+         predicted_gross_bps=COALESCE(EXCLUDED.predicted_gross_bps,alpha_signals.predicted_gross_bps),
+         predicted_lower_bound_net_bps=COALESCE(EXCLUDED.predicted_lower_bound_net_bps,alpha_signals.predicted_lower_bound_net_bps),
+         predicted_cost_bps=COALESCE(EXCLUDED.predicted_cost_bps,alpha_signals.predicted_cost_bps),
+         maker_plan=EXCLUDED.maker_plan,taker_plan=EXCLUDED.taker_plan,features=EXCLUDED.features,payload=EXCLUDED.payload`,
+      [decisionId, runId, String(value.configurationVersion ?? "unknown"), String(value.strategyVersion ?? "unknown"),
+        symbol, strategyClass(family), family, number(value.side, 0), String(value.regime ?? "UNKNOWN"),
+        Boolean(value.regimePass), String(value.edgeSource ?? "UNRESOLVED"),
+        number(value.edgeEffectiveSampleCount, 0), nullableNumber(value.economicHorizonMs ?? selectedPlan.economicHorizonMs),
+        value.selectedStyle ?? null, date(number(value.signalAtMs, atMs)), nullableNumber(value.signalBid),
+        nullableNumber(value.signalAsk), nullableNumber(value.signalSpreadBps), nullableNumber(value.signalQuality),
+        nullableNumber(value.predictedGrossBps ?? (predictedLowerBoundNetBps !== null && predictedCostBps !== null
+          ? predictedLowerBoundNetBps + predictedCostBps : null)),
+        predictedLowerBoundNetBps, predictedCostBps, json(value.makerPlan), json(value.takerPlan),
+        json(value.features), json(value)],
+    );
+  }
+
+  private async persistAlphaMarkout(client: PoolClient, payload: unknown, runId: string, atMs: number): Promise<void> {
+    const value = object(payload);
+    const decisionId = typeof value.decisionId === "string" ? value.decisionId : null;
+    const horizonMs = nullableNumber(value.horizonMs);
+    if (!decisionId || horizonMs === null || horizonMs <= 0) return;
+    await client.query(
+      `INSERT INTO alpha_markouts
+        (decision_id,horizon_ms,run_id,signal_at,marked_at,mark_delay_ms,signal_bid,signal_ask,mark_bid,mark_ask,
+         maker_available,taker_available,maker_fill_probability,maker_filled_qty,maker_fill_fraction,
+         maker_fill_latency_ms,maker_expired,maker_entry_price,taker_entry_price,maker_modeled_cost_bps,
+         taker_modeled_cost_bps,maker_predicted_net_bps,taker_predicted_net_bps,maker_net_bps,taker_net_bps,
+         maker_minus_taker_bps,missed_taker_alpha_bps,maker_executable_exit_price,taker_executable_exit_price,payload)
+       SELECT $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30::jsonb
+       WHERE EXISTS (SELECT 1 FROM alpha_signals WHERE decision_id=$1)
+       ON CONFLICT (decision_id,horizon_ms) DO UPDATE SET
+         run_id=EXCLUDED.run_id,marked_at=EXCLUDED.marked_at,mark_delay_ms=EXCLUDED.mark_delay_ms,
+         signal_bid=COALESCE(EXCLUDED.signal_bid,alpha_markouts.signal_bid),
+         signal_ask=COALESCE(EXCLUDED.signal_ask,alpha_markouts.signal_ask),
+         mark_bid=COALESCE(EXCLUDED.mark_bid,alpha_markouts.mark_bid),
+         mark_ask=COALESCE(EXCLUDED.mark_ask,alpha_markouts.mark_ask),
+         maker_fill_probability=EXCLUDED.maker_fill_probability,maker_filled_qty=EXCLUDED.maker_filled_qty,
+         maker_fill_fraction=EXCLUDED.maker_fill_fraction,maker_fill_latency_ms=EXCLUDED.maker_fill_latency_ms,
+         maker_expired=EXCLUDED.maker_expired,maker_net_bps=EXCLUDED.maker_net_bps,
+         taker_net_bps=EXCLUDED.taker_net_bps,maker_minus_taker_bps=EXCLUDED.maker_minus_taker_bps,
+         missed_taker_alpha_bps=EXCLUDED.missed_taker_alpha_bps,payload=EXCLUDED.payload`,
+      [decisionId, horizonMs, runId, date(number(value.signalAtMs, atMs - horizonMs)),
+        date(number(value.markedAtMs, atMs)), number(value.markDelayMs, 0), nullableNumber(value.signalBid),
+        nullableNumber(value.signalAsk), nullableNumber(value.markBid), nullableNumber(value.markAsk),
+        Boolean(value.makerAvailable), Boolean(value.takerAvailable), nullableNumber(value.makerFillProbability),
+        number(value.makerFilledQty, 0), nullableNumber(value.makerFillFraction), nullableNumber(value.makerFillLatencyMs),
+        Boolean(value.makerExpired), nullableNumber(value.makerEntryPx), nullableNumber(value.takerEntryPx),
+        nullableNumber(value.makerModeledCostBps), nullableNumber(value.takerModeledCostBps),
+        nullableNumber(value.makerPredictedNetBps), nullableNumber(value.takerPredictedNetBps),
+        nullableNumber(value.makerNetBps), nullableNumber(value.takerNetBps), nullableNumber(value.makerMinusTakerBps),
+        nullableNumber(value.missedTakerAlphaBps), nullableNumber(value.makerExecutableExitPx),
+        nullableNumber(value.takerExecutableExitPx), json(value)],
+    );
   }
 
   private async persistHealth(client: PoolClient, snapshot: DashboardSnapshot, runId: string, atMs: number): Promise<void> {
@@ -468,6 +564,7 @@ function telemetryPriority(record: TelemetryRecord): number {
   if (["order", "decision"].includes(record.kind)) return 2;
   if (record.kind === "event") {
     const eventType = object(record.payload).type;
+    if (typeof eventType === "string" && ["entryRouteShadowStarted", "entryRouteShadowMark"].includes(eventType)) return 2;
     return typeof eventType === "string" && ["fill", "orderAccepted", "orderUpdate", "orderRejected",
       "orderCancelRequested", "exitDecision", "engineError", "watchdogFault"].includes(eventType) ? 2 : 1;
   }
@@ -483,6 +580,9 @@ function nullableNumber(value: unknown): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 function json(value: unknown): string { return JSON.stringify(value, (_key, item: unknown) => typeof item === "bigint" ? item.toString() : typeof item === "number" && !Number.isFinite(item) ? null : item ?? null); }
+function strategyClass(family: string): "trend" | "breakout" | "mean_reversion" {
+  return family === "CONTINUATION" ? "trend" : family === "EARLY_BREAKOUT" ? "breakout" : "mean_reversion";
+}
 
 interface PersistedOrderRow {
   client_order_id: string;
