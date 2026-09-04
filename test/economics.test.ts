@@ -11,7 +11,7 @@ import type { ConservativeEdge, CostBreakdown, ExecutionPath } from "../src/econ
 import { DEFAULT_DETERMINISTIC_SIGNAL_CONFIG } from "../src/config/deterministic-defaults.js";
 import { scaleEconomicQuantity } from "../src/risk/economic-risk-sizer.js";
 import { entryRiskSigmaBps } from "../src/risk/sizing.js";
-import { CostModel } from "../src/strategy/cost.js";
+import { CostModel, exactCostBreakdown } from "../src/strategy/cost.js";
 import type { DeterministicFeatures } from "../src/strategy/deterministic-features.js";
 
 const features: Features = {
@@ -71,9 +71,14 @@ test("maker entry economics remain profitable only after a full taker exit", () 
     fundingBps: 0, borrowBps: 0 });
   const estimate = model.estimate(features, book, 1, 1, true)!;
   assert.equal(estimate.feeBps, 7);
+  assert.equal(estimate.entryFeeBps, 2);
+  assert.equal(estimate.exitFeeBps, 5);
   assert.ok(Math.abs(estimate.spreadBps - .5) < 1e-9);
   assert.equal(estimate.adverseSelectionBps, 3);
   assert.ok(Math.abs(estimate.roundTripBps - 10.5) < 1e-9);
+  const exact = exactCostBreakdown(estimate, "MAKER_TAKER", .5);
+  assert.equal(exact.entryFeeBps, 2);
+  assert.equal(exact.exitFeeBps, 5);
 });
 
 test("multi-horizon gate selects the strongest conservative edge across horizon and path", () => {
@@ -160,6 +165,16 @@ test("live economics require calibrated policy returns and sufficient effective 
     minimumEffectiveSampleCount: 100, maximumReasonableCostBps: 1_000, maximumReasonableGrossBps: 2_000 }, "CALIBRATED_LIVE");
   assert.equal(gate.evaluate([edge("ANALYTIC")], [cost("TAKER_TAKER", 10)]).pass, false);
   assert.equal(gate.evaluate([{ ...edge("CALIBRATED"), effectiveSampleCount: 99 }], [cost("TAKER_TAKER", 10)]).pass, false);
+  assert.equal(gate.evaluate([edge("CALIBRATED")], [cost("TAKER_TAKER", 10)]).pass, true);
+});
+
+test("calibrated paper economics reject analytical estimates just like live economics", () => {
+  const gate = new MultiHorizonCostGate({ costSafetyFactor: 1, minimumNetEdgeBps: .5,
+    fullQualityEdgeBps: 20, minimumEconomicSizeScale: .2, minimumMakerFillProbability: .4,
+    minimumEffectiveSampleCount: 100, maximumReasonableCostBps: 1_000, maximumReasonableGrossBps: 2_000 }, "CALIBRATED_PAPER");
+  const analytical = gate.evaluate([edge("ANALYTIC")], [cost("TAKER_TAKER", 10)]);
+  assert.equal(analytical.pass, false);
+  assert.ok(analytical.bestRejected?.rejectionReasons.includes("CALIBRATED_EDGE_REQUIRED"));
   assert.equal(gate.evaluate([edge("CALIBRATED")], [cost("TAKER_TAKER", 10)]).pass, true);
 });
 

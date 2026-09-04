@@ -12,6 +12,8 @@ export interface PullbackRecoveryConfig {
   minimumRetainedTrendBps: number;
   minimumRemainingRoomBps: number;
   maximumRecoveryFraction: number;
+  /** Maximum age of the counter-extreme that defines the recovery episode. */
+  maximumReversalAgeMs: number;
   captureFraction: number;
   baseUncertaintyBps: number;
   roomUncertaintyFraction: number;
@@ -35,6 +37,7 @@ export function pullbackRecoveryPass(side: Direction, features: DeterministicFea
     && state.recoveryBps >= cfg.minimumRecoveryBps
     && retainedTrendBps >= cfg.minimumRetainedTrendBps
     && state.remainingRoomBps >= cfg.minimumRemainingRoomBps
+    && state.reversalExtremeAgeMs <= cfg.maximumReversalAgeMs
     && recoveryFraction <= cfg.maximumRecoveryFraction;
 }
 
@@ -64,7 +67,7 @@ export function pullbackRecoveryEdges(side: Direction, features: DeterministicFe
 }
 
 export function validatePullbackRecoveryConfig(cfg: PullbackRecoveryConfig): void {
-  const positive = [cfg.horizonMs, cfg.minimumStructuralMoveBps, cfg.minimumPullbackDepthBps,
+  const positive = [cfg.horizonMs, cfg.maximumReversalAgeMs, cfg.minimumStructuralMoveBps, cfg.minimumPullbackDepthBps,
     cfg.minimumRecoveryBps, cfg.minimumRemainingRoomBps, cfg.captureFraction, cfg.maximumGrossBps];
   const nonnegative = [cfg.minimumRetainedTrendBps, cfg.baseUncertaintyBps, cfg.roomUncertaintyFraction];
   if (positive.some((value) => !Number.isFinite(value) || value <= 0)

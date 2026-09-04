@@ -120,6 +120,26 @@ test("a taker route cannot deploy merely because it loses less than the maker al
   assert.equal(report.entryRouteShadow.deploymentReady, false);
 });
 
+test("maker-only economic-horizon marks remain visible and require calibrated evidence", () => {
+  const shadows = [
+    { ...routeShadow("a", 0, 8, 0), takerAvailable: false, takerNetBps: null },
+    { ...routeShadow("b", 8 * DAY, 12, 0), takerAvailable: false, takerNetBps: null },
+  ];
+  const report = analyzeTradeOptimization([], safeguards(2), shadows);
+  assert.equal(report.entryRouteShadow.economicHorizon.samples, 0);
+  assert.equal(report.entryRouteShadow.makerOnly.economicHorizon.samples, 2);
+  assert.equal(report.entryRouteShadow.makerOnly.economicHorizon.fills, 2);
+  assert.equal(report.entryRouteShadow.makerOnly.economicHorizon.meanPolicyNetBps, 10);
+  assert.equal(report.entryRouteShadow.makerOnly.deploymentReady, true);
+
+  const analytical = analyzeTradeOptimization([], safeguards(2), shadows.map((mark) => ({
+    ...mark, edgeSource: "ANALYTIC", edgeEffectiveSampleCount: 0,
+  })));
+  assert.equal(analytical.entryRouteShadow.makerOnly.dataReady, true);
+  assert.equal(analytical.entryRouteShadow.makerOnly.deploymentReady, false);
+  assert.match(analytical.entryRouteShadow.makerOnly.reason ?? "", /calibrated/i);
+});
+
 function safeguards(minimumSamples: number) {
   return { minimumDurationMs: 7 * DAY, minimumSamples, shadowUnproductiveExitMs: 10 * 60_000,
     activeUnproductiveExitMs: 15 * 60_000 };

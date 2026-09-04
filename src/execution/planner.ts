@@ -253,7 +253,8 @@ export class ExecutionPlanner {
   public preliminaryCost(features: Features, book: BookState, side: Direction, qty: number,
     entryFamily?: EntryFamily): CostEstimate | null {
     const taker = this.costModel.estimate(features, book, side, qty, false);
-    const maker = this.fillProbability(features, book, side, this.makerEntryTtlMs(entryFamily)) >= this.cfg.minimumFillProbability
+    const maker = this.fillProbability(features, book, side, this.makerEntryTtlMs(entryFamily), entryFamily)
+      >= this.cfg.minimumFillProbability
       ? this.costModel.estimate(features, book, side, qty, true) : null;
     if (!taker) return maker;
     if (!maker) return taker;
@@ -266,7 +267,7 @@ export class ExecutionPlanner {
   }
 
   public makerFillProbability(features: Features, book: BookState, side: Direction, entryFamily?: EntryFamily): number {
-    return this.fillProbability(features, book, side, this.makerEntryTtlMs(entryFamily));
+    return this.fillProbability(features, book, side, this.makerEntryTtlMs(entryFamily), entryFamily);
   }
 
   private buildCandidate(style: ExecutionStyle, intent: TradeIntent, features: Features, book: BookState, asset: AssetRules,
@@ -321,7 +322,8 @@ export class ExecutionPlanner {
     }
     const sweep = style === "taker" ? estimateSweep(intent.side === 1 ? book.asks : book.bids, qty) : null;
     if (style === "taker" && !sweep) return candidateRejected("BOOK_SWEEP_UNAVAILABLE", { style, qty });
-    const fillProbability = makerEntry ? this.fillProbability(features, book, intent.side, makerTtlMs) : 1;
+    const fillProbability = makerEntry
+      ? this.fillProbability(features, book, intent.side, makerTtlMs, options.entryFamily) : 1;
     // Maker fills are selection-biased, so route EV uses the lower-confidence
     // post-cost edge rather than the unconditional gross forecast.
     const conservativeNetValue = qty * features.mid * exactIntent.lowerBoundNetBps / 10_000;
@@ -355,7 +357,8 @@ export class ExecutionPlanner {
     return entryFamily === "PULLBACK_RECOVERY"
       ? this.cfg.pullbackMakerTtlMs : Math.min(this.cfg.makerTtlMs, this.cfg.alphaHalfLifeMs / 2);
   }
-  private fillProbability(f: Features, book: BookState, side: Direction, ttlMs: number): number {
+  private fillProbability(f: Features, book: BookState, side: Direction, ttlMs: number,
+    entryFamily?: EntryFamily): number {
     const restingLevels = side === 1 ? book.bids : book.asks;
     const ahead = restingLevels[0]!.qty;
     // A resting order fills when contra-side aggressors consume its queue. Same-side
@@ -372,12 +375,22 @@ export class ExecutionPlanner {
       + this.cfg.fillHazardFlowWeight * contraFlow + this.cfg.fillHazardImbalanceWeight * opposingImbalance
       - this.cfg.fillHazardSpreadWeight * f.spreadBps;
     const fillHazardPerSecond = Math.exp(Math.max(-20, Math.min(20, logHazard)));
+    // The order can fill only before this engine's own cancellation policy removes
+    // it. Previously, contra flow increased the modeled fill hazard while the same
+    // OFI/TFI state caused almost every observed no-fill to cancel early, so a
+    // nominal 20-second pullback TTL materially overstated executable fill chance.
+    const opposingOfi = side * f.ofi < -this.cfg.adverseOfiThreshold;
+    const opposingTfi = side * f.tfi < -this.cfg.adverseTfiThreshold;
+    if (opposingOfi && opposingTfi) return 0; // Corroborated adverse flow cancels immediately.
+    const adverseConfirmationMs = entryFamily === "PULLBACK_RECOVERY"
+      ? this.cfg.adverseFlowConfirmationMs : this.cfg.continuationAdverseFlowConfirmationMs;
+    const policyExposureMs = opposingOfi || opposingTfi ? Math.min(ttlMs, adverseConfirmationMs) : ttlMs;
     // Fill and signal decay are competing risks. Reporting only the full-TTL fill
     // hazard overstated orders that usually lose their alpha and cancel first.
     const signalCancellationHazardPerSecond = Math.log(2) / (this.cfg.alphaHalfLifeMs / 1_000);
     const totalHazardPerSecond = fillHazardPerSecond + signalCancellationHazardPerSecond;
     return fillHazardPerSecond / totalHazardPerSecond
-      * (1 - Math.exp(-totalHazardPerSecond * ttlMs / 1_000));
+      * (1 - Math.exp(-totalHazardPerSecond * policyExposureMs / 1_000));
   }
   private roundPrice(price: number, increment: number, side: Direction, marketable: boolean): number {
     const units = price / increment;

@@ -275,6 +275,21 @@ test("maker fill probability follows contra-side flow instead of same-side momen
   assert.ok(Math.abs(contraSellFlow - mirroredContraBuyFlow) < 1e-12);
 });
 
+test("maker fill probability is bounded by the adverse-flow cancellation policy", () => {
+  const execution = planner(0, -3);
+  const singleSensorAdverse = { ...features, tfi: -1, ofi: 1 };
+  const pullbackProbability = execution.makerFillProbability(singleSensorAdverse, book, 1, "PULLBACK_RECOVERY");
+  const continuationProbability = execution.makerFillProbability(singleSensorAdverse, book, 1, "CONTINUATION");
+  assert.ok(Math.abs(pullbackProbability - competingFillProbability(Math.exp(-3), 2, 4)) < 1e-12);
+  assert.ok(Math.abs(continuationProbability - competingFillProbability(Math.exp(-3), .1, 4)) < 1e-12);
+  assert.ok(continuationProbability < pullbackProbability);
+
+  const corroboratedAdverse = { ...features, tfi: -1, ofi: -3 };
+  assert.equal(execution.makerFillProbability(corroboratedAdverse, book, 1, "PULLBACK_RECOVERY"), 0);
+  assert.equal(execution.makerFillProbability({ ...corroboratedAdverse, tfi: 1, ofi: 3 }, book, -1,
+    "PULLBACK_RECOVERY"), 0);
+});
+
 test("maker fill probability is denomination-invariant and does not saturate on a tiny base-asset queue", () => {
   const execution = directionalFillPlanner();
   const incident = { ...features, tfi: -.7491045205697658, qi1: .28, spreadBps: .1264358369736318 };
@@ -287,7 +302,7 @@ test("maker fill probability is denomination-invariant and does not saturate on 
 
   const tinyProbability = execution.makerFillProbability(incident, tinyBtcQueue, 1, "CONTINUATION");
   const scaledProbability = execution.makerFillProbability(incident, scaledQueue, 1, "CONTINUATION");
-  assert.ok(tinyProbability > .4 && tinyProbability < .9, `unexpected incident probability: ${tinyProbability}`);
+  assert.ok(tinyProbability > 0 && tinyProbability < .2, `unexpected policy-bounded probability: ${tinyProbability}`);
   assert.ok(Math.abs(tinyProbability - scaledProbability) < 1e-12);
 });
 

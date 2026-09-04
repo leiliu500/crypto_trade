@@ -1,6 +1,6 @@
 import type { Direction, Features } from "../core/market.js";
 import { clamp } from "../core/market.js";
-import type { ExecutionPath } from "../economics/types.js";
+import type { EntryFamily, ExecutionPath } from "../economics/types.js";
 
 export type PositionPhase = "OPEN" | "RECOVERY" | "PROTECTED" | "TREND_HOLD" | "EXITING";
 export interface Position {
@@ -16,6 +16,7 @@ export interface Position {
   floorPx: number;
   breakEvenArmed: boolean;
   phase: PositionPhase;
+  entryFamily?: EntryFamily;
   selectedHorizonMs?: number;
   executionPath?: ExecutionPath;
   adverseEvidenceSinceMs?: number;

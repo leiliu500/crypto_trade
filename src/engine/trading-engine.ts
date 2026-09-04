@@ -1311,8 +1311,19 @@ export class TradingEngine extends EventEmitter {
     const hold = runtime.holdEngine.evaluate(position.side, features, expectedIncrementalDelayCostBps, remainingEconomicHorizonMs);
     const executableExit = position.side === 1 ? book.bids[0]!.px : book.asks[0]!.px;
     const nowMs = this.now();
+    // Continuation entries were selected on a multi-hour structural edge. Do
+    // not let a one-event micro reversal liquidate them while that slow trend
+    // is still aligned; hard stops, the early-adverse stop, profit floors, and
+    // the unproductive time stop remain active in PositionManager.
+    const continuationStructureIntact = position.entryFamily === "CONTINUATION"
+      && features.slowTrendReady
+      && position.side * features.slowTrendAlignment >= runtime.config.deterministicSignal.minimumSlowTrendAlignment
+      && features.slowTrendEfficiency >= runtime.config.deterministicSignal.minimumSlowTrendEfficiency
+      && position.side * features.trendMediumBps > 0
+      && position.side * features.trendSlowBps >= runtime.config.deterministicSignal.minimumSlowTrendMoveBps;
+    const holdExitEvidence = hold.exitEvidence && !continuationStructureIntact;
     const decision = runtime.positionManager.update(position, executableExit, nowMs, features,
-      hold.holdLowerBoundBps, hold.reversalScore, Math.max(0, -hold.holdLowerBoundBps), hold.exitEvidence);
+      hold.holdLowerBoundBps, hold.reversalScore, Math.max(0, -hold.holdLowerBoundBps), holdExitEvidence);
     return { decision, hold, regime, nowMs };
   }
 
@@ -1491,6 +1502,7 @@ export class TradingEngine extends EventEmitter {
         runtime.position = { symbol: fill.symbol, side: fill.side, qty: positionQty, entryPx: fill.price, openedMs: fill.final ? this.now() : (tracked?.plan.createdMs ?? this.now()),
           initialRiskPx, roundTripCostPx: fill.price * (tracked?.plan.expectedCost.roundTripBps ?? 0) / 10_000,
           mfePx: 0, maePx: 0, floorPx: -initialRiskPx, breakEvenArmed: false, phase: "OPEN",
+          ...(tracked?.plan.entryFamily === undefined ? {} : { entryFamily: tracked.plan.entryFamily }),
           ...(tracked?.plan.economicHorizonMs === undefined ? {} : { selectedHorizonMs: tracked.plan.economicHorizonMs }),
           ...(tracked?.plan.executionPath === undefined ? {} : { executionPath: tracked.plan.executionPath }) };
       } else if (tracked && runtime.position.symbol === tracked.plan.symbol && runtime.position.side === fill.side) {

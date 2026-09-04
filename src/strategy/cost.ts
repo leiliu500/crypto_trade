@@ -20,6 +20,10 @@ export interface CostEstimate {
   roundTripBps: number;
   spreadBps: number;
   feeBps: number;
+  /** Exact fee charged by the candidate order itself. */
+  entryFeeBps?: number;
+  /** Fee reserved for the later closing leg. */
+  exitFeeBps?: number;
   impactBps: number;
   latencyBps: number;
   adverseSelectionBps: number;
@@ -67,7 +71,8 @@ export class CostModel {
     const adverseSelectionBps = this.cfg.adverseSelectionBps + fallbackPremiumBps;
     const roundTripBps = spreadBps + feeBps + impactBps + latencyBps + adverseSelectionBps + this.cfg.fundingBps + this.cfg.borrowBps;
     const result: CostEstimate = {
-      roundTripBps, spreadBps, feeBps, impactBps, latencyBps,
+      roundTripBps, spreadBps, feeBps, entryFeeBps: entryFee, exitFeeBps: exitFee,
+      impactBps, latencyBps,
       adverseSelectionBps,
       fundingBps: this.cfg.fundingBps, borrowBps: this.cfg.borrowBps,
     };
@@ -124,8 +129,8 @@ export class CostModel {
 /** Converts the final quantity-specific planner cost without adding any component a second time. */
 export function exactCostBreakdown(cost: CostEstimate, path: ExecutionPath, fillProbability: number,
   positiveCostErrorP95Bps = 0): CostBreakdown {
-  const entryFeeBps = path === "TAKER_TAKER" ? cost.feeBps / 2 : Math.max(0, cost.feeBps - cost.feeBps / 2);
-  const exitFeeBps = cost.feeBps - entryFeeBps;
+  const entryFeeBps = cost.entryFeeBps ?? cost.feeBps / 2;
+  const exitFeeBps = cost.exitFeeBps ?? cost.feeBps - entryFeeBps;
   const otherComponents = cost.feeBps + cost.impactBps + cost.latencyBps + cost.adverseSelectionBps
     + cost.fundingBps + cost.borrowBps;
   const combinedExecutionBps = Math.max(0, cost.roundTripBps - otherComponents);

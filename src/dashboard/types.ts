@@ -104,6 +104,14 @@ export interface DashboardOrderCard {
   side: 1 | -1;
   style: string;
   entryFamily?: EntryFamily | null;
+  configurationVersion?: string | null;
+  regime?: string | null;
+  edgeSource?: "CALIBRATED" | "ANALYTIC" | "UNRESOLVED" | null;
+  edgeEffectiveSampleCount?: number | null;
+  researchOnly?: boolean;
+  conservativeNetEdgeBps?: number | null;
+  conservativeExpectedValueBps?: number | null;
+  rewardRiskRatio?: number | null;
   economicHorizonMs?: number | null;
   executionPath?: ExecutionPath | null;
   exitReason?: string | null;
@@ -155,6 +163,7 @@ export interface DashboardPositionCard {
   mfePx: number;
   maePx: number;
   breakEvenArmed: boolean;
+  entryFamily?: EntryFamily | null;
   selectedHorizonMs: number | null;
   executionPath: string | null;
   latestAction: string;
