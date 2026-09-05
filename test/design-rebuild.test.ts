@@ -20,6 +20,31 @@ const cfg = loadConfig({ TRADING_MODE: "paper", CONFIG_DIR: "config" });
 const near = (a: number, b: number) => assert.ok(Math.abs(a - b) < 1e-8, `${a} != ${b}`);
 
 for (const side of [1, -1] as const) {
+  test(`retest requires a real pullback and recovery across the frozen level for side ${side}`, () => {
+    const d = new BreakoutRetest();
+    const quote = (second: number, move: number) => {
+      const at = second * 1000, mid = 100 + side * move;
+      d.onTrade({ id: String(second), symbol: "BTC/USD", px: mid, qty: 1,
+        aggressor: side, exchangeTsMs: at, receiveTsMs: at });
+      return d.observe(book(at, mid));
+    };
+    for (let i = 1; i <= 61; i++) quote(i, 0);
+    quote(62, .005);
+    const frozenVolatility = d.snapshot().volatilityBps;
+    for (let i = 63; i <= 67; i++) {
+      assert.equal(quote(i, .005 + (i - 62) * .001), null,
+        "a monotone burst inside tolerance is not a retest");
+      assert.equal(d.snapshot().phase, "BREAKOUT");
+    }
+    quote(68, -.015);
+    assert.equal(d.snapshot().phase, "RETESTED");
+    quote(69, -.014); quote(70, -.013);
+    assert.equal(quote(71, -.012), null, "a local bounce on the wrong side of the level is not recovery");
+    const candidate = quote(72, .002);
+    assert.equal(candidate?.side, side);
+    near(candidate!.volatilityBps, frozenVolatility);
+  });
+
   test(`linear cash ledger and exact protection price reconcile partial exits for side ${side}`, () => {
     const l = newLinearLedger(side);
     recordLinearFill(l, 2, 100, .04, false);

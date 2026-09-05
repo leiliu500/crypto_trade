@@ -3,7 +3,7 @@
 This implements the deterministic paper-trading core of the supplied
 [design](KRAKEN_REBUILD_DESIGN.md). It is an implementation and research result,
 not evidence of profitable trading. Configuration is now
-`btc-eth-breakout-retest-v10.0.0`, policy evidence `executable-policy-v3`, and
+`btc-eth-breakout-retest-v10.1.0`, policy evidence `executable-policy-v3`, and
 episode evidence `after-cost-episodes-v2`. Old evidence cannot install a new model.
 
 ## Default entry behavior
@@ -14,8 +14,13 @@ reacceleration. The range covers one minute of one-second samples, excluding
 the current quote. A breakout needs directional three-second aggressive-trade
 imbalance above 0.15. Retest tolerance is the larger of two spreads and the
 causal three-second volatility estimate at breakout. The level and invalidation
-boundary remain fixed. Reacceleration must exceed the preceding three-second
-extreme after retesting, with renewed directional trade flow.
+boundary remain fixed. Detector v2 requires a reversal from the breakout's
+running extreme by at least one spread (frozen at breakout), within the retest
+tolerance. Proximity during a continuing burst is insufficient. Reacceleration
+must exceed the preceding three-second extreme after retesting and reclaim the
+frozen level, with renewed directional trade flow. One spread is a declared
+noise threshold, not a fitted profitability parameter. Setup volatility also
+remains frozen at breakout; v1 inadvertently supplied entry-time volatility.
 
 The setup expires after two minutes. Invalid books and quote gaps over five
 seconds discard setup history. Trade snapshots, stale/future trade timestamps,
@@ -114,7 +119,7 @@ Verified exchange references:
 
 ## Reproduce research
 
-Validation: TypeScript build and all 306 tests pass. Tests include symmetric
+Validation: TypeScript build and all 308 tests pass. Tests include symmetric
 paper entry/exit paths, fee and partial-fill accounting, monotone floors,
 cancel-pending protection, and research/paper exit parity. These validate
 implementation behavior, not market profitability.

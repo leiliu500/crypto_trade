@@ -1,7 +1,7 @@
 import type { RecordedEvent } from "../backtest/replay.js";
 import { LocalOrderBook } from "../core/order-book.js";
 import type { AssetRules } from "../execution/planner.js";
-import { BreakoutRetest } from "../strategy/breakout-retest.js";
+import { BreakoutRetest, RETEST_RULES } from "../strategy/breakout-retest.js";
 import { TRADING_POLICIES, POLICY_VERSION, policyQuantity } from "./trading-policy.js";
 import { EXECUTION_SCENARIOS, ExecutionStressCase, stressObservation, type EpisodeObservation } from "./execution-stress.js";
 
@@ -53,7 +53,7 @@ export async function replayRetest(events: AsyncIterable<RecordedEvent> | Iterab
     for (const policy of TRADING_POLICIES.filter((p) => p.family === "BREAKOUT_RETEST")) {
       for (const scenario of EXECUTION_SCENARIOS) for (const control of [false, true]) {
         const start = stressObservation({ id: `retest-${symbol}-${now}-${policy.id}`, sampling: "ENTRY",
-          policyVersion: POLICY_VERSION, configurationVersion: "raw-retest-replay-v1", symbol,
+          policyVersion: POLICY_VERSION, configurationVersion: `raw-retest-replay:${RETEST_RULES.version}`, symbol,
           family: "BREAKOUT_RETEST", regime: candidate.side === 1 ? "RETEST_UP" : "RETEST_DOWN", side: candidate.side,
           policyId: policy.id, signalAtMs: now, entryAtMs: null, exitAtMs: null, entryPrice: null, exitPrice: null,
           qty, filledQty: 0, signalBid: b.bids[0]!.px, signalAsk: b.asks[0]!.px,
@@ -74,13 +74,15 @@ export async function replayRetest(events: AsyncIterable<RecordedEvent> | Iterab
     const r = o.observation, key = `${r.symbol}|${r.side}|${r.policyId}|${r.scenario.id}|${o.control ? "fixed" : "net-floor"}`;
     const group = groups.get(key) ?? []; group.push(o); groups.set(key, group);
   }
-  return { quality, deploymentReady: false, assumptions: ["Current instrument increments and configured paper fees",
+  return { detectorVersion: RETEST_RULES.version, quality, deploymentReady: false, assumptions: ["Current instrument increments and configured paper fees",
     "No portfolio or live liquidity-permission simulation", "Fixed control retains structural invalidation, stop and deadline",
     "Additional funding/execution reserve, not observed funding cash flows", "Shared candidate paths and scenarios are dependent"],
     cohorts: [...groups].sort(([a], [b]) => a.localeCompare(b)).map(([key, values]) => {
       const complete = values.filter((v) => v.observation.status === "COMPLETE").map((v) => v.observation);
+      const filled = complete.filter((o) => o.filledQty > 0);
       return { key, attempts: values.length, complete: complete.length, invalid: values.length - complete.length,
-        filled: complete.filter((o) => o.filledQty > 0).length, wins: complete.filter((o) => o.netBps! > 0).length,
+        filled: filled.length, wins: complete.filter((o) => o.netBps! > 0).length,
+        meanFilledNetBps: filled.length ? filled.reduce((s, o) => s + o.netBps!, 0) / filled.length : null,
         meanNetBps: complete.length ? complete.reduce((s, o) => s + o.netBps!, 0) / complete.length : null };
     }) };
 }

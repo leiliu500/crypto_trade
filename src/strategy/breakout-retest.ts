@@ -1,11 +1,12 @@
 import type { BookState, MarketTrade } from "../core/market.js";
 
-export const RETEST_RULES = Object.freeze({ version: "breakout-retest-v1", rangeMs: 60_000, sampleMs: 1_000,
+export const RETEST_RULES = Object.freeze({ version: "breakout-retest-v2", rangeMs: 60_000, sampleMs: 1_000,
   reaccelerationMs: 3_000, setupTtlMs: 120_000, maximumQuoteGapMs: 5_000,
   tradeWindowMs: 3_000, minimumFlow: .15, varianceAlpha: .05, cusumAllowance: .5, cusumThreshold: 5 });
 export interface RetestCandidate { side: 1 | -1; boundary: number; invalidationPx: number; signalAtMs: number;
   volatilityBps: number; tradeImbalance: number; setupAtMs: number }
-interface Arm { side: 1 | -1; boundary: number; invalidationPx: number; atMs: number; retestedAtMs?: number }
+interface Arm { side: 1 | -1; boundary: number; invalidationPx: number; atMs: number; retestedAtMs?: number;
+  extreme: number; minimumPullbackPx: number; volatilityBps: number }
 interface Point { atMs: number; mid: number }
 
 /** One causal state machine per instrument; only actual trade events supply TI.
@@ -40,6 +41,7 @@ export class BreakoutRetest {
   public snapshot() { return { version: RETEST_RULES.version, phase: this.candidate ? "CANDIDATE"
     : this.arm?.retestedAtMs !== undefined ? "RETESTED" : this.arm ? "BREAKOUT" : "WATCHING",
     boundary: this.arm?.boundary ?? this.candidate?.boundary ?? null, samples: this.points.length,
+    breakoutExtreme: this.arm?.extreme ?? null,
     volatilityBps: Math.sqrt(this.variance * 3), shift: this.shift }; }
   public observe(book: BookState, stale = false): RetestCandidate | null {
     const now = book.receiveTsMs;
@@ -75,14 +77,22 @@ export class BreakoutRetest {
       || this.arm.side * (mid - this.arm.invalidationPx) < 0)) delete this.arm;
     else if (this.arm) {
       const a = this.arm, tolerance = Math.abs(a.boundary - a.invalidationPx);
-      if (a.retestedAtMs === undefined && now > a.atMs && Math.abs(mid - a.boundary) <= tolerance) a.retestedAtMs = now;
+      if (a.retestedAtMs === undefined) {
+        // Proximity alone is not a pullback: a continuing burst may remain
+        // inside a wide tolerance. Require reversal from its running extreme
+        // by at least the spread frozen at breakout, then a return to the level.
+        if (a.side * (mid - a.extreme) > 0) a.extreme = mid;
+        if (now > a.atMs && a.side * (a.extreme - mid) >= a.minimumPullbackPx
+          && Math.abs(mid - a.boundary) <= tolerance) a.retestedAtMs = now;
+      }
       if (a.retestedAtMs !== undefined && now - a.retestedAtMs >= RETEST_RULES.reaccelerationMs) {
         const interval = this.points.filter((p) => p.atMs >= now - RETEST_RULES.reaccelerationMs && p.atMs < now);
         const covered = interval.length >= 3 && now - interval[0]!.atMs >= RETEST_RULES.reaccelerationMs - RETEST_RULES.sampleMs;
         const extreme = a.side === 1 ? Math.max(...interval.map((p) => p.mid)) : Math.min(...interval.map((p) => p.mid));
-        if (covered && a.side * (mid - extreme) > 0 && a.side * flow > RETEST_RULES.minimumFlow) {
+        if (covered && a.side * (mid - extreme) > 0 && a.side * (mid - a.boundary) > 0
+          && a.side * flow > RETEST_RULES.minimumFlow) {
           this.candidate = { side: a.side, boundary: a.boundary, invalidationPx: a.invalidationPx,
-            signalAtMs: now, volatilityBps, tradeImbalance: flow, setupAtMs: a.atMs };
+            signalAtMs: now, volatilityBps: a.volatilityBps, tradeImbalance: flow, setupAtMs: a.atMs };
           delete this.arm;
         }
       }
@@ -92,7 +102,8 @@ export class BreakoutRetest {
       if (side) {
         const boundary = side === 1 ? high : low;
         const tolerance = Math.max(2 * spread, mid * volatilityBps / 10_000);
-        this.arm = { side, boundary, invalidationPx: boundary - side * tolerance, atMs: now };
+        this.arm = { side, boundary, invalidationPx: boundary - side * tolerance, atMs: now,
+          extreme: mid, minimumPullbackPx: spread, volatilityBps };
       }
     }
     if (!previous || now - previous.atMs >= RETEST_RULES.sampleMs) this.points.push({ atMs: now, mid });
