@@ -10,6 +10,7 @@ import type { Position } from "../strategy/position-manager.js";
 import { runMigrations } from "./migrations.js";
 import { CalibratedEdgeTable, type CalibratedEdgeBucket } from "../calibration/calibrated-edge-table.js";
 import type { PolicyPositionSpec } from "../research/trading-policy.js";
+import { validLinearLedger, validNetProtection } from "../economics/net-liquidation.js";
 
 export interface PostgresStoreOptions {
   connectionString: string;
@@ -651,7 +652,7 @@ function restorePositionState(value: unknown, fallback?: Partial<PersistedPositi
     ? persistedExecutionPath as NonNullable<Position["executionPath"]> : null;
   const persistedEntryFamily = position.entryFamily ?? fallback?.entry_family;
   const entryFamily = persistedEntryFamily === "CONTINUATION" || persistedEntryFamily === "PULLBACK_RECOVERY"
-    || persistedEntryFamily === "EARLY_BREAKOUT"
+    || persistedEntryFamily === "EARLY_BREAKOUT" || persistedEntryFamily === "BREAKOUT_RETEST"
     ? persistedEntryFamily : null;
   return {
     symbol, side, qty, entryPx, openedMs, initialRiskPx, roundTripCostPx, mfePx, maePx, floorPx,
@@ -660,6 +661,8 @@ function restorePositionState(value: unknown, fallback?: Partial<PersistedPositi
     // Preserve even unknown versions so PositionManager fails closed on them;
     // silently dropping the field would restore the incompatible legacy exits.
     ...(position.policy && typeof position.policy === "object" ? { policy: position.policy as PolicyPositionSpec } : {}),
+    ...(validLinearLedger(position.ledger) ? { ledger: { ...position.ledger } } : {}),
+    ...(validNetProtection(position.netProtection) ? { netProtection: { ...position.netProtection } } : {}),
     ...(Number.isFinite(selectedHorizonMs) && selectedHorizonMs > 0 ? { selectedHorizonMs } : {}),
     ...(executionPath === null ? {} : { executionPath }),
     ...(Number.isFinite(lastReductionProbability) ? { lastReductionProbability } : {}),

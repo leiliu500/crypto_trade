@@ -25,6 +25,7 @@ export interface PolicyEntryCounters {
   plansApproved: number;
 }
 export interface PolicyMarketPulse {
+  setup?: { version: string; phase: string; boundary: number | null; samples: number; volatilityBps: number; shift: string | null };
   research?: { version: string; hypotheses: string[]; counters: Record<string, number> };
   version: string;
   mode: "PAPER_RESEARCH" | "CALIBRATED_PAPER" | "SHADOW" | "RECORD";
@@ -79,7 +80,7 @@ export function policyMarketPulse(input: {
   if (!dataValid) { status = "DATA_GATED"; reasons = [f?.staleReason ?? "BOOK_OR_FEATURES_UNAVAILABLE"]; }
   else if (input.pendingOrder) status = "ORDER_PENDING";
   else if (input.positionOpen) status = "POSITION_OPEN";
-  else if (!f.warmedUp || !f.slowTrendReady || !f.kinematicsReady) {
+  else if (!f.warmedUp || (f.retestCandidate === undefined && (!f.slowTrendReady || !f.kinematicsReady))) {
     status = "WARMING";
     reasons = [!f.warmedUp ? "FEATURE_WARMUP" : !f.slowTrendReady ? "SLOW_TREND_WARMUP" : "KINEMATICS_NOT_READY"];
   } else if (!input.riskAllowed) { status = "RISK_BLOCKED"; reasons = [...input.riskReasons]; }
@@ -92,7 +93,8 @@ export function policyMarketPulse(input: {
     status = "ENTRY_BLOCKED"; reasons = [input.lastEvaluation.reason];
   } else status = "WAITING_FOR_QUOTE";
   return { version: POLICY_VERSION, mode: input.mode, status, reasons, candidates,
-    families: [...new Set(TRADING_POLICIES.map((p) => p.family))].map((family) => ({
+    families: [...new Set(TRADING_POLICIES.filter((p) => f?.retestCandidate === undefined || p.family === "BREAKOUT_RETEST")
+      .map((p) => p.family))].map((family) => ({
       family, horizonsMs: TRADING_POLICIES.filter((p) => p.family === family).map((p) => p.horizonMs),
       longSignal: candidates.some((c) => c.family === family && c.side === 1),
       shortSignal: candidates.some((c) => c.family === family && c.side === -1),

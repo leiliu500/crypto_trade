@@ -19,6 +19,7 @@ export interface ProjectedKrakenPaperHistory {
 }
 
 interface HistoricalReplayFill extends HistoricalFillRecord {
+  feeUsd?: number;
   order: KrakenPaperHistoricalOrder;
 }
 
@@ -76,6 +77,7 @@ export function projectKrakenPaperHistory(history: KrakenPaperHistory, nowMs = D
       final: order.remote.status === "filled" && cumulative + quantityTolerance(remoteFilledQty) >= remoteFilledQty,
       atMs,
       order,
+      ...(activity.fee_usd !== undefined && Number.isFinite(Number(activity.fee_usd)) ? { feeUsd: Number(activity.fee_usd) } : {}),
     };
     replayFills.push(fill);
     const { order: _order, ...record } = fill;
@@ -257,6 +259,7 @@ function clonePosition(position: DashboardLivePosition): DashboardLivePosition {
 }
 
 function executionFee(fill: HistoricalReplayFill, history: KrakenPaperHistory, qty = fill.qty): number {
+  if (fill.feeUsd !== undefined) return fill.feeUsd * qty / fill.qty;
   const plan = fill.order.plan;
   const configured = plan.style === "maker"
     ? history.makerFeeBpsBySymbol[fill.symbol]

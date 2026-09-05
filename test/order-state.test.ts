@@ -17,7 +17,26 @@ test("private fill events are idempotent and partial fills create exposure delta
   const event = { id: "execution-1", event: "partial_fill", orderId: "order-1", clientOrderId: "client-1", symbol: "BTC/USD", filledQty: .4, eventQty: .4, eventPx: 100, timestampMs: 11 };
   assert.deepEqual(state.apply(event), { symbol: "BTC/USD", side: 1, qty: .4, price: 100, clientOrderId: "client-1", final: false });
   assert.equal(state.apply(event), null);
+  assert.equal(state.apply({ ...event, id: "duplicate-with-new-event-id" }), null,
+    "duplicate cumulative quantity cannot be applied twice under a new event ID");
   assert.equal(state.get("client-1")?.filledQty, .4);
+});
+
+test("protective reduce-only order can proceed during entry cancellation without allowing competing exposure", () => {
+  const state = new OrderStateReconciler();
+  state.reserve(plan()); state.markSending("client-1"); state.markAccepted("client-1", "order-1", 10);
+  state.apply({ id: "partial", event: "partial_fill", orderId: "order-1", clientOrderId: "client-1", symbol: "BTC/USD",
+    filledQty: .4, eventQty: .4, eventPx: 100, timestampMs: 11 });
+  const close: ExecutionPlan = { ...plan(), clientOrderId: "close", side: -1, qty: .4, reduceOnlyIntent: true };
+  assert.throws(() => state.reserve(close));
+  state.requestCancel("client-1", "POSITION_PROTECTION", 12);
+  state.reserve(close);
+  assert.throws(() => state.reserve({ ...close, clientOrderId: "second-close" }));
+  assert.throws(() => state.reserve({ ...plan(), clientOrderId: "new-entry" }));
+  const late = state.apply({ id: "late-fill", event: "fill", orderId: "order-1", clientOrderId: "client-1", symbol: "BTC/USD",
+    filledQty: 1, eventQty: .6, eventPx: 99, timestampMs: 13, feeUsd: .0297 });
+  assert.equal(late!.qty, .6);
+  assert.equal(late!.feeUsd, .0297);
 });
 
 test("a late POST acknowledgment cannot regress an already filled IOC order", () => {

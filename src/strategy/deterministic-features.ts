@@ -14,6 +14,8 @@ export interface BookPressureObservation {
 
 /** Extra causal state required by the model-free rule engine. */
 export interface DeterministicFeatures extends Features {
+  /** Explicit null means the rebuilt setup engine has no candidate. */
+  retestCandidate?: import("./breakout-retest.js").RetestCandidate | null;
   microEdgeBps: number;
   impulseBps: number;
   breakoutUpBps: number;

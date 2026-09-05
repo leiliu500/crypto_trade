@@ -2,9 +2,10 @@ import { randomUUID } from "node:crypto";
 import type { BookState } from "../core/market.js";
 import { estimateSweep } from "../execution/book-walk.js";
 import type { PolicyObservation } from "./policy-collector.js";
-import { findPolicy, policyExit, POLICY_MAX_ENTRY_DELAY_MS, POLICY_MAX_QUOTE_GAP_MS } from "./trading-policy.js";
+import { findPolicy, policyExit, policyProtection, POLICY_MAX_ENTRY_DELAY_MS, POLICY_MAX_QUOTE_GAP_MS } from "./trading-policy.js";
+import type { NetProtection } from "../economics/net-liquidation.js";
 
-export const EPISODE_VERSION = "after-cost-episodes-v1";
+export const EPISODE_VERSION = "after-cost-episodes-v2";
 export interface ExecutionScenario { id: string; latencyMs: number; feeMultiplier: number; depthMultiplier: number }
 // Predeclared sensitivity assumptions, not measured live-venue latency.
 export const EXECUTION_SCENARIOS: readonly ExecutionScenario[] = Object.freeze([
@@ -58,7 +59,8 @@ export class ExecutionStressCase {
   private lastQuoteMs: number;
   private exitDueMs?: number;
   private exitReason?: string;
-  public constructor(start: EpisodeObservation) {
+  private protection?: NetProtection;
+  public constructor(start: EpisodeObservation, private readonly fixedExitControl = false) {
     this.value = structuredClone(start);
     this.lastQuoteMs = start.signalAtMs;
   }
@@ -102,7 +104,12 @@ export class ExecutionStressCase {
     const gross = o.side * (exit.vwap - o.entryPrice!) / o.entryPrice! * 10_000;
     const net = gross - o.feeBps * (1 + exit.vwap / o.entryPrice!) - o.reserveBps;
     if (this.exitDueMs === undefined) {
-      const reason = policyExit(findPolicy(o.policyId)!, gross, net, now - o.entryAtMs);
+      const policy = findPolicy(o.policyId)!;
+      if (policy.family === "BREAKOUT_RETEST" && !this.fixedExitControl) this.protection ??= policyProtection(policy, o.feeBps, o.reserveBps);
+      const broken = Number.isFinite(o.features.invalidationPx)
+        && o.side * ((book.bids[0].px + book.asks[0].px) / 2 - o.features.invalidationPx!) < 0;
+      const reason = broken ? "POLICY_STRUCTURE_INVALID"
+        : policyExit(policy, gross, net, now - o.entryAtMs, this.protection, o.features.policyVolatilityBps ?? 0);
       if (reason) { this.exitReason = reason; this.exitDueMs = now + o.scenario.latencyMs; }
     }
     if (this.exitDueMs !== undefined && now >= this.exitDueMs) {

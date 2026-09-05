@@ -97,6 +97,7 @@ export interface VenuePosition {
 }
 
 export interface VenueActivity {
+  fee_usd?: string;
   id: string;
   activity_type: string;
   transaction_time?: string;

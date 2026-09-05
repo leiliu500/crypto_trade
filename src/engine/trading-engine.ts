@@ -35,6 +35,8 @@ import { HealthWatchdog, type WatchdogFault } from "./watchdog.js";
 import type { ExecutionPath } from "../economics/types.js";
 import type { CalibratedEdgeBucket } from "../calibration/calibrated-edge-table.js";
 import { PolicyCollector } from "../research/policy-collector.js";
+import { BreakoutRetest } from "../strategy/breakout-retest.js";
+import { newLinearLedger, recordLinearFill } from "../economics/net-liquidation.js";
 import { SignalEpisodeCollector, EPISODE_HYPOTHESES } from "../research/signal-episodes.js";
 import { EPISODE_VERSION, type EpisodeContext } from "../research/execution-stress.js";
 import { validPolicyModel, type PolicyModel } from "../research/policy-validation.js";
@@ -108,6 +110,7 @@ interface SymbolRuntime {
   routeShadow: EntryRouteShadowTracker;
   positionManager: PositionManager;
   policyCollector: PolicyCollector;
+  breakoutRetest: BreakoutRetest;
   researchEpisodes: SignalEpisodeCollector;
   policyModels: PolicyModel[];
   lastPolicyEntryMs?: number;
@@ -266,6 +269,7 @@ export class TradingEngine extends EventEmitter {
         planner: new ExecutionPlanner(symbolCfg.planner, new RiskSizer(symbolCfg.sizing), cost, symbolCfg.strategyVersion, symbolCfg.modelVersion),
         hybridEntryRouter: new HybridEntryRouter(symbolCfg.planner.hybridEntry),
         routeShadow: new EntryRouteShadowTracker(symbolCfg.planner.hybridEntry.routeShadowHorizonsMs),
+        breakoutRetest: new BreakoutRetest(),
         policyCollector: new PolicyCollector(symbolCfg.configurationVersion, symbol,
           symbolCfg.cost.takerFeeBps, policyReserveBps(symbolCfg)), policyModels: [],
         researchEpisodes: new SignalEpisodeCollector(symbolCfg.configurationVersion, symbol,
@@ -340,7 +344,8 @@ export class TradingEngine extends EventEmitter {
     for (const position of positions) {
       const runtime = this.runtimes.get(position.symbol);
       if (!runtime) continue;
-      const candidate = { ...position, phase: position.phase === "EXITING" ? "OPEN" as const : position.phase };
+      const candidate = { ...position, phase: position.phase === "EXITING" && !position.policy?.id.startsWith("retest-")
+        ? "OPEN" as const : position.phase };
       delete candidate.adverseEvidenceSinceMs;
       const candidates = this.restoredPositionCandidates.get(position.symbol) ?? [];
       candidates.push(candidate);
@@ -499,6 +504,7 @@ export class TradingEngine extends EventEmitter {
         lastRejection: runtime.entryAudit.snapshot().lastRejection,
         activePolicyId: runtime.position?.policy?.id ?? (runtime.position ? "legacy" : null),
       }) : null;
+      if (policyPulse && this.cfg.breakoutRetestEnabled) policyPulse.setup = runtime.breakoutRetest.snapshot();
       if (policyPulse) policyPulse.research = { version: EPISODE_VERSION,
         hypotheses: [...EPISODE_HYPOTHESES], counters: runtime.researchEpisodes.stats() };
       return {
@@ -541,7 +547,7 @@ export class TradingEngine extends EventEmitter {
       realizedSessionPnl: this.realizedSessionPnl,
       risk: this.riskState.snapshot(),
       orders: this.orderState.all(),
-      positions: [...this.runtimes.values()].flatMap((runtime) => runtime.position ? [{ ...runtime.position }] : []),
+      positions: [...this.runtimes.values()].flatMap((runtime) => runtime.position ? [structuredClone(runtime.position)] : []),
       markets,
       latency: this.latency.summary(generatedAtMs),
     };
@@ -645,6 +651,14 @@ export class TradingEngine extends EventEmitter {
   }
 
   private processMarketState(runtime: SymbolRuntime, book: BookState, features: DeterministicFeatures, quoteEvent = true): void {
+    if (this.cfg.breakoutRetestEnabled && this.cfg.policyEngineEnabled && !this.cfg.paperEntryExercise) {
+      const previousSetupPhase = runtime.breakoutRetest.snapshot().phase;
+      features.retestCandidate = quoteEvent ? runtime.breakoutRetest.observe(book, features.stale) : null;
+      if (quoteEvent && (features.retestCandidate || runtime.breakoutRetest.shift || previousSetupPhase !== runtime.breakoutRetest.snapshot().phase)) {
+        this.emit("setupEvaluated", { symbol: book.symbol, atMs: features.receiveTsMs,
+          ...runtime.breakoutRetest.snapshot(), candidate: features.retestCandidate });
+      }
+    }
     if (quoteEvent && this.cfg.policyEngineEnabled && !this.cfg.paperEntryExercise) runtime.policyEntryCounters.quoteChecks++;
     runtime.entryAudit.pass("MARKET_EVENT");
     if (book.valid) runtime.entryAudit.pass("BOOK_READY");
@@ -1002,6 +1016,7 @@ export class TradingEngine extends EventEmitter {
   }
 
   private invalidatePolicyResearch(runtime: SymbolRuntime, reason: string): void {
+    runtime.breakoutRetest.reset();
     for (const observation of runtime.policyCollector.invalidate(this.now(), reason)) this.emit("policyObservation", observation);
     for (const observation of runtime.researchEpisodes.invalidate(this.now(), reason)) this.emit("researchEpisode", observation);
   }
@@ -1205,6 +1220,7 @@ export class TradingEngine extends EventEmitter {
     this.recorder?.write({ kind: "TRADE", trade });
     const runtime = this.runtimes.get(trade.symbol);
     if (!runtime) return;
+    runtime.breakoutRetest.onTrade(trade);
     if (runtime.config.planner.hybridEntry.routeShadowEnabled) runtime.routeShadow.observeTrade(trade);
     runtime.features.onTrade(trade);
     const snapshot = runtime.book.snapshot();
@@ -1537,6 +1553,16 @@ export class TradingEngine extends EventEmitter {
     if (!position) return;
     const nowMs = this.now();
     if (!pending.plan.reduceOnlyIntent) {
+      if (position.policy?.id.startsWith("retest-")) {
+        const { decision, hold, regime } = this.evaluatePosition(runtime, book, features);
+        this.publishPositionDecision(runtime, position, decision, hold, regime, nowMs);
+        if (decision.action === "EXIT") {
+          const cancellation = this.cancelTracked(pending, "POSITION_PROTECTION", { nowMs, positionReason: decision.reason });
+          await this.submitExit(runtime, position.qty, decision.reason, book, features, "taker");
+          await cancellation;
+          return;
+        }
+      }
       const partialRemainder = pending.filledQty > 0 && pending.filledQty < pending.plan.qty
         && pending.plan.side === position.side && position.phase !== "EXITING";
       if (!partialRemainder) {
@@ -1614,7 +1640,8 @@ export class TradingEngine extends EventEmitter {
   private async submitExit(runtime: SymbolRuntime, desiredQty: number, reason: string, book: ReturnType<LocalOrderBook["snapshot"]>, features: Features,
     forcedStyle?: "maker" | "taker", fallbackFromClientOrderId?: string): Promise<void> {
     if (!runtime.asset || !runtime.position) return;
-    if (this.pendingForSymbol(runtime.position.symbol)) return;
+    const pending = this.orderState.all().filter((o) => o.plan.symbol === runtime.position!.symbol && isPendingOrderStatus(o.status));
+    if (pending.some((o) => o.plan.reduceOnlyIntent || !o.cancelRequestReason)) return;
     if (!forcedStyle && [...this.makerExitFallbackInFlight].some((clientOrderId) =>
       this.orderState.get(clientOrderId)?.plan.symbol === runtime.position?.symbol)) return;
     const qty = Math.min(runtime.position.qty, Math.floor(desiredQty / runtime.asset.minTradeIncrement + 1e-12) * runtime.asset.minTradeIncrement);
@@ -1684,7 +1711,7 @@ export class TradingEngine extends EventEmitter {
     const tracked = this.orderState.get(fill.clientOrderId);
     const feeBps = tracked?.plan.style === "maker" ? runtime.config.cost.makerFeeBps
       : tracked ? runtime.config.cost.takerFeeBps : 0;
-    const executionFee = fill.qty * fill.price * feeBps / 10_000;
+    const executionFee = fill.feeUsd ?? fill.qty * fill.price * feeBps / 10_000;
     runtime.entryAudit.pass(fill.final ? "FULL_FILL" : "PARTIAL_FILL");
     this.realizedSessionPnl -= executionFee;
     const closing = tracked?.plan.reduceOnlyIntent === true
@@ -1707,10 +1734,16 @@ export class TradingEngine extends EventEmitter {
         if (added > 0) runtime.position.entryPx = (runtime.position.entryPx * previous + fill.price * added) / total;
         runtime.position.qty = total;
       } else throw new Error("NO_AVERAGING_DOWN_INVARIANT");
+      if (runtime.position?.policy?.id.startsWith("retest-")) {
+        runtime.position.ledger ??= newLinearLedger(fill.side);
+        recordLinearFill(runtime.position.ledger, fill.qty, fill.price, executionFee, false);
+        if (tracked?.cancelRequestReason === "POSITION_PROTECTION") runtime.position.phase = "EXITING";
+      }
     } else if (runtime.position) {
       if (fill.side !== -runtime.position.side) throw new Error("REDUCE_ONLY_DIRECTION_INVARIANT");
       const remainingQty = fill.positionQty !== undefined ? Math.max(0, fill.positionQty) : Math.max(0, runtime.position.qty - fill.qty);
       const closeQty = Math.max(0, runtime.position.qty - remainingQty);
+      if (runtime.position.ledger && closeQty > 0) recordLinearFill(runtime.position.ledger, closeQty, fill.price, executionFee, true);
       this.realizedSessionPnl += closeQty * runtime.position.side * (fill.price - runtime.position.entryPx);
       runtime.position.qty = remainingQty;
       const minimumTradableQty = runtime.asset?.minOrderSize ?? runtime.asset?.minTradeIncrement ?? 1e-12;
@@ -1725,6 +1758,12 @@ export class TradingEngine extends EventEmitter {
     this.recomputePortfolioRisk();
     this.riskState.setHealth({ riskRecomputed: true });
     this.emit("fill", fill);
+    if (runtime.position?.policy?.id.startsWith("retest-") && runtime.latestFeatures && !runtime.latestFeatures.stale) {
+      const book = runtime.book.snapshot();
+      if (book.valid && this.now() >= book.receiveTsMs && this.now() - book.receiveTsMs <= POLICY_MAX_ENTRY_DELAY_MS) {
+        this.managePosition(runtime, book, runtime.latestFeatures);
+      }
+    }
   }
 
   private reconcilePositions(positions: readonly VenuePosition[]): void {

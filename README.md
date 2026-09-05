@@ -6,6 +6,13 @@ It does **not** promise profit or zero latency. The checked-in `.env.example` se
 
 ## Rebuilt default strategy layer
 
+The latest default is the [breakout–retest rebuild](docs/RETEST_REBUILD.md): a
+frozen range breakout, orderly retest and flow-confirmed reacceleration, with a
+shared lifecycle net-P&L ledger and non-loosening profit floor. It uses version
+`executable-policy-v3`; prior versions and the descriptions below remain useful
+for historical compatibility. Paper submissions remain enabled under the
+existing capped experiment permission. Replay has not established profitability.
+
 `POLICY_ENGINE_ENABLED=true` replaces the legacy volatility-capture forecasts and micro-driven exits. The same versioned entry predicates and stop/target/deadline rules drive research and paper positions. V2 checks entries on every fresh quote, independently of the periodic research timer, and calibrates only separately tagged entry-timed evidence. Existing risk and liquidity limits remain mandatory. See [policy design and validation](docs/POLICY_REBUILD.md).
 
 ```text

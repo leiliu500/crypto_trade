@@ -80,6 +80,8 @@ export function buildPolicyPlan(input: {
     expectedValue: model ? risk.qty * price * (model.fittedMeanNetBps - extraCostBps) / 10_000 : 0,
     reduceOnlyIntent: false, economicHorizonMs: policy.horizonMs, entryFamily: policy.family,
     executionPath: "TAKER_TAKER",
-    policy: { version: POLICY_VERSION, id: policy.id, feeBps: cfg.cost.takerFeeBps, reserveBps },
+    policy: { version: POLICY_VERSION, id: policy.id, feeBps: cfg.cost.takerFeeBps, reserveBps, feeSource: "PAPER_CONFIG", fundingSource: "RESERVE_ONLY",
+      ...(f.retestCandidate ? { invalidationPx: f.retestCandidate.invalidationPx,
+        volatilityBps: f.retestCandidate.volatilityBps } : {}) },
   } };
 }

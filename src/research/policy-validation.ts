@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import type { PolicyObservation } from "./policy-collector.js";
+import { blockExpectancy } from "./block-expectancy.js";
 import { findPolicy, POLICY_VERSION, POLICY_ENTRY_LATENCY_MS, POLICY_MAX_ENTRY_DELAY_MS,
   POLICY_MAX_QUOTE_GAP_MS, TRADING_POLICIES, type PolicyCandidate } from "./trading-policy.js";
 
@@ -68,7 +69,12 @@ export function evaluatePolicies(rows: readonly PolicyObservation[], configurati
     const group = groups.get(key) ?? [];
     group.push(row); groups.set(key, group);
   }
-  const evaluations = [...groups].map(([key, values]) => evaluatePolicyCohort(key, values, evidenceEndMs));
+  const evaluations = [...groups].map(([key, values]) => {
+    const first = values[0]!;
+    const parent = [...groups.values()].flat().filter((o) => o.symbol === first.symbol && o.side === first.side
+      && o.family === first.family && o.feeBps === first.feeBps && o.reserveBps === first.reserveBps);
+    return evaluatePolicyCohort(key, values, evidenceEndMs, POLICY_ENTRY_LATENCY_MS, undefined, POLICY_ENTRY_LATENCY_MS, parent);
+  });
   return { policyVersion: POLICY_VERSION, configurationVersion, generatedAtMs: now,
     evidenceEndMs,
     observations: rows.length, evaluations, models: evaluations.flatMap((e) => e.model ? [e.model] : []) };
@@ -77,12 +83,17 @@ export function evaluatePolicies(rows: readonly PolicyObservation[], configurati
 /** Pure evaluation shared by isolated research reports. Only evaluatePolicies
  * supplies rows to the production model store; EPISODE versions cannot install. */
 export function evaluatePolicyCohort(key: string, rows: PolicyObservation[], now: number,
-  latencyMs = POLICY_ENTRY_LATENCY_MS, selectedPolicyId?: string, embargoLatencyMs = latencyMs): PolicyEvaluation {
+  latencyMs = POLICY_ENTRY_LATENCY_MS, selectedPolicyId?: string, embargoLatencyMs = latencyMs,
+  parentRows: readonly PolicyObservation[] = []): PolicyEvaluation {
   if (!rows.length || !Number.isFinite(latencyMs) || latencyMs < 1 || latencyMs > 1_000) throw new Error("Invalid cohort");
   const first = rows[0]!;
   const declaredPolicies = TRADING_POLICIES.filter((p) => p.family === first.family);
   const maxHorizon = Math.max(...declaredPolicies.map((p) => p.horizonMs));
   const embargo = maxHorizon + 2 * Math.max(latencyMs, embargoLatencyMs) + POLICY_MAX_ENTRY_DELAY_MS + 2 * POLICY_MAX_QUOTE_GAP_MS;
+  const parentFor = (slice: readonly PolicyObservation[]) => slice.length ? nonOverlapping(parentRows.filter((o) =>
+    o.policyId === slice[0]!.policyId && validPolicyOutcome(o, latencyMs)
+    && o.signalAtMs >= slice[0]!.signalAtMs && o.exitAtMs! <= slice.at(-1)!.exitAtMs!), embargo) : [];
+  const confidence = (slice: readonly PolicyObservation[]) => lowerMean(slice, parentFor(slice));
   // Drop only observations whose predeclared deadline has not matured yet.
   // A missing/invalid mature result prevents promotion instead of disappearing.
   const mature = rows.filter((o) => o.signalAtMs + embargo < now);
@@ -96,7 +107,7 @@ export function evaluatePolicyCohort(key: string, rows: PolicyObservation[], now
     const validation = samples.filter((o) => o.signalAtMs >= validationStart && o.signalAtMs + embargo < holdoutStart);
     const holdout = samples.filter((o) => o.signalAtMs >= holdoutStart);
     return { policyId, samples, training, validation, holdout,
-      lower: training.length >= 20 && validation.length >= 20 ? lowerMean(validation) : null };
+      lower: training.length >= 20 && validation.length >= 20 ? confidence(validation) : null };
   }).sort((a, b) => (b.lower ?? -Infinity) - (a.lower ?? -Infinity) || a.policyId.localeCompare(b.policyId));
   const winner = selectedPolicyId === undefined ? variants[0] : variants.find((v) => v.policyId === selectedPolicyId);
   const samples = winner?.samples ?? [];
@@ -104,7 +115,7 @@ export function evaluatePolicyCohort(key: string, rows: PolicyObservation[], now
   const days = new Set(samples.map((o) => Math.floor(o.signalAtMs / 86_400_000))).size;
   const span = samples.length > 1 ? samples.at(-1)!.signalAtMs - samples[0]!.signalAtMs : 0;
   const holdout = winner?.holdout ?? [];
-  const holdoutLower = lowerMean(holdout);
+  const holdoutLower = confidence(holdout);
   const trainingAndValidation = samples.filter((o) => o.signalAtMs + embargo < holdoutStart);
   const folds: PolicyEvaluation["folds"] = [];
   for (let fold = 0; fold < 3; fold++) {
@@ -129,9 +140,10 @@ export function evaluatePolicyCohort(key: string, rows: PolicyObservation[], now
   if (holdoutLower === null || holdoutLower <= 0) reasons.push("NON_POSITIVE_FINAL_HOLDOUT_RETURN");
   if (folds.length < 3 || folds.some((f) => f.actualNetBps <= 0)) reasons.push("UNSTABLE_WALK_FORWARD_RETURNS");
   if (samples.length && now - samples.at(-1)!.exitAtMs! > POLICY_MODEL_MAX_AGE_MS) reasons.push("STALE_EVIDENCE");
-  const fittedLower = lowerMean(trainingAndValidation);
+  const fittedLower = confidence(trainingAndValidation);
   if (fittedLower === null || fittedLower <= 0) reasons.push("NON_POSITIVE_FITTED_RETURN");
-  const fittedMean = meanNet(trainingAndValidation);
+  const fittedMean = blockExpectancy(trainingAndValidation.map((o) => ({ atMs: o.signalAtMs, netBps: o.netBps! })),
+    parentFor(trainingAndValidation).map((o) => ({ atMs: o.signalAtMs, netBps: o.netBps! }))).shrunkMean ?? meanNet(trainingAndValidation);
   const model: PolicyModel | null = reasons.length === 0 && winner ? {
     key: createHash("sha256").update(key).digest("hex"), configurationVersion: first.configurationVersion,
     policyVersion: first.policyVersion, symbol: first.symbol, family: first.family, side: first.side,
@@ -182,7 +194,7 @@ export function validPolicyOutcome(o: PolicyObservation, latencyMs = POLICY_ENTR
       && fraction === 0
       && o.exitAtMs >= o.signalAtMs + latencyMs
       && o.exitAtMs <= o.signalAtMs + latencyMs + POLICY_MAX_ENTRY_DELAY_MS
-      : fraction > 0 && ["POLICY_TARGET", "POLICY_STOP", "POLICY_DEADLINE"].includes(o.reason ?? "")
+      : fraction > 0 && ["POLICY_TARGET", "POLICY_STOP", "POLICY_DEADLINE", "POLICY_NET_FLOOR", "POLICY_STRUCTURE_INVALID"].includes(o.reason ?? "")
         && o.entryAtMs !== null && o.entryAtMs >= o.signalAtMs + latencyMs
         && o.entryAtMs <= o.signalAtMs + latencyMs + POLICY_MAX_ENTRY_DELAY_MS
         && o.entryAtMs <= o.exitAtMs && (o.entryPrice ?? 0) > 0 && (o.exitPrice ?? 0) > 0
@@ -199,7 +211,7 @@ function nonOverlapping(rows: PolicyObservation[], embargo: number): PolicyObser
 function meanNet(rows: readonly PolicyObservation[]): number {
   return rows.length ? rows.reduce((sum, o) => sum + o.netBps!, 0) / rows.length : 0;
 }
-function lowerMean(rows: readonly PolicyObservation[]): number | null {
+function lowerMean(rows: readonly PolicyObservation[], parent: readonly PolicyObservation[] = rows): number | null {
   if (rows.length < 2) return null;
   const mean = meanNet(rows);
   const variance = rows.reduce((sum, o) => sum + (o.netBps! - mean) ** 2, 0) / (rows.length - 1);
@@ -213,5 +225,8 @@ function lowerMean(rows: readonly PolicyObservation[]): number | null {
   const dailyMean = dailyMeans.reduce((sum, value) => sum + value, 0) / dailyMeans.length;
   const dailyVariance = dailyMeans.reduce((sum, value) => sum + (value - dailyMean) ** 2, 0) / (dailyMeans.length - 1);
   // Do not treat every non-overlapping trade as independent of its market day.
-  return mean - 1.96 * Math.max(Math.sqrt(variance / rows.length), Math.sqrt(dailyVariance / dailyMeans.length));
+  const bootstrap = blockExpectancy(rows.map((o) => ({ atMs: o.signalAtMs, netBps: o.netBps! })),
+    parent.map((o) => ({ atMs: o.signalAtMs, netBps: o.netBps! })));
+  return Math.min(bootstrap.lower95 ?? -Infinity,
+    mean - 1.96 * Math.max(Math.sqrt(variance / rows.length), Math.sqrt(dailyVariance / dailyMeans.length)));
 }

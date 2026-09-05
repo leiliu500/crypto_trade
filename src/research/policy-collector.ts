@@ -5,7 +5,8 @@ import { estimateSweep } from "../execution/book-walk.js";
 import type { AssetRules } from "../execution/planner.js";
 import { findPolicy, policyCandidates, policyExit, POLICY_VERSION, POLICY_SAMPLE_MS,
   POLICY_ENTRY_LATENCY_MS, POLICY_MAX_ENTRY_DELAY_MS, POLICY_MAX_QUOTE_GAP_MS, POLICY_NOTIONAL,
-  TRADING_POLICIES, policyQuantity, type PolicyCandidate } from "./trading-policy.js";
+  TRADING_POLICIES, policyQuantity, policyProtection, type PolicyCandidate } from "./trading-policy.js";
+import type { NetProtection } from "../economics/net-liquidation.js";
 
 export interface PolicyObservation extends PolicyCandidate {
   sampling: "PERIODIC" | "ENTRY" | "EPISODE";
@@ -33,7 +34,7 @@ export interface PolicyObservation extends PolicyCandidate {
   features: Record<string, number>;
 }
 
-interface Pending { observation: PolicyObservation; lastQuoteMs: number; exitReason?: string; exitDueMs?: number }
+interface Pending { observation: PolicyObservation; lastQuoteMs: number; exitReason?: string; exitDueMs?: number; protection?: NetProtection }
 
 export class PolicyCollector {
   private readonly pending = new Map<string, Pending>();
@@ -89,7 +90,12 @@ export class PolicyCollector {
       const grossBps = o.side * (exit.vwap - o.entryPrice!) / o.entryPrice! * 10_000;
       const netBps = grossBps - o.feeBps * (1 + exit.vwap / o.entryPrice!) - o.reserveBps;
       if (!pending.exitReason) {
-        const reason = policyExit(findPolicy(o.policyId)!, grossBps, netBps, now - o.entryAtMs);
+        const policy = findPolicy(o.policyId)!;
+        if (policy.family === "BREAKOUT_RETEST") pending.protection ??= policyProtection(policy, o.feeBps, o.reserveBps);
+        const broken = Number.isFinite(o.features.invalidationPx)
+          && o.side * ((book.bids[0]!.px + book.asks[0]!.px) / 2 - o.features.invalidationPx!) < 0;
+        const reason = broken ? "POLICY_STRUCTURE_INVALID"
+          : policyExit(policy, grossBps, netBps, now - o.entryAtMs, pending.protection, o.features.policyVolatilityBps ?? 0);
         if (reason) { pending.exitReason = reason; pending.exitDueMs = now + POLICY_ENTRY_LATENCY_MS; }
       }
       if (pending.exitDueMs !== undefined && now >= pending.exitDueMs) {
@@ -117,7 +123,9 @@ export class PolicyCollector {
           grossBps: null, netBps: null, status: "PENDING", reason: null,
           features: { trendFastBps: features.trendFastBps, trendMediumBps: features.trendMediumBps,
             trendSlowBps: features.trendSlowBps, slowTrendEfficiency: features.slowTrendEfficiency,
-            ofi: features.ofi, tfi: features.tfi, velocityZ: features.velocityZ },
+            ofi: features.ofi, tfi: features.tfi, velocityZ: features.velocityZ,
+            ...(features.retestCandidate ? { invalidationPx: features.retestCandidate.invalidationPx,
+              policyVolatilityBps: features.retestCandidate.volatilityBps } : {}) },
         };
         this.pending.set(observation.id, { observation, lastQuoteMs: now });
         events.push({ ...observation });
@@ -148,7 +156,9 @@ export class PolicyCollector {
       feeBps: this.feeBps, reserveBps: this.reserveBps, grossBps: null, netBps: null, status: "PENDING", reason: null,
       features: { trendFastBps: features.trendFastBps, trendMediumBps: features.trendMediumBps,
         trendSlowBps: features.trendSlowBps, slowTrendEfficiency: features.slowTrendEfficiency,
-        ofi: features.ofi, tfi: features.tfi, velocityZ: features.velocityZ },
+        ofi: features.ofi, tfi: features.tfi, velocityZ: features.velocityZ,
+        ...(features.retestCandidate ? { invalidationPx: features.retestCandidate.invalidationPx,
+          policyVolatilityBps: features.retestCandidate.volatilityBps } : {}) },
     }));
     for (const observation of events) this.pending.set(observation.id,
       { observation: { ...observation }, lastQuoteMs: features.receiveTsMs });

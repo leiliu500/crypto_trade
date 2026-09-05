@@ -2,6 +2,7 @@ import type { KrakenPaperHistory } from "../kraken/paper-broker.js";
 import type { VenuePosition } from "../venue/types.js";
 import type { Position } from "../strategy/position-manager.js";
 import { findPolicy } from "./trading-policy.js";
+import { newLinearLedger, recordLinearFill } from "../economics/net-liquidation.js";
 
 /** Recover a filled policy order even if the process died before its first DB
  * position snapshot. The paper broker's own durable fill ledger is authoritative. */
@@ -30,6 +31,25 @@ export function recoverPolicyPositions(history: KrakenPaperHistory, remote: read
       policy: { ...entry.plan.policy },
       ...(entry.plan.entryFamily ? { entryFamily: entry.plan.entryFamily } : {}),
       ...(entry.plan.economicHorizonMs ? { selectedHorizonMs: entry.plan.economicHorizonMs } : {}) };
+    if (entry.plan.policy.id.startsWith("retest-")) {
+      const ledger = newLinearLedger(side);
+      const orders = new Map(history.orders.map((o) => [o.remote.id, o]));
+      const start = Date.parse(entry.remote.created_at);
+      let completeFees = true;
+      for (const activity of [...history.activities].reverse()) {
+        const order = orders.get(activity.order_id ?? "");
+        if (!order || order.plan.symbol !== entry.plan.symbol || Date.parse(activity.transaction_time ?? "") < start
+          || (order.remote.id !== entry.remote.id && !order.plan.reduceOnlyIntent)) continue;
+        const fee = activity.fee_usd === undefined ? NaN : Number(activity.fee_usd);
+        if (!Number.isFinite(fee)) { completeFees = false; break; }
+        try { recordLinearFill(ledger, Number(activity.qty), Number(activity.price), fee, order.plan.reduceOnlyIntent); }
+        catch { completeFees = false; break; }
+      }
+      if (completeFees && Math.abs(ledger.remainingQty - qty) < 1e-8) restored.ledger = ledger;
+      // Without an acknowledged prior floor, recovery cannot reconstruct the
+      // unobserved peak. Close under the uncertainty path instead of loosening.
+      restored.phase = "EXITING";
+    }
     if (previousIndex >= 0) result[previousIndex] = { ...result[previousIndex]!, ...restored };
     else result.push(restored);
   }
