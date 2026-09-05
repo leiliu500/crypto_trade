@@ -23,6 +23,8 @@
     "research:policies": "tsx src/research/policy-main.ts",
     "research:policies:production": "node --enable-source-maps dist/src/research/policy-main.js",
     "research:episodes": "tsx src/research/episode-main.ts",
+    "research:edge": "tsx src/research/conditional-edge-main.ts",
+    "research:edge:production": "node --enable-source-maps dist/src/research/conditional-edge-main.js",
     "research:episodes:production": "node --enable-source-maps dist/src/research/episode-main.js",
     "research:replay": "tsx src/research/episode-replay-main.ts",
     "research:replay:production": "node --enable-source-maps dist/src/research/episode-replay-main.js",

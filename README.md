@@ -27,6 +27,10 @@ exits under latency, fee, and depth stress. Use `npm run research:episodes` and
 when evidence does not qualify. These read-only reports never promote a model or
 change order sizing. See [after-cost research](docs/AFTER_COST_RESEARCH.md).
 
+`npm run research:edge -- --summary` evaluates a conditional net-return model
+using chronological ridge forecasts, uncertainty and tail-loss penalties. It
+does not alter paper submission. See [model equations and validation limits](docs/CONDITIONAL_EDGE.md).
+
 ## Legacy engine and diagnostic compatibility
 
 The following legacy signal and routing descriptions apply to `POLICY_ENGINE_ENABLED=false` and the explicit paper lifecycle/exercise tools, not the rebuilt default entry path. Existing positions without a policy identifier retain their original exit management.

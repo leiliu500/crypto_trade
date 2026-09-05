@@ -1,4 +1,4 @@
-import type { DashboardPnlPoint } from "../dashboard/types.js";
+import type { DashboardPnlPoint, DashboardRealizedPnlBreakdown } from "../dashboard/types.js";
 
 export interface OptimizationLivePosition {
   openedMs: number;
@@ -7,6 +7,7 @@ export interface OptimizationLivePosition {
   realizedPnlBps?: number | null;
   entryOrderId: string | null;
   pnlHistory: readonly DashboardPnlPoint[];
+  realizedBreakdown?: DashboardRealizedPnlBreakdown | null;
 }
 
 export interface OptimizationOrder {
@@ -166,6 +167,17 @@ export interface TradeOptimizationReport {
     reason: string | null;
   };
   realizedPerformance: RealizedPerformanceCohort & {
+    costAttribution: {
+      matchedTrades: number;
+      missingOrInvalidBreakdowns: number;
+      grossPricePnl: number | null;
+      entryFees: number | null;
+      exitFees: number | null;
+      netPnl: number | null;
+      grossWinners: number;
+      grossWinnersLostAfterFees: number;
+    };
+    exitReasons: Record<string, { trades: number; totalPnl: number; meanNetReturnBps: number; meanHoldMs: number }>;
     closedTrades: number;
     cleanMatchedTrades: number;
     excludedUncleanOrUnmatchedTrades: number;
@@ -223,6 +235,8 @@ export interface TradeOptimizationReport {
 interface FillAttempt extends OptimizationOrder { probability: number; label: 0 | 1; }
 interface TimeoutCandidate { openedMs: number; actualPnl: number; counterfactualPnl: number; exitReason: string; }
 interface RealizedTrade {
+  breakdown: DashboardRealizedPnlBreakdown | null;
+  exitReason: string; holdMs: number;
   openedMs: number; pnl: number; netReturnBps: number; configurationVersion: string | null;
   symbol: string; side: 1 | -1; family: string | null; regime: string | null; edgeSource: string | null;
   economicHorizonMs: number | null; researchOnly: boolean;
@@ -280,6 +294,8 @@ function realizedPerformanceReport(orders: readonly OptimizationOrder[],
     const netReturnBps = realizedNetReturnBps(position);
     if (netReturnBps === null) continue;
     trades.push({
+      breakdown: validBreakdown(position.realizedBreakdown, position.realizedPnl),
+      exitReason: exit.exitReason ?? "UNKNOWN", holdMs: position.closedAtMs! - position.openedMs,
       openedMs: position.openedMs, pnl: position.realizedPnl, netReturnBps,
       configurationVersion: entry.configurationVersion ?? null, symbol: entry.symbol, side: entry.side,
       family: entry.entryFamily, regime: entry.regime ?? null, edgeSource: entry.edgeSource ?? null,
@@ -294,8 +310,37 @@ function realizedPerformanceReport(orders: readonly OptimizationOrder[],
       : "No calibrated realized-performance cohort has enough independent duration/samples and a positive lower 95% net-return bound";
   return {
     ...aggregate, deploymentReady: deployableGroups.length > 0, reason,
+    costAttribution: costAttribution(trades),
+    exitReasons: Object.fromEntries([...new Set(trades.map((trade) => trade.exitReason))].sort().map((reason) => {
+      const values = trades.filter((trade) => trade.exitReason === reason);
+      return [reason, { trades: values.length, totalPnl: sum(values.map((trade) => trade.pnl)),
+        meanNetReturnBps: mean(values.map((trade) => trade.netReturnBps)),
+        meanHoldMs: mean(values.map((trade) => trade.holdMs)) }];
+    })),
     closedTrades: closed.length, cleanMatchedTrades: trades.length,
     excludedUncleanOrUnmatchedTrades: closed.length - trades.length, groups, deployableGroups,
+  };
+}
+
+function validBreakdown(value: DashboardRealizedPnlBreakdown | null | undefined,
+  pnl: number): DashboardRealizedPnlBreakdown | null {
+  if (!value || ![value.grossPricePnl, value.entryFee, value.exitFee, value.realizedPnl].every(Number.isFinite)) return null;
+  const tolerance = 1e-8 * Math.max(1, Math.abs(pnl), Math.abs(value.grossPricePnl));
+  if (Math.abs(value.grossPricePnl - value.entryFee - value.exitFee - pnl) > tolerance
+    || Math.abs(value.realizedPnl - pnl) > tolerance) return null;
+  return value;
+}
+
+function costAttribution(trades: readonly RealizedTrade[]): TradeOptimizationReport["realizedPerformance"]["costAttribution"] {
+  const values = trades.flatMap((trade) => trade.breakdown ? [trade.breakdown] : []);
+  return {
+    matchedTrades: values.length, missingOrInvalidBreakdowns: trades.length - values.length,
+    grossPricePnl: values.length ? sum(values.map((value) => value.grossPricePnl)) : null,
+    entryFees: values.length ? sum(values.map((value) => value.entryFee)) : null,
+    exitFees: values.length ? sum(values.map((value) => value.exitFee)) : null,
+    netPnl: values.length ? sum(values.map((value) => value.realizedPnl)) : null,
+    grossWinners: values.filter((value) => value.grossPricePnl > 0).length,
+    grossWinnersLostAfterFees: values.filter((value) => value.grossPricePnl > 0 && value.realizedPnl < 0).length,
   };
 }
 

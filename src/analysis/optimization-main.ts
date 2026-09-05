@@ -168,7 +168,17 @@ function livePosition(value: unknown): OptimizationLivePosition | null {
     || (realizedPnlBps !== null && !Number.isFinite(realizedPnlBps))) return null;
   const pnlHistory = Array.isArray(position.pnlHistory) ? position.pnlHistory.flatMap(pnlPoint) : [];
   return { openedMs, closedAtMs, realizedPnl, realizedPnlBps,
+    realizedBreakdown: realizedBreakdown(position.realizedBreakdown),
     entryOrderId: text(position.entryOrderId), pnlHistory };
+}
+
+function realizedBreakdown(value: unknown): Exclude<OptimizationLivePosition["realizedBreakdown"], undefined> {
+  const row = object(value);
+  const grossPricePnl = nullableFiniteNumber(row.grossPricePnl), entryFee = nullableFiniteNumber(row.entryFee),
+    exitFee = nullableFiniteNumber(row.exitFee), realizedPnl = nullableFiniteNumber(row.realizedPnl);
+  if (grossPricePnl === null || entryFee === null || exitFee === null || realizedPnl === null) return null;
+  return { grossPricePnl, entryFee, exitFee, realizedPnl,
+    entryStyle: text(row.entryStyle) ?? "UNKNOWN", exitStyle: text(row.exitStyle) ?? "UNKNOWN" };
 }
 
 function pnlPoint(value: unknown): DashboardPnlPoint[] {

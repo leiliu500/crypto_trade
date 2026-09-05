@@ -5,6 +5,28 @@ import { analyzeTradeOptimization, type OptimizationOrder,
 
 const DAY = 86_400_000;
 
+test("realized cost attribution reconciles fees and exposes missing or inconsistent ledgers", () => {
+  const closed = exit("cost", 0, -1, -.5, "POLICY_DEADLINE");
+  closed.livePosition!.realizedBreakdown = { grossPricePnl: 2, entryFee: 1, exitFee: 2,
+    realizedPnl: -1, entryStyle: "taker", exitStyle: "taker" };
+  const missing = exit("missing", DAY, -2, -1, "POLICY_DEADLINE");
+  const invalid = exit("invalid", 2 * DAY, -1, -.5, "POLICY_STOP");
+  invalid.livePosition!.realizedBreakdown = { ...closed.livePosition!.realizedBreakdown, grossPricePnl: 100 };
+  const report = analyzeTradeOptimization([
+    maker("entry-cost", 0, 1, 1), closed,
+    maker("entry-missing", DAY, 1, 1), missing,
+    maker("entry-invalid", 2 * DAY, 1, 1), invalid,
+  ], safeguards(100)).realizedPerformance;
+  assert.equal(report.totalPnl, -4, "missing attribution must not discard realized losses");
+  assert.deepEqual(report.costAttribution, { matchedTrades: 1, missingOrInvalidBreakdowns: 2,
+    grossPricePnl: 2, entryFees: 1, exitFees: 2, netPnl: -1, grossWinners: 1, grossWinnersLostAfterFees: 1 });
+  assert.deepEqual(report.exitReasons.POLICY_DEADLINE,
+    { trades: 2, totalPnl: -3, meanNetReturnBps: -2, meanHoldMs: 900_000 });
+  const empty = analyzeTradeOptimization([], safeguards(100)).realizedPerformance.costAttribution;
+  assert.equal(empty.grossPricePnl, null, "no ledger is not evidence of zero costs");
+  assert.equal(empty.entryFees, null);
+});
+
 test("maker-fill calibration excludes contaminated runs and requires discrimination before deployment", () => {
   const orders = [
     maker("high-fill", 0, .9, 1),
