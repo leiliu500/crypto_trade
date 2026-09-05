@@ -8,7 +8,7 @@ import { findPolicy, policyCandidates, policyExit, POLICY_VERSION, POLICY_SAMPLE
   TRADING_POLICIES, policyQuantity, type PolicyCandidate } from "./trading-policy.js";
 
 export interface PolicyObservation extends PolicyCandidate {
-  sampling: "PERIODIC" | "ENTRY";
+  sampling: "PERIODIC" | "ENTRY" | "EPISODE";
   id: string;
   configurationVersion: string;
   policyVersion: string;

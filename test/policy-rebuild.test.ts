@@ -13,6 +13,7 @@ import { TradingEngine } from "../src/engine/trading-engine.js";
 import { KrakenPaperBroker } from "../src/kraken/paper-broker.js";
 import { recoverPolicyPositions } from "../src/research/policy-restore.js";
 import { policyMarketPulse } from "../src/research/policy-pulse.js";
+import type { EpisodeObservation } from "../src/research/execution-stress.js";
 
 const cfg = loadConfig({ TRADING_MODE: "paper", CONFIG_DIR: "config" });
 const asset: AssetRules = { symbol: "BTC/USD", minOrderSize: .001, minTradeIncrement: .001,
@@ -357,9 +358,11 @@ for (const symbol of ["BTC/USD", "ETH/USD"]) for (const side of [1, -1] as const
     const runtime = internals.runtimes.get(symbol)!;
     const decisions: ExecutionPlan[] = [];
     const observations: PolicyObservation[] = [];
+    const researchEpisodes: EpisodeObservation[] = [];
     const evaluations: Array<{ reason: string }> = [];
     engine.on("decision", ({ plan }: { plan: ExecutionPlan }) => decisions.push(plan));
     engine.on("policyObservation", (o: PolicyObservation) => observations.push(o));
+    engine.on("researchEpisode", (o: EpisodeObservation) => researchEpisodes.push(o));
     engine.on("policyEntryEvaluated", (e: { reason: string }) => evaluations.push(e));
     try {
       internals.processMarketState(runtime, book(clockMs, 100, symbol), {
@@ -386,6 +389,7 @@ for (const symbol of ["BTC/USD", "ETH/USD"]) for (const side of [1, -1] as const
       const originalConfig = runtime.config;
       runtime.config = { ...originalConfig, planner: { ...originalConfig.planner,
         hybridEntry: { ...originalConfig.planner.hybridEntry, allowAnalyticPaperExecution: false } } };
+      clockMs += 1; // A distinct fresh quote after liquidity recovers.
       internals.processMarketState(runtime, book(clockMs, 100, symbol), features(clockMs, side, 100, symbol));
       assert.equal(evaluations.at(-1)?.reason, "POLICY_NOT_PROMOTED", "calibrated-only mode must not acquire unscored orders");
       runtime.config = originalConfig;
@@ -400,6 +404,7 @@ for (const symbol of ["BTC/USD", "ETH/USD"]) for (const side of [1, -1] as const
       internals.portfolio.canAdd = canAdd;
       assert.equal(decisions.length, 0, "model permission, sizing and portfolio failures cannot dispatch orders");
       assert.equal(observations.filter((o) => o.sampling === "ENTRY").length, 0, "blocked plans must not be labeled as attempts");
+      assert.ok(researchEpisodes.some((o) => o.sampling === "EPISODE"), "research can collect without a dispatchable plan");
       clockMs += 1;
       broker.onBook(feed(book(clockMs, 100, symbol)));
       internals.processMarketState(runtime, book(clockMs, 100, symbol), features(clockMs, side, 100, symbol));
@@ -436,6 +441,12 @@ for (const symbol of ["BTC/USD", "ETH/USD"]) for (const side of [1, -1] as const
       clockMs += 60_000;
       internals.processMarketState(runtime, book(clockMs, exitMid, symbol), features(clockMs, side, exitMid, symbol));
       assert.equal(decisions.length, 1, "paper experiment rate limit survives the exit");
+      clockMs += 1;
+      internals.processMarketState(runtime, book(clockMs, 100, symbol), features(clockMs, side, 100, symbol));
+      assert.ok(researchEpisodes.some((o) => o.signalAtMs === clockMs && o.context.cooldownRemainingMs > 0),
+        "distinct shadow episodes must be collected before the execution cooldown gate");
+      assert.equal(decisions.length, 1, "shadow collection never submits an additional order");
+      assert.ok(engine.state().markets.find((m) => m.symbol === symbol)!.policyPulse!.research!.counters.episodes! >= 2);
     } finally { await engine.stop(); }
   });
 }

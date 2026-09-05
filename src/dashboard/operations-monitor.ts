@@ -15,7 +15,7 @@ const ENGINE_EVENTS = [
   "positionDecision", "positionDust", "exitDecision", "fill", "watchdogFault", "entryBlocked", "pendingKinematicsGrace",
   "pendingSignalGrace", "pendingSignalRecovered", "pendingAdverseFlowGrace", "pendingAdverseFlowRecovered",
   "missedEntryRetryArmed", "entryRouteEvaluated", "entryRouteShadowStarted", "entryRouteShadowMark",
-  "policyObservation", "policyResearchReady", "policyEntryEvaluated", "policySignalEvaluated",
+  "policyObservation", "policyResearchReady", "policyEntryEvaluated", "policySignalEvaluated", "researchEpisode",
 ] as const;
 const TERMINAL_ORDER_STATES = new Set(["FILLED", "CANCELED", "REJECTED", "EXPIRED"]);
 const DEFAULT_MAXIMUM_PNL_HISTORY = 2_000;
