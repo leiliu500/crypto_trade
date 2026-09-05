@@ -52,6 +52,7 @@ export interface EngineConfig extends Omit<SymbolConfig, "symbol"> {
   venue: TradingVenue;
   paper: boolean;
   paperEntryExercise: boolean;
+  policyEngineEnabled: boolean;
   symbols: string[];
   symbolConfigs: Readonly<Record<string, SymbolConfig>>;
   krakenFutures: {
@@ -93,7 +94,7 @@ interface ParameterFile { schemaVersion: number; symbols: string[]; parameters: 
 interface SymbolParameterFile { schemaVersion: number; symbol: string; parameters: Record<string, ParameterValue> }
 
 const RUNTIME_ONLY_KEYS = new Set([
-  "TRADING_MODE", "PAPER_ENTRY_EXERCISE", "DATABASE_URL",
+  "TRADING_MODE", "PAPER_ENTRY_EXERCISE", "POLICY_ENGINE_ENABLED", "DATABASE_URL",
   "POSTGRES_DB", "POSTGRES_USER", "POSTGRES_PASSWORD", "POSTGRES_HOST", "POSTGRES_PORT", "CONFIG_DIR",
   "TRADING_VENUE", "KRAKEN_FUTURES_WEBSOCKET_URL", "KRAKEN_FUTURES_SYMBOL_MAP_JSON", "KRAKEN_PAPER_INITIAL_EQUITY",
   "KRAKEN_PAPER_STATE_FILE",
@@ -142,6 +143,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env, modeOverride?: 
   return {
     ...baselineConfig,
     mode, venue, paper, paperEntryExercise, symbols: [...files.base.symbols], symbolConfigs,
+    policyEngineEnabled: parseBoolean(configuredEnv.POLICY_ENGINE_ENABLED, true),
     recordFile: configuredEnv.RECORD_FILE ?? "data/events.jsonl", replayFile: configuredEnv.REPLAY_FILE ?? "data/events.jsonl",
     krakenFutures: {
       websocketUrl: env.KRAKEN_FUTURES_WEBSOCKET_URL ?? "wss://futures.kraken.com/ws/v1",

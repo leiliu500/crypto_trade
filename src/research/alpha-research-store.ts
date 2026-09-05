@@ -74,7 +74,8 @@ export class AlphaResearchStore {
           [versions, new Date(report.generatedAtMs)],
         );
       }
-      for (const cohort of report.cohorts) await saveCohort(client, cohort, report.generatedAtMs);
+      for (const cohort of report.cohorts) await saveCohort(client, { ...cohort, promoted: false,
+        calibratedBucket: null, rejectionReasons: [...cohort.rejectionReasons, "LEGACY_MARKOUT_DIAGNOSTIC_ONLY"] }, report.generatedAtMs);
       await client.query("COMMIT");
     } catch (error) {
       await client.query("ROLLBACK").catch(() => undefined);

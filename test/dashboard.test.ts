@@ -7,6 +7,7 @@ import { DashboardServer } from "../src/dashboard/server.js";
 import { compactHealthSnapshot } from "../src/database/postgres-store.js";
 import type { EngineOperationalSnapshot } from "../src/engine/trading-engine.js";
 import { loadConfig } from "../src/config.js";
+import { policyMarketPulse, type PolicyMarketPulse } from "../src/research/policy-pulse.js";
 
 test("operations monitor retains an order's full P&L history after the position closes", () => {
   const monitor = new OperationsMonitor();
@@ -490,7 +491,76 @@ test("dashboard distinguishes a motion reset from invalid market data", async ()
   assert.match(app, /signedMoney\(breakdown\.grossPricePnl,5\)/);
   assert.match(html, /Total · UTC day/);
   assert.match(html, /id="session-pnl-breakdown"/);
-  assert.match(html, /app\.js\?v=20260829-paper-trades-1/);
+  assert.match(html, /app\.js\?v=20260904-policy-entry-2/);
+});
+
+function pulseFixture(): PolicyMarketPulse {
+  const pulse = policyMarketPulse({ nowMs: 1_700_000_000_000, book: { symbol: "BTC/USD", bids: [], asks: [],
+    exchangeTsMs: 0, receiveTsMs: 0, sequence: 1n, valid: true, sourceReset: false }, features: undefined,
+    mode: "PAPER_RESEARCH", shortable: true, models: [], riskAllowed: true, riskReasons: [],
+    positionOpen: false, pendingOrder: false, cooldownUntilMs: 0, activePolicyId: null,
+    lastSample: { atMs: 1_699_999_990_000, candidates: [] }, lastEvaluation: undefined, lastRejection: null });
+  return { ...pulse, status: "WAITING_FOR_SIGNAL", reasons: [] };
+}
+
+test("market projection carries authoritative policy pulse instead of legacy readiness", () => {
+  const monitor = new OperationsMonitor();
+  const s = engineState();
+  const pulse = pulseFixture();
+  s.policyEngineEnabled = true;
+  s.markets[0]!.policyPulse = pulse;
+  s.markets[0]!.entryReady = true; // stale legacy state must not override a policy snapshot
+  monitor.ingestEngineSnapshot(s);
+  const m = monitor.snapshot().markets[0]!;
+  assert.deepEqual(m.policyPulse, pulse);
+  assert.equal(m.candidateReady, false);
+  assert.equal(m.entryReady, false);
+  assert.equal(m.longRule, null);
+  pulse.status = "ORDER_PENDING";
+  assert.equal(m.policyPulse!.status, "WAITING_FOR_SIGNAL");
+  monitor.ingestEngineSnapshot({ ...s, generatedAtMs: s.generatedAtMs + 100 });
+  assert.equal(monitor.snapshot().markets[0]!.policyPulse!.status, "ORDER_PENDING");
+  monitor.stop();
+});
+
+test("Market Pulse renders new policy signals, evidence and clocks without the legacy ready fallback", async () => {
+  const app = await readFile("src/dashboard/public/app.js", "utf8");
+  const utilities = app.slice(0, app.indexOf("function setConnection"));
+  const source = app.slice(app.indexOf("function renderMarkets"), app.indexOf("function renderEvents"));
+  const monitor = new OperationsMonitor(); monitor.ingestEngineSnapshot(engineState());
+  const base = monitor.snapshot().markets[0]!; monitor.stop();
+  const renderMarket = (pulse: PolicyMarketPulse | null, enabled = true) => {
+    const grid = { innerHTML: "", className: "" };
+    runInNewContext(`${utilities}\n${source}\nstate.snapshot={policyEngineEnabled:enabled,generatedAtMs:1700000000000};renderMarkets([market]);`,
+      { enabled, market: { ...base, policyPulse: pulse }, document: { getElementById: () => grid } });
+    return grid.innerHTML;
+  };
+  const p = pulseFixture();
+  const html = renderMarket(p);
+  for (const value of ["executable-policy-v2", "PAPER RESEARCH", "Trend", "Breakout", "Recovery",
+    "NO QUALIFYING SIGNAL", "0 validated models", "profitability unproven", "cap $12", "Last sample", "Next sample",
+    "Short pullback", "LONG —", "SHORT —"]) assert.ok(html.includes(value), `missing ${value}`);
+  assert.doesNotMatch(html, /All deterministic gates ready|Rule state|micro 0|armed 0|ENTRY READY/);
+  const short = renderMarket({ ...p, status: "WAITING_FOR_QUOTE", families: p.families.map((f) => ({ ...f, shortSignal: true })),
+    lastEvaluation: { atMs: 1_700_000_000_000, side: -1, policyId: "trend-15m", reason: "POLICY_RISK_SIZE_BLOCK", modelKey: null } });
+  assert.match(short, /SHORT MATCH/);
+  assert.match(short, /SIGNAL PRESENT · FRESH-QUOTE CHECKS/);
+  assert.match(short, /periodic sample timer does not delay entry checks/);
+  assert.match(renderMarket({ ...p, status: "LIQUIDITY_BLOCKED", liquidityReasons: ["DEPTH_Z_BELOW_LIMIT"] }), /LIQUIDITY GATED/);
+  assert.match(renderMarket({ ...p, status: "LIQUIDITY_BLOCKED", liquidityReasons: ["DEPTH_Z_BELOW_LIMIT"] }), /DEPTH_Z_BELOW_LIMIT/);
+  assert.match(short, /Last plan check/);
+  assert.match(short, /POLICY_RISK_SIZE_BLOCK/);
+  assert.match(renderMarket({ ...p, status: "COOLDOWN", cooldownRemainingMs: 60_000 }), /Next entry check in 1m 0s/);
+  assert.match(renderMarket({ ...p, status: "AWAITING_VALIDATION", mode: "CALIBRATED_PAPER" }), /unscored orders are disabled/);
+  assert.match(renderMarket({ ...p, mode: "SHADOW" }), /SHADOW · NO ORDERS/);
+  assert.match(renderMarket({ ...p, status: "DATA_GATED", reasons: ["STALE_BOOK"] }), /STALE_BOOK/);
+  assert.match(renderMarket(null), /WAITING FOR POLICY TELEMETRY/);
+  assert.doesNotMatch(renderMarket(null), /All deterministic gates ready/);
+  assert.match(renderMarket(null, false), /Rule state/);
+  const unsafe = renderMarket({ ...p, version: "<script>bad()</script>", lastEvaluation: { atMs: 1_700_000_000_000,
+    policyId: "<img src=x onerror=bad()>", side: 1, reason: "<b>unsafe</b>", modelKey: null } });
+  assert.doesNotMatch(unsafe, /<script>|<img src=x|<b>unsafe/);
+  assert.match(unsafe, /&lt;script&gt;/);
 });
 
  test("dashboard formats the realized P&L reconciliation at five-decimal USD precision", async () => {
@@ -782,7 +852,7 @@ test("dashboard server serves the read-only API, health probe, and browser route
     const htmlText = await html.text();
     assert.match(htmlText, /data-testid="dashboard-root"/);
     assert.match(htmlText, /Trades and order attempts/);
-    assert.match(htmlText, /app\.js\?v=20260829-paper-trades-1/);
+    assert.match(htmlText, /app\.js\?v=20260904-policy-entry-2/);
     assert.doesNotMatch(htmlText, /Exit dynamics/);
     assert.equal(dashboardAlias.status, 200);
     assert.match(await dashboardAlias.text(), /data-testid="dashboard-root"/);

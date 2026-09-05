@@ -20,6 +20,8 @@
     "replay": "tsx src/main.ts replay",
     "recall": "tsx src/backtest/opportunity-recall-main.ts",
     "research:calibrate": "tsx src/research/alpha-research-main.ts",
+    "research:policies": "tsx src/research/policy-main.ts",
+    "research:policies:production": "node --enable-source-maps dist/src/research/policy-main.js",
     "research:calibrate:production": "node --enable-source-maps dist/src/research/alpha-research-main.js",
     "research:export": "tsx src/research/export-alpha-dataset-main.ts",
     "research:export:production": "node --enable-source-maps dist/src/research/export-alpha-dataset-main.js",

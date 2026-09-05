@@ -14,7 +14,10 @@ const store = new AlphaResearchStore(cfg.databaseUrl);
 
 try {
   const observations = await store.loadObservations(includeAllVersions ? undefined : requestedVersion);
-  const report = evaluateAlphaResearch(observations, DEFAULT_ALPHA_PROMOTION_POLICY);
+  const diagnostic = evaluateAlphaResearch(observations, DEFAULT_ALPHA_PROMOTION_POLICY);
+  const report = { ...diagnostic, promotedCohorts: 0, rejectedCohorts: diagnostic.cohorts.length,
+    cohorts: diagnostic.cohorts.map((cohort) => ({ ...cohort, promoted: false, calibratedBucket: null,
+      rejectionReasons: [...cohort.rejectionReasons, "LEGACY_MARKOUT_DIAGNOSTIC_ONLY"] })) };
   if (persist) await store.saveReport(report, includeAllVersions ? report.configurationVersions : [requestedVersion]);
   const output = summaryOnly ? {
     generatedAtMs: report.generatedAtMs,

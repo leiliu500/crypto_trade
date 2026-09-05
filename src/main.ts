@@ -12,6 +12,9 @@ import { KrakenFuturesMarketStream } from "./kraken/market-stream.js";
 import { KrakenPaperBroker, loadKrakenFuturesInstruments } from "./kraken/paper-broker.js";
 import { projectKrakenPaperHistory } from "./kraken/paper-history.js";
 import type { SlowTrendObservation, SlowTrendRestoreResult } from "./strategy/deterministic-features.js";
+import { PolicyStore } from "./research/policy-store.js";
+import { recoverPolicyPositions } from "./research/policy-restore.js";
+import type { Position } from "./strategy/position-manager.js";
 
 async function main(): Promise<void> {
   loadLocalEnv();
@@ -43,6 +46,7 @@ async function main(): Promise<void> {
   const engine = new TradingEngine(cfg, { rest, gateway: paperBroker, marketStream, tradeStream: paperBroker.tradeStream });
   const monitor = new OperationsMonitor({ marketSampleMs: cfg.databaseMarketSampleMs });
   let store: PostgresTelemetryStore | undefined;
+  let persistedPositions: readonly Position[] = [];
   let slowTrendBootstrapComplete = false;
   if (cfg.databaseEnabled) {
     store = new PostgresTelemetryStore({ connectionString: cfg.databaseUrl, flushIntervalMs: cfg.databaseFlushIntervalMs, maximumQueue: cfg.databaseMaxQueue });
@@ -53,8 +57,6 @@ async function main(): Promise<void> {
       const migrations = await candidate.start({ mode: cfg.mode, paper: cfg.paper, strategyVersion: cfg.strategyVersion, modelVersion: cfg.modelVersion,
         symbols: cfg.symbols, metadata: { venue: cfg.venue, configurationVersion: cfg.configurationVersion, signalMode: cfg.signalMode,
           paperEntryExercise: cfg.paperEntryExercise } });
-      const promotedAlphaBuckets = engine.installPromotedAlphaBuckets(
-        await candidate.loadPromotedAlphaBuckets(cfg.configurationVersion));
       let paperHistoryBackfill = { ordersInserted: 0, fillsInserted: 0 };
       try {
         const history = projectKrakenPaperHistory(paperBroker.history());
@@ -67,7 +69,8 @@ async function main(): Promise<void> {
       const hydrationDayStartMs = utcDayStartMs(hydrationAtMs);
       const restoredOrders = await candidate.loadOrders(hydrationDayStartMs, hydrationDayStartMs + 86_400_000);
       monitor.hydrateOrders(restoredOrders);
-      const restoredPositionStates = engine.restorePositionStates(await candidate.loadLatestPositionStates(cfg.symbols));
+      persistedPositions = await candidate.loadLatestPositionStates(cfg.symbols);
+      const restoredPositionStates = persistedPositions.length;
       const restoredRealizedSessionPnl = await candidate.loadRealizedSessionPnl(utcDayStartMs(hydrationAtMs));
       engine.restoreRealizedSessionPnl(restoredRealizedSessionPnl);
       const restoredDecisionVenueLatencies = engine.restoreDecisionVenueLatencies(
@@ -75,7 +78,8 @@ async function main(): Promise<void> {
       const slowTrendHistory = await restoreStartupSlowTrendHistory(engine, rest, cfg, candidate, hydrationAtMs);
       slowTrendBootstrapComplete = true;
       process.stdout.write(`${JSON.stringify({ type: "database-ready", migrations, restoredOrders: restoredOrders.length,
-        restoredPositionStates, restoredRealizedSessionPnl, restoredDecisionVenueLatencies, promotedAlphaBuckets,
+        restoredPositionStates, restoredRealizedSessionPnl, restoredDecisionVenueLatencies,
+        policyEngineEnabled: cfg.policyEngineEnabled,
         paperHistoryBackfill,
         slowTrendHistory })}\n`);
     } catch (error) {
@@ -91,9 +95,30 @@ async function main(): Promise<void> {
     const slowTrendHistory = await restoreStartupSlowTrendHistory(engine, rest, cfg);
     process.stdout.write(`${JSON.stringify({ type: "slow-trend-history-ready", slowTrendHistory })}\n`);
   }
+  engine.restorePositionStates(recoverPolicyPositions(paperBroker.history(), (await paperBroker.listPositions()).data, persistedPositions));
   const activeStore = store;
   if (activeStore) monitor.on("telemetry", (record: TelemetryRecord) => activeStore.enqueue(record));
   monitor.attach(engine);
+  const policyStore = activeStore && cfg.policyEngineEnabled ? new PolicyStore(cfg.databaseUrl) : undefined;
+  let policyRefresh: Promise<void> | undefined;
+  const refreshPolicies = (): Promise<void> => {
+    if (policyRefresh) return policyRefresh;
+    policyRefresh = (async () => {
+      if (!policyStore) return;
+      try {
+        const report = await policyStore.evaluate(cfg.configurationVersion);
+        const installed = engine.replacePolicyModels(report.models);
+        process.stdout.write(`${JSON.stringify({ type: "policy-research-ready", observations: report.observations,
+          cohorts: report.evaluations.length, installed, evidenceEndMs: report.evidenceEndMs })}\n`);
+      } catch (error) {
+        engine.replacePolicyModels([]);
+        process.stderr.write(`${JSON.stringify({ type: "policy-research-degraded",
+          message: error instanceof Error ? error.message : String(error) })}\n`);
+      }
+    })().finally(() => { policyRefresh = undefined; });
+    return policyRefresh;
+  };
+  await refreshPolicies();
   let dashboard: DashboardServer | undefined;
   if (cfg.dashboardEnabled) {
     dashboard = new DashboardServer(monitor, { host: cfg.dashboardHost, port: cfg.dashboardPort });
@@ -110,10 +135,13 @@ async function main(): Promise<void> {
     monitor.stop();
     if (dashboard) await dashboard.stop().catch(() => undefined);
     if (activeStore) await activeStore.close().catch(() => undefined);
+    if (policyStore) await policyStore.close().catch(() => undefined);
     throw error;
   }
   process.stdout.write(`${JSON.stringify({ type: "started", mode: cfg.mode, venue: cfg.venue, symbols: cfg.symbols, paper: cfg.paper,
-    paperEntryExercise: cfg.paperEntryExercise })}\n`);
+    paperEntryExercise: cfg.paperEntryExercise, policyEngineEnabled: cfg.policyEngineEnabled })}\n`);
+  const policyTimer = policyStore ? setInterval(() => { void refreshPolicies(); }, 3_600_000) : undefined;
+  policyTimer?.unref();
   if (paperDemoSymbol !== null) {
     void submitPaperDemoWhenReady(engine, paperDemoSymbol || "BTC/USD").then((plan) => {
       process.stdout.write(`${JSON.stringify({ type: "paper-demo-entry-submitted", symbol: plan.symbol, clientOrderId: plan.clientOrderId,
@@ -126,10 +154,13 @@ async function main(): Promise<void> {
   const shutdown = async (): Promise<void> => {
     if (shuttingDown) return;
     shuttingDown = true;
+    if (policyTimer) clearInterval(policyTimer);
+    if (policyRefresh) await policyRefresh;
     await engine.stop();
     monitor.stop();
     if (dashboard) await dashboard.stop();
     if (activeStore) await activeStore.close();
+    if (policyStore) await policyStore.close();
     process.exitCode = 0;
   };
   process.once("SIGINT", () => { void shutdown(); });

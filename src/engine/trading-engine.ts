@@ -34,11 +34,19 @@ import { EntryPipelineAudit, type EntryPipelineSnapshot, type EntryPipelineStage
 import { HealthWatchdog, type WatchdogFault } from "./watchdog.js";
 import type { ExecutionPath } from "../economics/types.js";
 import type { CalibratedEdgeBucket } from "../calibration/calibrated-edge-table.js";
+import { PolicyCollector } from "../research/policy-collector.js";
+import { validPolicyModel, type PolicyModel } from "../research/policy-validation.js";
+import { buildPolicyPlan, policyReserveBps } from "../research/policy-planner.js";
+import { policyCandidates, TRADING_POLICIES, POLICY_MAX_ENTRY_DELAY_MS,
+  POLICY_RESEARCH_COOLDOWN_MS, POLICY_VERSION } from "../research/trading-policy.js";
+import { policyMarketPulse, type PolicyMarketPulse, type PolicySampleState,
+  type PolicyEntryEvaluationState, type PolicyEntryCounters } from "../research/policy-pulse.js";
 
 const PAPER_DEMO_TARGET_NOTIONAL = 11;
 const CANCEL_PENDING_RECONCILE_DELAY_MS = 2_000;
 
 export interface EngineMarketSnapshot {
+  policyPulse?: PolicyMarketPulse | null;
   symbol: string;
   bookValid: boolean;
   bestBid: number | null;
@@ -63,6 +71,8 @@ export interface EngineOperationalSnapshot {
   venue?: EngineConfig["venue"];
   paper: boolean;
   paperEntryExercise: boolean;
+  policyEngineEnabled?: boolean;
+  policyModelsInstalled?: number;
   strategyVersion: string;
   modelVersion: string;
   configurationVersion?: string;
@@ -95,6 +105,13 @@ interface SymbolRuntime {
   hybridEntryRouter: HybridEntryRouter;
   routeShadow: EntryRouteShadowTracker;
   positionManager: PositionManager;
+  policyCollector: PolicyCollector;
+  policyModels: PolicyModel[];
+  lastPolicyEntryMs?: number;
+  latestPolicySample?: PolicySampleState;
+  latestPolicyEvaluation?: PolicyEntryEvaluationState;
+  policyEntryCounters: PolicyEntryCounters;
+  policyEvaluationReports: Map<string, number>;
   asset?: AssetRules;
   latestFeatures?: DeterministicFeatures;
   latestRegime?: RegimeDecision;
@@ -246,6 +263,10 @@ export class TradingEngine extends EventEmitter {
         planner: new ExecutionPlanner(symbolCfg.planner, new RiskSizer(symbolCfg.sizing), cost, symbolCfg.strategyVersion, symbolCfg.modelVersion),
         hybridEntryRouter: new HybridEntryRouter(symbolCfg.planner.hybridEntry),
         routeShadow: new EntryRouteShadowTracker(symbolCfg.planner.hybridEntry.routeShadowHorizonsMs),
+        policyCollector: new PolicyCollector(symbolCfg.configurationVersion, symbol,
+          symbolCfg.cost.takerFeeBps, policyReserveBps(symbolCfg)), policyModels: [],
+        policyEntryCounters: { quoteChecks: 0, signalMatches: 0, liquidityRejected: 0, planningRejected: 0, plansApproved: 0 },
+        policyEvaluationReports: new Map(),
         positionManager: new PositionManager(symbolCfg.position), cluster: baseAsset(symbol),
       });
     }
@@ -286,6 +307,19 @@ export class TradingEngine extends EventEmitter {
     return installed;
   }
 
+  public replacePolicyModels(models: readonly PolicyModel[]): number {
+    let installed = 0;
+    for (const [symbol, runtime] of this.runtimes) {
+      runtime.policyModels = models.filter((m) => m.symbol === symbol
+        && validPolicyModel(m, runtime.config.configurationVersion, this.now())
+        && m.feeBps === runtime.config.cost.takerFeeBps && m.reserveBps === policyReserveBps(runtime.config))
+        .map((m) => ({ ...m }));
+      installed += runtime.policyModels.length;
+    }
+    this.emit("policyResearchReady", { policyVersion: POLICY_VERSION, installed, atMs: this.now() });
+    return installed;
+  }
+
   public restoreSlowTrendHistory(history: ReadonlyMap<string, readonly SlowTrendObservation[]>, asOfMs = this.now()): Readonly<Record<string, SlowTrendRestoreResult>> {
     const restored: Record<string, SlowTrendRestoreResult> = {};
     for (const [symbol, runtime] of this.runtimes) {
@@ -323,6 +357,7 @@ export class TradingEngine extends EventEmitter {
   }
 
   public async stop(): Promise<void> {
+    for (const runtime of this.runtimes.values()) this.invalidatePolicyResearch(runtime, "ENGINE_STOP");
     for (const timer of this.orderDeadlineTimers.values()) clearTimeout(timer);
     this.orderDeadlineTimers.clear();
     this.marketStream.close();
@@ -443,7 +478,24 @@ export class TradingEngine extends EventEmitter {
     if (this.rollRealizedSessionPnl(generatedAtMs)) this.recomputePortfolioRisk();
     const markets = [...this.runtimes.entries()].map(([symbol, runtime]): EngineMarketSnapshot => {
       const book = runtime.book.snapshot();
+      const policyPulse = this.cfg.policyEngineEnabled && !this.cfg.paperEntryExercise ? policyMarketPulse({
+        nowMs: generatedAtMs, book, features: runtime.latestFeatures,
+        mode: this.cfg.mode === "paper"
+          ? runtime.config.planner.hybridEntry.allowAnalyticPaperExecution ? "PAPER_RESEARCH" : "CALIBRATED_PAPER"
+          : this.cfg.mode === "record" ? "RECORD" : "SHADOW",
+        shortable: runtime.asset?.shortable === true,
+        models: runtime.policyModels.filter((m) => validPolicyModel(m, runtime.config.configurationVersion, generatedAtMs)),
+        riskAllowed: this.riskState.entriesAllowed(), riskReasons: this.riskState.reasons(),
+        positionOpen: Boolean(runtime.position), pendingOrder: Boolean(this.pendingForSymbol(symbol)),
+        cooldownUntilMs: Math.max(runtime.reentryBlockedUntilMs ?? 0,
+          runtime.lastPolicyEntryMs === undefined ? 0 : runtime.lastPolicyEntryMs + POLICY_RESEARCH_COOLDOWN_MS),
+        lastSample: runtime.latestPolicySample, lastEvaluation: runtime.latestPolicyEvaluation,
+        liquidity: runtime.latestLiquidity, entryCounters: runtime.policyEntryCounters,
+        lastRejection: runtime.entryAudit.snapshot().lastRejection,
+        activePolicyId: runtime.position?.policy?.id ?? (runtime.position ? "legacy" : null),
+      }) : null;
       return {
+        policyPulse,
         symbol,
         bookValid: book.valid,
         bestBid: book.bids[0]?.px ?? null,
@@ -454,7 +506,7 @@ export class TradingEngine extends EventEmitter {
         features: runtime.latestFeatures ? { ...runtime.latestFeatures } : null,
         regime: runtime.latestRegime ? { ...runtime.latestRegime } : null,
         ruleEvaluation: runtime.latestRuleEvaluation ? cloneEvaluation(runtime.latestRuleEvaluation) : null,
-        entryReady: Boolean(runtime.latestRuleEvaluation?.intent
+        entryReady: !policyPulse && Boolean(runtime.latestRuleEvaluation?.intent
           && (runtime.latestRuleEvaluation.intent.side === 1 || runtime.asset?.shortable === true)),
         liquidity: runtime.latestLiquidity ? cloneLiquidity(runtime.latestLiquidity) : null,
         entryPipeline: runtime.entryAudit.snapshot(),
@@ -469,7 +521,10 @@ export class TradingEngine extends EventEmitter {
       venue: this.cfg.venue,
       paper: this.cfg.paper,
       paperEntryExercise: this.cfg.paperEntryExercise,
-      strategyVersion: this.cfg.strategyVersion,
+      strategyVersion: this.cfg.policyEngineEnabled ? POLICY_VERSION : this.cfg.strategyVersion,
+      policyEngineEnabled: this.cfg.policyEngineEnabled,
+      policyModelsInstalled: [...this.runtimes.values()].reduce((count, runtime) => count
+        + runtime.policyModels.filter((m) => validPolicyModel(m, runtime.config.configurationVersion, generatedAtMs)).length, 0),
       modelVersion: this.cfg.modelVersion,
       configurationVersion: this.cfg.configurationVersion,
       signalMode: this.cfg.signalMode,
@@ -570,6 +625,7 @@ export class TradingEngine extends EventEmitter {
     const result = runtime.book.apply(delta);
     if (result.duplicate) return;
     if (!result.accepted || !result.state) {
+      this.invalidatePolicyResearch(runtime, "BOOK_INVALID");
       this.riskState.setHealth({ bookValid: false });
       this.riskState.halt("BOOK_INVALID");
       void this.cancelAllSafely("BOOK_INVALID");
@@ -581,11 +637,13 @@ export class TradingEngine extends EventEmitter {
     this.processMarketState(runtime, result.state, features);
   }
 
-  private processMarketState(runtime: SymbolRuntime, book: BookState, features: DeterministicFeatures): void {
+  private processMarketState(runtime: SymbolRuntime, book: BookState, features: DeterministicFeatures, quoteEvent = true): void {
+    if (quoteEvent && this.cfg.policyEngineEnabled && !this.cfg.paperEntryExercise) runtime.policyEntryCounters.quoteChecks++;
     runtime.entryAudit.pass("MARKET_EVENT");
     if (book.valid) runtime.entryAudit.pass("BOOK_READY");
     else this.rejectEntry(runtime, "BOOK_READY", "BOOK_INVALID", features.receiveTsMs);
     if (!featureNumbersAreFinite(features)) {
+      this.invalidatePolicyResearch(runtime, "NON_FINITE_FEATURES");
       this.rejectEntry(runtime, "FEATURES_READY", "NON_FINITE_FEATURES", features.receiveTsMs);
       this.riskState.setHealth({ bookValid: false });
       this.riskState.halt("BOOK_INVALID");
@@ -594,6 +652,21 @@ export class TradingEngine extends EventEmitter {
       return;
     }
     runtime.latestFeatures = features;
+    // Collection precedes legacy score, economics, cooldown, and exposure gates.
+    // Trades do not count as fresh quotes, even though they advance feature clocks.
+    const previousPolicySample = runtime.policyCollector.lastSampleAtMs();
+    const policyEvents = quoteEvent && !this.cfg.paperEntryExercise
+      ? runtime.policyCollector.observe(book, features, runtime.asset) : [];
+    for (const observation of policyEvents) this.emit("policyObservation", observation);
+    if (runtime.policyCollector.lastSampleAtMs() !== previousPolicySample) {
+      runtime.latestPolicySample = { atMs: features.receiveTsMs,
+        candidates: policyEvents.filter((o) => o.status === "PENDING").map((o) => ({ policyId: o.policyId, side: o.side })) };
+      this.emit("policySignalEvaluated", { symbol: book.symbol, atMs: features.receiveTsMs,
+        candidates: policyEvents.filter((o) => o.status === "PENDING").map((o) => ({ policyId: o.policyId, side: o.side })),
+        warmedUp: features.warmedUp, kinematicsReady: features.kinematicsReady, slowTrendReady: features.slowTrendReady,
+        trendFastBps: features.trendFastBps, trendMediumBps: features.trendMediumBps, trendSlowBps: features.trendSlowBps,
+        slowTrendEfficiency: features.slowTrendEfficiency, ofi: features.ofi, tfi: features.tfi, velocityZ: features.velocityZ });
+    }
     if (runtime.config.planner.hybridEntry.routeShadowEnabled && !features.stale) {
       for (const mark of runtime.routeShadow.mark(book.symbol, book, features.receiveTsMs)) {
         this.emit("entryRouteShadowMark", mark);
@@ -649,7 +722,7 @@ export class TradingEngine extends EventEmitter {
         void this.handlePendingWithPosition(runtime, pending, book, features);
         return;
       }
-      if (!features.kinematicsReady) {
+      if (!features.kinematicsReady && !runtime.position.policy) {
         void this.enforceProtectiveExitWithoutKinematics(runtime, book, features);
         return;
       }
@@ -678,6 +751,13 @@ export class TradingEngine extends EventEmitter {
     }
     if (!longCost || !shortCost || !longLiquidity || !shortLiquidity) {
       this.rejectEntry(runtime, "PRELIMINARY_COST_PASS", "COST_ESTIMATE_UNAVAILABLE", features.receiveTsMs);
+      return;
+    }
+    if (this.cfg.policyEngineEnabled && !this.cfg.paperEntryExercise) {
+      runtime.latestRegime = runtime.regimeEngine.classify(features);
+      // Trade messages may update features, but only a fresh executable quote
+      // can trigger an entry. Periodic observations never authorize orders.
+      if (quoteEvent) this.attemptPolicyEntry(runtime, book, features);
       return;
     }
     const regime = runtime.regimeEngine.classify(features);
@@ -900,6 +980,90 @@ export class TradingEngine extends EventEmitter {
     }
   }
 
+  private invalidatePolicyResearch(runtime: SymbolRuntime, reason: string): void {
+    for (const observation of runtime.policyCollector.invalidate(this.now(), reason)) this.emit("policyObservation", observation);
+  }
+
+  private attemptPolicyEntry(runtime: SymbolRuntime, book: BookState, features: DeterministicFeatures): void {
+    const candidates = policyCandidates(features);
+    if (!candidates.length) return;
+    runtime.policyEntryCounters.signalMatches++;
+    const nowMs = this.now();
+    const choices = candidates.flatMap((candidate) => TRADING_POLICIES.filter((p) => p.family === candidate.family)
+      .map((p) => ({ ...candidate, policyId: p.id })));
+    const matching = choices.flatMap((o) => runtime.policyModels.filter((m) =>
+      validPolicyModel(m, runtime.config.configurationVersion, nowMs) && m.policyId === o.policyId
+      && m.side === o.side && m.regime === o.regime).map((model) => ({ observation: o, model })));
+    // A declared rotation explores hypotheses without assigning fictional edge.
+    const selected = matching.sort((a, b) => b.model.lowerNetBps - a.model.lowerNetBps)[0];
+    const observation = selected?.observation
+      ?? choices[Math.floor(nowMs / POLICY_RESEARCH_COOLDOWN_MS) % choices.length]!;
+    const report = (reason: string, stage?: EntryPipelineStage): void => {
+      const evaluation = { atMs: nowMs, quoteAtMs: features.receiveTsMs, policyId: observation.policyId, side: observation.side,
+        reason, modelKey: selected?.model.key ?? null };
+      runtime.latestPolicyEvaluation = evaluation;
+      const signature = `${observation.policyId}:${observation.side}:${reason}`;
+      if (nowMs - (runtime.policyEvaluationReports.get(signature) ?? -Infinity) >= 30_000) {
+        runtime.policyEvaluationReports.set(signature, nowMs);
+        this.emit("policyEntryEvaluated", { symbol: book.symbol, ...evaluation });
+      }
+      if (stage) this.rejectEntry(runtime, stage, reason, nowMs, { policyId: observation.policyId, side: observation.side });
+    };
+    if (!book.valid || book.receiveTsMs !== features.receiveTsMs || nowMs < book.receiveTsMs
+      || nowMs - book.receiveTsMs > POLICY_MAX_ENTRY_DELAY_MS) {
+      report("POLICY_QUOTE_NOT_CURRENT", "BOOK_READY"); return;
+    }
+    if (!runtime.asset) { report("ASSET_RULES_UNAVAILABLE", "VENUE_DIRECTION_PASS"); return; }
+    if (!this.riskState.entriesAllowed()) {
+      report(this.riskState.reasons().join("+") || "HEALTH_GATE", "HEALTH_PASS"); return;
+    }
+    if (runtime.position || this.pendingForSymbol(book.symbol)) {
+      report("EXISTING_POSITION_OR_PENDING_ENTRY", "EXPOSURE_PASS"); return;
+    }
+    if (nowMs - (runtime.lastPolicyEntryMs ?? -Infinity) < POLICY_RESEARCH_COOLDOWN_MS) {
+      report("POLICY_ENTRY_COOLDOWN", "COOLDOWN_PASS"); return;
+    }
+    runtime.entryAudit.pass("HEALTH_PASS");
+    const liquidity = observation.side === 1 ? runtime.latestLiquidity?.long : runtime.latestLiquidity?.short;
+    if (!liquidity?.pass) {
+      runtime.policyEntryCounters.liquidityRejected++;
+      report(liquidity?.reasons.join("+") || "LIQUIDITY_UNAVAILABLE", "LIQUIDITY_PASS"); return;
+    }
+    runtime.entryAudit.pass("LIQUIDITY_PASS");
+    const { plan, reason } = buildPolicyPlan({ config: runtime.config, book, features, asset: runtime.asset,
+      candidate: observation, policyId: observation.policyId,
+      ...(selected ? { model: selected.model } : {}),
+      allowPaperResearch: this.cfg.mode === "paper" && this.cfg.paper
+        && runtime.config.planner.hybridEntry.allowAnalyticPaperExecution,
+      equity: this.equity, equityHighWater: this.equityHighWater, nowMs });
+    if (!plan) {
+      runtime.policyEntryCounters.planningRejected++;
+      report(reason, "EXECUTION_PLAN_PASS");
+      return;
+    }
+    runtime.entryAudit.pass("EXECUTION_PLAN_PASS");
+    const exposure = { symbol: plan.symbol, notional: plan.qty * features.mid * plan.side,
+      cluster: runtime.cluster, stressedLoss: plan.risk.modeledMaximumLoss };
+    if (!this.portfolio.canAdd(exposure, this.equity, Math.max(0, -this.realizedSessionPnl))) {
+      runtime.policyEntryCounters.planningRejected++;
+      report("PORTFOLIO_CAPACITY_BLOCK", "PORTFOLIO_PASS"); return;
+    }
+    // Entry-timed paired labels cannot be pooled with periodic counterfactuals.
+    // Persist starts before dispatch, including attempts that later fail to fill.
+    const entryObservations = runtime.policyCollector.captureEntry(book, features, runtime.asset, observation, plan.qty);
+    const entryObservation = entryObservations.find((o) => o.policyId === plan.policy!.id);
+    if (!entryObservation) { report("POLICY_ENTRY_EVIDENCE_UNAVAILABLE", "EXECUTION_PLAN_PASS"); return; }
+    for (const o of entryObservations) this.emit("policyObservation", o);
+    runtime.entryAudit.pass("PORTFOLIO_PASS");
+    runtime.policyEntryCounters.plansApproved++;
+    runtime.lastPolicyEntryMs = nowMs;
+    report(reason);
+    this.emit("decision", { configurationVersion: runtime.config.configurationVersion,
+      strategyVersion: POLICY_VERSION, features, plan, mode: this.cfg.mode, policyObservationId: entryObservation.id,
+      policyEvidence: selected?.model ?? null });
+    if (this.cfg.mode === "paper") void this.submit(plan);
+  }
+
   private auditEvaluation(runtime: SymbolRuntime, evaluation: DeterministicEvaluation, atMs: number): void {
     runtime.entryAudit.pass("MICRO_EVENT");
     if (evaluation.long.votes.book > 0 || evaluation.short.votes.book > 0) runtime.entryAudit.pass("BOOK_GROUP_PASS");
@@ -1028,7 +1192,7 @@ export class TradingEngine extends EventEmitter {
     const baseFeatures = runtime.features.onBook(eventBook);
     if (!baseFeatures) return;
     const features = runtime.deterministicFeatures.update(baseFeatures, runtime.pressure.update(eventBook));
-    this.processMarketState(runtime, eventBook, features);
+    this.processMarketState(runtime, eventBook, features, false);
   }
 
   private onPrivateEvent(event: PrivateOrderEvent): void {
@@ -1091,6 +1255,11 @@ export class TradingEngine extends EventEmitter {
 
   private reevaluatePending(runtime: SymbolRuntime, pending: ReturnType<OrderStateReconciler["all"]>[number], book: ReturnType<LocalOrderBook["snapshot"]>, features: DeterministicFeatures): void {
     if (pending.status === "UNKNOWN") { this.riskState.halt("ORDER_SEND_UNKNOWN"); return; }
+    if (pending.plan.policy) {
+      const reason = this.now() >= pending.plan.expiresMs ? "TTL_EXPIRED" : features.stale ? "STALE_BOOK" : null;
+      if (reason) void this.cancelTracked(pending, reason);
+      return;
+    }
     const cost = runtime.cost.estimate(features, book, pending.plan.side, Math.max(pending.plan.qty - pending.filledQty, 0), pending.plan.style === "maker");
     const regime = runtime.regimeEngine.classify(features);
     runtime.latestRegime = regime;
@@ -1310,7 +1479,9 @@ export class TradingEngine extends EventEmitter {
     const remainingEconomicHorizonMs = position.selectedHorizonMs === undefined ? runtime.config.deterministicHold.holdHorizonMs
       : Math.max(1, position.selectedHorizonMs - (this.now() - position.openedMs));
     const hold = runtime.holdEngine.evaluate(position.side, features, expectedIncrementalDelayCostBps, remainingEconomicHorizonMs);
-    const executableExit = position.side === 1 ? book.bids[0]!.px : book.asks[0]!.px;
+    const executableExit = position.policy
+      ? estimateSweep(position.side === 1 ? book.bids : book.asks, position.qty)?.vwap ?? Number.NaN
+      : position.side === 1 ? book.bids[0]!.px : book.asks[0]!.px;
     const nowMs = this.now();
     // Continuation entries were selected on a multi-hour structural edge. Do
     // not let a one-event micro reversal liquidate them while that slow trend
@@ -1504,6 +1675,7 @@ export class TradingEngine extends EventEmitter {
           initialRiskPx, roundTripCostPx: fill.price * (tracked?.plan.expectedCost.roundTripBps ?? 0) / 10_000,
           mfePx: 0, maePx: 0, floorPx: -initialRiskPx, breakEvenArmed: false, phase: "OPEN",
           ...(tracked?.plan.entryFamily === undefined ? {} : { entryFamily: tracked.plan.entryFamily }),
+          ...(tracked?.plan.policy === undefined ? {} : { policy: { ...tracked.plan.policy } }),
           ...(tracked?.plan.economicHorizonMs === undefined ? {} : { selectedHorizonMs: tracked.plan.economicHorizonMs }),
           ...(tracked?.plan.executionPath === undefined ? {} : { executionPath: tracked.plan.executionPath }) };
       } else if (tracked && runtime.position.symbol === tracked.plan.symbol && runtime.position.side === fill.side) {
@@ -1797,7 +1969,10 @@ export class TradingEngine extends EventEmitter {
     this.recorder?.write({ kind: "DISCONNECT", receiveTsMs: this.now(), stream: "public" });
     this.riskState.setHealth({ publicStream: false, bookValid: false });
     this.riskState.halt("PUBLIC_STREAM_DOWN");
-    for (const runtime of this.runtimes.values()) runtime.book.invalidate();
+    for (const runtime of this.runtimes.values()) {
+      runtime.book.invalidate();
+      this.invalidatePolicyResearch(runtime, "PUBLIC_STREAM_DOWN");
+    }
     void this.cancelAllSafely("PUBLIC_STREAM_DOWN");
   }
 
