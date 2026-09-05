@@ -1,6 +1,7 @@
 import type { Direction, Features } from "../core/market.js";
 import { clamp } from "../core/market.js";
 import type { EntryFamily, ExecutionPath } from "../economics/types.js";
+import { findPolicy, policyExit, validPositionPolicy, type PolicyPositionSpec } from "../research/trading-policy.js";
 
 export type PositionPhase = "OPEN" | "RECOVERY" | "PROTECTED" | "TREND_HOLD" | "EXITING";
 export interface Position {
@@ -19,6 +20,7 @@ export interface Position {
   entryFamily?: EntryFamily;
   selectedHorizonMs?: number;
   executionPath?: ExecutionPath;
+  policy?: PolicyPositionSpec;
   adverseEvidenceSinceMs?: number;
   lastReductionProbability?: number;
 }
@@ -63,12 +65,28 @@ export class PositionManager {
   public constructor(private readonly cfg: PositionConfig) {}
   public update(p: Position, executableExitPx: number, nowMs: number, f: Features, holdLowerBoundBps: number,
     reversalProbability: number, reductionBenefitBps = 0, holdExitEvidence?: boolean): PositionDecision {
+    if (!Number.isFinite(executableExitPx) || !(executableExitPx > 0)) {
+      p.phase = "EXITING"; return { action: "EXIT", reason: "EXIT_DEPTH_UNAVAILABLE" };
+    }
     const u = p.side * (executableExitPx - p.entryPx);
     const risk = p.initialRiskPx;
     if (!(risk > 0)) return { action: "EXIT", reason: "INVALID_INITIAL_RISK" };
     p.mfePx = Math.max(p.mfePx, u);
     p.maePx = Math.max(p.maePx, -u);
     if (f.stale) { p.phase = "EXITING"; return { action: "EXIT", reason: "DATA_INVALID" }; }
+    if (p.policy) {
+      if (!validPositionPolicy(p.policy)) { p.phase = "EXITING"; return { action: "EXIT", reason: "INVALID_POLICY" }; }
+      const policy = findPolicy(p.policy.id)!;
+      const grossBps = u / p.entryPx * 10_000;
+      const netBps = grossBps - p.policy.feeBps * (1 + executableExitPx / p.entryPx) - p.policy.reserveBps;
+      const reason = policyExit(policy, grossBps, netBps, nowMs - p.openedMs);
+      if (reason) { p.phase = "EXITING"; return { action: "EXIT", reason }; }
+      // A policy has one fixed stop and one unconditional deadline. The legacy
+      // micro hold forecast must not silently substitute another exit policy.
+      p.floorPx = -p.entryPx * policy.stopLossBps / 10_000;
+      if (u <= -risk) { p.phase = "EXITING"; return { action: "EXIT", reason: "HARD_STOP" }; }
+      return { action: "HOLD", floorPx: p.floorPx, stopPx: p.entryPx + p.side * p.floorPx, signedMovePx: u };
+    }
     if (u <= -risk) { p.phase = "EXITING"; return { action: "EXIT", reason: "HARD_STOP" }; }
     const elapsedMs = nowMs - p.openedMs;
     const earlyBreakout = p.entryFamily === "EARLY_BREAKOUT";

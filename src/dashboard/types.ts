@@ -3,6 +3,8 @@ import type { EntryPipelineSnapshot } from "../engine/entry-pipeline-audit.js";
 import type { FeatureStaleReason, KinematicsResetReason } from "../core/market.js";
 import type { OrderCancellationReason, OrderCancelRequestReason } from "../execution/order-state.js";
 import type { EntryFamily, ExecutionPath } from "../economics/types.js";
+import type { PolicyPositionSpec } from "../research/trading-policy.js";
+import type { PolicyMarketPulse } from "../research/policy-pulse.js";
 
 export type HealthTone = "healthy" | "degraded" | "critical";
 export type EventSeverity = "info" | "warning" | "critical";
@@ -143,6 +145,7 @@ export interface DashboardOrderCard {
 }
 
 export interface DashboardPositionCard {
+  policy?: PolicyPositionSpec;
   active: boolean;
   closedAtMs: number | null;
   symbol: string;
@@ -173,6 +176,7 @@ export interface DashboardPositionCard {
 }
 
 export interface DashboardMarketCard {
+  policyPulse?: PolicyMarketPulse | null;
   symbol: string;
   bookValid: boolean;
   bestBid: number | null;
@@ -191,6 +195,10 @@ export interface DashboardMarketCard {
   longPullbackDepthBps: number | null;
   longPullbackRecoveryBps: number | null;
   longPullbackRemainingRoomBps: number | null;
+  shortPullbackReady?: boolean;
+  shortPullbackDepthBps?: number | null;
+  shortPullbackRecoveryBps?: number | null;
+  shortPullbackRemainingRoomBps?: number | null;
   providerAgeMs: number | null;
   staleThresholdMs: number | null;
   warmedUp: boolean;
@@ -278,6 +286,8 @@ export interface DashboardSnapshot {
   mode: string;
   paper: boolean;
   paperEntryExercise?: boolean;
+  policyEngineEnabled?: boolean;
+  policyModelsInstalled?: number;
   strategyVersion: string;
   modelVersion: string;
   configurationVersion: string;

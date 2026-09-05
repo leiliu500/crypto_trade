@@ -15,6 +15,7 @@ const ENGINE_EVENTS = [
   "positionDecision", "positionDust", "exitDecision", "fill", "watchdogFault", "entryBlocked", "pendingKinematicsGrace",
   "pendingSignalGrace", "pendingSignalRecovered", "pendingAdverseFlowGrace", "pendingAdverseFlowRecovered",
   "missedEntryRetryArmed", "entryRouteEvaluated", "entryRouteShadowStarted", "entryRouteShadowMark",
+  "policyObservation", "policyResearchReady", "policyEntryEvaluated", "policySignalEvaluated",
 ] as const;
 const TERMINAL_ORDER_STATES = new Set(["FILLED", "CANCELED", "REJECTED", "EXPIRED"]);
 const DEFAULT_MAXIMUM_PNL_HISTORY = 2_000;
@@ -173,6 +174,7 @@ export class OperationsMonitor extends EventEmitter {
       const features = market.features;
       return {
         symbol: market.symbol,
+        policyPulse: market.policyPulse ? safeClone(market.policyPulse) as NonNullable<DashboardMarketCard["policyPulse"]> : null,
         bookValid: market.bookValid,
         bestBid: market.bestBid,
         bestAsk: market.bestAsk,
@@ -190,6 +192,10 @@ export class OperationsMonitor extends EventEmitter {
         longPullbackDepthBps: features?.longPullback.pullbackDepthBps ?? null,
         longPullbackRecoveryBps: features?.longPullback.recoveryBps ?? null,
         longPullbackRemainingRoomBps: features?.longPullback.remainingRoomBps ?? null,
+        shortPullbackReady: features?.shortPullback.ready ?? false,
+        shortPullbackDepthBps: features?.shortPullback.pullbackDepthBps ?? null,
+        shortPullbackRecoveryBps: features?.shortPullback.recoveryBps ?? null,
+        shortPullbackRemainingRoomBps: features?.shortPullback.remainingRoomBps ?? null,
         providerAgeMs: features?.providerAgeMs ?? null,
         staleThresholdMs: features?.staleThresholdMs ?? null,
         warmedUp: features?.warmedUp ?? false,
@@ -204,15 +210,17 @@ export class OperationsMonitor extends EventEmitter {
         efficiency: features?.efficiency ?? null,
         velocityZ: features?.velocityZ ?? null,
         regime: market.regime?.name ?? null,
-        longScore: market.ruleEvaluation?.long.score ?? null,
-        shortScore: market.ruleEvaluation?.short.score ?? null,
-        longPhase: market.ruleEvaluation?.long.phase ?? null,
-        shortPhase: market.ruleEvaluation?.short.phase ?? null,
-        longRule: market.ruleEvaluation ? projectRule(market.ruleEvaluation.long) : null,
-        shortRule: market.ruleEvaluation ? projectRule(market.ruleEvaluation.short) : null,
-        candidateReady: market.ruleEvaluation?.candidate !== null && market.ruleEvaluation?.candidate !== undefined,
-        candidateSide: market.ruleEvaluation?.candidate?.side ?? null,
-        entryReady: market.entryReady ?? (market.ruleEvaluation?.intent !== null && market.ruleEvaluation?.intent !== undefined),
+        longScore: market.policyPulse ? null : market.ruleEvaluation?.long.score ?? null,
+        shortScore: market.policyPulse ? null : market.ruleEvaluation?.short.score ?? null,
+        longPhase: market.policyPulse ? null : market.ruleEvaluation?.long.phase ?? null,
+        shortPhase: market.policyPulse ? null : market.ruleEvaluation?.short.phase ?? null,
+        longRule: !market.policyPulse && market.ruleEvaluation ? projectRule(market.ruleEvaluation.long) : null,
+        shortRule: !market.policyPulse && market.ruleEvaluation ? projectRule(market.ruleEvaluation.short) : null,
+        candidateReady: market.policyPulse ? market.policyPulse.candidates.length > 0
+          : market.ruleEvaluation?.candidate !== null && market.ruleEvaluation?.candidate !== undefined,
+        candidateSide: market.policyPulse ? market.policyPulse.candidates[0]?.side ?? null : market.ruleEvaluation?.candidate?.side ?? null,
+        entryReady: market.policyPulse ? false
+          : market.entryReady ?? (market.ruleEvaluation?.intent !== null && market.ruleEvaluation?.intent !== undefined),
         liquidityTradeThresholdBps: market.liquidity?.long.tradeThresholdBps ?? null,
         liquidityStressThresholdBps: market.liquidity?.long.stressThresholdBps ?? null,
         liquidityReasons: [...new Set([
@@ -224,7 +232,7 @@ export class OperationsMonitor extends EventEmitter {
             ...market.entryPipeline.lastRejection, values: { ...market.entryPipeline.lastRejection.values },
           } : null,
         } : null,
-        blockReasons: [...new Set([
+        blockReasons: market.policyPulse ? [...market.policyPulse.reasons] : [...new Set([
           ...(market.ruleEvaluation?.long.reasons ?? []), ...(market.ruleEvaluation?.short.reasons ?? []),
         ])],
       };
@@ -312,6 +320,7 @@ export class OperationsMonitor extends EventEmitter {
         stopPx: position.entryPx + position.side * position.floorPx,
         mfePx: position.mfePx, maePx: position.maePx, breakEvenArmed: position.breakEvenArmed,
         entryFamily: position.entryFamily ?? null,
+        ...(position.policy ? { policy: { ...position.policy } } : {}),
         selectedHorizonMs: position.selectedHorizonMs ?? null, executionPath: position.executionPath ?? null,
         latestAction: latest?.action ?? "MONITOR", latestReason: latest?.reason ?? null,
         holdEdgeBps: latest?.holdEdgeBps ?? null, reversalProbability: latest?.reversalProbability ?? null,
@@ -425,6 +434,7 @@ export class OperationsMonitor extends EventEmitter {
       : !coreHealthy || (this.databaseHealth.status !== "disabled" && !this.databaseHealth.connected) ? "degraded" : "healthy";
     return {
       version: 1, generatedAtMs: nowMs, mode: state.mode, paper: state.paper, paperEntryExercise: state.paperEntryExercise,
+      policyEngineEnabled: state.policyEngineEnabled ?? false, policyModelsInstalled: state.policyModelsInstalled ?? 0,
       strategyVersion: state.strategyVersion, modelVersion: state.modelVersion,
       configurationVersion: state.configurationVersion ?? "-", signalMode: state.signalMode ?? "DETERMINISTIC_ONLY",
       started: state.started, uptimeMs: state.uptimeMs, overall, entriesAllowed,

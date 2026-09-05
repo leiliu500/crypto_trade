@@ -6,6 +6,7 @@ import type { RiskApproval, RiskContext, RiskSizer } from "../risk/sizing.js";
 import { estimateSweep } from "./book-walk.js";
 import type { CostBreakdown, EntryFamily, ExecutionPath } from "../economics/types.js";
 import type { HybridEntryConfig } from "./hybrid-entry-router.js";
+import type { PolicyPositionSpec } from "../research/trading-policy.js";
 
 export type ExecutionStyle = "maker" | "taker";
 export interface AssetRules { symbol: string; minOrderSize: number; minTradeIncrement: number; priceIncrement: number; maximumOrderQty: number; shortable: boolean; }
@@ -66,6 +67,7 @@ export interface ExecutionPlan {
   edgeEffectiveSampleCount?: number;
   /** True when an uncalibrated paper order exists only to collect bounded research evidence. */
   researchOnly?: boolean;
+  policy?: PolicyPositionSpec;
   expectedCost: CostEstimate;
   risk: RiskApproval;
   fillProbability: number;

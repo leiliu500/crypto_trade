@@ -56,6 +56,16 @@ export function entryRiskSigmaBps(slowVarianceRate: number, economicHorizonMs: n
 export class RiskSizer {
   public constructor(private readonly cfg: RiskConfig) {}
   public size(intent: TradeIntent, ctx: RiskContext): RiskApproval | null {
+    return this.sizeWithBudget(intent, ctx);
+  }
+
+  /** Explicitly budgeted PAPER experiment: no invented edge to pass Kelly sizing. */
+  public sizeResearch(intent: TradeIntent, ctx: RiskContext, experimentNotional: number): RiskApproval | null {
+    if (!(experimentNotional > 0) || !Number.isFinite(experimentNotional)) return null;
+    return this.sizeWithBudget(intent, ctx, experimentNotional);
+  }
+
+  private sizeWithBudget(intent: TradeIntent, ctx: RiskContext, experimentNotional?: number): RiskApproval | null {
     if (!(ctx.equity > 0) || !(ctx.price > 0) || !(ctx.lotSize > 0)) return null;
     const drawdown = Math.max(0, 1 - ctx.equity / Math.max(ctx.equityHighWater, ctx.equity));
     if (drawdown >= this.cfg.maximumDrawdown) return null;
@@ -69,10 +79,10 @@ export class RiskSizer {
     const candidates = {
       risk: riskBudget / maximumLossPerUnit,
       liquidity: ctx.visibleLiquidityQty * this.cfg.maximumBookParticipation,
-      kelly: ctx.equity * (this.cfg.fractionalKelly * clamp(
+      kelly: experimentNotional === undefined ? ctx.equity * (this.cfg.fractionalKelly * clamp(
         Math.max(0, intent.lowerBoundNetBps / 10_000) / Math.max(Math.pow(Math.max(ctx.sigmaHBps, 1e-6) / 10_000, 2), 1e-12),
         0, this.cfg.maximumKellyFraction,
-      )) / ctx.price,
+      )) / ctx.price : experimentNotional / ctx.price,
       notional: ctx.maximumNotional / ctx.price,
       exchange: ctx.maximumExchangeQty,
       exposure: ctx.exposureCapacityQty,

@@ -79,6 +79,23 @@
   footer{align-items:flex-start;flex-direction:column;gap:8px;padding-bottom:env(safe-area-inset-bottom)}
 }
 
+.policy-card{min-width:0}
+.policy-version{display:flex;flex-wrap:wrap;gap:6px 12px;margin:14px 0;color:var(--soft);font:10px var(--mono);overflow-wrap:anywhere}
+.policy-version span{color:var(--amber)}
+.policy-families{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:4px 0}
+.policy-family{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:8px;padding:8px 0}
+.policy-family b{font-size:11px;font-weight:500}.policy-family small{display:block;color:var(--muted);font:9px var(--mono);margin-top:4px}
+.policy-signal{color:var(--muted);font:9px var(--mono);padding:4px;border:1px solid var(--line);border-radius:4px;white-space:nowrap}
+.policy-signal.matched{color:var(--cyan);border-color:rgba(78,232,194,.25);background:rgba(78,232,194,.06)}
+.policy-card .market-metrics strong{white-space:normal;overflow-wrap:anywhere;font-size:11px}
+.policy-evidence{display:grid;gap:6px;padding:12px 0;border-top:1px solid var(--line);font-size:11px}
+.policy-evidence small{color:var(--muted);font-size:10px;line-height:1.5;overflow-wrap:anywhere}
+.policy-status{padding:12px;border:1px solid var(--line2);border-radius:6px;background:var(--panel2)}
+.policy-status b{font:11px var(--mono);color:var(--soft)}.policy-status p{margin:7px 0 0;color:var(--muted);font-size:11px;line-height:1.5;overflow-wrap:anywhere}
+.policy-sampling{display:grid;gap:8px;padding-top:12px;font:10px var(--mono);color:var(--soft);overflow-wrap:anywhere}
+.policy-sampling p{margin:0;line-height:1.5}.policy-sampling span{display:block;color:var(--muted);font-size:9px}
+#market-subtitle{display:block;max-width:440px;line-height:1.6}
+
 @media(max-width:360px){
   .brand small{display:none}
   .market-metrics,.order-main,.cost-grid{grid-template-columns:minmax(0,1fr)}

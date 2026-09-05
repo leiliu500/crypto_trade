@@ -9,6 +9,7 @@ import type { HistoricalFillRecord } from "../kraken/paper-history.js";
 import type { Position } from "../strategy/position-manager.js";
 import { runMigrations } from "./migrations.js";
 import { CalibratedEdgeTable, type CalibratedEdgeBucket } from "../calibration/calibrated-edge-table.js";
+import type { PolicyPositionSpec } from "../research/trading-policy.js";
 
 export interface PostgresStoreOptions {
   connectionString: string;
@@ -373,6 +374,16 @@ export class PostgresTelemetryStore extends EventEmitter {
       [runId, event.type, event.severity, event.symbol, event.clientOrderId, date(atMs), json(event.payload)]);
     if (event.type === "entryRouteShadowStarted") await this.persistAlphaSignal(client, event.payload, runId, atMs);
     if (event.type === "entryRouteShadowMark") await this.persistAlphaMarkout(client, event.payload, runId, atMs);
+    if (event.type === "policyObservation") {
+      const value = object(event.payload);
+      await client.query(
+        `INSERT INTO policy_observations(id,run_id,configuration_version,policy_version,symbol,policy_id,signal_at,status,payload)
+         VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9::jsonb)
+         ON CONFLICT(id) DO UPDATE SET status=EXCLUDED.status,payload=EXCLUDED.payload
+           WHERE policy_observations.status='PENDING'`,
+        [value.id,runId,value.configurationVersion,value.policyVersion,value.symbol,value.policyId,
+          date(number(value.signalAtMs,atMs)),value.status,json(value)]);
+    }
   }
 
   private async persistAlphaSignal(client: PoolClient, payload: unknown, runId: string, atMs: number): Promise<void> {
@@ -535,6 +546,8 @@ export function compactHealthSnapshot(snapshot: DashboardSnapshot): Record<strin
     mode: snapshot.mode,
     paper: snapshot.paper,
     paperEntryExercise: snapshot.paperEntryExercise ?? false,
+    policyEngineEnabled: snapshot.policyEngineEnabled ?? false,
+    policyModelsInstalled: snapshot.policyModelsInstalled ?? 0,
     strategyVersion: snapshot.strategyVersion,
     modelVersion: snapshot.modelVersion,
     configurationVersion: snapshot.configurationVersion,
@@ -564,7 +577,7 @@ function telemetryPriority(record: TelemetryRecord): number {
   if (["order", "decision"].includes(record.kind)) return 2;
   if (record.kind === "event") {
     const eventType = object(record.payload).type;
-    if (typeof eventType === "string" && ["entryRouteShadowStarted", "entryRouteShadowMark"].includes(eventType)) return 2;
+    if (typeof eventType === "string" && ["entryRouteShadowStarted", "entryRouteShadowMark", "policyObservation"].includes(eventType)) return 2;
     return typeof eventType === "string" && ["fill", "orderAccepted", "orderUpdate", "orderRejected",
       "orderCancelRequested", "exitDecision", "engineError", "watchdogFault"].includes(eventType) ? 2 : 1;
   }
@@ -644,6 +657,9 @@ function restorePositionState(value: unknown, fallback?: Partial<PersistedPositi
     symbol, side, qty, entryPx, openedMs, initialRiskPx, roundTripCostPx, mfePx, maePx, floorPx,
     breakEvenArmed: Boolean(position.breakEvenArmed), phase,
     ...(entryFamily === null ? {} : { entryFamily }),
+    // Preserve even unknown versions so PositionManager fails closed on them;
+    // silently dropping the field would restore the incompatible legacy exits.
+    ...(position.policy && typeof position.policy === "object" ? { policy: position.policy as PolicyPositionSpec } : {}),
     ...(Number.isFinite(selectedHorizonMs) && selectedHorizonMs > 0 ? { selectedHorizonMs } : {}),
     ...(executionPath === null ? {} : { executionPath }),
     ...(Number.isFinite(lastReductionProbability) ? { lastReductionProbability } : {}),

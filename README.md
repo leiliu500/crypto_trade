@@ -1,10 +1,27 @@
 # Multi-venue minimal-latency crypto engine
 
-A production-oriented TypeScript implementation of the attached mathematical design. The active paper path reconstructs Kraken's linear perpetual-futures L2 book, computes causal microstructure features on every event, and uses explicit deterministic entry, regime, cost, anti-chasing, persistence, reset, and exit rules. The default path does not construct or load a predictive model.
+A TypeScript research and paper-trading engine. The default strategy layer reconstructs Kraken's linear perpetual-futures L2 book, evaluates separate causal long/short trend, breakout, and recovery policies, and uses empirically measured executable policy returns. Its risk, order lifecycle, telemetry, and local paper broker remain shared with the legacy engine.
 
 It does **not** promise profit or zero latency. The checked-in `.env.example` selects the Kraken Futures adapter and starts in shadow mode; `npm run paper` enables its local paper broker. Kraken market data is production public data, while orders, fills, balances, and positions remain strictly local. Kraken live order routing is intentionally unavailable.
 
-## Implemented system
+## Rebuilt default strategy layer
+
+`POLICY_ENGINE_ENABLED=true` replaces the legacy volatility-capture forecasts and micro-driven exits. The same versioned entry predicates and stop/target/deadline rules drive research and paper positions. V2 checks entries on every fresh quote, independently of the periodic research timer, and calibrates only separately tagged entry-timed evidence. Existing risk and liquidity limits remain mandatory. See [policy design and validation](docs/POLICY_REBUILD.md).
+
+```text
+fresh quotes + causal features -> independent policy observations
+                              -> daily purged train / validation / final holdout
+                              -> scoped, expiring empirical model
+healthy signal + risk limits  -> capped paper IOC -> shared policy exits
+```
+
+Paper execution remains available without a promoted model: the existing `ANALYTIC_PAPER` permission now authorizes explicitly **unscored policy experiments**, not manufactured positive-edge forecasts. They are capped at $12 per entry and one attempt per symbol per 30 minutes while the engine is running; all health, drawdown, liquidity, lot-size, and portfolio controls remain active. `CALIBRATED_PAPER` permits only passing empirical models. No automatic live trading or size escalation is implemented. Synthetic test profits verify accounting, not market profitability.
+
+Run `npm run research:policies -- --summary` for the current report. Migration `008_policy_research` stores candidate starts, terminal outcomes, evaluation audits, and approved models. Startup and hourly refresh replace the complete model set; UTC-day evidence boundaries and model expiry stay fixed within the day. Missing outcomes and unclean telemetry fail promotion. Legacy `research:calibrate` is diagnostic-only and no longer installs markout buckets into the active strategy.
+
+## Legacy engine and diagnostic compatibility
+
+The following legacy signal and routing descriptions apply to `POLICY_ENGINE_ENABLED=false` and the explicit paper lifecycle/exercise tools, not the rebuilt default entry path. Existing positions without a policy identifier retain their original exit management.
 
 The hot path is:
 
@@ -160,7 +177,7 @@ Normal paper mode defaults to `ANALYTIC_PAPER`, so qualifying analytical continu
 
 Every route-shadow decision is also normalized into durable `alpha_signals` and `alpha_markouts` tables. The records include the executable signal bid/ask, mark bid/ask, feature snapshot, predicted edge and cost, modeled maker fill, and post-cost maker/taker markouts. Continuation, early-breakout, and pullback/recovery remain separate trend, breakout, and mean-reversion classes. Migration `007_alpha_research` backfills compatible historical route-shadow telemetry, so research does not depend on a non-empty repository replay file.
 
-Run `npm run research:calibrate -- --summary` to evaluate and persist the current configuration version, or add `--all-versions` for an audit across versions; versions are still evaluated separately. `npm run research:export -- --all-versions` emits the normalized observations as JSONL. The promotion evaluator purges overlapping outcomes, builds chronological walk-forward folds, compares maker/taker entry routes and exit horizons jointly after modeled costs, and requires at least 100 independent samples, seven days of coverage, 30 out-of-sample observations, three validation folds, and a positive one-sided 95% lower-confidence net return. Maker cohorts additionally require fill-ranking ROC AUC of at least `0.55`. Only the strongest passing route/horizon in an exact configuration, symbol, family, side, and regime cohort is promoted. On startup, the engine validates and installs only promoted buckets matching the exact active configuration; absent sufficient evidence, normal reduced-size analytical paper submission remains available and is never mistaken for calibrated evidence.
+Run `npm run research:calibrate -- --summary` to audit legacy markouts, or add `--all-versions` to audit each version separately. `npm run research:export -- --all-versions` emits these observations as JSONL. These fixed-horizon markouts do not reproduce actual exit management: migration 008 revokes their promotions, the diagnostic CLI saves no approved buckets, and startup no longer loads them. Use `research:policies` for the rebuilt evaluator.
 
 `record` appends raw order-book and trade events to `data/events.jsonl`. Paper and shadow modes also continuously append independently compressed gzip batches to `data/continuous-events.jsonl.gz` when `CONTINUOUS_RECORDING_ENABLED` is true. The batched writer keeps compression off the market-data hot path and makes completed batches replayable while the engine remains online. Run `npm run recall -- data/continuous-events.jsonl.gz` to analyze one capture, or pass archived and active files in chronological order to accumulate coverage across restarts: `npm run recall -- data/continuous-events.ARCHIVE.jsonl.gz data/continuous-events.jsonl.gz`.
 
