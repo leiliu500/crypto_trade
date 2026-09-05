@@ -50,7 +50,7 @@ test("JSON baseline wins over legacy tunable environment values and symbol overl
       [3_600_000, 7_200_000, 14_400_000]);
     assert.equal(cfg.deterministicSignal.requireMakerEntry, true);
     assert.equal(cfg.deterministicSignal.allowTakerContinuation, true);
-    assert.equal(cfg.configurationVersion, "btc-eth-breakout-retest-v10.0.0");
+    assert.equal(cfg.configurationVersion, "btc-eth-breakout-retest-v10.1.0");
     assert.equal(cfg.deterministicSignal.pullbackRecovery.maximumReversalAgeMs, 600_000);
     assert.equal(cfg.position.minimumHoldMs, 60_000);
     assert.equal(cfg.position.unproductiveExitMs, 900_000);

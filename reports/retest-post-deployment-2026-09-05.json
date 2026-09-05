@@ -1,0 +1,35 @@
+{
+  "configurationVersion": "btc-eth-breakout-retest-v10.0.0",
+  "observedAtMs": 1788633930473,
+  "source": "running paper dashboard snapshot",
+  "trades": [
+    {
+      "symbol": "ETH/USD",
+      "entryOrderId": "8c81a6d9-6e57-4dd0-ac46-3f3c1aa04dc0",
+      "exitOrderId": "mlce-exit-1788632415940-a93175f2",
+      "openedMs": 1788632365622,
+      "closedAtMs": 1788632416026,
+      "exitReason": "POLICY_STRUCTURE_INVALID",
+      "grossPricePnl": -0.0027999999999992723,
+      "entryFee": 0.004958199999999999,
+      "exitFee": 0.004956800000000001,
+      "realizedPnl": -0.012714999999999272,
+      "entryStyle": "taker",
+      "exitStyle": "taker"
+    },
+    {
+      "symbol": "BTC/USD",
+      "entryOrderId": "73c9f725-8e96-4250-ab03-40db09d7d226",
+      "exitOrderId": "mlce-exit-1788632396531-f7b95ea5",
+      "openedMs": 1788632336469,
+      "closedAtMs": 1788632396621,
+      "exitReason": "POLICY_DEADLINE",
+      "grossPricePnl": 0.00029999999999854476,
+      "entryFee": 0.0040013,
+      "exitFee": 0.004001449999999999,
+      "realizedPnl": -0.007702750000001455,
+      "entryStyle": "taker",
+      "exitStyle": "taker"
+    }
+  ]
+}
