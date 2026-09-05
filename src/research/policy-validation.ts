@@ -68,17 +68,21 @@ export function evaluatePolicies(rows: readonly PolicyObservation[], configurati
     const group = groups.get(key) ?? [];
     group.push(row); groups.set(key, group);
   }
-  const evaluations = [...groups].map(([key, values]) => evaluateGroup(key, values, evidenceEndMs));
+  const evaluations = [...groups].map(([key, values]) => evaluatePolicyCohort(key, values, evidenceEndMs));
   return { policyVersion: POLICY_VERSION, configurationVersion, generatedAtMs: now,
     evidenceEndMs,
     observations: rows.length, evaluations, models: evaluations.flatMap((e) => e.model ? [e.model] : []) };
 }
 
-function evaluateGroup(key: string, rows: PolicyObservation[], now: number): PolicyEvaluation {
+/** Pure evaluation shared by isolated research reports. Only evaluatePolicies
+ * supplies rows to the production model store; EPISODE versions cannot install. */
+export function evaluatePolicyCohort(key: string, rows: PolicyObservation[], now: number,
+  latencyMs = POLICY_ENTRY_LATENCY_MS, selectedPolicyId?: string, embargoLatencyMs = latencyMs): PolicyEvaluation {
+  if (!rows.length || !Number.isFinite(latencyMs) || latencyMs < 1 || latencyMs > 1_000) throw new Error("Invalid cohort");
   const first = rows[0]!;
   const declaredPolicies = TRADING_POLICIES.filter((p) => p.family === first.family);
   const maxHorizon = Math.max(...declaredPolicies.map((p) => p.horizonMs));
-  const embargo = maxHorizon + 2 * POLICY_ENTRY_LATENCY_MS + POLICY_MAX_ENTRY_DELAY_MS + 2 * POLICY_MAX_QUOTE_GAP_MS;
+  const embargo = maxHorizon + 2 * Math.max(latencyMs, embargoLatencyMs) + POLICY_MAX_ENTRY_DELAY_MS + 2 * POLICY_MAX_QUOTE_GAP_MS;
   // Drop only observations whose predeclared deadline has not matured yet.
   // A missing/invalid mature result prevents promotion instead of disappearing.
   const mature = rows.filter((o) => o.signalAtMs + embargo < now);
@@ -87,14 +91,14 @@ function evaluateGroup(key: string, rows: PolicyObservation[], now: number): Pol
   const holdoutStart = now - 3.5 * DAY_MS;
   const policyIds = declaredPolicies.map((p) => p.id).sort();
   const variants = policyIds.map((policyId) => {
-    const samples = nonOverlapping(mature.filter((o) => o.policyId === policyId && validOutcome(o)), embargo);
+    const samples = nonOverlapping(mature.filter((o) => o.policyId === policyId && validPolicyOutcome(o, latencyMs)), embargo);
     const training = samples.filter((o) => o.signalAtMs + embargo < validationStart);
     const validation = samples.filter((o) => o.signalAtMs >= validationStart && o.signalAtMs + embargo < holdoutStart);
     const holdout = samples.filter((o) => o.signalAtMs >= holdoutStart);
     return { policyId, samples, training, validation, holdout,
       lower: training.length >= 20 && validation.length >= 20 ? lowerMean(validation) : null };
   }).sort((a, b) => (b.lower ?? -Infinity) - (a.lower ?? -Infinity) || a.policyId.localeCompare(b.policyId));
-  const winner = variants[0];
+  const winner = selectedPolicyId === undefined ? variants[0] : variants.find((v) => v.policyId === selectedPolicyId);
   const samples = winner?.samples ?? [];
   const reasons: string[] = [];
   const days = new Set(samples.map((o) => Math.floor(o.signalAtMs / 86_400_000))).size;
@@ -111,7 +115,7 @@ function evaluateGroup(key: string, rows: PolicyObservation[], now: number): Pol
     if (train.length >= 10 && test.length >= 5) folds.push({ trainingEndMs: train.at(-1)!.exitAtMs!,
       testStartMs: test[0]!.signalAtMs, predictionNetBps: meanNet(train), actualNetBps: meanNet(test) });
   }
-  if (mature.some((o) => !validOutcome(o))) reasons.push("INCOMPLETE_OR_INVALID_OUTCOMES");
+  if (mature.some((o) => !validPolicyOutcome(o, latencyMs))) reasons.push("INCOMPLETE_OR_INVALID_OUTCOMES");
   // Every variant must see the same candidate timestamps; no selection on an
   // easier surviving subset of the path.
   if (policyIds.some((id) => mature.filter((o) => o.policyId === id).length !== times.length
@@ -130,7 +134,7 @@ function evaluateGroup(key: string, rows: PolicyObservation[], now: number): Pol
   const fittedMean = meanNet(trainingAndValidation);
   const model: PolicyModel | null = reasons.length === 0 && winner ? {
     key: createHash("sha256").update(key).digest("hex"), configurationVersion: first.configurationVersion,
-    policyVersion: POLICY_VERSION, symbol: first.symbol, family: first.family, side: first.side,
+    policyVersion: first.policyVersion, symbol: first.symbol, family: first.family, side: first.side,
     regime: first.regime, policyId: winner.policyId, feeBps: first.feeBps, reserveBps: first.reserveBps,
     fittedMeanNetBps: fittedMean, lowerNetBps: Math.min(fittedLower!, winner.lower!, holdoutLower!),
     maximumSpreadBps: Math.max(...trainingAndValidation.map((o) => o.spreadBps)),
@@ -161,7 +165,9 @@ export function validPolicyModel(model: PolicyModel, configurationVersion: strin
     && model.holdoutStartMs < now;
 }
 
-function validOutcome(o: PolicyObservation): boolean {
+export function validPolicyOutcome(o: PolicyObservation, latencyMs = POLICY_ENTRY_LATENCY_MS): boolean {
+  if (!findPolicy(o.policyId) || ![1, -1].includes(o.side)
+    || ![o.feeBps, o.reserveBps].every((v) => Number.isFinite(v) && v >= 0)) return false;
   const fraction = o.filledQty / o.qty;
   const gross = o.entryPrice && o.exitPrice ? o.side * (o.exitPrice / o.entryPrice - 1) * 10_000 * fraction : 0;
   const net = o.entryPrice && o.exitPrice
@@ -174,13 +180,14 @@ function validOutcome(o: PolicyObservation): boolean {
     && Number.isFinite(o.exitAtMs) && o.exitAtMs >= o.signalAtMs
     && (o.reason === "ENTRY_NOT_FILLED" ? o.netBps === 0 && o.grossBps === 0 && o.entryAtMs === null
       && fraction === 0
-      && o.exitAtMs <= o.signalAtMs + POLICY_ENTRY_LATENCY_MS + POLICY_MAX_ENTRY_DELAY_MS
+      && o.exitAtMs >= o.signalAtMs + latencyMs
+      && o.exitAtMs <= o.signalAtMs + latencyMs + POLICY_MAX_ENTRY_DELAY_MS
       : fraction > 0 && ["POLICY_TARGET", "POLICY_STOP", "POLICY_DEADLINE"].includes(o.reason ?? "")
-        && o.entryAtMs !== null && o.entryAtMs >= o.signalAtMs + POLICY_ENTRY_LATENCY_MS
-        && o.entryAtMs <= o.signalAtMs + POLICY_ENTRY_LATENCY_MS + POLICY_MAX_ENTRY_DELAY_MS
+        && o.entryAtMs !== null && o.entryAtMs >= o.signalAtMs + latencyMs
+        && o.entryAtMs <= o.signalAtMs + latencyMs + POLICY_MAX_ENTRY_DELAY_MS
         && o.entryAtMs <= o.exitAtMs && (o.entryPrice ?? 0) > 0 && (o.exitPrice ?? 0) > 0
         && Number.isFinite(o.entryPrice) && Number.isFinite(o.exitPrice)
-        && o.exitAtMs <= o.entryAtMs + findPolicy(o.policyId)!.horizonMs + POLICY_ENTRY_LATENCY_MS + 2 * POLICY_MAX_QUOTE_GAP_MS);
+        && o.exitAtMs <= o.entryAtMs + findPolicy(o.policyId)!.horizonMs + latencyMs + 2 * POLICY_MAX_QUOTE_GAP_MS);
 }
 function nonOverlapping(rows: PolicyObservation[], embargo: number): PolicyObservation[] {
   const result: PolicyObservation[] = [];

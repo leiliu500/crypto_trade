@@ -25,6 +25,7 @@ export interface PolicyEntryCounters {
   plansApproved: number;
 }
 export interface PolicyMarketPulse {
+  research?: { version: string; hypotheses: string[]; counters: Record<string, number> };
   version: string;
   mode: "PAPER_RESEARCH" | "CALIBRATED_PAPER" | "SHADOW" | "RECORD";
   status: "DATA_GATED" | "WARMING" | "RISK_BLOCKED" | "POSITION_OPEN" | "ORDER_PENDING"

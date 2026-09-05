@@ -35,6 +35,8 @@ import { HealthWatchdog, type WatchdogFault } from "./watchdog.js";
 import type { ExecutionPath } from "../economics/types.js";
 import type { CalibratedEdgeBucket } from "../calibration/calibrated-edge-table.js";
 import { PolicyCollector } from "../research/policy-collector.js";
+import { SignalEpisodeCollector, EPISODE_HYPOTHESES } from "../research/signal-episodes.js";
+import { EPISODE_VERSION, type EpisodeContext } from "../research/execution-stress.js";
 import { validPolicyModel, type PolicyModel } from "../research/policy-validation.js";
 import { buildPolicyPlan, policyReserveBps } from "../research/policy-planner.js";
 import { policyCandidates, TRADING_POLICIES, POLICY_MAX_ENTRY_DELAY_MS,
@@ -106,6 +108,7 @@ interface SymbolRuntime {
   routeShadow: EntryRouteShadowTracker;
   positionManager: PositionManager;
   policyCollector: PolicyCollector;
+  researchEpisodes: SignalEpisodeCollector;
   policyModels: PolicyModel[];
   lastPolicyEntryMs?: number;
   latestPolicySample?: PolicySampleState;
@@ -265,6 +268,8 @@ export class TradingEngine extends EventEmitter {
         routeShadow: new EntryRouteShadowTracker(symbolCfg.planner.hybridEntry.routeShadowHorizonsMs),
         policyCollector: new PolicyCollector(symbolCfg.configurationVersion, symbol,
           symbolCfg.cost.takerFeeBps, policyReserveBps(symbolCfg)), policyModels: [],
+        researchEpisodes: new SignalEpisodeCollector(symbolCfg.configurationVersion, symbol,
+          symbolCfg.cost.takerFeeBps, policyReserveBps(symbolCfg)),
         policyEntryCounters: { quoteChecks: 0, signalMatches: 0, liquidityRejected: 0, planningRejected: 0, plansApproved: 0 },
         policyEvaluationReports: new Map(),
         positionManager: new PositionManager(symbolCfg.position), cluster: baseAsset(symbol),
@@ -494,6 +499,8 @@ export class TradingEngine extends EventEmitter {
         lastRejection: runtime.entryAudit.snapshot().lastRejection,
         activePolicyId: runtime.position?.policy?.id ?? (runtime.position ? "legacy" : null),
       }) : null;
+      if (policyPulse) policyPulse.research = { version: EPISODE_VERSION,
+        hypotheses: [...EPISODE_HYPOTHESES], counters: runtime.researchEpisodes.stats() };
       return {
         policyPulse,
         symbol,
@@ -677,6 +684,7 @@ export class TradingEngine extends EventEmitter {
       Boolean(item.position || this.pendingForSymbol(item.book.symbol)) && item.latestFeatures?.stale !== false);
     this.riskState.setHealth({ bookValid: allBooksStructurallyValid && !staleExposure });
     if (features.stale) {
+      for (const observation of runtime.researchEpisodes.invalidate(features.receiveTsMs, "FEATURES_STALE")) this.emit("researchEpisode", observation);
       this.rejectEntry(runtime, "FEATURES_READY", features.staleReason ?? "FEATURES_STALE", features.receiveTsMs, {
         staleReason: features.staleReason, providerAgeMs: features.providerAgeMs,
         staleThresholdMs: features.staleThresholdMs,
@@ -693,6 +701,7 @@ export class TradingEngine extends EventEmitter {
       return;
     }
     if (!features.warmedUp) {
+      for (const observation of runtime.researchEpisodes.invalidate(features.receiveTsMs, "FEATURE_WARMUP")) this.emit("researchEpisode", observation);
       runtime.liquidity.observe(features.spreadBps);
       runtime.entryAudit.pass("LIQUIDITY_OBSERVATION");
       this.rejectEntry(runtime, "FEATURES_READY", "FEATURE_WARMUP", features.receiveTsMs);
@@ -713,6 +722,18 @@ export class TradingEngine extends EventEmitter {
     runtime.liquidity.observe(features.spreadBps);
     runtime.entryAudit.pass("LIQUIDITY_OBSERVATION");
     if (longLiquidity && shortLiquidity) runtime.latestLiquidity = { long: longLiquidity, short: shortLiquidity };
+    if (quoteEvent && this.cfg.policyEngineEnabled && !this.cfg.paperEntryExercise) {
+      const context = (liquidity: LiquidityDecision | null): EpisodeContext => ({
+        healthAllowed: this.riskState.entriesAllowed(), healthReasons: [...this.riskState.reasons()],
+        liquidityPass: liquidity?.pass ?? false, liquidityReasons: [...(liquidity?.reasons ?? ["LIQUIDITY_UNAVAILABLE"])],
+        positionOpen: Boolean(runtime.position), pendingOrder: Boolean(this.pendingForSymbol(book.symbol)),
+        cooldownRemainingMs: Math.max(0, (runtime.lastPolicyEntryMs ?? -Infinity) + POLICY_RESEARCH_COOLDOWN_MS - features.receiveTsMs,
+          (runtime.reentryBlockedUntilMs ?? 0) - features.receiveTsMs), sizing: "VENUE_NOTIONAL_ONLY",
+      });
+      const current = this.now() >= book.receiveTsMs && this.now() - book.receiveTsMs <= POLICY_MAX_ENTRY_DELAY_MS;
+      for (const observation of runtime.researchEpisodes.observe(book, current ? features : { ...features, stale: true },
+        runtime.asset, { long: context(longLiquidity), short: context(shortLiquidity) })) this.emit("researchEpisode", observation);
+    }
     if (this.cfg.mode === "record") return;
 
     // Observe liquidity first, then preserve order/exposure lifecycle priority over new entries.
@@ -982,6 +1003,7 @@ export class TradingEngine extends EventEmitter {
 
   private invalidatePolicyResearch(runtime: SymbolRuntime, reason: string): void {
     for (const observation of runtime.policyCollector.invalidate(this.now(), reason)) this.emit("policyObservation", observation);
+    for (const observation of runtime.researchEpisodes.invalidate(this.now(), reason)) this.emit("researchEpisode", observation);
   }
 
   private attemptPolicyEntry(runtime: SymbolRuntime, book: BookState, features: DeterministicFeatures): void {

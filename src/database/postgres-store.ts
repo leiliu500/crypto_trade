@@ -374,7 +374,7 @@ export class PostgresTelemetryStore extends EventEmitter {
       [runId, event.type, event.severity, event.symbol, event.clientOrderId, date(atMs), json(event.payload)]);
     if (event.type === "entryRouteShadowStarted") await this.persistAlphaSignal(client, event.payload, runId, atMs);
     if (event.type === "entryRouteShadowMark") await this.persistAlphaMarkout(client, event.payload, runId, atMs);
-    if (event.type === "policyObservation") {
+    if (event.type === "policyObservation" || event.type === "researchEpisode") {
       const value = object(event.payload);
       await client.query(
         `INSERT INTO policy_observations(id,run_id,configuration_version,policy_version,symbol,policy_id,signal_at,status,payload)
@@ -577,7 +577,7 @@ function telemetryPriority(record: TelemetryRecord): number {
   if (["order", "decision"].includes(record.kind)) return 2;
   if (record.kind === "event") {
     const eventType = object(record.payload).type;
-    if (typeof eventType === "string" && ["entryRouteShadowStarted", "entryRouteShadowMark", "policyObservation"].includes(eventType)) return 2;
+    if (typeof eventType === "string" && ["entryRouteShadowStarted", "entryRouteShadowMark", "policyObservation", "researchEpisode"].includes(eventType)) return 2;
     return typeof eventType === "string" && ["fill", "orderAccepted", "orderUpdate", "orderRejected",
       "orderCancelRequested", "exitDecision", "engineError", "watchdogFault"].includes(eventType) ? 2 : 1;
   }

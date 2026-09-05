@@ -19,6 +19,14 @@ Paper execution remains available without a promoted model: the existing `ANALYT
 
 Run `npm run research:policies -- --summary` for the current report. Migration `008_policy_research` stores candidate starts, terminal outcomes, evaluation audits, and approved models. Startup and hourly refresh replace the complete model set; UTC-day evidence boundaries and model expiry stay fixed within the day. Missing outcomes and unclean telemetry fail promotion. Legacy `research:calibrate` is diagnostic-only and no longer installs markout buckets into the active strategy.
 
+After-cost research now has a separate, non-trading episode stream. It compares
+the current breakout trigger with sustained five-/fifteen-minute range breaks,
+captures distinct eligible signals during execution cooldowns, and tests paired
+exits under latency, fee, and depth stress. Use `npm run research:episodes` and
+`npm run research:replay -- recording.jsonl.gz`; add `--require-qualified` to fail
+when evidence does not qualify. These read-only reports never promote a model or
+change order sizing. See [after-cost research](docs/AFTER_COST_RESEARCH.md).
+
 ## Legacy engine and diagnostic compatibility
 
 The following legacy signal and routing descriptions apply to `POLICY_ENGINE_ENABLED=false` and the explicit paper lifecycle/exercise tools, not the rebuilt default entry path. Existing positions without a policy identifier retain their original exit management.
