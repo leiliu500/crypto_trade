@@ -537,7 +537,7 @@ test("Market Pulse renders new policy signals, evidence and clocks without the l
   };
   const p = pulseFixture();
   const html = renderMarket(p);
-  for (const value of ["executable-policy-v2", "PAPER RESEARCH", "Trend", "Breakout", "Recovery",
+  for (const value of ["executable-policy-v3", "PAPER RESEARCH", "Trend", "Breakout", "Recovery",
     "NO QUALIFYING SIGNAL", "0 validated models", "profitability unproven", "cap $12", "Last sample", "Next sample",
     "Short pullback", "LONG —", "SHORT —"]) assert.ok(html.includes(value), `missing ${value}`);
   assert.doesNotMatch(html, /All deterministic gates ready|Rule state|micro 0|armed 0|ENTRY READY/);

@@ -15,7 +15,7 @@ const ENGINE_EVENTS = [
   "positionDecision", "positionDust", "exitDecision", "fill", "watchdogFault", "entryBlocked", "pendingKinematicsGrace",
   "pendingSignalGrace", "pendingSignalRecovered", "pendingAdverseFlowGrace", "pendingAdverseFlowRecovered",
   "missedEntryRetryArmed", "entryRouteEvaluated", "entryRouteShadowStarted", "entryRouteShadowMark",
-  "policyObservation", "policyResearchReady", "policyEntryEvaluated", "policySignalEvaluated", "researchEpisode",
+  "policyObservation", "policyResearchReady", "policyEntryEvaluated", "policySignalEvaluated", "researchEpisode", "setupEvaluated",
 ] as const;
 const TERMINAL_ORDER_STATES = new Set(["FILLED", "CANCELED", "REJECTED", "EXPIRED"]);
 const DEFAULT_MAXIMUM_PNL_HISTORY = 2_000;
@@ -277,8 +277,10 @@ export class OperationsMonitor extends EventEmitter {
         : market?.bestAsk ?? market?.mid ?? null;
       const netMovePx = currentPx === null ? null
         : position.side * (currentPx - position.entryPx) - Math.max(0, position.roundTripCostPx);
-      const unrealizedPnl = netMovePx === null ? null : position.qty * netMovePx;
-      const unrealizedPnlBps = netMovePx === null ? null : netMovePx / position.entryPx * 10_000;
+      const unrealizedPnl = position.netLiquidationUsd ?? (netMovePx === null ? null : position.qty * netMovePx);
+      const unrealizedPnlBps = position.netLiquidationUsd !== undefined && position.ledger
+        ? position.netLiquidationUsd / position.ledger.entryNotional * 10_000
+        : netMovePx === null ? null : netMovePx / position.entryPx * 10_000;
       const latest = this.positionDecisions.get(position.symbol);
       const ageMs = Math.max(0, nowMs - position.openedMs);
       if (!exitedAsDust && currentPx !== null && unrealizedPnl !== null && unrealizedPnlBps !== null) {

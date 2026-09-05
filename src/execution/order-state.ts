@@ -39,14 +39,18 @@ export interface RemoteOrderSnapshot {
   status: string;
   updatedMs?: number;
 }
-export interface PrivateOrderEvent { id: string; event: string; orderId: string; clientOrderId: string; symbol: string; filledQty: number; eventQty: number; eventPx: number; timestampMs: number; positionQty?: number; }
-export interface FillDelta { symbol: string; side: 1 | -1; qty: number; price: number; clientOrderId: string; final: boolean; positionQty?: number; }
+export interface PrivateOrderEvent { id: string; event: string; orderId: string; clientOrderId: string; symbol: string; filledQty: number; eventQty: number; eventPx: number; timestampMs: number; positionQty?: number; feeUsd?: number; }
+export interface FillDelta { symbol: string; side: 1 | -1; qty: number; price: number; clientOrderId: string; final: boolean; positionQty?: number; feeUsd?: number; }
 
 export class OrderStateReconciler {
   private readonly orders = new Map<string, TrackedOrder>();
   private readonly privateEventIds = new Set<string>();
   public reserve(plan: ExecutionPlan): void {
-    if (this.hasPendingEntry(plan.symbol)) throw new Error(`Pending order already exists for ${plan.symbol}`);
+    const pending = [...this.orders.values()].filter((o) => o.plan.symbol === plan.symbol
+      && ["RESERVED", "SENDING", "OPEN", "PARTIALLY_FILLED", "CANCEL_PENDING", "UNKNOWN"].includes(o.status));
+    if (pending.length && (!plan.reduceOnlyIntent || pending.some((o) => o.plan.reduceOnlyIntent || !o.cancelRequestReason))) {
+      throw new Error(`Pending order already exists for ${plan.symbol}`);
+    }
     this.orders.set(plan.clientOrderId, { plan, status: "RESERVED", filledQty: 0, averageFillPx: 0, lastUpdateMs: plan.createdMs });
   }
   public markSending(clientOrderId: string): void { const order = this.must(clientOrderId); order.status = "SENDING"; order.lastUpdateMs = Date.now(); }
@@ -85,10 +89,12 @@ export class OrderStateReconciler {
       order.status = this.mapStatus(event.event, order.filledQty, order.plan.qty);
     }
     if (order.status === "CANCELED") order.cancellationReason = this.classifyCancellation(order, "VENUE_CANCELED");
-    const deltaQty = event.eventQty > 0 ? event.eventQty : Math.max(0, order.filledQty - previousFilled);
+    const deltaQty = Math.max(0, order.filledQty - previousFilled);
     if (deltaQty <= 0 || !["partial_fill", "fill"].includes(event.event)) return null;
     return { symbol: event.symbol, side: order.plan.side, qty: deltaQty, price: event.eventPx, clientOrderId: event.clientOrderId,
-      final: event.event === "fill", ...(event.positionQty !== undefined ? { positionQty: event.positionQty } : {}) };
+      final: event.event === "fill", ...(event.positionQty !== undefined ? { positionQty: event.positionQty } : {}),
+      ...(event.feeUsd !== undefined && Number.isFinite(event.feeUsd) && (event.eventQty === 0 || Math.abs(event.eventQty - deltaQty) < 1e-10)
+        ? { feeUsd: event.feeUsd } : {}) };
   }
   public reconcileOrder(remote: RemoteOrderSnapshot): TrackedOrder | undefined {
     const tracked = this.orders.get(remote.clientOrderId);

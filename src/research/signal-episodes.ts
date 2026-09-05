@@ -10,7 +10,7 @@ import { EXECUTION_SCENARIOS, ExecutionStressCase, stressObservation,
 export const EPISODE_RULES = Object.freeze({ sampleMs: 5_000, quoteGapMs: 5_000,
   quietResetMs: 5_000, minimumSpacingMs: 60_000, confirmationMs: 2_000,
   minimumConfirmationQuotes: 3, minimumTrendEfficiency: .15, maximumPending: 256 });
-export const EPISODE_HYPOTHESES = ["current-breakout", "range-5m-confirmed", "range-15m-confirmed"] as const;
+export const EPISODE_HYPOTHESES = ["current-breakout", "range-5m-confirmed", "range-15m-confirmed", "breakout-retest"] as const;
 interface Point { at: number; mid: number }
 interface Arm { at: number; boundary: number; quotes: number }
 interface Seen { lastSeenMs: number; lastCapturedMs: number }
@@ -65,8 +65,11 @@ export class SignalEpisodeCollector {
     }
     if (duplicateQuote) return events;
     const candidates: Array<{ hypothesisId: string; side: 1 | -1; boundary?: number }> = [];
+    if (f.retestCandidate) candidates.push({ hypothesisId: "breakout-retest", side: f.retestCandidate.side,
+      boundary: f.retestCandidate.boundary });
     if (asset?.symbol === this.symbol && f.warmedUp && f.kinematicsReady && f.slowTrendReady) {
-      for (const candidate of policyCandidates(f).filter((c) => c.family === "EARLY_BREAKOUT")) {
+      const { retestCandidate: _retest, ...legacyFeatures } = f;
+      for (const candidate of policyCandidates(legacyFeatures).filter((c) => c.family === "EARLY_BREAKOUT")) {
         candidates.push({ hypothesisId: "current-breakout", side: candidate.side });
       }
       for (const minutes of [5, 15]) for (const side of [1, -1] as const) {
@@ -113,11 +116,12 @@ export class SignalEpisodeCollector {
       this.seen.get(key)!.lastCapturedMs = now;
       const episodeId = randomUUID();
       this.counters.episodes++;
-      const policies = TRADING_POLICIES.filter((p) => p.family === "EARLY_BREAKOUT");
+      const family = candidate.hypothesisId === "breakout-retest" ? "BREAKOUT_RETEST" : "EARLY_BREAKOUT";
+      const policies = TRADING_POLICIES.filter((p) => p.family === family);
       const capacity = this.cases.size + policies.length * EXECUTION_SCENARIOS.length <= EPISODE_RULES.maximumPending;
       for (const policy of policies) {
         const source: PolicyObservation = { id: randomUUID(), sampling: "EPISODE", configurationVersion: this.configurationVersion,
-          policyVersion: POLICY_VERSION, symbol: this.symbol, family: "EARLY_BREAKOUT", side: candidate.side,
+          policyVersion: POLICY_VERSION, symbol: this.symbol, family, side: candidate.side,
           regime: candidate.side === 1 ? "BREAKOUT_UP" : "BREAKOUT_DOWN", policyId: policy.id,
           signalAtMs: now, signalBid: book.bids[0].px, signalAsk: book.asks[0].px, spreadBps: f.spreadBps,
           qty, filledQty: 0, entryAtMs: null, exitAtMs: null, entryPrice: null, exitPrice: null,
@@ -125,7 +129,9 @@ export class SignalEpisodeCollector {
           features: { impulseBps: f.impulseBps, breakoutUpBps: f.breakoutUpBps, breakoutDownBps: f.breakoutDownBps,
             trendFastBps: f.trendFastBps, trendMediumBps: f.trendMediumBps, trendSlowBps: f.trendSlowBps,
             slowTrendEfficiency: f.slowTrendEfficiency, ofi: f.ofi, tfi: f.tfi, velocityZ: f.velocityZ,
-            ...(candidate.boundary === undefined ? {} : { rangeBoundary: candidate.boundary }) } };
+            ...(candidate.boundary === undefined ? {} : { rangeBoundary: candidate.boundary }),
+            ...(family === "BREAKOUT_RETEST" && f.retestCandidate ? { invalidationPx: f.retestCandidate.invalidationPx,
+              policyVolatilityBps: f.retestCandidate.volatilityBps } : {}) } };
         for (const scenario of EXECUTION_SCENARIOS) {
           const start = stressObservation(source, scenario, episodeId, candidate.hypothesisId, context);
           const c = new ExecutionStressCase(start);

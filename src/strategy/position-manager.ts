@@ -1,7 +1,8 @@
 import type { Direction, Features } from "../core/market.js";
 import { clamp } from "../core/market.js";
 import type { EntryFamily, ExecutionPath } from "../economics/types.js";
-import { findPolicy, policyExit, validPositionPolicy, type PolicyPositionSpec } from "../research/trading-policy.js";
+import { findPolicy, policyExit, policyProtection, validPositionPolicy, type PolicyPositionSpec } from "../research/trading-policy.js";
+import { netLiquidation, requiredNetExecutionPrice, type LinearLedger, type NetProtection } from "../economics/net-liquidation.js";
 
 export type PositionPhase = "OPEN" | "RECOVERY" | "PROTECTED" | "TREND_HOLD" | "EXITING";
 export interface Position {
@@ -21,6 +22,9 @@ export interface Position {
   selectedHorizonMs?: number;
   executionPath?: ExecutionPath;
   policy?: PolicyPositionSpec;
+  ledger?: LinearLedger;
+  netProtection?: NetProtection;
+  netLiquidationUsd?: number;
   adverseEvidenceSinceMs?: number;
   lastReductionProbability?: number;
 }
@@ -78,9 +82,32 @@ export class PositionManager {
       if (!validPositionPolicy(p.policy)) { p.phase = "EXITING"; return { action: "EXIT", reason: "INVALID_POLICY" }; }
       const policy = findPolicy(p.policy.id)!;
       const grossBps = u / p.entryPx * 10_000;
-      const netBps = grossBps - p.policy.feeBps * (1 + executableExitPx / p.entryPx) - p.policy.reserveBps;
-      const reason = policyExit(policy, grossBps, netBps, nowMs - p.openedMs);
+      let netBps = grossBps - p.policy.feeBps * (1 + executableExitPx / p.entryPx) - p.policy.reserveBps;
+      if (policy.family === "BREAKOUT_RETEST") {
+        if (p.phase === "EXITING") return { action: "EXIT", reason: "POLICY_EXIT_LATCHED" };
+        if (!p.ledger || Math.abs(p.ledger.remainingQty - p.qty) > 1e-8) {
+          p.phase = "EXITING"; return { action: "EXIT", reason: "POLICY_LEDGER_UNCERTAIN" };
+        }
+        const reserve = p.ledger.entryNotional * p.policy.reserveBps / 10_000;
+        p.netLiquidationUsd = netLiquidation(p.ledger, executableExitPx, p.policy.feeBps, reserve);
+        p.netProtection ??= policyProtection(policy, p.policy.feeBps, p.policy.reserveBps, p.ledger.entryNotional);
+        netBps = p.netLiquidationUsd / p.netProtection.entryNotional * 10_000;
+        // Restarted positions keep the persisted floor; partial exits retain
+        // the original lifecycle's P&L and risk basis.
+        if (p.policy.invalidationPx !== undefined && p.side * (f.mid - p.policy.invalidationPx) < 0) {
+          p.phase = "EXITING"; return { action: "EXIT", reason: "POLICY_STRUCTURE_INVALID" };
+        }
+      }
+      const reason = policyExit(policy, grossBps, netBps, nowMs - p.openedMs, p.netProtection, p.policy.volatilityBps ?? 0);
       if (reason) { p.phase = "EXITING"; return { action: "EXIT", reason }; }
+      if (p.netProtection && p.ledger) {
+        const price = requiredNetExecutionPrice(p.ledger, p.netProtection.floorUsd,
+          p.policy.feeBps, p.ledger.entryNotional * p.policy.reserveBps / 10_000);
+        if (price === null) { p.phase = "EXITING"; return { action: "EXIT", reason: "INVALID_NET_FLOOR" }; }
+        p.floorPx = p.side * (price - p.entryPx);
+        p.phase = p.netProtection.activated ? "PROTECTED" : p.netProtection.recovered ? "RECOVERY" : "OPEN";
+        return { action: "HOLD", floorPx: p.floorPx, stopPx: price, signedMovePx: u };
+      }
       // A policy has one fixed stop and one unconditional deadline. The legacy
       // micro hold forecast must not silently substitute another exit policy.
       p.floorPx = -p.entryPx * policy.stopLossBps / 10_000;

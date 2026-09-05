@@ -53,6 +53,7 @@ export interface EngineConfig extends Omit<SymbolConfig, "symbol"> {
   paper: boolean;
   paperEntryExercise: boolean;
   policyEngineEnabled: boolean;
+  breakoutRetestEnabled: boolean;
   symbols: string[];
   symbolConfigs: Readonly<Record<string, SymbolConfig>>;
   krakenFutures: {
@@ -144,6 +145,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env, modeOverride?: 
     ...baselineConfig,
     mode, venue, paper, paperEntryExercise, symbols: [...files.base.symbols], symbolConfigs,
     policyEngineEnabled: parseBoolean(configuredEnv.POLICY_ENGINE_ENABLED, true),
+    breakoutRetestEnabled: parseBoolean(configuredEnv.BREAKOUT_RETEST_ENABLED, true),
     recordFile: configuredEnv.RECORD_FILE ?? "data/events.jsonl", replayFile: configuredEnv.REPLAY_FILE ?? "data/events.jsonl",
     krakenFutures: {
       websocketUrl: env.KRAKEN_FUTURES_WEBSOCKET_URL ?? "wss://futures.kraken.com/ws/v1",

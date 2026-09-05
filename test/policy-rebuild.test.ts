@@ -14,13 +14,71 @@ import { KrakenPaperBroker } from "../src/kraken/paper-broker.js";
 import { recoverPolicyPositions } from "../src/research/policy-restore.js";
 import { policyMarketPulse } from "../src/research/policy-pulse.js";
 import type { EpisodeObservation } from "../src/research/execution-stress.js";
+import type { BreakoutRetest } from "../src/strategy/breakout-retest.js";
 
-const cfg = loadConfig({ TRADING_MODE: "paper", CONFIG_DIR: "config" });
+// Legacy policy regression coverage; the rebuilt default has a separate staged
+// setup integration test and must not produce impulse-only entries.
+const cfg = loadConfig({ TRADING_MODE: "paper", CONFIG_DIR: "config", BREAKOUT_RETEST_ENABLED: "false" });
 const asset: AssetRules = { symbol: "BTC/USD", minOrderSize: .001, minTradeIncrement: .001,
   priceIncrement: .001, maximumOrderQty: 100, shortable: true };
 const day = 86_400_000, end = Date.UTC(2026, 8, 4), now = end + 3_600_000;
 const liquid = { pass: true, stress: false, sampleCount: 100, medianSpreadBps: 1,
   tradeThresholdBps: 1, stressThresholdBps: 2, reasons: [] };
+
+for (const side of [1, -1] as const) test(`rebuilt default submits a capped ${side === 1 ? "long" : "short"} paper retest and protects the fill`, async () => {
+  let clockMs = Date.now();
+  const start = clockMs;
+  const symbol = "BTC/USD";
+  const broker = new KrakenPaperBroker({ initialEquity: 100_000, productsBySymbol: { [symbol]: "TEST" },
+    instruments: new Map([[symbol, { symbol, productId: "TEST", tickSize: .001, quantityIncrement: .001, maximumOrderQty: 100 }]]),
+    makerFeeBpsBySymbol: { [symbol]: 2 }, takerFeeBpsBySymbol: { [symbol]: 5 } });
+  const engine = new TradingEngine({ ...cfg, breakoutRetestEnabled: true, continuousRecordingEnabled: false },
+    { rest: broker, gateway: broker, tradeStream: broker.tradeStream, now: () => clockMs });
+  const internals = engine as unknown as { equity: number; equityHighWater: number;
+    riskState: { setHealth: (value: Record<string, boolean>) => void };
+    runtimes: Map<string, { asset: AssetRules; latestFeatures: DeterministicFeatures; breakoutRetest: BreakoutRetest;
+      book: { apply: (value: unknown) => void }; liquidity: { observe: (spread: number) => void } }>;
+    processMarketState: (runtime: unknown, b: BookState, f: DeterministicFeatures) => void };
+  internals.equity = internals.equityHighWater = 100_000;
+  internals.riskState.setHealth({ publicStream: true, privateStream: true, accountReconciled: true, bookValid: true, riskRecomputed: true });
+  const feed = (b: BookState) => ({ symbol: b.symbol, bids: [...b.bids], asks: [...b.asks], reset: true,
+    exchangeTsMs: b.exchangeTsMs, receiveTsMs: b.receiveTsMs, sourceId: `test-${b.symbol}-${b.receiveTsMs}` });
+  for (const [s, r] of internals.runtimes) {
+    r.asset = { ...asset, symbol: s }; r.latestFeatures = features(clockMs, side, 100, s);
+    r.book.apply(feed(book(clockMs, 100, s)));
+    for (let i = 0; i <= cfg.dynamicLiquidity.minimumSamples; i++) r.liquidity.observe(1);
+  }
+  const runtime = internals.runtimes.get(symbol)!;
+  const decisions: ExecutionPlan[] = [];
+  engine.on("decision", ({ plan }: { plan: ExecutionPlan }) => decisions.push(plan));
+  const quote = async (second: number, move: number) => {
+    clockMs = start + second * 1_000;
+    const mid = 100 + side * move, b = book(clockMs, mid, symbol);
+    runtime.breakoutRetest.onTrade({ id: `t-${second}`, symbol, px: mid, qty: 1, aggressor: side,
+      receiveTsMs: clockMs, exchangeTsMs: clockMs });
+    runtime.book.apply(feed(b)); broker.onBook(feed(b));
+    internals.processMarketState(runtime, b, features(clockMs, side, mid, symbol));
+    for (let i = 0; i < 12; i++) await Promise.resolve();
+  };
+  try {
+    for (let i = 1; i <= 61; i++) await quote(i, 0);
+    await quote(62, .03); await quote(63, .08);
+    assert.equal(decisions.length, 0, "no initial-impulse entry");
+    await quote(64, .005); await quote(65, .006); await quote(66, .007); await quote(67, .009);
+    assert.equal(decisions.length, 1);
+    assert.equal(decisions[0]!.entryFamily, "BREAKOUT_RETEST");
+    assert.ok(decisions[0]!.qty * decisions[0]!.limitPx <= 12);
+    const p = engine.state().positions[0]!;
+    assert.equal(p.side, side); assert.ok(p.ledger); assert.ok(p.netProtection);
+    assert.equal(p.ledger.fundingEvidence, "UNOBSERVED");
+    await quote(68, 1);
+    assert.equal(engine.state().positions[0]!.phase, "PROTECTED");
+    await quote(69, .5);
+    assert.equal(engine.state().positions.length, 0);
+    assert.equal(engine.state().orders.at(-1)!.plan.exitReason, "POLICY_NET_FLOOR");
+    assert.ok(engine.state().realizedSessionPnl > 0, "synthetic profitable path checks accounting, not historical profitability");
+  } finally { await engine.stop(); }
+});
 
 function book(at: number, mid = 100, symbol = "BTC/USD"): BookState {
   return { symbol, bids: [{ px: mid - .005, qty: 10 }], asks: [{ px: mid + .005, qty: 10 }],
@@ -74,9 +132,9 @@ test("policy pulse distinguishes live signals from authorization and reflects ga
   assert.equal(pulse.status, "WAITING_FOR_QUOTE");
   assert.equal(pulse.promotedModels.length, 0);
   assert.equal(pulse.nextSampleAtMs, now + 50_000);
-  assert.equal(pulse.families.length, 3);
-  assert.equal(pulse.families[0]!.longSignal, true);
-  assert.equal(pulse.families[0]!.shortSignal, false);
+  assert.equal(pulse.families.length, 4);
+  assert.equal(pulse.families.find((f) => f.family === "CONTINUATION")!.longSignal, true);
+  assert.equal(pulse.families.find((f) => f.family === "CONTINUATION")!.shortSignal, false);
   pulse.lastSample!.candidates[0]!.policyId = "mutated-ui-copy";
   assert.equal(input.lastSample!.candidates[0]!.policyId, "trend-15m");
   assert.equal(policyMarketPulse({ ...input, mode: "CALIBRATED_PAPER" }).status, "AWAITING_VALIDATION");
@@ -88,8 +146,8 @@ test("policy pulse distinguishes live signals from authorization and reflects ga
   assert.equal(policyMarketPulse({ ...input, positionOpen: true, pendingOrder: true }).status, "ORDER_PENDING");
   assert.equal(policyMarketPulse({ ...input, positionOpen: true, book: { ...book(now), valid: false } }).status, "DATA_GATED");
   const short = policyMarketPulse({ ...input, features: features(now, -1) });
-  assert.equal(short.families[0]!.shortSignal, true);
-  assert.equal(short.families[0]!.longSignal, false);
+  assert.equal(short.families.find((f) => f.family === "CONTINUATION")!.shortSignal, true);
+  assert.equal(short.families.find((f) => f.family === "CONTINUATION")!.longSignal, false);
   assert.equal(policyMarketPulse({ ...input, features: features(now, -1), shortable: false }).candidates.length, 0);
 });
 

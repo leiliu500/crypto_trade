@@ -363,10 +363,12 @@ export class KrakenPaperBroker implements VenueClient, OrderGateway {
     this.cashEquity -= qty * price * feeBps / 10_000;
     const positionQty = this.positions.get(plan.symbol)?.qty ?? 0;
     this.activities.unshift({ id: randomUUID(), activity_type: "FILL", transaction_time: paperOrder.remote.updated_at,
-      symbol: plan.symbol, qty: String(qty), price: String(price), order_id: paperOrder.remote.id });
+      symbol: plan.symbol, qty: String(qty), price: String(price), order_id: paperOrder.remote.id,
+      fee_usd: String(qty * price * feeBps / 10_000) });
     if (this.activities.length > MAX_PAPER_ACTIVITIES) this.activities.length = MAX_PAPER_ACTIVITIES;
     this.persistState();
-    this.tradeStream.emit("order", this.privateEvent(paperOrder, final ? "fill" : "partial_fill", qty, price, positionQty));
+    this.tradeStream.emit("order", { ...this.privateEvent(paperOrder, final ? "fill" : "partial_fill", qty, price, positionQty),
+      feeUsd: qty * price * feeBps / 10_000 });
   }
 
   private cancelPaperOrder(paperOrder: PaperOrder): void {
@@ -637,7 +639,8 @@ function replayUtcSessionStartingCashEquity(initialEquity: number, persistedCash
     } else return null;
     const feeBps = plan.style === "maker" ? cfg.makerFeeBpsBySymbol[plan.symbol] ?? 0
       : cfg.takerFeeBpsBySymbol[plan.symbol] ?? 0;
-    cashEquity -= qty * price * feeBps / 10_000;
+    const recordedFee = activity.fee_usd === undefined ? NaN : Number(activity.fee_usd);
+    cashEquity -= Number.isFinite(recordedFee) ? recordedFee : qty * price * feeBps / 10_000;
   }
   const replayStartingCashEquity = startingCashEquity ?? cashEquity;
   const replaySessionPnl = cashEquity - replayStartingCashEquity;

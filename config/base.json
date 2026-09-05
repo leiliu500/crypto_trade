@@ -6,7 +6,7 @@
   ],
   "parameters": {
     "SIGNAL_MODE": "DETERMINISTIC_ONLY",
-    "DETERMINISTIC_CONFIG_VERSION": "btc-eth-regime-confirmed-breakout-v9.7.0",
+    "DETERMINISTIC_CONFIG_VERSION": "btc-eth-breakout-retest-v10.0.0",
     "STRATEGY_VERSION": "1.0.0",
     "MAXIMUM_NOTIONAL": 1000,
     "MAXIMUM_GROSS_NOTIONAL": 5000,
