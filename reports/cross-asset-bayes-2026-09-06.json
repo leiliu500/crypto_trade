@@ -1,0 +1,146 @@
+{
+  "specification": {
+    "version": "btc-eth-dynamic-bayes-v1",
+    "sampleMs": 60000,
+    "horizonMs": 900000,
+    "historyMs": 3600000,
+    "maximumQuoteAgeMs": 2000,
+    "maximumQuoteGapMs": 5000,
+    "maximumSampleGapMs": 90000,
+    "minimumLabels": 24,
+    "returnScaleBps": 20,
+    "parameterPenalty": 2,
+    "predictiveRiskPenalty": 0.1,
+    "maximumFeature": 6,
+    "weightMemory": 0.98,
+    "maximumModelAgeMs": 86400000
+  },
+  "generatedAtMs": 1788710962054,
+  "quality": {
+    "quoteCount": 280568,
+    "invalidQuotes": 54,
+    "firstMs": 1788560158840,
+    "lastMs": 1788709499810
+  },
+  "learning": {
+    "version": "btc-eth-dynamic-bayes-v1",
+    "labelsPerSymbol": 109,
+    "trainedThroughMs": 1788705079473,
+    "invalidLabelPairs": 8,
+    "historySamples": 39,
+    "trainingResets": 0,
+    "prequentialErrors": [
+      {
+        "symbol": "BTC/USD",
+        "labels": 85,
+        "modelMseBpsSquared": 54.814038842560606,
+        "zeroForecastMseBpsSquared": 53.6631990319842
+      },
+      {
+        "symbol": "ETH/USD",
+        "labels": 85,
+        "modelMseBpsSquared": 184.28866100348236,
+        "zeroForecastMseBpsSquared": 180.05155246705922
+      }
+    ]
+  },
+  "forecasts": 3386,
+  "eligibleForecasts": 0,
+  "reasons": {
+    "TRAINING": 768,
+    "COST_OR_UNCERTAINTY": 2618
+  },
+  "peakConservativeNetBps": -15.47073446655995,
+  "lastForecasts": [
+    {
+      "version": "btc-eth-dynamic-bayes-v1",
+      "symbol": "BTC/USD",
+      "atMs": 1788705381629,
+      "horizonMs": 900000,
+      "trainingLabels": 109,
+      "trainedThroughMs": 1788705079473,
+      "side": 1,
+      "predictedGrossBps": 0.2130242755230832,
+      "parameterUncertaintyBps": 1.8711890382550362,
+      "predictiveStdBps": 9.169906428700418,
+      "costHurdleBps": 13.125669978070588,
+      "conservativeNetBps": -17.57201442192762,
+      "eligible": false,
+      "reason": "COST_OR_UNCERTAINTY",
+      "factorBeta": 0.6301392845550469,
+      "expertWeights": {
+        "trend": 0.22471063412935743,
+        "cross-asset": 0.1964553564348467,
+        "relative-value": 0.1932485529614033,
+        "zero-alpha": 0.3855854564743926
+      }
+    },
+    {
+      "version": "btc-eth-dynamic-bayes-v1",
+      "symbol": "ETH/USD",
+      "atMs": 1788705381629,
+      "horizonMs": 900000,
+      "trainingLabels": 109,
+      "trainedThroughMs": 1788705079473,
+      "side": -1,
+      "predictedGrossBps": -1.562675662097012,
+      "parameterUncertaintyBps": 4.1161410567640715,
+      "predictiveStdBps": 14.855983836147848,
+      "costHurdleBps": 13.403543108492197,
+      "conservativeNetBps": -21.558747943538112,
+      "eligible": false,
+      "reason": "COST_OR_UNCERTAINTY",
+      "factorBeta": 1.355371309481232,
+      "expertWeights": {
+        "trend": 0.16369401825229168,
+        "cross-asset": 0.08494751014094018,
+        "relative-value": 0.19714409680889,
+        "zero-alpha": 0.5542143747978782
+      }
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "quotes-1s",
+      "latencyMs": 1000,
+      "feeMultiplier": 1
+    },
+    {
+      "id": "fees-1.5x",
+      "latencyMs": 1000,
+      "feeMultiplier": 1.5
+    },
+    {
+      "id": "latency-3s",
+      "latencyMs": 3000,
+      "feeMultiplier": 1
+    }
+  ],
+  "groups": [],
+  "outcomes": [],
+  "deploymentReady": false,
+  "limitations": [
+    "Initial exploratory screening on reused market snapshots, not an untouched holdout",
+    "Quote prices lack depth, queue and intraminute stop paths; these are hypothetical results, not broker fills",
+    "Common candidate timestamps across stresses; one position per symbol/scenario; alternatives cannot be added",
+    "Fixed 15-minute replay exit differs from the stop/target policies used by prospective shadow execution",
+    "No trained model is installed; missing paths invalidate trades and training labels"
+  ],
+  "sourceSnapshot": {
+    "kind": "market_snapshots",
+    "file": "/tmp/btc-eth-clean-market-20260906.jsonl",
+    "sha256": "c4f5252fcf6cfeac34625f30827f7301ec8e457da4a9378dd298ac54abdbe8ae",
+    "exclusiveCutoff": "2026-09-06T15:45:00Z",
+    "cleanTelemetryRequired": true
+  },
+  "configuredCosts": {
+    "BTC/USD": {
+      "takerFeeBps": 5,
+      "reserveBps": 3
+    },
+    "ETH/USD": {
+      "takerFeeBps": 5,
+      "reserveBps": 3
+    }
+  }
+}

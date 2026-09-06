@@ -38,6 +38,8 @@ import { PolicyCollector } from "../research/policy-collector.js";
 import { BreakoutRetest } from "../strategy/breakout-retest.js";
 import { newLinearLedger, recordLinearFill } from "../economics/net-liquidation.js";
 import { SignalEpisodeCollector, EPISODE_HYPOTHESES } from "../research/signal-episodes.js";
+import { CrossAssetModel, CROSS_ASSET_SYMBOLS, crossAssetPaperCandidate, type CrossAssetForecast, type CrossAssetQuote } from "../research/cross-asset-model.js";
+import { warmCrossAssetHistory, type CrossAssetHistoryBootstrap } from "../research/cross-asset-warmup.js";
 import { EPISODE_VERSION, type EpisodeContext } from "../research/execution-stress.js";
 import { validPolicyModel, type PolicyModel } from "../research/policy-validation.js";
 import { buildPolicyPlan, policyReserveBps } from "../research/policy-planner.js";
@@ -76,6 +78,7 @@ export interface EngineOperationalSnapshot {
   paper: boolean;
   paperEntryExercise: boolean;
   policyEngineEnabled?: boolean;
+  crossAssetPaperEntriesEnabled?: boolean;
   policyModelsInstalled?: number;
   strategyVersion: string;
   modelVersion: string;
@@ -206,6 +209,9 @@ function unavailableOrderGateway(): OrderGateway {
 
 export class TradingEngine extends EventEmitter {
   private readonly runtimes = new Map<string, SymbolRuntime>();
+  private crossAssetModel?: CrossAssetModel;
+  private crossAssetHistoryBootstrap?: CrossAssetHistoryBootstrap;
+  private readonly crossAssetForecasts = new Map<string, CrossAssetForecast>();
   private readonly rest: VenueClient;
   private readonly gateway: OrderGateway;
   private readonly marketStream: EngineMarketStream;
@@ -236,6 +242,10 @@ export class TradingEngine extends EventEmitter {
 
   public constructor(private readonly cfg: EngineConfig, dependencies: EngineDependencies = {}) {
     super();
+    if (cfg.policyEngineEnabled && !cfg.paperEntryExercise && CROSS_ASSET_SYMBOLS.every((s) => cfg.symbols.includes(s))) {
+      this.crossAssetModel = new CrossAssetModel(Object.fromEntries(CROSS_ASSET_SYMBOLS.map((s) =>
+        [s, { feeBps: cfg.symbolConfigs[s]!.cost.takerFeeBps, reserveBps: policyReserveBps(cfg.symbolConfigs[s]!) }])));
+    }
     this.now = dependencies.now ?? Date.now;
     this.realizedSessionDayStartMs = utcDayStartMs(this.now());
     this.rest = dependencies.rest ?? unavailableVenueClient();
@@ -335,6 +345,21 @@ export class TradingEngine extends EventEmitter {
       restored[symbol] = runtime.deterministicFeatures.restoreSlowTrend(history.get(symbol) ?? [], asOfMs);
     }
     return restored;
+  }
+
+  public async restoreCrossAssetHistory(quotes: AsyncIterable<CrossAssetQuote> | Iterable<CrossAssetQuote>, cutoffMs = this.now()) {
+    if (this.started) throw new Error("Cross-asset history must be restored before the engine starts");
+    if (!this.crossAssetModel) return null;
+    const costs = Object.fromEntries(CROSS_ASSET_SYMBOLS.map((symbol) => {
+      const c = this.cfg.symbolConfigs[symbol]!;
+      return [symbol, { feeBps: c.cost.takerFeeBps, reserveBps: policyReserveBps(c) }];
+    }));
+    const { model, bootstrap } = await warmCrossAssetHistory(quotes, costs, cutoffMs, this.now);
+    if (this.started) throw new Error("Cross-asset history must be restored before the engine starts");
+    this.crossAssetModel = model;
+    this.crossAssetHistoryBootstrap = bootstrap;
+    this.crossAssetForecasts.clear();
+    return { ...bootstrap };
   }
 
   public restorePositionStates(positions: readonly Position[]): number {
@@ -503,10 +528,16 @@ export class TradingEngine extends EventEmitter {
         liquidity: runtime.latestLiquidity, entryCounters: runtime.policyEntryCounters,
         lastRejection: runtime.entryAudit.snapshot().lastRejection,
         activePolicyId: runtime.position?.policy?.id ?? (runtime.position ? "legacy" : null),
+        crossAssetPaperEnabled: this.crossAssetPaperEnabled(runtime),
+        ...(this.crossAssetForecasts.get(symbol) ? { crossAssetForecast: this.crossAssetForecasts.get(symbol)! } : {}),
       }) : null;
       if (policyPulse && this.cfg.breakoutRetestEnabled) policyPulse.setup = runtime.breakoutRetest.snapshot();
       if (policyPulse) policyPulse.research = { version: EPISODE_VERSION,
-        hypotheses: [...EPISODE_HYPOTHESES], counters: runtime.researchEpisodes.stats() };
+        hypotheses: [...EPISODE_HYPOTHESES], counters: runtime.researchEpisodes.stats(),
+        ...(this.crossAssetModel ? { crossAsset: { learning: this.crossAssetModel.stats(),
+          paperSubmissionEnabled: this.crossAssetPaperEnabled(runtime),
+          ...(this.crossAssetHistoryBootstrap ? { historyBootstrap: { ...this.crossAssetHistoryBootstrap } } : {}),
+          forecast: this.crossAssetForecasts.get(symbol) ?? null } } : {}) };
       return {
         policyPulse,
         symbol,
@@ -536,6 +567,7 @@ export class TradingEngine extends EventEmitter {
       paperEntryExercise: this.cfg.paperEntryExercise,
       strategyVersion: this.cfg.policyEngineEnabled ? POLICY_VERSION : this.cfg.strategyVersion,
       policyEngineEnabled: this.cfg.policyEngineEnabled,
+      crossAssetPaperEntriesEnabled: [...this.runtimes.values()].some((runtime) => this.crossAssetPaperEnabled(runtime)),
       policyModelsInstalled: [...this.runtimes.values()].reduce((count, runtime) => count
         + runtime.policyModels.filter((m) => validPolicyModel(m, runtime.config.configurationVersion, generatedAtMs)).length, 0),
       modelVersion: this.cfg.modelVersion,
@@ -673,6 +705,15 @@ export class TradingEngine extends EventEmitter {
       return;
     }
     runtime.latestFeatures = features;
+    if (quoteEvent && this.crossAssetModel) {
+      const current = this.now() >= book.receiveTsMs && this.now() - book.receiveTsMs <= POLICY_MAX_ENTRY_DELAY_MS;
+      if (features.stale || !current) this.crossAssetForecasts.clear();
+      for (const forecast of this.crossAssetModel.observe({ symbol: book.symbol, atMs: book.receiveTsMs,
+        bid: book.bids[0]?.px ?? 0, ask: book.asks[0]?.px ?? 0, valid: book.valid && !features.stale && current })) {
+        this.crossAssetForecasts.set(forecast.symbol, forecast);
+        this.emit("crossAssetForecast", forecast);
+      }
+    }
     // Collection precedes legacy score, economics, cooldown, and exposure gates.
     // Trades do not count as fresh quotes, even though they advance feature clocks.
     const previousPolicySample = runtime.policyCollector.lastSampleAtMs();
@@ -746,7 +787,8 @@ export class TradingEngine extends EventEmitter {
       });
       const current = this.now() >= book.receiveTsMs && this.now() - book.receiveTsMs <= POLICY_MAX_ENTRY_DELAY_MS;
       for (const observation of runtime.researchEpisodes.observe(book, current ? features : { ...features, stale: true },
-        runtime.asset, { long: context(longLiquidity), short: context(shortLiquidity) })) this.emit("researchEpisode", observation);
+        runtime.asset, { long: context(longLiquidity), short: context(shortLiquidity) },
+        this.crossAssetForecasts.get(book.symbol))) this.emit("researchEpisode", observation);
     }
     if (this.cfg.mode === "record") return;
 
@@ -1016,19 +1058,29 @@ export class TradingEngine extends EventEmitter {
   }
 
   private invalidatePolicyResearch(runtime: SymbolRuntime, reason: string): void {
+    this.crossAssetModel?.invalidate(); this.crossAssetForecasts.clear();
     runtime.breakoutRetest.reset();
     for (const observation of runtime.policyCollector.invalidate(this.now(), reason)) this.emit("policyObservation", observation);
     for (const observation of runtime.researchEpisodes.invalidate(this.now(), reason)) this.emit("researchEpisode", observation);
   }
 
+  private crossAssetPaperEnabled(runtime: SymbolRuntime): boolean {
+    return Boolean(this.crossAssetModel && this.cfg.crossAssetPaperEntriesEnabled && this.cfg.policyEngineEnabled
+      && !this.cfg.paperEntryExercise && this.cfg.mode === "paper" && this.cfg.paper
+      && runtime.config.planner.hybridEntry.allowAnalyticPaperExecution);
+  }
+
   private attemptPolicyEntry(runtime: SymbolRuntime, book: BookState, features: DeterministicFeatures): void {
-    const candidates = policyCandidates(features);
+    const nowMs = this.now();
+    const forecast = this.crossAssetPaperEnabled(runtime) ? this.crossAssetForecasts.get(book.symbol) : undefined;
+    const jointCandidate = crossAssetPaperCandidate(forecast, book.symbol, nowMs);
+    const candidates = jointCandidate ? [jointCandidate] : policyCandidates(features);
     if (!candidates.length) return;
     runtime.policyEntryCounters.signalMatches++;
-    const nowMs = this.now();
-    const choices = candidates.flatMap((candidate) => TRADING_POLICIES.filter((p) => p.family === candidate.family)
+    const choices = candidates.flatMap((candidate) => TRADING_POLICIES.filter((p) => p.family === candidate.family
+      && (!jointCandidate || p.id === "trend-15m"))
       .map((p) => ({ ...candidate, policyId: p.id })));
-    const matching = choices.flatMap((o) => runtime.policyModels.filter((m) =>
+    const matching = jointCandidate ? [] : choices.flatMap((o) => runtime.policyModels.filter((m) =>
       validPolicyModel(m, runtime.config.configurationVersion, nowMs) && m.policyId === o.policyId
       && m.side === o.side && m.regime === o.regime).map((model) => ({ observation: o, model })));
     // A declared rotation explores hypotheses without assigning fictional edge.
@@ -1037,7 +1089,7 @@ export class TradingEngine extends EventEmitter {
       ?? choices[Math.floor(nowMs / POLICY_RESEARCH_COOLDOWN_MS) % choices.length]!;
     const report = (reason: string, stage?: EntryPipelineStage): void => {
       const evaluation = { atMs: nowMs, quoteAtMs: features.receiveTsMs, policyId: observation.policyId, side: observation.side,
-        reason, modelKey: selected?.model.key ?? null };
+        reason, modelKey: jointCandidate ? forecast!.version : selected?.model.key ?? null };
       runtime.latestPolicyEvaluation = evaluation;
       const signature = `${observation.policyId}:${observation.side}:${reason}`;
       if (nowMs - (runtime.policyEvaluationReports.get(signature) ?? -Infinity) >= 30_000) {
@@ -1067,9 +1119,11 @@ export class TradingEngine extends EventEmitter {
       report(liquidity?.reasons.join("+") || "LIQUIDITY_UNAVAILABLE", "LIQUIDITY_PASS"); return;
     }
     runtime.entryAudit.pass("LIQUIDITY_PASS");
-    const { plan, reason } = buildPolicyPlan({ config: runtime.config, book, features, asset: runtime.asset,
+    const entryFeatures = jointCandidate ? { ...features, retestCandidate: null } : features;
+    const { plan, reason } = buildPolicyPlan({ config: runtime.config, book, features: entryFeatures, asset: runtime.asset,
       candidate: observation, policyId: observation.policyId,
       ...(selected ? { model: selected.model } : {}),
+      ...(jointCandidate ? { crossAssetForecast: forecast!, allowCrossAssetPaper: true } : {}),
       allowPaperResearch: this.cfg.mode === "paper" && this.cfg.paper
         && runtime.config.planner.hybridEntry.allowAnalyticPaperExecution,
       equity: this.equity, equityHighWater: this.equityHighWater, nowMs });
@@ -1087,8 +1141,8 @@ export class TradingEngine extends EventEmitter {
     }
     // Entry-timed paired labels cannot be pooled with periodic counterfactuals.
     // Persist starts before dispatch, including attempts that later fail to fill.
-    const entryObservations = runtime.policyCollector.captureEntry(book, features, runtime.asset, observation, plan.qty,
-      { clientOrderId: plan.clientOrderId, decisionAtMs: plan.createdMs });
+    const entryObservations = runtime.policyCollector.captureEntry(book, entryFeatures, runtime.asset, observation, plan.qty,
+      { clientOrderId: plan.clientOrderId, decisionAtMs: plan.createdMs }, jointCandidate ? forecast : undefined);
     const entryObservation = entryObservations.find((o) => o.policyId === plan.policy!.id);
     if (!entryObservation) { report("POLICY_ENTRY_EVIDENCE_UNAVAILABLE", "EXECUTION_PLAN_PASS"); return; }
     for (const o of entryObservations) this.emit("policyObservation", o);
@@ -1097,7 +1151,7 @@ export class TradingEngine extends EventEmitter {
     runtime.lastPolicyEntryMs = nowMs;
     report(reason);
     this.emit("decision", { configurationVersion: runtime.config.configurationVersion,
-      strategyVersion: POLICY_VERSION, features, plan, mode: this.cfg.mode, policyObservationId: entryObservation.id,
+      strategyVersion: POLICY_VERSION, features: entryFeatures, plan, mode: this.cfg.mode, policyObservationId: entryObservation.id,
       policyEvidence: selected?.model ?? null });
     if (this.cfg.mode === "paper") void this.submit(plan);
   }

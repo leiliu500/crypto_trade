@@ -6,9 +6,10 @@ It does **not** promise profit or zero latency. The checked-in `.env.example` se
 
 ## Rebuilt default strategy layer
 
-The latest default is the [breakout–retest rebuild](docs/RETEST_REBUILD.md): a
-frozen range breakout, orderly retest and flow-confirmed reacceleration, with a
-shared lifecycle net-P&L ledger and non-loosening profit floor. It uses version
+Configuration `btc-eth-joint-bayes-v10.3.0` adds eligible joint BTC/ETH forecasts
+to the capped paper entry path. The [breakout–retest strategy](docs/RETEST_REBUILD.md)
+remains available when no joint forecast qualifies, with its shared lifecycle
+net-P&L ledger and non-loosening profit floor. Both use version
 `executable-policy-v3`; prior versions and the descriptions below remain useful
 for historical compatibility. Paper submissions remain enabled under the
 existing capped experiment permission. Replay has not established profitability.
@@ -26,6 +27,12 @@ Paper execution remains available without a promoted model: the existing `ANALYT
 
 Run `npm run research:policies -- --summary` for the current report. Migration `008_policy_research` stores candidate starts, terminal outcomes, evaluation audits, and approved models. Startup and hourly refresh replace the complete model set; UTC-day evidence boundaries and model expiry stay fixed within the day. Missing outcomes and unclean telemetry fail promotion. Legacy `research:calibrate` is diagnostic-only and no longer installs markout buckets into the active strategy.
 
+Run `npm run research:exits` to compare holding policies on identical completed
+entry opportunities, with separate observed-fill and simulated-entry cohorts,
+explicit missing outcomes, and a common subset of non-overlapping entries.
+This read-only report never selects or installs a policy. See the
+[September 6 entry and trade evaluation](docs/ENTRY_TRADE_EVALUATION_2026_09_06.md).
+
 After-cost research now has a separate, non-trading episode stream. It compares
 the current breakout trigger with sustained five-/fifteen-minute range breaks,
 captures distinct eligible signals during execution cooldowns, and tests paired
@@ -37,6 +44,25 @@ change order sizing. See [after-cost research](docs/AFTER_COST_RESEARCH.md).
 `npm run research:edge -- --summary` evaluates a conditional net-return model
 using chronological ridge forecasts, uncertainty and tail-loss penalties. It
 does not alter paper submission. See [model equations and validation limits](docs/CONDITIONAL_EDGE.md).
+
+The [joint BTC/ETH Bayesian model](docs/CROSS_ASSET_BAYES.md) learns from the
+broader market stream, combines adaptive trend and relative-value forecasts,
+and submits qualifying forecasts when `CROSS_ASSET_PAPER_ENTRIES_ENABLED=true`
+and paper research execution is permitted. Compose and `.env.example` enable
+this flag; direct config loading defaults it off. Joint entries use capped $12
+IOC orders, the existing shared 30-minute per-symbol cooldown, and `trend-15m`
+stop/target/deadline exits. Current price, exact costs, uncertainty, risk sizing,
+liquidity and portfolio gates must pass. The dashboard exposes the effective
+submission flag, historical training source and model learning progress. Before
+trading starts, the engine replays up to 48 hours of clean stored BTC/ETH quotes
+through the same causal learner. Completed labels seed the model; historical
+forecasts never become orders. Fresh synchronized quotes and all existing entry
+checks are required after startup. Missing or insufficient history falls back to
+live warmup: one hour of history plus 24 completed 15-minute labels. The separate
+shadow experiment also continues. Run `npm run research:cross-asset:warmup` for
+a read-only historical training check before deployment.
+Run `npm run research:cross-asset -- quotes.jsonl` for its chronological quote
+screen. The initial model did not beat a zero-return forecast or establish profit.
 
 ## Legacy engine and diagnostic compatibility
 

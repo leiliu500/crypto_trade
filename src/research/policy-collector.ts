@@ -7,6 +7,7 @@ import { findPolicy, policyCandidates, policyExit, POLICY_VERSION, POLICY_SAMPLE
   POLICY_ENTRY_LATENCY_MS, POLICY_MAX_ENTRY_DELAY_MS, POLICY_MAX_QUOTE_GAP_MS, POLICY_NOTIONAL,
   TRADING_POLICIES, policyQuantity, policyProtection, type PolicyCandidate } from "./trading-policy.js";
 import type { NetProtection } from "../economics/net-liquidation.js";
+import { crossAssetPaperCandidate, type CrossAssetForecast } from "./cross-asset-model.js";
 
 export interface PolicyObservation extends PolicyCandidate {
   sampling: "PERIODIC" | "ENTRY" | "EPISODE";
@@ -151,14 +152,17 @@ export class PolicyCollector {
    * quantity. This never advances or waits for the periodic research clock. */
   public captureEntry(book: BookState, features: DeterministicFeatures, asset: AssetRules,
     candidate: PolicyCandidate, qty: number,
-    execution?: { clientOrderId: string; decisionAtMs: number }): PolicyObservation[] {
+    execution?: { clientOrderId: string; decisionAtMs: number }, crossAssetForecast?: CrossAssetForecast): PolicyObservation[] {
     if (execution && (!execution.clientOrderId || !Number.isFinite(execution.decisionAtMs)
       || execution.decisionAtMs < features.receiveTsMs
       || execution.decisionAtMs - features.receiveTsMs > POLICY_MAX_ENTRY_DELAY_MS)) return [];
+    const joint = crossAssetPaperCandidate(crossAssetForecast, book.symbol, execution?.decisionAtMs ?? NaN);
+    const matches = (c: PolicyCandidate) => c.family === candidate.family && c.side === candidate.side && c.regime === candidate.regime;
+    if (crossAssetForecast && (!execution || !joint || !matches(joint))) return [];
     if (!book.valid || features.stale || book.symbol !== this.symbol
       || book.receiveTsMs !== features.receiveTsMs || !book.bids[0] || !book.asks[0]
       || book.asks[0].px <= book.bids[0].px || (candidate.side === -1 && !asset.shortable)
-      || !policyCandidates(features).some((c) => c.family === candidate.family && c.side === candidate.side && c.regime === candidate.regime)) return [];
+      || (!crossAssetForecast && !policyCandidates(features).some(matches))) return [];
     const policies = TRADING_POLICIES.filter((p) => p.family === candidate.family);
     const price = candidate.side === 1 ? book.asks[0].px : book.bids[0].px;
     if (!Number.isFinite(qty) || !(qty > 0) || !(asset.minTradeIncrement > 0)
@@ -176,7 +180,12 @@ export class PolicyCollector {
       features: { trendFastBps: features.trendFastBps, trendMediumBps: features.trendMediumBps,
         trendSlowBps: features.trendSlowBps, slowTrendEfficiency: features.slowTrendEfficiency,
         ofi: features.ofi, tfi: features.tfi, velocityZ: features.velocityZ,
-        ...(features.retestCandidate ? { invalidationPx: features.retestCandidate.invalidationPx,
+        ...(crossAssetForecast ? { forecastReferenceMid: crossAssetForecast.referenceMid,
+          forecastGrossBps: crossAssetForecast.predictedGrossBps, forecastNetBps: crossAssetForecast.conservativeNetBps,
+          forecastParameterUncertaintyBps: crossAssetForecast.parameterUncertaintyBps,
+          forecastPredictiveStdBps: crossAssetForecast.predictiveStdBps,
+          forecastTrainingLabels: crossAssetForecast.trainingLabels, forecastAtMs: crossAssetForecast.atMs } : {}),
+        ...(candidate.family === "BREAKOUT_RETEST" && features.retestCandidate ? { invalidationPx: features.retestCandidate.invalidationPx,
           policyVolatilityBps: features.retestCandidate.volatilityBps } : {}) },
     }));
     for (const observation of events) this.pending.set(observation.id,

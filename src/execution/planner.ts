@@ -68,6 +68,7 @@ export interface ExecutionPlan {
   /** True when an uncalibrated paper order exists only to collect bounded research evidence. */
   researchOnly?: boolean;
   policy?: PolicyPositionSpec;
+  crossAssetForecast?: import("../research/cross-asset-model.js").CrossAssetForecast;
   expectedCost: CostEstimate;
   risk: RiskApproval;
   fillProbability: number;
