@@ -456,7 +456,7 @@ test("a deadline that fires while order submission is in flight cancels immediat
     id: "deadline-order", client_order_id: plan.clientOrderId, symbol: "BTCUSD",
     filled_qty: "0", filled_avg_price: null, status: "canceled", updated_at: new Date().toISOString(),
   } }) };
-  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", CONFIG_DIR: "config" }), {
+  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", CONFIG_DIR: "config", MODEL_ONLY_ENTRIES: "false" }), {
     gateway, rest: rest as never, now: Date.now,
   });
   const internals = engine as unknown as {
@@ -496,7 +496,7 @@ test("an accepted maker order expires on its wall-clock deadline without another
     id: "event-free-order", client_order_id: plan.clientOrderId, symbol: "BTCUSD",
     filled_qty: "0", filled_avg_price: null, status: "canceled", updated_at: new Date().toISOString(),
   } }) };
-  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", CONFIG_DIR: "config" }), {
+  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", CONFIG_DIR: "config", MODEL_ONLY_ENTRIES: "false" }), {
     gateway, rest: rest as never, now: Date.now,
   });
   const internals = engine as unknown as {
@@ -528,7 +528,7 @@ test("an emergency cancel-all intent survives a delayed order acknowledgment", a
     id: "emergency-order", client_order_id: plan.clientOrderId, symbol: "BTCUSD",
     filled_qty: "0", filled_avg_price: null, status: "canceled", updated_at: new Date(nowMs).toISOString(),
   } }) };
-  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", CONFIG_DIR: "config" }), {
+  const engine = new TradingEngine(loadConfig({ TRADING_MODE: "paper", CONFIG_DIR: "config", MODEL_ONLY_ENTRIES: "false" }), {
     gateway, rest: rest as never, now: () => nowMs,
   });
   const internals = engine as unknown as {

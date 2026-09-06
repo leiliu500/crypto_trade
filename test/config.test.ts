@@ -50,7 +50,7 @@ test("JSON baseline wins over legacy tunable environment values and symbol overl
       [3_600_000, 7_200_000, 14_400_000]);
     assert.equal(cfg.deterministicSignal.requireMakerEntry, true);
     assert.equal(cfg.deterministicSignal.allowTakerContinuation, true);
-    assert.equal(cfg.configurationVersion, "btc-eth-joint-bayes-v10.3.0");
+    assert.equal(cfg.configurationVersion, "btc-eth-model-evaluation-v10.4.0");
     assert.equal(cfg.deterministicSignal.pullbackRecovery.maximumReversalAgeMs, 600_000);
     assert.equal(cfg.position.minimumHoldMs, 60_000);
     assert.equal(cfg.position.unproductiveExitMs, 900_000);
@@ -205,4 +205,13 @@ test("paper entry exercise is isolated, capped, labeled, and rejected outside pa
   assert.equal(paper.deterministicSignal.analyticEdge.spreadUncertaintyWeight, 0);
   assert.equal(paper.deterministicSignal.analyticEdge.flipUncertaintyWeight, 0);
   assert.throws(() => loadConfig({ TRADING_MODE: "replay", PAPER_ENTRY_EXERCISE: "true" }), /restricted to Kraken paper mode/);
+});
+test("model-only defaults block rule entries and evaluation requires its explicit runtime flag", () => {
+  const base = loadConfig({ TRADING_MODE: "paper" });
+  assert.equal(base.modelOnlyEntries, true);
+  assert.equal(base.crossAssetPaperEvaluationEnabled, false);
+  const evaluation = loadConfig({ TRADING_MODE: "paper", CROSS_ASSET_PAPER_ENTRIES_ENABLED: "true",
+    CROSS_ASSET_PAPER_EVALUATION_ENABLED: "true" });
+  assert.equal(evaluation.crossAssetPaperEntriesEnabled, true);
+  assert.equal(evaluation.crossAssetPaperEvaluationEnabled, true);
 });

@@ -124,3 +124,6 @@
   .market-metrics,.order-main,.cost-grid{grid-template-columns:minmax(0,1fr)}
   .live-card{grid-template-columns:28px minmax(0,1fr)}.live-dot{display:none}
 }
+.model-entry-mode{font-size:12px;color:var(--text);font-weight:700;line-height:1.6}
+.model-entry-mode small,.entry-forecast small{display:block;font-weight:400;color:var(--muted);margin-top:5px;line-height:1.5;overflow-wrap:anywhere}
+.model-results,.entry-forecast{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:12px;overflow-wrap:anywhere}

@@ -9,7 +9,7 @@ and prospective execution experiment, not a demonstrated profit improvement.
 ## Model
 
 Fresh BTC and ETH quotes are synchronized within two seconds and sampled once per
-minute. Sixty minutes of continuous history supplies 5/15/60-minute own-asset
+minute. Sixty minutes of price samples, with no sample gap over 90 seconds, supplies 5/15/60-minute own-asset
 returns, 5/15-minute peer returns, relative returns and deviations from rolling
 log-price means. A rolling covariance estimates each asset's exposure to its peer:
 
@@ -98,23 +98,26 @@ execution stresses, with actual recorded books, capped hypothetical IOC entries,
 partial fills, fees, reserves and invalid-path handling. Health, liquidity and
 research-capacity checks apply.
 
-Configuration `btc-eth-joint-bayes-v10.3.0` also enables paper submission through
+Configuration `btc-eth-model-evaluation-v10.4.0` enables paper submission through
 `CROSS_ASSET_PAPER_ENTRIES_ENABLED=true` in Compose and `.env.example`. Direct
 configuration loading defaults this flag off. Submission additionally requires
 paper mode, the policy engine, both symbols, and analytical paper permission;
 exercise and calibrated-only modes cannot submit joint-model experiments.
 
-An eligible forecast takes priority over the existing breakout/retest candidate
-and uses only `trend-15m`, matching its prediction horizon. The existing strategy
-remains available when no joint forecast qualifies. Orders use the existing
+`MODEL_ONLY_ENTRIES=true` makes model forecasts the sole entry source, using only
+`trend-15m` to match their prediction horizon. Breakout/retest and other rule
+entries are disabled. Compose enables [paper evaluation](MODEL_PAPER_EVALUATION.md)
+to collect model outcomes even when the profitability screen fails. Orders use the existing
 $12 notional cap and shared 30-minute per-symbol attempt cooldown. Health,
 drawdown, liquidity, sizing, asset and portfolio controls remain mandatory.
 The planner rebases the prediction from its saved midpoint to the current quote
 and subtracts fees, spread, latency, impact, adverse selection, funding/borrow
-reserves and positive cost error once. The uncertainty-adjusted score must exceed
-the configured minimum net edge and reward/risk threshold at the final quantity.
+reserves and positive cost error once. Qualified mode requires the uncertainty-adjusted
+score to exceed the configured minimum net edge and reward/risk threshold at the
+final quantity. Paper evaluation retains those scores, including negative values,
+without enforcing the profitability screen; all other execution and risk gates apply.
 The IOC price cap stays at the best quote and expiry never extends past one
-second after the forecast. Stale or invalid forecasts cannot qualify.
+second after the forecast. Stale, untrained, or out-of-domain forecasts cannot trade.
 
 Orders retain the full model snapshot and are tagged `ANALYTIC`, `researchOnly`,
 and a model-version-specific regime. They are never represented as calibrated
@@ -144,9 +147,10 @@ qualify. Quotes at or after the cutoff and reversed timestamps are rejected.
 The replay builds an isolated model and installs it only after the full read
 succeeds. No historical forecasts, research-entry observations or order plans
 are emitted. Startup discards the unfinished historical interval and clears
-the quote cache. Startup reconstructs a separate minute price window from valid,
-synchronized historical quotes using the existing 90-second sample-gap limit.
-This permits brief deployment interruptions in price features. The training
+the quote cache. Historical and live sampling retain the minute price window from
+valid synchronized quotes across interruptions within the existing 90-second
+sample-gap limit. This prevents a brief stale quote from restarting a full hour
+of feature warmup. The training
 path still rejects quote outages over five seconds and every invalid quote;
 retained price context cannot complete a training interval across an outage or
 the handoff. A price window older than 90 seconds is discarded. Both assets must supply fresh quotes before
@@ -156,7 +160,9 @@ existing cost, sizing, liquidity, cooldown and portfolio checks.
 
 `historyBootstrap` in each asset's dashboard model data records the data cutoff,
 quote count, restored labels and whether recent history survived. The visible
-panel shows how many completed intervals came from history. Historical model
+panel shows how many completed intervals came from history, whether the current
+price window is ready, and when a longer gap requires it to rebuild. Forecasts
+update once per minute; the one-second order freshness check is unchanged. Historical model
 training is not evidence that executable trades will be profitable.
 
 A missing, failed or insufficient history read falls back to live learning.

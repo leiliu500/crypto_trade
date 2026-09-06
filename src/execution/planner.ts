@@ -69,6 +69,7 @@ export interface ExecutionPlan {
   researchOnly?: boolean;
   policy?: PolicyPositionSpec;
   crossAssetForecast?: import("../research/cross-asset-model.js").CrossAssetForecast;
+  crossAssetEntryMode?: "QUALIFIED" | "PAPER_EVALUATION";
   expectedCost: CostEstimate;
   risk: RiskApproval;
   fillProbability: number;

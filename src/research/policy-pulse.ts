@@ -30,6 +30,7 @@ export interface PolicyMarketPulse {
   research?: { version: string; hypotheses: string[]; counters: Record<string, number>;
     crossAsset?: { learning: ReturnType<import("./cross-asset-model.js").CrossAssetModel["stats"]>;
       paperSubmissionEnabled: boolean;
+      paperEvaluationEnabled?: boolean;
       historyBootstrap?: import("./cross-asset-warmup.js").CrossAssetHistoryBootstrap;
       forecast: import("./cross-asset-model.js").CrossAssetForecast | null } };
   version: string;
@@ -67,13 +68,15 @@ export function policyMarketPulse(input: {
   liquidity?: { long: LiquidityDecision; short: LiquidityDecision } | undefined;
   entryCounters?: PolicyEntryCounters;
   crossAssetPaperEnabled?: boolean; crossAssetForecast?: CrossAssetForecast;
+  modelOnlyEntries?: boolean; crossAssetPaperEvaluationEnabled?: boolean;
 }): PolicyMarketPulse {
   const f = input.features;
   const dataValid = input.book.valid && f && !f.stale;
-  const joint = input.crossAssetPaperEnabled ? crossAssetPaperCandidate(input.crossAssetForecast, input.book.symbol, input.nowMs) : null;
-  const candidates = dataValid ? (joint ? [joint] : policyCandidates(f)).filter((c) => c.side === 1 || input.shortable) : [];
-  const availablePolicies = TRADING_POLICIES.filter((p) => f?.retestCandidate === undefined
-    || p.family === "BREAKOUT_RETEST" || (input.crossAssetPaperEnabled && p.id === "trend-15m"));
+  const joint = input.crossAssetPaperEnabled ? crossAssetPaperCandidate(input.crossAssetForecast, input.book.symbol,
+    input.nowMs, input.crossAssetPaperEvaluationEnabled) : null;
+  const candidates = dataValid ? (joint ? [joint] : input.modelOnlyEntries ? [] : policyCandidates(f)).filter((c) => c.side === 1 || input.shortable) : [];
+  const availablePolicies = TRADING_POLICIES.filter((p) => input.modelOnlyEntries ? p.id === "trend-15m"
+    : f?.retestCandidate === undefined || p.family === "BREAKOUT_RETEST" || (input.crossAssetPaperEnabled && p.id === "trend-15m"));
   const cooldownRemainingMs = Math.max(0, input.cooldownUntilMs - input.nowMs);
   const matchingModel = input.models.some((m) => candidates.some((c) =>
     m.family === c.family && m.side === c.side && m.regime === c.regime)
@@ -98,7 +101,7 @@ export function policyMarketPulse(input: {
   else if (!anyLiquidCandidate) { status = "LIQUIDITY_BLOCKED"; reasons = liquidityReasons; }
   else if (!matchingModel && input.mode !== "PAPER_RESEARCH") status = "AWAITING_VALIDATION";
   else if (input.lastEvaluation?.quoteAtMs === f.receiveTsMs
-    && !["POLICY_PAPER_EXPERIMENT", "POLICY_PROMOTED_PAPER", "CROSS_ASSET_PAPER_EXPERIMENT"].includes(input.lastEvaluation.reason)) {
+    && !["POLICY_PAPER_EXPERIMENT", "POLICY_PROMOTED_PAPER", "CROSS_ASSET_PAPER_EXPERIMENT", "CROSS_ASSET_PAPER_EVALUATION"].includes(input.lastEvaluation.reason)) {
     status = "ENTRY_BLOCKED"; reasons = [input.lastEvaluation.reason];
   } else status = "WAITING_FOR_QUOTE";
   return { version: POLICY_VERSION, mode: input.mode, status, reasons, candidates,

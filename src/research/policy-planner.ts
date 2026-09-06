@@ -22,12 +22,14 @@ export function buildPolicyPlan(input: {
   config: SymbolConfig; book: BookState; features: DeterministicFeatures; asset: AssetRules;
   candidate: PolicyCandidate; policyId: string; model?: PolicyModel;
   crossAssetForecast?: CrossAssetForecast; allowCrossAssetPaper?: boolean;
+  allowCrossAssetPaperEvaluation?: boolean;
   allowPaperResearch: boolean; equity: number; equityHighWater: number; nowMs: number;
 }): { plan: ExecutionPlan | null; reason: string } {
   const { config: cfg, book, features: f, asset, candidate, model, nowMs } = input;
   const policy = findPolicy(input.policyId);
   const forecast = input.crossAssetForecast;
-  const jointCandidate = crossAssetPaperCandidate(forecast, book.symbol, nowMs);
+  const evaluation = Boolean(forecast && input.allowCrossAssetPaperEvaluation);
+  const jointCandidate = crossAssetPaperCandidate(forecast, book.symbol, nowMs, evaluation);
   if (forecast && (!input.allowCrossAssetPaper || !input.allowPaperResearch || model
     || !jointCandidate || jointCandidate.side !== candidate.side || jointCandidate.regime !== candidate.regime
     || policy?.id !== "trend-15m" || policy.horizonMs !== forecast.horizonMs)) {
@@ -64,12 +66,13 @@ export function buildPolicyPlan(input: {
   // quote, then deduct the whole executable cost ledger exactly once.
   const priceScale = forecast ? forecast.referenceMid / f.mid : 1;
   const grossBps = forecast ? candidate.side * ((priceScale - 1) * 10_000 + priceScale * forecast.predictedGrossBps) : 0;
+  if (evaluation && (!Number.isFinite(grossBps) || grossBps <= 0)) return { plan: null, reason: "CROSS_ASSET_DIRECTION_EXHAUSTED" };
   const jointNetBps = (c: CostEstimate): number => grossBps - priceScale * (
     CROSS_ASSET_SPEC.parameterPenalty * forecast!.parameterUncertaintyBps
     + CROSS_ASSET_SPEC.predictiveRiskPenalty * forecast!.predictiveStdBps)
     - c.roundTripBps - (cfg.cost.positiveCostErrorP95Bps ?? 0);
   let lowerNetBps = forecast ? jointNetBps(cost) : model ? model.lowerNetBps - extraCostBps : 0;
-  if ((model || forecast) && (!Number.isFinite(lowerNetBps) || lowerNetBps <= cfg.planner.minimumExpectedValueBps)) {
+  if (!Number.isFinite(lowerNetBps) || ((model || forecast) && !evaluation && lowerNetBps <= cfg.planner.minimumExpectedValueBps)) {
     return { plan: null, reason: "POLICY_NET_RETURN_TOO_LOW" };
   }
   const intent: TradeIntent = { side: candidate.side, probability: .5, predictedGrossBps: 0,
@@ -91,14 +94,14 @@ export function buildPolicyPlan(input: {
   const exactCost = new CostModel(cfg.cost).estimate(f, book, candidate.side, risk.qty, false);
   if (!exactCost) return { plan: null, reason: "POLICY_NOT_EXECUTABLE" };
   if (forecast) lowerNetBps = jointNetBps(exactCost);
-  if ((model || forecast) && (!Number.isFinite(lowerNetBps) || lowerNetBps <= cfg.planner.minimumExpectedValueBps)) {
+  if (!Number.isFinite(lowerNetBps) || ((model || forecast) && !evaluation && lowerNetBps <= cfg.planner.minimumExpectedValueBps)) {
     return { plan: null, reason: "POLICY_NET_RETURN_TOO_LOW" };
   }
   const rewardRiskRatio = lowerNetBps / (risk.maximumLossPerUnit / price * 10_000);
-  if ((model || forecast) && (!Number.isFinite(rewardRiskRatio) || rewardRiskRatio < cfg.planner.minimumRewardRiskRatio)) {
+  if (!Number.isFinite(rewardRiskRatio) || ((model || forecast) && !evaluation && rewardRiskRatio < cfg.planner.minimumRewardRiskRatio)) {
     return { plan: null, reason: "POLICY_REWARD_RISK_BLOCK" };
   }
-  return { reason: forecast ? "CROSS_ASSET_PAPER_EXPERIMENT" : model ? "POLICY_PROMOTED_PAPER" : "POLICY_PAPER_EXPERIMENT", plan: {
+  return { reason: evaluation ? "CROSS_ASSET_PAPER_EVALUATION" : forecast ? "CROSS_ASSET_PAPER_EXPERIMENT" : model ? "POLICY_PROMOTED_PAPER" : "POLICY_PAPER_EXPERIMENT", plan: {
     clientOrderId: randomUUID(), decisionId: randomUUID(), riskApprovalId: randomUUID(),
     symbol: book.symbol, side: candidate.side, qty: risk.qty, limitPx: price,
     style: "taker", timeInForce: "ioc", createdMs: nowMs,
@@ -108,7 +111,8 @@ export function buildPolicyPlan(input: {
     strategyVersion: POLICY_VERSION, modelVersion: forecast?.version ?? model?.key ?? "unscored-paper-experiment",
     configurationVersion: cfg.configurationVersion, regime: candidate.regime,
     edgeSource: forecast ? "ANALYTIC" : model ? "CALIBRATED" : "UNRESOLVED", edgeEffectiveSampleCount: model?.independentSamples ?? 0,
-    ...(forecast ? { crossAssetForecast: { ...forecast, expertWeights: { ...forecast.expertWeights } } } : {}),
+    ...(forecast ? { crossAssetForecast: { ...forecast, expertWeights: { ...forecast.expertWeights } },
+      crossAssetEntryMode: evaluation ? "PAPER_EVALUATION" as const : "QUALIFIED" as const } : {}),
     researchOnly: true, expectedCost: exactCost, risk, fillProbability: 1,
     ...(model || forecast ? { conservativeNetEdgeBps: lowerNetBps, conservativeExpectedValueBps: lowerNetBps, rewardRiskRatio } : {}),
     expectedValue: forecast ? risk.qty * price * (grossBps - exactCost.roundTripBps - (cfg.cost.positiveCostErrorP95Bps ?? 0)) / 10_000
