@@ -1,0 +1,63 @@
+{
+  "checkedAtMs": 1788738736948,
+  "configurationVersion": "btc-eth-model-evaluation-v10.4.0",
+  "health": "healthy",
+  "database": "connected",
+  "mode": "paper",
+  "modelOnlyEntries": true,
+  "paperOrdersEnabled": true,
+  "paperEvaluationEnabled": true,
+  "entriesAllowed": true,
+  "haltReasons": [],
+  "restoredPositions": [
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "qty": 0.00009999999999999999,
+      "entryPx": 80427,
+      "policy": {
+        "id": "trend-15m",
+        "feeBps": 5,
+        "version": "executable-policy-v3",
+        "feeSource": "PAPER_CONFIG",
+        "reserveBps": 3,
+        "fundingSource": "RESERVE_ONLY"
+      }
+    },
+    {
+      "symbol": "ETH/USD",
+      "side": 1,
+      "qty": 0.004,
+      "entryPx": 2522.9,
+      "policy": {
+        "id": "trend-15m",
+        "feeBps": 5,
+        "version": "executable-policy-v3",
+        "feeSource": "PAPER_CONFIG",
+        "reserveBps": 3,
+        "fundingSource": "RESERVE_ONLY"
+      }
+    }
+  ],
+  "markets": [
+    {
+      "symbol": "BTC/USD",
+      "bookValid": true,
+      "status": "POSITION_OPEN",
+      "labels": 172,
+      "historyReady": true
+    },
+    {
+      "symbol": "ETH/USD",
+      "bookValid": true,
+      "status": "POSITION_OPEN",
+      "labels": 172,
+      "historyReady": true
+    }
+  ],
+  "verification": {
+    "deployedModulesMatchTestedBuild": true,
+    "productionAuditSucceeded": true,
+    "tradingRulesRetuned": false
+  }
+}

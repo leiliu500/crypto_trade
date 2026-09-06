@@ -274,3 +274,52 @@ test("quote replay pairs stress attempts, charges both fees and preserves misses
   const gaps = await replayCrossAsset(path(false, true), costs);
   assert.ok(gaps.outcomes.every((o) => o.status === "INVALID" && o.netBps === null));
 });
+
+test("evaluation replay includes failing forecasts, applies the 30m cooldown and compares cost screens on shared attempts", async (t) => {
+  t.mock.method(CrossAssetModel.prototype, "observe", (q: CrossAssetQuote) => [{ ...forecast(1, q.atMs),
+    predictedGrossBps: 1, conservativeNetBps: -19, eligible: false, reason: "COST_OR_UNCERTAINTY" }]);
+  function* path(): Generator<CrossAssetQuote> {
+    for (let atMs = 0; atMs <= 2_710_000; atMs += 1000) {
+      yield { symbol: "BTC/USD", atMs, bid: 99.995, ask: 100.005, valid: true };
+    }
+  }
+  const qualified = await replayCrossAsset(path(), costs);
+  assert.equal(qualified.outcomes.length, 0);
+  const r = await replayCrossAsset(path(), costs, { paperEvaluation: true });
+  assert.equal(r.outcomes.length, 6);
+  assert.deepEqual([...new Set(r.outcomes.map(o => o.signalAtMs))], [0, 1_800_000]);
+  assert.ok(r.outcomes.every(o => o.status === "FILLED" && o.reason === "POLICY_DEADLINE" && o.netBps! < 0));
+  assert.equal(r.entryScreenComparison.completeAcrossStresses, 2);
+  assert.ok(r.entryScreenComparison.groups.filter(g => g.screen !== "EVALUATION")
+    .every(g => g.panelAttempts === 2 && g.acceptedAttempts === 0 && g.meanNetBpsPerOriginalAttempt === 0));
+  const later = await replayCrossAsset(path(), costs, { paperEvaluation: true, entryStartMs: 1_800_000 });
+  assert.equal(later.outcomes.length, 3); assert.ok(later.outcomes.every(o => o.signalAtMs === 1_800_000));
+  await assert.rejects(replayCrossAsset([], costs, { entryStartMs: NaN }), /INVALID_ENTRY_START/);
+});
+
+for (const side of [1, -1] as const) test(`evaluation replay uses causal stop prices and excludes missing stress paths for side ${side}`, async (t) => {
+  t.mock.method(CrossAssetModel.prototype, "observe", (q: CrossAssetQuote) => [forecast(side, q.atMs)]);
+  function* path(gap = false): Generator<CrossAssetQuote> {
+    for (let atMs = 0; atMs <= 12_000; atMs += 1000) {
+      const mid = atMs < 5_000 ? 100 : atMs < 7_000 ? 100 - side * .4 : 100 - side * .6;
+      yield { symbol: "BTC/USD", atMs, bid: mid - .005, ask: mid + .005, valid: !gap || atMs !== 7_000 };
+    }
+  }
+  const r = await replayCrossAsset(path(), costs, { paperEvaluation: true });
+  assert.ok(r.outcomes.every(o => o.reason === "POLICY_STOP" && o.netBps! < 0));
+  const fast = r.outcomes.find(o => o.scenario === "quotes-1s")!, slow = r.outcomes.find(o => o.scenario === "latency-3s")!;
+  assert.equal(fast.exitAtMs, 6_000); assert.equal(slow.exitAtMs, 8_000);
+  assert.ok(slow.netBps! < fast.netBps!, "stop fills use the later execution quote, not the earlier trigger price");
+  const missing = await replayCrossAsset(path(true), costs, { paperEvaluation: true });
+  assert.equal(missing.entryScreenComparison.completeAcrossStresses, 0);
+  assert.equal(missing.entryScreenComparison.excludedOpportunities, 1);
+  assert.ok(missing.entryScreenComparison.groups.every(g => g.meanNetBpsPerOriginalAttempt === null));
+});
+
+test("evaluation replay cannot trade a midpoint forecast already consumed by the entry spread", async (t) => {
+  t.mock.method(CrossAssetModel.prototype, "observe", (q: CrossAssetQuote) => [{ ...forecast(1, q.atMs),
+    predictedGrossBps: .1, conservativeNetBps: -19.9, eligible: false, reason: "COST_OR_UNCERTAINTY" }]);
+  const r = await replayCrossAsset([{ symbol: "BTC/USD", atMs: 0, bid: 99.995, ask: 100.005, valid: true }],
+    costs, { paperEvaluation: true });
+  assert.equal(r.priceRebaseRejections, 1); assert.equal(r.outcomes.length, 0);
+});
