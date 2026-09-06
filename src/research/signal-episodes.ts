@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
-import type { BookState } from "../core/market.js";
+import type { BookState, MarketTrade } from "../core/market.js";
+import { BreakoutRetest, type RetestCandidate } from "../strategy/breakout-retest.js";
 import type { AssetRules } from "../execution/planner.js";
 import type { DeterministicFeatures } from "../strategy/deterministic-features.js";
 import type { PolicyObservation } from "./policy-collector.js";
@@ -10,7 +11,7 @@ import { EXECUTION_SCENARIOS, ExecutionStressCase, stressObservation,
 export const EPISODE_RULES = Object.freeze({ sampleMs: 5_000, quoteGapMs: 5_000,
   quietResetMs: 5_000, minimumSpacingMs: 60_000, confirmationMs: 2_000,
   minimumConfirmationQuotes: 3, minimumTrendEfficiency: .15, maximumPending: 256 });
-export const EPISODE_HYPOTHESES = ["current-breakout", "range-5m-confirmed", "range-15m-confirmed", "breakout-retest"] as const;
+export const EPISODE_HYPOTHESES = ["current-breakout", "range-5m-confirmed", "range-15m-confirmed", "breakout-retest", "breakout-retest-5m"] as const;
 interface Point { at: number; mid: number }
 interface Arm { at: number; boundary: number; quotes: number }
 interface Seen { lastSeenMs: number; lastCapturedMs: number }
@@ -18,6 +19,10 @@ interface Seen { lastSeenMs: number; lastCapturedMs: number }
 /** Shadow research only. Uses fresh quotes before execution cooldown/exposure
  * gates; its candidates cannot reach the execution planner or model installer. */
 export class SignalEpisodeCollector {
+  private readonly longerRetest = new BreakoutRetest(300_000);
+  public onTrade(trade: MarketTrade): void {
+    if (trade.symbol === this.symbol) this.longerRetest.onTrade(trade);
+  }
   private readonly cases = new Map<string, ExecutionStressCase>();
   private readonly seen = new Map<string, Seen>();
   private readonly arms = new Map<string, Arm>();
@@ -35,6 +40,7 @@ export class SignalEpisodeCollector {
     const outcomes = [...this.cases.values()].flatMap((c) => c.invalidate(now, reason) ?? []);
     this.counters.invalid += outcomes.length;
     this.cases.clear(); this.arms.clear(); this.history = [];
+    this.longerRetest.reset();
     // Keep episode spacing across a feed gap; rebuilding history is mandatory.
     delete this.lastQuoteMs;
     delete this.lastSequence;
@@ -64,9 +70,12 @@ export class SignalEpisodeCollector {
       }
     }
     if (duplicateQuote) return events;
-    const candidates: Array<{ hypothesisId: string; side: 1 | -1; boundary?: number }> = [];
+    const candidates: Array<{ hypothesisId: string; side: 1 | -1; boundary?: number; retest?: RetestCandidate }> = [];
     if (f.retestCandidate) candidates.push({ hypothesisId: "breakout-retest", side: f.retestCandidate.side,
-      boundary: f.retestCandidate.boundary });
+      boundary: f.retestCandidate.boundary, retest: f.retestCandidate });
+    const longer = this.longerRetest.observe(book, f.stale);
+    if (longer && f.warmedUp) candidates.push({ hypothesisId: "breakout-retest-5m", side: longer.side,
+      boundary: longer.boundary, retest: longer });
     if (asset?.symbol === this.symbol && f.warmedUp && f.kinematicsReady && f.slowTrendReady) {
       const { retestCandidate: _retest, ...legacyFeatures } = f;
       for (const candidate of policyCandidates(legacyFeatures).filter((c) => c.family === "EARLY_BREAKOUT")) {
@@ -116,7 +125,7 @@ export class SignalEpisodeCollector {
       this.seen.get(key)!.lastCapturedMs = now;
       const episodeId = randomUUID();
       this.counters.episodes++;
-      const family = candidate.hypothesisId === "breakout-retest" ? "BREAKOUT_RETEST" : "EARLY_BREAKOUT";
+      const family = candidate.retest ? "BREAKOUT_RETEST" : "EARLY_BREAKOUT";
       const policies = TRADING_POLICIES.filter((p) => p.family === family);
       const capacity = this.cases.size + policies.length * EXECUTION_SCENARIOS.length <= EPISODE_RULES.maximumPending;
       for (const policy of policies) {
@@ -130,8 +139,9 @@ export class SignalEpisodeCollector {
             trendFastBps: f.trendFastBps, trendMediumBps: f.trendMediumBps, trendSlowBps: f.trendSlowBps,
             slowTrendEfficiency: f.slowTrendEfficiency, ofi: f.ofi, tfi: f.tfi, velocityZ: f.velocityZ,
             ...(candidate.boundary === undefined ? {} : { rangeBoundary: candidate.boundary }),
-            ...(family === "BREAKOUT_RETEST" && f.retestCandidate ? { invalidationPx: f.retestCandidate.invalidationPx,
-              policyVolatilityBps: f.retestCandidate.volatilityBps } : {}) } };
+            ...(candidate.retest ? { invalidationPx: candidate.retest.invalidationPx,
+              policyVolatilityBps: candidate.retest.volatilityBps,
+              rangeMs: candidate.hypothesisId === "breakout-retest-5m" ? 300_000 : 60_000 } : {}) } };
         for (const scenario of EXECUTION_SCENARIOS) {
           const start = stressObservation(source, scenario, episodeId, candidate.hypothesisId, context);
           const c = new ExecutionStressCase(start);

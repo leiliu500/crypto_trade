@@ -8,7 +8,8 @@ import { EXECUTION_SCENARIOS, ExecutionStressCase, stressObservation, type Episo
 /** Discover entries causally from raw events, with paired fixed/floor exits.
  * Signal-conditional research, not a portfolio backtest or model promotion. */
 export async function replayRetest(events: AsyncIterable<RecordedEvent> | Iterable<RecordedEvent>,
-  rules: ReadonlyMap<string, { asset: AssetRules; feeBps: number; reserveBps: number }>) {
+  rules: ReadonlyMap<string, { asset: AssetRules; feeBps: number; reserveBps: number }>, rangeMs: number = RETEST_RULES.rangeMs) {
+  new BreakoutRetest(rangeMs); // Validate even an empty recording.
   const books = new Map<string, LocalOrderBook>(), detectors = new Map<string, BreakoutRetest>();
   const cases = new Map<string, { simulation: ExecutionStressCase; control: boolean; symbol: string }>();
   const outcomes: Array<{ observation: EpisodeObservation; control: boolean }> = [];
@@ -33,7 +34,7 @@ export async function replayRetest(events: AsyncIterable<RecordedEvent> | Iterab
     }
     const symbol = event.kind === "BOOK" ? event.delta.symbol : event.trade.symbol, rule = rules.get(symbol);
     if (!rule) continue;
-    const detector = detectors.get(symbol) ?? new BreakoutRetest(); detectors.set(symbol, detector);
+    const detector = detectors.get(symbol) ?? new BreakoutRetest(rangeMs); detectors.set(symbol, detector);
     if (event.kind === "TRADE") { detector.onTrade(event.trade); continue; }
     const local = books.get(symbol) ?? new LocalOrderBook(symbol); books.set(symbol, local);
     const update = local.apply(event.delta);
@@ -53,7 +54,7 @@ export async function replayRetest(events: AsyncIterable<RecordedEvent> | Iterab
     for (const policy of TRADING_POLICIES.filter((p) => p.family === "BREAKOUT_RETEST")) {
       for (const scenario of EXECUTION_SCENARIOS) for (const control of [false, true]) {
         const start = stressObservation({ id: `retest-${symbol}-${now}-${policy.id}`, sampling: "ENTRY",
-          policyVersion: POLICY_VERSION, configurationVersion: `raw-retest-replay:${RETEST_RULES.version}`, symbol,
+          policyVersion: POLICY_VERSION, configurationVersion: `raw-retest-replay:${RETEST_RULES.version}:range-${rangeMs}`, symbol,
           family: "BREAKOUT_RETEST", regime: candidate.side === 1 ? "RETEST_UP" : "RETEST_DOWN", side: candidate.side,
           policyId: policy.id, signalAtMs: now, entryAtMs: null, exitAtMs: null, entryPrice: null, exitPrice: null,
           qty, filledQty: 0, signalBid: b.bids[0]!.px, signalAsk: b.asks[0]!.px,
@@ -74,7 +75,7 @@ export async function replayRetest(events: AsyncIterable<RecordedEvent> | Iterab
     const r = o.observation, key = `${r.symbol}|${r.side}|${r.policyId}|${r.scenario.id}|${o.control ? "fixed" : "net-floor"}`;
     const group = groups.get(key) ?? []; group.push(o); groups.set(key, group);
   }
-  return { detectorVersion: RETEST_RULES.version, quality, deploymentReady: false, assumptions: ["Current instrument increments and configured paper fees",
+  return { detectorVersion: RETEST_RULES.version, rangeMs, quality, deploymentReady: false, assumptions: ["Current instrument increments and configured paper fees",
     "No portfolio or live liquidity-permission simulation", "Fixed control retains structural invalidation, stop and deadline",
     "Additional funding/execution reserve, not observed funding cash flows", "Shared candidate paths and scenarios are dependent"],
     cohorts: [...groups].sort(([a], [b]) => a.localeCompare(b)).map(([key, values]) => {

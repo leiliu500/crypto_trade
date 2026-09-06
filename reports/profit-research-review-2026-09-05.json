@@ -1,0 +1,2202 @@
+{
+  "version": "after-cost-episodes-v2",
+  "generatedAtMs": 1788643443400,
+  "evidenceEndMs": 1788566400000,
+  "observations": 960,
+  "excluded": 0,
+  "episodes": 73,
+  "assumptions": [
+    {
+      "id": "base-250ms",
+      "latencyMs": 250,
+      "feeMultiplier": 1,
+      "depthMultiplier": 1
+    },
+    {
+      "id": "latency-500ms",
+      "latencyMs": 500,
+      "feeMultiplier": 1,
+      "depthMultiplier": 1
+    },
+    {
+      "id": "latency-1000ms",
+      "latencyMs": 1000,
+      "feeMultiplier": 1,
+      "depthMultiplier": 1
+    },
+    {
+      "id": "fees-1.5x",
+      "latencyMs": 250,
+      "feeMultiplier": 1.5,
+      "depthMultiplier": 1
+    },
+    {
+      "id": "depth-50pct",
+      "latencyMs": 500,
+      "feeMultiplier": 1,
+      "depthMultiplier": 0.5
+    }
+  ],
+  "requirements": {
+    "independentSamples": 100,
+    "observedDays": 7,
+    "holdoutSamples": 30,
+    "validation": "14-day daily origin: 7d training / 3.5d selection / 3.5d untouched holdout; purged folds and day-clustered bounds"
+  },
+  "deploymentReady": false,
+  "authorization": "RESEARCH_ONLY: no model installation, order dispatch, or size changes",
+  "cohorts": [
+    {
+      "key": "btc-eth-breakout-retest-v10.1.0|after-cost-episodes-v2|ETH/USD|BREAKOUT_RETEST|1|BREAKOUT_UP|breakout-retest|3",
+      "symbol": "ETH/USD",
+      "side": 1,
+      "hypothesisId": "breakout-retest",
+      "episodes": 11,
+      "selectedPolicyId": null,
+      "qualityReasons": [],
+      "scenarios": [
+        {
+          "scenario": {
+            "id": "base-250ms",
+            "latencyMs": 250,
+            "feeMultiplier": 1,
+            "depthMultiplier": 1
+          },
+          "evaluation": null,
+          "policies": [
+            {
+              "policyId": "retest-1m",
+              "attempts": 11,
+              "complete": 11,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 6,
+              "partialFills": 0,
+              "unfilled": 5,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -6.980530893487856,
+              "meanNetBpsPerFill": -12.797639971394403
+            },
+            {
+              "policyId": "retest-3m",
+              "attempts": 11,
+              "complete": 11,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 6,
+              "partialFills": 0,
+              "unfilled": 5,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -6.357225879947951,
+              "meanNetBpsPerFill": -11.65491411323791
+            },
+            {
+              "policyId": "retest-10m",
+              "attempts": 11,
+              "complete": 9,
+              "invalid": 0,
+              "pending": 2,
+              "filled": 4,
+              "partialFills": 0,
+              "unfilled": 5,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -6.270258399988965,
+              "meanNetBpsPerFill": -14.108081399975172
+            },
+            {
+              "policyId": "retest-30m",
+              "attempts": 11,
+              "complete": 9,
+              "invalid": 0,
+              "pending": 2,
+              "filled": 4,
+              "partialFills": 0,
+              "unfilled": 5,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -7.25626357462173,
+              "meanNetBpsPerFill": -16.326593042898892
+            }
+          ]
+        },
+        {
+          "scenario": {
+            "id": "latency-500ms",
+            "latencyMs": 500,
+            "feeMultiplier": 1,
+            "depthMultiplier": 1
+          },
+          "evaluation": null,
+          "policies": [
+            {
+              "policyId": "retest-1m",
+              "attempts": 11,
+              "complete": 11,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 6,
+              "partialFills": 0,
+              "unfilled": 5,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -6.980530893487856,
+              "meanNetBpsPerFill": -12.797639971394403
+            },
+            {
+              "policyId": "retest-3m",
+              "attempts": 11,
+              "complete": 11,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 6,
+              "partialFills": 0,
+              "unfilled": 5,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -6.357225879947951,
+              "meanNetBpsPerFill": -11.65491411323791
+            },
+            {
+              "policyId": "retest-10m",
+              "attempts": 11,
+              "complete": 9,
+              "invalid": 0,
+              "pending": 2,
+              "filled": 4,
+              "partialFills": 0,
+              "unfilled": 5,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -6.2254417916130755,
+              "meanNetBpsPerFill": -14.00724403112942
+            },
+            {
+              "policyId": "retest-30m",
+              "attempts": 11,
+              "complete": 9,
+              "invalid": 0,
+              "pending": 2,
+              "filled": 4,
+              "partialFills": 0,
+              "unfilled": 5,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -7.21144696624584,
+              "meanNetBpsPerFill": -16.22575567405314
+            }
+          ]
+        },
+        {
+          "scenario": {
+            "id": "latency-1000ms",
+            "latencyMs": 1000,
+            "feeMultiplier": 1,
+            "depthMultiplier": 1
+          },
+          "evaluation": null,
+          "policies": [
+            {
+              "policyId": "retest-1m",
+              "attempts": 11,
+              "complete": 11,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 7,
+              "partialFills": 0,
+              "unfilled": 4,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -8.015966066224166,
+              "meanNetBpsPerFill": -12.596518104066547
+            },
+            {
+              "policyId": "retest-3m",
+              "attempts": 11,
+              "complete": 10,
+              "invalid": 0,
+              "pending": 1,
+              "filled": 6,
+              "partialFills": 0,
+              "unfilled": 4,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -7.43687158429014,
+              "meanNetBpsPerFill": -12.3947859738169
+            },
+            {
+              "policyId": "retest-10m",
+              "attempts": 11,
+              "complete": 8,
+              "invalid": 0,
+              "pending": 3,
+              "filled": 4,
+              "partialFills": 0,
+              "unfilled": 4,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -7.558525910998954,
+              "meanNetBpsPerFill": -15.117051821997908
+            },
+            {
+              "policyId": "retest-30m",
+              "attempts": 11,
+              "complete": 8,
+              "invalid": 0,
+              "pending": 3,
+              "filled": 4,
+              "partialFills": 0,
+              "unfilled": 4,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -8.667781732460814,
+              "meanNetBpsPerFill": -17.335563464921627
+            }
+          ]
+        },
+        {
+          "scenario": {
+            "id": "fees-1.5x",
+            "latencyMs": 250,
+            "feeMultiplier": 1.5,
+            "depthMultiplier": 1
+          },
+          "evaluation": null,
+          "policies": [
+            {
+              "policyId": "retest-1m",
+              "attempts": 11,
+              "complete": 11,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 6,
+              "partialFills": 0,
+              "unfilled": 5,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -9.707831229114118,
+              "meanNetBpsPerFill": -17.797690586709216
+            },
+            {
+              "policyId": "retest-3m",
+              "attempts": 11,
+              "complete": 11,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 6,
+              "partialFills": 0,
+              "unfilled": 5,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -9.084682119779698,
+              "meanNetBpsPerFill": -16.655250552929445
+            },
+            {
+              "policyId": "retest-10m",
+              "attempts": 11,
+              "complete": 9,
+              "invalid": 0,
+              "pending": 2,
+              "filled": 4,
+              "partialFills": 0,
+              "unfilled": 5,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -8.492357440464763,
+              "meanNetBpsPerFill": -19.107804241045717
+            },
+            {
+              "policyId": "retest-30m",
+              "attempts": 11,
+              "complete": 9,
+              "invalid": 0,
+              "pending": 2,
+              "filled": 4,
+              "partialFills": 0,
+              "unfilled": 5,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -9.478115990491565,
+              "meanNetBpsPerFill": -21.32576097860602
+            }
+          ]
+        },
+        {
+          "scenario": {
+            "id": "depth-50pct",
+            "latencyMs": 500,
+            "feeMultiplier": 1,
+            "depthMultiplier": 0.5
+          },
+          "evaluation": null,
+          "policies": [
+            {
+              "policyId": "retest-1m",
+              "attempts": 11,
+              "complete": 11,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 6,
+              "partialFills": 0,
+              "unfilled": 5,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -6.980530893487856,
+              "meanNetBpsPerFill": -12.797639971394403
+            },
+            {
+              "policyId": "retest-3m",
+              "attempts": 11,
+              "complete": 11,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 6,
+              "partialFills": 0,
+              "unfilled": 5,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -6.357225879947951,
+              "meanNetBpsPerFill": -11.65491411323791
+            },
+            {
+              "policyId": "retest-10m",
+              "attempts": 11,
+              "complete": 9,
+              "invalid": 0,
+              "pending": 2,
+              "filled": 4,
+              "partialFills": 0,
+              "unfilled": 5,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -6.2254417916130755,
+              "meanNetBpsPerFill": -14.00724403112942
+            },
+            {
+              "policyId": "retest-30m",
+              "attempts": 11,
+              "complete": 9,
+              "invalid": 0,
+              "pending": 2,
+              "filled": 4,
+              "partialFills": 0,
+              "unfilled": 5,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -7.21144696624584,
+              "meanNetBpsPerFill": -16.22575567405314
+            }
+          ]
+        }
+      ],
+      "contexts": {
+        "duringCooldown": 8,
+        "duringPosition": 1,
+        "duringPendingOrder": 0,
+        "venueNotionalOnly": 11
+      },
+      "researchQualified": false,
+      "deploymentReady": false
+    },
+    {
+      "key": "btc-eth-breakout-retest-v10.1.0|after-cost-episodes-v2|ETH/USD|EARLY_BREAKOUT|-1|BREAKOUT_DOWN|current-breakout|3",
+      "symbol": "ETH/USD",
+      "side": -1,
+      "hypothesisId": "current-breakout",
+      "episodes": 11,
+      "selectedPolicyId": null,
+      "qualityReasons": [],
+      "scenarios": [
+        {
+          "scenario": {
+            "id": "base-250ms",
+            "latencyMs": 250,
+            "feeMultiplier": 1,
+            "depthMultiplier": 1
+          },
+          "evaluation": null,
+          "policies": [
+            {
+              "policyId": "breakout-1m",
+              "attempts": 11,
+              "complete": 11,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 9,
+              "partialFills": 0,
+              "unfilled": 2,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -12.325491389378811,
+              "meanNetBpsPerFill": -15.064489475907436
+            },
+            {
+              "policyId": "breakout-3m",
+              "attempts": 11,
+              "complete": 11,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 9,
+              "partialFills": 0,
+              "unfilled": 2,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -13.978963199815661,
+              "meanNetBpsPerFill": -17.085399466441363
+            }
+          ]
+        },
+        {
+          "scenario": {
+            "id": "latency-500ms",
+            "latencyMs": 500,
+            "feeMultiplier": 1,
+            "depthMultiplier": 1
+          },
+          "evaluation": null,
+          "policies": [
+            {
+              "policyId": "breakout-1m",
+              "attempts": 11,
+              "complete": 11,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 9,
+              "partialFills": 0,
+              "unfilled": 2,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -12.288817804012503,
+              "meanNetBpsPerFill": -15.019666204904171
+            },
+            {
+              "policyId": "breakout-3m",
+              "attempts": 11,
+              "complete": 11,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 9,
+              "partialFills": 0,
+              "unfilled": 2,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -14.089261651579704,
+              "meanNetBpsPerFill": -17.220208685264083
+            }
+          ]
+        },
+        {
+          "scenario": {
+            "id": "latency-1000ms",
+            "latencyMs": 1000,
+            "feeMultiplier": 1,
+            "depthMultiplier": 1
+          },
+          "evaluation": null,
+          "policies": [
+            {
+              "policyId": "breakout-1m",
+              "attempts": 11,
+              "complete": 11,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 9,
+              "partialFills": 0,
+              "unfilled": 2,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -12.398932265821946,
+              "meanNetBpsPerFill": -15.154250547115712
+            },
+            {
+              "policyId": "breakout-3m",
+              "attempts": 11,
+              "complete": 11,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 9,
+              "partialFills": 0,
+              "unfilled": 2,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -14.015838676993262,
+              "meanNetBpsPerFill": -17.130469494102876
+            }
+          ]
+        },
+        {
+          "scenario": {
+            "id": "fees-1.5x",
+            "latencyMs": 250,
+            "feeMultiplier": 1.5,
+            "depthMultiplier": 1
+          },
+          "evaluation": null,
+          "policies": [
+            {
+              "policyId": "breakout-1m",
+              "attempts": 11,
+              "complete": 11,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 9,
+              "partialFills": 0,
+              "unfilled": 2,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -16.416822551190705,
+              "meanNetBpsPerFill": -20.065005340344197
+            },
+            {
+              "policyId": "breakout-3m",
+              "attempts": 11,
+              "complete": 11,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 9,
+              "partialFills": 0,
+              "unfilled": 2,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -18.070707522999484,
+              "meanNetBpsPerFill": -22.086420305888257
+            }
+          ]
+        },
+        {
+          "scenario": {
+            "id": "depth-50pct",
+            "latencyMs": 500,
+            "feeMultiplier": 1,
+            "depthMultiplier": 0.5
+          },
+          "evaluation": null,
+          "policies": [
+            {
+              "policyId": "breakout-1m",
+              "attempts": 11,
+              "complete": 11,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 9,
+              "partialFills": 0,
+              "unfilled": 2,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -12.288817804012503,
+              "meanNetBpsPerFill": -15.019666204904171
+            },
+            {
+              "policyId": "breakout-3m",
+              "attempts": 11,
+              "complete": 11,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 9,
+              "partialFills": 0,
+              "unfilled": 2,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -14.089261651579704,
+              "meanNetBpsPerFill": -17.220208685264083
+            }
+          ]
+        }
+      ],
+      "contexts": {
+        "duringCooldown": 7,
+        "duringPosition": 0,
+        "duringPendingOrder": 0,
+        "venueNotionalOnly": 11
+      },
+      "researchQualified": false,
+      "deploymentReady": false
+    },
+    {
+      "key": "btc-eth-breakout-retest-v10.1.0|after-cost-episodes-v2|ETH/USD|EARLY_BREAKOUT|1|BREAKOUT_UP|current-breakout|3",
+      "symbol": "ETH/USD",
+      "side": 1,
+      "hypothesisId": "current-breakout",
+      "episodes": 20,
+      "selectedPolicyId": null,
+      "qualityReasons": [],
+      "scenarios": [
+        {
+          "scenario": {
+            "id": "base-250ms",
+            "latencyMs": 250,
+            "feeMultiplier": 1,
+            "depthMultiplier": 1
+          },
+          "evaluation": null,
+          "policies": [
+            {
+              "policyId": "breakout-1m",
+              "attempts": 20,
+              "complete": 19,
+              "invalid": 0,
+              "pending": 1,
+              "filled": 16,
+              "partialFills": 1,
+              "unfilled": 3,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -10.997016402472358,
+              "meanNetBpsPerFill": -13.377059652907727
+            },
+            {
+              "policyId": "breakout-3m",
+              "attempts": 20,
+              "complete": 18,
+              "invalid": 0,
+              "pending": 2,
+              "filled": 15,
+              "partialFills": 0,
+              "unfilled": 3,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -13.98821782330301,
+              "meanNetBpsPerFill": -16.785861387963614
+            }
+          ]
+        },
+        {
+          "scenario": {
+            "id": "latency-500ms",
+            "latencyMs": 500,
+            "feeMultiplier": 1,
+            "depthMultiplier": 1
+          },
+          "evaluation": null,
+          "policies": [
+            {
+              "policyId": "breakout-1m",
+              "attempts": 20,
+              "complete": 19,
+              "invalid": 0,
+              "pending": 1,
+              "filled": 16,
+              "partialFills": 1,
+              "unfilled": 3,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -11.018212039370795,
+              "meanNetBpsPerFill": -13.377044521716522
+            },
+            {
+              "policyId": "breakout-3m",
+              "attempts": 20,
+              "complete": 18,
+              "invalid": 0,
+              "pending": 2,
+              "filled": 15,
+              "partialFills": 0,
+              "unfilled": 3,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -13.809540420759907,
+              "meanNetBpsPerFill": -16.57144850491189
+            }
+          ]
+        },
+        {
+          "scenario": {
+            "id": "latency-1000ms",
+            "latencyMs": 1000,
+            "feeMultiplier": 1,
+            "depthMultiplier": 1
+          },
+          "evaluation": null,
+          "policies": [
+            {
+              "policyId": "breakout-1m",
+              "attempts": 20,
+              "complete": 19,
+              "invalid": 0,
+              "pending": 1,
+              "filled": 16,
+              "partialFills": 0,
+              "unfilled": 3,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -11.158865007008247,
+              "meanNetBpsPerFill": -13.251152195822293
+            },
+            {
+              "policyId": "breakout-3m",
+              "attempts": 20,
+              "complete": 18,
+              "invalid": 0,
+              "pending": 2,
+              "filled": 15,
+              "partialFills": 0,
+              "unfilled": 3,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -13.809596412176104,
+              "meanNetBpsPerFill": -16.571515694611325
+            }
+          ]
+        },
+        {
+          "scenario": {
+            "id": "fees-1.5x",
+            "latencyMs": 250,
+            "feeMultiplier": 1.5,
+            "depthMultiplier": 1
+          },
+          "evaluation": null,
+          "policies": [
+            {
+              "policyId": "breakout-1m",
+              "attempts": 20,
+              "complete": 19,
+              "invalid": 0,
+              "pending": 1,
+              "filled": 16,
+              "partialFills": 1,
+              "unfilled": 3,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -15.075865783588615,
+              "meanNetBpsPerFill": -18.376965340838467
+            },
+            {
+              "policyId": "breakout-3m",
+              "attempts": 20,
+              "complete": 18,
+              "invalid": 0,
+              "pending": 2,
+              "filled": 15,
+              "partialFills": 0,
+              "unfilled": 3,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -18.154095374289344,
+              "meanNetBpsPerFill": -21.784914449147212
+            }
+          ]
+        },
+        {
+          "scenario": {
+            "id": "depth-50pct",
+            "latencyMs": 500,
+            "feeMultiplier": 1,
+            "depthMultiplier": 0.5
+          },
+          "evaluation": null,
+          "policies": [
+            {
+              "policyId": "breakout-1m",
+              "attempts": 20,
+              "complete": 19,
+              "invalid": 0,
+              "pending": 1,
+              "filled": 16,
+              "partialFills": 1,
+              "unfilled": 3,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -10.894878260438707,
+              "meanNetBpsPerFill": -13.377044521716522
+            },
+            {
+              "policyId": "breakout-3m",
+              "attempts": 20,
+              "complete": 18,
+              "invalid": 0,
+              "pending": 2,
+              "filled": 15,
+              "partialFills": 0,
+              "unfilled": 3,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -13.809540420759907,
+              "meanNetBpsPerFill": -16.57144850491189
+            }
+          ]
+        }
+      ],
+      "contexts": {
+        "duringCooldown": 9,
+        "duringPosition": 1,
+        "duringPendingOrder": 0,
+        "venueNotionalOnly": 20
+      },
+      "researchQualified": false,
+      "deploymentReady": false
+    },
+    {
+      "key": "btc-eth-breakout-retest-v10.1.0|after-cost-episodes-v2|ETH/USD|BREAKOUT_RETEST|-1|BREAKOUT_DOWN|breakout-retest|3",
+      "symbol": "ETH/USD",
+      "side": -1,
+      "hypothesisId": "breakout-retest",
+      "episodes": 5,
+      "selectedPolicyId": null,
+      "qualityReasons": [],
+      "scenarios": [
+        {
+          "scenario": {
+            "id": "base-250ms",
+            "latencyMs": 250,
+            "feeMultiplier": 1,
+            "depthMultiplier": 1
+          },
+          "evaluation": null,
+          "policies": [
+            {
+              "policyId": "retest-1m",
+              "attempts": 5,
+              "complete": 5,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 4,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -12.176943599349716,
+              "meanNetBpsPerFill": -15.221179499187144
+            },
+            {
+              "policyId": "retest-3m",
+              "attempts": 5,
+              "complete": 5,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 4,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -12.660633082940155,
+              "meanNetBpsPerFill": -15.825791353675193
+            },
+            {
+              "policyId": "retest-10m",
+              "attempts": 5,
+              "complete": 5,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 4,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -13.145332315883158,
+              "meanNetBpsPerFill": -16.431665394853948
+            },
+            {
+              "policyId": "retest-30m",
+              "attempts": 5,
+              "complete": 5,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 4,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -13.145332315883158,
+              "meanNetBpsPerFill": -16.431665394853948
+            }
+          ]
+        },
+        {
+          "scenario": {
+            "id": "latency-500ms",
+            "latencyMs": 500,
+            "feeMultiplier": 1,
+            "depthMultiplier": 1
+          },
+          "evaluation": null,
+          "policies": [
+            {
+              "policyId": "retest-1m",
+              "attempts": 5,
+              "complete": 5,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 4,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -12.25763886891762,
+              "meanNetBpsPerFill": -15.322048586147027
+            },
+            {
+              "policyId": "retest-3m",
+              "attempts": 5,
+              "complete": 5,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 4,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -12.660646121952913,
+              "meanNetBpsPerFill": -15.825807652441142
+            },
+            {
+              "policyId": "retest-10m",
+              "attempts": 5,
+              "complete": 5,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 4,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -13.145345354895918,
+              "meanNetBpsPerFill": -16.431681693619897
+            },
+            {
+              "policyId": "retest-30m",
+              "attempts": 5,
+              "complete": 5,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 4,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -13.145345354895918,
+              "meanNetBpsPerFill": -16.431681693619897
+            }
+          ]
+        },
+        {
+          "scenario": {
+            "id": "latency-1000ms",
+            "latencyMs": 1000,
+            "feeMultiplier": 1,
+            "depthMultiplier": 1
+          },
+          "evaluation": null,
+          "policies": [
+            {
+              "policyId": "retest-1m",
+              "attempts": 5,
+              "complete": 5,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 4,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -12.25763886891762,
+              "meanNetBpsPerFill": -15.322048586147027
+            },
+            {
+              "policyId": "retest-3m",
+              "attempts": 5,
+              "complete": 5,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 4,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -12.660646121952913,
+              "meanNetBpsPerFill": -15.825807652441142
+            },
+            {
+              "policyId": "retest-10m",
+              "attempts": 5,
+              "complete": 5,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 4,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -13.387694971367235,
+              "meanNetBpsPerFill": -16.734618714209045
+            },
+            {
+              "policyId": "retest-30m",
+              "attempts": 5,
+              "complete": 5,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 4,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -13.387694971367235,
+              "meanNetBpsPerFill": -16.734618714209045
+            }
+          ]
+        },
+        {
+          "scenario": {
+            "id": "fees-1.5x",
+            "latencyMs": 250,
+            "feeMultiplier": 1.5,
+            "depthMultiplier": 1
+          },
+          "evaluation": null,
+          "policies": [
+            {
+              "policyId": "retest-1m",
+              "attempts": 5,
+              "complete": 5,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 4,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -16.177387613242608,
+              "meanNetBpsPerFill": -20.22173451655326
+            },
+            {
+              "policyId": "retest-3m",
+              "attempts": 5,
+              "complete": 5,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 4,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -16.661197958772973,
+              "meanNetBpsPerFill": -20.826497448466217
+            },
+            {
+              "policyId": "retest-10m",
+              "attempts": 5,
+              "complete": 5,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 4,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -17.146018305967083,
+              "meanNetBpsPerFill": -21.432522882458855
+            },
+            {
+              "policyId": "retest-30m",
+              "attempts": 5,
+              "complete": 5,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 4,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -17.146018305967083,
+              "meanNetBpsPerFill": -21.432522882458855
+            }
+          ]
+        },
+        {
+          "scenario": {
+            "id": "depth-50pct",
+            "latencyMs": 500,
+            "feeMultiplier": 1,
+            "depthMultiplier": 0.5
+          },
+          "evaluation": null,
+          "policies": [
+            {
+              "policyId": "retest-1m",
+              "attempts": 5,
+              "complete": 5,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 4,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -12.25763886891762,
+              "meanNetBpsPerFill": -15.322048586147027
+            },
+            {
+              "policyId": "retest-3m",
+              "attempts": 5,
+              "complete": 5,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 4,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -12.660646121952913,
+              "meanNetBpsPerFill": -15.825807652441142
+            },
+            {
+              "policyId": "retest-10m",
+              "attempts": 5,
+              "complete": 5,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 4,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -13.145345354895918,
+              "meanNetBpsPerFill": -16.431681693619897
+            },
+            {
+              "policyId": "retest-30m",
+              "attempts": 5,
+              "complete": 5,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 4,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -13.145345354895918,
+              "meanNetBpsPerFill": -16.431681693619897
+            }
+          ]
+        }
+      ],
+      "contexts": {
+        "duringCooldown": 3,
+        "duringPosition": 0,
+        "duringPendingOrder": 0,
+        "venueNotionalOnly": 5
+      },
+      "researchQualified": false,
+      "deploymentReady": false
+    },
+    {
+      "key": "btc-eth-breakout-retest-v10.1.0|after-cost-episodes-v2|BTC/USD|EARLY_BREAKOUT|1|BREAKOUT_UP|current-breakout|3",
+      "symbol": "BTC/USD",
+      "side": 1,
+      "hypothesisId": "current-breakout",
+      "episodes": 7,
+      "selectedPolicyId": null,
+      "qualityReasons": [],
+      "scenarios": [
+        {
+          "scenario": {
+            "id": "base-250ms",
+            "latencyMs": 250,
+            "feeMultiplier": 1,
+            "depthMultiplier": 1
+          },
+          "evaluation": null,
+          "policies": [
+            {
+              "policyId": "breakout-1m",
+              "attempts": 7,
+              "complete": 7,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 6,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -12.627926565558559,
+              "meanNetBpsPerFill": -14.732580993151652
+            },
+            {
+              "policyId": "breakout-3m",
+              "attempts": 7,
+              "complete": 7,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 6,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -13.360394460315728,
+              "meanNetBpsPerFill": -15.58712687036835
+            }
+          ]
+        },
+        {
+          "scenario": {
+            "id": "latency-500ms",
+            "latencyMs": 500,
+            "feeMultiplier": 1,
+            "depthMultiplier": 1
+          },
+          "evaluation": null,
+          "policies": [
+            {
+              "policyId": "breakout-1m",
+              "attempts": 7,
+              "complete": 7,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 5,
+              "partialFills": 0,
+              "unfilled": 2,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -10.323504882089663,
+              "meanNetBpsPerFill": -14.452906834925528
+            },
+            {
+              "policyId": "breakout-3m",
+              "attempts": 7,
+              "complete": 7,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 5,
+              "partialFills": 0,
+              "unfilled": 2,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -10.37610896083125,
+              "meanNetBpsPerFill": -14.52655254516375
+            }
+          ]
+        },
+        {
+          "scenario": {
+            "id": "latency-1000ms",
+            "latencyMs": 1000,
+            "feeMultiplier": 1,
+            "depthMultiplier": 1
+          },
+          "evaluation": null,
+          "policies": [
+            {
+              "policyId": "breakout-1m",
+              "attempts": 7,
+              "complete": 7,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 5,
+              "partialFills": 0,
+              "unfilled": 2,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -10.305615298259031,
+              "meanNetBpsPerFill": -14.427861417562644
+            },
+            {
+              "policyId": "breakout-3m",
+              "attempts": 7,
+              "complete": 7,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 5,
+              "partialFills": 0,
+              "unfilled": 2,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -10.35821937700062,
+              "meanNetBpsPerFill": -14.501507127800867
+            }
+          ]
+        },
+        {
+          "scenario": {
+            "id": "fees-1.5x",
+            "latencyMs": 250,
+            "feeMultiplier": 1.5,
+            "depthMultiplier": 1
+          },
+          "evaluation": null,
+          "policies": [
+            {
+              "policyId": "breakout-1m",
+              "attempts": 7,
+              "complete": 7,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 6,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -16.91326939819063,
+              "meanNetBpsPerFill": -19.7321476312224
+            },
+            {
+              "policyId": "breakout-3m",
+              "attempts": 7,
+              "complete": 7,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 6,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -17.645554084369817,
+              "meanNetBpsPerFill": -20.586479765098122
+            }
+          ]
+        },
+        {
+          "scenario": {
+            "id": "depth-50pct",
+            "latencyMs": 500,
+            "feeMultiplier": 1,
+            "depthMultiplier": 0.5
+          },
+          "evaluation": null,
+          "policies": [
+            {
+              "policyId": "breakout-1m",
+              "attempts": 7,
+              "complete": 7,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 5,
+              "partialFills": 0,
+              "unfilled": 2,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -10.323504882089663,
+              "meanNetBpsPerFill": -14.452906834925528
+            },
+            {
+              "policyId": "breakout-3m",
+              "attempts": 7,
+              "complete": 7,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 5,
+              "partialFills": 0,
+              "unfilled": 2,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -10.37610896083125,
+              "meanNetBpsPerFill": -14.52655254516375
+            }
+          ]
+        }
+      ],
+      "contexts": {
+        "duringCooldown": 2,
+        "duringPosition": 2,
+        "duringPendingOrder": 0,
+        "venueNotionalOnly": 7
+      },
+      "researchQualified": false,
+      "deploymentReady": false
+    },
+    {
+      "key": "btc-eth-breakout-retest-v10.1.0|after-cost-episodes-v2|BTC/USD|EARLY_BREAKOUT|-1|BREAKOUT_DOWN|current-breakout|3",
+      "symbol": "BTC/USD",
+      "side": -1,
+      "hypothesisId": "current-breakout",
+      "episodes": 12,
+      "selectedPolicyId": null,
+      "qualityReasons": [],
+      "scenarios": [
+        {
+          "scenario": {
+            "id": "base-250ms",
+            "latencyMs": 250,
+            "feeMultiplier": 1,
+            "depthMultiplier": 1
+          },
+          "evaluation": null,
+          "policies": [
+            {
+              "policyId": "breakout-1m",
+              "attempts": 12,
+              "complete": 12,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 10,
+              "partialFills": 0,
+              "unfilled": 2,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -10.269561496724178,
+              "meanNetBpsPerFill": -12.323473796069013
+            },
+            {
+              "policyId": "breakout-3m",
+              "attempts": 12,
+              "complete": 12,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 10,
+              "partialFills": 0,
+              "unfilled": 2,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -9.903922532875479,
+              "meanNetBpsPerFill": -11.884707039450573
+            }
+          ]
+        },
+        {
+          "scenario": {
+            "id": "latency-500ms",
+            "latencyMs": 500,
+            "feeMultiplier": 1,
+            "depthMultiplier": 1
+          },
+          "evaluation": null,
+          "policies": [
+            {
+              "policyId": "breakout-1m",
+              "attempts": 12,
+              "complete": 12,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 9,
+              "partialFills": 0,
+              "unfilled": 3,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -9.154793617185598,
+              "meanNetBpsPerFill": -12.206391489580799
+            },
+            {
+              "policyId": "breakout-3m",
+              "attempts": 12,
+              "complete": 12,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 9,
+              "partialFills": 0,
+              "unfilled": 3,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -8.87287307196636,
+              "meanNetBpsPerFill": -11.83049742928848
+            }
+          ]
+        },
+        {
+          "scenario": {
+            "id": "latency-1000ms",
+            "latencyMs": 1000,
+            "feeMultiplier": 1,
+            "depthMultiplier": 1
+          },
+          "evaluation": null,
+          "policies": [
+            {
+              "policyId": "breakout-1m",
+              "attempts": 12,
+              "complete": 12,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 9,
+              "partialFills": 0,
+              "unfilled": 3,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -8.977146274987213,
+              "meanNetBpsPerFill": -11.96952836664962
+            },
+            {
+              "policyId": "breakout-3m",
+              "attempts": 12,
+              "complete": 12,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 9,
+              "partialFills": 0,
+              "unfilled": 3,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -8.73696007014624,
+              "meanNetBpsPerFill": -11.649280093528322
+            }
+          ]
+        },
+        {
+          "scenario": {
+            "id": "fees-1.5x",
+            "latencyMs": 250,
+            "feeMultiplier": 1.5,
+            "depthMultiplier": 1
+          },
+          "evaluation": null,
+          "policies": [
+            {
+              "policyId": "breakout-1m",
+              "attempts": 12,
+              "complete": 12,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 10,
+              "partialFills": 0,
+              "unfilled": 2,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -14.436087290867953,
+              "meanNetBpsPerFill": -17.323304749041544
+            },
+            {
+              "policyId": "breakout-3m",
+              "attempts": 12,
+              "complete": 12,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 10,
+              "partialFills": 0,
+              "unfilled": 2,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -14.070356962960323,
+              "meanNetBpsPerFill": -16.884428355552387
+            }
+          ]
+        },
+        {
+          "scenario": {
+            "id": "depth-50pct",
+            "latencyMs": 500,
+            "feeMultiplier": 1,
+            "depthMultiplier": 0.5
+          },
+          "evaluation": null,
+          "policies": [
+            {
+              "policyId": "breakout-1m",
+              "attempts": 12,
+              "complete": 12,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 9,
+              "partialFills": 2,
+              "unfilled": 3,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -8.055781415640562,
+              "meanNetBpsPerFill": -12.206391489580799
+            },
+            {
+              "policyId": "breakout-3m",
+              "attempts": 12,
+              "complete": 12,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 9,
+              "partialFills": 2,
+              "unfilled": 3,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -7.622245706051113,
+              "meanNetBpsPerFill": -11.837465204113398
+            }
+          ]
+        }
+      ],
+      "contexts": {
+        "duringCooldown": 3,
+        "duringPosition": 0,
+        "duringPendingOrder": 0,
+        "venueNotionalOnly": 12
+      },
+      "researchQualified": false,
+      "deploymentReady": false
+    },
+    {
+      "key": "btc-eth-breakout-retest-v10.1.0|after-cost-episodes-v2|BTC/USD|BREAKOUT_RETEST|1|BREAKOUT_UP|breakout-retest|3",
+      "symbol": "BTC/USD",
+      "side": 1,
+      "hypothesisId": "breakout-retest",
+      "episodes": 5,
+      "selectedPolicyId": null,
+      "qualityReasons": [],
+      "scenarios": [
+        {
+          "scenario": {
+            "id": "base-250ms",
+            "latencyMs": 250,
+            "feeMultiplier": 1,
+            "depthMultiplier": 1
+          },
+          "evaluation": null,
+          "policies": [
+            {
+              "policyId": "retest-1m",
+              "attempts": 5,
+              "complete": 5,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 4,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -10.95065126222392,
+              "meanNetBpsPerFill": -13.6883140777799
+            },
+            {
+              "policyId": "retest-3m",
+              "attempts": 5,
+              "complete": 5,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 4,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -10.023392690747205,
+              "meanNetBpsPerFill": -12.529240863434005
+            },
+            {
+              "policyId": "retest-10m",
+              "attempts": 5,
+              "complete": 4,
+              "invalid": 0,
+              "pending": 1,
+              "filled": 3,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -9.185053971450278,
+              "meanNetBpsPerFill": -12.24673862860037
+            },
+            {
+              "policyId": "retest-30m",
+              "attempts": 5,
+              "complete": 3,
+              "invalid": 0,
+              "pending": 2,
+              "filled": 2,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -10.00217213914974,
+              "meanNetBpsPerFill": -15.00325820872461
+            }
+          ]
+        },
+        {
+          "scenario": {
+            "id": "latency-500ms",
+            "latencyMs": 500,
+            "feeMultiplier": 1,
+            "depthMultiplier": 1
+          },
+          "evaluation": null,
+          "policies": [
+            {
+              "policyId": "retest-1m",
+              "attempts": 5,
+              "complete": 5,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 4,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -10.95065126222392,
+              "meanNetBpsPerFill": -13.6883140777799
+            },
+            {
+              "policyId": "retest-3m",
+              "attempts": 5,
+              "complete": 5,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 4,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -10.023392690747205,
+              "meanNetBpsPerFill": -12.529240863434005
+            },
+            {
+              "policyId": "retest-10m",
+              "attempts": 5,
+              "complete": 4,
+              "invalid": 0,
+              "pending": 1,
+              "filled": 3,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -9.185053971450278,
+              "meanNetBpsPerFill": -12.24673862860037
+            },
+            {
+              "policyId": "retest-30m",
+              "attempts": 5,
+              "complete": 3,
+              "invalid": 0,
+              "pending": 2,
+              "filled": 2,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -10.00217213914974,
+              "meanNetBpsPerFill": -15.00325820872461
+            }
+          ]
+        },
+        {
+          "scenario": {
+            "id": "latency-1000ms",
+            "latencyMs": 1000,
+            "feeMultiplier": 1,
+            "depthMultiplier": 1
+          },
+          "evaluation": null,
+          "policies": [
+            {
+              "policyId": "retest-1m",
+              "attempts": 5,
+              "complete": 5,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 4,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -10.95065126222392,
+              "meanNetBpsPerFill": -13.6883140777799
+            },
+            {
+              "policyId": "retest-3m",
+              "attempts": 5,
+              "complete": 5,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 4,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -9.998342879341331,
+              "meanNetBpsPerFill": -12.497928599176664
+            },
+            {
+              "policyId": "retest-10m",
+              "attempts": 5,
+              "complete": 4,
+              "invalid": 0,
+              "pending": 1,
+              "filled": 3,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -9.185053971450278,
+              "meanNetBpsPerFill": -12.24673862860037
+            },
+            {
+              "policyId": "retest-30m",
+              "attempts": 5,
+              "complete": 3,
+              "invalid": 0,
+              "pending": 2,
+              "filled": 2,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -10.00217213914974,
+              "meanNetBpsPerFill": -15.00325820872461
+            }
+          ]
+        },
+        {
+          "scenario": {
+            "id": "fees-1.5x",
+            "latencyMs": 250,
+            "feeMultiplier": 1.5,
+            "depthMultiplier": 1
+          },
+          "evaluation": null,
+          "policies": [
+            {
+              "policyId": "retest-1m",
+              "attempts": 5,
+              "complete": 5,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 4,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -14.950513530542523,
+              "meanNetBpsPerFill": -18.688141913178153
+            },
+            {
+              "policyId": "retest-3m",
+              "attempts": 5,
+              "complete": 5,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 4,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -14.023486889673979,
+              "meanNetBpsPerFill": -17.529358612092473
+            },
+            {
+              "policyId": "retest-10m",
+              "attempts": 5,
+              "complete": 4,
+              "invalid": 0,
+              "pending": 1,
+              "filled": 3,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -12.935195278610994,
+              "meanNetBpsPerFill": -17.24692703814799
+            },
+            {
+              "policyId": "retest-30m",
+              "attempts": 5,
+              "complete": 3,
+              "invalid": 0,
+              "pending": 2,
+              "filled": 2,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -13.335171429093258,
+              "meanNetBpsPerFill": -20.002757143639887
+            }
+          ]
+        },
+        {
+          "scenario": {
+            "id": "depth-50pct",
+            "latencyMs": 500,
+            "feeMultiplier": 1,
+            "depthMultiplier": 0.5
+          },
+          "evaluation": null,
+          "policies": [
+            {
+              "policyId": "retest-1m",
+              "attempts": 5,
+              "complete": 5,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 4,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -10.95065126222392,
+              "meanNetBpsPerFill": -13.6883140777799
+            },
+            {
+              "policyId": "retest-3m",
+              "attempts": 5,
+              "complete": 5,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 4,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -10.023392690747205,
+              "meanNetBpsPerFill": -12.529240863434005
+            },
+            {
+              "policyId": "retest-10m",
+              "attempts": 5,
+              "complete": 4,
+              "invalid": 0,
+              "pending": 1,
+              "filled": 3,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -9.185053971450278,
+              "meanNetBpsPerFill": -12.24673862860037
+            },
+            {
+              "policyId": "retest-30m",
+              "attempts": 5,
+              "complete": 3,
+              "invalid": 0,
+              "pending": 2,
+              "filled": 2,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -10.00217213914974,
+              "meanNetBpsPerFill": -15.00325820872461
+            }
+          ]
+        }
+      ],
+      "contexts": {
+        "duringCooldown": 1,
+        "duringPosition": 0,
+        "duringPendingOrder": 0,
+        "venueNotionalOnly": 5
+      },
+      "researchQualified": false,
+      "deploymentReady": false
+    },
+    {
+      "key": "btc-eth-breakout-retest-v10.1.0|after-cost-episodes-v2|BTC/USD|BREAKOUT_RETEST|-1|BREAKOUT_DOWN|breakout-retest|3",
+      "symbol": "BTC/USD",
+      "side": -1,
+      "hypothesisId": "breakout-retest",
+      "episodes": 2,
+      "selectedPolicyId": null,
+      "qualityReasons": [],
+      "scenarios": [
+        {
+          "scenario": {
+            "id": "base-250ms",
+            "latencyMs": 250,
+            "feeMultiplier": 1,
+            "depthMultiplier": 1
+          },
+          "evaluation": null,
+          "policies": [
+            {
+              "policyId": "retest-1m",
+              "attempts": 2,
+              "complete": 2,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 1,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -5.998295055661418,
+              "meanNetBpsPerFill": -11.996590111322837
+            },
+            {
+              "policyId": "retest-3m",
+              "attempts": 2,
+              "complete": 2,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 1,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -7.754262360846455,
+              "meanNetBpsPerFill": -15.50852472169291
+            },
+            {
+              "policyId": "retest-10m",
+              "attempts": 2,
+              "complete": 2,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 1,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -7.754262360846455,
+              "meanNetBpsPerFill": -15.50852472169291
+            },
+            {
+              "policyId": "retest-30m",
+              "attempts": 2,
+              "complete": 2,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 1,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -7.754262360846455,
+              "meanNetBpsPerFill": -15.50852472169291
+            }
+          ]
+        },
+        {
+          "scenario": {
+            "id": "latency-500ms",
+            "latencyMs": 500,
+            "feeMultiplier": 1,
+            "depthMultiplier": 1
+          },
+          "evaluation": null,
+          "policies": [
+            {
+              "policyId": "retest-1m",
+              "attempts": 2,
+              "complete": 2,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 1,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -5.998295055661418,
+              "meanNetBpsPerFill": -11.996590111322837
+            },
+            {
+              "policyId": "retest-3m",
+              "attempts": 2,
+              "complete": 2,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 1,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -8.005114833015746,
+              "meanNetBpsPerFill": -16.010229666031492
+            },
+            {
+              "policyId": "retest-10m",
+              "attempts": 2,
+              "complete": 2,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 1,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -8.005114833015746,
+              "meanNetBpsPerFill": -16.010229666031492
+            },
+            {
+              "policyId": "retest-30m",
+              "attempts": 2,
+              "complete": 2,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 1,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -8.005114833015746,
+              "meanNetBpsPerFill": -16.010229666031492
+            }
+          ]
+        },
+        {
+          "scenario": {
+            "id": "latency-1000ms",
+            "latencyMs": 1000,
+            "feeMultiplier": 1,
+            "depthMultiplier": 1
+          },
+          "evaluation": null,
+          "policies": [
+            {
+              "policyId": "retest-1m",
+              "attempts": 2,
+              "complete": 2,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 1,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -5.998295055661418,
+              "meanNetBpsPerFill": -11.996590111322837
+            },
+            {
+              "policyId": "retest-3m",
+              "attempts": 2,
+              "complete": 2,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 1,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -8.005114833015746,
+              "meanNetBpsPerFill": -16.010229666031492
+            },
+            {
+              "policyId": "retest-10m",
+              "attempts": 2,
+              "complete": 2,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 1,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -8.005114833015746,
+              "meanNetBpsPerFill": -16.010229666031492
+            },
+            {
+              "policyId": "retest-30m",
+              "attempts": 2,
+              "complete": 2,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 1,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -8.005114833015746,
+              "meanNetBpsPerFill": -16.010229666031492
+            }
+          ]
+        },
+        {
+          "scenario": {
+            "id": "fees-1.5x",
+            "latencyMs": 250,
+            "feeMultiplier": 1.5,
+            "depthMultiplier": 1
+          },
+          "evaluation": null,
+          "policies": [
+            {
+              "policyId": "retest-1m",
+              "attempts": 2,
+              "complete": 2,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 1,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -8.49816969210711,
+              "meanNetBpsPerFill": -16.99633938421422
+            },
+            {
+              "policyId": "retest-3m",
+              "attempts": 2,
+              "complete": 2,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 1,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -10.254575769732224,
+              "meanNetBpsPerFill": -20.509151539464447
+            },
+            {
+              "policyId": "retest-10m",
+              "attempts": 2,
+              "complete": 2,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 1,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -10.254575769732224,
+              "meanNetBpsPerFill": -20.509151539464447
+            },
+            {
+              "policyId": "retest-30m",
+              "attempts": 2,
+              "complete": 2,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 1,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -10.254575769732224,
+              "meanNetBpsPerFill": -20.509151539464447
+            }
+          ]
+        },
+        {
+          "scenario": {
+            "id": "depth-50pct",
+            "latencyMs": 500,
+            "feeMultiplier": 1,
+            "depthMultiplier": 0.5
+          },
+          "evaluation": null,
+          "policies": [
+            {
+              "policyId": "retest-1m",
+              "attempts": 2,
+              "complete": 2,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 1,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -5.998295055661418,
+              "meanNetBpsPerFill": -11.996590111322837
+            },
+            {
+              "policyId": "retest-3m",
+              "attempts": 2,
+              "complete": 2,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 1,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -8.005114833015746,
+              "meanNetBpsPerFill": -16.010229666031492
+            },
+            {
+              "policyId": "retest-10m",
+              "attempts": 2,
+              "complete": 2,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 1,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -8.005114833015746,
+              "meanNetBpsPerFill": -16.010229666031492
+            },
+            {
+              "policyId": "retest-30m",
+              "attempts": 2,
+              "complete": 2,
+              "invalid": 0,
+              "pending": 0,
+              "filled": 1,
+              "partialFills": 0,
+              "unfilled": 1,
+              "wins": 0,
+              "meanNetBpsPerAttempt": -8.005114833015746,
+              "meanNetBpsPerFill": -16.010229666031492
+            }
+          ]
+        }
+      ],
+      "contexts": {
+        "duringCooldown": 0,
+        "duringPosition": 0,
+        "duringPendingOrder": 0,
+        "venueNotionalOnly": 2
+      },
+      "researchQualified": false,
+      "deploymentReady": false
+    }
+  ]
+}

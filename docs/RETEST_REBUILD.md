@@ -3,7 +3,7 @@
 This implements the deterministic paper-trading core of the supplied
 [design](KRAKEN_REBUILD_DESIGN.md). It is an implementation and research result,
 not evidence of profitable trading. Configuration is now
-`btc-eth-breakout-retest-v10.1.0`, policy evidence `executable-policy-v3`, and
+`btc-eth-breakout-retest-v10.2.0`, policy evidence `executable-policy-v3`, and
 episode evidence `after-cost-episodes-v2`. Old evidence cannot install a new model.
 
 ## Default entry behavior
@@ -74,6 +74,11 @@ after a protective cancellation retain exit intent.
 
 ## Empirical policy tables
 
+Submitted-entry labels now use observed paper executions and are separated
+from simulated-entry cohorts; alternative exits remain counterfactual. See
+[the v10.2.0 evidence repair](PROFIT_OPTIMIZER_V102.md) for supported execution
+paths, invalid-evidence handling, and validation results.
+
 Models are scoped by symbol, setup/side, coarse volatility and flow condition,
 policy, costs and configuration. Cell means shrink toward the same-symbol,
 same-side parent group (kappa 20) using only the corresponding earlier period.
@@ -119,7 +124,7 @@ Verified exchange references:
 
 ## Reproduce research
 
-Validation: TypeScript build and all 308 tests pass. Tests include symmetric
+Validation: TypeScript build and all 311 tests pass. Tests include symmetric
 paper entry/exit paths, fee and partial-fill accounting, monotone floors,
 cancel-pending protection, and research/paper exit parity. These validate
 implementation behavior, not market profitability.

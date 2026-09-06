@@ -16,6 +16,9 @@ export interface PolicyObservation extends PolicyCandidate {
   symbol: string;
   policyId: string;
   signalAtMs: number;
+  executionSource?: "OBSERVED_PAPER";
+  entryClientOrderId?: string;
+  decisionAtMs?: number;
   entryAtMs: number | null;
   exitAtMs: number | null;
   entryPrice: number | null;
@@ -34,7 +37,8 @@ export interface PolicyObservation extends PolicyCandidate {
   features: Record<string, number>;
 }
 
-interface Pending { observation: PolicyObservation; lastQuoteMs: number; exitReason?: string; exitDueMs?: number; protection?: NetProtection }
+interface Pending { observation: PolicyObservation; lastQuoteMs: number; exitReason?: string; exitDueMs?: number; protection?: NetProtection;
+  entryFinalized?: boolean; fillCount?: number }
 
 export class PolicyCollector {
   private readonly pending = new Map<string, Pending>();
@@ -58,6 +62,15 @@ export class PolicyCollector {
         continue;
       }
       pending.lastQuoteMs = now;
+      if (o.executionSource === "OBSERVED_PAPER" && !pending.entryFinalized) {
+        // A missing callback is missing evidence, never a fabricated non-fill.
+        if (now > o.decisionAtMs! + POLICY_ENTRY_LATENCY_MS + POLICY_MAX_ENTRY_DELAY_MS) {
+          events.push({ ...o, status: "INVALID", exitAtMs: now, reason: "ENTRY_EXECUTION_UNOBSERVED" });
+          this.pending.delete(id);
+        }
+        continue;
+      }
+      if (o.entryAtMs !== null && now < o.entryAtMs) continue;
       if (o.entryAtMs === null) {
         if (now < o.signalAtMs + POLICY_ENTRY_LATENCY_MS) continue;
         const entryCap = o.side === 1 ? o.signalAsk : o.signalBid;
@@ -137,7 +150,11 @@ export class PolicyCollector {
   /** Capture paired exits at the actual entry decision's quote and risk-sized
    * quantity. This never advances or waits for the periodic research clock. */
   public captureEntry(book: BookState, features: DeterministicFeatures, asset: AssetRules,
-    candidate: PolicyCandidate, qty: number): PolicyObservation[] {
+    candidate: PolicyCandidate, qty: number,
+    execution?: { clientOrderId: string; decisionAtMs: number }): PolicyObservation[] {
+    if (execution && (!execution.clientOrderId || !Number.isFinite(execution.decisionAtMs)
+      || execution.decisionAtMs < features.receiveTsMs
+      || execution.decisionAtMs - features.receiveTsMs > POLICY_MAX_ENTRY_DELAY_MS)) return [];
     if (!book.valid || features.stale || book.symbol !== this.symbol
       || book.receiveTsMs !== features.receiveTsMs || !book.bids[0] || !book.asks[0]
       || book.asks[0].px <= book.bids[0].px || (candidate.side === -1 && !asset.shortable)
@@ -151,6 +168,8 @@ export class PolicyCollector {
     const events = policies.map((policy): PolicyObservation => ({
       ...candidate, sampling: "ENTRY", id: randomUUID(), configurationVersion: this.configurationVersion,
       policyVersion: POLICY_VERSION, symbol: this.symbol, policyId: policy.id, signalAtMs: features.receiveTsMs,
+      ...(execution ? { executionSource: "OBSERVED_PAPER" as const, entryClientOrderId: execution.clientOrderId,
+        decisionAtMs: execution.decisionAtMs } : {}),
       entryAtMs: null, exitAtMs: null, entryPrice: null, exitPrice: null, qty, filledQty: 0,
       signalBid: book.bids[0]!.px, signalAsk: book.asks[0]!.px, spreadBps: features.spreadBps,
       feeBps: this.feeBps, reserveBps: this.reserveBps, grossBps: null, netBps: null, status: "PENDING", reason: null,
@@ -162,6 +181,44 @@ export class PolicyCollector {
     }));
     for (const observation of events) this.pending.set(observation.id,
       { observation: { ...observation }, lastQuoteMs: features.receiveTsMs });
+    return events;
+  }
+
+  /** Only reconciled, deduplicated broker deltas enter this path. Exits remain
+   * counterfactual; partial terminal IOC quantity retains the attempt denominator.
+   * Multiple fills require lifecycle replay and are retained as invalid evidence. */
+  public observeEntryExecution(clientOrderId: string, atMs: number,
+    fill: { qty: number; price: number; feeUsd: number } | undefined,
+    terminal: boolean, confirmedIocNonFill = false): PolicyObservation[] {
+    const events: PolicyObservation[] = [];
+    for (const [id, pending] of this.pending) {
+      const o = pending.observation;
+      if (o.executionSource !== "OBSERVED_PAPER" || o.entryClientOrderId !== clientOrderId) continue;
+      if (!fill && (pending.entryFinalized || !terminal)) continue;
+      let invalid: string | undefined;
+      if (!Number.isFinite(atMs) || atMs < o.decisionAtMs!
+        || atMs > o.decisionAtMs! + POLICY_ENTRY_LATENCY_MS + POLICY_MAX_ENTRY_DELAY_MS) invalid = "ENTRY_EXECUTION_TIME_INVALID";
+      if (fill) {
+        if (pending.entryFinalized || (pending.fillCount ?? 0) > 0) invalid = "MULTIPLE_ENTRY_FILLS_UNSUPPORTED";
+        else if (![fill.qty, fill.price, fill.feeUsd].every(Number.isFinite)
+          || fill.qty <= 0 || fill.qty > o.qty + 1e-12 || fill.price <= 0
+          || o.side * (fill.price - (o.side === 1 ? o.signalAsk : o.signalBid)) > 1e-8) invalid = "ENTRY_FILL_INVALID";
+        else if (Math.abs(fill.feeUsd - fill.qty * fill.price * o.feeBps / 10_000) > 1e-8) invalid = "ENTRY_FEE_MISMATCH";
+        else { o.entryAtMs = atMs; o.entryPrice = fill.price; o.filledQty = fill.qty; pending.fillCount = 1; }
+      }
+      if (invalid) {
+        events.push({ ...o, status: "INVALID", exitAtMs: atMs, reason: invalid });
+        this.pending.delete(id); continue;
+      }
+      if (pending.entryFinalized || !terminal) continue;
+      pending.entryFinalized = true;
+      if (o.entryAtMs === null) {
+        events.push({ ...o, status: confirmedIocNonFill ? "COMPLETE" : "INVALID", exitAtMs: atMs,
+          grossBps: confirmedIocNonFill ? 0 : null, netBps: confirmedIocNonFill ? 0 : null,
+          reason: confirmedIocNonFill ? "ENTRY_NOT_FILLED" : "ENTRY_TERMINATED_WITHOUT_EXECUTION" });
+        this.pending.delete(id);
+      } else events.push({ ...o });
+    }
     return events;
   }
 
