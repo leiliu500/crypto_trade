@@ -491,7 +491,7 @@ test("dashboard distinguishes a motion reset from invalid market data", async ()
   assert.match(app, /signedMoney\(breakdown\.grossPricePnl,5\)/);
   assert.match(html, /Total · UTC day/);
   assert.match(html, /id="session-pnl-breakdown"/);
-  assert.match(html, /app\.js\?v=20260904-policy-entry-2/);
+  assert.match(html, /app\.js\?v=20260906-history-warmup-1/);
 });
 
 function pulseFixture(): PolicyMarketPulse {
@@ -563,7 +563,58 @@ test("Market Pulse renders new policy signals, evidence and clocks without the l
   assert.match(unsafe, /&lt;script&gt;/);
 });
 
- test("dashboard formats the realized P&L reconciliation at five-decimal USD precision", async () => {
+test("joint model display separates submission permission, training, forecast freshness and entry gates", async () => {
+  const app = await readFile("src/dashboard/public/app.js", "utf8");
+  const utilities = app.slice(0, app.indexOf("function setConnection"));
+  const source = app.slice(app.indexOf("function renderCrossAssetModel"), app.indexOf("function policyFamilyName"));
+  const nowMs = 1_700_000_000_000;
+  const snapshot = { mode: "paper", paper: true, crossAssetPaperEntriesEnabled: true, entriesAllowed: true, generatedAtMs: nowMs };
+  const joint = { paperSubmissionEnabled: true, learning: { version: "btc-eth-dynamic-bayes-v1",
+    labelsPerSymbol: 0, historySamples: 3, invalidLabelPairs: 0 }, forecast: null as Record<string, unknown> | null };
+  const render = (c = joint, pulse: Record<string, unknown> = {}, overrides = {}, elapsed = 0) => runInNewContext(
+    `${utilities}\n${source}\nstate.snapshot=snapshot;renderCrossAssetModel(market,nowMs);`,
+    { snapshot: { ...snapshot, ...overrides }, nowMs: nowMs + elapsed,
+      market: { symbol: "BTC/USD", policyPulse: { ...pulseFixture(), ...pulse, research: { crossAsset: c } } } }) as string;
+  const warmup = render();
+  assert.match(warmup, /PAPER ORDERS ENABLED/); assert.match(warmup, /BUILDING PRICE HISTORY/);
+  assert.match(warmup, /0 \/ 24 minimum/); assert.match(warmup, /No forecast yet/);
+  assert.doesNotMatch(warmup, /FORECAST PASSES SCREEN|Predicted price return|NaN/);
+  const trained = { ...joint, learning: { ...joint.learning, labelsPerSymbol: 30 } };
+  assert.match(render(trained), /WAITING FOR FORECAST/);
+  const restored = render({ ...trained, historyBootstrap: { labelsPerSymbol: 119, trainedThroughMs: nowMs - 60_000 } } as typeof trained);
+  assert.match(restored, /Trained from history · 119 completed intervals restored/);
+  assert.match(restored, /UTC/);
+  const forecast = { version: joint.learning.version, symbol: "BTC/USD", atMs: nowMs, horizonMs: 900_000,
+    side: -1, predictedGrossBps: -40, conservativeNetBps: 20, costHurdleBps: 14,
+    parameterUncertaintyBps: 2, predictiveStdBps: 20, eligible: true, reason: "POSITIVE_RESEARCH_FORECAST" };
+  const positive = { ...trained, forecast };
+  const qualified = render(positive);
+  assert.match(qualified, /FORECAST PASSES SCREEN/); assert.match(qualified, /SHORT · 15m/);
+  assert.match(qualified, /-40.00 bp/); assert.match(qualified, /Model net score/);
+  assert.match(qualified, /exact order costs, liquidity and risk checks still apply/);
+  assert.match(qualified, /max="24" value="24"/);
+  const stale = render(positive, {}, {}, 1_001);
+  assert.match(stale, /FORECAST EXPIRED/); assert.match(stale, /for reference only/);
+  assert.doesNotMatch(stale, /FORECAST PASSES SCREEN|class="positive"/);
+  assert.match(render({ ...positive, forecast: { ...forecast, atMs: nowMs + 1 } }), /FORECAST EXPIRED/);
+  assert.match(render(positive, {}, { entriesAllowed: false }), /risk gates currently block/);
+  assert.match(render(positive, { status: "COOLDOWN", cooldownRemainingMs: 60_000 }), /Shared entry cooldown: 1m 0s/);
+  assert.match(render(positive, { status: "POSITION_OPEN" }), /existing position blocks another entry/);
+  assert.match(render(positive, { status: "ENTRY_BLOCKED", reasons: ["POLICY_NET_RETURN_TOO_LOW"] }), /Latest entry check rejected: POLICY_NET_RETURN_TOO_LOW/);
+  for (const [pulse, overrides] of [[{}, { crossAssetPaperEntriesEnabled: false }],
+    [{ mode: "SHADOW" }, { mode: "shadow" }], [{ mode: "CALIBRATED_PAPER" }, {}]]) {
+    assert.match(render(positive, pulse, overrides), /PAPER ORDERS DISABLED/);
+  }
+  assert.match(render({ ...positive, paperSubmissionEnabled: false }), /PAPER ORDERS DISABLED/);
+  assert.match(render({ ...positive, forecast: { ...forecast, conservativeNetBps: -2, eligible: false, reason: "COST_OR_UNCERTAINTY" } }), /COST \/ UNCERTAINTY BLOCK/);
+  assert.match(render({ ...positive, forecast: { ...forecast, eligible: false, reason: "OUT_OF_DOMAIN" } }), /OUTSIDE MODEL RANGE/);
+  assert.match(render({ ...positive, forecast: { ...forecast, symbol: "ETH/USD" } }), /FORECAST UNAVAILABLE/);
+  assert.match(render({ ...positive, learning: { ...trained.learning, version: "new-model" } }), /WAITING FOR MODEL DATA/);
+  const unsafe = render({ ...positive, learning: { ...trained.learning, version: "<img src=x onerror=bad()>" } });
+  assert.doesNotMatch(unsafe, /<img/); assert.match(unsafe, /&lt;img/);
+});
+
+test("dashboard formats the realized P&L reconciliation at five-decimal USD precision", async () => {
   const app = await readFile("src/dashboard/public/app.js", "utf8");
   const utilitySource = app.slice(0, app.indexOf("function setConnection"));
   const formatted = runInNewContext(`${utilitySource}\nJSON.stringify([
@@ -852,7 +903,7 @@ test("dashboard server serves the read-only API, health probe, and browser route
     const htmlText = await html.text();
     assert.match(htmlText, /data-testid="dashboard-root"/);
     assert.match(htmlText, /Trades and order attempts/);
-    assert.match(htmlText, /app\.js\?v=20260904-policy-entry-2/);
+    assert.match(htmlText, /app\.js\?v=20260906-history-warmup-1/);
     assert.doesNotMatch(htmlText, /Exit dynamics/);
     assert.equal(dashboardAlias.status, 200);
     assert.match(await dashboardAlias.text(), /data-testid="dashboard-root"/);

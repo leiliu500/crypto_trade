@@ -15,6 +15,7 @@ import { recoverPolicyPositions } from "../src/research/policy-restore.js";
 import { policyMarketPulse } from "../src/research/policy-pulse.js";
 import type { EpisodeObservation } from "../src/research/execution-stress.js";
 import type { BreakoutRetest } from "../src/strategy/breakout-retest.js";
+import { CROSS_ASSET_SPEC, crossAssetPaperCandidate, type CrossAssetForecast } from "../src/research/cross-asset-model.js";
 
 // Legacy policy regression coverage; the rebuilt default has a separate staged
 // setup integration test and must not produce impulse-only entries.
@@ -24,6 +25,136 @@ const asset: AssetRules = { symbol: "BTC/USD", minOrderSize: .001, minTradeIncre
 const day = 86_400_000, end = Date.UTC(2026, 8, 4), now = end + 3_600_000;
 const liquid = { pass: true, stress: false, sampleCount: 100, medianSpreadBps: 1,
   tradeThresholdBps: 1, stressThresholdBps: 2, reasons: [] };
+
+function jointForecast(symbol: "BTC/USD" | "ETH/USD", side: 1 | -1, atMs: number): CrossAssetForecast {
+  return { version: CROSS_ASSET_SPEC.version, symbol, side, atMs, referenceMid: 100, horizonMs: 900_000,
+    trainedThroughMs: atMs - 1_000, trainingLabels: 50, predictedGrossBps: side * 40,
+    parameterUncertaintyBps: 2, predictiveStdBps: 20, costHurdleBps: 14, conservativeNetBps: 20,
+    eligible: true, reason: "POSITIVE_RESEARCH_FORECAST", factorBeta: 1, expertWeights: { trend: 1 } };
+}
+
+for (const side of [1, -1] as const) test(`joint ${side} planner rechecks anchored edge, costs, scope and risk`, () => {
+  const atMs = 100_000, forecast = jointForecast("BTC/USD", side, atMs);
+  const input = { config: cfg.symbolConfigs["BTC/USD"]!, book: book(atMs),
+    features: { ...features(atMs, side), retestCandidate: null }, asset,
+    candidate: crossAssetPaperCandidate(forecast, "BTC/USD", atMs)!, policyId: "trend-15m",
+    crossAssetForecast: forecast, allowCrossAssetPaper: true, allowPaperResearch: true,
+    equity: 100_000, equityHighWater: 100_000, nowMs: atMs };
+  const { plan, reason } = buildPolicyPlan(input);
+  assert.ok(plan); assert.equal(reason, "CROSS_ASSET_PAPER_EXPERIMENT");
+  assert.ok(plan.qty * plan.limitPx <= 12); assert.equal(plan.edgeSource, "ANALYTIC");
+  assert.equal(plan.researchOnly, true); assert.equal(plan.modelVersion, CROSS_ASSET_SPEC.version);
+  assert.deepEqual(plan.crossAssetForecast, forecast); assert.equal(plan.policy!.invalidationPx, undefined);
+  const expected = 40 - 2 * 2 - .1 * 20 - plan.expectedCost.roundTripBps - (input.config.cost.positiveCostErrorP95Bps ?? 0);
+  assert.ok(Math.abs(plan.conservativeNetEdgeBps! - expected) < 1e-8, "each cost is charged once");
+  assert.ok(plan.rewardRiskRatio! >= input.config.planner.minimumRewardRiskRatio);
+  assert.equal(plan.expiresMs, atMs + 1_000);
+  for (const change of [
+    { allowCrossAssetPaper: false }, { allowPaperResearch: false }, { policyId: "trend-30m" },
+    { crossAssetForecast: { ...forecast, symbol: "ETH/USD" as const } },
+    { crossAssetForecast: { ...forecast, trainingLabels: 23 } },
+    { crossAssetForecast: { ...forecast, conservativeNetBps: 100 } },
+    { crossAssetForecast: { ...forecast, referenceMid: NaN } },
+    { crossAssetForecast: { ...forecast, trainedThroughMs: atMs + 1 } },
+    { crossAssetForecast: { ...forecast, trainedThroughMs: atMs - 86_400_001 } },
+    { nowMs: atMs + 1_001 }, { nowMs: atMs - 1 },
+  ]) assert.equal(buildPolicyPlan({ ...input, ...change }).plan, null, JSON.stringify(change));
+  assert.equal(buildPolicyPlan({ ...input, features: { ...input.features, stale: true } }).plan, null);
+  assert.equal(buildPolicyPlan({ ...input, book: { ...input.book, valid: false } }).plan, null);
+  const movedMid = 100 + side * .4;
+  assert.equal(buildPolicyPlan({ ...input, book: book(atMs, movedMid),
+    features: { ...features(atMs, side, movedMid), retestCandidate: null } }).reason, "POLICY_NET_RETURN_TOO_LOW",
+  "the entry cannot chase a forecast whose expected move has already occurred");
+  const expensive = { ...input.config, cost: { ...input.config.cost, takerFeeBps: 30 } };
+  assert.equal(buildPolicyPlan({ ...input, config: expensive }).reason, "POLICY_NET_RETURN_TOO_LOW");
+  assert.equal(buildPolicyPlan({ ...input, features: { ...input.features, velocityZ: 1_000 } }).reason, "POLICY_NET_RETURN_TOO_LOW");
+  assert.equal(buildPolicyPlan({ ...input, equity: 1 }).reason, "POLICY_RISK_SIZE_BLOCK");
+  assert.equal(buildPolicyPlan({ ...input, config: { ...input.config,
+    planner: { ...input.config.planner, minimumRewardRiskRatio: 100 } } }).reason, "POLICY_REWARD_RISK_BLOCK");
+  const collector = new PolicyCollector(input.config.configurationVersion, "BTC/USD", input.config.cost.takerFeeBps,
+    policyReserveBps(input.config));
+  assert.deepEqual(collector.captureEntry(input.book, input.features, asset, input.candidate, plan.qty), [],
+    "joint candidates cannot enter through the legacy evidence path");
+  const starts = collector.captureEntry(input.book, input.features, asset, input.candidate, plan.qty,
+    { clientOrderId: plan.clientOrderId, decisionAtMs: atMs }, forecast);
+  assert.equal(starts.length, 2); assert.ok(starts.every(o => o.regime.includes(CROSS_ASSET_SPEC.version)
+    && o.features.forecastReferenceMid === 100 && o.features.invalidationPx === undefined));
+});
+
+for (const symbol of ["BTC/USD", "ETH/USD"] as const) for (const side of [1, -1] as const) {
+  test(`joint ${symbol} ${side} forecast submits through the paper broker and closes with fees`, async (t) => {
+    let clockMs = Date.now();
+    t.mock.timers.enable({ apis: ["Date"], now: clockMs });
+    const broker = new KrakenPaperBroker({ initialEquity: 100_000, productsBySymbol: { [symbol]: "TEST" },
+      instruments: new Map([[symbol, { symbol, productId: "TEST", tickSize: .001, quantityIncrement: .001, maximumOrderQty: 100 }]]),
+      makerFeeBpsBySymbol: { [symbol]: 2 }, takerFeeBpsBySymbol: { [symbol]: 5 } });
+    const engineConfig = { ...cfg, breakoutRetestEnabled: true, crossAssetPaperEntriesEnabled: false, continuousRecordingEnabled: false };
+    const engine = new TradingEngine(engineConfig, { rest: broker, gateway: broker, tradeStream: broker.tradeStream, now: () => clockMs });
+    const internals = engine as unknown as { equity: number; equityHighWater: number;
+      riskState: { setHealth: (value: Record<string, boolean>) => void };
+      portfolio: { canAdd: (...args: unknown[]) => boolean };
+      crossAssetModel: { observe: () => CrossAssetForecast[] };
+      runtimes: Map<string, { config: SymbolConfig; asset: AssetRules; latestFeatures: DeterministicFeatures;
+        book: { apply: (value: unknown) => void }; liquidity: { observe: (spread: number) => void } }>;
+      processMarketState: (runtime: unknown, b: BookState, f: DeterministicFeatures) => void };
+    internals.equity = internals.equityHighWater = 100_000;
+    internals.riskState.setHealth({ publicStream: true, privateStream: true, accountReconciled: true, bookValid: true, riskRecomputed: true });
+    internals.crossAssetModel.observe = () => [jointForecast(symbol, side, clockMs)];
+    const feed = (b: BookState) => ({ symbol: b.symbol, bids: [...b.bids], asks: [...b.asks], reset: true,
+      exchangeTsMs: b.exchangeTsMs, receiveTsMs: b.receiveTsMs, sourceId: `joint-${b.symbol}-${b.receiveTsMs}` });
+    for (const [s, r] of internals.runtimes) {
+      r.asset = { ...asset, symbol: s }; r.latestFeatures = features(clockMs, side, 100, s);
+      r.book.apply(feed(book(clockMs, 100, s)));
+      for (let i = 0; i <= cfg.dynamicLiquidity.minimumSamples; i++) r.liquidity.observe(1);
+    }
+    const runtime = internals.runtimes.get(symbol)!;
+    const decisions: ExecutionPlan[] = [], observations: PolicyObservation[] = [];
+    engine.on("decision", ({ plan }: { plan: ExecutionPlan }) => decisions.push(plan));
+    engine.on("policyObservation", (o: PolicyObservation) => observations.push(o));
+    const quote = async (mid = 100) => {
+      clockMs += 1_000; t.mock.timers.setTime(clockMs);
+      const b = book(clockMs, mid, symbol); runtime.book.apply(feed(b)); broker.onBook(feed(b));
+      internals.processMarketState(runtime, b, features(clockMs, side, mid, symbol));
+      for (let i = 0; i < 16; i++) await Promise.resolve();
+    };
+    try {
+      await quote(); assert.equal(decisions.length, 0, "disabled flag leaves forecasts in research");
+      engineConfig.crossAssetPaperEntriesEnabled = true;
+      engineConfig.mode = "shadow";
+      await quote(); assert.equal(decisions.length, 0, "shadow mode cannot submit a joint order");
+      engineConfig.mode = "paper";
+      const originalConfig = runtime.config;
+      runtime.config = { ...originalConfig, planner: { ...originalConfig.planner,
+        hybridEntry: { ...originalConfig.planner.hybridEntry, allowAnalyticPaperExecution: false } } };
+      await quote(); assert.equal(decisions.length, 0, "calibrated-only mode cannot acquire joint experiments");
+      runtime.config = originalConfig;
+      const canAdd = internals.portfolio.canAdd; internals.portfolio.canAdd = () => false;
+      await quote(); assert.equal(decisions.length, 0, "portfolio gate applies to joint orders");
+      const blocked = engine.state().markets.find(m => m.symbol === symbol)!.policyPulse!;
+      assert.equal(blocked.status, "ENTRY_BLOCKED"); assert.deepEqual(blocked.reasons, ["PORTFOLIO_CAPACITY_BLOCK"]);
+      internals.portfolio.canAdd = canAdd;
+      await quote(); assert.equal(decisions.length, 1);
+      const p = engine.state().positions[0]!;
+      assert.ok(p); assert.equal(p.symbol, symbol); assert.equal(p.side, side);
+      const plan = decisions[0]!;
+      assert.equal(plan.policy!.id, "trend-15m"); assert.equal(plan.modelVersion, CROSS_ASSET_SPEC.version);
+      assert.equal(plan.policy!.invalidationPx, undefined); assert.ok(plan.qty * plan.limitPx <= 12);
+      assert.equal(engine.state().orders[0]!.status, "FILLED");
+      const labels = observations.filter(o => o.executionSource === "OBSERVED_PAPER" && o.entryAtMs !== null);
+      assert.equal(labels.length, 2); assert.ok(labels.every(o => o.entryPrice === p.entryPx && o.filledQty === p.qty
+        && o.entryClientOrderId === plan.clientOrderId));
+      assert.equal(engine.state().crossAssetPaperEntriesEnabled, true);
+      assert.equal(engine.state().markets.find(m => m.symbol === symbol)!.policyPulse!.research!.crossAsset!.paperSubmissionEnabled, true);
+      const restored = recoverPolicyPositions(broker.history(), (await broker.listPositions()).data, []);
+      assert.deepEqual(restored[0]!.policy, plan.policy);
+      await quote(100 + side * 2);
+      assert.equal(engine.state().positions.length, 0); assert.equal(engine.state().orders.length, 2);
+      assert.equal(engine.state().orders[1]!.plan.exitReason, "POLICY_TARGET");
+      assert.ok(engine.state().realizedSessionPnl > 0, "synthetic favorable fills check accounting, not predicted profitability");
+      await quote(); assert.equal(decisions.length, 1, "joint orders respect the shared entry cooldown");
+    } finally { await engine.stop(); }
+  });
+}
 
 for (const side of [1, -1] as const) test(`rebuilt default submits a capped ${side === 1 ? "long" : "short"} paper retest and protects the fill`, async (t) => {
   let clockMs = Date.now();

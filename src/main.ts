@@ -15,6 +15,7 @@ import type { SlowTrendObservation, SlowTrendRestoreResult } from "./strategy/de
 import { PolicyStore } from "./research/policy-store.js";
 import { recoverPolicyPositions } from "./research/policy-restore.js";
 import type { Position } from "./strategy/position-manager.js";
+import { readCrossAssetHistory } from "./research/cross-asset-history.js";
 
 async function main(): Promise<void> {
   loadLocalEnv();
@@ -119,6 +120,18 @@ async function main(): Promise<void> {
     return policyRefresh;
   };
   await refreshPolicies();
+  if (activeStore && cfg.policyEngineEnabled && !cfg.paperEntryExercise) {
+    try {
+      const cutoffMs = Date.now();
+      const bootstrap = await engine.restoreCrossAssetHistory(readCrossAssetHistory(cfg.databaseUrl, cutoffMs), cutoffMs);
+      if (bootstrap) process.stdout.write(`${JSON.stringify({ type: "cross-asset-history-ready", ...bootstrap })}\n`);
+    } catch (error) {
+      // Historical research availability cannot disable position management.
+      // The isolated candidate was not installed; retain normal live warmup.
+      process.stderr.write(`${JSON.stringify({ type: "cross-asset-history-degraded",
+        message: error instanceof Error ? error.message : String(error), fallback: "LIVE_WARMUP" })}\n`);
+    }
+  }
   let dashboard: DashboardServer | undefined;
   if (cfg.dashboardEnabled) {
     dashboard = new DashboardServer(monitor, { host: cfg.dashboardHost, port: cfg.dashboardPort });

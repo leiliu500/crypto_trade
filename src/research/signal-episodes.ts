@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { BookState, MarketTrade } from "../core/market.js";
 import { BreakoutRetest, type RetestCandidate } from "../strategy/breakout-retest.js";
+import { CROSS_ASSET_SPEC, usableCrossAssetForecast, type CrossAssetForecast } from "./cross-asset-model.js";
 import type { AssetRules } from "../execution/planner.js";
 import type { DeterministicFeatures } from "../strategy/deterministic-features.js";
 import type { PolicyObservation } from "./policy-collector.js";
@@ -11,7 +12,7 @@ import { EXECUTION_SCENARIOS, ExecutionStressCase, stressObservation,
 export const EPISODE_RULES = Object.freeze({ sampleMs: 5_000, quoteGapMs: 5_000,
   quietResetMs: 5_000, minimumSpacingMs: 60_000, confirmationMs: 2_000,
   minimumConfirmationQuotes: 3, minimumTrendEfficiency: .15, maximumPending: 256 });
-export const EPISODE_HYPOTHESES = ["current-breakout", "range-5m-confirmed", "range-15m-confirmed", "breakout-retest", "breakout-retest-5m"] as const;
+export const EPISODE_HYPOTHESES = ["current-breakout", "range-5m-confirmed", "range-15m-confirmed", "breakout-retest", "breakout-retest-5m", CROSS_ASSET_SPEC.version] as const;
 interface Point { at: number; mid: number }
 interface Arm { at: number; boundary: number; quotes: number }
 interface Seen { lastSeenMs: number; lastCapturedMs: number }
@@ -48,7 +49,7 @@ export class SignalEpisodeCollector {
   }
 
   public observe(book: BookState, f: DeterministicFeatures, asset: AssetRules | undefined,
-    contexts: { long: EpisodeContext; short: EpisodeContext }): EpisodeObservation[] {
+    contexts: { long: EpisodeContext; short: EpisodeContext }, crossAsset?: CrossAssetForecast): EpisodeObservation[] {
     const now = book.receiveTsMs;
     if (book.symbol !== this.symbol) return [];
     if (!book.valid || f.stale || f.symbol !== this.symbol || !Number.isFinite(now) || now !== f.receiveTsMs || !book.bids[0] || !book.asks[0]
@@ -70,7 +71,12 @@ export class SignalEpisodeCollector {
       }
     }
     if (duplicateQuote) return events;
-    const candidates: Array<{ hypothesisId: string; side: 1 | -1; boundary?: number; retest?: RetestCandidate }> = [];
+    const candidates: Array<{ hypothesisId: string; side: 1 | -1; boundary?: number; retest?: RetestCandidate;
+      forecast?: CrossAssetForecast }> = [];
+    if (usableCrossAssetForecast(crossAsset, this.symbol, now)
+      && crossAsset.conservativeNetBps > Math.max(0, 2 * this.feeBps + this.reserveBps + f.spreadBps - crossAsset.costHurdleBps)) {
+      candidates.push({ hypothesisId: CROSS_ASSET_SPEC.version, side: crossAsset.side, forecast: crossAsset });
+    }
     if (f.retestCandidate) candidates.push({ hypothesisId: "breakout-retest", side: f.retestCandidate.side,
       boundary: f.retestCandidate.boundary, retest: f.retestCandidate });
     const longer = this.longerRetest.observe(book, f.stale);
@@ -119,25 +125,32 @@ export class SignalEpisodeCollector {
       const key = `${candidate.hypothesisId}:${candidate.side}`, prior = this.seen.get(key);
       const quiet = !prior || now - prior.lastSeenMs >= EPISODE_RULES.quietResetMs;
       this.seen.set(key, { lastSeenMs: now, lastCapturedMs: prior?.lastCapturedMs ?? -Infinity });
-      if (!quiet || (prior && now - prior.lastCapturedMs < EPISODE_RULES.minimumSpacingMs)) continue;
+      const spacingMs = candidate.forecast ? CROSS_ASSET_SPEC.horizonMs : EPISODE_RULES.minimumSpacingMs;
+      if (!quiet || (prior && now - prior.lastCapturedMs < spacingMs)) continue;
       const qty = policyQuantity(candidate.side === 1 ? book.asks[0].px : book.bids[0].px, asset);
       if (!(qty > 0)) continue;
       this.seen.get(key)!.lastCapturedMs = now;
       const episodeId = randomUUID();
       this.counters.episodes++;
-      const family = candidate.retest ? "BREAKOUT_RETEST" : "EARLY_BREAKOUT";
+      const family = candidate.forecast ? "CONTINUATION" : candidate.retest ? "BREAKOUT_RETEST" : "EARLY_BREAKOUT";
       const policies = TRADING_POLICIES.filter((p) => p.family === family);
       const capacity = this.cases.size + policies.length * EXECUTION_SCENARIOS.length <= EPISODE_RULES.maximumPending;
       for (const policy of policies) {
         const source: PolicyObservation = { id: randomUUID(), sampling: "EPISODE", configurationVersion: this.configurationVersion,
           policyVersion: POLICY_VERSION, symbol: this.symbol, family, side: candidate.side,
-          regime: candidate.side === 1 ? "BREAKOUT_UP" : "BREAKOUT_DOWN", policyId: policy.id,
+          regime: candidate.forecast ? candidate.side === 1 ? "JOINT_UP" : "JOINT_DOWN"
+            : candidate.side === 1 ? "BREAKOUT_UP" : "BREAKOUT_DOWN", policyId: policy.id,
           signalAtMs: now, signalBid: book.bids[0].px, signalAsk: book.asks[0].px, spreadBps: f.spreadBps,
           qty, filledQty: 0, entryAtMs: null, exitAtMs: null, entryPrice: null, exitPrice: null,
           feeBps: this.feeBps, reserveBps: this.reserveBps, grossBps: null, netBps: null, status: "PENDING", reason: null,
           features: { impulseBps: f.impulseBps, breakoutUpBps: f.breakoutUpBps, breakoutDownBps: f.breakoutDownBps,
             trendFastBps: f.trendFastBps, trendMediumBps: f.trendMediumBps, trendSlowBps: f.trendSlowBps,
             slowTrendEfficiency: f.slowTrendEfficiency, ofi: f.ofi, tfi: f.tfi, velocityZ: f.velocityZ,
+            ...(candidate.forecast ? { forecastGrossBps: candidate.forecast.predictedGrossBps,
+              forecastUncertaintyBps: candidate.forecast.parameterUncertaintyBps,
+              forecastNetBps: candidate.forecast.conservativeNetBps,
+              forecastTrainingLabels: candidate.forecast.trainingLabels,
+              forecastTrainedThroughMs: candidate.forecast.trainedThroughMs!, factorBeta: candidate.forecast.factorBeta } : {}),
             ...(candidate.boundary === undefined ? {} : { rangeBoundary: candidate.boundary }),
             ...(candidate.retest ? { invalidationPx: candidate.retest.invalidationPx,
               policyVolatilityBps: candidate.retest.volatilityBps,

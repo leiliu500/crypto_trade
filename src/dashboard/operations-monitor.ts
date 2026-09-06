@@ -15,7 +15,7 @@ const ENGINE_EVENTS = [
   "positionDecision", "positionDust", "exitDecision", "fill", "watchdogFault", "entryBlocked", "pendingKinematicsGrace",
   "pendingSignalGrace", "pendingSignalRecovered", "pendingAdverseFlowGrace", "pendingAdverseFlowRecovered",
   "missedEntryRetryArmed", "entryRouteEvaluated", "entryRouteShadowStarted", "entryRouteShadowMark",
-  "policyObservation", "policyResearchReady", "policyEntryEvaluated", "policySignalEvaluated", "researchEpisode", "setupEvaluated",
+  "policyObservation", "policyResearchReady", "policyEntryEvaluated", "policySignalEvaluated", "researchEpisode", "setupEvaluated", "crossAssetForecast",
 ] as const;
 const TERMINAL_ORDER_STATES = new Set(["FILLED", "CANCELED", "REJECTED", "EXPIRED"]);
 const DEFAULT_MAXIMUM_PNL_HISTORY = 2_000;
@@ -437,6 +437,7 @@ export class OperationsMonitor extends EventEmitter {
     return {
       version: 1, generatedAtMs: nowMs, mode: state.mode, paper: state.paper, paperEntryExercise: state.paperEntryExercise,
       policyEngineEnabled: state.policyEngineEnabled ?? false, policyModelsInstalled: state.policyModelsInstalled ?? 0,
+      crossAssetPaperEntriesEnabled: state.crossAssetPaperEntriesEnabled ?? false,
       strategyVersion: state.strategyVersion, modelVersion: state.modelVersion,
       configurationVersion: state.configurationVersion ?? "-", signalMode: state.signalMode ?? "DETERMINISTIC_ONLY",
       started: state.started, uptimeMs: state.uptimeMs, overall, entriesAllowed,

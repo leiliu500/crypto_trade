@@ -287,6 +287,7 @@ export interface DashboardSnapshot {
   paper: boolean;
   paperEntryExercise?: boolean;
   policyEngineEnabled?: boolean;
+  crossAssetPaperEntriesEnabled?: boolean;
   policyModelsInstalled?: number;
   strategyVersion: string;
   modelVersion: string;

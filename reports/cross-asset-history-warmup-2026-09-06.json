@@ -1,0 +1,39 @@
+{
+  "source": "POSTGRES_MARKET_SNAPSHOTS",
+  "cutoffMs": 1788728278548,
+  "completedAtMs": 1788728293861,
+  "firstQuoteMs": 1788560158840,
+  "lastQuoteMs": 1788728278492,
+  "quotesRead": 315888,
+  "invalidQuotes": 59,
+  "labelsPerSymbol": 119,
+  "trainedThroughMs": 1788727936081,
+  "trainingReady": true,
+  "discardedIncompleteInterval": true,
+  "historyRetained": true,
+  "learning": {
+    "version": "btc-eth-dynamic-bayes-v1",
+    "labelsPerSymbol": 119,
+    "trainedThroughMs": 1788727936081,
+    "invalidLabelPairs": 10,
+    "historySamples": 62,
+    "trainingResets": 0,
+    "prequentialErrors": [
+      {
+        "symbol": "BTC/USD",
+        "labels": 95,
+        "modelMseBpsSquared": 53.53678792718557,
+        "zeroForecastMseBpsSquared": 52.51873737688892
+      },
+      {
+        "symbol": "ETH/USD",
+        "labels": 95,
+        "modelMseBpsSquared": 175.3739757960244,
+        "zeroForecastMseBpsSquared": 171.66997243124507
+      }
+    ]
+  },
+  "ordersSubmitted": 0,
+  "purpose": "HISTORICAL_TRAINING_CHECK_ONLY",
+  "profitabilityEstablished": false
+}
