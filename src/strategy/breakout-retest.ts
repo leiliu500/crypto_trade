@@ -12,6 +12,9 @@ interface Point { atMs: number; mid: number }
 /** One causal state machine per instrument; only actual trade events supply TI.
  * Every range excludes the current quote, and breakout boundaries stay frozen. */
 export class BreakoutRetest {
+  public constructor(public readonly rangeMs: number = RETEST_RULES.rangeMs) {
+    if (![60_000, 300_000, 900_000].includes(rangeMs)) throw new Error("Unsupported retest range");
+  }
   private points: Point[] = [];
   private trades: MarketTrade[] = [];
   private tradeIds = new Set<string>();
@@ -38,7 +41,7 @@ export class BreakoutRetest {
     this.pruneTrades(trade.receiveTsMs);
     this.tradeIds.add(trade.id); this.trades.push(trade);
   }
-  public snapshot() { return { version: RETEST_RULES.version, phase: this.candidate ? "CANDIDATE"
+  public snapshot() { return { version: RETEST_RULES.version, rangeMs: this.rangeMs, phase: this.candidate ? "CANDIDATE"
     : this.arm?.retestedAtMs !== undefined ? "RETESTED" : this.arm ? "BREAKOUT" : "WATCHING",
     boundary: this.arm?.boundary ?? this.candidate?.boundary ?? null, samples: this.points.length,
     breakoutExtreme: this.arm?.extreme ?? null,
@@ -57,7 +60,7 @@ export class BreakoutRetest {
     const observedTrades = this.trades.filter((t) => t.receiveTsMs <= now);
     const total = observedTrades.reduce((s, t) => s + t.qty, 0);
     const flow = total ? observedTrades.reduce((s, t) => s + t.aggressor * t.qty, 0) / total : 0;
-    this.points = this.points.filter((p) => now - p.atMs <= RETEST_RULES.rangeMs + RETEST_RULES.sampleMs);
+    this.points = this.points.filter((p) => now - p.atMs <= this.rangeMs + RETEST_RULES.sampleMs);
     const previous = this.points.at(-1);
     // Normalize the next one-second return by variance known before that return.
     if (previous && now - previous.atMs >= RETEST_RULES.sampleMs) {
@@ -96,7 +99,8 @@ export class BreakoutRetest {
           delete this.arm;
         }
       }
-    } else if (this.points.length >= 55 && now - this.points[0]!.atMs >= RETEST_RULES.rangeMs) {
+    } else if (this.points.length >= Math.ceil(this.rangeMs / RETEST_RULES.sampleMs * 55 / 60)
+      && now - this.points[0]!.atMs >= this.rangeMs) {
       const high = Math.max(...this.points.map((p) => p.mid)), low = Math.min(...this.points.map((p) => p.mid));
       const side = mid > high && flow > RETEST_RULES.minimumFlow ? 1 : mid < low && flow < -RETEST_RULES.minimumFlow ? -1 : null;
       if (side) {

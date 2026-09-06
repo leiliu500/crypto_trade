@@ -1,0 +1,1622 @@
+{
+  "detectorVersion": "breakout-retest-v2",
+  "rangeMs": 300000,
+  "quality": {
+    "events": 175102,
+    "candidates": 10,
+    "gaps": 3,
+    "invalidBooks": 0,
+    "firstMs": 1788560159790,
+    "lastMs": 1788565860180
+  },
+  "deploymentReady": false,
+  "assumptions": [
+    "Current instrument increments and configured paper fees",
+    "No portfolio or live liquidity-permission simulation",
+    "Fixed control retains structural invalidation, stop and deadline",
+    "Additional funding/execution reserve, not observed funding cash flows",
+    "Shared candidate paths and scenarios are dependent"
+  ],
+  "cohorts": [
+    {
+      "key": "BTC/USD|-1|retest-10m|base-250ms|fixed",
+      "attempts": 5,
+      "complete": 4,
+      "invalid": 1,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -14.192734424403778,
+      "meanNetBps": -7.096367212201889
+    },
+    {
+      "key": "BTC/USD|-1|retest-10m|base-250ms|net-floor",
+      "attempts": 5,
+      "complete": 4,
+      "invalid": 1,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -14.192734424403778,
+      "meanNetBps": -7.096367212201889
+    },
+    {
+      "key": "BTC/USD|-1|retest-10m|depth-50pct|fixed",
+      "attempts": 5,
+      "complete": 4,
+      "invalid": 1,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -14.0357804470441,
+      "meanNetBps": -7.01789022352205
+    },
+    {
+      "key": "BTC/USD|-1|retest-10m|depth-50pct|net-floor",
+      "attempts": 5,
+      "complete": 4,
+      "invalid": 1,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -14.0357804470441,
+      "meanNetBps": -7.01789022352205
+    },
+    {
+      "key": "BTC/USD|-1|retest-10m|fees-1.5x|fixed",
+      "attempts": 5,
+      "complete": 4,
+      "invalid": 1,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -19.193032458992583,
+      "meanNetBps": -9.596516229496292
+    },
+    {
+      "key": "BTC/USD|-1|retest-10m|fees-1.5x|net-floor",
+      "attempts": 5,
+      "complete": 4,
+      "invalid": 1,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -19.193032458992583,
+      "meanNetBps": -9.596516229496292
+    },
+    {
+      "key": "BTC/USD|-1|retest-10m|latency-1000ms|fixed",
+      "attempts": 5,
+      "complete": 4,
+      "invalid": 1,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -14.067168879285244,
+      "meanNetBps": -7.033584439642622
+    },
+    {
+      "key": "BTC/USD|-1|retest-10m|latency-1000ms|net-floor",
+      "attempts": 5,
+      "complete": 4,
+      "invalid": 1,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -14.067168879285244,
+      "meanNetBps": -7.033584439642622
+    },
+    {
+      "key": "BTC/USD|-1|retest-10m|latency-500ms|fixed",
+      "attempts": 5,
+      "complete": 4,
+      "invalid": 1,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -14.00439201480296,
+      "meanNetBps": -7.00219600740148
+    },
+    {
+      "key": "BTC/USD|-1|retest-10m|latency-500ms|net-floor",
+      "attempts": 5,
+      "complete": 4,
+      "invalid": 1,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -14.00439201480296,
+      "meanNetBps": -7.00219600740148
+    },
+    {
+      "key": "BTC/USD|-1|retest-1m|base-250ms|fixed",
+      "attempts": 5,
+      "complete": 4,
+      "invalid": 1,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -13.941722302593439,
+      "meanNetBps": -6.970861151296719
+    },
+    {
+      "key": "BTC/USD|-1|retest-1m|base-250ms|net-floor",
+      "attempts": 5,
+      "complete": 4,
+      "invalid": 1,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -13.941722302593439,
+      "meanNetBps": -6.970861151296719
+    },
+    {
+      "key": "BTC/USD|-1|retest-1m|depth-50pct|fixed",
+      "attempts": 5,
+      "complete": 4,
+      "invalid": 1,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -13.62778282616548,
+      "meanNetBps": -6.81389141308274
+    },
+    {
+      "key": "BTC/USD|-1|retest-1m|depth-50pct|net-floor",
+      "attempts": 5,
+      "complete": 4,
+      "invalid": 1,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -13.62778282616548,
+      "meanNetBps": -6.81389141308274
+    },
+    {
+      "key": "BTC/USD|-1|retest-1m|fees-1.5x|fixed",
+      "attempts": 5,
+      "complete": 4,
+      "invalid": 1,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -18.941957615512628,
+      "meanNetBps": -9.470978807756314
+    },
+    {
+      "key": "BTC/USD|-1|retest-1m|fees-1.5x|net-floor",
+      "attempts": 5,
+      "complete": 4,
+      "invalid": 1,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -18.941957615512628,
+      "meanNetBps": -9.470978807756314
+    },
+    {
+      "key": "BTC/USD|-1|retest-1m|latency-1000ms|fixed",
+      "attempts": 5,
+      "complete": 4,
+      "invalid": 1,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -13.62778282616548,
+      "meanNetBps": -6.81389141308274
+    },
+    {
+      "key": "BTC/USD|-1|retest-1m|latency-1000ms|net-floor",
+      "attempts": 5,
+      "complete": 4,
+      "invalid": 1,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -13.62778282616548,
+      "meanNetBps": -6.81389141308274
+    },
+    {
+      "key": "BTC/USD|-1|retest-1m|latency-500ms|fixed",
+      "attempts": 5,
+      "complete": 4,
+      "invalid": 1,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -13.62778282616548,
+      "meanNetBps": -6.81389141308274
+    },
+    {
+      "key": "BTC/USD|-1|retest-1m|latency-500ms|net-floor",
+      "attempts": 5,
+      "complete": 4,
+      "invalid": 1,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -13.62778282616548,
+      "meanNetBps": -6.81389141308274
+    },
+    {
+      "key": "BTC/USD|-1|retest-30m|base-250ms|fixed",
+      "attempts": 5,
+      "complete": 3,
+      "invalid": 2,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -15.762182037220628,
+      "meanNetBps": -5.254060679073542
+    },
+    {
+      "key": "BTC/USD|-1|retest-30m|base-250ms|net-floor",
+      "attempts": 5,
+      "complete": 3,
+      "invalid": 2,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -15.762182037220628,
+      "meanNetBps": -5.254060679073542
+    },
+    {
+      "key": "BTC/USD|-1|retest-30m|depth-50pct|fixed",
+      "attempts": 5,
+      "complete": 3,
+      "invalid": 2,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -16.07606635963206,
+      "meanNetBps": -5.358688786544019
+    },
+    {
+      "key": "BTC/USD|-1|retest-30m|depth-50pct|net-floor",
+      "attempts": 5,
+      "complete": 3,
+      "invalid": 2,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -16.07606635963206,
+      "meanNetBps": -5.358688786544019
+    },
+    {
+      "key": "BTC/USD|-1|retest-30m|fees-1.5x|fixed",
+      "attempts": 5,
+      "complete": 3,
+      "invalid": 2,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -20.76287223762973,
+      "meanNetBps": -6.920957412543243
+    },
+    {
+      "key": "BTC/USD|-1|retest-30m|fees-1.5x|net-floor",
+      "attempts": 5,
+      "complete": 3,
+      "invalid": 2,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -20.76287223762973,
+      "meanNetBps": -6.920957412543243
+    },
+    {
+      "key": "BTC/USD|-1|retest-30m|latency-1000ms|fixed",
+      "attempts": 5,
+      "complete": 3,
+      "invalid": 2,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -16.138843224114346,
+      "meanNetBps": -5.379614408038115
+    },
+    {
+      "key": "BTC/USD|-1|retest-30m|latency-1000ms|net-floor",
+      "attempts": 5,
+      "complete": 3,
+      "invalid": 2,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -16.138843224114346,
+      "meanNetBps": -5.379614408038115
+    },
+    {
+      "key": "BTC/USD|-1|retest-30m|latency-500ms|fixed",
+      "attempts": 5,
+      "complete": 3,
+      "invalid": 2,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -16.013289495149774,
+      "meanNetBps": -5.337763165049925
+    },
+    {
+      "key": "BTC/USD|-1|retest-30m|latency-500ms|net-floor",
+      "attempts": 5,
+      "complete": 3,
+      "invalid": 2,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -16.013289495149774,
+      "meanNetBps": -5.337763165049925
+    },
+    {
+      "key": "BTC/USD|-1|retest-3m|base-250ms|fixed",
+      "attempts": 5,
+      "complete": 4,
+      "invalid": 1,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -10.488760749230575,
+      "meanNetBps": -5.244380374615288
+    },
+    {
+      "key": "BTC/USD|-1|retest-3m|base-250ms|net-floor",
+      "attempts": 5,
+      "complete": 4,
+      "invalid": 1,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -10.488760749230575,
+      "meanNetBps": -5.244380374615288
+    },
+    {
+      "key": "BTC/USD|-1|retest-3m|depth-50pct|fixed",
+      "attempts": 5,
+      "complete": 4,
+      "invalid": 1,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -10.174927647556189,
+      "meanNetBps": -5.087463823778094
+    },
+    {
+      "key": "BTC/USD|-1|retest-3m|depth-50pct|net-floor",
+      "attempts": 5,
+      "complete": 4,
+      "invalid": 1,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -10.174927647556189,
+      "meanNetBps": -5.087463823778094
+    },
+    {
+      "key": "BTC/USD|-1|retest-3m|fees-1.5x|fixed",
+      "attempts": 5,
+      "complete": 4,
+      "invalid": 1,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -15.488133253165916,
+      "meanNetBps": -7.744066626582958
+    },
+    {
+      "key": "BTC/USD|-1|retest-3m|fees-1.5x|net-floor",
+      "attempts": 5,
+      "complete": 4,
+      "invalid": 1,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -15.488133253165916,
+      "meanNetBps": -7.744066626582958
+    },
+    {
+      "key": "BTC/USD|-1|retest-3m|latency-1000ms|fixed",
+      "attempts": 5,
+      "complete": 4,
+      "invalid": 1,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -10.174927647556189,
+      "meanNetBps": -5.087463823778094
+    },
+    {
+      "key": "BTC/USD|-1|retest-3m|latency-1000ms|net-floor",
+      "attempts": 5,
+      "complete": 4,
+      "invalid": 1,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -10.174927647556189,
+      "meanNetBps": -5.087463823778094
+    },
+    {
+      "key": "BTC/USD|-1|retest-3m|latency-500ms|fixed",
+      "attempts": 5,
+      "complete": 4,
+      "invalid": 1,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -10.174927647556189,
+      "meanNetBps": -5.087463823778094
+    },
+    {
+      "key": "BTC/USD|-1|retest-3m|latency-500ms|net-floor",
+      "attempts": 5,
+      "complete": 4,
+      "invalid": 1,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -10.174927647556189,
+      "meanNetBps": -5.087463823778094
+    },
+    {
+      "key": "BTC/USD|1|retest-10m|base-250ms|fixed",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -15.757829255139026,
+      "meanNetBps": -7.878914627569513
+    },
+    {
+      "key": "BTC/USD|1|retest-10m|base-250ms|net-floor",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -15.757829255139026,
+      "meanNetBps": -7.878914627569513
+    },
+    {
+      "key": "BTC/USD|1|retest-10m|depth-50pct|fixed",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -15.757829255139026,
+      "meanNetBps": -7.878914627569513
+    },
+    {
+      "key": "BTC/USD|1|retest-10m|depth-50pct|net-floor",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -15.757829255139026,
+      "meanNetBps": -7.878914627569513
+    },
+    {
+      "key": "BTC/USD|1|retest-10m|fees-1.5x|fixed",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -20.757139452924136,
+      "meanNetBps": -10.378569726462068
+    },
+    {
+      "key": "BTC/USD|1|retest-10m|fees-1.5x|net-floor",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -20.757139452924136,
+      "meanNetBps": -10.378569726462068
+    },
+    {
+      "key": "BTC/USD|1|retest-10m|latency-1000ms|fixed",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -15.757829255139026,
+      "meanNetBps": -7.878914627569513
+    },
+    {
+      "key": "BTC/USD|1|retest-10m|latency-1000ms|net-floor",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -15.757829255139026,
+      "meanNetBps": -7.878914627569513
+    },
+    {
+      "key": "BTC/USD|1|retest-10m|latency-500ms|fixed",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -15.757829255139026,
+      "meanNetBps": -7.878914627569513
+    },
+    {
+      "key": "BTC/USD|1|retest-10m|latency-500ms|net-floor",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -15.757829255139026,
+      "meanNetBps": -7.878914627569513
+    },
+    {
+      "key": "BTC/USD|1|retest-1m|base-250ms|fixed",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -15.757829255139026,
+      "meanNetBps": -7.878914627569513
+    },
+    {
+      "key": "BTC/USD|1|retest-1m|base-250ms|net-floor",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -15.757829255139026,
+      "meanNetBps": -7.878914627569513
+    },
+    {
+      "key": "BTC/USD|1|retest-1m|depth-50pct|fixed",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -15.757829255139026,
+      "meanNetBps": -7.878914627569513
+    },
+    {
+      "key": "BTC/USD|1|retest-1m|depth-50pct|net-floor",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -15.757829255139026,
+      "meanNetBps": -7.878914627569513
+    },
+    {
+      "key": "BTC/USD|1|retest-1m|fees-1.5x|fixed",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -20.757139452924136,
+      "meanNetBps": -10.378569726462068
+    },
+    {
+      "key": "BTC/USD|1|retest-1m|fees-1.5x|net-floor",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -20.757139452924136,
+      "meanNetBps": -10.378569726462068
+    },
+    {
+      "key": "BTC/USD|1|retest-1m|latency-1000ms|fixed",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -15.757829255139026,
+      "meanNetBps": -7.878914627569513
+    },
+    {
+      "key": "BTC/USD|1|retest-1m|latency-1000ms|net-floor",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -15.757829255139026,
+      "meanNetBps": -7.878914627569513
+    },
+    {
+      "key": "BTC/USD|1|retest-1m|latency-500ms|fixed",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -15.757829255139026,
+      "meanNetBps": -7.878914627569513
+    },
+    {
+      "key": "BTC/USD|1|retest-1m|latency-500ms|net-floor",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -15.757829255139026,
+      "meanNetBps": -7.878914627569513
+    },
+    {
+      "key": "BTC/USD|1|retest-30m|base-250ms|fixed",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -15.757829255139026,
+      "meanNetBps": -7.878914627569513
+    },
+    {
+      "key": "BTC/USD|1|retest-30m|base-250ms|net-floor",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -15.757829255139026,
+      "meanNetBps": -7.878914627569513
+    },
+    {
+      "key": "BTC/USD|1|retest-30m|depth-50pct|fixed",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -15.757829255139026,
+      "meanNetBps": -7.878914627569513
+    },
+    {
+      "key": "BTC/USD|1|retest-30m|depth-50pct|net-floor",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -15.757829255139026,
+      "meanNetBps": -7.878914627569513
+    },
+    {
+      "key": "BTC/USD|1|retest-30m|fees-1.5x|fixed",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -20.757139452924136,
+      "meanNetBps": -10.378569726462068
+    },
+    {
+      "key": "BTC/USD|1|retest-30m|fees-1.5x|net-floor",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -20.757139452924136,
+      "meanNetBps": -10.378569726462068
+    },
+    {
+      "key": "BTC/USD|1|retest-30m|latency-1000ms|fixed",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -15.757829255139026,
+      "meanNetBps": -7.878914627569513
+    },
+    {
+      "key": "BTC/USD|1|retest-30m|latency-1000ms|net-floor",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -15.757829255139026,
+      "meanNetBps": -7.878914627569513
+    },
+    {
+      "key": "BTC/USD|1|retest-30m|latency-500ms|fixed",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -15.757829255139026,
+      "meanNetBps": -7.878914627569513
+    },
+    {
+      "key": "BTC/USD|1|retest-30m|latency-500ms|net-floor",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -15.757829255139026,
+      "meanNetBps": -7.878914627569513
+    },
+    {
+      "key": "BTC/USD|1|retest-3m|base-250ms|fixed",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -15.757829255139026,
+      "meanNetBps": -7.878914627569513
+    },
+    {
+      "key": "BTC/USD|1|retest-3m|base-250ms|net-floor",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -15.757829255139026,
+      "meanNetBps": -7.878914627569513
+    },
+    {
+      "key": "BTC/USD|1|retest-3m|depth-50pct|fixed",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -15.757829255139026,
+      "meanNetBps": -7.878914627569513
+    },
+    {
+      "key": "BTC/USD|1|retest-3m|depth-50pct|net-floor",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -15.757829255139026,
+      "meanNetBps": -7.878914627569513
+    },
+    {
+      "key": "BTC/USD|1|retest-3m|fees-1.5x|fixed",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -20.757139452924136,
+      "meanNetBps": -10.378569726462068
+    },
+    {
+      "key": "BTC/USD|1|retest-3m|fees-1.5x|net-floor",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -20.757139452924136,
+      "meanNetBps": -10.378569726462068
+    },
+    {
+      "key": "BTC/USD|1|retest-3m|latency-1000ms|fixed",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -15.757829255139026,
+      "meanNetBps": -7.878914627569513
+    },
+    {
+      "key": "BTC/USD|1|retest-3m|latency-1000ms|net-floor",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -15.757829255139026,
+      "meanNetBps": -7.878914627569513
+    },
+    {
+      "key": "BTC/USD|1|retest-3m|latency-500ms|fixed",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -15.757829255139026,
+      "meanNetBps": -7.878914627569513
+    },
+    {
+      "key": "BTC/USD|1|retest-3m|latency-500ms|net-floor",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -15.757829255139026,
+      "meanNetBps": -7.878914627569513
+    },
+    {
+      "key": "ETH/USD|-1|retest-10m|base-250ms|fixed",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -15.652472349588933,
+      "meanNetBps": -15.652472349588933
+    },
+    {
+      "key": "ETH/USD|-1|retest-10m|base-250ms|net-floor",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -15.652472349588933,
+      "meanNetBps": -15.652472349588933
+    },
+    {
+      "key": "ETH/USD|-1|retest-10m|depth-50pct|fixed",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -15.652472349588933,
+      "meanNetBps": -15.652472349588933
+    },
+    {
+      "key": "ETH/USD|-1|retest-10m|depth-50pct|net-floor",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -15.652472349588933,
+      "meanNetBps": -15.652472349588933
+    },
+    {
+      "key": "ETH/USD|-1|retest-10m|fees-1.5x|fixed",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -20.653135136282984,
+      "meanNetBps": -20.653135136282984
+    },
+    {
+      "key": "ETH/USD|-1|retest-10m|fees-1.5x|net-floor",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -20.653135136282984,
+      "meanNetBps": -20.653135136282984
+    },
+    {
+      "key": "ETH/USD|-1|retest-10m|latency-1000ms|fixed",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -15.652472349588933,
+      "meanNetBps": -15.652472349588933
+    },
+    {
+      "key": "ETH/USD|-1|retest-10m|latency-1000ms|net-floor",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -15.652472349588933,
+      "meanNetBps": -15.652472349588933
+    },
+    {
+      "key": "ETH/USD|-1|retest-10m|latency-500ms|fixed",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -15.652472349588933,
+      "meanNetBps": -15.652472349588933
+    },
+    {
+      "key": "ETH/USD|-1|retest-10m|latency-500ms|net-floor",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -15.652472349588933,
+      "meanNetBps": -15.652472349588933
+    },
+    {
+      "key": "ETH/USD|-1|retest-1m|base-250ms|fixed",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -13.000249674221516,
+      "meanNetBps": -13.000249674221516
+    },
+    {
+      "key": "ETH/USD|-1|retest-1m|base-250ms|net-floor",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -13.000249674221516,
+      "meanNetBps": -13.000249674221516
+    },
+    {
+      "key": "ETH/USD|-1|retest-1m|depth-50pct|fixed",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -13.000249674221516,
+      "meanNetBps": -13.000249674221516
+    },
+    {
+      "key": "ETH/USD|-1|retest-1m|depth-50pct|net-floor",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -13.000249674221516,
+      "meanNetBps": -13.000249674221516
+    },
+    {
+      "key": "ETH/USD|-1|retest-1m|fees-1.5x|fixed",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -18.00024973660888,
+      "meanNetBps": -18.00024973660888
+    },
+    {
+      "key": "ETH/USD|-1|retest-1m|fees-1.5x|net-floor",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -18.00024973660888,
+      "meanNetBps": -18.00024973660888
+    },
+    {
+      "key": "ETH/USD|-1|retest-1m|latency-1000ms|fixed",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -13.000249674221516,
+      "meanNetBps": -13.000249674221516
+    },
+    {
+      "key": "ETH/USD|-1|retest-1m|latency-1000ms|net-floor",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -13.000249674221516,
+      "meanNetBps": -13.000249674221516
+    },
+    {
+      "key": "ETH/USD|-1|retest-1m|latency-500ms|fixed",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -13.000249674221516,
+      "meanNetBps": -13.000249674221516
+    },
+    {
+      "key": "ETH/USD|-1|retest-1m|latency-500ms|net-floor",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -13.000249674221516,
+      "meanNetBps": -13.000249674221516
+    },
+    {
+      "key": "ETH/USD|-1|retest-30m|base-250ms|fixed",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -15.652472349588933,
+      "meanNetBps": -15.652472349588933
+    },
+    {
+      "key": "ETH/USD|-1|retest-30m|base-250ms|net-floor",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -15.652472349588933,
+      "meanNetBps": -15.652472349588933
+    },
+    {
+      "key": "ETH/USD|-1|retest-30m|depth-50pct|fixed",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -15.652472349588933,
+      "meanNetBps": -15.652472349588933
+    },
+    {
+      "key": "ETH/USD|-1|retest-30m|depth-50pct|net-floor",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -15.652472349588933,
+      "meanNetBps": -15.652472349588933
+    },
+    {
+      "key": "ETH/USD|-1|retest-30m|fees-1.5x|fixed",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -20.653135136282984,
+      "meanNetBps": -20.653135136282984
+    },
+    {
+      "key": "ETH/USD|-1|retest-30m|fees-1.5x|net-floor",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -20.653135136282984,
+      "meanNetBps": -20.653135136282984
+    },
+    {
+      "key": "ETH/USD|-1|retest-30m|latency-1000ms|fixed",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -15.652472349588933,
+      "meanNetBps": -15.652472349588933
+    },
+    {
+      "key": "ETH/USD|-1|retest-30m|latency-1000ms|net-floor",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -15.652472349588933,
+      "meanNetBps": -15.652472349588933
+    },
+    {
+      "key": "ETH/USD|-1|retest-30m|latency-500ms|fixed",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -15.652472349588933,
+      "meanNetBps": -15.652472349588933
+    },
+    {
+      "key": "ETH/USD|-1|retest-30m|latency-500ms|net-floor",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -15.652472349588933,
+      "meanNetBps": -15.652472349588933
+    },
+    {
+      "key": "ETH/USD|-1|retest-3m|base-250ms|fixed",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -13.204266803095717,
+      "meanNetBps": -13.204266803095717
+    },
+    {
+      "key": "ETH/USD|-1|retest-3m|base-250ms|net-floor",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -13.204266803095717,
+      "meanNetBps": -13.204266803095717
+    },
+    {
+      "key": "ETH/USD|-1|retest-3m|depth-50pct|fixed",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -13.204266803095717,
+      "meanNetBps": -13.204266803095717
+    },
+    {
+      "key": "ETH/USD|-1|retest-3m|depth-50pct|net-floor",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -13.204266803095717,
+      "meanNetBps": -13.204266803095717
+    },
+    {
+      "key": "ETH/USD|-1|retest-3m|fees-1.5x|fixed",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -18.204317844275902,
+      "meanNetBps": -18.204317844275902
+    },
+    {
+      "key": "ETH/USD|-1|retest-3m|fees-1.5x|net-floor",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -18.204317844275902,
+      "meanNetBps": -18.204317844275902
+    },
+    {
+      "key": "ETH/USD|-1|retest-3m|latency-1000ms|fixed",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -13.204266803095717,
+      "meanNetBps": -13.204266803095717
+    },
+    {
+      "key": "ETH/USD|-1|retest-3m|latency-1000ms|net-floor",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -13.204266803095717,
+      "meanNetBps": -13.204266803095717
+    },
+    {
+      "key": "ETH/USD|-1|retest-3m|latency-500ms|fixed",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -13.204266803095717,
+      "meanNetBps": -13.204266803095717
+    },
+    {
+      "key": "ETH/USD|-1|retest-3m|latency-500ms|net-floor",
+      "attempts": 2,
+      "complete": 2,
+      "invalid": 0,
+      "filled": 2,
+      "wins": 0,
+      "meanFilledNetBps": -13.204266803095717,
+      "meanNetBps": -13.204266803095717
+    },
+    {
+      "key": "ETH/USD|1|retest-10m|base-250ms|fixed",
+      "attempts": 1,
+      "complete": 1,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -17.8873314045875,
+      "meanNetBps": -17.8873314045875
+    },
+    {
+      "key": "ETH/USD|1|retest-10m|base-250ms|net-floor",
+      "attempts": 1,
+      "complete": 1,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -17.8873314045875,
+      "meanNetBps": -17.8873314045875
+    },
+    {
+      "key": "ETH/USD|1|retest-10m|depth-50pct|fixed",
+      "attempts": 1,
+      "complete": 1,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -17.8873314045875,
+      "meanNetBps": -17.8873314045875
+    },
+    {
+      "key": "ETH/USD|1|retest-10m|depth-50pct|net-floor",
+      "attempts": 1,
+      "complete": 1,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -17.8873314045875,
+      "meanNetBps": -17.8873314045875
+    },
+    {
+      "key": "ETH/USD|1|retest-10m|fees-1.5x|fixed",
+      "attempts": 1,
+      "complete": 1,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -22.886108960514317,
+      "meanNetBps": -22.886108960514317
+    },
+    {
+      "key": "ETH/USD|1|retest-10m|fees-1.5x|net-floor",
+      "attempts": 1,
+      "complete": 1,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -22.886108960514317,
+      "meanNetBps": -22.886108960514317
+    },
+    {
+      "key": "ETH/USD|1|retest-10m|latency-1000ms|fixed",
+      "attempts": 1,
+      "complete": 1,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -17.8873314045875,
+      "meanNetBps": -17.8873314045875
+    },
+    {
+      "key": "ETH/USD|1|retest-10m|latency-1000ms|net-floor",
+      "attempts": 1,
+      "complete": 1,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -17.8873314045875,
+      "meanNetBps": -17.8873314045875
+    },
+    {
+      "key": "ETH/USD|1|retest-10m|latency-500ms|fixed",
+      "attempts": 1,
+      "complete": 1,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -17.8873314045875,
+      "meanNetBps": -17.8873314045875
+    },
+    {
+      "key": "ETH/USD|1|retest-10m|latency-500ms|net-floor",
+      "attempts": 1,
+      "complete": 1,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -17.8873314045875,
+      "meanNetBps": -17.8873314045875
+    },
+    {
+      "key": "ETH/USD|1|retest-1m|base-250ms|fixed",
+      "attempts": 1,
+      "complete": 1,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -9.741779063607098,
+      "meanNetBps": -9.741779063607098
+    },
+    {
+      "key": "ETH/USD|1|retest-1m|base-250ms|net-floor",
+      "attempts": 1,
+      "complete": 1,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -9.741779063607098,
+      "meanNetBps": -9.741779063607098
+    },
+    {
+      "key": "ETH/USD|1|retest-1m|depth-50pct|fixed",
+      "attempts": 1,
+      "complete": 1,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -9.741779063607098,
+      "meanNetBps": -9.741779063607098
+    },
+    {
+      "key": "ETH/USD|1|retest-1m|depth-50pct|net-floor",
+      "attempts": 1,
+      "complete": 1,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -9.741779063607098,
+      "meanNetBps": -9.741779063607098
+    },
+    {
+      "key": "ETH/USD|1|retest-1m|fees-1.5x|fixed",
+      "attempts": 1,
+      "complete": 1,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -14.742594026322557,
+      "meanNetBps": -14.742594026322557
+    },
+    {
+      "key": "ETH/USD|1|retest-1m|fees-1.5x|net-floor",
+      "attempts": 1,
+      "complete": 1,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -14.742594026322557,
+      "meanNetBps": -14.742594026322557
+    },
+    {
+      "key": "ETH/USD|1|retest-1m|latency-1000ms|fixed",
+      "attempts": 1,
+      "complete": 1,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -9.741779063607098,
+      "meanNetBps": -9.741779063607098
+    },
+    {
+      "key": "ETH/USD|1|retest-1m|latency-1000ms|net-floor",
+      "attempts": 1,
+      "complete": 1,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -9.741779063607098,
+      "meanNetBps": -9.741779063607098
+    },
+    {
+      "key": "ETH/USD|1|retest-1m|latency-500ms|fixed",
+      "attempts": 1,
+      "complete": 1,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -9.741779063607098,
+      "meanNetBps": -9.741779063607098
+    },
+    {
+      "key": "ETH/USD|1|retest-1m|latency-500ms|net-floor",
+      "attempts": 1,
+      "complete": 1,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -9.741779063607098,
+      "meanNetBps": -9.741779063607098
+    },
+    {
+      "key": "ETH/USD|1|retest-30m|base-250ms|fixed",
+      "attempts": 1,
+      "complete": 1,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -17.8873314045875,
+      "meanNetBps": -17.8873314045875
+    },
+    {
+      "key": "ETH/USD|1|retest-30m|base-250ms|net-floor",
+      "attempts": 1,
+      "complete": 1,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -17.8873314045875,
+      "meanNetBps": -17.8873314045875
+    },
+    {
+      "key": "ETH/USD|1|retest-30m|depth-50pct|fixed",
+      "attempts": 1,
+      "complete": 1,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -17.8873314045875,
+      "meanNetBps": -17.8873314045875
+    },
+    {
+      "key": "ETH/USD|1|retest-30m|depth-50pct|net-floor",
+      "attempts": 1,
+      "complete": 1,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -17.8873314045875,
+      "meanNetBps": -17.8873314045875
+    },
+    {
+      "key": "ETH/USD|1|retest-30m|fees-1.5x|fixed",
+      "attempts": 1,
+      "complete": 1,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -22.886108960514317,
+      "meanNetBps": -22.886108960514317
+    },
+    {
+      "key": "ETH/USD|1|retest-30m|fees-1.5x|net-floor",
+      "attempts": 1,
+      "complete": 1,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -22.886108960514317,
+      "meanNetBps": -22.886108960514317
+    },
+    {
+      "key": "ETH/USD|1|retest-30m|latency-1000ms|fixed",
+      "attempts": 1,
+      "complete": 1,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -17.8873314045875,
+      "meanNetBps": -17.8873314045875
+    },
+    {
+      "key": "ETH/USD|1|retest-30m|latency-1000ms|net-floor",
+      "attempts": 1,
+      "complete": 1,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -17.8873314045875,
+      "meanNetBps": -17.8873314045875
+    },
+    {
+      "key": "ETH/USD|1|retest-30m|latency-500ms|fixed",
+      "attempts": 1,
+      "complete": 1,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -17.8873314045875,
+      "meanNetBps": -17.8873314045875
+    },
+    {
+      "key": "ETH/USD|1|retest-30m|latency-500ms|net-floor",
+      "attempts": 1,
+      "complete": 1,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -17.8873314045875,
+      "meanNetBps": -17.8873314045875
+    },
+    {
+      "key": "ETH/USD|1|retest-3m|base-250ms|fixed",
+      "attempts": 1,
+      "complete": 1,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -11.7781671488522,
+      "meanNetBps": -11.7781671488522
+    },
+    {
+      "key": "ETH/USD|1|retest-3m|base-250ms|net-floor",
+      "attempts": 1,
+      "complete": 1,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -11.7781671488522,
+      "meanNetBps": -11.7781671488522
+    },
+    {
+      "key": "ETH/USD|1|retest-3m|depth-50pct|fixed",
+      "attempts": 1,
+      "complete": 1,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -11.7781671488522,
+      "meanNetBps": -11.7781671488522
+    },
+    {
+      "key": "ETH/USD|1|retest-3m|depth-50pct|net-floor",
+      "attempts": 1,
+      "complete": 1,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -11.7781671488522,
+      "meanNetBps": -11.7781671488522
+    },
+    {
+      "key": "ETH/USD|1|retest-3m|fees-1.5x|fixed",
+      "attempts": 1,
+      "complete": 1,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -16.778472759870496,
+      "meanNetBps": -16.778472759870496
+    },
+    {
+      "key": "ETH/USD|1|retest-3m|fees-1.5x|net-floor",
+      "attempts": 1,
+      "complete": 1,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -16.778472759870496,
+      "meanNetBps": -16.778472759870496
+    },
+    {
+      "key": "ETH/USD|1|retest-3m|latency-1000ms|fixed",
+      "attempts": 1,
+      "complete": 1,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -11.7781671488522,
+      "meanNetBps": -11.7781671488522
+    },
+    {
+      "key": "ETH/USD|1|retest-3m|latency-1000ms|net-floor",
+      "attempts": 1,
+      "complete": 1,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -11.7781671488522,
+      "meanNetBps": -11.7781671488522
+    },
+    {
+      "key": "ETH/USD|1|retest-3m|latency-500ms|fixed",
+      "attempts": 1,
+      "complete": 1,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -11.7781671488522,
+      "meanNetBps": -11.7781671488522
+    },
+    {
+      "key": "ETH/USD|1|retest-3m|latency-500ms|net-floor",
+      "attempts": 1,
+      "complete": 1,
+      "invalid": 0,
+      "filled": 1,
+      "wins": 0,
+      "meanFilledNetBps": -11.7781671488522,
+      "meanNetBps": -11.7781671488522
+    }
+  ]
+}

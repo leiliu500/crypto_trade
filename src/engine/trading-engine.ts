@@ -1087,7 +1087,8 @@ export class TradingEngine extends EventEmitter {
     }
     // Entry-timed paired labels cannot be pooled with periodic counterfactuals.
     // Persist starts before dispatch, including attempts that later fail to fill.
-    const entryObservations = runtime.policyCollector.captureEntry(book, features, runtime.asset, observation, plan.qty);
+    const entryObservations = runtime.policyCollector.captureEntry(book, features, runtime.asset, observation, plan.qty,
+      { clientOrderId: plan.clientOrderId, decisionAtMs: plan.createdMs });
     const entryObservation = entryObservations.find((o) => o.policyId === plan.policy!.id);
     if (!entryObservation) { report("POLICY_ENTRY_EVIDENCE_UNAVAILABLE", "EXECUTION_PLAN_PASS"); return; }
     for (const o of entryObservations) this.emit("policyObservation", o);
@@ -1221,6 +1222,7 @@ export class TradingEngine extends EventEmitter {
     const runtime = this.runtimes.get(trade.symbol);
     if (!runtime) return;
     runtime.breakoutRetest.onTrade(trade);
+    runtime.researchEpisodes.onTrade(trade);
     if (runtime.config.planner.hybridEntry.routeShadowEnabled) runtime.routeShadow.observeTrade(trade);
     runtime.features.onTrade(trade);
     const snapshot = runtime.book.snapshot();
@@ -1238,6 +1240,13 @@ export class TradingEngine extends EventEmitter {
     this.recorder?.write({ kind: "PRIVATE", event });
     const fill = this.orderState.apply(event);
     const tracked = this.orderState.get(event.clientOrderId);
+    if (tracked && !tracked.plan.reduceOnlyIntent && tracked.plan.policy) {
+      const runtime = this.runtimes.get(tracked.plan.symbol);
+      const terminal = ["FILLED", "CANCELED", "REJECTED", "EXPIRED"].includes(tracked.status);
+      for (const observation of runtime?.policyCollector.observeEntryExecution(event.clientOrderId, event.timestampMs,
+        fill ? { qty: fill.qty, price: fill.price, feeUsd: fill.feeUsd ?? Number.NaN } : undefined,
+        terminal, tracked.cancellationReason === "IOC_NO_FILL") ?? []) this.emit("policyObservation", observation);
+    }
     if (tracked) this.emit("orderUpdate", { event, order: tracked });
     if (fill) this.applyFill(fill);
     if (tracked && !["RESERVED", "SENDING", "OPEN", "PARTIALLY_FILLED", "CANCEL_PENDING", "UNKNOWN"].includes(tracked.status)) {

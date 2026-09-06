@@ -1,0 +1,296 @@
+{
+  "configurationVersion": "btc-eth-breakout-retest-v10.1.0",
+  "asOf": "2026-09-05T21:11:51.111Z",
+  "databaseOrders": 8,
+  "dashboardOrders": 8,
+  "completedTrades": 4,
+  "wins": 0,
+  "openPositions": 0,
+  "health": "healthy",
+  "entriesAllowed": true,
+  "totals": {
+    "grossPricePnl": -0.0026999999999996363,
+    "fees": 0.037721149999999995,
+    "netPnl": -0.04042114999999963
+  },
+  "trades": [
+    {
+      "entryId": "b851be95-cf0d-4c85-895c-272c1dfe1eb6",
+      "exitId": "mlce-exit-1788636641173-928310fd",
+      "symbol": "ETH/USD",
+      "side": -1,
+      "entryAt": "2026-09-05T19:28:58.752Z",
+      "entryPx": 2480.1,
+      "exitPx": 2481,
+      "quantity": 0.004,
+      "policy": {
+        "id": "retest-10m",
+        "feeBps": 5,
+        "version": "executable-policy-v3",
+        "feeSource": "PAPER_CONFIG",
+        "reserveBps": 3,
+        "fundingSource": "RESERVE_ONLY",
+        "volatilityBps": 0.7284853943933007,
+        "invalidationPx": 2480.8499999999995
+      },
+      "edgeSource": "UNRESOLVED",
+      "estimatedRoundTripCostBps": 12.755517862686238,
+      "holdingSeconds": 102.274,
+      "exitReason": "POLICY_STRUCTURE_INVALID",
+      "grossPricePnl": -0.0036000000000003638,
+      "entryFee": 0.0049602,
+      "exitFee": 0.004961999999999999,
+      "realizedPnl": -0.013522200000000362,
+      "entryStyle": "taker",
+      "exitStyle": "taker",
+      "grossBps": -3.6288859320192373,
+      "netBps": -13.630700374985246,
+      "recordedMfeBps": 0,
+      "profitFloorActivated": false,
+      "recoveryActivated": false,
+      "signalToPlanMs": 511,
+      "signalToPositionMs": 746,
+      "researchLinkage": "unique same-symbol signal within 2 seconds before immutable plan",
+      "researchOutcomes": [
+        {
+          "policyId": "retest-1m",
+          "status": "COMPLETE",
+          "filledQty": 0.004,
+          "netBps": -13,
+          "reason": "POLICY_DEADLINE"
+        },
+        {
+          "policyId": "retest-3m",
+          "status": "COMPLETE",
+          "filledQty": 0.004,
+          "netBps": -17.034111527760977,
+          "reason": "POLICY_STRUCTURE_INVALID"
+        },
+        {
+          "policyId": "retest-10m",
+          "status": "COMPLETE",
+          "filledQty": 0.004,
+          "netBps": -17.034111527760977,
+          "reason": "POLICY_STRUCTURE_INVALID"
+        },
+        {
+          "policyId": "retest-30m",
+          "status": "COMPLETE",
+          "filledQty": 0.004,
+          "netBps": -17.034111527760977,
+          "reason": "POLICY_STRUCTURE_INVALID"
+        }
+      ]
+    },
+    {
+      "entryId": "2cbf2cd2-9be3-4dbe-8135-38b9da986d4f",
+      "exitId": "mlce-exit-1788638783876-0237fa74",
+      "symbol": "ETH/USD",
+      "side": 1,
+      "entryAt": "2026-09-05T20:05:23.614Z",
+      "entryPx": 2477.9,
+      "exitPx": 2478.8,
+      "quantity": 0.004,
+      "policy": {
+        "id": "retest-1m",
+        "feeBps": 5,
+        "version": "executable-policy-v3",
+        "feeSource": "PAPER_CONFIG",
+        "reserveBps": 3,
+        "fundingSource": "RESERVE_ONLY",
+        "volatilityBps": 2.5852166076433907,
+        "invalidationPx": 2476.759525511539
+      },
+      "edgeSource": "UNRESOLVED",
+      "estimatedRoundTripCostBps": 17.22126133973044,
+      "holdingSeconds": 60.112,
+      "exitReason": "POLICY_DEADLINE",
+      "grossPricePnl": 0.0036000000000003638,
+      "entryFee": 0.0049558,
+      "exitFee": 0.0049576,
+      "realizedPnl": -0.006313399999999636,
+      "entryStyle": "taker",
+      "exitStyle": "taker",
+      "grossBps": 3.632107833246261,
+      "netBps": -6.369708220670362,
+      "recordedMfeBps": 4.8428104443271245,
+      "profitFloorActivated": false,
+      "recoveryActivated": false,
+      "signalToPlanMs": 540,
+      "signalToPositionMs": 771,
+      "researchLinkage": "unique same-symbol signal within 2 seconds before immutable plan",
+      "researchOutcomes": [
+        {
+          "policyId": "retest-1m",
+          "status": "COMPLETE",
+          "filledQty": 0.004,
+          "netBps": -9.369708220670363,
+          "reason": "POLICY_DEADLINE"
+        },
+        {
+          "policyId": "retest-3m",
+          "status": "COMPLETE",
+          "filledQty": 0.004,
+          "netBps": -13,
+          "reason": "POLICY_DEADLINE"
+        },
+        {
+          "policyId": "retest-10m",
+          "status": "COMPLETE",
+          "filledQty": 0.004,
+          "netBps": -8.966342467411923,
+          "reason": "POLICY_DEADLINE"
+        },
+        {
+          "policyId": "retest-30m",
+          "status": "COMPLETE",
+          "filledQty": 0.004,
+          "netBps": -17.840389039106796,
+          "reason": "POLICY_STRUCTURE_INVALID"
+        }
+      ]
+    },
+    {
+      "entryId": "2f1553bd-388b-42b8-86d5-26f0c3927842",
+      "exitId": "mlce-exit-1788639014797-2e730e76",
+      "symbol": "BTC/USD",
+      "side": -1,
+      "entryAt": "2026-09-05T20:09:14.503Z",
+      "entryPx": 79762,
+      "exitPx": 79765,
+      "quantity": 0.00009999999999999999,
+      "policy": {
+        "id": "retest-1m",
+        "feeBps": 5,
+        "version": "executable-policy-v3",
+        "feeSource": "PAPER_CONFIG",
+        "reserveBps": 3,
+        "fundingSource": "RESERVE_ONLY",
+        "volatilityBps": 0.09241963195252137,
+        "invalidationPx": 79788.5
+      },
+      "edgeSource": "UNRESOLVED",
+      "estimatedRoundTripCostBps": 11.99814461002536,
+      "holdingSeconds": 60.13,
+      "exitReason": "POLICY_DEADLINE",
+      "grossPricePnl": -0.0003,
+      "entryFee": 0.0039881,
+      "exitFee": 0.00398825,
+      "realizedPnl": -0.008276349999999998,
+      "entryStyle": "taker",
+      "exitStyle": "taker",
+      "grossBps": -0.37611895388781624,
+      "netBps": -10.376307013364757,
+      "recordedMfeBps": 0.8776108924049046,
+      "profitFloorActivated": false,
+      "recoveryActivated": false,
+      "signalToPlanMs": 580,
+      "signalToPositionMs": 830,
+      "researchLinkage": "unique same-symbol signal within 2 seconds before immutable plan",
+      "researchOutcomes": [
+        {
+          "policyId": "retest-1m",
+          "status": "COMPLETE",
+          "filledQty": 0,
+          "netBps": 0,
+          "reason": "ENTRY_NOT_FILLED"
+        },
+        {
+          "policyId": "retest-3m",
+          "status": "COMPLETE",
+          "filledQty": 0,
+          "netBps": 0,
+          "reason": "ENTRY_NOT_FILLED"
+        },
+        {
+          "policyId": "retest-10m",
+          "status": "COMPLETE",
+          "filledQty": 0,
+          "netBps": 0,
+          "reason": "ENTRY_NOT_FILLED"
+        },
+        {
+          "policyId": "retest-30m",
+          "status": "COMPLETE",
+          "filledQty": 0,
+          "netBps": 0,
+          "reason": "ENTRY_NOT_FILLED"
+        }
+      ]
+    },
+    {
+      "entryId": "f2f25b63-e96d-4036-9b96-aee6e78292af",
+      "exitId": "mlce-exit-1788641846806-f741bbbf",
+      "symbol": "ETH/USD",
+      "side": -1,
+      "entryAt": "2026-09-05T20:54:26.416Z",
+      "entryPx": 2477,
+      "exitPx": 2477.6,
+      "quantity": 0.004,
+      "policy": {
+        "id": "retest-3m",
+        "feeBps": 5,
+        "version": "executable-policy-v3",
+        "feeSource": "PAPER_CONFIG",
+        "reserveBps": 3,
+        "fundingSource": "RESERVE_ONLY",
+        "volatilityBps": 0.7152129166271476,
+        "invalidationPx": 2477.8499999999995
+      },
+      "edgeSource": "UNRESOLVED",
+      "estimatedRoundTripCostBps": 13.126093189449833,
+      "holdingSeconds": 180.263,
+      "exitReason": "POLICY_DEADLINE",
+      "grossPricePnl": -0.0023999999999996364,
+      "entryFee": 0.004954,
+      "exitFee": 0.004955199999999999,
+      "realizedPnl": -0.012309199999999635,
+      "entryStyle": "taker",
+      "exitStyle": "taker",
+      "grossBps": -2.4222850222039125,
+      "netBps": -12.423496164715015,
+      "recordedMfeBps": 0.40371417036701274,
+      "profitFloorActivated": false,
+      "recoveryActivated": false,
+      "signalToPlanMs": 543,
+      "signalToPositionMs": 785,
+      "researchLinkage": "unique same-symbol signal within 2 seconds before immutable plan",
+      "researchOutcomes": [
+        {
+          "policyId": "retest-1m",
+          "status": "COMPLETE",
+          "filledQty": 0.004,
+          "netBps": -15.827412192167207,
+          "reason": "POLICY_DEADLINE"
+        },
+        {
+          "policyId": "retest-3m",
+          "status": "COMPLETE",
+          "filledQty": 0.004,
+          "netBps": -14.211748082358426,
+          "reason": "POLICY_DEADLINE"
+        },
+        {
+          "policyId": "retest-10m",
+          "status": "COMPLETE",
+          "filledQty": 0.004,
+          "netBps": -16.63524424707344,
+          "reason": "POLICY_STRUCTURE_INVALID"
+        },
+        {
+          "policyId": "retest-30m",
+          "status": "COMPLETE",
+          "filledQty": 0.004,
+          "netBps": -16.63524424707344,
+          "reason": "POLICY_STRUCTURE_INVALID"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Four trades are insufficient for reliable expectancy inference.",
+    "Research outcomes include a reserve, and are not realized broker P&L.",
+    "Research IOC non-fill for BTC disagrees with its actual paper fill; labels require timeline reconciliation.",
+    "MFE is a hindsight diagnostic, not an achievable profit target."
+  ]
+}

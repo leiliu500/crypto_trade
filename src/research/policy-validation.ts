@@ -65,14 +65,15 @@ export function evaluatePolicies(rows: readonly PolicyObservation[], configurati
       || ![1, -1].includes(row.side) || !Number.isFinite(row.signalAtMs)
       || ![row.feeBps, row.reserveBps, row.spreadBps].every((x) => Number.isFinite(x) && x >= 0)) continue;
     const key = [configurationVersion, POLICY_VERSION, row.symbol, row.family, row.side,
-      row.regime, row.feeBps, row.reserveBps].join("|");
+      row.regime, row.feeBps, row.reserveBps, row.executionSource ?? "SIMULATED"].join("|");
     const group = groups.get(key) ?? [];
     group.push(row); groups.set(key, group);
   }
   const evaluations = [...groups].map(([key, values]) => {
     const first = values[0]!;
     const parent = [...groups.values()].flat().filter((o) => o.symbol === first.symbol && o.side === first.side
-      && o.family === first.family && o.feeBps === first.feeBps && o.reserveBps === first.reserveBps);
+      && o.family === first.family && o.feeBps === first.feeBps && o.reserveBps === first.reserveBps
+      && o.executionSource === first.executionSource);
     return evaluatePolicyCohort(key, values, evidenceEndMs, POLICY_ENTRY_LATENCY_MS, undefined, POLICY_ENTRY_LATENCY_MS, parent);
   });
   return { policyVersion: POLICY_VERSION, configurationVersion, generatedAtMs: now,
@@ -178,6 +179,12 @@ export function validPolicyModel(model: PolicyModel, configurationVersion: strin
 }
 
 export function validPolicyOutcome(o: PolicyObservation, latencyMs = POLICY_ENTRY_LATENCY_MS): boolean {
+  if (o.executionSource !== undefined && o.executionSource !== "OBSERVED_PAPER") return false;
+  const observed = o.executionSource === "OBSERVED_PAPER";
+  if (observed && (o.sampling !== "ENTRY" || !o.entryClientOrderId || !Number.isFinite(o.decisionAtMs)
+    || o.decisionAtMs! < o.signalAtMs || o.decisionAtMs! - o.signalAtMs > POLICY_MAX_ENTRY_DELAY_MS)) return false;
+  const earliestEntry = observed ? o.decisionAtMs! : o.signalAtMs + latencyMs;
+  const latestEntry = (observed ? o.decisionAtMs! : o.signalAtMs) + latencyMs + POLICY_MAX_ENTRY_DELAY_MS;
   if (!findPolicy(o.policyId) || ![1, -1].includes(o.side)
     || ![o.feeBps, o.reserveBps].every((v) => Number.isFinite(v) && v >= 0)) return false;
   const fraction = o.filledQty / o.qty;
@@ -192,11 +199,11 @@ export function validPolicyOutcome(o: PolicyObservation, latencyMs = POLICY_ENTR
     && Number.isFinite(o.exitAtMs) && o.exitAtMs >= o.signalAtMs
     && (o.reason === "ENTRY_NOT_FILLED" ? o.netBps === 0 && o.grossBps === 0 && o.entryAtMs === null
       && fraction === 0
-      && o.exitAtMs >= o.signalAtMs + latencyMs
-      && o.exitAtMs <= o.signalAtMs + latencyMs + POLICY_MAX_ENTRY_DELAY_MS
+      && o.exitAtMs >= earliestEntry
+      && o.exitAtMs <= latestEntry
       : fraction > 0 && ["POLICY_TARGET", "POLICY_STOP", "POLICY_DEADLINE", "POLICY_NET_FLOOR", "POLICY_STRUCTURE_INVALID"].includes(o.reason ?? "")
-        && o.entryAtMs !== null && o.entryAtMs >= o.signalAtMs + latencyMs
-        && o.entryAtMs <= o.signalAtMs + latencyMs + POLICY_MAX_ENTRY_DELAY_MS
+        && o.entryAtMs !== null && o.entryAtMs >= earliestEntry
+        && o.entryAtMs <= latestEntry
         && o.entryAtMs <= o.exitAtMs && (o.entryPrice ?? 0) > 0 && (o.exitPrice ?? 0) > 0
         && Number.isFinite(o.entryPrice) && Number.isFinite(o.exitPrice)
         && o.exitAtMs <= o.entryAtMs + findPolicy(o.policyId)!.horizonMs + latencyMs + 2 * POLICY_MAX_QUOTE_GAP_MS);

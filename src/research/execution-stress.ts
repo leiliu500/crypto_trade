@@ -45,7 +45,8 @@ export function stressObservation(source: PolicyObservation, scenario: Execution
     || ![scenario.feeMultiplier, scenario.depthMultiplier].every((n) => Number.isFinite(n) && n > 0)) {
     throw new Error("Invalid execution stress input");
   }
-  return { ...source, id: randomUUID(), policyVersion: EPISODE_VERSION, sampling: "EPISODE",
+  const { executionSource, entryClientOrderId, decisionAtMs, ...hypothetical } = source;
+  return { ...hypothetical, id: randomUUID(), policyVersion: EPISODE_VERSION, sampling: "EPISODE",
     episodeId, hypothesisId, scenario: { ...scenario }, context: structuredClone(context),
     feeBps: source.feeBps * scenario.feeMultiplier, features: { ...source.features },
     status: "PENDING", reason: null, filledQty: 0, entryAtMs: null, entryPrice: null,

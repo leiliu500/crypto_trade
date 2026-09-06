@@ -25,8 +25,9 @@ const day = 86_400_000, end = Date.UTC(2026, 8, 4), now = end + 3_600_000;
 const liquid = { pass: true, stress: false, sampleCount: 100, medianSpreadBps: 1,
   tradeThresholdBps: 1, stressThresholdBps: 2, reasons: [] };
 
-for (const side of [1, -1] as const) test(`rebuilt default submits a capped ${side === 1 ? "long" : "short"} paper retest and protects the fill`, async () => {
+for (const side of [1, -1] as const) test(`rebuilt default submits a capped ${side === 1 ? "long" : "short"} paper retest and protects the fill`, async (t) => {
   let clockMs = Date.now();
+  t.mock.timers.enable({ apis: ["Date"], now: clockMs });
   const start = clockMs;
   const symbol = "BTC/USD";
   const broker = new KrakenPaperBroker({ initialEquity: 100_000, productsBySymbol: { [symbol]: "TEST" },
@@ -50,9 +51,12 @@ for (const side of [1, -1] as const) test(`rebuilt default submits a capped ${si
   }
   const runtime = internals.runtimes.get(symbol)!;
   const decisions: ExecutionPlan[] = [];
+  const observations: PolicyObservation[] = [];
+  engine.on("policyObservation", (o: PolicyObservation) => observations.push(o));
   engine.on("decision", ({ plan }: { plan: ExecutionPlan }) => decisions.push(plan));
   const quote = async (second: number, move: number) => {
     clockMs = start + second * 1_000;
+    t.mock.timers.setTime(clockMs);
     const mid = 100 + side * move, b = book(clockMs, mid, symbol);
     runtime.breakoutRetest.onTrade({ id: `t-${second}`, symbol, px: mid, qty: 1, aggressor: side,
       receiveTsMs: clockMs, exchangeTsMs: clockMs });
@@ -69,6 +73,10 @@ for (const side of [1, -1] as const) test(`rebuilt default submits a capped ${si
     assert.equal(decisions[0]!.entryFamily, "BREAKOUT_RETEST");
     assert.ok(decisions[0]!.qty * decisions[0]!.limitPx <= 12);
     const p = engine.state().positions[0]!;
+    const actualLabels = observations.filter(o => o.executionSource === "OBSERVED_PAPER" && o.entryAtMs !== null);
+    assert.equal(actualLabels.length, 4);
+    assert.ok(actualLabels.every(o => o.entryPrice === p.entryPx && o.filledQty === p.qty
+      && o.entryClientOrderId === decisions[0]!.clientOrderId && o.entryAtMs === clockMs));
     assert.equal(p.side, side); assert.ok(p.ledger); assert.ok(p.netProtection);
     assert.equal(p.ledger.fundingEvidence, "UNOBSERVED");
     await quote(68, 1);
@@ -476,7 +484,7 @@ for (const symbol of ["BTC/USD", "ETH/USD"]) for (const side of [1, -1] as const
       assert.equal(pulse.status, "POSITION_OPEN");
       assert.equal(pulse.lastSample!.atMs, firstQuoteMs, "entry must not wait for the next periodic sample");
       assert.equal(pulse.entryCounters.plansApproved, 1);
-      const labels = observations.filter((o) => o.sampling === "ENTRY");
+      const labels = observations.filter((o) => o.sampling === "ENTRY" && o.entryAtMs === null && o.status === "PENDING");
       assert.equal(labels.length, 2, "the entry quote must have both family exit variants");
       assert.ok(labels.every((o) => o.signalAtMs === clockMs && o.qty === decisions[0]!.qty));
       assert.equal(pulse.lastEvaluation!.policyId, decisions[0]!.policy!.id);
