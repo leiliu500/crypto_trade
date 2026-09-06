@@ -148,7 +148,7 @@ test("startup minute context spans only bounded sample gaps while training label
   const cutoff = 8 * 3_600_000 + 1, outageMs = 7 * 3_600_000 + 20 * 60_000;
   const brief = [...quotes(8)].map(q => q.atMs === outageMs ? { ...q, valid: false } : q);
   const warmed = await warmCrossAssetHistory(brief, costs, cutoff, () => cutoff);
-  assert.equal(warmed.bootstrap.labelsPerSymbol, 25, "labels stop at the quote outage");
+  assert.equal(warmed.bootstrap.labelsPerSymbol, 27, "only the interrupted label is lost; clean intervals resume after recovery");
   assert.equal(warmed.model.stats().invalidLabelPairs, 1);
   assert.equal(warmed.bootstrap.historyRetained, true, "minute price context remains available through a short outage");
   assert.equal(warmed.bootstrap.priceHistoryReady, true);
@@ -164,7 +164,7 @@ test("gaps invalidate pending labels and a long outage discards stale training",
   for (const q of quotes(8)) model.observe(q);
   const trained = model.stats().labelsPerSymbol;
   model.observe({ symbol: "BTC/USD", atMs: 8 * 3_600_000 + 1, bid: 1, ask: 2, valid: false });
-  assert.equal(model.stats().invalidLabelPairs, 1); assert.equal(model.stats().historySamples, 0);
+  assert.equal(model.stats().invalidLabelPairs, 1); assert.ok(model.stats().historySamples >= 55);
   assert.equal(model.stats().labelsPerSymbol, trained);
   model.observe({ symbol: "BTC/USD", atMs: 40 * 3_600_000, bid: 100, ask: 101, valid: true });
   assert.equal(model.stats().labelsPerSymbol, 0); assert.equal(model.stats().trainingResets, 1);
@@ -172,6 +172,52 @@ test("gaps invalidate pending labels and a long outage discards stale training",
   unsynchronized.observe({ symbol: "BTC/USD", atMs: 0, bid: 100, ask: 101, valid: true });
   assert.deepEqual(unsynchronized.observe({ symbol: "ETH/USD", atMs: 3_000, bid: 50, ask: 51, valid: true }), []);
   assert.equal(unsynchronized.stats().historySamples, 0);
+});
+
+for (const interruption of ["invalid quote", "silent quote gap", "stream disconnect"] as const) {
+  test(`${interruption} retains minute context but cannot bridge a training label or reuse a peer quote`, () => {
+    const model = new CrossAssetModel(costs), endMs = 8 * 3_600_000;
+    for (const q of quotes(8)) model.observe(q);
+    if (interruption === "invalid quote") {
+      assert.deepEqual(model.observe({ symbol: "ETH/USD", atMs: endMs + 2_000, bid: 0, ask: 0, valid: false }), []);
+    } else if (interruption === "stream disconnect") model.invalidate(endMs + 2_000);
+    let firstForecast: CrossAssetForecast | undefined;
+    for (const q of quotes(9)) {
+      if (q.atMs < endMs + 8_000) continue;
+      const result = model.observe(q);
+      if (q.atMs === endMs + 8_000 && q.symbol === "BTC/USD") assert.deepEqual(result, [],
+        "recovery needs a new peer quote even though the old price context is retained");
+      firstForecast ??= result[0];
+      if (q.atMs <= endMs + 900_000) assert.equal(model.stats().labelsPerSymbol, 28,
+        "the label opened before the interruption must never mature");
+      if (q.atMs >= endMs + 960_000 && q.symbol === "ETH/USD") break;
+    }
+    assert.equal(firstForecast?.atMs, endMs + 60_000, "forecasts resume at the next minute sample");
+    assert.equal(model.stats().invalidLabelPairs, 1);
+    assert.equal(model.stats().labelsPerSymbol, 29, "a new full clean interval can train after recovery");
+    assert.equal(model.stats().priceHistoryReady, true);
+  });
+}
+
+test("a live price gap over 90 seconds requires new history while retaining completed learning", () => {
+  const model = new CrossAssetModel(costs), endMs = 8 * 3_600_000;
+  for (const q of quotes(8)) model.observe(q);
+  assert.equal(model.stats(endMs + 90_001).priceHistoryReady, false, "dashboard coverage expires even before a new quote arrives");
+  model.invalidate(endMs + 1_000);
+  for (const symbol of ["BTC/USD", "ETH/USD"]) {
+    assert.deepEqual(model.observe({ symbol, atMs: endMs + 90_001, bid: 100, ask: 101, valid: true }), []);
+  }
+  assert.equal(model.stats().priceHistoryReady, false);
+  assert.equal(model.stats().historySamples, 0);
+  assert.equal(model.stats().labelsPerSymbol, 28);
+});
+
+test("historical and live recovery produce identical learning after a brief stale quote", async () => {
+  const path = [...quotes(8)].map(q => q.atMs === 7 * 3_600_000 + 20 * 60_000 ? { ...q, valid: false } : q);
+  const live = new CrossAssetModel(costs);
+  for (const q of path) live.observe(q);
+  const { model } = await warmCrossAssetHistory(path, costs, 8 * 3_600_000 + 1, () => 8 * 3_600_000 + 1);
+  assert.deepEqual(model.stats(), live.stats());
 });
 
 function forecast(side: 1 | -1, atMs: number): CrossAssetForecast {

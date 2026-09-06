@@ -106,6 +106,9 @@ export interface DashboardOrderCard {
   side: 1 | -1;
   style: string;
   entryFamily?: EntryFamily | null;
+  modelVersion?: string | null;
+  crossAssetForecast?: import("../research/cross-asset-model.js").CrossAssetForecast | null;
+  crossAssetEntryMode?: "QUALIFIED" | "PAPER_EVALUATION" | null;
   configurationVersion?: string | null;
   regime?: string | null;
   edgeSource?: "CALIBRATED" | "ANALYTIC" | "UNRESOLVED" | null;
@@ -288,6 +291,8 @@ export interface DashboardSnapshot {
   paperEntryExercise?: boolean;
   policyEngineEnabled?: boolean;
   crossAssetPaperEntriesEnabled?: boolean;
+  modelOnlyEntries?: boolean;
+  crossAssetPaperEvaluationEnabled?: boolean;
   policyModelsInstalled?: number;
   strategyVersion: string;
   modelVersion: string;

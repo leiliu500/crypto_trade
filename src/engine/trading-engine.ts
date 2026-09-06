@@ -79,6 +79,8 @@ export interface EngineOperationalSnapshot {
   paperEntryExercise: boolean;
   policyEngineEnabled?: boolean;
   crossAssetPaperEntriesEnabled?: boolean;
+  modelOnlyEntries?: boolean;
+  crossAssetPaperEvaluationEnabled?: boolean;
   policyModelsInstalled?: number;
   strategyVersion: string;
   modelVersion: string;
@@ -529,13 +531,16 @@ export class TradingEngine extends EventEmitter {
         lastRejection: runtime.entryAudit.snapshot().lastRejection,
         activePolicyId: runtime.position?.policy?.id ?? (runtime.position ? "legacy" : null),
         crossAssetPaperEnabled: this.crossAssetPaperEnabled(runtime),
+        modelOnlyEntries: this.cfg.modelOnlyEntries,
+        crossAssetPaperEvaluationEnabled: this.crossAssetPaperEvaluationEnabled(runtime),
         ...(this.crossAssetForecasts.get(symbol) ? { crossAssetForecast: this.crossAssetForecasts.get(symbol)! } : {}),
       }) : null;
       if (policyPulse && this.cfg.breakoutRetestEnabled) policyPulse.setup = runtime.breakoutRetest.snapshot();
       if (policyPulse) policyPulse.research = { version: EPISODE_VERSION,
         hypotheses: [...EPISODE_HYPOTHESES], counters: runtime.researchEpisodes.stats(),
-        ...(this.crossAssetModel ? { crossAsset: { learning: this.crossAssetModel.stats(),
+        ...(this.crossAssetModel ? { crossAsset: { learning: this.crossAssetModel.stats(this.now()),
           paperSubmissionEnabled: this.crossAssetPaperEnabled(runtime),
+          paperEvaluationEnabled: this.crossAssetPaperEvaluationEnabled(runtime),
           ...(this.crossAssetHistoryBootstrap ? { historyBootstrap: { ...this.crossAssetHistoryBootstrap } } : {}),
           forecast: this.crossAssetForecasts.get(symbol) ?? null } } : {}) };
       return {
@@ -568,6 +573,8 @@ export class TradingEngine extends EventEmitter {
       strategyVersion: this.cfg.policyEngineEnabled ? POLICY_VERSION : this.cfg.strategyVersion,
       policyEngineEnabled: this.cfg.policyEngineEnabled,
       crossAssetPaperEntriesEnabled: [...this.runtimes.values()].some((runtime) => this.crossAssetPaperEnabled(runtime)),
+      modelOnlyEntries: this.cfg.modelOnlyEntries,
+      crossAssetPaperEvaluationEnabled: [...this.runtimes.values()].some((runtime) => this.crossAssetPaperEvaluationEnabled(runtime)),
       policyModelsInstalled: [...this.runtimes.values()].reduce((count, runtime) => count
         + runtime.policyModels.filter((m) => validPolicyModel(m, runtime.config.configurationVersion, generatedAtMs)).length, 0),
       modelVersion: this.cfg.modelVersion,
@@ -807,6 +814,10 @@ export class TradingEngine extends EventEmitter {
       return;
     }
     const pending = this.pendingForSymbol(book.symbol);
+    if (pending && this.cfg.modelOnlyEntries && !pending.plan.reduceOnlyIntent && !pending.plan.crossAssetForecast) {
+      void this.cancelTracked(pending, "SIGNAL_INVALIDATED", { entryMode: "MODEL_ONLY_ENTRIES" });
+      return;
+    }
     if (pending) {
       if (!features.kinematicsReady) void this.handlePendingKinematicsUnavailable(runtime, pending, features);
       else {
@@ -837,6 +848,7 @@ export class TradingEngine extends EventEmitter {
       if (quoteEvent) this.attemptPolicyEntry(runtime, book, features);
       return;
     }
+    if (this.cfg.modelOnlyEntries) return;
     const regime = runtime.regimeEngine.classify(features);
     runtime.latestRegime = regime;
     const deterministicIntent = runtime.entryEngine.evaluate({
@@ -1058,7 +1070,7 @@ export class TradingEngine extends EventEmitter {
   }
 
   private invalidatePolicyResearch(runtime: SymbolRuntime, reason: string): void {
-    this.crossAssetModel?.invalidate(); this.crossAssetForecasts.clear();
+    this.crossAssetModel?.invalidate(this.now()); this.crossAssetForecasts.clear();
     runtime.breakoutRetest.reset();
     for (const observation of runtime.policyCollector.invalidate(this.now(), reason)) this.emit("policyObservation", observation);
     for (const observation of runtime.researchEpisodes.invalidate(this.now(), reason)) this.emit("researchEpisode", observation);
@@ -1070,11 +1082,16 @@ export class TradingEngine extends EventEmitter {
       && runtime.config.planner.hybridEntry.allowAnalyticPaperExecution);
   }
 
+  private crossAssetPaperEvaluationEnabled(runtime: SymbolRuntime): boolean {
+    return this.crossAssetPaperEnabled(runtime) && this.cfg.crossAssetPaperEvaluationEnabled;
+  }
+
   private attemptPolicyEntry(runtime: SymbolRuntime, book: BookState, features: DeterministicFeatures): void {
     const nowMs = this.now();
     const forecast = this.crossAssetPaperEnabled(runtime) ? this.crossAssetForecasts.get(book.symbol) : undefined;
-    const jointCandidate = crossAssetPaperCandidate(forecast, book.symbol, nowMs);
-    const candidates = jointCandidate ? [jointCandidate] : policyCandidates(features);
+    const paperEvaluation = this.crossAssetPaperEvaluationEnabled(runtime);
+    const jointCandidate = crossAssetPaperCandidate(forecast, book.symbol, nowMs, paperEvaluation);
+    const candidates = jointCandidate ? [jointCandidate] : this.cfg.modelOnlyEntries ? [] : policyCandidates(features);
     if (!candidates.length) return;
     runtime.policyEntryCounters.signalMatches++;
     const choices = candidates.flatMap((candidate) => TRADING_POLICIES.filter((p) => p.family === candidate.family
@@ -1123,7 +1140,8 @@ export class TradingEngine extends EventEmitter {
     const { plan, reason } = buildPolicyPlan({ config: runtime.config, book, features: entryFeatures, asset: runtime.asset,
       candidate: observation, policyId: observation.policyId,
       ...(selected ? { model: selected.model } : {}),
-      ...(jointCandidate ? { crossAssetForecast: forecast!, allowCrossAssetPaper: true } : {}),
+      ...(jointCandidate ? { crossAssetForecast: forecast!, allowCrossAssetPaper: true,
+        allowCrossAssetPaperEvaluation: paperEvaluation } : {}),
       allowPaperResearch: this.cfg.mode === "paper" && this.cfg.paper
         && runtime.config.planner.hybridEntry.allowAnalyticPaperExecution,
       equity: this.equity, equityHighWater: this.equityHighWater, nowMs });
@@ -1142,7 +1160,8 @@ export class TradingEngine extends EventEmitter {
     // Entry-timed paired labels cannot be pooled with periodic counterfactuals.
     // Persist starts before dispatch, including attempts that later fail to fill.
     const entryObservations = runtime.policyCollector.captureEntry(book, entryFeatures, runtime.asset, observation, plan.qty,
-      { clientOrderId: plan.clientOrderId, decisionAtMs: plan.createdMs }, jointCandidate ? forecast : undefined);
+      { clientOrderId: plan.clientOrderId, decisionAtMs: plan.createdMs,
+        paperEvaluation: plan.crossAssetEntryMode === "PAPER_EVALUATION" }, jointCandidate ? forecast : undefined);
     const entryObservation = entryObservations.find((o) => o.policyId === plan.policy!.id);
     if (!entryObservation) { report("POLICY_ENTRY_EVIDENCE_UNAVAILABLE", "EXECUTION_PLAN_PASS"); return; }
     for (const o of entryObservations) this.emit("policyObservation", o);
@@ -1317,6 +1336,18 @@ export class TradingEngine extends EventEmitter {
   private async submit(plan: ExecutionPlan): Promise<boolean> {
     if (this.cfg.mode === "shadow") return false;
     if (this.cfg.mode !== "paper") return false;
+    if (!plan.reduceOnlyIntent && this.cfg.modelOnlyEntries) {
+      const runtime = this.runtimes.get(plan.symbol);
+      const evaluation = plan.crossAssetEntryMode === "PAPER_EVALUATION";
+      const candidate = crossAssetPaperCandidate(plan.crossAssetForecast, plan.symbol, this.now(), evaluation);
+      if (!runtime || !this.crossAssetPaperEnabled(runtime)
+        || (evaluation && !this.crossAssetPaperEvaluationEnabled(runtime))
+        || !candidate || candidate.side !== plan.side || candidate.regime !== plan.regime
+        || plan.policy?.id !== "trend-15m") {
+        if (runtime) this.rejectEntry(runtime, "EXECUTION_PLAN_PASS", "MODEL_ONLY_ENTRIES", this.now());
+        return false;
+      }
+    }
     try {
       this.orderState.reserve(plan);
       this.scheduleOrderDeadline(plan);

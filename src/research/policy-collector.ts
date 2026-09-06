@@ -18,6 +18,8 @@ export interface PolicyObservation extends PolicyCandidate {
   policyId: string;
   signalAtMs: number;
   executionSource?: "OBSERVED_PAPER";
+  crossAssetForecast?: CrossAssetForecast;
+  crossAssetEntryMode?: "QUALIFIED" | "PAPER_EVALUATION";
   entryClientOrderId?: string;
   decisionAtMs?: number;
   entryAtMs: number | null;
@@ -152,11 +154,11 @@ export class PolicyCollector {
    * quantity. This never advances or waits for the periodic research clock. */
   public captureEntry(book: BookState, features: DeterministicFeatures, asset: AssetRules,
     candidate: PolicyCandidate, qty: number,
-    execution?: { clientOrderId: string; decisionAtMs: number }, crossAssetForecast?: CrossAssetForecast): PolicyObservation[] {
+    execution?: { clientOrderId: string; decisionAtMs: number; paperEvaluation?: boolean }, crossAssetForecast?: CrossAssetForecast): PolicyObservation[] {
     if (execution && (!execution.clientOrderId || !Number.isFinite(execution.decisionAtMs)
       || execution.decisionAtMs < features.receiveTsMs
       || execution.decisionAtMs - features.receiveTsMs > POLICY_MAX_ENTRY_DELAY_MS)) return [];
-    const joint = crossAssetPaperCandidate(crossAssetForecast, book.symbol, execution?.decisionAtMs ?? NaN);
+    const joint = crossAssetPaperCandidate(crossAssetForecast, book.symbol, execution?.decisionAtMs ?? NaN, execution?.paperEvaluation);
     const matches = (c: PolicyCandidate) => c.family === candidate.family && c.side === candidate.side && c.regime === candidate.regime;
     if (crossAssetForecast && (!execution || !joint || !matches(joint))) return [];
     if (!book.valid || features.stale || book.symbol !== this.symbol
@@ -174,6 +176,8 @@ export class PolicyCollector {
       policyVersion: POLICY_VERSION, symbol: this.symbol, policyId: policy.id, signalAtMs: features.receiveTsMs,
       ...(execution ? { executionSource: "OBSERVED_PAPER" as const, entryClientOrderId: execution.clientOrderId,
         decisionAtMs: execution.decisionAtMs } : {}),
+      ...(crossAssetForecast ? { crossAssetForecast: { ...crossAssetForecast, expertWeights: { ...crossAssetForecast.expertWeights } },
+        crossAssetEntryMode: execution?.paperEvaluation ? "PAPER_EVALUATION" as const : "QUALIFIED" as const } : {}),
       entryAtMs: null, exitAtMs: null, entryPrice: null, exitPrice: null, qty, filledQty: 0,
       signalBid: book.bids[0]!.px, signalAsk: book.asks[0]!.px, spreadBps: features.spreadBps,
       feeBps: this.feeBps, reserveBps: this.reserveBps, grossBps: null, netBps: null, status: "PENDING", reason: null,

@@ -19,7 +19,7 @@ import { CROSS_ASSET_SPEC, crossAssetPaperCandidate, type CrossAssetForecast } f
 
 // Legacy policy regression coverage; the rebuilt default has a separate staged
 // setup integration test and must not produce impulse-only entries.
-const cfg = loadConfig({ TRADING_MODE: "paper", CONFIG_DIR: "config", BREAKOUT_RETEST_ENABLED: "false" });
+const cfg = loadConfig({ TRADING_MODE: "paper", CONFIG_DIR: "config", BREAKOUT_RETEST_ENABLED: "false", MODEL_ONLY_ENTRIES: "false" });
 const asset: AssetRules = { symbol: "BTC/USD", minOrderSize: .001, minTradeIncrement: .001,
   priceIncrement: .001, maximumOrderQty: 100, shortable: true };
 const day = 86_400_000, end = Date.UTC(2026, 8, 4), now = end + 3_600_000;
@@ -81,14 +81,15 @@ for (const side of [1, -1] as const) test(`joint ${side} planner rechecks anchor
     && o.features.forecastReferenceMid === 100 && o.features.invalidationPx === undefined));
 });
 
-for (const symbol of ["BTC/USD", "ETH/USD"] as const) for (const side of [1, -1] as const) {
-  test(`joint ${symbol} ${side} forecast submits through the paper broker and closes with fees`, async (t) => {
+for (const symbol of ["BTC/USD", "ETH/USD"] as const) for (const side of [1, -1] as const) for (const paperEvaluation of [false, true]) {
+  test(`joint ${symbol} ${side} ${paperEvaluation ? "evaluation" : "qualified"} forecast submits through the paper broker and closes with fees`, async (t) => {
     let clockMs = Date.now();
     t.mock.timers.enable({ apis: ["Date"], now: clockMs });
     const broker = new KrakenPaperBroker({ initialEquity: 100_000, productsBySymbol: { [symbol]: "TEST" },
       instruments: new Map([[symbol, { symbol, productId: "TEST", tickSize: .001, quantityIncrement: .001, maximumOrderQty: 100 }]]),
       makerFeeBpsBySymbol: { [symbol]: 2 }, takerFeeBpsBySymbol: { [symbol]: 5 } });
-    const engineConfig = { ...cfg, breakoutRetestEnabled: true, crossAssetPaperEntriesEnabled: false, continuousRecordingEnabled: false };
+    const engineConfig = { ...cfg, modelOnlyEntries: true, breakoutRetestEnabled: true,
+      crossAssetPaperEntriesEnabled: false, crossAssetPaperEvaluationEnabled: paperEvaluation, continuousRecordingEnabled: false };
     const engine = new TradingEngine(engineConfig, { rest: broker, gateway: broker, tradeStream: broker.tradeStream, now: () => clockMs });
     const internals = engine as unknown as { equity: number; equityHighWater: number;
       riskState: { setHealth: (value: Record<string, boolean>) => void };
@@ -99,7 +100,8 @@ for (const symbol of ["BTC/USD", "ETH/USD"] as const) for (const side of [1, -1]
       processMarketState: (runtime: unknown, b: BookState, f: DeterministicFeatures) => void };
     internals.equity = internals.equityHighWater = 100_000;
     internals.riskState.setHealth({ publicStream: true, privateStream: true, accountReconciled: true, bookValid: true, riskRecomputed: true });
-    internals.crossAssetModel.observe = () => [jointForecast(symbol, side, clockMs)];
+    internals.crossAssetModel.observe = () => [{ ...jointForecast(symbol, side, clockMs), ...(paperEvaluation ? {
+      predictedGrossBps: side * 2, conservativeNetBps: -18, eligible: false, reason: "COST_OR_UNCERTAINTY" } : {}) }];
     const feed = (b: BookState) => ({ symbol: b.symbol, bids: [...b.bids], asks: [...b.asks], reset: true,
       exchangeTsMs: b.exchangeTsMs, receiveTsMs: b.receiveTsMs, sourceId: `joint-${b.symbol}-${b.receiveTsMs}` });
     for (const [s, r] of internals.runtimes) {
@@ -123,6 +125,11 @@ for (const symbol of ["BTC/USD", "ETH/USD"] as const) for (const side of [1, -1]
       engineConfig.mode = "shadow";
       await quote(); assert.equal(decisions.length, 0, "shadow mode cannot submit a joint order");
       engineConfig.mode = "paper";
+      if (paperEvaluation) {
+        engineConfig.crossAssetPaperEvaluationEnabled = false;
+        await quote(); assert.equal(decisions.length, 0, "a failed screen needs explicit paper evaluation permission");
+        engineConfig.crossAssetPaperEvaluationEnabled = true;
+      }
       const originalConfig = runtime.config;
       runtime.config = { ...originalConfig, planner: { ...originalConfig.planner,
         hybridEntry: { ...originalConfig.planner.hybridEntry, allowAnalyticPaperExecution: false } } };
@@ -139,10 +146,18 @@ for (const symbol of ["BTC/USD", "ETH/USD"] as const) for (const side of [1, -1]
       const plan = decisions[0]!;
       assert.equal(plan.policy!.id, "trend-15m"); assert.equal(plan.modelVersion, CROSS_ASSET_SPEC.version);
       assert.equal(plan.policy!.invalidationPx, undefined); assert.ok(plan.qty * plan.limitPx <= 12);
+      assert.equal(plan.crossAssetEntryMode, paperEvaluation ? "PAPER_EVALUATION" : "QUALIFIED");
+      assert.equal(plan.crossAssetForecast!.eligible, !paperEvaluation);
+      if (paperEvaluation) {
+        assert.ok(plan.expectedValue < 0 && plan.conservativeNetEdgeBps! < 0, "negative predictions are recorded without relabeling them profitable");
+        assert.match(plan.regime!, /:EVALUATION:/);
+      }
       assert.equal(engine.state().orders[0]!.status, "FILLED");
       const labels = observations.filter(o => o.executionSource === "OBSERVED_PAPER" && o.entryAtMs !== null);
       assert.equal(labels.length, 2); assert.ok(labels.every(o => o.entryPrice === p.entryPx && o.filledQty === p.qty
         && o.entryClientOrderId === plan.clientOrderId));
+      assert.ok(labels.every(o => o.crossAssetEntryMode === plan.crossAssetEntryMode
+        && o.crossAssetForecast!.atMs === plan.crossAssetForecast!.atMs));
       assert.equal(engine.state().crossAssetPaperEntriesEnabled, true);
       assert.equal(engine.state().markets.find(m => m.symbol === symbol)!.policyPulse!.research!.crossAsset!.paperSubmissionEnabled, true);
       const restored = recoverPolicyPositions(broker.history(), (await broker.listPositions()).data, []);
@@ -156,7 +171,7 @@ for (const symbol of ["BTC/USD", "ETH/USD"] as const) for (const side of [1, -1]
   });
 }
 
-for (const side of [1, -1] as const) test(`rebuilt default submits a capped ${side === 1 ? "long" : "short"} paper retest and protects the fill`, async (t) => {
+for (const side of [1, -1] as const) test(`explicit legacy mode submits a capped ${side === 1 ? "long" : "short"} paper retest and protects the fill`, async (t) => {
   let clockMs = Date.now();
   t.mock.timers.enable({ apis: ["Date"], now: clockMs });
   const start = clockMs;
@@ -164,7 +179,8 @@ for (const side of [1, -1] as const) test(`rebuilt default submits a capped ${si
   const broker = new KrakenPaperBroker({ initialEquity: 100_000, productsBySymbol: { [symbol]: "TEST" },
     instruments: new Map([[symbol, { symbol, productId: "TEST", tickSize: .001, quantityIncrement: .001, maximumOrderQty: 100 }]]),
     makerFeeBpsBySymbol: { [symbol]: 2 }, takerFeeBpsBySymbol: { [symbol]: 5 } });
-  const engine = new TradingEngine({ ...cfg, breakoutRetestEnabled: true, continuousRecordingEnabled: false },
+  const engineConfig = { ...cfg, breakoutRetestEnabled: true, modelOnlyEntries: true, continuousRecordingEnabled: false };
+  const engine = new TradingEngine(engineConfig,
     { rest: broker, gateway: broker, tradeStream: broker.tradeStream, now: () => clockMs });
   const internals = engine as unknown as { equity: number; equityHighWater: number;
     riskState: { setHealth: (value: Record<string, boolean>) => void };
@@ -200,6 +216,18 @@ for (const side of [1, -1] as const) test(`rebuilt default submits a capped ${si
     await quote(62, .03); await quote(63, .08);
     assert.equal(decisions.length, 0, "no initial-impulse entry");
     await quote(64, .005); await quote(65, .006); await quote(66, .007); await quote(67, .009);
+    assert.equal(decisions.length, 0, "the default model-only mode cannot fall back to a fully confirmed retest");
+    assert.equal(engine.state().orders.length, 0);
+    const pulse = engine.state().markets.find(m => m.symbol === symbol)!.policyPulse!;
+    assert.equal(pulse.candidates.length, 0); assert.deepEqual(pulse.families.map(f => f.family), ["CONTINUATION"]);
+    engineConfig.modelOnlyEntries = false;
+    // Reuse the confirmed candidate solely to cover existing-position management
+    // under the explicitly selected legacy mode.
+    const confirmed = runtime.latestFeatures.retestCandidate;
+    assert.ok(confirmed);
+    (engine as unknown as { attemptPolicyEntry: (r: unknown, b: BookState, f: DeterministicFeatures) => void })
+      .attemptPolicyEntry(runtime, book(clockMs, 100 + side * .009, symbol), runtime.latestFeatures);
+    for (let i = 0; i < 12; i++) await Promise.resolve();
     assert.equal(decisions.length, 1);
     assert.equal(decisions[0]!.entryFamily, "BREAKOUT_RETEST");
     assert.ok(decisions[0]!.qty * decisions[0]!.limitPx <= 12);
@@ -210,6 +238,7 @@ for (const side of [1, -1] as const) test(`rebuilt default submits a capped ${si
       && o.entryClientOrderId === decisions[0]!.clientOrderId && o.entryAtMs === clockMs));
     assert.equal(p.side, side); assert.ok(p.ledger); assert.ok(p.netProtection);
     assert.equal(p.ledger.fundingEvidence, "UNOBSERVED");
+    engineConfig.modelOnlyEntries = true;
     await quote(68, 1);
     assert.equal(engine.state().positions[0]!.phase, "PROTECTED");
     await quote(69, .5);
@@ -647,3 +676,29 @@ for (const symbol of ["BTC/USD", "ETH/USD"]) for (const side of [1, -1] as const
     } finally { await engine.stop(); }
   });
 }
+test("paper evaluation preserves negative scores but rejects stale, untrained, out-of-domain and exhausted forecasts", () => {
+  const atMs = 100_000;
+  const forecast = { ...jointForecast("BTC/USD", 1, atMs), predictedGrossBps: 2,
+    conservativeNetBps: -18, eligible: false, reason: "COST_OR_UNCERTAINTY" };
+  assert.equal(crossAssetPaperCandidate(forecast, "BTC/USD", atMs), null);
+  const candidate = crossAssetPaperCandidate(forecast, "BTC/USD", atMs, true)!;
+  assert.ok(candidate);
+  const input = { config: cfg.symbolConfigs["BTC/USD"]!, book: book(atMs),
+    features: { ...features(atMs, 1), retestCandidate: null }, asset, candidate, policyId: "trend-15m",
+    crossAssetForecast: forecast, allowCrossAssetPaper: true, allowCrossAssetPaperEvaluation: true,
+    allowPaperResearch: true, equity: 100_000, equityHighWater: 100_000, nowMs: atMs };
+  const result = buildPolicyPlan(input);
+  assert.ok(result.plan); assert.equal(result.reason, "CROSS_ASSET_PAPER_EVALUATION");
+  assert.ok(result.plan.expectedValue < 0 && result.plan.conservativeNetEdgeBps! < 0);
+  for (const change of [{ allowCrossAssetPaperEvaluation: false }, { allowCrossAssetPaper: false },
+    { allowPaperResearch: false }, { nowMs: atMs + 1001 },
+    { crossAssetForecast: { ...forecast, reason: "OUT_OF_DOMAIN" } },
+    { crossAssetForecast: { ...forecast, trainingLabels: 23 } },
+    { crossAssetForecast: { ...forecast, conservativeNetBps: 10 } },
+    { crossAssetForecast: { ...forecast, predictedGrossBps: 0 } },
+    { crossAssetForecast: { ...forecast, symbol: "ETH/USD" as const } },
+    { crossAssetForecast: { ...forecast, parameterUncertaintyBps: NaN } },
+  ]) assert.equal(buildPolicyPlan({ ...input, ...change }).plan, null);
+  assert.equal(buildPolicyPlan({ ...input, book: book(atMs, 100.1),
+    features: { ...features(atMs, 1, 100.1), retestCandidate: null } }).reason, "CROSS_ASSET_DIRECTION_EXHAUSTED");
+});

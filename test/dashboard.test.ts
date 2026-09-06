@@ -491,7 +491,7 @@ test("dashboard distinguishes a motion reset from invalid market data", async ()
   assert.match(app, /signedMoney\(breakdown\.grossPricePnl,5\)/);
   assert.match(html, /Total · UTC day/);
   assert.match(html, /id="session-pnl-breakdown"/);
-  assert.match(html, /app\.js\?v=20260906-history-warmup-1/);
+  assert.match(html, /app\.js\?v=20260906-model-evaluation-1/);
 });
 
 function pulseFixture(): PolicyMarketPulse {
@@ -566,7 +566,7 @@ test("Market Pulse renders new policy signals, evidence and clocks without the l
 test("joint model display separates submission permission, training, forecast freshness and entry gates", async () => {
   const app = await readFile("src/dashboard/public/app.js", "utf8");
   const utilities = app.slice(0, app.indexOf("function setConnection"));
-  const source = app.slice(app.indexOf("function renderCrossAssetModel"), app.indexOf("function policyFamilyName"));
+  const source = app.slice(app.indexOf("function modelTradeResults"), app.indexOf("function policyFamilyName"));
   const nowMs = 1_700_000_000_000;
   const snapshot = { mode: "paper", paper: true, crossAssetPaperEntriesEnabled: true, entriesAllowed: true, generatedAtMs: nowMs };
   const joint = { paperSubmissionEnabled: true, learning: { version: "btc-eth-dynamic-bayes-v1",
@@ -581,6 +581,12 @@ test("joint model display separates submission permission, training, forecast fr
   assert.doesNotMatch(warmup, /FORECAST PASSES SCREEN|Predicted price return|NaN/);
   const trained = { ...joint, learning: { ...joint.learning, labelsPerSymbol: 30 } };
   assert.match(render(trained), /WAITING FOR FORECAST/);
+  assert.match(render(trained), /Forecasts update once per minute/);
+  const rebuilding = render({ ...trained, learning: { ...trained.learning,
+    priceHistoryReady: false, historyCoverageMs: 7 * 60_000 } } as typeof trained);
+  assert.match(rebuilding, /REBUILDING PRICE HISTORY/);
+  assert.match(rebuilding, /Training is retained/); assert.match(rebuilding, /7 of 60 minutes/);
+  assert.match(rebuilding, /No current forecast/); assert.doesNotMatch(rebuilding, /No forecast yet|WAITING FOR FORECAST/);
   const restored = render({ ...trained, historyBootstrap: { labelsPerSymbol: 119, trainedThroughMs: nowMs - 60_000 } } as typeof trained);
   assert.match(restored, /Trained from history · 119 completed intervals restored/);
   assert.match(restored, /UTC/);
@@ -609,6 +615,14 @@ test("joint model display separates submission permission, training, forecast fr
   assert.match(render({ ...positive, forecast: { ...forecast, conservativeNetBps: -2, eligible: false, reason: "COST_OR_UNCERTAINTY" } }), /COST \/ UNCERTAINTY BLOCK/);
   assert.match(render({ ...positive, forecast: { ...forecast, eligible: false, reason: "OUT_OF_DOMAIN" } }), /OUTSIDE MODEL RANGE/);
   assert.match(render({ ...positive, forecast: { ...forecast, symbol: "ETH/USD" } }), /FORECAST UNAVAILABLE/);
+  const evaluation = render({ ...positive, paperEvaluationEnabled: true,
+    forecast: { ...forecast, predictedGrossBps: -2, conservativeNetBps: -18, eligible: false, reason: "COST_OR_UNCERTAINTY" } } as typeof positive,
+    {}, { modelOnlyEntries: true, crossAssetPaperEvaluationEnabled: true });
+  assert.match(evaluation, /MODEL-ONLY ENTRIES · BREAKOUT\/RETEST DISABLED/);
+  assert.match(evaluation, /PAPER EVALUATION CANDIDATE/);
+  assert.match(evaluation, /collect outcomes even when the profitability screen fails/);
+  assert.match(evaluation, /Awaiting closed trades/);
+  assert.doesNotMatch(evaluation, /COST \/ UNCERTAINTY BLOCK|FORECAST PASSES SCREEN/);
   assert.match(render({ ...positive, learning: { ...trained.learning, version: "new-model" } }), /WAITING FOR MODEL DATA/);
   const unsafe = render({ ...positive, learning: { ...trained.learning, version: "<img src=x onerror=bad()>" } });
   assert.doesNotMatch(unsafe, /<img/); assert.match(unsafe, /&lt;img/);
@@ -903,7 +917,7 @@ test("dashboard server serves the read-only API, health probe, and browser route
     const htmlText = await html.text();
     assert.match(htmlText, /data-testid="dashboard-root"/);
     assert.match(htmlText, /Trades and order attempts/);
-    assert.match(htmlText, /app\.js\?v=20260906-history-warmup-1/);
+    assert.match(htmlText, /app\.js\?v=20260906-model-evaluation-1/);
     assert.doesNotMatch(htmlText, /Exit dynamics/);
     assert.equal(dashboardAlias.status, 200);
     assert.match(await dashboardAlias.text(), /data-testid="dashboard-root"/);
@@ -974,3 +988,35 @@ function engineState(): EngineOperationalSnapshot {
       decisionToVenue: latency, fill: latency, total: latency },
   };
 }
+test("model results count each actual entry once and separate evaluation, qualified, and legacy trades", async () => {
+  const app = await readFile("src/dashboard/public/app.js", "utf8");
+  const source = app.slice(app.indexOf("function modelTradeResults"), app.indexOf("function renderCrossAssetModel"));
+  const entry = { clientOrderId: "model-entry", symbol: "BTC/USD", filledQty: .001,
+    crossAssetForecast: { version: "btc-eth-dynamic-bayes-v1" }, crossAssetEntryMode: "PAPER_EVALUATION" };
+  const position = { entryOrderId: entry.clientOrderId, active: false, realizedPnl: -.03,
+    realizedBreakdown: { entryFee: .005, exitFee: .006 } };
+  const items = [entry, { ...entry, clientOrderId: "qualified", crossAssetEntryMode: "QUALIFIED" },
+    { clientOrderId: "legacy", symbol: "BTC/USD", filledQty: .001 },
+    { reduceOnlyIntent: true, livePosition: position }, { reduceOnlyIntent: true, livePosition: position }];
+  const result = JSON.parse(runInNewContext(`${source}\nJSON.stringify(modelTradeResults(items,"BTC/USD","PAPER_EVALUATION"));`, { items }));
+  assert.deepEqual(result, { attempts: 1, filled: 1, closed: 1, open: 0, unresolved: 0, wins: 0, net: -.03, fees: .011 });
+});
+
+test("monitor retains the exact model forecast and evaluation mode in persisted order cards", () => {
+  const monitor = new OperationsMonitor(), source = engineState();
+  const forecast = { version: "btc-eth-dynamic-bayes-v1", symbol: "BTC/USD" as const, atMs: source.generatedAtMs,
+    horizonMs: 900_000, trainingLabels: 30, trainedThroughMs: source.generatedAtMs - 1_000,
+    referenceMid: 100, side: 1 as const, predictedGrossBps: 2, parameterUncertaintyBps: 2,
+    predictiveStdBps: 20, costHurdleBps: 14, conservativeNetBps: -18, eligible: false,
+    reason: "COST_OR_UNCERTAINTY", factorBeta: 1, expertWeights: { trend: 1 } };
+  source.modelOnlyEntries = true; source.crossAssetPaperEvaluationEnabled = true;
+  source.orders[0]!.plan.crossAssetForecast = forecast;
+  source.orders[0]!.plan.crossAssetEntryMode = "PAPER_EVALUATION";
+  monitor.ingestEngineSnapshot(source);
+  const result = monitor.snapshot();
+  assert.equal(result.modelOnlyEntries, true); assert.equal(result.crossAssetPaperEvaluationEnabled, true);
+  assert.deepEqual(result.orders[0]!.crossAssetForecast, forecast);
+  assert.equal(result.orders[0]!.crossAssetEntryMode, "PAPER_EVALUATION");
+  forecast.expertWeights.trend = 0;
+  assert.equal(result.orders[0]!.crossAssetForecast!.expertWeights.trend, 1);
+});

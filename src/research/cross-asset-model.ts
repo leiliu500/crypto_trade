@@ -24,9 +24,8 @@ export interface CrossAssetForecast {
   expertWeights: Record<string, number>;
 }
 
-export function usableCrossAssetForecast(f: CrossAssetForecast | undefined, symbol: string, nowMs: number): f is CrossAssetForecast {
-  return !!f && f.version === CROSS_ASSET_SPEC.version && f.symbol === symbol && f.eligible === true
-    && f.reason === "POSITIVE_RESEARCH_FORECAST" && [1, -1].includes(f.side)
+function validCrossAssetForecast(f: CrossAssetForecast | undefined, symbol: string, nowMs: number): f is CrossAssetForecast {
+  return !!f && f.version === CROSS_ASSET_SPEC.version && f.symbol === symbol && [1, -1].includes(f.side)
     && [f.atMs, nowMs, f.referenceMid, f.predictedGrossBps, f.parameterUncertaintyBps, f.predictiveStdBps,
       f.costHurdleBps, f.conservativeNetBps].every(Number.isFinite)
     && f.referenceMid > 0 && f.parameterUncertaintyBps >= 0 && f.predictiveStdBps > 0 && f.costHurdleBps >= 0
@@ -35,15 +34,23 @@ export function usableCrossAssetForecast(f: CrossAssetForecast | undefined, symb
     && Number.isFinite(f.trainedThroughMs) && f.trainedThroughMs <= f.atMs
     && nowMs - f.trainedThroughMs <= CROSS_ASSET_SPEC.maximumModelAgeMs
     && nowMs >= f.atMs && nowMs - f.atMs <= 1_000 && f.side * f.predictedGrossBps > 0
-    && f.conservativeNetBps > 0 && Math.abs(f.conservativeNetBps - (Math.abs(f.predictedGrossBps)
+    && Math.abs(f.conservativeNetBps - (Math.abs(f.predictedGrossBps)
       - CROSS_ASSET_SPEC.parameterPenalty * f.parameterUncertaintyBps
       - CROSS_ASSET_SPEC.predictiveRiskPenalty * f.predictiveStdBps - f.costHurdleBps)) < 1e-7;
 }
 
-/** Separate cohort from legacy continuation and from calibrated execution models. */
-export function crossAssetPaperCandidate(f: CrossAssetForecast | undefined, symbol: string, nowMs: number) {
-  return usableCrossAssetForecast(f, symbol, nowMs) ? { family: "CONTINUATION" as const,
-    side: f.side, regime: `${CROSS_ASSET_SPEC.version}:${f.side === 1 ? "UP" : "DOWN"}` } : null;
+export function usableCrossAssetForecast(f: CrossAssetForecast | undefined, symbol: string, nowMs: number): f is CrossAssetForecast {
+  return validCrossAssetForecast(f, symbol, nowMs) && f.eligible === true
+    && f.reason === "POSITIVE_RESEARCH_FORECAST" && f.conservativeNetBps > 0;
+}
+
+/** Evaluation orders have a separate cohort and retain their original failing screen. */
+export function crossAssetPaperCandidate(f: CrossAssetForecast | undefined, symbol: string, nowMs: number, paperEvaluation = false) {
+  if (!validCrossAssetForecast(f, symbol, nowMs)) return null;
+  const acceptable = (f.eligible === true && f.reason === "POSITIVE_RESEARCH_FORECAST" && f.conservativeNetBps > 0) || (paperEvaluation && f.eligible === false
+    && f.reason === "COST_OR_UNCERTAINTY" && f.conservativeNetBps <= 0);
+  return acceptable ? { family: "CONTINUATION" as const, side: f!.side,
+    regime: `${CROSS_ASSET_SPEC.version}${paperEvaluation ? ":EVALUATION" : ""}:${f!.side === 1 ? "UP" : "DOWN"}` } : null;
 }
 
 /** Joint, causal market sampling, independent of all existing entry triggers.
@@ -52,9 +59,6 @@ export function crossAssetPaperCandidate(f: CrossAssetForecast | undefined, symb
 export class CrossAssetModel {
   private readonly latest = new Map<string, CrossAssetQuote>();
   private history: Pair[] = [];
-  private historicalPriceContext?: Pair[];
-  private readonly historicalQuotes = new Map<string, CrossAssetQuote>();
-  private liveHandoffHistory?: Pair[];
   private pending?: Pending;
   private readonly learners = CROSS_ASSET_SYMBOLS.map(() => EXPERTS.map((e) => new DynamicBayes(e.columns.length, e.halfLife)));
   private readonly weights = CROSS_ASSET_SYMBOLS.map(() => EXPERTS.map(() => 1 / EXPERTS.length));
@@ -69,29 +73,19 @@ export class CrossAssetModel {
       if (!cost || ![cost.feeBps, cost.reserveBps].every((v) => Number.isFinite(v) && v >= 0)) throw new Error("INVALID_CROSS_ASSET_COSTS");
     }
   }
-  public invalidate(): void {
+  public invalidate(atMs?: number): void {
     if (this.pending) this.invalidLabels++;
-    delete this.pending; this.latest.clear(); this.history = [];
+    delete this.pending; this.latest.clear();
+    // A quote interruption invalidates the in-flight label and both quotes,
+    // but already observed minute prices remain useful within the sample-gap
+    // limit. Never bridge the interrupted label when fresh quotes return.
+    const last = this.history.at(-1);
+    if (last && atMs !== undefined && (!Number.isFinite(atMs) || atMs < last.atMs
+      || atMs - last.atMs > CROSS_ASSET_SPEC.maximumSampleGapMs)) this.history = [];
   }
-  /** Keep the last complete minute feature window during offline fitting. A
-   * shutdown's invalid quotes still invalidate training paths; this price-only
-   * context can seed a subsequent fresh-quote forecast, never complete a label. */
+  /** Offline and live fitting share the same price and label gap rules. */
   public observeHistorical(quote: CrossAssetQuote): void {
     this.observe(quote);
-    if (!(CROSS_ASSET_SYMBOLS as readonly string[]).includes(quote.symbol)) return;
-    if (!quote.valid || ![quote.atMs, quote.bid, quote.ask].every(Number.isFinite) || quote.bid <= 0 || quote.ask <= quote.bid) {
-      this.historicalQuotes.clear(); return;
-    }
-    this.historicalQuotes.set(quote.symbol, quote);
-    const quotes = CROSS_ASSET_SYMBOLS.map(s => this.historicalQuotes.get(s));
-    if (quotes.some(q => !q || q.atMs > quote.atMs || quote.atMs - q.atMs > CROSS_ASSET_SPEC.maximumQuoteAgeMs)) return;
-    const last = this.historicalPriceContext?.at(-1);
-    if (last && quote.atMs - last.atMs < CROSS_ASSET_SPEC.sampleMs) return;
-    if (last && quote.atMs - last.atMs > CROSS_ASSET_SPEC.maximumSampleGapMs) this.historicalPriceContext = [];
-    this.historicalPriceContext ??= [];
-    this.historicalPriceContext.push({ atMs: quote.atMs, mids: quotes.map(q => (q!.bid + q!.ask) / 2) as [number, number] });
-    this.historicalPriceContext = this.historicalPriceContext.filter(p =>
-      quote.atMs - p.atMs <= CROSS_ASSET_SPEC.historyMs + CROSS_ASSET_SPEC.maximumSampleGapMs);
   }
   /** Historical labels may seed learning, but an unfinished historical interval
    * and historical quotes must never authorize or label a live entry. Retain
@@ -100,34 +94,29 @@ export class CrossAssetModel {
     if (!Number.isFinite(nowMs)) throw new Error("INVALID_CROSS_ASSET_HANDOFF_TIME");
     const discardedIncompleteInterval = Boolean(this.pending);
     delete this.pending; this.latest.clear();
-    const recent = this.historicalPriceContext?.at(-1);
-    const completeHistory = this.history.length >= 55
-      && this.history.at(-1)!.atMs - this.history[0]!.atMs >= CROSS_ASSET_SPEC.historyMs;
-    const completeContext = recent && this.historicalPriceContext!.length >= 55
-      && recent.atMs - this.historicalPriceContext![0]!.atMs >= CROSS_ASSET_SPEC.historyMs;
-    if (!completeHistory && completeContext && nowMs >= recent.atMs
-      && nowMs - recent.atMs <= CROSS_ASSET_SPEC.maximumSampleGapMs) this.history = this.historicalPriceContext!;
-    delete this.historicalPriceContext;
-    this.historicalQuotes.clear();
     const last = this.history.at(-1);
     const historyRetained = Boolean(last && nowMs >= last.atMs
       && nowMs - last.atMs <= CROSS_ASSET_SPEC.maximumSampleGapMs);
     if (!historyRetained) this.history = [];
     if (this.trainedThroughMs !== null && (nowMs < this.trainedThroughMs
       || nowMs - this.trainedThroughMs > CROSS_ASSET_SPEC.maximumModelAgeMs)) {
-      this.invalidate(); this.labels = 0; this.trainedThroughMs = null; this.trainingResets++;
+      this.invalidate(nowMs); this.history = []; this.labels = 0; this.trainedThroughMs = null; this.trainingResets++;
       for (let s = 0; s < 2; s++) {
         this.learners[s] = EXPERTS.map((e) => new DynamicBayes(e.columns.length, e.halfLife));
         this.weights[s] = EXPERTS.map(() => 1 / EXPERTS.length);
       }
     }
-    this.liveHandoffHistory = [...this.history];
     return { discardedIncompleteInterval, historyRetained: historyRetained && this.history.length > 0,
       priceHistoryReady: historyRetained && this.history.length >= 55
         && this.history.at(-1)!.atMs - this.history[0]!.atMs >= CROSS_ASSET_SPEC.historyMs };
   }
-  public stats() { return { version: CROSS_ASSET_SPEC.version, labelsPerSymbol: this.labels,
+  public stats(nowMs = this.history.at(-1)?.atMs ?? 0) {
+    const last = this.history.at(-1), historyCoverageMs = last ? last.atMs - this.history[0]!.atMs : 0;
+    return { version: CROSS_ASSET_SPEC.version, labelsPerSymbol: this.labels,
     trainedThroughMs: this.trainedThroughMs, invalidLabelPairs: this.invalidLabels, historySamples: this.history.length,
+    historyCoverageMs, priceHistoryReady: Boolean(last && this.history.length >= 55
+      && historyCoverageMs >= CROSS_ASSET_SPEC.historyMs && nowMs >= last.atMs
+      && nowMs - last.atMs <= CROSS_ASSET_SPEC.maximumSampleGapMs),
     trainingResets: this.trainingResets, prequentialErrors: CROSS_ASSET_SYMBOLS.map((symbol, i) => ({ symbol,
       labels: this.errors[i]!.labels,
       modelMseBpsSquared: this.errors[i]!.labels ? this.errors[i]!.squared / this.errors[i]!.labels : null,
@@ -136,30 +125,22 @@ export class CrossAssetModel {
     if (!(CROSS_ASSET_SYMBOLS as readonly string[]).includes(quote.symbol)) return [];
     const previous = this.latest.get(quote.symbol);
     if (!quote.valid || ![quote.atMs, quote.bid, quote.ask].every(Number.isFinite) || quote.bid <= 0 || quote.ask <= quote.bid
-      || previous && quote.atMs < previous.atMs) { this.invalidate(); return []; }
+      || previous && quote.atMs < previous.atMs) { this.invalidate(quote.atMs); return []; }
     if (this.trainedThroughMs !== null && quote.atMs - this.trainedThroughMs > CROSS_ASSET_SPEC.maximumModelAgeMs) {
-      this.invalidate(); this.labels = 0; this.trainedThroughMs = null; this.trainingResets++;
+      this.invalidate(quote.atMs); this.history = []; this.labels = 0; this.trainedThroughMs = null; this.trainingResets++;
       for (let s = 0; s < 2; s++) {
         this.learners[s] = EXPERTS.map((e) => new DynamicBayes(e.columns.length, e.halfLife));
         this.weights[s] = EXPERTS.map(() => 1 / EXPERTS.length);
       }
     }
-    if (previous && quote.atMs - previous.atMs > CROSS_ASSET_SPEC.maximumQuoteGapMs) this.invalidate();
+    if (previous && quote.atMs - previous.atMs > CROSS_ASSET_SPEC.maximumQuoteGapMs) this.invalidate(quote.atMs);
     this.latest.set(quote.symbol, { ...quote });
     const quotes = CROSS_ASSET_SYMBOLS.map((s) => this.latest.get(s));
     if (quotes.some((q) => !q || q.atMs > quote.atMs || quote.atMs - q.atMs > CROSS_ASSET_SPEC.maximumQuoteAgeMs)) return [];
-    // Initial invalid subscription snapshots cannot consume the historical
-    // handoff. Use it once both live quotes are fresh, within the same age cap.
-    if (this.liveHandoffHistory) {
-      const lastHistorical = this.liveHandoffHistory.at(-1);
-      if (lastHistorical && quote.atMs >= lastHistorical.atMs
-        && quote.atMs - lastHistorical.atMs <= CROSS_ASSET_SPEC.maximumSampleGapMs) this.history = this.liveHandoffHistory;
-      delete this.liveHandoffHistory;
-    }
     const atMs = quote.atMs, last = this.history.at(-1);
     if (last && atMs - last.atMs < CROSS_ASSET_SPEC.sampleMs) return [];
     if (last && atMs - last.atMs > CROSS_ASSET_SPEC.maximumSampleGapMs) {
-      this.invalidate(); this.latest.set(quote.symbol, { ...quote }); return [];
+      this.invalidate(atMs); this.latest.set(quote.symbol, { ...quote }); return [];
     }
     const pair: Pair = { atMs, mids: quotes.map((q) => (q!.bid + q!.ask) / 2) as [number, number] };
     this.history.push(pair);

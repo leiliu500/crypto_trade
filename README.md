@@ -6,10 +6,12 @@ It does **not** promise profit or zero latency. The checked-in `.env.example` se
 
 ## Rebuilt default strategy layer
 
-Configuration `btc-eth-joint-bayes-v10.3.0` adds eligible joint BTC/ETH forecasts
-to the capped paper entry path. The [breakout–retest strategy](docs/RETEST_REBUILD.md)
-remains available when no joint forecast qualifies, with its shared lifecycle
-net-P&L ledger and non-loosening profit floor. Both use version
+Configuration `btc-eth-model-evaluation-v10.4.0` uses joint BTC/ETH forecasts as
+the only source of new paper entries. Breakout/retest and other rule entries are
+disabled by `MODEL_ONLY_ENTRIES=true`. Compose enables capped model evaluation
+trades, with negative forecasts and actual fees recorded explicitly; see
+[model-only paper evaluation](docs/MODEL_PAPER_EVALUATION.md). Existing positions
+retain their exit management. The strategy layer uses version
 `executable-policy-v3`; prior versions and the descriptions below remain useful
 for historical compatibility. Paper submissions remain enabled under the
 existing capped experiment permission. Replay has not established profitability.
@@ -49,10 +51,14 @@ The [joint BTC/ETH Bayesian model](docs/CROSS_ASSET_BAYES.md) learns from the
 broader market stream, combines adaptive trend and relative-value forecasts,
 and submits qualifying forecasts when `CROSS_ASSET_PAPER_ENTRIES_ENABLED=true`
 and paper research execution is permitted. Compose and `.env.example` enable
-this flag; direct config loading defaults it off. Joint entries use capped $12
+this flag; direct config loading defaults it off. Compose also enables the
+separate `CROSS_ASSET_PAPER_EVALUATION_ENABLED` permission to collect model
+outcomes despite a failed profitability screen. Its direct config default is
+off. Model-only entry permission stays active in either mode. Joint entries use capped $12
 IOC orders, the existing shared 30-minute per-symbol cooldown, and `trend-15m`
-stop/target/deadline exits. Current price, exact costs, uncertainty, risk sizing,
-liquidity and portfolio gates must pass. The dashboard exposes the effective
+stop/target/deadline exits. Current price, fresh trained forecasts, risk sizing,
+liquidity and portfolio gates must pass; evaluation records costs and uncertainty
+without requiring their profitability screen to pass. The dashboard exposes the effective
 submission flag, historical training source and model learning progress. Before
 trading starts, the engine replays up to 48 hours of clean stored BTC/ETH quotes
 through the same causal learner. Completed labels seed the model; historical
