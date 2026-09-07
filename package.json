@@ -43,6 +43,7 @@
     "research:export:production": "node --enable-source-maps dist/src/research/export-alpha-dataset-main.js",
     "optimize:report": "tsx src/analysis/optimization-main.ts",
     "optimize:model": "tsx src/analysis/model-trade-audit-main.ts",
+    "research:model-experiment": "tsx src/research/model-experiment-main.ts",
     "optimize:model:production": "node --enable-source-maps dist/src/analysis/model-trade-audit-main.js",
     "optimize:report:production": "node --enable-source-maps dist/src/analysis/optimization-main.js",
     "report:rejected-entries": "tsx src/analysis/rejected-entry-main.ts",
