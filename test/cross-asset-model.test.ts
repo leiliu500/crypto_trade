@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { DynamicBayes, studentLogDensity } from "../src/research/dynamic-bayes.js";
-import { CrossAssetModel, CROSS_ASSET_SPEC, usableCrossAssetForecast,
+import { CrossAssetModel, CROSS_ASSET_SPEC, usableCrossAssetForecast, crossAssetEntryGrossBps,
   type CrossAssetForecast, type CrossAssetQuote } from "../src/research/cross-asset-model.js";
 import { SignalEpisodeCollector } from "../src/research/signal-episodes.js";
 import { policyCandidates } from "../src/research/trading-policy.js";
@@ -290,7 +290,7 @@ test("evaluation replay includes failing forecasts, applies the 30m cooldown and
   assert.deepEqual([...new Set(r.outcomes.map(o => o.signalAtMs))], [0, 1_800_000]);
   assert.ok(r.outcomes.every(o => o.status === "FILLED" && o.reason === "POLICY_DEADLINE" && o.netBps! < 0));
   assert.equal(r.entryScreenComparison.completeAcrossStresses, 2);
-  assert.ok(r.entryScreenComparison.groups.filter(g => g.screen !== "EVALUATION")
+  assert.ok(r.entryScreenComparison.groups.filter(g => ["COST_COVERED", "CONSERVATIVE"].includes(g.screen))
     .every(g => g.panelAttempts === 2 && g.acceptedAttempts === 0 && g.meanNetBpsPerOriginalAttempt === 0));
   const later = await replayCrossAsset(path(), costs, { paperEvaluation: true, entryStartMs: 1_800_000 });
   assert.equal(later.outcomes.length, 3); assert.ok(later.outcomes.every(o => o.signalAtMs === 1_800_000));
@@ -321,5 +321,32 @@ test("evaluation replay cannot trade a midpoint forecast already consumed by the
     predictedGrossBps: .1, conservativeNetBps: -19.9, eligible: false, reason: "COST_OR_UNCERTAINTY" }]);
   const r = await replayCrossAsset([{ symbol: "BTC/USD", atMs: 0, bid: 99.995, ask: 100.005, valid: true }],
     costs, { paperEvaluation: true });
-  assert.equal(r.priceRebaseRejections, 1); assert.equal(r.outcomes.length, 0);
+  assert.equal(r.priceRebaseRejections, 1); assert.equal(r.outcomes.length, 3);
+  assert.ok(r.outcomes.every(o => o.status === "SKIPPED" && o.netBps === 0 && o.entryAtMs === null));
+  const legacy = await replayCrossAsset([{ symbol: "BTC/USD", atMs: 0, bid: 99.995, ask: 100.005, valid: true }],
+    costs, { paperEvaluation: true, legacyMidpointEntry: true });
+  assert.equal(legacy.priceRebaseRejections, 0); assert.equal(legacy.outcomes.length, 3);
+  assert.ok(legacy.outcomes.every(o => o.entryPriceDirectional === false));
+});
+
+test("an exhausted evaluation proposal consumes its interval without submitting a replacement", async (t) => {
+  t.mock.method(CrossAssetModel.prototype, "observe", (q: CrossAssetQuote) => {
+    const weak = q.atMs === 0;
+    return [{ ...forecast(1, q.atMs), predictedGrossBps: weak ? .1 : 2,
+      conservativeNetBps: weak ? -19.9 : -18, eligible: false, reason: "COST_OR_UNCERTAINTY" }];
+  });
+  const path = Array.from({ length: 1_802 }, (_, i) => ({ symbol: "BTC/USD", atMs: i * 1000,
+    bid: 99.995, ask: 100.005, valid: true }));
+  const r = await replayCrossAsset(path, costs, { paperEvaluation: true });
+  assert.deepEqual([...new Set(r.outcomes.map(o => o.signalAtMs))], [0, 1_800_000]);
+  assert.ok(r.outcomes.filter(o => o.signalAtMs === 0).every(o => o.status === "SKIPPED"));
+});
+
+for (const side of [1, -1] as const) test(`entry direction is measured from the limit for side ${side}`, () => {
+  const f = forecast(side, 0), target = f.referenceMid * (1 + f.predictedGrossBps / 10_000);
+  assert.ok(crossAssetEntryGrossBps(f, 100)! > 0);
+  close(crossAssetEntryGrossBps(f, target)!, 0);
+  assert.ok(crossAssetEntryGrossBps(f, target + side * .01)! < 0);
+  for (const price of [0, -1, NaN, Infinity]) assert.equal(crossAssetEntryGrossBps(f, price), null);
+  assert.equal(crossAssetEntryGrossBps({ ...f, predictedGrossBps: -20_000 }, 100), null);
 });

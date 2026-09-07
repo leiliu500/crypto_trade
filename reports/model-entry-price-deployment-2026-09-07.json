@@ -1,0 +1,65 @@
+{
+  "checkedAtMs": 1788756592997,
+  "configurationVersion": "btc-eth-model-entry-price-v10.4.1",
+  "mode": "paper",
+  "health": "healthy",
+  "database": "connected",
+  "entriesAllowed": true,
+  "modelOnlyEntries": true,
+  "paperOrdersEnabled": true,
+  "paperEvaluationEnabled": true,
+  "positions": [
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "qty": 0.00009999999999999999,
+      "entryPx": 79619,
+      "policy": {
+        "id": "trend-15m",
+        "feeBps": 5,
+        "version": "executable-policy-v3",
+        "feeSource": "PAPER_CONFIG",
+        "reserveBps": 3,
+        "fundingSource": "RESERVE_ONLY"
+      }
+    },
+    {
+      "symbol": "ETH/USD",
+      "side": 1,
+      "qty": 0.004,
+      "entryPx": 2496.6,
+      "policy": {
+        "id": "trend-15m",
+        "feeBps": 5,
+        "version": "executable-policy-v3",
+        "feeSource": "PAPER_CONFIG",
+        "reserveBps": 3,
+        "fundingSource": "RESERVE_ONLY"
+      }
+    }
+  ],
+  "markets": [
+    {
+      "symbol": "BTC/USD",
+      "bookValid": true,
+      "labels": 171,
+      "historyReady": true
+    },
+    {
+      "symbol": "ETH/USD",
+      "bookValid": true,
+      "labels": 171,
+      "historyReady": true
+    }
+  ],
+  "verifiedDeployedModuleHashes": {
+    "dist/src/engine/trading-engine.js": "ae82c23ec03cf60743b9f7bc18fe70c46e9e7480413624bcf3dc474ff66993c6",
+    "dist/src/research/cross-asset-model.js": "6ddd799057c969710d219797cfcab27a266e003736442a170e91f31f8173e6df",
+    "dist/src/research/policy-planner.js": "9f744f5fd474eea97cd6925c64504bf507e4d36255b38465c810c3c21fa557cb",
+    "dist/src/research/cross-asset-replay.js": "8c822cc340649b5c3aa00d3a972e838fb5c5d55a6db3dd6e9c1bda5a101327a6",
+    "dist/src/analysis/model-trade-audit.js": "db38866701a876af2c16e592f200a4df4396cf8112c593aaec7abbb12965d3fd",
+    "dist/src/analysis/model-trade-audit-main.js": "ac8c75fa0581071bc4d9ea9f8f690526dbbdd8d0c563f9ad978ca237bdf7a579"
+  },
+  "productionAuditWithExplicitCohortPassed": true,
+  "testsPassed": 367
+}

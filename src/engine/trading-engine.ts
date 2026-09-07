@@ -38,7 +38,7 @@ import { PolicyCollector } from "../research/policy-collector.js";
 import { BreakoutRetest } from "../strategy/breakout-retest.js";
 import { newLinearLedger, recordLinearFill } from "../economics/net-liquidation.js";
 import { SignalEpisodeCollector, EPISODE_HYPOTHESES } from "../research/signal-episodes.js";
-import { CrossAssetModel, CROSS_ASSET_SYMBOLS, crossAssetPaperCandidate, type CrossAssetForecast, type CrossAssetQuote } from "../research/cross-asset-model.js";
+import { CrossAssetModel, CROSS_ASSET_SYMBOLS, crossAssetPaperCandidate, crossAssetEntryGrossBps, type CrossAssetForecast, type CrossAssetQuote } from "../research/cross-asset-model.js";
 import { warmCrossAssetHistory, type CrossAssetHistoryBootstrap } from "../research/cross-asset-warmup.js";
 import { EPISODE_VERSION, type EpisodeContext } from "../research/execution-stress.js";
 import { validPolicyModel, type PolicyModel } from "../research/policy-validation.js";
@@ -1147,6 +1147,11 @@ export class TradingEngine extends EventEmitter {
       equity: this.equity, equityHighWater: this.equityHighWater, nowMs });
     if (!plan) {
       runtime.policyEntryCounters.planningRejected++;
+      // Keep evaluation proposals on the same 30-minute schedule even when
+      // their target is exhausted; an immediate retry changes the experiment.
+      if (jointCandidate && paperEvaluation && reason === "CROSS_ASSET_DIRECTION_EXHAUSTED") {
+        runtime.lastPolicyEntryMs = nowMs;
+      }
       report(reason, "EXECUTION_PLAN_PASS");
       return;
     }
@@ -1345,6 +1350,10 @@ export class TradingEngine extends EventEmitter {
         || !candidate || candidate.side !== plan.side || candidate.regime !== plan.regime
         || plan.policy?.id !== "trend-15m") {
         if (runtime) this.rejectEntry(runtime, "EXECUTION_PLAN_PASS", "MODEL_ONLY_ENTRIES", this.now());
+        return false;
+      }
+      if (evaluation && (crossAssetEntryGrossBps(plan.crossAssetForecast!, plan.limitPx) ?? -Infinity) <= 0) {
+        this.rejectEntry(runtime, "EXECUTION_PLAN_PASS", "CROSS_ASSET_DIRECTION_EXHAUSTED", this.now());
         return false;
       }
     }

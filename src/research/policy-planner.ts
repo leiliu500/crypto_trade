@@ -8,7 +8,7 @@ import { RiskSizer } from "../risk/sizing.js";
 import type { AssetRules, ExecutionPlan } from "../execution/planner.js";
 import { estimateSweep } from "../execution/book-walk.js";
 import { validPolicyModel, type PolicyModel } from "./policy-validation.js";
-import { CROSS_ASSET_SPEC, crossAssetPaperCandidate, type CrossAssetForecast } from "./cross-asset-model.js";
+import { CROSS_ASSET_SPEC, crossAssetPaperCandidate, crossAssetEntryGrossBps, type CrossAssetForecast } from "./cross-asset-model.js";
 import { findPolicy, policyCandidates, policyQuantity, POLICY_NOTIONAL, POLICY_VERSION,
   POLICY_MAX_ENTRY_DELAY_MS, POLICY_ENTRY_LATENCY_MS, type PolicyCandidate } from "./trading-policy.js";
 
@@ -66,7 +66,12 @@ export function buildPolicyPlan(input: {
   // quote, then deduct the whole executable cost ledger exactly once.
   const priceScale = forecast ? forecast.referenceMid / f.mid : 1;
   const grossBps = forecast ? candidate.side * ((priceScale - 1) * 10_000 + priceScale * forecast.predictedGrossBps) : 0;
-  if (evaluation && (!Number.isFinite(grossBps) || grossBps <= 0)) return { plan: null, reason: "CROSS_ASSET_DIRECTION_EXHAUSTED" };
+  // Evaluation may fail the cost screen, but buying above (or selling below)
+  // its own predicted midpoint target is no longer a directional model trade.
+  if (evaluation && (!Number.isFinite(grossBps) || grossBps <= 0
+    || (crossAssetEntryGrossBps(forecast!, price) ?? -Infinity) <= 0)) {
+    return { plan: null, reason: "CROSS_ASSET_DIRECTION_EXHAUSTED" };
+  }
   const jointNetBps = (c: CostEstimate): number => grossBps - priceScale * (
     CROSS_ASSET_SPEC.parameterPenalty * forecast!.parameterUncertaintyBps
     + CROSS_ASSET_SPEC.predictiveRiskPenalty * forecast!.predictiveStdBps)
