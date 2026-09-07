@@ -32,6 +32,10 @@ test("model audit joins changed-config exits, deduplicates ledgers and reconcile
   assert.equal(report.summary.closed, 1); assert.equal(report.summary.netPnl, -.009);
   assert.equal(report.summary.attributedFees, .01); assert.equal(report.summary.attributedGrossPnl, .001);
   assert.equal(report.summary.grossWinnersLostAfterFees, 1); assert.equal(report.summary.belowCostHurdle, 1);
+  assert.equal(report.summary.winRate, 0); assert.equal(report.summary.profitFactor, 0);
+  assert.equal(report.exitGroups[0]!.reason, "POLICY_DEADLINE");
+  assert.equal(report.exitGroups[0]!.closed, 1);
+  assert.equal(report.forecastSummary.trainingAgeMs.maximum, 1100);
   assert.equal(report.trades[0]!.netBps, -9); assert.equal(report.deploymentReady, false);
   assert.equal(report.feeSensitivity[0]!.hypotheticalNetPnl, .001);
   assert.equal(report.entryScreenComparison.screens.find(s => s.screen === "COST_COVERED")!.netPnl, 0);
@@ -76,6 +80,7 @@ test("short forecasts use directional magnitude; stale or opposite-side forecast
     const bad = auditModelTrades([{ ...e, crossAssetForecast: f }, x], version, cutoff);
     assert.equal(bad.summary.closed, 1); assert.equal(bad.summary.forecastMissingOrInvalid, 1);
     assert.equal(bad.entryScreenComparison.panelAttempts, 0);
+    assert.equal(bad.forecastSummary.trainingAgeMs.count, 0);
   }
 });
 
