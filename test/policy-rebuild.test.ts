@@ -140,6 +140,18 @@ for (const symbol of ["BTC/USD", "ETH/USD"] as const) for (const side of [1, -1]
       const blocked = engine.state().markets.find(m => m.symbol === symbol)!.policyPulse!;
       assert.equal(blocked.status, "ENTRY_BLOCKED"); assert.deepEqual(blocked.reasons, ["PORTFOLIO_CAPACITY_BLOCK"]);
       internals.portfolio.canAdd = canAdd;
+      if (paperEvaluation) {
+        const observe = internals.crossAssetModel.observe;
+        internals.crossAssetModel.observe = () => [{ ...jointForecast(symbol, side, clockMs),
+          predictedGrossBps: side * .1, conservativeNetBps: -19.9, eligible: false, reason: "COST_OR_UNCERTAINTY" }];
+        await quote(); assert.equal(decisions.length, 0, "entry spread cannot consume the model's entire predicted move");
+        assert.equal(engine.state().markets.find(m => m.symbol === symbol)!.policyPulse!.lastEvaluation!.reason,
+          "CROSS_ASSET_DIRECTION_EXHAUSTED");
+        internals.crossAssetModel.observe = observe;
+        await quote(); assert.equal(decisions.length, 0, "an exhausted proposal consumes the evaluation interval");
+        assert.equal(engine.state().markets.find(m => m.symbol === symbol)!.policyPulse!.status, "COOLDOWN");
+        clockMs += 1_800_000;
+      }
       await quote(); assert.equal(decisions.length, 1);
       const p = engine.state().positions[0]!;
       assert.ok(p); assert.equal(p.symbol, symbol); assert.equal(p.side, side);
@@ -167,6 +179,15 @@ for (const symbol of ["BTC/USD", "ETH/USD"] as const) for (const side of [1, -1]
       assert.equal(engine.state().orders[1]!.plan.exitReason, "POLICY_TARGET");
       assert.ok(engine.state().realizedSessionPnl > 0, "synthetic favorable fills check accounting, not predicted profitability");
       await quote(); assert.equal(decisions.length, 1, "joint orders respect the shared entry cooldown");
+      if (paperEvaluation) {
+        const rejected = await (engine as unknown as { submit: (plan: ExecutionPlan) => Promise<boolean> }).submit({
+          ...plan, clientOrderId: "exhausted-forecast-direct-submit", createdMs: clockMs, expiresMs: clockMs + 1000,
+          crossAssetForecast: { ...jointForecast(symbol, side, clockMs), predictedGrossBps: side * .1,
+            conservativeNetBps: -19.9, eligible: false, reason: "COST_OR_UNCERTAINTY" },
+        });
+        assert.equal(rejected, false, "final submit guard independently checks the forecast against the order limit");
+        assert.equal(engine.state().orders.length, 2, "an exhausted forecast never reaches the paper broker");
+      }
     } finally { await engine.stop(); }
   });
 }
@@ -690,6 +711,9 @@ test("paper evaluation preserves negative scores but rejects stale, untrained, o
   const result = buildPolicyPlan(input);
   assert.ok(result.plan); assert.equal(result.reason, "CROSS_ASSET_PAPER_EVALUATION");
   assert.ok(result.plan.expectedValue < 0 && result.plan.conservativeNetEdgeBps! < 0);
+  assert.ok(Math.abs(result.plan.conservativeNetEdgeBps! - (2 - 2 * 2 - .1 * 20
+    - result.plan.expectedCost.roundTripBps - (input.config.cost.positiveCostErrorP95Bps ?? 0))) < 1e-8,
+  "the new entry direction check must not subtract entry spread a second time from net expected value");
   for (const change of [{ allowCrossAssetPaperEvaluation: false }, { allowCrossAssetPaper: false },
     { allowPaperResearch: false }, { nowMs: atMs + 1001 },
     { crossAssetForecast: { ...forecast, reason: "OUT_OF_DOMAIN" } },

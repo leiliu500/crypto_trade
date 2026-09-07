@@ -8,9 +8,11 @@ import { replayCrossAsset } from "./cross-asset-replay.js";
 
 loadLocalEnv();
 const args = process.argv.slice(2);
-if (!args.length || args[0]!.startsWith("--") || args.slice(1).some(a => a !== "--paper-evaluation" && !a.startsWith("--start="))) {
-  throw new Error("Supply a chronological BTC/ETH quote JSONL file [--paper-evaluation] [--start=ISO_TIMESTAMP]");
+if (!args.length || args[0]!.startsWith("--") || args.slice(1).some(a => a !== "--paper-evaluation"
+  && a !== "--legacy-midpoint-entry" && !a.startsWith("--start="))) {
+  throw new Error("Supply a chronological BTC/ETH quote JSONL file [--paper-evaluation] [--start=ISO_TIMESTAMP] [--legacy-midpoint-entry]");
 }
+if (args.includes("--legacy-midpoint-entry") && !args.includes("--paper-evaluation")) throw new Error("Legacy entry control requires paper evaluation replay");
 const start = args.find(a => a.startsWith("--start="));
 const entryStartMs = start ? Date.parse(start.slice(8)) : undefined;
 const cfg = loadConfig(process.env, "replay");
@@ -25,4 +27,5 @@ async function* quotes(): AsyncGenerator<CrossAssetQuote> {
 }
 process.stdout.write(`${JSON.stringify(await replayCrossAsset(quotes(), costs, {
   paperEvaluation: args.includes("--paper-evaluation"), ...(entryStartMs === undefined ? {} : { entryStartMs }),
+  legacyMidpointEntry: args.includes("--legacy-midpoint-entry"),
 }), null, 2)}\n`);

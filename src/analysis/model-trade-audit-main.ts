@@ -4,8 +4,12 @@ import { loadLocalEnv } from "../env.js";
 import { auditModelTrades, type ModelAuditOrder } from "./model-trade-audit.js";
 
 loadLocalEnv();
-if (process.argv.length > 2) throw new Error("This report takes no options; it audits the configured version at a fixed cutoff");
+const args = process.argv.slice(2), versionPrefix = "--configuration-version=";
+if (args.length > 1 || args.some(a => !a.startsWith(versionPrefix) || !a.slice(versionPrefix.length).trim())) {
+  throw new Error("Use only --configuration-version=VERSION, or omit it to audit the current configuration");
+}
 const cfg = loadConfig(process.env, "replay"), cutoffMs = Date.now();
+const configurationVersion = args[0]?.slice(versionPrefix.length) ?? cfg.configurationVersion;
 const pool = new Pool({ connectionString: cfg.databaseUrl, max: 1, connectionTimeoutMillis: 5_000,
   statement_timeout: 30_000, options: "-c default_transaction_read_only=on", application_name: "model-trade-audit" });
 try {
@@ -21,6 +25,6 @@ try {
     FROM orders o LEFT JOIN health h ON h.run_id=o.run_id
     WHERE o.created_at <= $2 AND (o.client_order_id IN (SELECT client_order_id FROM entries)
       OR o.plan#>>'{livePosition,entryOrderId}' IN (SELECT client_order_id FROM entries))
-    ORDER BY o.created_at,o.client_order_id`, [cfg.configurationVersion, new Date(cutoffMs)]);
-  process.stdout.write(`${JSON.stringify(auditModelTrades(result.rows.map(r => r.plan), cfg.configurationVersion, cutoffMs), null, 2)}\n`);
+    ORDER BY o.created_at,o.client_order_id`, [configurationVersion, new Date(cutoffMs)]);
+  process.stdout.write(`${JSON.stringify(auditModelTrades(result.rows.map(r => r.plan), configurationVersion, cutoffMs), null, 2)}\n`);
 } finally { await pool.end(); }

@@ -24,6 +24,19 @@ export interface CrossAssetForecast {
   expertWeights: Record<string, number>;
 }
 
+/** Directional midpoint target return measured from the proposed entry price.
+ * This is a direction check, not net expected value: fees and exit spread still
+ * belong in the planner's complete midpoint-based cost calculation. */
+export function crossAssetEntryGrossBps(f: Pick<CrossAssetForecast, "referenceMid" | "predictedGrossBps" | "side">,
+  entryPrice: number): number | null {
+  if (![f.referenceMid, f.predictedGrossBps, entryPrice].every(Number.isFinite)
+    || f.referenceMid <= 0 || entryPrice <= 0 || ![1, -1].includes(f.side)) return null;
+  const target = f.referenceMid * (1 + f.predictedGrossBps / 10_000);
+  if (!Number.isFinite(target) || target <= 0) return null;
+  const gross = f.side * (target - entryPrice) / entryPrice * 10_000;
+  return Number.isFinite(gross) ? gross : null;
+}
+
 function validCrossAssetForecast(f: CrossAssetForecast | undefined, symbol: string, nowMs: number): f is CrossAssetForecast {
   return !!f && f.version === CROSS_ASSET_SPEC.version && f.symbol === symbol && [1, -1].includes(f.side)
     && [f.atMs, nowMs, f.referenceMid, f.predictedGrossBps, f.parameterUncertaintyBps, f.predictiveStdBps,

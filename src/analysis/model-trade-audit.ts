@@ -1,9 +1,9 @@
 import type { DashboardOrderCard } from "../dashboard/types.js";
-import { CROSS_ASSET_SPEC, crossAssetPaperCandidate } from "../research/cross-asset-model.js";
+import { CROSS_ASSET_SPEC, crossAssetPaperCandidate, crossAssetEntryGrossBps } from "../research/cross-asset-model.js";
 
 export type ModelAuditOrder = Pick<DashboardOrderCard, "clientOrderId" | "symbol" | "side" | "modelVersion"
   | "configurationVersion" | "crossAssetEntryMode" | "crossAssetForecast" | "reduceOnlyIntent" | "filledQty"
-  | "averageFillPx" | "createdMs" | "updatedMs" | "terminal" | "livePosition" | "exitReason">
+  | "averageFillPx" | "limitPx" | "createdMs" | "updatedMs" | "terminal" | "livePosition" | "exitReason">
   & { telemetryDroppedRecords?: number | null };
 
 /** Read-only attribution. Full-position ledgers may be copied to several order
@@ -39,6 +39,9 @@ export function auditModelTrades(input: readonly ModelAuditOrder[], configuratio
     const forecast = entry.crossAssetForecast;
     const validForecast = forecast?.side === entry.side
       && Boolean(crossAssetPaperCandidate(forecast ?? undefined, entry.symbol, entry.createdMs, true));
+    // The limit was known at decision time. A subsequent price-improved fill
+    // must not retroactively change whether an entry screen would have passed.
+    const predictedEntryGrossBps = validForecast ? crossAssetEntryGrossBps(forecast!, entry.limitPx) : null;
     const filled = Number.isFinite(entry.filledQty) && entry.filledQty > 0;
     const state = !filled ? entry.terminal ? "UNFILLED" : "PENDING"
       : exit ? "CLOSED" : entry.livePosition?.active === true ? "OPEN" : "UNRESOLVED";
@@ -53,6 +56,8 @@ export function auditModelTrades(input: readonly ModelAuditOrder[], configuratio
       fees: reconciled ? breakdown.entryFee + breakdown.exitFee : null,
       cleanTelemetry: entry.telemetryDroppedRecords === 0 && (!exit || exit.telemetryDroppedRecords === 0),
       forecastValid: validForecast, forecastAtMs: validForecast ? forecast!.atMs : null,
+      entryLimitPx: Number.isFinite(entry.limitPx) && entry.limitPx > 0 ? entry.limitPx : null,
+      predictedEntryGrossBps, passesEntryPriceScreen: predictedEntryGrossBps === null ? null : predictedEntryGrossBps > 0,
       predictedDirectionalGrossBps: validForecast ? entry.side * forecast!.predictedGrossBps : null,
       costHurdleBps: validForecast ? forecast!.costHurdleBps : null,
       conservativeNetBps: validForecast ? forecast!.conservativeNetBps : null,
@@ -73,13 +78,14 @@ export function auditModelTrades(input: readonly ModelAuditOrder[], configuratio
       grossWinnersLostAfterFees: attributed.filter(r => r.grossPnl! > 0 && r.netPnl! < 0).length,
       forecastMissingOrInvalid: rows.filter(r => !r.forecastValid).length,
       belowCostHurdle: rows.filter(r => r.passesCostScreen === false).length,
+      entryPriceDirectionExhausted: rows.filter(r => r.passesEntryPriceScreen === false).length,
       telemetryUncleanOrUnknown: rows.filter(r => !r.cleanTelemetry).length };
   };
   // Compare filters on the original attempt panel. A skipped trade contributes
   // zero; it does not free capital or invent an unobserved replacement trade.
-  const panel = trades.filter(t => t.forecastValid && t.cleanTelemetry
+  const panel = trades.filter(t => t.forecastValid && t.cleanTelemetry && t.passesEntryPriceScreen !== null
     && (t.state === "CLOSED" && t.netPnl !== null || t.state === "UNFILLED"));
-  const entryScreens = ["EVALUATION", "COST_COVERED", "CONSERVATIVE"] as const;
+  const entryScreens = ["EVALUATION", "DIRECTIONAL_ENTRY", "COST_COVERED", "CONSERVATIVE"] as const;
   return { generatedAtMs: cutoffMs, configurationVersion, modelVersion: CROSS_ASSET_SPEC.version,
     summary: stats(trades), excludedAfterCutoff,
     groups: [...new Set(trades.map(t => JSON.stringify([t.symbol, t.side, t.entryMode])))].sort().map(key =>
@@ -87,7 +93,8 @@ export function auditModelTrades(input: readonly ModelAuditOrder[], configuratio
     entryScreenComparison: { panelAttempts: panel.length, excludedAttempts: trades.length - panel.length,
       screens: entryScreens.map(screen => {
         const selected = panel.filter(t => screen === "EVALUATION"
-          || (screen === "COST_COVERED" ? t.passesCostScreen : t.passesConservativeScreen));
+          || (screen === "DIRECTIONAL_ENTRY" ? t.passesEntryPriceScreen
+            : screen === "COST_COVERED" ? t.passesCostScreen : t.passesConservativeScreen));
         const pnl = sum(selected.map(t => t.netPnl ?? 0));
         return { screen, acceptedAttempts: selected.length, skippedAttempts: panel.length - selected.length,
           closed: selected.filter(t => t.state === "CLOSED").length,

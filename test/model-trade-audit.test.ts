@@ -11,7 +11,7 @@ function entry(id = "entry", side: 1 | -1 = 1): ModelAuditOrder {
     conservativeNetBps: -18, eligible: false, reason: "COST_OR_UNCERTAINTY", factorBeta: 1, expertWeights: { trend: 1 } };
   return { clientOrderId: id, symbol: "BTC/USD", side, modelVersion: CROSS_ASSET_SPEC.version,
     configurationVersion: version, crossAssetEntryMode: "PAPER_EVALUATION", crossAssetForecast: f,
-    reduceOnlyIntent: false, filledQty: .1, averageFillPx: 100, createdMs: 1_000_100, updatedMs: 1_000_200,
+    reduceOnlyIntent: false, filledQty: .1, averageFillPx: 100, limitPx: 100, createdMs: 1_000_100, updatedMs: 1_000_200,
     terminal: true, livePosition: null, exitReason: null, telemetryDroppedRecords: 0 };
 }
 function exit(e = entry()): ModelAuditOrder {
@@ -34,8 +34,8 @@ test("model audit joins changed-config exits, deduplicates ledgers and reconcile
   assert.equal(report.summary.grossWinnersLostAfterFees, 1); assert.equal(report.summary.belowCostHurdle, 1);
   assert.equal(report.trades[0]!.netBps, -9); assert.equal(report.deploymentReady, false);
   assert.equal(report.feeSensitivity[0]!.hypotheticalNetPnl, .001);
-  assert.equal(report.entryScreenComparison.screens[1]!.netPnl, 0);
-  assert.equal(report.entryScreenComparison.screens[1]!.skippedAttempts, 1);
+  assert.equal(report.entryScreenComparison.screens.find(s => s.screen === "COST_COVERED")!.netPnl, 0);
+  assert.equal(report.entryScreenComparison.screens.find(s => s.screen === "COST_COVERED")!.skippedAttempts, 1);
 });
 
 test("model audit preserves open, unresolved and unfilled attempts on a common screen denominator", () => {
@@ -77,4 +77,16 @@ test("short forecasts use directional magnitude; stale or opposite-side forecast
     assert.equal(bad.summary.closed, 1); assert.equal(bad.summary.forecastMissingOrInvalid, 1);
     assert.equal(bad.entryScreenComparison.panelAttempts, 0);
   }
+});
+
+test("entry-price screen uses the decision limit, not a later favorable fill or realized outcome", () => {
+  const e = { ...entry(), limitPx: 100.02, averageFillPx: 99.9 }, x = exit(e);
+  const r = auditModelTrades([e, x], version, cutoff);
+  assert.equal(r.summary.closed, 1); assert.equal(r.summary.entryPriceDirectionExhausted, 1);
+  assert.ok(r.trades[0]!.predictedEntryGrossBps! < 0);
+  const screen = r.entryScreenComparison.screens.find(s => s.screen === "DIRECTIONAL_ENTRY")!;
+  assert.equal(screen.skippedAttempts, 1); assert.equal(screen.netPnl, 0);
+  const missing = auditModelTrades([{ ...e, limitPx: NaN }, x], version, cutoff);
+  assert.equal(missing.entryScreenComparison.panelAttempts, 0);
+  assert.equal(missing.trades[0]!.passesEntryPriceScreen, null);
 });
