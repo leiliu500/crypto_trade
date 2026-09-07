@@ -71,6 +71,10 @@ shadow experiment also continues. Run `npm run research:cross-asset:warmup` for
 a read-only historical training check before deployment.
 Run `npm run research:cross-asset -- quotes.jsonl` for its chronological quote
 screen. The initial model did not beat a zero-return forecast or establish profit.
+Use `npm run research:model-experiment -- quotes.jsonl --start=ISO_TIMESTAMP --holdout=ISO_TIMESTAMP`
+to compare production training with offline 15/30/60-minute endpoint variants.
+See the [experiment results and limitations](docs/MODEL_ENDPOINT_EXPERIMENT_2026-09-07.md);
+the experiment does not install a model or submit orders.
 
 ## Legacy engine and diagnostic compatibility
 

@@ -5,6 +5,17 @@ export const CROSS_ASSET_SPEC = Object.freeze({ version: "btc-eth-dynamic-bayes-
   maximumSampleGapMs: 90_000, minimumLabels: 24, returnScaleBps: 20,
   parameterPenalty: 2, predictiveRiskPenalty: .1, maximumFeature: 6, weightMemory: .98, maximumModelAgeMs: 86_400_000 });
 export const CROSS_ASSET_SYMBOLS = ["BTC/USD", "ETH/USD"] as const;
+// These identities are deliberately outside the v1 order-submission contract.
+export const CROSS_ASSET_RESEARCH_VARIANTS = Object.freeze({
+  "endpoint-15m": { version: "btc-eth-endpoint-15m-research-v1", horizonMs: 900_000 },
+  "endpoint-30m": { version: "btc-eth-endpoint-30m-research-v1", horizonMs: 1_800_000 },
+  "endpoint-60m": { version: "btc-eth-endpoint-60m-research-v1", horizonMs: 3_600_000 },
+});
+export type CrossAssetResearchVariant = keyof typeof CROSS_ASSET_RESEARCH_VARIANTS;
+export interface CrossAssetTrainingLabel {
+  symbol: string; startMs: number; endMs: number; trainingLabelsBefore: number;
+  predictedGrossBps: number; actualGrossBps: number;
+}
 export type CrossAssetSymbol = typeof CROSS_ASSET_SYMBOLS[number];
 export interface CrossAssetQuote { symbol: string; atMs: number; bid: number; ask: number; valid: boolean }
 interface Pair { atMs: number; mids: [number, number] }
@@ -67,7 +78,7 @@ export function crossAssetPaperCandidate(f: CrossAssetForecast | undefined, symb
 }
 
 /** Joint, causal market sampling, independent of all existing entry triggers.
- * Labels cover disjoint 15-minute intervals. Weights learn from each expert's
+ * Labels cover disjoint intervals (15 minutes in production). Weights learn from each expert's
  * forecast made before the label existed, never its fitted residual. */
 export class CrossAssetModel {
   private readonly latest = new Map<string, CrossAssetQuote>();
@@ -80,19 +91,30 @@ export class CrossAssetModel {
   private invalidLabels = 0;
   private trainingResets = 0;
   private readonly errors = CROSS_ASSET_SYMBOLS.map(() => ({ labels: 0, squared: 0, zeroSquared: 0 }));
-  public constructor(private readonly costs: Readonly<Record<string, { feeBps: number; reserveBps: number }>>) {
+  public constructor(private readonly costs: Readonly<Record<string, { feeBps: number; reserveBps: number }>>,
+    private readonly researchVariant?: CrossAssetResearchVariant,
+    private readonly onTrainingLabel?: (label: CrossAssetTrainingLabel) => void) {
+    if (researchVariant !== undefined && !Object.hasOwn(CROSS_ASSET_RESEARCH_VARIANTS, researchVariant)) throw new Error("INVALID_RESEARCH_VARIANT");
     for (const symbol of CROSS_ASSET_SYMBOLS) {
       const cost = costs[symbol];
       if (!cost || ![cost.feeBps, cost.reserveBps].every((v) => Number.isFinite(v) && v >= 0)) throw new Error("INVALID_CROSS_ASSET_COSTS");
     }
   }
-  public invalidate(atMs?: number): void {
-    if (this.pending) this.invalidLabels++;
-    delete this.pending; this.latest.clear();
-    // A quote interruption invalidates the in-flight label and both quotes,
-    // but already observed minute prices remain useful within the sample-gap
-    // limit. Never bridge the interrupted label when fresh quotes return.
+  public get version(): string { return this.researchVariant ? CROSS_ASSET_RESEARCH_VARIANTS[this.researchVariant].version : CROSS_ASSET_SPEC.version; }
+  public get horizonMs(): number { return this.researchVariant ? CROSS_ASSET_RESEARCH_VARIANTS[this.researchVariant].horizonMs : CROSS_ASSET_SPEC.horizonMs; }
+  public invalidate(atMs?: number, discardLabel = false): void {
     const last = this.history.at(-1);
+    // A research return label needs clean endpoints, not an inferred execution
+    // path. Keep its frozen origin only until the declared endpoint deadline.
+    // Quote synchronization and feature-history gap checks remain mandatory.
+    const retainEndpoint = this.researchVariant !== undefined && !discardLabel && this.pending
+      && atMs !== undefined && Number.isFinite(atMs) && atMs >= this.pending.pair.atMs
+      && (!last || atMs >= last.atMs)
+      && atMs <= this.pending.pair.atMs + this.horizonMs + CROSS_ASSET_SPEC.maximumSampleGapMs;
+    if (this.pending && !retainEndpoint) { this.invalidLabels++; delete this.pending; }
+    this.latest.clear();
+    // Previously observed minute prices remain useful within the sample-gap
+    // limit. Production still discards the interrupted training label above.
     if (last && atMs !== undefined && (!Number.isFinite(atMs) || atMs < last.atMs
       || atMs - last.atMs > CROSS_ASSET_SPEC.maximumSampleGapMs)) this.history = [];
   }
@@ -125,7 +147,7 @@ export class CrossAssetModel {
   }
   public stats(nowMs = this.history.at(-1)?.atMs ?? 0) {
     const last = this.history.at(-1), historyCoverageMs = last ? last.atMs - this.history[0]!.atMs : 0;
-    return { version: CROSS_ASSET_SPEC.version, labelsPerSymbol: this.labels,
+    return { version: this.version, labelsPerSymbol: this.labels,
     trainedThroughMs: this.trainedThroughMs, invalidLabelPairs: this.invalidLabels, historySamples: this.history.length,
     historyCoverageMs, priceHistoryReady: Boolean(last && this.history.length >= 55
       && historyCoverageMs >= CROSS_ASSET_SPEC.historyMs && nowMs >= last.atMs
@@ -138,9 +160,10 @@ export class CrossAssetModel {
     if (!(CROSS_ASSET_SYMBOLS as readonly string[]).includes(quote.symbol)) return [];
     const previous = this.latest.get(quote.symbol);
     if (!quote.valid || ![quote.atMs, quote.bid, quote.ask].every(Number.isFinite) || quote.bid <= 0 || quote.ask <= quote.bid
-      || previous && quote.atMs < previous.atMs) { this.invalidate(quote.atMs); return []; }
+      || previous && quote.atMs < previous.atMs) { this.invalidate(quote.atMs, !Number.isFinite(quote.atMs)
+        || Boolean(previous && quote.atMs < previous.atMs)); return []; }
     if (this.trainedThroughMs !== null && quote.atMs - this.trainedThroughMs > CROSS_ASSET_SPEC.maximumModelAgeMs) {
-      this.invalidate(quote.atMs); this.history = []; this.labels = 0; this.trainedThroughMs = null; this.trainingResets++;
+      this.invalidate(quote.atMs, true); this.history = []; this.labels = 0; this.trainedThroughMs = null; this.trainingResets++;
       for (let s = 0; s < 2; s++) {
         this.learners[s] = EXPERTS.map((e) => new DynamicBayes(e.columns.length, e.halfLife));
         this.weights[s] = EXPERTS.map(() => 1 / EXPERTS.length);
@@ -158,11 +181,14 @@ export class CrossAssetModel {
     const pair: Pair = { atMs, mids: quotes.map((q) => (q!.bid + q!.ask) / 2) as [number, number] };
     this.history.push(pair);
     this.history = this.history.filter((p) => atMs - p.atMs <= CROSS_ASSET_SPEC.historyMs + CROSS_ASSET_SPEC.maximumSampleGapMs);
-    if (this.pending && atMs >= this.pending.pair.atMs + CROSS_ASSET_SPEC.horizonMs) {
-      if (atMs - this.pending.pair.atMs > CROSS_ASSET_SPEC.horizonMs + CROSS_ASSET_SPEC.maximumSampleGapMs) this.invalidLabels++;
+    if (this.pending && atMs >= this.pending.pair.atMs + this.horizonMs) {
+      if (atMs - this.pending.pair.atMs > this.horizonMs + CROSS_ASSET_SPEC.maximumSampleGapMs) this.invalidLabels++;
       else {
         for (let s = 0; s < 2; s++) {
           const y = (pair.mids[s]! / this.pending.pair.mids[s]! - 1) * 10_000 / CROSS_ASSET_SPEC.returnScaleBps;
+          this.onTrainingLabel?.({ symbol: CROSS_ASSET_SYMBOLS[s]!, startMs: this.pending.pair.atMs, endMs: atMs,
+            trainingLabelsBefore: this.labels, predictedGrossBps: this.pending.means[s]! * CROSS_ASSET_SPEC.returnScaleBps,
+            actualGrossBps: y * CROSS_ASSET_SPEC.returnScaleBps });
           if (this.labels >= CROSS_ASSET_SPEC.minimumLabels) {
             const e = this.errors[s]!; e.labels++;
             e.squared += ((y - this.pending.means[s]!) * CROSS_ASSET_SPEC.returnScaleBps) ** 2;
@@ -197,7 +223,7 @@ export class CrossAssetModel {
         - CROSS_ASSET_SPEC.predictiveRiskPenalty * predictiveStdBps - costHurdleBps;
       const reason = this.labels < CROSS_ASSET_SPEC.minimumLabels ? "TRAINING"
         : features[s]!.outOfDomain ? "OUT_OF_DOMAIN" : conservativeNetBps <= 0 ? "COST_OR_UNCERTAINTY" : "POSITIVE_RESEARCH_FORECAST";
-      return { version: CROSS_ASSET_SPEC.version, symbol, atMs, horizonMs: CROSS_ASSET_SPEC.horizonMs,
+      return { version: this.version, symbol, atMs, horizonMs: this.horizonMs,
         trainingLabels: this.labels, trainedThroughMs: this.trainedThroughMs, referenceMid: pair.mids[s]!,
         side: predictedGrossBps >= 0 ? 1 : -1,
         predictedGrossBps, parameterUncertaintyBps, predictiveStdBps, costHurdleBps, conservativeNetBps,

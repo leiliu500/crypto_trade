@@ -1,4 +1,5 @@
-import { CROSS_ASSET_SPEC, CrossAssetModel, crossAssetPaperCandidate, crossAssetEntryGrossBps, type CrossAssetForecast, type CrossAssetQuote } from "./cross-asset-model.js";
+import { CROSS_ASSET_SPEC, CrossAssetModel, crossAssetPaperCandidate, crossAssetEntryGrossBps,
+  type CrossAssetForecast, type CrossAssetQuote, type CrossAssetResearchVariant, type CrossAssetTrainingLabel } from "./cross-asset-model.js";
 import { findPolicy, policyExit, POLICY_RESEARCH_COOLDOWN_MS } from "./trading-policy.js";
 
 export const CROSS_ASSET_REPLAY_SCENARIOS = [
@@ -18,6 +19,9 @@ export interface CrossAssetReplayOutcome {
 }
 
 export interface CrossAssetReplayOptions {
+  researchVariant?: CrossAssetResearchVariant;
+  /** Shared schedule when comparing research models with different horizons. */
+  proposalIntervalMs?: number;
   paperEvaluation?: boolean;
   /** Earlier quotes train the model, but cannot create scored attempts. */
   entryStartMs?: number;
@@ -31,14 +35,26 @@ export async function replayCrossAsset(quotes: AsyncIterable<CrossAssetQuote> | 
   costs: Readonly<Record<string, { feeBps: number; reserveBps: number }>>, options: CrossAssetReplayOptions = {}) {
   if (options.entryStartMs !== undefined && !Number.isFinite(options.entryStartMs)) throw new Error("INVALID_ENTRY_START");
   const evaluation = options.paperEvaluation === true;
-  const policy = evaluation ? findPolicy("trend-15m")! : null;
-  const model = new CrossAssetModel(costs), latest = new Map<string, CrossAssetQuote>();
+  if (options.researchVariant && !evaluation) throw new Error("RESEARCH_VARIANT_REQUIRES_EVALUATION_REPLAY");
+  const trainingLabels: CrossAssetTrainingLabel[] = [];
+  const model = new CrossAssetModel(costs, options.researchVariant, label => {
+    if (label.startMs >= (options.entryStartMs ?? -Infinity)
+      && label.trainingLabelsBefore >= CROSS_ASSET_SPEC.minimumLabels) trainingLabels.push(label);
+  }), latest = new Map<string, CrossAssetQuote>();
+  const policy = evaluation ? { ...findPolicy(model.horizonMs > 900_000 ? "trend-30m" : "trend-15m")!,
+    horizonMs: model.horizonMs, ...(model.horizonMs === 3_600_000 ? { id: "trend-60m-research" } : {}) } : null;
+  const proposalIntervalMs = options.proposalIntervalMs ?? (evaluation ? POLICY_RESEARCH_COOLDOWN_MS
+    : model.horizonMs + 2 * Math.max(...CROSS_ASSET_REPLAY_SCENARIOS.map(s => s.latencyMs)) + 1_100);
+  if (options.proposalIntervalMs !== undefined && (!Number.isFinite(proposalIntervalMs)
+    || proposalIntervalMs < model.horizonMs + 7_100)) throw new Error("RESEARCH_PROPOSAL_INTERVAL_TOO_SHORT");
+  if (options.researchVariant && proposalIntervalMs < model.horizonMs + 7_100) throw new Error("RESEARCH_PROPOSAL_INTERVAL_TOO_SHORT");
   const pending = new Map<string, Attempt>(), outcomes: CrossAssetReplayOutcome[] = [];
   const nextAttemptMs = new Map<string, number>();
   const reasons: Record<string, number> = {};
   let priceRebaseRejections = 0;
   let firstMs: number | null = null, lastMs: number | null = null, quoteCount = 0, invalidQuotes = 0;
   let forecasts = 0, eligibleForecasts = 0, peakConservativeNetBps: number | null = null;
+  let forwardForecasts = 0, forwardEligibleForecasts = 0;
   const lastForecasts = new Map<string, CrossAssetForecast>();
   const complete = (key: string, a: Attempt, status: CrossAssetReplayOutcome["status"], reason: string,
     exitAtMs: number | null = null, grossBps: number | null = null, netBps: number | null = null) => {
@@ -85,7 +101,7 @@ export async function replayCrossAsset(quotes: AsyncIterable<CrossAssetQuote> | 
         if (a.exitReason) a.exitTriggerMs = q.atMs;
       }
       if (policy && a.exitTriggerMs === null) continue;
-      const due = (policy ? a.exitTriggerMs! : a.entryAtMs + CROSS_ASSET_SPEC.horizonMs) + a.scenario.latencyMs;
+      const due = (policy ? a.exitTriggerMs! : a.entryAtMs + model.horizonMs) + a.scenario.latencyMs;
       if (q.atMs < due) continue;
       if (q.atMs > due + 1_100) { complete(key, a, "INVALID", "EXIT_QUOTE_LATE"); continue; }
       complete(key, a, "FILLED", a.exitReason ?? "FIXED_15M_QUOTE_EXIT", q.atMs, gross, net);
@@ -94,16 +110,23 @@ export async function replayCrossAsset(quotes: AsyncIterable<CrossAssetQuote> | 
       forecasts++; reasons[f.reason] = (reasons[f.reason] ?? 0) + 1; lastForecasts.set(f.symbol, f);
       peakConservativeNetBps = Math.max(peakConservativeNetBps ?? -Infinity, f.conservativeNetBps);
       if (f.eligible) eligibleForecasts++;
+      if (f.atMs >= (options.entryStartMs ?? -Infinity)) { forwardForecasts++; if (f.eligible) forwardEligibleForecasts++; }
+      // Research identities cannot pass the production candidate validator.
+      // Here their generated forecasts are evaluated only by this offline simulator.
+      const candidate = options.researchVariant ? f.version === model.version && f.trainingLabels >= CROSS_ASSET_SPEC.minimumLabels
+        && ["COST_OR_UNCERTAINTY", "POSITIVE_RESEARCH_FORECAST"].includes(f.reason)
+        && f.side * f.predictedGrossBps > 0 && f.trainedThroughMs !== null
+        && f.atMs - f.trainedThroughMs <= CROSS_ASSET_SPEC.maximumModelAgeMs
+        : evaluation ? Boolean(crossAssetPaperCandidate(f, f.symbol, f.atMs, true)) : f.eligible;
       if (f.atMs < (options.entryStartMs ?? -Infinity)
-        || (evaluation ? !crossAssetPaperCandidate(f, f.symbol, f.atMs, true) : !f.eligible)) continue;
+        || !candidate) continue;
       if (f.atMs < (nextAttemptMs.get(f.symbol) ?? -Infinity)
         || [...pending.values()].some((a) => a.forecast.symbol === f.symbol)) continue;
       const entryQuote = latest.get(f.symbol)!;
       const cap = f.side === 1 ? entryQuote.ask : entryQuote.bid;
       // Reserve the proposal interval before screening. Rejected proposals
       // remain zero-return attempts instead of admitting replacement trades.
-      nextAttemptMs.set(f.symbol, f.atMs + (evaluation ? POLICY_RESEARCH_COOLDOWN_MS : CROSS_ASSET_SPEC.horizonMs
-        + 2 * Math.max(...CROSS_ASSET_REPLAY_SCENARIOS.map((s) => s.latencyMs)) + 1_100));
+      nextAttemptMs.set(f.symbol, f.atMs + proposalIntervalMs);
       // The old live planner only checked the current midpoint. The default
       // now shares the executable-entry direction check with the planner.
       const directionPrice = options.legacyMidpointEntry ? (entryQuote.bid + entryQuote.ask) / 2 : cap;
@@ -159,13 +182,16 @@ export async function replayCrossAsset(quotes: AsyncIterable<CrossAssetQuote> | 
             meanNetBpsPerOriginalAttempt: panel.length ? accepted.reduce((s, o) => s + o.netBps!, 0) / panel.length : null };
         });
       })) };
-  return { replayVersion: "cross-asset-quote-screen-v3", specification: CROSS_ASSET_SPEC, costs,
+  return { replayVersion: options.researchVariant || options.proposalIntervalMs ? "cross-asset-quote-experiment-v1" : "cross-asset-quote-screen-v3",
+    specification: { ...CROSS_ASSET_SPEC, version: model.version, horizonMs: model.horizonMs }, costs,
+    researchVariant: options.researchVariant ?? null, proposalIntervalMs,
     generatedAtMs: Date.now(), quality: { quoteCount, invalidQuotes, firstMs, lastMs },
     entryMode: evaluation ? "PAPER_EVALUATION" : "QUALIFIED", entryStartMs: options.entryStartMs ?? firstMs,
     entryDirectionBasis: options.legacyMidpointEntry ? "LEGACY_MIDPOINT" : "ENTRY_QUOTE",
-    exhaustedForecastCooldownMs: evaluation ? POLICY_RESEARCH_COOLDOWN_MS : null,
+    exhaustedForecastCooldownMs: evaluation ? proposalIntervalMs : null,
     exitPolicy: policy?.id ?? "FIXED_15M", entryScreenComparison,
     learning: model.stats(), forecasts, eligibleForecasts, reasons, priceRebaseRejections, peakConservativeNetBps,
+    forwardForecasts, forwardEligibleForecasts, forwardTrainingLabels: trainingLabels,
     lastForecasts: [...lastForecasts.values()], scenarios: CROSS_ASSET_REPLAY_SCENARIOS, groups, outcomes,
     deploymentReady: false, limitations: ["Initial exploratory screening on reused market snapshots, not an untouched holdout",
       "Quote prices lack depth, queue and intraminute stop paths; these are hypothetical results, not broker fills",
@@ -175,5 +201,8 @@ export async function replayCrossAsset(quotes: AsyncIterable<CrossAssetQuote> | 
       "Quote latency scenarios allow a 1.1-second sampling tolerance and do not reconstruct the live one-second order expiry",
       "Entry screen comparisons share original opportunities; skipped attempts do not create replacement trades",
       "Earlier quotes train the model causally; an entry start cutoff alone does not make reused history an untouched holdout",
-      "No trained model is installed; missing paths invalidate trades and training labels"] };
+      "No trained model is installed; missing execution paths always invalidate simulated trades",
+      options.researchVariant ? "Experimental training uses frozen clean endpoints; intermediate gaps do not supply execution evidence"
+        : "Production training discards intervals interrupted by invalid quotes",
+      "Forward training-label diagnostics use each model's own completed intervals; their sample panels may differ"] };
 }
