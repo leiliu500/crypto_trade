@@ -1,18 +1,19 @@
 import { randomUUID } from "node:crypto";
 import type { BookState, MarketTrade } from "../core/market.js";
 import { BreakoutRetest, type RetestCandidate } from "../strategy/breakout-retest.js";
-import { CROSS_ASSET_SPEC, usableCrossAssetForecast, type CrossAssetForecast } from "./cross-asset-model.js";
+import { CROSS_ASSET_SPEC, crossAssetPaperCandidate, usableCrossAssetForecast, type CrossAssetForecast } from "./cross-asset-model.js";
 import type { AssetRules } from "../execution/planner.js";
 import type { DeterministicFeatures } from "../strategy/deterministic-features.js";
 import type { PolicyObservation } from "./policy-collector.js";
-import { policyCandidates, policyQuantity, TRADING_POLICIES, POLICY_VERSION } from "./trading-policy.js";
+import { policyCandidates, policyQuantity, TRADING_POLICIES, POLICY_VERSION, POLICY_RESEARCH_COOLDOWN_MS } from "./trading-policy.js";
 import { EXECUTION_SCENARIOS, ExecutionStressCase, stressObservation,
   type EpisodeContext, type EpisodeObservation } from "./execution-stress.js";
 
 export const EPISODE_RULES = Object.freeze({ sampleMs: 5_000, quoteGapMs: 5_000,
   quietResetMs: 5_000, minimumSpacingMs: 60_000, confirmationMs: 2_000,
   minimumConfirmationQuotes: 3, minimumTrendEfficiency: .15, maximumPending: 256 });
-export const EPISODE_HYPOTHESES = ["current-breakout", "range-5m-confirmed", "range-15m-confirmed", "breakout-retest", "breakout-retest-5m", CROSS_ASSET_SPEC.version] as const;
+export const MODEL_REJECTED_SHADOW = `${CROSS_ASSET_SPEC.version}:rejected-shadow-v1`;
+export const EPISODE_HYPOTHESES = ["current-breakout", "range-5m-confirmed", "range-15m-confirmed", "breakout-retest", "breakout-retest-5m", CROSS_ASSET_SPEC.version, MODEL_REJECTED_SHADOW] as const;
 interface Point { at: number; mid: number }
 interface Arm { at: number; boundary: number; quotes: number }
 interface Seen { lastSeenMs: number; lastCapturedMs: number }
@@ -76,6 +77,12 @@ export class SignalEpisodeCollector {
     if (usableCrossAssetForecast(crossAsset, this.symbol, now)
       && crossAsset.conservativeNetBps > Math.max(0, 2 * this.feeBps + this.reserveBps + f.spreadBps - crossAsset.costHurdleBps)) {
       candidates.push({ hypothesisId: CROSS_ASSET_SPEC.version, side: crossAsset.side, forecast: crossAsset });
+    } else if (crossAsset?.reason === "COST_OR_UNCERTAINTY"
+      && crossAssetPaperCandidate(crossAsset, this.symbol, now, true)) {
+      // Measure rejected model directions without requiring a broker order.
+      // This distinct hypothesis retains the failing forecast and all costs;
+      // it cannot enter the ENTRY-only production model promotion path.
+      candidates.push({ hypothesisId: MODEL_REJECTED_SHADOW, side: crossAsset.side, forecast: crossAsset });
     }
     if (f.retestCandidate) candidates.push({ hypothesisId: "breakout-retest", side: f.retestCandidate.side,
       boundary: f.retestCandidate.boundary, retest: f.retestCandidate });
@@ -122,10 +129,15 @@ export class SignalEpisodeCollector {
     for (const candidate of candidates) {
       const context = candidate.side === 1 ? contexts.long : contexts.short;
       if (!asset || (candidate.side === -1 && !asset.shortable) || !context.healthAllowed || !context.liquidityPass) continue;
-      const key = `${candidate.hypothesisId}:${candidate.side}`, prior = this.seen.get(key);
+      const rejectedModel = candidate.hypothesisId === MODEL_REJECTED_SHADOW;
+      // Reversing direction or recovering from a gap must not admit another
+      // rejected-model experiment within the same per-symbol interval.
+      const key = rejectedModel ? candidate.hypothesisId : `${candidate.hypothesisId}:${candidate.side}`;
+      const prior = this.seen.get(key);
       const quiet = !prior || now - prior.lastSeenMs >= EPISODE_RULES.quietResetMs;
       this.seen.set(key, { lastSeenMs: now, lastCapturedMs: prior?.lastCapturedMs ?? -Infinity });
-      const spacingMs = candidate.forecast ? CROSS_ASSET_SPEC.horizonMs : EPISODE_RULES.minimumSpacingMs;
+      const spacingMs = rejectedModel ? POLICY_RESEARCH_COOLDOWN_MS
+        : candidate.forecast ? CROSS_ASSET_SPEC.horizonMs : EPISODE_RULES.minimumSpacingMs;
       if (!quiet || (prior && now - prior.lastCapturedMs < spacingMs)) continue;
       const qty = policyQuantity(candidate.side === 1 ? book.asks[0].px : book.bids[0].px, asset);
       if (!(qty > 0)) continue;
@@ -157,6 +169,7 @@ export class SignalEpisodeCollector {
               rangeMs: candidate.hypothesisId === "breakout-retest-5m" ? 300_000 : 60_000 } : {}) } };
         for (const scenario of EXECUTION_SCENARIOS) {
           const start = stressObservation(source, scenario, episodeId, candidate.hypothesisId, context);
+          if (candidate.forecast) start.crossAssetForecast = structuredClone(candidate.forecast);
           const c = new ExecutionStressCase(start);
           if (capacity) { this.cases.set(start.id, c); events.push(start); }
           else { events.push(c.invalidate(now, "RESEARCH_CAPACITY")!); this.counters.capacityRejected++; this.counters.invalid++; }

@@ -1,0 +1,81 @@
+{
+  "checkedAtMs": 1788797508432,
+  "configurationVersion": "btc-eth-profit-screen-v10.4.2",
+  "mode": "paper",
+  "health": "healthy",
+  "database": "connected",
+  "entriesAllowed": true,
+  "modelOnlyEntries": true,
+  "paperOrdersEnabled": true,
+  "paperEvaluationEnabled": false,
+  "restoredPositions": [
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "qty": 9.999999999999999e-05,
+      "entryPx": 78833,
+      "policy": {
+        "version": "executable-policy-v3",
+        "id": "trend-15m",
+        "feeBps": 5,
+        "reserveBps": 3,
+        "feeSource": "PAPER_CONFIG",
+        "fundingSource": "RESERVE_ONLY"
+      },
+      "openedMs": 1788797244690
+    }
+  ],
+  "markets": [
+    {
+      "symbol": "BTC/USD",
+      "bookValid": true,
+      "status": "POSITION_OPEN",
+      "labels": 138,
+      "rejectedShadowRegistered": true
+    },
+    {
+      "symbol": "ETH/USD",
+      "bookValid": true,
+      "status": "WAITING_FOR_SIGNAL",
+      "labels": 138,
+      "rejectedShadowRegistered": true
+    }
+  ],
+  "runtimeVerification": {
+    "shadowRows": 20,
+    "allForecastsFailedScreen": true,
+    "allShadowSampling": true,
+    "newBrokerEntries": 0
+  },
+  "verifiedDeployedModuleHashes": {
+    "dist/src/research/signal-episodes.js": "7d79f29b1ccab605dbfa6f5fc5ff44df6cee7f9f2be4df78a8d4f318726c99f9",
+    "dist/src/analysis/model-trade-audit.js": "afa32aef2118cf131720a80917fde99ce782f2a57a297a28707abaac1e0425c8",
+    "dist/src/research/cross-asset-model.js": "6ddd799057c969710d219797cfcab27a266e003736442a170e91f31f8173e6df",
+    "dist/src/research/policy-planner.js": "9f744f5fd474eea97cd6925c64504bf507e4d36255b38465c810c3c21fa557cb",
+    "config/base.json": "a66f926d3c7627cf0e4589306b502b526b43bad905d902e4c0bab3e5a97bb2b2"
+  },
+  "productionAuditWithPreviousCohortPassed": true,
+  "testsPassed": 369,
+  "profitEstablished": false,
+  "notes": [
+    "Broker-entry count is a point-in-time verification; qualifying future paper entries remain enabled.",
+    "Initial shadow terminal records include nonfills and invalid paths; they are not evidence of profitable closed shadow trades."
+  ],
+  "dashboardCapturedAtMs": 1788797429477,
+  "initialShadowRows": [
+    {
+      "hypothesis": "btc-eth-dynamic-bayes-v1:rejected-shadow-v1",
+      "symbol": "ETH/USD",
+      "status": "COMPLETE",
+      "count": 6,
+      "forecastSnapshots": 6
+    },
+    {
+      "hypothesis": "btc-eth-dynamic-bayes-v1:rejected-shadow-v1",
+      "symbol": "ETH/USD",
+      "status": "INVALID",
+      "count": 4,
+      "forecastSnapshots": 4
+    }
+  ]
+}

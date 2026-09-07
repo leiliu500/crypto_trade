@@ -56,6 +56,7 @@ export function auditModelTrades(input: readonly ModelAuditOrder[], configuratio
       fees: reconciled ? breakdown.entryFee + breakdown.exitFee : null,
       cleanTelemetry: entry.telemetryDroppedRecords === 0 && (!exit || exit.telemetryDroppedRecords === 0),
       forecastValid: validForecast, forecastAtMs: validForecast ? forecast!.atMs : null,
+      forecastTrainingAgeMs: validForecast ? entry.createdMs - forecast!.trainedThroughMs! : null,
       entryLimitPx: Number.isFinite(entry.limitPx) && entry.limitPx > 0 ? entry.limitPx : null,
       predictedEntryGrossBps, passesEntryPriceScreen: predictedEntryGrossBps === null ? null : predictedEntryGrossBps > 0,
       predictedDirectionalGrossBps: validForecast ? entry.side * forecast!.predictedGrossBps : null,
@@ -68,10 +69,15 @@ export function auditModelTrades(input: readonly ModelAuditOrder[], configuratio
   const stats = (rows: readonly Trade[]) => {
     const closed = rows.filter(r => r.state === "CLOSED" && r.netPnl !== null);
     const attributed = closed.filter(r => r.fees !== null && r.grossPnl !== null);
+    const winningPnl = sum(closed.filter(r => r.netPnl! > 0).map(r => r.netPnl!));
+    const losingPnl = -sum(closed.filter(r => r.netPnl! < 0).map(r => r.netPnl!));
     return { attempts: rows.length, filled: rows.filter(r => r.filled).length, closed: closed.length,
       open: rows.filter(r => r.state === "OPEN").length, unresolved: rows.filter(r => r.state === "UNRESOLVED").length,
       pending: rows.filter(r => r.state === "PENDING").length, unfilled: rows.filter(r => r.state === "UNFILLED").length,
       wins: closed.filter(r => r.netPnl! > 0).length, netPnl: closed.length ? sum(closed.map(r => r.netPnl!)) : null,
+      winRate: closed.length ? closed.filter(r => r.netPnl! > 0).length / closed.length : null,
+      profitFactor: losingPnl > 0 ? winningPnl / losingPnl : null,
+      meanNetBps: mean(closed.flatMap(r => r.netBps === null ? [] : [r.netBps])),
       attributedClosed: attributed.length, missingCostBreakdowns: closed.length - attributed.length,
       attributedGrossPnl: attributed.length ? sum(attributed.map(r => r.grossPnl!)) : null,
       attributedFees: attributed.length ? sum(attributed.map(r => r.fees!)) : null,
@@ -90,6 +96,13 @@ export function auditModelTrades(input: readonly ModelAuditOrder[], configuratio
     summary: stats(trades), excludedAfterCutoff,
     groups: [...new Set(trades.map(t => JSON.stringify([t.symbol, t.side, t.entryMode])))].sort().map(key =>
       ({ key, ...stats(trades.filter(t => JSON.stringify([t.symbol, t.side, t.entryMode]) === key)) })),
+    exitGroups: [...new Set(trades.filter(t => t.state === "CLOSED").map(t => t.exitReason))].sort().map(reason =>
+      ({ reason, ...stats(trades.filter(t => t.state === "CLOSED" && t.exitReason === reason)) })),
+    forecastSummary: {
+      directionalGrossBps: range(trades.flatMap(t => t.predictedDirectionalGrossBps === null ? [] : [t.predictedDirectionalGrossBps])),
+      costHurdleBps: range(trades.flatMap(t => t.costHurdleBps === null ? [] : [t.costHurdleBps])),
+      trainingAgeMs: range(trades.flatMap(t => t.forecastTrainingAgeMs === null ? [] : [t.forecastTrainingAgeMs])),
+    },
     entryScreenComparison: { panelAttempts: panel.length, excludedAttempts: trades.length - panel.length,
       screens: entryScreens.map(screen => {
         const selected = panel.filter(t => screen === "EVALUATION"
@@ -114,3 +127,8 @@ export function auditModelTrades(input: readonly ModelAuditOrder[], configuratio
 }
 
 function sum(values: readonly number[]) { return values.reduce((a, b) => a + b, 0); }
+function mean(values: readonly number[]) { return values.length ? sum(values) / values.length : null; }
+function range(values: readonly number[]) {
+  return { count: values.length, minimum: values.length ? Math.min(...values) : null,
+    mean: mean(values), maximum: values.length ? Math.max(...values) : null };
+}

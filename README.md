@@ -6,15 +6,16 @@ It does **not** promise profit or zero latency. The checked-in `.env.example` se
 
 ## Rebuilt default strategy layer
 
-Configuration `btc-eth-model-evaluation-v10.4.0` uses joint BTC/ETH forecasts as
+Configuration `btc-eth-profit-screen-v10.4.2` uses joint BTC/ETH forecasts as
 the only source of new paper entries. Breakout/retest and other rule entries are
-disabled by `MODEL_ONLY_ENTRIES=true`. Compose enables capped model evaluation
-trades, with negative forecasts and actual fees recorded explicitly; see
+disabled by `MODEL_ONLY_ENTRIES=true`. New paper orders require the model's
+profitability screen and exact order economics to pass. Rejected model directions
+continue in separate shadow research, with fees and missing paths retained; see
 [model-only paper evaluation](docs/MODEL_PAPER_EVALUATION.md). Existing positions
 retain their exit management. The strategy layer uses version
 `executable-policy-v3`; prior versions and the descriptions below remain useful
-for historical compatibility. Paper submissions remain enabled under the
-existing capped experiment permission. Replay has not established profitability.
+for historical compatibility. Qualifying paper submissions remain capped.
+Replay has not established profitability; the current model may place no orders.
 
 `POLICY_ENGINE_ENABLED=true` replaces the legacy volatility-capture forecasts and micro-driven exits. The same versioned entry predicates and stop/target/deadline rules drive research and paper positions. V2 checks entries on every fresh quote, independently of the periodic research timer, and calibrates only separately tagged entry-timed evidence. Existing risk and liquidity limits remain mandatory. See [policy design and validation](docs/POLICY_REBUILD.md).
 
@@ -51,14 +52,15 @@ The [joint BTC/ETH Bayesian model](docs/CROSS_ASSET_BAYES.md) learns from the
 broader market stream, combines adaptive trend and relative-value forecasts,
 and submits qualifying forecasts when `CROSS_ASSET_PAPER_ENTRIES_ENABLED=true`
 and paper research execution is permitted. Compose and `.env.example` enable
-this flag; direct config loading defaults it off. Compose also enables the
-separate `CROSS_ASSET_PAPER_EVALUATION_ENABLED` permission to collect model
-outcomes despite a failed profitability screen. Its direct config default is
-off. Model-only entry permission stays active in either mode. Joint entries use capped $12
+this flag; direct config loading defaults it off. The separate
+`CROSS_ASSET_PAPER_EVALUATION_ENABLED` permission defaults off in Compose and
+direct config loading. It can explicitly permit evaluation orders despite a
+failed profitability screen. Model-only entry permission stays active in either mode. Joint entries use capped $12
 IOC orders, the existing shared 30-minute per-symbol cooldown, and `trend-15m`
 stop/target/deadline exits. Current price, fresh trained forecasts, risk sizing,
-liquidity and portfolio gates must pass; evaluation records costs and uncertainty
-without requiring their profitability screen to pass. The dashboard exposes the effective
+liquidity and portfolio gates must pass. A separate rejected-forecast shadow
+hypothesis measures 15/30-minute exits and five execution stresses at most once
+per symbol per 30 minutes, without creating orders or promoted models. The dashboard exposes the effective
 submission flag, historical training source and model learning progress. Before
 trading starts, the engine replays up to 48 hours of clean stored BTC/ETH quotes
 through the same causal learner. Completed labels seed the model; historical

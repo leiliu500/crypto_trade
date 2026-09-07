@@ -3,7 +3,8 @@ import test from "node:test";
 import { DynamicBayes, studentLogDensity } from "../src/research/dynamic-bayes.js";
 import { CrossAssetModel, CROSS_ASSET_SPEC, usableCrossAssetForecast, crossAssetEntryGrossBps,
   type CrossAssetForecast, type CrossAssetQuote } from "../src/research/cross-asset-model.js";
-import { SignalEpisodeCollector } from "../src/research/signal-episodes.js";
+import { SignalEpisodeCollector, MODEL_REJECTED_SHADOW } from "../src/research/signal-episodes.js";
+import { evaluatePolicies } from "../src/research/policy-validation.js";
 import { policyCandidates } from "../src/research/trading-policy.js";
 import type { DeterministicFeatures } from "../src/strategy/deterministic-features.js";
 import type { BookState } from "../src/core/market.js";
@@ -252,6 +253,53 @@ test("quote replay rejects reverse time and labels results as screening only", a
   await assert.rejects(replayCrossAsset([...first, { ...first[0]!, atMs: -1 }], costs), /CHRONOLOGICAL/);
   const r = await replayCrossAsset(first, costs);
   assert.equal(r.deploymentReady, false); assert.deepEqual(r.groups, []);
+});
+
+for (const side of [1, -1] as const) test(`rejected ${side} model directions retain fee-paid shadow outcomes without qualifying for orders`, () => {
+  const atMs = 100_000, collector = new SignalEpisodeCollector("rejected-test", "BTC/USD", 5, 3);
+  const b: BookState = { symbol: "BTC/USD", receiveTsMs: atMs, exchangeTsMs: atMs, sequence: 1n,
+    valid: true, sourceReset: false, bids: [{ px: 99.995, qty: 1 }], asks: [{ px: 100.005, qty: 1 }] };
+  const f = { symbol: b.symbol, receiveTsMs: atMs, stale: false, warmedUp: true, mid: 100, spreadBps: 1,
+    trendFastBps: 0, trendMediumBps: 0, trendSlowBps: 0, slowTrendEfficiency: 0, ofi: 0, tfi: 0,
+    velocityZ: 0, impulseBps: 0, breakoutUpBps: 0, breakoutDownBps: 0, retestCandidate: null } as DeterministicFeatures;
+  const asset = { symbol: b.symbol, minOrderSize: .001, minTradeIncrement: .001, priceIncrement: .001, maximumOrderQty: 1, shortable: true };
+  const context = { healthAllowed: true, healthReasons: [], liquidityPass: true, liquidityReasons: [],
+    positionOpen: true, pendingOrder: true, cooldownRemainingMs: 10000, sizing: "VENUE_NOTIONAL_ONLY" as const };
+  const contexts = { long: context, short: context };
+  const p = { ...forecast(side, atMs), predictedGrossBps: side, conservativeNetBps: -19,
+    eligible: false, reason: "COST_OR_UNCERTAINTY" };
+  assert.equal(usableCrossAssetForecast(p, b.symbol, atMs), false);
+  for (const invalid of [{ ...p, atMs: atMs - 1001 }, { ...p, trainingLabels: 23 },
+    { ...p, reason: "OUT_OF_DOMAIN" }, { ...p, conservativeNetBps: NaN }]) {
+    assert.deepEqual(new SignalEpisodeCollector("test", b.symbol, 5, 3).observe(b, f, asset, contexts, invalid), []);
+  }
+  const starts = collector.observe(b, f, asset, contexts, p);
+  assert.equal(starts.length, 10);
+  assert.ok(starts.every(o => o.hypothesisId === MODEL_REJECTED_SHADOW && o.sampling === "EPISODE"
+    && o.crossAssetForecast?.eligible === false && o.crossAssetForecast.conservativeNetBps === -19));
+  p.expertWeights.trend = 0;
+  assert.equal(starts[0]!.crossAssetForecast!.expertWeights.trend, 1, "the rejected forecast is an immutable snapshot");
+  const outcomes = [];
+  for (let offset = 1000; offset <= 1_802_000; offset += 1000) {
+    const now = atMs + offset;
+    const opposite = offset === 60_000 ? { ...p, atMs: now, side: -side as 1 | -1, predictedGrossBps: -side } : undefined;
+    const events = collector.observe({ ...b, receiveTsMs: now, exchangeTsMs: now, sequence: BigInt(offset) },
+      { ...f, receiveTsMs: now }, asset, contexts, opposite);
+    assert.ok(events.every(o => o.status !== "PENDING"), "direction reversal cannot create an extra proposal");
+    outcomes.push(...events);
+  }
+  assert.equal(outcomes.length, 10);
+  assert.ok(outcomes.every(o => o.status === "COMPLETE" && o.reason === "POLICY_DEADLINE" && o.netBps! < -13));
+  assert.ok(outcomes.filter(o => o.scenario.id === "fees-1.5x").every(o => o.netBps! < -18));
+  assert.deepEqual(evaluatePolicies(outcomes, "rejected-test", atMs + 86_400_000).evaluations, []);
+  assert.equal(collector.stats().episodes, 1);
+  const gapCollector = new SignalEpisodeCollector("gap-test", b.symbol, 5, 3);
+  gapCollector.observe(b, f, asset, contexts, p);
+  assert.equal(gapCollector.invalidate(atMs + 1000, "PUBLIC_STREAM_DOWN").length, 10);
+  const recovered = atMs + 60_000;
+  assert.deepEqual(gapCollector.observe({ ...b, receiveTsMs: recovered, exchangeTsMs: recovered },
+    { ...f, receiveTsMs: recovered }, asset, contexts,
+    { ...p, atMs: recovered, side: -side as 1 | -1, predictedGrossBps: -side }), []);
 });
 
 test("quote replay pairs stress attempts, charges both fees and preserves misses and gaps", async (t) => {

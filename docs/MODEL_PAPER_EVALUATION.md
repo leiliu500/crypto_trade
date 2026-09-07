@@ -1,13 +1,15 @@
 # Model-only paper evaluation
 
-Configuration `btc-eth-model-evaluation-v10.4.0` uses BTC/ETH model forecasts as
+Configuration `btc-eth-profit-screen-v10.4.2` uses BTC/ETH model forecasts as
 the only source of new entries. `MODEL_ONLY_ENTRIES=true` is the configuration
 default and is enabled in Compose. Missing, stale, untrained, or out-of-domain
 forecasts cannot fall back to breakout/retest or other rule entries. Existing
 positions retain their stop, target, and deadline exits.
 
-Compose also enables `CROSS_ASSET_PAPER_EVALUATION_ENABLED=true`. Direct config
-loading defaults this separate permission off. With both paper submission and
+Compose, `.env.example`, and direct config loading default
+`CROSS_ASSET_PAPER_EVALUATION_ENABLED=false`: orders require the positive
+profitability screen and exact order economics. The previous v10.4.0/v10.4.1
+deployment enabled evaluation orders. With both paper submission and
 evaluation enabled, a trained model's fresh nonzero directional forecast can
 create a paper entry even if its cost or uncertainty screen fails. Evaluation
 does not change the forecast's `eligible`, `reason`, or negative net score. The
@@ -35,6 +37,17 @@ Legacy trades remain visible as history but do not enter model result totals.
 Evaluate outcomes chronologically before changing parameters; these changes do
 not automatically tune the model from a small sample of paper trades.
 
-Set `CROSS_ASSET_PAPER_EVALUATION_ENABLED=false` to require the original positive
-cost/uncertainty screen and exact order economics. Model-only entry permission
-remains in effect, so failing forecasts produce no new entries.
+The isolated `btc-eth-dynamic-bayes-v1:rejected-shadow-v1` hypothesis continues
+measuring trained, fresh directions rejected for costs or uncertainty. It retains
+the immutable forecast, both fees, reserve, 15/30-minute policy exits, and five
+execution stresses. It shares a 30-minute per-symbol sampling interval across
+directions and feed interruptions. Health, liquidity, lot size, and data checks
+still apply; missing paths remain invalid. Orders, positions and cooldowns are
+recorded as context rather than blocking research.
+
+These are hypothetical quote/depth executions of rejected forecast directions,
+including directions whose target is exhausted at the entry quote. They are
+not broker fills or a replica of the submitting planner's price/size gates.
+They remain separate from qualified forecasts and recorded evaluation trades,
+and cannot enter the production model promotion path. Turning the explicit
+evaluation-order flag on does not turn shadow observations into orders.
