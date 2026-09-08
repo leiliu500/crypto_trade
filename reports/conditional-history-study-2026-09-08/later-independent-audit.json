@@ -1,0 +1,244 @@
+{
+  "inputReport": "/tmp/conditional-later-v2-20260908.json",
+  "protocolHashVerified": true,
+  "seedHashVerified": true,
+  "auditHashChainVerified": true,
+  "auditRecords": 1801,
+  "auditFinalHash": "985169ae1b475d16000add45354ceb7b9e4e4f2e03d4c902557add545976c4bb",
+  "seedSamples": 894,
+  "seedLatestCompleted": "2026-09-07T10:59:39.070Z",
+  "sourceFirst": "2026-09-08T01:24:43.519Z",
+  "sourceLast": "2026-09-08T16:44:26.271Z",
+  "sourceSpanHours": 15.328542222222222,
+  "evaluationStart": "2026-09-08T08:00:00.000Z",
+  "evaluationEnd": "2026-09-08T16:44:28.000Z",
+  "evaluationSpanHours": 8.741111111111111,
+  "learned": {
+    "current": {
+      "actionLabels": 222,
+      "byHorizon": {
+        "5m": 74,
+        "15m": 74,
+        "30m": 74
+      },
+      "meanPublicationDelayMinutes": 14.58887942942943
+    },
+    "efficient": {
+      "actionLabels": 819,
+      "byHorizon": {
+        "5m": 553,
+        "15m": 187,
+        "30m": 79
+      },
+      "meanPublicationDelayMinutes": 0
+    }
+  },
+  "perAssetActionNonoverlapVerified": true,
+  "allLearnedActionsHaveThreeValidScenarios": true,
+  "freezeChecks": [
+    {
+      "trainer": "current",
+      "cutoff": "2026-09-08T08:00:00.000Z",
+      "seed": 894,
+      "admittedSamples": 1020,
+      "newLabels": 126,
+      "hashMatched": true,
+      "latestCompleted": "2026-09-08T07:34:45.866Z"
+    },
+    {
+      "trainer": "efficient",
+      "cutoff": "2026-09-08T08:00:00.000Z",
+      "seed": 894,
+      "admittedSamples": 1260,
+      "newLabels": 366,
+      "hashMatched": true,
+      "latestCompleted": "2026-09-08T07:54:28.535Z"
+    }
+  ],
+  "forecastBeforeOutcomeVerified": true,
+  "forecastReportRecomputed": true,
+  "baseByAsset": {
+    "BTC/USD": {
+      "pairedActionOutcomes": 74,
+      "errors": {
+        "current": {
+          "maeBps": 10.525825569718066,
+          "rmseBps": 13.238854175142778
+        },
+        "efficient": {
+          "maeBps": 10.221692046590475,
+          "rmseBps": 12.976537395554143
+        },
+        "unconditionalCurrent": {
+          "maeBps": 10.769964329636597,
+          "rmseBps": 13.572284869972691
+        },
+        "unconditionalEfficient": {
+          "maeBps": 10.72542100967973,
+          "rmseBps": 13.533305500260736
+        }
+      }
+    },
+    "ETH/USD": {
+      "pairedActionOutcomes": 77,
+      "errors": {
+        "current": {
+          "maeBps": 17.30502892867255,
+          "rmseBps": 23.58748732556379
+        },
+        "efficient": {
+          "maeBps": 17.035726722013386,
+          "rmseBps": 23.334369676080254
+        },
+        "unconditionalCurrent": {
+          "maeBps": 16.366648562869354,
+          "rmseBps": 22.04237704177846
+        },
+        "unconditionalEfficient": {
+          "maeBps": 16.30743559820575,
+          "rmseBps": 22.023133520515774
+        }
+      }
+    }
+  },
+  "probeOrigins": 32,
+  "originsByDateAndAsset": {
+    "2026-09-08:ETH/USD": 16,
+    "2026-09-08:BTC/USD": 16
+  },
+  "portfolioNonoverlapVerified": true,
+  "unknownSelectedDecisionPaths": 34,
+  "unknownSelectedScenarioOutcomes": 98,
+  "policyBase": [
+    {
+      "policy": "current",
+      "symbol": "BTC/USD",
+      "selections": 0,
+      "filled": 0,
+      "unfilled": 0,
+      "unknown": 0,
+      "knownNetBpsSum": 0,
+      "fullPathKnownNetBpsSum": 0
+    },
+    {
+      "policy": "current",
+      "symbol": "ETH/USD",
+      "selections": 0,
+      "filled": 0,
+      "unfilled": 0,
+      "unknown": 0,
+      "knownNetBpsSum": 0,
+      "fullPathKnownNetBpsSum": 0
+    },
+    {
+      "policy": "efficient",
+      "symbol": "BTC/USD",
+      "selections": 0,
+      "filled": 0,
+      "unfilled": 0,
+      "unknown": 0,
+      "knownNetBpsSum": 0,
+      "fullPathKnownNetBpsSum": 0
+    },
+    {
+      "policy": "efficient",
+      "symbol": "ETH/USD",
+      "selections": 0,
+      "filled": 0,
+      "unfilled": 0,
+      "unknown": 0,
+      "knownNetBpsSum": 0,
+      "fullPathKnownNetBpsSum": 0
+    },
+    {
+      "policy": "flat",
+      "symbol": "BTC/USD",
+      "selections": 0,
+      "filled": 0,
+      "unfilled": 0,
+      "unknown": 0,
+      "knownNetBpsSum": 0,
+      "fullPathKnownNetBpsSum": 0
+    },
+    {
+      "policy": "flat",
+      "symbol": "ETH/USD",
+      "selections": 0,
+      "filled": 0,
+      "unfilled": 0,
+      "unknown": 0,
+      "knownNetBpsSum": 0,
+      "fullPathKnownNetBpsSum": 0
+    },
+    {
+      "policy": "long-15m",
+      "symbol": "BTC/USD",
+      "selections": 17,
+      "filled": 12,
+      "unfilled": 2,
+      "unknown": 3,
+      "knownNetBpsSum": -210.232135091119,
+      "fullPathKnownNetBpsSum": null
+    },
+    {
+      "policy": "long-15m",
+      "symbol": "ETH/USD",
+      "selections": 32,
+      "filled": 20,
+      "unfilled": 4,
+      "unknown": 8,
+      "knownNetBpsSum": -222.82371987317114,
+      "fullPathKnownNetBpsSum": null
+    },
+    {
+      "policy": "short-15m",
+      "symbol": "BTC/USD",
+      "selections": 14,
+      "filled": 12,
+      "unfilled": 0,
+      "unknown": 2,
+      "knownNetBpsSum": -226.95334039553245,
+      "fullPathKnownNetBpsSum": null
+    },
+    {
+      "policy": "short-15m",
+      "symbol": "ETH/USD",
+      "selections": 31,
+      "filled": 18,
+      "unfilled": 4,
+      "unknown": 9,
+      "knownNetBpsSum": -263.79523669729264,
+      "fullPathKnownNetBpsSum": null
+    },
+    {
+      "policy": "momentum-15m",
+      "symbol": "BTC/USD",
+      "selections": 16,
+      "filled": 11,
+      "unfilled": 2,
+      "unknown": 3,
+      "knownNetBpsSum": -236.30779916750123,
+      "fullPathKnownNetBpsSum": null
+    },
+    {
+      "policy": "momentum-15m",
+      "symbol": "ETH/USD",
+      "selections": 33,
+      "filled": 20,
+      "unfilled": 5,
+      "unknown": 8,
+      "knownNetBpsSum": -212.50427494095314,
+      "fullPathKnownNetBpsSum": null
+    }
+  ],
+  "status": "INCONCLUSIVE",
+  "profitabilityEstablished": false,
+  "limitations": [
+    "Separate seeded historical replay; this result must not be pooled as a continuation of another study.",
+    "Paired action outcomes at common origins and cross-asset outcomes are dependent, not independent market contexts.",
+    "Collector totals include pre-evaluation learning; only strictly preceding completed labels entered the frozen models.",
+    "Publication delay measures label release after the last scenario exit, not elapsed holding horizon.",
+    "Unknown selected paths prevent complete baseline P&L attribution; known-only sums are not cash-account returns.",
+    "Compact audit and frozen banks were independently checked; raw source events were not reprocessed for this audit."
+  ]
+}

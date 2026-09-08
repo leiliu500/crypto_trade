@@ -19,6 +19,7 @@ export interface BookUpdateResult {
 }
 
 interface TimedLevel { qty: number; updatedMs: number; }
+interface OrderedReset { bids: Level[]; asks: Level[]; updatedMs: number; }
 const emptyFlow = (): BookFlow => ({ bidAdded: 0, bidCanceled: 0, askAdded: 0, askCanceled: 0, bidReplenishmentRate: 0, askReplenishmentRate: 0 });
 
 /**
@@ -32,6 +33,9 @@ export class LocalOrderBook {
   private readonly bids = new Map<number, TimedLevel>();
   private readonly asks = new Map<number, TimedLevel>();
   private readonly eventIds = new Set<string>();
+  // Kraken emits complete, ordered snapshots frequently. Keep those arrays until
+  // a delta actually needs a mutable price map, without rebuilding/sorting maps.
+  private orderedReset: OrderedReset | undefined;
   private sequence = 0n;
   private initialized = false;
   private valid = false;
@@ -54,15 +58,25 @@ export class LocalOrderBook {
       this.invalidate();
       return { accepted: false, duplicate: false, reason: "TIMESTAMP_REVERSAL", flow };
     }
-    if (![...delta.bids, ...delta.asks].every((level) => Number.isFinite(level.px) && level.px > 0 && Number.isFinite(level.qty) && level.qty >= 0)) {
+    if (!validLevels(delta.bids) || !validLevels(delta.asks)) {
       this.invalidate();
       return { accepted: false, duplicate: false, reason: "INVALID_LEVEL", flow };
     }
-    if (delta.reset) { this.bids.clear(); this.asks.clear(); this.initialized = true; }
-
     const dtSec = Math.max((delta.receiveTsMs - this.lastReceiveTsMs) / 1000, 1e-3);
-    this.applyLevels(this.bids, delta.bids, delta.receiveTsMs, flow, true);
-    this.applyLevels(this.asks, delta.asks, delta.receiveTsMs, flow, false);
+    if (delta.reset && strictlyOrdered(delta.bids, true) && strictlyOrdered(delta.asks, false)) {
+      this.bids.clear(); this.asks.clear(); this.initialized = true;
+      this.orderedReset = {
+        bids: copyResetLevels(delta.bids, flow, true),
+        asks: copyResetLevels(delta.asks, flow, false),
+        updatedMs: delta.receiveTsMs,
+      };
+    } else {
+      if (delta.reset) {
+        this.bids.clear(); this.asks.clear(); this.orderedReset = undefined; this.initialized = true;
+      } else this.materializeReset();
+      this.applyLevels(this.bids, delta.bids, delta.receiveTsMs, flow, true);
+      this.applyLevels(this.asks, delta.asks, delta.receiveTsMs, flow, false);
+    }
     flow.bidReplenishmentRate = flow.bidAdded / dtSec;
     flow.askReplenishmentRate = flow.askAdded / dtSec;
     this.sequence += 1n;
@@ -73,6 +87,14 @@ export class LocalOrderBook {
     this.valid = Boolean(state.bids[0] && state.asks[0] && state.bids[0].px < state.asks[0].px);
     if (!this.valid) { this.initialized = false; return { accepted: false, duplicate: false, reason: "CROSSED_OR_EMPTY_BOOK", flow }; }
     return { accepted: true, duplicate: false, flow, state: { ...state, valid: true } };
+  }
+
+  private materializeReset(): void {
+    const reset = this.orderedReset;
+    if (!reset) return;
+    for (const level of reset.bids) this.bids.set(level.px, { qty: level.qty, updatedMs: reset.updatedMs });
+    for (const level of reset.asks) this.asks.set(level.px, { qty: level.qty, updatedMs: reset.updatedMs });
+    this.orderedReset = undefined;
   }
 
   private applyLevels(book: Map<number, TimedLevel>, updates: readonly Level[], nowMs: number, flow: BookFlow, bid: boolean): void {
@@ -89,9 +111,14 @@ export class LocalOrderBook {
 
   public snapshot(sourceReset = false): BookState {
     const nowMs = this.lastReceiveTsMs;
-    const bids = this.sorted(this.bids, true, nowMs);
-    const asks = this.sorted(this.asks, false, nowMs);
+    const reset = this.orderedReset;
+    const bids = reset ? this.copyOrdered(reset.bids, nowMs - reset.updatedMs) : this.sorted(this.bids, true, nowMs);
+    const asks = reset ? this.copyOrdered(reset.asks, nowMs - reset.updatedMs) : this.sorted(this.asks, false, nowMs);
     return { symbol: this.symbol, bids, asks, exchangeTsMs: this.lastExchangeTsMs, receiveTsMs: nowMs, sequence: this.sequence, valid: this.valid && Boolean(bids[0] && asks[0] && bids[0].px < asks[0].px), sourceReset };
+  }
+
+  private copyOrdered(levels: readonly Level[], ageMs: number): Level[] {
+    return levels.slice(0, this.maximumLevels).map(({ px, qty }) => ({ px, qty, ageMs: Math.max(0, ageMs) }));
   }
 
   private sorted(levels: Map<number, TimedLevel>, descending: boolean, nowMs: number): Level[] {
@@ -100,4 +127,28 @@ export class LocalOrderBook {
       .slice(0, this.maximumLevels)
       .map(([px, value]) => ({ px, qty: value.qty, ageMs: Math.max(0, nowMs - value.updatedMs) }));
   }
+}
+
+function validLevels(levels: readonly Level[]): boolean {
+  for (const level of levels) {
+    if (!Number.isFinite(level.px) || level.px <= 0 || !Number.isFinite(level.qty) || level.qty < 0) return false;
+  }
+  return true;
+}
+
+function strictlyOrdered(levels: readonly Level[], descending: boolean): boolean {
+  for (let i = 1; i < levels.length; i++) {
+    if (descending ? levels[i - 1]!.px <= levels[i]!.px : levels[i - 1]!.px >= levels[i]!.px) return false;
+  }
+  return true;
+}
+
+function copyResetLevels(levels: readonly Level[], flow: BookFlow, bid: boolean): Level[] {
+  const result: Level[] = [];
+  for (const { px, qty } of levels) {
+    if (qty > 0) result.push({ px, qty });
+    if (bid) flow.bidAdded += qty;
+    else flow.askAdded += qty;
+  }
+  return result;
 }

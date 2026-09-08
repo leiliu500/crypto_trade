@@ -1,0 +1,110 @@
+{
+  "version": "historical-training-four-date-verification-v1",
+  "verifiedAt": "2026-09-08T15:58:27.348Z",
+  "artifactPath": "/app/data/distributional-training-2026-09-07.json",
+  "statePath": "/app/data/distributional-state.json",
+  "artifactSha256": "77d57bef131815926289d198791cb76c033d73814db8eab304aa51a5d9d313b7",
+  "stateSha256": "c8fff4a732649420e9820a06530a01703a41db84cca0ba3dc92b002acc461d93",
+  "historicalSamples": 894,
+  "currentSamples": 1194,
+  "missingHistoricalSampleIds": [],
+  "changedHistoricalSampleIds": [],
+  "historicalActionSamplesByDateAndSymbol": {
+    "2026-08-27": {
+      "BTC/USD": 18,
+      "ETH/USD": 18
+    },
+    "2026-09-05": {
+      "ETH/USD": 192,
+      "BTC/USD": 198
+    },
+    "2026-09-06": {
+      "BTC/USD": 216,
+      "ETH/USD": 168
+    },
+    "2026-09-07": {
+      "ETH/USD": 42,
+      "BTC/USD": 42
+    }
+  },
+  "currentActionSamplesByDateAndSymbol": {
+    "2026-08-27": {
+      "BTC/USD": 18,
+      "ETH/USD": 18
+    },
+    "2026-09-05": {
+      "BTC/USD": 198,
+      "ETH/USD": 192
+    },
+    "2026-09-06": {
+      "BTC/USD": 216,
+      "ETH/USD": 168
+    },
+    "2026-09-07": {
+      "ETH/USD": 78,
+      "BTC/USD": 66
+    },
+    "2026-09-08": {
+      "ETH/USD": 120,
+      "BTC/USD": 120
+    }
+  },
+  "historicalPreparation": {
+    "cutoffMs": 1788804423000,
+    "retainedDays": [
+      "2026-08-27",
+      "2026-09-05",
+      "2026-09-06",
+      "2026-09-07"
+    ],
+    "retainedPanels": 149,
+    "rawCompletePanels": 149,
+    "rawExcludedPanels": 93,
+    "inputFiles": 21,
+    "quality": {
+      "events": 8929717,
+      "books": 8496959,
+      "trades": 432724,
+      "acceptedBooks": 8496959,
+      "duplicates": 0,
+      "invalidBooks": 0,
+      "timestampReversals": 0,
+      "crossStreamReceiveRegressions": 1170071,
+      "invalidTimestamps": 0,
+      "disconnects": 34,
+      "recorderGaps": 0,
+      "recorderDroppedEvents": 0,
+      "firstMs": 1787851121197,
+      "lastMs": 1788804421320,
+      "maximumEventGapMs": 698945500,
+      "invalidBookReasons": {},
+      "symbols": {
+        "ETH/USD": {
+          "acceptedBooks": 3669915,
+          "resets": 3669915,
+          "staleBooks": 262,
+          "quoteGaps": 79,
+          "maximumQuoteGapMs": 698945556,
+          "firstMs": 1787851121197,
+          "lastMs": 1788804419690
+        },
+        "BTC/USD": {
+          "acceptedBooks": 4827044,
+          "resets": 4827044,
+          "staleBooks": 280,
+          "quoteGaps": 79,
+          "maximumQuoteGapMs": 698945828,
+          "firstMs": 1787851121468,
+          "lastMs": 1788804419844
+        }
+      }
+    }
+  },
+  "notes": [
+    "All six actions and all three execution scenarios must have complete valid outcomes for a panel to enter training.",
+    "Four calendar dates with valid panels do not establish four complete days or 96 hours of usable raw history.",
+    "Historical labels already present are not additional evidence if imported again.",
+    "The three-date paper-trial minimum is an eligibility threshold, not a limit on training history.",
+    "No training gate, runtime state, service or broker order was changed during this verification."
+  ]
+}

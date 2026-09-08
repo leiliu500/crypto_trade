@@ -4,6 +4,9 @@ import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "
 import { dirname } from "node:path";
 import type { MarketTrade } from "../core/market.js";
 import type { BookDelta } from "../core/order-book.js";
+import { LocalOrderBook } from "../core/order-book.js";
+import { distributionBookReason } from "../distribution/market.js";
+import { DISTRIBUTION_SPEC } from "../distribution/spec.js";
 import type { ExecutionPlan } from "../execution/planner.js";
 import type { PrivateOrderEvent } from "../execution/order-state.js";
 import { VenueApiError, type OrderGateway, type VenueClient } from "../venue/client.js";
@@ -56,6 +59,7 @@ interface KrakenPaperState {
 }
 const KRAKEN_HTTP_TIMEOUT_MS = 10_000;
 const MAX_PAPER_ACTIVITIES = 10_000;
+const isDistributionOrder = (plan: ExecutionPlan): boolean => plan.policy?.id.startsWith("distribution-") ?? false;
 
 export class KrakenPaperTradeStream extends EventEmitter {
   private heartbeatTimer: NodeJS.Timeout | undefined;
@@ -74,6 +78,7 @@ export class KrakenPaperTradeStream extends EventEmitter {
 export class KrakenPaperBroker implements VenueClient, OrderGateway {
   public readonly tradeStream = new KrakenPaperTradeStream();
   private readonly books = new Map<string, PaperBook>();
+  private readonly distributionBooks = new Map<string, LocalOrderBook>();
   private readonly ordersById = new Map<string, PaperOrder>();
   private readonly orderIdByClientId = new Map<string, string>();
   private readonly positions = new Map<string, PaperPosition>();
@@ -93,12 +98,33 @@ export class KrakenPaperBroker implements VenueClient, OrderGateway {
   }
 
   public onBook(delta: BookDelta): void {
+    const distributionBook = this.distributionBooks.get(delta.symbol) ?? new LocalOrderBook(delta.symbol);
+    const priorAtMs = distributionBook.snapshot().receiveTsMs;
+    const update = distributionBook.apply(delta);
+    this.distributionBooks.set(delta.symbol, distributionBook);
     const book = this.books.get(delta.symbol) ?? { bids: new Map(), asks: new Map(), timestampMs: 0 };
     if (delta.reset) { book.bids.clear(); book.asks.clear(); }
     applyLevels(book.bids, delta.bids);
     applyLevels(book.asks, delta.asks);
     book.timestampMs = delta.exchangeTsMs;
     this.books.set(delta.symbol, book);
+    // Distributional research models an IOC arriving on the first fresh book
+    // after 250ms. Reusing the decision quote in a microtask would remove its
+    // adverse selection and nonfills. Older strategies retain their lifecycle.
+    for (const order of this.ordersById.values()) {
+      if (order.plan.symbol !== delta.symbol || order.remote.status !== "new"
+        || order.plan.timeInForce !== "ioc" || !isDistributionOrder(order.plan)) continue;
+      if (!Number.isFinite(delta.receiveTsMs) || delta.receiveTsMs > order.plan.expiresMs) {
+        this.cancelPaperOrder(order, Number.isFinite(delta.receiveTsMs) ? delta.receiveTsMs : undefined); continue;
+      }
+      if (update.duplicate) continue;
+      if (!update.accepted || !update.state || distributionBookReason(update.state)
+        || delta.receiveTsMs < order.plan.createdMs
+        || delta.receiveTsMs - Math.max(priorAtMs, order.plan.createdMs) > DISTRIBUTION_SPEC.maximumQuoteGapMs) {
+        this.cancelPaperOrder(order, delta.receiveTsMs); continue;
+      }
+      if (delta.receiveTsMs >= order.plan.createdMs + 250) this.executeIoc(order, delta.receiveTsMs);
+    }
   }
 
   public onTrade(trade: MarketTrade): void {
@@ -140,7 +166,7 @@ export class KrakenPaperBroker implements VenueClient, OrderGateway {
     this.orderIdByClientId.set(plan.clientOrderId, id);
     this.persistState();
     queueMicrotask(() => {
-      if (plan.timeInForce === "ioc" && paperOrder.remote.status === "new") this.executeIoc(paperOrder);
+      if (plan.timeInForce === "ioc" && paperOrder.remote.status === "new" && !isDistributionOrder(plan)) this.executeIoc(paperOrder);
     });
     return cloneOrder(remote);
   }
@@ -300,6 +326,11 @@ export class KrakenPaperBroker implements VenueClient, OrderGateway {
   }
 
   private validatePlan(plan: ExecutionPlan): void {
+    if (isDistributionOrder(plan) && (!Number.isFinite(plan.createdMs) || !Number.isFinite(plan.expiresMs)
+      || plan.createdMs < 0 || plan.expiresMs < plan.createdMs + 250
+      || plan.expiresMs > plan.createdMs + DISTRIBUTION_SPEC.maximumQuoteAgeMs)) {
+      throw new VenueApiError("invalid distribution paper arrival window", 400);
+    }
     const instrument = this.paperCfg.instruments.get(plan.symbol);
     if (!instrument) throw new VenueApiError(`unsupported Kraken paper symbol ${plan.symbol}`, 400);
     if (!(plan.qty > 0) || plan.qty > instrument.maximumOrderQty || !multipleOf(plan.qty, instrument.quantityIncrement)) {
@@ -311,9 +342,9 @@ export class KrakenPaperBroker implements VenueClient, OrderGateway {
     if (!plan.reduceOnlyIntent && current) throw new VenueApiError("paper position already exists", 422);
   }
 
-  private executeIoc(paperOrder: PaperOrder): void {
+  private executeIoc(paperOrder: PaperOrder, executionAtMs?: number): void {
     const book = this.books.get(paperOrder.plan.symbol);
-    if (!book) { this.cancelPaperOrder(paperOrder); return; }
+    if (!book) { this.cancelPaperOrder(paperOrder, executionAtMs); return; }
     let remaining = Number(paperOrder.remote.qty);
     if (paperOrder.plan.reduceOnlyIntent) remaining = Math.min(remaining, this.positions.get(paperOrder.plan.symbol)?.qty ?? 0);
     const levels = sorted(paperOrder.plan.side === 1 ? book.asks : book.bids, paperOrder.plan.side === -1);
@@ -324,11 +355,11 @@ export class KrakenPaperBroker implements VenueClient, OrderGateway {
       const take = Math.min(remaining, quantity);
       filled += take; value += take * price; remaining -= take;
     }
-    if (filled > 0) this.applyExecution(paperOrder, filled, value / filled);
-    if (!isTerminal(paperOrder.remote.status)) this.cancelPaperOrder(paperOrder);
+    if (filled > 0) this.applyExecution(paperOrder, filled, value / filled, executionAtMs);
+    if (!isTerminal(paperOrder.remote.status)) this.cancelPaperOrder(paperOrder, executionAtMs);
   }
 
-  private applyExecution(paperOrder: PaperOrder, requestedQty: number, price: number): void {
+  private applyExecution(paperOrder: PaperOrder, requestedQty: number, price: number, executionAtMs?: number): void {
     if (!(requestedQty > 0) || isTerminal(paperOrder.remote.status)) return;
     const plan = paperOrder.plan;
     const oldPosition = this.positions.get(plan.symbol);
@@ -342,7 +373,7 @@ export class KrakenPaperBroker implements VenueClient, OrderGateway {
     const average = (oldAverage * oldFilled + price * qty) / totalFilled;
     paperOrder.remote.filled_qty = String(totalFilled);
     paperOrder.remote.filled_avg_price = String(average);
-    paperOrder.remote.updated_at = new Date().toISOString();
+    paperOrder.remote.updated_at = new Date(executionAtMs ?? Date.now()).toISOString();
     this.rollUtcCashSession(Date.parse(paperOrder.remote.updated_at));
     const final = totalFilled >= Number(paperOrder.remote.qty) - 1e-12;
     paperOrder.remote.status = final ? "filled" : "partially_filled";
@@ -371,10 +402,10 @@ export class KrakenPaperBroker implements VenueClient, OrderGateway {
       feeUsd: qty * price * feeBps / 10_000 });
   }
 
-  private cancelPaperOrder(paperOrder: PaperOrder): void {
+  private cancelPaperOrder(paperOrder: PaperOrder, executionAtMs?: number): void {
     if (isTerminal(paperOrder.remote.status)) return;
     paperOrder.remote.status = "canceled";
-    paperOrder.remote.updated_at = new Date().toISOString();
+    paperOrder.remote.updated_at = new Date(executionAtMs ?? Date.now()).toISOString();
     paperOrder.remote.canceled_at = paperOrder.remote.updated_at;
     this.persistState();
     this.tradeStream.emit("order", this.privateEvent(paperOrder, "canceled", 0,
@@ -461,7 +492,8 @@ export class KrakenPaperBroker implements VenueClient, OrderGateway {
     return { id: instrument.productId, class: "crypto", asset_class: "crypto", exchange: "KRAKEN_FUTURES",
       symbol: instrument.symbol, name: instrument.productId, status: "active", tradable: true, marginable: true,
       shortable: true, easy_to_borrow: true, fractionable: true, min_order_size: String(instrument.quantityIncrement),
-      min_trade_increment: String(instrument.quantityIncrement), price_increment: String(instrument.tickSize) };
+      min_trade_increment: String(instrument.quantityIncrement), price_increment: String(instrument.tickSize),
+      maximum_order_qty: String(instrument.maximumOrderQty) };
   }
 
   private remotePosition(position: PaperPosition): VenuePosition {
@@ -504,7 +536,9 @@ export async function loadKrakenFuturesInstruments(productsBySymbol: Readonly<Re
       || !(tickSize > 0) || !Number.isInteger(precision) || precision < 0 || precision > 12 || !(maximumOrderQty > 0)) {
       throw new Error(`Kraken product ${productId} is not a valid tradeable linear perpetual`);
     }
-    resolved.set(symbol, { symbol, productId, tickSize, quantityIncrement: 10 ** -precision, maximumOrderQty });
+    // Parse the exchange's decimal quantum directly. Math.pow can round 10^-4
+    // one ULP below the JSON/literal value 0.0001, breaking rule fingerprints.
+    resolved.set(symbol, { symbol, productId, tickSize, quantityIncrement: Number(`1e-${precision}`), maximumOrderQty });
   }
   return resolved;
 }

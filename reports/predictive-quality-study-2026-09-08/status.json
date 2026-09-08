@@ -1,0 +1,30 @@
+{
+  "status": "COMPLETE_CANDIDATE_NOT_PROMOTED",
+  "candidate": "btc-eth-cost-aware-ridge-v1",
+  "evidence": "INSPECTED_HISTORICAL_DEVELOPMENT",
+  "fixedCandidateNoParameterSearch": true,
+  "sourceHashesUnchanged": true,
+  "validation": {
+    "fullSuitePassed": 664,
+    "fullSuiteFailed": 0,
+    "newFocusedTestsPassed": 22,
+    "finalPolicyTestsPassed": 6,
+    "finalTypeScriptBuildPassed": true
+  },
+  "decision": "Mixed forecast improvements, worse later gross forecasts than zero-gross baseline, and zero qualifying model selections; no reliable after-cost advantage demonstrated. Candidate remains research-only.",
+  "productionModelChanged": false,
+  "productionEntryGatesChanged": false,
+  "futureCollectorStarted": false,
+  "runningEngineHealth": "HEALTHY",
+  "artifactSha256": {
+    "diagnosis.json": "536643d9447abae402074b10f69a15130503b7987c864183d0faa7d491186ec6",
+    "fixed-ridge-v1-verified/candidate-manifest.json": "1211be263974aec5e1f98a33673bd466dd09b7f2fd8e50a1db5a8523b66bd354",
+    "fixed-ridge-v1-verified/first.json": "67f2c69304f064f2b51cbed7ba8b8ac8a6aea818ad27aa516cd93dbf6062a17f",
+    "fixed-ridge-v1-verified/later.json": "c68141809e138e48b44b72d86873cf2fbe1873133c9641fa100e68e98f71a0dd",
+    "fixed-ridge-v1-verified/summary.json": "0fd00d47b683b338e967c05f82d464020efa4aadbe27b718dbbadfd40b54dc61",
+    "fixed-ridge-v1/attempt-status.json": "72929b5e409af02bed9e4c42647eea2edf233ab4e38c59b8ae705c1167ec953d",
+    "independent-audit.json": "d5d06fab7e5b9d3ff29ee5b957bc0f172abb534ddd780d8f5010905ae6f4ea0b"
+  },
+  "independentAudit": "independent-audit.json",
+  "independentAuditVerified": true
+}

@@ -80,6 +80,7 @@ export class PositionManager {
     if (f.stale) { p.phase = "EXITING"; return { action: "EXIT", reason: "DATA_INVALID" }; }
     if (p.policy) {
       if (!validPositionPolicy(p.policy)) { p.phase = "EXITING"; return { action: "EXIT", reason: "INVALID_POLICY" }; }
+      if (p.policy.id.startsWith("distribution-") && p.phase === "EXITING") return { action: "EXIT", reason: "POLICY_EXIT_LATCHED" };
       const policy = findPolicy(p.policy.id)!;
       const grossBps = u / p.entryPx * 10_000;
       let netBps = grossBps - p.policy.feeBps * (1 + executableExitPx / p.entryPx) - p.policy.reserveBps;

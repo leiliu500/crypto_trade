@@ -5,10 +5,67 @@ import { join } from "node:path";
 import test from "node:test";
 import { loadConfig } from "../src/config.js";
 
+test("regime predictor is explicit and restricted to the efficient paper trial", () => {
+  const base = { TRADING_MODE: "paper", DISTRIBUTIONAL_ENGINE_ENABLED: "true" };
+  assert.equal(loadConfig(base).distributionalRegimeModelEnabled, false);
+  assert.throws(() => loadConfig({ ...base, DISTRIBUTIONAL_REGIME_MODEL_ENABLED: "true" }),
+    /REGIME_MODEL_REQUIRES_EFFICIENT_PAPER_TRIAL/);
+  assert.throws(() => loadConfig({ ...base, DISTRIBUTIONAL_PAPER_TRIAL_ENABLED: "true", DISTRIBUTIONAL_REGIME_MODEL_ENABLED: "true" }),
+    /REGIME_MODEL_REQUIRES_EFFICIENT_PAPER_TRIAL/);
+  const enabled = { ...base, DISTRIBUTIONAL_PAPER_TRIAL_ENABLED: "true", DISTRIBUTIONAL_EFFICIENT_TRAINING_ENABLED: "true",
+    DISTRIBUTIONAL_REGIME_MODEL_ENABLED: "true" };
+  assert.equal(loadConfig(enabled).distributionalRegimeModelEnabled, true);
+  assert.throws(() => loadConfig({ ...enabled, TRADING_MODE: "shadow" }), /PAPER_TRIAL_REQUIRES_PAPER_DISTRIBUTION_ENGINE/);
+});
+
+test("independent horizon training is opt-in and restricted to the paper trial", () => {
+  const base = { TRADING_MODE: "paper", DISTRIBUTIONAL_ENGINE_ENABLED: "true" };
+  assert.equal(loadConfig(base).distributionalEfficientTrainingEnabled, false);
+  assert.throws(() => loadConfig({ ...base, DISTRIBUTIONAL_EFFICIENT_TRAINING_ENABLED: "true" }),
+    /EFFICIENT_TRAINING_REQUIRES_PAPER_TRIAL/);
+  assert.equal(loadConfig({ ...base, DISTRIBUTIONAL_PAPER_TRIAL_ENABLED: "true",
+    DISTRIBUTIONAL_EFFICIENT_TRAINING_ENABLED: "true" }).distributionalEfficientTrainingEnabled, true);
+});
+
+test("three-date distribution trial is explicit and restricted to normal paper trading", () => {
+  const base = { TRADING_MODE: "paper", DISTRIBUTIONAL_ENGINE_ENABLED: "true" };
+  assert.equal(loadConfig(base).distributionalPaperTrialEnabled, false);
+  assert.equal(loadConfig({ ...base, DISTRIBUTIONAL_PAPER_TRIAL_ENABLED: "true" }).distributionalPaperTrialEnabled, true);
+  for (const patch of [{ TRADING_MODE: "shadow" }, { TRADING_MODE: "replay" }, { TRADING_MODE: "record" },
+    { DISTRIBUTIONAL_ENGINE_ENABLED: "false" }, { PAPER_ENTRY_EXERCISE: "true" }]) {
+    assert.throws(() => loadConfig({ ...base, ...patch, DISTRIBUTIONAL_PAPER_TRIAL_ENABLED: "true" }),
+      /PAPER_TRIAL_REQUIRES_PAPER_DISTRIBUTION_ENGINE/);
+  }
+});
+
 test("dashboard defaults are ready for the EC2 container endpoint", () => {
   const cfg = loadConfig({ TRADING_MODE: "replay" });
   assert.equal(cfg.dashboardHost, "0.0.0.0");
   assert.equal(cfg.dashboardPort, 3_001);
+});
+
+test("distribution market history uses a separate checkpoint and honors an explicit startup path", () => {
+  const base = { TRADING_MODE: "paper", DISTRIBUTIONAL_ENGINE_ENABLED: "true", DISTRIBUTIONAL_STATE_FILE: "/tmp/model-state.json" };
+  assert.equal(loadConfig(base).distributionalHistoryFile, "/tmp/model-state.json.market.json");
+  assert.equal(loadConfig({ ...base, DISTRIBUTIONAL_HISTORY_FILE: "/tmp/prepared-market.json" }).distributionalHistoryFile,
+    "/tmp/prepared-market.json");
+  for (const path of ["", "/tmp/./model-state.json", "/tmp/model-state.json.pending", "data/kraken-paper-state.json",
+    "data/continuous-events.jsonl.gz", "data/events.jsonl"]) {
+    assert.throws(() => loadConfig({ ...base, DISTRIBUTIONAL_HISTORY_FILE: path }), /HISTORY_REQUIRES_SEPARATE_FILE/);
+  }
+});
+
+test("historical distribution training is optional and cannot alias mutable runtime files", () => {
+  const base = { TRADING_MODE: "paper", DISTRIBUTIONAL_ENGINE_ENABLED: "true", DISTRIBUTIONAL_STATE_FILE: "/tmp/model-state.json" };
+  assert.equal(loadConfig(base).distributionalTrainingFile, undefined);
+  assert.equal(loadConfig({ ...base, DISTRIBUTIONAL_TRAINING_FILE: " " }).distributionalTrainingFile, undefined);
+  assert.equal(loadConfig({ ...base, DISTRIBUTIONAL_TRAINING_FILE: "/tmp/prepared-training.json" }).distributionalTrainingFile,
+    "/tmp/prepared-training.json");
+  for (const path of ["/tmp/./model-state.json", "/tmp/model-state.json.tmp", "/tmp/model-state.json.pending",
+    "/tmp/model-state.json.pending.tmp", "/tmp/model-state.json.market.json", "/tmp/model-state.json.market.json.tmp",
+    "data/kraken-paper-state.json", "data/continuous-events.jsonl.gz", "data/events.jsonl"]) {
+    assert.throws(() => loadConfig({ ...base, DISTRIBUTIONAL_TRAINING_FILE: path }), /TRAINING_REQUIRES_SEPARATE_FILE/);
+  }
 });
 
 test("JSON baseline wins over legacy tunable environment values and symbol overlays stay isolated", () => {
@@ -50,7 +107,7 @@ test("JSON baseline wins over legacy tunable environment values and symbol overl
       [3_600_000, 7_200_000, 14_400_000]);
     assert.equal(cfg.deterministicSignal.requireMakerEntry, true);
     assert.equal(cfg.deterministicSignal.allowTakerContinuation, true);
-    assert.equal(cfg.configurationVersion, "btc-eth-profit-screen-v10.4.2");
+  assert.equal(cfg.configurationVersion, "btc-eth-distributional-v11.0.0");
     assert.equal(cfg.deterministicSignal.pullbackRecovery.maximumReversalAgeMs, 600_000);
     assert.equal(cfg.position.minimumHoldMs, 60_000);
     assert.equal(cfg.position.unproductiveExitMs, 900_000);

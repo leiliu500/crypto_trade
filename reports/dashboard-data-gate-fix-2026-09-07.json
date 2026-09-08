@@ -1,0 +1,38 @@
+{
+  "version": "dashboard-data-gate-fix-v1",
+  "verifiedAt": "2026-09-07T18:05:27.246Z",
+  "serverSnapshotAtMs": 1788804326605,
+  "overall": "healthy",
+  "tests": {
+    "dashboardPassed": 47,
+    "failed": 0,
+    "typeScriptBuildPassed": true
+  },
+  "clockOffsetReproductionMs": 6000,
+  "browserClockObserved": false,
+  "servedFileMatchesTestedFile": true,
+  "servedFileSha256": "a2686af64831e559410e94fc063f626ab0033b6b651b8bae715bb6951d6bf470",
+  "engineRestarted": false,
+  "markets": [
+    {
+      "symbol": "BTC/USD",
+      "bookValid": true,
+      "stale": false,
+      "providerAgeMs": 69,
+      "modelReady": true,
+      "beforeBadge": "DATA GATED",
+      "afterBadge": "BOOK VALID",
+      "entryReason": "INSUFFICIENT_DAYS"
+    },
+    {
+      "symbol": "ETH/USD",
+      "bookValid": true,
+      "stale": false,
+      "providerAgeMs": 68,
+      "modelReady": true,
+      "beforeBadge": "DATA GATED",
+      "afterBadge": "BOOK VALID",
+      "entryReason": "INSUFFICIENT_DAYS"
+    }
+  ]
+}

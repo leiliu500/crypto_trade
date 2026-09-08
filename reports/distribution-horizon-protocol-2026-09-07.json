@@ -1,0 +1,38 @@
+{
+  "createdAt": "2026-09-07T23:31:14.158Z",
+  "trainingStart": "2026-08-27T00:00:00Z",
+  "laterStart": "2026-09-07T00:00:00Z",
+  "cutoff": "2026-09-07T18:07:03Z",
+  "sourceHashes": {
+    "src/distribution/checkpoint.ts": "98bcdca5bcc0e196cc5afa71238b2cc34746560f95864a97b5032f37e4169799",
+    "src/distribution/controller.ts": "d8407956f05d67c7de5145cb5db3a0e85f18142aa878cdadcaf952510e81e241",
+    "src/distribution/execution.ts": "e7ebe161ce78547a3a3ba47fadbfbb02d90fbb39ff0f295a5e8b9e7e2dfe684f",
+    "src/distribution/history-checkpoint.ts": "dc90e8965745161ac353123d1d7655b2742ce7a63d463792b68f01b473e47d14",
+    "src/distribution/history-main.ts": "d5c96079d4a1638d1a02f760b8fc34fdac5a6a227feea19211f5c6fc75dab463",
+    "src/distribution/history-replay.ts": "ea05e984c2f20956a53573c2d231ed4d9b0bd9e8272b12cbf7425b1ef6ba53c2",
+    "src/distribution/horizon-assessment.ts": "bc34224eb50cf53db7f755b5593bb1bb602859994cf70170b8c4069a86c6ae8d",
+    "src/distribution/horizon-main.ts": "426060052ef904a0358e553608cf0f6e447bc55c823f1315c9e8bca2eb34a072",
+    "src/distribution/horizon-replay.ts": "73f4bcbf027341a94dca4564bc216e7d8b924f2b18826168a1162a3d3457ee3f",
+    "src/distribution/horizon-spec.ts": "52dcfce6878f471e25fe8821841910203d1b4b5a2a667529b60a17bb4fcc4f61",
+    "src/distribution/market.ts": "a5f88bcbcdbed0dbc0cc90f8fa682f9c83651349dedff0da64569f883b8be5d9",
+    "src/distribution/model.ts": "bd639d5ba1e645fe1dacb62727c14b28ca0884fc21484f48bec89af05130b1b4",
+    "src/distribution/planner.ts": "947aecf1d2f711c8ef097147bedd3988550f7dfbcaef665e892703a3070f4f6b",
+    "src/distribution/replay-main.ts": "3793cabd107f41710aedfe582f4fc80f41d1c301ec92c8b2bf40405c18b7b918",
+    "src/distribution/replay.ts": "9ed29f3e2b3679c5bf3936e0e9ffb2aee04b8463c84a4e137c240e8a7c48887b",
+    "src/distribution/spec.ts": "f429aaf2b169888381bb915425065b7fa6750c10aa3cd8fb2ba8bcd8932ca2c6",
+    "src/distribution/training-backfill.ts": "2ac997817acc2e038d5eaf022f163da0f08b26ae14d4c0ad74c5928c00712a88",
+    "src/distribution/training-import.ts": "3e6ef569257fd06c77a739d02c379a65acfb86484c0b941b62648091a234ee4a",
+    "src/distribution/training-main.ts": "a2df2d8bcae703a5056f0a756ea29cb1a0c1c699b04ef9e8096f762a32167fc8",
+    "src/core/order-book.ts": "030a9979f2f6a1f4d736e4b927202ffeb446fb1a5a25a18f0a427dc61624db63",
+    "src/config.ts": "7e3ef648e042a29345b97e75138db7b97731ada5f9e95ae3d886e344ee4eb420",
+    "config/base.json": "4279c1b10631fe13cb0ce132a100c5abe5b91f3235019411555e5c44f4d9bc94",
+    "docs/HORIZON_COMPARISON.md": "e0f6fbf6cdc5ea5685ab70fd2d090564cf365eb448bc66a768dc63c471421970"
+  },
+  "validation": {
+    "build": "passed",
+    "testsPassed": 569,
+    "testsFailed": 0
+  },
+  "smokeReportSha256": "68551f0839c49a1a1af8cadb071610d3dae748451d62ab1808dac3873b5577d4",
+  "selectionChangedAfterFullResults": false
+}

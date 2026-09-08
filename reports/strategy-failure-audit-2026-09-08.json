@@ -1,0 +1,2769 @@
+{
+  "version": "btc-eth-strategy-failure-audit-v1",
+  "generatedAt": "2026-09-08T20:40:32.392Z",
+  "classification": "INSPECTED_HISTORICAL_EX_POST_OPPORTUNITY_AUDIT",
+  "sourceHashes": {
+    "dist/src/distribution/predictive-audit-data.js": "72745b0fa308a59936c9fa6af169dd470fdb3971ac8e9d48816c4fc1998666d8",
+    "dist/src/distribution/model.js": "11e9e5b66e99288d2f9a01084bcad3bb7e087ceb5bcb5136c878ef3482ee65e9",
+    "dist/src/distribution/spec.js": "90389311cb95670ace8cf25ca0a57632d125cc727908cf3566d169016377438f"
+  },
+  "sourceHashesUnchanged": true,
+  "model": "Existing efficient-training conditional model; frozen daily banks; paper-trial minimum training dates=3",
+  "forecastsExactlyMatchRecordedEfficientMeans": true,
+  "thresholds": {
+    "samples": 48,
+    "effectiveSamples": 32,
+    "trainingDates": 3,
+    "minimumScoreExclusiveBps": 1
+  },
+  "definitions": {
+    "profitable": "Known recorded execution outcome with netBps strictly greater than zero.",
+    "allStressProfitable": "All three execution scenarios known and each netBps strictly positive.",
+    "completeSixActionAllStressOrigin": "All 18 action/scenario outcomes known at that asset-origin.",
+    "primaryBlocker": "Uses model support/data reason first; on support-ready paths, min scenario predicted mean <=0, (0,1], or uncertainty/tail when every mean >1 but score <=1.",
+    "independentForecastCounter": "worstForecastNonpositive is counted regardless of support, so support-gated paths can also have negative expected returns."
+  },
+  "windows": [
+    {
+      "name": "first",
+      "source": {
+        "mode": "DEVELOPMENT",
+        "startMs": 1788746400000,
+        "endMs": 1788756556000,
+        "untouched": false,
+        "costs": {
+          "BTC/USD": {
+            "feeBps": 5,
+            "reserveBps": 3
+          },
+          "ETH/USD": {
+            "feeBps": 5,
+            "reserveBps": 3
+          }
+        },
+        "assets": {
+          "BTC/USD": {
+            "symbol": "BTC/USD",
+            "minOrderSize": 0.0001,
+            "minTradeIncrement": 0.0001,
+            "priceIncrement": 1,
+            "maximumOrderQty": 1200,
+            "shortable": true
+          },
+          "ETH/USD": {
+            "symbol": "ETH/USD",
+            "minOrderSize": 0.001,
+            "minTradeIncrement": 0.001,
+            "priceIncrement": 0.1,
+            "maximumOrderQty": 21000,
+            "shortable": true
+          }
+        },
+        "sourceHashes": {
+          "package-lock.json": "2315bada829d31ccb4d3970392ba56d73458d3219dda1ec98d8dda0d41893594",
+          "package.json": "cef4bf27154caaf4e2f2d623ce9d3cb4b319e3d6b81a40ee3197f12d3e13c3d5",
+          "src/analysis/distribution-trial-report.ts": "e24809b0c486cacb4ef5477c9e6c7775fdd0712b1315f9b07b1be481c3651e87",
+          "src/analysis/model-trade-audit-main.ts": "aa87ac5136b30b9e5c182eaaf5ca10e27db2bba191c8bd4e3eae9398029b9b1e",
+          "src/analysis/model-trade-audit.ts": "0163d6a71d3a56930df45a905b6d392a1a87ffd7eba63bbbdbc549c015e82c4a",
+          "src/analysis/optimization-main.ts": "cffe1762a5b65141da2bc0a1608c52b68d866d17608388cc29284a87226c6521",
+          "src/analysis/rejected-entry-main.ts": "1429cec967efa5d85b877a7ab23f003d2791ea2f7f8b8fbe840c3e44e733acdc",
+          "src/analysis/rejected-entry-report.ts": "4a26b000e658e9ada28edefd1b2cc3121f29d5ad9c18d9af26cf687727339bc5",
+          "src/analysis/trade-optimization.ts": "bf3e2d9f645eb8ea6426e710e76e2c0fb97ba7e48081020656f8247607f2b238",
+          "src/backtest/metrics.ts": "e2c360cd378d243226d8e3f3640d61186cd62ae14caeb86e1233d483dc292116",
+          "src/backtest/opportunity-recall-main.ts": "04f77c67aca30d4e15da29157ab3c35c2e02409d68f0ab19f3f867d95758c743",
+          "src/backtest/opportunity-recall.ts": "8ed40932045194c40ac12b3ca982abc8fd0ac3988593be15389f96db163196ec",
+          "src/backtest/replay.ts": "1722fa21f72dac116854305ae544f9c23120d443a69d60fb985c6327ab6dc945",
+          "src/calibration/calibrated-edge-table.ts": "e244fe82487f1ca8ec2aee70b8932e351d44b4b5e1d43083d9124126fcf359f2",
+          "src/calibration/effective-sample-count.ts": "31a3eff4086b9f585875cea6af066ec4f2799e98cff77a44ec895aacc7bf78b2",
+          "src/config.ts": "7e3ef648e042a29345b97e75138db7b97731ada5f9e95ae3d886e344ee4eb420",
+          "src/config/deterministic-defaults.ts": "5c4d6ea179d6422643e87d9c7fbb8cd7fcd5d6522ef3b46b6ebb4a58dadc1351",
+          "src/core/decimal.ts": "ff4bee043ea9755d92c1b0f0eadf2e46d0a38566ae4933f26a897751532154da",
+          "src/core/features.ts": "4b837fac12efe9f956d0d2ce482890e6814ba1f071d6c1d8d48c85e1f56e3d5b",
+          "src/core/latency.ts": "c249ec68265fb2a4b90e89925191924678c1a5b66b2129b3469fad7c8e2a752d",
+          "src/core/market.ts": "8bbdd7973b1ba9ee15f30177273cc9b16df4c3c00bbad9547b25bfa20e512837",
+          "src/core/order-book.ts": "030a9979f2f6a1f4d736e4b927202ffeb446fb1a5a25a18f0a427dc61624db63",
+          "src/core/statistics.ts": "645b30d5f158c1a99b015da138e4a93d13315d7b047572b07d6a772e0b5c90b2",
+          "src/dashboard/demo-main.ts": "8f623f7c8bd6bb0cc314640191382c0373cfc35900f6caeadc609b53ecd5bf06",
+          "src/dashboard/operations-monitor.ts": "fecb2dd38767bfa5ffb281515f7148f3094172e537f048be10131a7d466c38ab",
+          "src/dashboard/server.ts": "672c6b2946e25e115efe845b8a6143200f1d6536318fb2e33d2752d789a101c2",
+          "src/dashboard/types.ts": "56c9c108923337beff7c9c74c20e8a1d5c7bbea0fbb452adc7fe2c3739fc9793",
+          "src/database/migrate-main.ts": "5dc3840b890e877daa74f375b275b7659d0fe6e10c98be1a6a1690e8e29a8aba",
+          "src/database/migrations.ts": "9c45dca43d1526b052624812816c43e66b462fe1b2f55659d134c88baea91a1f",
+          "src/database/postgres-store.ts": "d4bb973eddd170fd22b5ecf8fc4ee47faa83c5047373a205473147cc56958e37",
+          "src/database/smoke-main.ts": "db67d9594cf0938c431ff99205b6588287337100b3ea51c3a49785351c3ac5d6",
+          "src/database/verify-main.ts": "d445a51ddbadb771ac07ecbc078c2186276f32ce3ef7ea8ec5d71e7ba97b7bdd",
+          "src/distribution/checkpoint.ts": "98bcdca5bcc0e196cc5afa71238b2cc34746560f95864a97b5032f37e4169799",
+          "src/distribution/controller.ts": "d5ef547db91277836bce0a52db2fedada5ee028564628e5a5c4a6e6b48291136",
+          "src/distribution/efficient-trainer.ts": "b73bc12402b0f2c96b6c3ebe1e8e51a8939673c7c3a78b2380d893036b7fe806",
+          "src/distribution/execution.ts": "e7ebe161ce78547a3a3ba47fadbfbb02d90fbb39ff0f295a5e8b9e7e2dfe684f",
+          "src/distribution/history-checkpoint.ts": "dc90e8965745161ac353123d1d7655b2742ce7a63d463792b68f01b473e47d14",
+          "src/distribution/history-main.ts": "d5c96079d4a1638d1a02f760b8fc34fdac5a6a227feea19211f5c6fc75dab463",
+          "src/distribution/history-replay.ts": "ea05e984c2f20956a53573c2d231ed4d9b0bd9e8272b12cbf7425b1ef6ba53c2",
+          "src/distribution/horizon-assessment.ts": "bc34224eb50cf53db7f755b5593bb1bb602859994cf70170b8c4069a86c6ae8d",
+          "src/distribution/horizon-main.ts": "426060052ef904a0358e553608cf0f6e447bc55c823f1315c9e8bca2eb34a072",
+          "src/distribution/horizon-replay.ts": "73f4bcbf027341a94dca4564bc216e7d8b924f2b18826168a1162a3d3457ee3f",
+          "src/distribution/horizon-spec.ts": "52dcfce6878f471e25fe8821841910203d1b4b5a2a667529b60a17bb4fcc4f61",
+          "src/distribution/market.ts": "0279523eb000862aa43d4af8f203ac6e476c8a01b45c6c4d13703811d49d0b28",
+          "src/distribution/model.ts": "54dad777f1bbea1f9f24c531ab7600e0da9328c824f90ab3875de5c4606beabf",
+          "src/distribution/planner.ts": "947aecf1d2f711c8ef097147bedd3988550f7dfbcaef665e892703a3070f4f6b",
+          "src/distribution/replay-main.ts": "3793cabd107f41710aedfe582f4fc80f41d1c301ec92c8b2bf40405c18b7b918",
+          "src/distribution/replay.ts": "9ed29f3e2b3679c5bf3936e0e9ffb2aee04b8463c84a4e137c240e8a7c48887b",
+          "src/distribution/spec.ts": "f692007a028817060b51a7e42a916c92f684a1554be4505fbc0eeeb139cb803a",
+          "src/distribution/study-main.ts": "1892f8e12316937a5116d10127f69aae8d81919c6d8c6febf9c73a9fb7aa440c",
+          "src/distribution/study.ts": "21470822803b4bc360f56c502f8d6e62e79d698ba09002ca09e8d5d287d7450f",
+          "src/distribution/training-backfill.ts": "2ac997817acc2e038d5eaf022f163da0f08b26ae14d4c0ad74c5928c00712a88",
+          "src/distribution/training-import.ts": "3ba45d8d8b7e51c1cc6aca21c6c2ff5c72f597957a5aecebf7e15d99c63befd1",
+          "src/distribution/training-main.ts": "a2df2d8bcae703a5056f0a756ea29cb1a0c1c699b04ef9e8096f762a32167fc8",
+          "src/economics/analytic-edge.ts": "3cc99bf104bc0cf634f36d07a1c4f7bce6f16858f289e173d78e82ace579cc30",
+          "src/economics/economic-edge-resolver.ts": "fe7b953d41e9516987bcb5819dcec7bfcee4337f69c4ce78f075be74561d5631",
+          "src/economics/feasibility-audit.ts": "7fb3e533cefefbbac3c16c12ef085df0a4237988aa90622e3d0c3363345eee5f",
+          "src/economics/fee-validation.ts": "49fd1d83461d6786d9c2c391d39c878bea51779b60380e359a6ca3ec8723fce2",
+          "src/economics/multi-horizon-cost-gate.ts": "002f2f136c5b87cb219ec40689a7f93040094cecc8dbac857645faf39216344b",
+          "src/economics/net-liquidation.ts": "2a3d21588c1d8a73b93422baef2e8db1b044a071d47e5fb43146ac6471ab0578",
+          "src/economics/types.ts": "36c0ed80307ce8a7ff0ccbd3e04671582f0ddacd9fc41a932ee8f33e21dd46f8",
+          "src/engine/entry-pipeline-audit.ts": "f97e9d9a2791f2bb73d01786fe631b8c8486faf51748c0a3e0427125766fee78",
+          "src/engine/trading-engine.ts": "adfb4aff3ea87e568eeb5b6ef1167a5ed1a9f5ee57059ef28940eabdcfd7b8c1",
+          "src/engine/watchdog.ts": "f9072da3dd4e5e019b510d674307fb5e6ee145fbd0cb37666091f9786b1b0aa3",
+          "src/env.ts": "fc48ff6ba17d9a7f370266e9378f6cfff6630c61d7e7a65f983f86ec26289ca5",
+          "src/execution/book-walk.ts": "a080eb816006402e7886ab9ab4f8b495f391db21a4e69a4b3a5fa125e516f9e5",
+          "src/execution/entry-route-shadow.ts": "1d4d276a001a23d8475bd487b57dd4e3eaeb363f85d305670fce440b2e67ad89",
+          "src/execution/hybrid-entry-router.ts": "0f273aed5daa9f0872c83cc0ebaf52be6e5e2555c5d043906814986d24a0235a",
+          "src/execution/order-state.ts": "aef97d506ac251527f475dded0800d2fa0aa37d3f5668ee9c11b88c64fe02da0",
+          "src/execution/planner.ts": "5954f3b7796fd7ba907e251de7f933e52680b8ab9abb69ba332ab961e87f3604",
+          "src/index.ts": "88bac69fe29cc516cda7177c27ec4a4e12373e34ed08453fc3f1569c64d4682d",
+          "src/kraken/account-fees-main.ts": "75ba2383780a5b13a4573394c0f0730fec7f92946092012c57df979c1b695799",
+          "src/kraken/account-fees.ts": "727a71f506f03e6ab93845a9214260e7f6550ba4966f97185044ca5bc191180f",
+          "src/kraken/market-stream.ts": "42b3005e966c09c0b1fe12012569ac27062a16436a05c373fac28ad514df7d89",
+          "src/kraken/paper-broker.ts": "8a5f27b3439fc09f4e57596e59c2ec12534ec69024a6be58ec8fb00fe93394aa",
+          "src/kraken/paper-history.ts": "275ddfecbba7024a3a2796e7cff50a83147630c73568b12b6d873343528f71d2",
+          "src/main.ts": "8fe229ba692976bd35b78f57afb7a5ef23619fee7a9ff2d10e65981e1b243618",
+          "src/recorder.ts": "3b5c996a5e968b918ce385b4d2546463a9023f53d13a2f0cea798c313ae3548c",
+          "src/research/alpha-research-main.ts": "4b6fe32e9d4678d7413caeeed3caba53e7ab6c27ab496d6f09ddd8873b90a45b",
+          "src/research/alpha-research-store.ts": "2759ab3d41a06e43b9ccb5707432a6c87a7aa43f484797717d795779335694a2",
+          "src/research/alpha-research.ts": "73c768ad8d22635ced94cbc83147e141f73a250a6623c7b41a6821c3ef12c419",
+          "src/research/block-expectancy.ts": "02ef82c18c540dbbac4eeda18442167ecb9e7114a4148573b2cb19f03376cade",
+          "src/research/conditional-edge-main.ts": "4d4376209b0ec8d1c305fbce96def720b319d25c1428a7f03230724fd45fa31b",
+          "src/research/conditional-edge.ts": "799e78de0c5969cfb218e9d4a893666e22ca5abde8124112ea21f377cb797454",
+          "src/research/cross-asset-export-main.ts": "ca17fadd29088c218a19566185d393a6dc9bcf8e401fa67c3e7996b8cce5d47a",
+          "src/research/cross-asset-history.ts": "4dc7ae8746a568dc5bb186959f29725194e7b98a8c04b696f0144dec31f149d9",
+          "src/research/cross-asset-main.ts": "e3bba5df8b844c65575d2f8cd099e5956122d36731cb2515353e85c11483b57d",
+          "src/research/cross-asset-model.ts": "dbe2034039b0e4c2824a22f0a407aba9aafda3e54c2d74ad28dea26ae0fe9ecf",
+          "src/research/cross-asset-replay.ts": "5088637dc33d7330835024c04988ea5575d656643606a843964e08e952132694",
+          "src/research/cross-asset-warmup-main.ts": "2e27c8f6cb86109680b6730e9a8728670fb6a952b52cd6902c5fa9a0b3234537",
+          "src/research/cross-asset-warmup.ts": "ac10aa0e940cab9cc85f2b78b9b5e745870c62ae32ef4df3bb81e64babb49b03",
+          "src/research/dynamic-bayes.ts": "c4b765e68588ff5ba2209abe9739ffc4db8218b0d2a19922db64449bda3f2336",
+          "src/research/episode-main.ts": "35fcb6370d7b07dffb1ec08126e07e2969ffe32c93141226f6d10570772eef97",
+          "src/research/episode-replay-main.ts": "7ddec70de898aa128bdbb5c0ead0e9f57aac41df47221a1225f3ebe6afbaaa62",
+          "src/research/episode-replay.ts": "b8f39de8a988014088d573ec3ad44bcfb85872b5e40e1156929d6dbd8389188f",
+          "src/research/episode-report.ts": "f11fea45dcc67ae021ed187f3d659d0ca9b04117d9b755a87c91b3dca58003c0",
+          "src/research/episode-store.ts": "ca559748b282458dedfdf5302f0fd9e762833b3a4dc5a190a6d9989f1e970382",
+          "src/research/execution-stress.ts": "33ed77c77e0af402241a4d6f5048d8d990dac6eb2c6797845001e4f9bef97aa5",
+          "src/research/export-alpha-dataset-main.ts": "fb81edae63b6b4422f8078177ef1ead2fc5e6a378af9f1c24a3bdeafa9d9f313",
+          "src/research/model-experiment-main.ts": "bdf2f6220f601831dd94d3a2c2b7b3ea4084d372ee74e76bb8ac35072b307dbf",
+          "src/research/model-experiment.ts": "004ce0b515412c8008a739cc1892e86bbcadcee4b4407dea9dfced65960a6233",
+          "src/research/policy-collector.ts": "8b3411b4e0c7e55cb5d8c340b3ded62ab9e657966791b7cde0da68636c3733d7",
+          "src/research/policy-comparison-main.ts": "c8e9b98dcbea267fb1e2bf72de3d9e7bb715b8cecd2031c55b5b96ea31b34640",
+          "src/research/policy-comparison.ts": "028c3b1ba1f86a25e68b5df0a45c8291b98bd3c34cf803d0b0243c7a99d2843a",
+          "src/research/policy-main.ts": "662f99b0cc07ef20e71b735996e5ae90ed8d1742a2926f3499182c4aecaa585d",
+          "src/research/policy-planner.ts": "0b1a6d446800a1180e497a1cf98254150027343fcde80fefbddae552e6c62ad8",
+          "src/research/policy-pulse.ts": "e9a11dc0bcc034bcc81f8c90ae4a70f9631cdff75db2d3cb28b775ad0844f27c",
+          "src/research/policy-restore.ts": "4d9716055e0eec226907d43fa59354778c36215e072a36f28878908fccc58188",
+          "src/research/policy-store.ts": "a6a5a3117e1a17e38372327c73ca55af4e40ba77c5a9188271de3fa2981be233",
+          "src/research/policy-validation.ts": "d60c4be46b3da889bd1698a03a5989d2d1c836b91cb3f0e86b9b925e1f3b013a",
+          "src/research/retest-replay-main.ts": "ca390efd02c67d351ebed870d1ee621b83024c0a4306731284cb2b878e8aba7b",
+          "src/research/retest-replay.ts": "f9731684a4a179da57abc57e1e13dd3c669a60cca8da6d6300fffd0e72172c41",
+          "src/research/signal-episodes.ts": "81650f3fb1bb94076d817ddceaca56504ceff440c2fdb640a299a03d41c10d8a",
+          "src/research/trading-policy.ts": "73309f308d806f58647bb51b8a489599101674ab8bef9107d065d6bb8dae8746",
+          "src/risk/economic-risk-sizer.ts": "0f8d9eb0ca297c3fbb2b02cd2ec54132608fa247c9cf814c3587aa563badc74a",
+          "src/risk/portfolio.ts": "57ec97ec9aba307100d9baedc123bcf882582203d6d0976842b20650af5afceb",
+          "src/risk/risk-state.ts": "c1ecf832e39a91b257fd709a61cefd06bab2045a42194738e4b634172433266b",
+          "src/risk/sizing.ts": "3d0be830f15c1188d116e6209d6b014a53b28c400467399d5a1b669821dbb920",
+          "src/strategy/breakout-retest.ts": "22fec8ee06a1fe3f070ed6e450c512c2672d6731641d6759b633e75bfb35f735",
+          "src/strategy/continuation-quality.ts": "5c0c6dbab15fb7366851eb7e48104cc1ed48e1cd7b24515d207cfdefc147e463",
+          "src/strategy/cost.ts": "96387e8f3a6206bf20ddbb9be0e39737e12aecded568737fb060b7794e5bc1cc",
+          "src/strategy/deterministic-edge-resolver.ts": "71b69dfad5895cd4e15a3f7e49dc12fd9a4d807554e2581aa9e8a16525f8bea2",
+          "src/strategy/deterministic-entry.ts": "f92040dfa45628c53738c5ca5aa946134255f1853227f0236489dcf8fba99593",
+          "src/strategy/deterministic-features.ts": "ff6ff7d063d00a90831576769e52a3e7224fbbd81e389503542353ff67109faf",
+          "src/strategy/deterministic-hold.ts": "a28bd371775681b0d0ff19d07f60248abecfc4c35eeac750915a5895cc62b888",
+          "src/strategy/deterministic-regime.ts": "56eb5bd467adcaa204a6bb44eec93fc7869e88a638add9fd7af2769496384550",
+          "src/strategy/dynamic-liquidity.ts": "36cbaf999a0f23dcd45b311a439377a15dab085da241567531c5b9f6fd6baa99",
+          "src/strategy/early-breakout.ts": "55a0a8a602923e221b90b0f25873119d0247235cdfb8f2410bb7fd14007e49b9",
+          "src/strategy/forecast.ts": "b48c3f05f129a63f466d8e2a947b10999f0b599c8ded9527226bd78546f4933f",
+          "src/strategy/micro-fraction-types.ts": "e5b91659460e318279e0abb1c8920b91c1192b3e305960e90fcd0ac3e15f6b70",
+          "src/strategy/position-manager.ts": "eacc4f3d2a0abba2703cfc9af26ead4eaf84ba0b2f51da48a9b48dab95aa7364",
+          "src/strategy/pullback-recovery.ts": "528b435f11611bfae8b544c9e4b53fb7264894181f7570b3cb3489a408bc2745",
+          "src/strategy/regime.ts": "30162ea42165d16d2557439242831fbb897c8a1cf121ed29d9dfcc5bfc274d03",
+          "src/strategy/signal-router.ts": "24c81a19eb6125fa1c32c7265ae8bccf8ae61520b07d7bf911b3a498a557e651",
+          "src/strategy/signal.ts": "16abdd19fedae0774ec75cf35988a4cf033d19e6739397c54c4ccc821e45fb97",
+          "src/strategy/small-fraction-entry-trigger.ts": "6b0d3b9d319e074282c4ea7946a93f2d0a9f3301c7e030e68cb4be7d2c92d703",
+          "src/strategy/time-ewma-square.ts": "e41c97ffd5914cafa3ac81733cc0edb4c9ffc40e364c0c97980ebdf20176720f",
+          "src/venue/client.ts": "14c9a6fad0580f43d21926983558f097e0255b33e5b56a2b297517bf2884be2e",
+          "src/venue/market-history.ts": "f6879a6adebe2877c5fbbc7fcf21661822e6a361d8214827fa264d459501b633",
+          "src/venue/types.ts": "f252a3dca5d5a0747f7af5d767b1cf10dab5575da968659be23291eabaf84ec7"
+        },
+        "report": {
+          "path": "/home/ec2-user/crypto_trade/reports/conditional-history-study-2026-09-08/conditional-development-20260908.json",
+          "sha256": "89df0bdaab9653cdeea6383a6c642a15acf18d5799af7699e6ba472cc248548e"
+        },
+        "audit": {
+          "path": "/home/ec2-user/crypto_trade/reports/conditional-history-study-2026-09-08/conditional-development-20260908.json.audit.jsonl.gz",
+          "sha256": "bf3dee9784a0252c658412d46656a7ff01f3d479fe30274efb41c549759882e2",
+          "records": 542,
+          "finalHash": "1a0c6f334a4f7d537e387ae89f3377c33ad3012f97c622c5866e3162543cf4cf"
+        },
+        "seed": {
+          "path": "/home/ec2-user/crypto_trade/reports/conditional-history-study-2026-09-08/first-protocol/seed.json",
+          "sha256": "f17e17d9a17ae0b8fb501b825852c07a3d80e706b90d08ff97ec2f696d8af1ff",
+          "samples": 810
+        },
+        "protocol": {
+          "path": "/home/ec2-user/crypto_trade/reports/conditional-history-study-2026-09-08/first-protocol/protocol.json",
+          "sha256": "2b45a8f6c20041e5aa811853e504ce6aaf8200af2333ba5f41c077600a24b986",
+          "createdAtMs": 1788888011397
+        },
+        "rawInputs": [
+          {
+            "path": "/tmp/distribution-recorded-20260907T044916Z.jsonl.gz",
+            "bytes": 311683914,
+            "sha256": "7a5e419e73613c65f0b0cd865c952f4826c034952a189749b375d6e46deb5ca6"
+          }
+        ],
+        "rawInputsRehashed": false
+      },
+      "assets": [
+        {
+          "symbol": "BTC/USD",
+          "origins": 5,
+          "actionPaths": 30,
+          "knownBasePaths": 26,
+          "unknownBasePaths": 4,
+          "knownAllStressPaths": 26,
+          "baseProfitablePaths": 5,
+          "originsWithAnyKnownBaseProfitablePath": 3,
+          "allStressProfitablePaths": 3,
+          "originsWithAnyAllStressProfitablePath": 2,
+          "completeSixActionBaseOrigins": 3,
+          "completeSixActionAllStressOrigins": 3,
+          "completeSixActionAllStressOriginsWithAnyAllStressProfitableAction": 2,
+          "baseProfitableOriginsWithAnyEligibleAction": 0,
+          "stressProfitableOriginsWithAnyEligibleAction": 0,
+          "allActionForecasts": {
+            "paths": 30,
+            "eligible": 0,
+            "supportReady": 0,
+            "primaryBlockers": {
+              "SUPPORT_OR_DATA_GATE": 30
+            },
+            "reportedReasons": {
+              "INSUFFICIENT_SAMPLES": 14,
+              "INSUFFICIENT_DAYS": 16
+            },
+            "worstForecastNonpositive": 30,
+            "worstForecastAboveOneBp": 0,
+            "minimumWorstForecastBps": -10.99577111362645,
+            "maximumWorstForecastBps": -5.316313745249552
+          },
+          "baseProfitablePathGates": {
+            "paths": 5,
+            "eligible": 0,
+            "supportReady": 0,
+            "primaryBlockers": {
+              "SUPPORT_OR_DATA_GATE": 5
+            },
+            "reportedReasons": {
+              "INSUFFICIENT_DAYS": 5
+            },
+            "worstForecastNonpositive": 5,
+            "worstForecastAboveOneBp": 0,
+            "minimumWorstForecastBps": -9.179440370827352,
+            "maximumWorstForecastBps": -6.45365355572813
+          },
+          "allStressProfitablePathGates": {
+            "paths": 3,
+            "eligible": 0,
+            "supportReady": 0,
+            "primaryBlockers": {
+              "SUPPORT_OR_DATA_GATE": 3
+            },
+            "reportedReasons": {
+              "INSUFFICIENT_DAYS": 3
+            },
+            "worstForecastNonpositive": 3,
+            "worstForecastAboveOneBp": 0,
+            "minimumWorstForecastBps": -9.179440370827352,
+            "maximumWorstForecastBps": -6.45365355572813
+          }
+        },
+        {
+          "symbol": "ETH/USD",
+          "origins": 5,
+          "actionPaths": 30,
+          "knownBasePaths": 27,
+          "unknownBasePaths": 3,
+          "knownAllStressPaths": 27,
+          "baseProfitablePaths": 5,
+          "originsWithAnyKnownBaseProfitablePath": 3,
+          "allStressProfitablePaths": 2,
+          "originsWithAnyAllStressProfitablePath": 2,
+          "completeSixActionBaseOrigins": 3,
+          "completeSixActionAllStressOrigins": 3,
+          "completeSixActionAllStressOriginsWithAnyAllStressProfitableAction": 2,
+          "baseProfitableOriginsWithAnyEligibleAction": 0,
+          "stressProfitableOriginsWithAnyEligibleAction": 0,
+          "allActionForecasts": {
+            "paths": 30,
+            "eligible": 0,
+            "supportReady": 4,
+            "primaryBlockers": {
+              "NONPOSITIVE_PREDICTED_MEAN": 4,
+              "SUPPORT_OR_DATA_GATE": 26
+            },
+            "reportedReasons": {
+              "SCORE_BELOW_MINIMUM": 4,
+              "INSUFFICIENT_SAMPLES": 12,
+              "INSUFFICIENT_DAYS": 14
+            },
+            "worstForecastNonpositive": 30,
+            "worstForecastAboveOneBp": 0,
+            "minimumWorstForecastBps": -13.602371618050729,
+            "maximumWorstForecastBps": -3.7320383476484205
+          },
+          "baseProfitablePathGates": {
+            "paths": 5,
+            "eligible": 0,
+            "supportReady": 0,
+            "primaryBlockers": {
+              "SUPPORT_OR_DATA_GATE": 5
+            },
+            "reportedReasons": {
+              "INSUFFICIENT_DAYS": 3,
+              "INSUFFICIENT_SAMPLES": 2
+            },
+            "worstForecastNonpositive": 5,
+            "worstForecastAboveOneBp": 0,
+            "minimumWorstForecastBps": -10.707283178281799,
+            "maximumWorstForecastBps": -4.682475503951019
+          },
+          "allStressProfitablePathGates": {
+            "paths": 2,
+            "eligible": 0,
+            "supportReady": 0,
+            "primaryBlockers": {
+              "SUPPORT_OR_DATA_GATE": 2
+            },
+            "reportedReasons": {
+              "INSUFFICIENT_DAYS": 2
+            },
+            "worstForecastNonpositive": 2,
+            "worstForecastAboveOneBp": 0,
+            "minimumWorstForecastBps": -7.701142243978565,
+            "maximumWorstForecastBps": -4.682475503951019
+          }
+        }
+      ],
+      "profitableActionPaths": [
+        {
+          "symbol": "BTC/USD",
+          "atMs": 1788746401248,
+          "at": "2026-09-07T02:00:01.248Z",
+          "actionId": "long-30m",
+          "cutoffMs": 1788746400000,
+          "bankSha256": "c66b1967dfa956281755bbbf16603a9cea432accb4442035a6bdb578036a25ae",
+          "baseKnown": true,
+          "baseNetBps": 1.2573105269099472,
+          "baseProfitable": true,
+          "allScenariosKnown": true,
+          "allStressProfitable": false,
+          "actualWorstNetBps": -3.746255583777124,
+          "supportReady": false,
+          "worstMean": -8.380189205412488,
+          "blocker": "SUPPORT_OR_DATA_GATE",
+          "estimate": {
+            "actionId": "long-30m",
+            "samples": 19,
+            "effectiveSamples": 17.859931304267846,
+            "observedDays": 2,
+            "meanNetBps": -8.380189205412488,
+            "lowerMeanNetBps": -13.937350147569717,
+            "tailLossBps": 33.00320533029162,
+            "scoreBps": -17.237670680598878,
+            "fillProbability": 1,
+            "reason": "INSUFFICIENT_DAYS",
+            "eligible": false
+          },
+          "forecast": [
+            {
+              "scenario": "base-250ms",
+              "meanNetBps": -6.3061233542711745,
+              "samples": 19,
+              "effectiveSamples": 17.859931304267846
+            },
+            {
+              "scenario": "fees-1.5x",
+              "meanNetBps": -8.380189205412488,
+              "samples": 19,
+              "effectiveSamples": 17.859931304267846
+            },
+            {
+              "scenario": "latency-750ms-depth-half",
+              "meanNetBps": -6.286098992064059,
+              "samples": 19,
+              "effectiveSamples": 17.859931304267846
+            }
+          ]
+        },
+        {
+          "symbol": "ETH/USD",
+          "atMs": 1788748260944,
+          "at": "2026-09-07T02:31:00.944Z",
+          "actionId": "long-15m",
+          "cutoffMs": 1788746400000,
+          "bankSha256": "c66b1967dfa956281755bbbf16603a9cea432accb4442035a6bdb578036a25ae",
+          "baseKnown": true,
+          "baseNetBps": 67.74598057943189,
+          "baseProfitable": true,
+          "allScenariosKnown": true,
+          "allStressProfitable": true,
+          "actualWorstNetBps": 61.38176536134897,
+          "supportReady": false,
+          "worstMean": -4.682475503951019,
+          "blocker": "SUPPORT_OR_DATA_GATE",
+          "estimate": {
+            "actionId": "long-15m",
+            "samples": 15,
+            "effectiveSamples": 14.704619797632663,
+            "observedDays": 2,
+            "meanNetBps": -4.682475503951019,
+            "lowerMeanNetBps": -12.122406893248709,
+            "tailLossBps": 31.057248800047947,
+            "scoreBps": -15.228131773253503,
+            "fillProbability": 1,
+            "reason": "INSUFFICIENT_DAYS",
+            "eligible": false
+          },
+          "forecast": [
+            {
+              "scenario": "base-250ms",
+              "meanNetBps": -3.338261065954094,
+              "samples": 15,
+              "effectiveSamples": 14.704619797632663
+            },
+            {
+              "scenario": "fees-1.5x",
+              "meanNetBps": -4.682475503951019,
+              "samples": 15,
+              "effectiveSamples": 14.704619797632663
+            },
+            {
+              "scenario": "latency-750ms-depth-half",
+              "meanNetBps": -3.1607597266992222,
+              "samples": 15,
+              "effectiveSamples": 14.704619797632663
+            }
+          ]
+        },
+        {
+          "symbol": "BTC/USD",
+          "atMs": 1788748262086,
+          "at": "2026-09-07T02:31:02.086Z",
+          "actionId": "long-15m",
+          "cutoffMs": 1788746400000,
+          "bankSha256": "c66b1967dfa956281755bbbf16603a9cea432accb4442035a6bdb578036a25ae",
+          "baseKnown": true,
+          "baseNetBps": 10.22386008744453,
+          "baseProfitable": true,
+          "allScenariosKnown": true,
+          "allStressProfitable": true,
+          "actualWorstNetBps": 5.2180512179879415,
+          "supportReady": false,
+          "worstMean": -6.45365355572813,
+          "blocker": "SUPPORT_OR_DATA_GATE",
+          "estimate": {
+            "actionId": "long-15m",
+            "samples": 27,
+            "effectiveSamples": 25.5815101225464,
+            "observedDays": 2,
+            "meanNetBps": -6.45365355572813,
+            "lowerMeanNetBps": -11.344571375177075,
+            "tailLossBps": 26.432519920565245,
+            "scoreBps": -13.9878233672336,
+            "fillProbability": 1,
+            "reason": "INSUFFICIENT_DAYS",
+            "eligible": false
+          },
+          "forecast": [
+            {
+              "scenario": "base-250ms",
+              "meanNetBps": -4.27308066809888,
+              "samples": 27,
+              "effectiveSamples": 25.5815101225464
+            },
+            {
+              "scenario": "fees-1.5x",
+              "meanNetBps": -6.45365355572813,
+              "samples": 27,
+              "effectiveSamples": 25.5815101225464
+            },
+            {
+              "scenario": "latency-750ms-depth-half",
+              "meanNetBps": -3.9579253494484976,
+              "samples": 27,
+              "effectiveSamples": 25.5815101225464
+            }
+          ]
+        },
+        {
+          "symbol": "BTC/USD",
+          "atMs": 1788748262086,
+          "at": "2026-09-07T02:31:02.086Z",
+          "actionId": "short-30m",
+          "cutoffMs": 1788746400000,
+          "bankSha256": "c66b1967dfa956281755bbbf16603a9cea432accb4442035a6bdb578036a25ae",
+          "baseKnown": true,
+          "baseNetBps": 15.49679571262607,
+          "baseProfitable": true,
+          "allScenariosKnown": true,
+          "allStressProfitable": true,
+          "actualWorstNetBps": 10.503916351234922,
+          "supportReady": false,
+          "worstMean": -8.783383259362857,
+          "blocker": "SUPPORT_OR_DATA_GATE",
+          "estimate": {
+            "actionId": "short-30m",
+            "samples": 26,
+            "effectiveSamples": 24.66349471149905,
+            "observedDays": 2,
+            "meanNetBps": -8.783383259362857,
+            "lowerMeanNetBps": -18.362392230708707,
+            "tailLossBps": 37.185227554102,
+            "scoreBps": -22.080914986118906,
+            "fillProbability": 1,
+            "reason": "INSUFFICIENT_DAYS",
+            "eligible": false
+          },
+          "forecast": [
+            {
+              "scenario": "base-250ms",
+              "meanNetBps": -6.643070208069306,
+              "samples": 26,
+              "effectiveSamples": 24.66349471149905
+            },
+            {
+              "scenario": "fees-1.5x",
+              "meanNetBps": -8.783383259362857,
+              "samples": 26,
+              "effectiveSamples": 24.66349471149905
+            },
+            {
+              "scenario": "latency-750ms-depth-half",
+              "meanNetBps": -6.594898149563816,
+              "samples": 26,
+              "effectiveSamples": 24.66349471149905
+            }
+          ]
+        },
+        {
+          "symbol": "ETH/USD",
+          "atMs": 1788750121346,
+          "at": "2026-09-07T03:02:01.346Z",
+          "actionId": "short-15m",
+          "cutoffMs": 1788746400000,
+          "bankSha256": "c66b1967dfa956281755bbbf16603a9cea432accb4442035a6bdb578036a25ae",
+          "baseKnown": true,
+          "baseNetBps": 4.128438905919404,
+          "baseProfitable": true,
+          "allScenariosKnown": true,
+          "allStressProfitable": false,
+          "actualWorstNetBps": -0.8672811243389873,
+          "supportReady": false,
+          "worstMean": -8.771678531830467,
+          "blocker": "SUPPORT_OR_DATA_GATE",
+          "estimate": {
+            "actionId": "short-15m",
+            "samples": 32,
+            "effectiveSamples": 31.111936845710655,
+            "observedDays": 2,
+            "meanNetBps": -8.771678531830467,
+            "lowerMeanNetBps": -13.006631401973333,
+            "tailLossBps": 35.02943498065398,
+            "scoreBps": -16.509574900038732,
+            "fillProbability": 0.9733868768272012,
+            "reason": "INSUFFICIENT_DAYS",
+            "eligible": false
+          },
+          "forecast": [
+            {
+              "scenario": "base-250ms",
+              "meanNetBps": -6.60129514127782,
+              "samples": 32,
+              "effectiveSamples": 31.111936845710655
+            },
+            {
+              "scenario": "fees-1.5x",
+              "meanNetBps": -8.771678531830467,
+              "samples": 32,
+              "effectiveSamples": 31.111936845710655
+            },
+            {
+              "scenario": "latency-750ms-depth-half",
+              "meanNetBps": -6.924746423259257,
+              "samples": 32,
+              "effectiveSamples": 31.111936845710655
+            }
+          ]
+        },
+        {
+          "symbol": "ETH/USD",
+          "atMs": 1788750121346,
+          "at": "2026-09-07T03:02:01.346Z",
+          "actionId": "short-30m",
+          "cutoffMs": 1788746400000,
+          "bankSha256": "c66b1967dfa956281755bbbf16603a9cea432accb4442035a6bdb578036a25ae",
+          "baseKnown": true,
+          "baseNetBps": 20.858542023330966,
+          "baseProfitable": true,
+          "allScenariosKnown": true,
+          "allStressProfitable": true,
+          "actualWorstNetBps": 15.867002428634148,
+          "supportReady": false,
+          "worstMean": -7.701142243978565,
+          "blocker": "SUPPORT_OR_DATA_GATE",
+          "estimate": {
+            "actionId": "short-30m",
+            "samples": 31,
+            "effectiveSamples": 30.11826472016634,
+            "observedDays": 2,
+            "meanNetBps": -7.701142243978565,
+            "lowerMeanNetBps": -12.98655942768924,
+            "tailLossBps": 40.04030154580308,
+            "scoreBps": -16.99058958226955,
+            "fillProbability": 0.9724335134348681,
+            "reason": "INSUFFICIENT_DAYS",
+            "eligible": false
+          },
+          "forecast": [
+            {
+              "scenario": "base-250ms",
+              "meanNetBps": -5.5753088843592336,
+              "samples": 31,
+              "effectiveSamples": 30.11826472016634
+            },
+            {
+              "scenario": "fees-1.5x",
+              "meanNetBps": -7.701142243978565,
+              "samples": 31,
+              "effectiveSamples": 30.11826472016634
+            },
+            {
+              "scenario": "latency-750ms-depth-half",
+              "meanNetBps": -5.865406851833394,
+              "samples": 31,
+              "effectiveSamples": 30.11826472016634
+            }
+          ]
+        },
+        {
+          "symbol": "BTC/USD",
+          "atMs": 1788750122144,
+          "at": "2026-09-07T03:02:02.144Z",
+          "actionId": "short-15m",
+          "cutoffMs": 1788746400000,
+          "bankSha256": "c66b1967dfa956281755bbbf16603a9cea432accb4442035a6bdb578036a25ae",
+          "baseKnown": true,
+          "baseNetBps": 0.9041841947113678,
+          "baseProfitable": true,
+          "allScenariosKnown": true,
+          "allStressProfitable": false,
+          "actualWorstNetBps": -4.092341496394402,
+          "supportReady": false,
+          "worstMean": -8.746615626082802,
+          "blocker": "SUPPORT_OR_DATA_GATE",
+          "estimate": {
+            "actionId": "short-15m",
+            "samples": 36,
+            "effectiveSamples": 34.629772244680034,
+            "observedDays": 2,
+            "meanNetBps": -8.746615626082802,
+            "lowerMeanNetBps": -11.237066785832898,
+            "tailLossBps": 26.863895456128777,
+            "scoreBps": -13.923456331445776,
+            "fillProbability": 1,
+            "reason": "INSUFFICIENT_DAYS",
+            "eligible": false
+          },
+          "forecast": [
+            {
+              "scenario": "base-250ms",
+              "meanNetBps": -6.309542344749187,
+              "samples": 36,
+              "effectiveSamples": 34.629772244680034
+            },
+            {
+              "scenario": "fees-1.5x",
+              "meanNetBps": -8.746615626082802,
+              "samples": 36,
+              "effectiveSamples": 34.629772244680034
+            },
+            {
+              "scenario": "latency-750ms-depth-half",
+              "meanNetBps": -6.272947946500845,
+              "samples": 36,
+              "effectiveSamples": 34.629772244680034
+            }
+          ]
+        },
+        {
+          "symbol": "BTC/USD",
+          "atMs": 1788750122144,
+          "at": "2026-09-07T03:02:02.144Z",
+          "actionId": "short-30m",
+          "cutoffMs": 1788746400000,
+          "bankSha256": "c66b1967dfa956281755bbbf16603a9cea432accb4442035a6bdb578036a25ae",
+          "baseKnown": true,
+          "baseNetBps": 8.921011117788264,
+          "baseProfitable": true,
+          "allScenariosKnown": true,
+          "allStressProfitable": true,
+          "actualWorstNetBps": 3.9264886318107006,
+          "supportReady": false,
+          "worstMean": -9.179440370827352,
+          "blocker": "SUPPORT_OR_DATA_GATE",
+          "estimate": {
+            "actionId": "short-30m",
+            "samples": 35,
+            "effectiveSamples": 33.68523255512118,
+            "observedDays": 2,
+            "meanNetBps": -9.179440370827352,
+            "lowerMeanNetBps": -12.968902008869645,
+            "tailLossBps": 34.938260826783235,
+            "scoreBps": -16.46272809154797,
+            "fillProbability": 1,
+            "reason": "INSUFFICIENT_DAYS",
+            "eligible": false
+          },
+          "forecast": [
+            {
+              "scenario": "base-250ms",
+              "meanNetBps": -6.770185753268698,
+              "samples": 35,
+              "effectiveSamples": 33.68523255512118
+            },
+            {
+              "scenario": "fees-1.5x",
+              "meanNetBps": -9.179440370827352,
+              "samples": 35,
+              "effectiveSamples": 33.68523255512118
+            },
+            {
+              "scenario": "latency-750ms-depth-half",
+              "meanNetBps": -6.793043748381779,
+              "samples": 35,
+              "effectiveSamples": 33.68523255512118
+            }
+          ]
+        },
+        {
+          "symbol": "ETH/USD",
+          "atMs": 1788751982391,
+          "at": "2026-09-07T03:33:02.391Z",
+          "actionId": "short-5m",
+          "cutoffMs": 1788746400000,
+          "bankSha256": "c66b1967dfa956281755bbbf16603a9cea432accb4442035a6bdb578036a25ae",
+          "baseKnown": true,
+          "baseNetBps": 2.182700371389897,
+          "baseProfitable": true,
+          "allScenariosKnown": true,
+          "allStressProfitable": false,
+          "actualWorstNetBps": -2.813505850406358,
+          "supportReady": false,
+          "worstMean": -10.379121588441881,
+          "blocker": "SUPPORT_OR_DATA_GATE",
+          "estimate": {
+            "actionId": "short-5m",
+            "samples": 41,
+            "effectiveSamples": 38.05937145421945,
+            "observedDays": 3,
+            "meanNetBps": -10.379121588441881,
+            "lowerMeanNetBps": -14.708199574530564,
+            "tailLossBps": 36.3791031675799,
+            "scoreBps": -18.346109891288556,
+            "fillProbability": 0.9050915105759951,
+            "reason": "INSUFFICIENT_SAMPLES",
+            "eligible": false
+          },
+          "forecast": [
+            {
+              "scenario": "base-250ms",
+              "meanNetBps": -7.787304576402773,
+              "samples": 41,
+              "effectiveSamples": 38.05937145421945
+            },
+            {
+              "scenario": "fees-1.5x",
+              "meanNetBps": -10.379121588441881,
+              "samples": 41,
+              "effectiveSamples": 38.05937145421945
+            },
+            {
+              "scenario": "latency-750ms-depth-half",
+              "meanNetBps": -7.394942135895142,
+              "samples": 41,
+              "effectiveSamples": 38.05937145421945
+            }
+          ]
+        },
+        {
+          "symbol": "ETH/USD",
+          "atMs": 1788751982391,
+          "at": "2026-09-07T03:33:02.391Z",
+          "actionId": "short-15m",
+          "cutoffMs": 1788746400000,
+          "bankSha256": "c66b1967dfa956281755bbbf16603a9cea432accb4442035a6bdb578036a25ae",
+          "baseKnown": true,
+          "baseNetBps": 6.977237330777232,
+          "baseProfitable": true,
+          "allScenariosKnown": true,
+          "allStressProfitable": false,
+          "actualWorstNetBps": 0,
+          "supportReady": false,
+          "worstMean": -10.707283178281799,
+          "blocker": "SUPPORT_OR_DATA_GATE",
+          "estimate": {
+            "actionId": "short-15m",
+            "samples": 38,
+            "effectiveSamples": 35.39380083130462,
+            "observedDays": 3,
+            "meanNetBps": -10.707283178281799,
+            "lowerMeanNetBps": -15.716025739707357,
+            "tailLossBps": 41.590050710460446,
+            "scoreBps": -19.8750308107534,
+            "fillProbability": 0.9363497476030876,
+            "reason": "INSUFFICIENT_SAMPLES",
+            "eligible": false
+          },
+          "forecast": [
+            {
+              "scenario": "base-250ms",
+              "meanNetBps": -8.120483229995944,
+              "samples": 38,
+              "effectiveSamples": 35.39380083130462
+            },
+            {
+              "scenario": "fees-1.5x",
+              "meanNetBps": -10.707283178281799,
+              "samples": 38,
+              "effectiveSamples": 35.39380083130462
+            },
+            {
+              "scenario": "latency-750ms-depth-half",
+              "meanNetBps": -8.021176330597898,
+              "samples": 38,
+              "effectiveSamples": 35.39380083130462
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "later",
+      "source": {
+        "mode": "DEVELOPMENT",
+        "startMs": 1788854400000,
+        "endMs": 1788885868000,
+        "untouched": false,
+        "costs": {
+          "BTC/USD": {
+            "feeBps": 5,
+            "reserveBps": 3
+          },
+          "ETH/USD": {
+            "feeBps": 5,
+            "reserveBps": 3
+          }
+        },
+        "assets": {
+          "BTC/USD": {
+            "symbol": "BTC/USD",
+            "minOrderSize": 0.0001,
+            "minTradeIncrement": 0.0001,
+            "priceIncrement": 1,
+            "maximumOrderQty": 1200,
+            "shortable": true
+          },
+          "ETH/USD": {
+            "symbol": "ETH/USD",
+            "minOrderSize": 0.001,
+            "minTradeIncrement": 0.001,
+            "priceIncrement": 0.1,
+            "maximumOrderQty": 21000,
+            "shortable": true
+          }
+        },
+        "sourceHashes": {
+          "package-lock.json": "2315bada829d31ccb4d3970392ba56d73458d3219dda1ec98d8dda0d41893594",
+          "package.json": "cef4bf27154caaf4e2f2d623ce9d3cb4b319e3d6b81a40ee3197f12d3e13c3d5",
+          "src/analysis/distribution-trial-report.ts": "e24809b0c486cacb4ef5477c9e6c7775fdd0712b1315f9b07b1be481c3651e87",
+          "src/analysis/model-trade-audit-main.ts": "aa87ac5136b30b9e5c182eaaf5ca10e27db2bba191c8bd4e3eae9398029b9b1e",
+          "src/analysis/model-trade-audit.ts": "0163d6a71d3a56930df45a905b6d392a1a87ffd7eba63bbbdbc549c015e82c4a",
+          "src/analysis/optimization-main.ts": "cffe1762a5b65141da2bc0a1608c52b68d866d17608388cc29284a87226c6521",
+          "src/analysis/rejected-entry-main.ts": "1429cec967efa5d85b877a7ab23f003d2791ea2f7f8b8fbe840c3e44e733acdc",
+          "src/analysis/rejected-entry-report.ts": "4a26b000e658e9ada28edefd1b2cc3121f29d5ad9c18d9af26cf687727339bc5",
+          "src/analysis/trade-optimization.ts": "bf3e2d9f645eb8ea6426e710e76e2c0fb97ba7e48081020656f8247607f2b238",
+          "src/backtest/metrics.ts": "e2c360cd378d243226d8e3f3640d61186cd62ae14caeb86e1233d483dc292116",
+          "src/backtest/opportunity-recall-main.ts": "04f77c67aca30d4e15da29157ab3c35c2e02409d68f0ab19f3f867d95758c743",
+          "src/backtest/opportunity-recall.ts": "8ed40932045194c40ac12b3ca982abc8fd0ac3988593be15389f96db163196ec",
+          "src/backtest/replay.ts": "1722fa21f72dac116854305ae544f9c23120d443a69d60fb985c6327ab6dc945",
+          "src/calibration/calibrated-edge-table.ts": "e244fe82487f1ca8ec2aee70b8932e351d44b4b5e1d43083d9124126fcf359f2",
+          "src/calibration/effective-sample-count.ts": "31a3eff4086b9f585875cea6af066ec4f2799e98cff77a44ec895aacc7bf78b2",
+          "src/config.ts": "7e3ef648e042a29345b97e75138db7b97731ada5f9e95ae3d886e344ee4eb420",
+          "src/config/deterministic-defaults.ts": "5c4d6ea179d6422643e87d9c7fbb8cd7fcd5d6522ef3b46b6ebb4a58dadc1351",
+          "src/core/decimal.ts": "ff4bee043ea9755d92c1b0f0eadf2e46d0a38566ae4933f26a897751532154da",
+          "src/core/features.ts": "4b837fac12efe9f956d0d2ce482890e6814ba1f071d6c1d8d48c85e1f56e3d5b",
+          "src/core/latency.ts": "c249ec68265fb2a4b90e89925191924678c1a5b66b2129b3469fad7c8e2a752d",
+          "src/core/market.ts": "8bbdd7973b1ba9ee15f30177273cc9b16df4c3c00bbad9547b25bfa20e512837",
+          "src/core/order-book.ts": "030a9979f2f6a1f4d736e4b927202ffeb446fb1a5a25a18f0a427dc61624db63",
+          "src/core/statistics.ts": "645b30d5f158c1a99b015da138e4a93d13315d7b047572b07d6a772e0b5c90b2",
+          "src/dashboard/demo-main.ts": "8f623f7c8bd6bb0cc314640191382c0373cfc35900f6caeadc609b53ecd5bf06",
+          "src/dashboard/operations-monitor.ts": "fecb2dd38767bfa5ffb281515f7148f3094172e537f048be10131a7d466c38ab",
+          "src/dashboard/server.ts": "672c6b2946e25e115efe845b8a6143200f1d6536318fb2e33d2752d789a101c2",
+          "src/dashboard/types.ts": "56c9c108923337beff7c9c74c20e8a1d5c7bbea0fbb452adc7fe2c3739fc9793",
+          "src/database/migrate-main.ts": "5dc3840b890e877daa74f375b275b7659d0fe6e10c98be1a6a1690e8e29a8aba",
+          "src/database/migrations.ts": "9c45dca43d1526b052624812816c43e66b462fe1b2f55659d134c88baea91a1f",
+          "src/database/postgres-store.ts": "d4bb973eddd170fd22b5ecf8fc4ee47faa83c5047373a205473147cc56958e37",
+          "src/database/smoke-main.ts": "db67d9594cf0938c431ff99205b6588287337100b3ea51c3a49785351c3ac5d6",
+          "src/database/verify-main.ts": "d445a51ddbadb771ac07ecbc078c2186276f32ce3ef7ea8ec5d71e7ba97b7bdd",
+          "src/distribution/checkpoint.ts": "98bcdca5bcc0e196cc5afa71238b2cc34746560f95864a97b5032f37e4169799",
+          "src/distribution/controller.ts": "d5ef547db91277836bce0a52db2fedada5ee028564628e5a5c4a6e6b48291136",
+          "src/distribution/efficient-trainer.ts": "b73bc12402b0f2c96b6c3ebe1e8e51a8939673c7c3a78b2380d893036b7fe806",
+          "src/distribution/execution.ts": "e7ebe161ce78547a3a3ba47fadbfbb02d90fbb39ff0f295a5e8b9e7e2dfe684f",
+          "src/distribution/history-checkpoint.ts": "dc90e8965745161ac353123d1d7655b2742ce7a63d463792b68f01b473e47d14",
+          "src/distribution/history-main.ts": "d5c96079d4a1638d1a02f760b8fc34fdac5a6a227feea19211f5c6fc75dab463",
+          "src/distribution/history-replay.ts": "ea05e984c2f20956a53573c2d231ed4d9b0bd9e8272b12cbf7425b1ef6ba53c2",
+          "src/distribution/horizon-assessment.ts": "bc34224eb50cf53db7f755b5593bb1bb602859994cf70170b8c4069a86c6ae8d",
+          "src/distribution/horizon-main.ts": "426060052ef904a0358e553608cf0f6e447bc55c823f1315c9e8bca2eb34a072",
+          "src/distribution/horizon-replay.ts": "73f4bcbf027341a94dca4564bc216e7d8b924f2b18826168a1162a3d3457ee3f",
+          "src/distribution/horizon-spec.ts": "52dcfce6878f471e25fe8821841910203d1b4b5a2a667529b60a17bb4fcc4f61",
+          "src/distribution/market.ts": "0279523eb000862aa43d4af8f203ac6e476c8a01b45c6c4d13703811d49d0b28",
+          "src/distribution/model.ts": "54dad777f1bbea1f9f24c531ab7600e0da9328c824f90ab3875de5c4606beabf",
+          "src/distribution/planner.ts": "947aecf1d2f711c8ef097147bedd3988550f7dfbcaef665e892703a3070f4f6b",
+          "src/distribution/replay-main.ts": "3793cabd107f41710aedfe582f4fc80f41d1c301ec92c8b2bf40405c18b7b918",
+          "src/distribution/replay.ts": "9ed29f3e2b3679c5bf3936e0e9ffb2aee04b8463c84a4e137c240e8a7c48887b",
+          "src/distribution/spec.ts": "f692007a028817060b51a7e42a916c92f684a1554be4505fbc0eeeb139cb803a",
+          "src/distribution/study-main.ts": "1892f8e12316937a5116d10127f69aae8d81919c6d8c6febf9c73a9fb7aa440c",
+          "src/distribution/study.ts": "bb705aac82a154723d5de805e2d3292b8a42be5bfc1d5a3e61e14dac972c12c0",
+          "src/distribution/training-backfill.ts": "2ac997817acc2e038d5eaf022f163da0f08b26ae14d4c0ad74c5928c00712a88",
+          "src/distribution/training-import.ts": "3ba45d8d8b7e51c1cc6aca21c6c2ff5c72f597957a5aecebf7e15d99c63befd1",
+          "src/distribution/training-main.ts": "a2df2d8bcae703a5056f0a756ea29cb1a0c1c699b04ef9e8096f762a32167fc8",
+          "src/economics/analytic-edge.ts": "3cc99bf104bc0cf634f36d07a1c4f7bce6f16858f289e173d78e82ace579cc30",
+          "src/economics/economic-edge-resolver.ts": "fe7b953d41e9516987bcb5819dcec7bfcee4337f69c4ce78f075be74561d5631",
+          "src/economics/feasibility-audit.ts": "7fb3e533cefefbbac3c16c12ef085df0a4237988aa90622e3d0c3363345eee5f",
+          "src/economics/fee-validation.ts": "49fd1d83461d6786d9c2c391d39c878bea51779b60380e359a6ca3ec8723fce2",
+          "src/economics/multi-horizon-cost-gate.ts": "002f2f136c5b87cb219ec40689a7f93040094cecc8dbac857645faf39216344b",
+          "src/economics/net-liquidation.ts": "2a3d21588c1d8a73b93422baef2e8db1b044a071d47e5fb43146ac6471ab0578",
+          "src/economics/types.ts": "36c0ed80307ce8a7ff0ccbd3e04671582f0ddacd9fc41a932ee8f33e21dd46f8",
+          "src/engine/entry-pipeline-audit.ts": "f97e9d9a2791f2bb73d01786fe631b8c8486faf51748c0a3e0427125766fee78",
+          "src/engine/trading-engine.ts": "adfb4aff3ea87e568eeb5b6ef1167a5ed1a9f5ee57059ef28940eabdcfd7b8c1",
+          "src/engine/watchdog.ts": "f9072da3dd4e5e019b510d674307fb5e6ee145fbd0cb37666091f9786b1b0aa3",
+          "src/env.ts": "fc48ff6ba17d9a7f370266e9378f6cfff6630c61d7e7a65f983f86ec26289ca5",
+          "src/execution/book-walk.ts": "a080eb816006402e7886ab9ab4f8b495f391db21a4e69a4b3a5fa125e516f9e5",
+          "src/execution/entry-route-shadow.ts": "1d4d276a001a23d8475bd487b57dd4e3eaeb363f85d305670fce440b2e67ad89",
+          "src/execution/hybrid-entry-router.ts": "0f273aed5daa9f0872c83cc0ebaf52be6e5e2555c5d043906814986d24a0235a",
+          "src/execution/order-state.ts": "aef97d506ac251527f475dded0800d2fa0aa37d3f5668ee9c11b88c64fe02da0",
+          "src/execution/planner.ts": "5954f3b7796fd7ba907e251de7f933e52680b8ab9abb69ba332ab961e87f3604",
+          "src/index.ts": "88bac69fe29cc516cda7177c27ec4a4e12373e34ed08453fc3f1569c64d4682d",
+          "src/kraken/account-fees-main.ts": "75ba2383780a5b13a4573394c0f0730fec7f92946092012c57df979c1b695799",
+          "src/kraken/account-fees.ts": "727a71f506f03e6ab93845a9214260e7f6550ba4966f97185044ca5bc191180f",
+          "src/kraken/market-stream.ts": "42b3005e966c09c0b1fe12012569ac27062a16436a05c373fac28ad514df7d89",
+          "src/kraken/paper-broker.ts": "8a5f27b3439fc09f4e57596e59c2ec12534ec69024a6be58ec8fb00fe93394aa",
+          "src/kraken/paper-history.ts": "275ddfecbba7024a3a2796e7cff50a83147630c73568b12b6d873343528f71d2",
+          "src/main.ts": "8fe229ba692976bd35b78f57afb7a5ef23619fee7a9ff2d10e65981e1b243618",
+          "src/recorder.ts": "3b5c996a5e968b918ce385b4d2546463a9023f53d13a2f0cea798c313ae3548c",
+          "src/research/alpha-research-main.ts": "4b6fe32e9d4678d7413caeeed3caba53e7ab6c27ab496d6f09ddd8873b90a45b",
+          "src/research/alpha-research-store.ts": "2759ab3d41a06e43b9ccb5707432a6c87a7aa43f484797717d795779335694a2",
+          "src/research/alpha-research.ts": "73c768ad8d22635ced94cbc83147e141f73a250a6623c7b41a6821c3ef12c419",
+          "src/research/block-expectancy.ts": "02ef82c18c540dbbac4eeda18442167ecb9e7114a4148573b2cb19f03376cade",
+          "src/research/conditional-edge-main.ts": "4d4376209b0ec8d1c305fbce96def720b319d25c1428a7f03230724fd45fa31b",
+          "src/research/conditional-edge.ts": "799e78de0c5969cfb218e9d4a893666e22ca5abde8124112ea21f377cb797454",
+          "src/research/cross-asset-export-main.ts": "ca17fadd29088c218a19566185d393a6dc9bcf8e401fa67c3e7996b8cce5d47a",
+          "src/research/cross-asset-history.ts": "4dc7ae8746a568dc5bb186959f29725194e7b98a8c04b696f0144dec31f149d9",
+          "src/research/cross-asset-main.ts": "e3bba5df8b844c65575d2f8cd099e5956122d36731cb2515353e85c11483b57d",
+          "src/research/cross-asset-model.ts": "dbe2034039b0e4c2824a22f0a407aba9aafda3e54c2d74ad28dea26ae0fe9ecf",
+          "src/research/cross-asset-replay.ts": "5088637dc33d7330835024c04988ea5575d656643606a843964e08e952132694",
+          "src/research/cross-asset-warmup-main.ts": "2e27c8f6cb86109680b6730e9a8728670fb6a952b52cd6902c5fa9a0b3234537",
+          "src/research/cross-asset-warmup.ts": "ac10aa0e940cab9cc85f2b78b9b5e745870c62ae32ef4df3bb81e64babb49b03",
+          "src/research/dynamic-bayes.ts": "c4b765e68588ff5ba2209abe9739ffc4db8218b0d2a19922db64449bda3f2336",
+          "src/research/episode-main.ts": "35fcb6370d7b07dffb1ec08126e07e2969ffe32c93141226f6d10570772eef97",
+          "src/research/episode-replay-main.ts": "7ddec70de898aa128bdbb5c0ead0e9f57aac41df47221a1225f3ebe6afbaaa62",
+          "src/research/episode-replay.ts": "b8f39de8a988014088d573ec3ad44bcfb85872b5e40e1156929d6dbd8389188f",
+          "src/research/episode-report.ts": "f11fea45dcc67ae021ed187f3d659d0ca9b04117d9b755a87c91b3dca58003c0",
+          "src/research/episode-store.ts": "ca559748b282458dedfdf5302f0fd9e762833b3a4dc5a190a6d9989f1e970382",
+          "src/research/execution-stress.ts": "33ed77c77e0af402241a4d6f5048d8d990dac6eb2c6797845001e4f9bef97aa5",
+          "src/research/export-alpha-dataset-main.ts": "fb81edae63b6b4422f8078177ef1ead2fc5e6a378af9f1c24a3bdeafa9d9f313",
+          "src/research/model-experiment-main.ts": "bdf2f6220f601831dd94d3a2c2b7b3ea4084d372ee74e76bb8ac35072b307dbf",
+          "src/research/model-experiment.ts": "004ce0b515412c8008a739cc1892e86bbcadcee4b4407dea9dfced65960a6233",
+          "src/research/policy-collector.ts": "8b3411b4e0c7e55cb5d8c340b3ded62ab9e657966791b7cde0da68636c3733d7",
+          "src/research/policy-comparison-main.ts": "c8e9b98dcbea267fb1e2bf72de3d9e7bb715b8cecd2031c55b5b96ea31b34640",
+          "src/research/policy-comparison.ts": "028c3b1ba1f86a25e68b5df0a45c8291b98bd3c34cf803d0b0243c7a99d2843a",
+          "src/research/policy-main.ts": "662f99b0cc07ef20e71b735996e5ae90ed8d1742a2926f3499182c4aecaa585d",
+          "src/research/policy-planner.ts": "0b1a6d446800a1180e497a1cf98254150027343fcde80fefbddae552e6c62ad8",
+          "src/research/policy-pulse.ts": "e9a11dc0bcc034bcc81f8c90ae4a70f9631cdff75db2d3cb28b775ad0844f27c",
+          "src/research/policy-restore.ts": "4d9716055e0eec226907d43fa59354778c36215e072a36f28878908fccc58188",
+          "src/research/policy-store.ts": "a6a5a3117e1a17e38372327c73ca55af4e40ba77c5a9188271de3fa2981be233",
+          "src/research/policy-validation.ts": "d60c4be46b3da889bd1698a03a5989d2d1c836b91cb3f0e86b9b925e1f3b013a",
+          "src/research/retest-replay-main.ts": "ca390efd02c67d351ebed870d1ee621b83024c0a4306731284cb2b878e8aba7b",
+          "src/research/retest-replay.ts": "f9731684a4a179da57abc57e1e13dd3c669a60cca8da6d6300fffd0e72172c41",
+          "src/research/signal-episodes.ts": "81650f3fb1bb94076d817ddceaca56504ceff440c2fdb640a299a03d41c10d8a",
+          "src/research/trading-policy.ts": "73309f308d806f58647bb51b8a489599101674ab8bef9107d065d6bb8dae8746",
+          "src/risk/economic-risk-sizer.ts": "0f8d9eb0ca297c3fbb2b02cd2ec54132608fa247c9cf814c3587aa563badc74a",
+          "src/risk/portfolio.ts": "57ec97ec9aba307100d9baedc123bcf882582203d6d0976842b20650af5afceb",
+          "src/risk/risk-state.ts": "c1ecf832e39a91b257fd709a61cefd06bab2045a42194738e4b634172433266b",
+          "src/risk/sizing.ts": "3d0be830f15c1188d116e6209d6b014a53b28c400467399d5a1b669821dbb920",
+          "src/strategy/breakout-retest.ts": "22fec8ee06a1fe3f070ed6e450c512c2672d6731641d6759b633e75bfb35f735",
+          "src/strategy/continuation-quality.ts": "5c0c6dbab15fb7366851eb7e48104cc1ed48e1cd7b24515d207cfdefc147e463",
+          "src/strategy/cost.ts": "96387e8f3a6206bf20ddbb9be0e39737e12aecded568737fb060b7794e5bc1cc",
+          "src/strategy/deterministic-edge-resolver.ts": "71b69dfad5895cd4e15a3f7e49dc12fd9a4d807554e2581aa9e8a16525f8bea2",
+          "src/strategy/deterministic-entry.ts": "f92040dfa45628c53738c5ca5aa946134255f1853227f0236489dcf8fba99593",
+          "src/strategy/deterministic-features.ts": "ff6ff7d063d00a90831576769e52a3e7224fbbd81e389503542353ff67109faf",
+          "src/strategy/deterministic-hold.ts": "a28bd371775681b0d0ff19d07f60248abecfc4c35eeac750915a5895cc62b888",
+          "src/strategy/deterministic-regime.ts": "56eb5bd467adcaa204a6bb44eec93fc7869e88a638add9fd7af2769496384550",
+          "src/strategy/dynamic-liquidity.ts": "36cbaf999a0f23dcd45b311a439377a15dab085da241567531c5b9f6fd6baa99",
+          "src/strategy/early-breakout.ts": "55a0a8a602923e221b90b0f25873119d0247235cdfb8f2410bb7fd14007e49b9",
+          "src/strategy/forecast.ts": "b48c3f05f129a63f466d8e2a947b10999f0b599c8ded9527226bd78546f4933f",
+          "src/strategy/micro-fraction-types.ts": "e5b91659460e318279e0abb1c8920b91c1192b3e305960e90fcd0ac3e15f6b70",
+          "src/strategy/position-manager.ts": "eacc4f3d2a0abba2703cfc9af26ead4eaf84ba0b2f51da48a9b48dab95aa7364",
+          "src/strategy/pullback-recovery.ts": "528b435f11611bfae8b544c9e4b53fb7264894181f7570b3cb3489a408bc2745",
+          "src/strategy/regime.ts": "30162ea42165d16d2557439242831fbb897c8a1cf121ed29d9dfcc5bfc274d03",
+          "src/strategy/signal-router.ts": "24c81a19eb6125fa1c32c7265ae8bccf8ae61520b07d7bf911b3a498a557e651",
+          "src/strategy/signal.ts": "16abdd19fedae0774ec75cf35988a4cf033d19e6739397c54c4ccc821e45fb97",
+          "src/strategy/small-fraction-entry-trigger.ts": "6b0d3b9d319e074282c4ea7946a93f2d0a9f3301c7e030e68cb4be7d2c92d703",
+          "src/strategy/time-ewma-square.ts": "e41c97ffd5914cafa3ac81733cc0edb4c9ffc40e364c0c97980ebdf20176720f",
+          "src/venue/client.ts": "14c9a6fad0580f43d21926983558f097e0255b33e5b56a2b297517bf2884be2e",
+          "src/venue/market-history.ts": "f6879a6adebe2877c5fbbc7fcf21661822e6a361d8214827fa264d459501b633",
+          "src/venue/types.ts": "f252a3dca5d5a0747f7af5d767b1cf10dab5575da968659be23291eabaf84ec7"
+        },
+        "report": {
+          "path": "/home/ec2-user/crypto_trade/reports/conditional-history-study-2026-09-08/conditional-later-v2-20260908.json",
+          "sha256": "764ae15919ca9a474dc0f9db5a4b366abb582f3ccacfe5d746a0c232075d598a"
+        },
+        "audit": {
+          "path": "/home/ec2-user/crypto_trade/reports/conditional-history-study-2026-09-08/conditional-later-v2-20260908.json.audit.jsonl.gz",
+          "sha256": "87c56dd55ba17daf45d091bee90589d9b149e62ce7cecc61523107cdb01c60c0",
+          "records": 1801,
+          "finalHash": "985169ae1b475d16000add45354ceb7b9e4e4f2e03d4c902557add545976c4bb"
+        },
+        "seed": {
+          "path": "/home/ec2-user/crypto_trade/reports/conditional-history-study-2026-09-08/later-protocol/seed.json",
+          "sha256": "77d57bef131815926289d198791cb76c033d73814db8eab304aa51a5d9d313b7",
+          "samples": 894
+        },
+        "protocol": {
+          "path": "/home/ec2-user/crypto_trade/reports/conditional-history-study-2026-09-08/later-protocol/protocol.json",
+          "sha256": "3b27ce6687159cafff8bef50dfbe9c41aa92f3013a606c1f0c37ab0c7d3fbaa7",
+          "createdAtMs": 1788889126160
+        },
+        "rawInputs": [
+          {
+            "path": "/tmp/conditional-recorded-20260908T164428Z.jsonl.gz",
+            "bytes": 1095054734,
+            "sha256": "c1245cf2199226bebd52af4e85ac74cc35c43156c6cc60c67626c9dbb9164335"
+          }
+        ],
+        "rawInputsRehashed": false
+      },
+      "assets": [
+        {
+          "symbol": "BTC/USD",
+          "origins": 16,
+          "actionPaths": 96,
+          "knownBasePaths": 74,
+          "unknownBasePaths": 22,
+          "knownAllStressPaths": 74,
+          "baseProfitablePaths": 12,
+          "originsWithAnyKnownBaseProfitablePath": 7,
+          "allStressProfitablePaths": 6,
+          "originsWithAnyAllStressProfitablePath": 4,
+          "completeSixActionBaseOrigins": 10,
+          "completeSixActionAllStressOrigins": 10,
+          "completeSixActionAllStressOriginsWithAnyAllStressProfitableAction": 4,
+          "baseProfitableOriginsWithAnyEligibleAction": 0,
+          "stressProfitableOriginsWithAnyEligibleAction": 0,
+          "allActionForecasts": {
+            "paths": 96,
+            "eligible": 0,
+            "supportReady": 46,
+            "primaryBlockers": {
+              "NONPOSITIVE_PREDICTED_MEAN": 46,
+              "SUPPORT_OR_DATA_GATE": 50
+            },
+            "reportedReasons": {
+              "SCORE_BELOW_MINIMUM": 46,
+              "INSUFFICIENT_SAMPLES": 42,
+              "INSUFFICIENT_DAYS": 8
+            },
+            "worstForecastNonpositive": 96,
+            "worstForecastAboveOneBp": 0,
+            "minimumWorstForecastBps": -14.139793698808615,
+            "maximumWorstForecastBps": -0.10396141904511678
+          },
+          "baseProfitablePathGates": {
+            "paths": 12,
+            "eligible": 0,
+            "supportReady": 3,
+            "primaryBlockers": {
+              "NONPOSITIVE_PREDICTED_MEAN": 3,
+              "SUPPORT_OR_DATA_GATE": 9
+            },
+            "reportedReasons": {
+              "SCORE_BELOW_MINIMUM": 3,
+              "INSUFFICIENT_SAMPLES": 7,
+              "INSUFFICIENT_DAYS": 2
+            },
+            "worstForecastNonpositive": 12,
+            "worstForecastAboveOneBp": 0,
+            "minimumWorstForecastBps": -13.314293829200349,
+            "maximumWorstForecastBps": -0.10396141904511678
+          },
+          "allStressProfitablePathGates": {
+            "paths": 6,
+            "eligible": 0,
+            "supportReady": 1,
+            "primaryBlockers": {
+              "SUPPORT_OR_DATA_GATE": 5,
+              "NONPOSITIVE_PREDICTED_MEAN": 1
+            },
+            "reportedReasons": {
+              "INSUFFICIENT_SAMPLES": 3,
+              "SCORE_BELOW_MINIMUM": 1,
+              "INSUFFICIENT_DAYS": 2
+            },
+            "worstForecastNonpositive": 6,
+            "worstForecastAboveOneBp": 0,
+            "minimumWorstForecastBps": -10.802255345650279,
+            "maximumWorstForecastBps": -0.10396141904511678
+          }
+        },
+        {
+          "symbol": "ETH/USD",
+          "origins": 16,
+          "actionPaths": 96,
+          "knownBasePaths": 77,
+          "unknownBasePaths": 19,
+          "knownAllStressPaths": 76,
+          "baseProfitablePaths": 15,
+          "originsWithAnyKnownBaseProfitablePath": 7,
+          "allStressProfitablePaths": 9,
+          "originsWithAnyAllStressProfitablePath": 5,
+          "completeSixActionBaseOrigins": 10,
+          "completeSixActionAllStressOrigins": 10,
+          "completeSixActionAllStressOriginsWithAnyAllStressProfitableAction": 5,
+          "baseProfitableOriginsWithAnyEligibleAction": 0,
+          "stressProfitableOriginsWithAnyEligibleAction": 0,
+          "allActionForecasts": {
+            "paths": 96,
+            "eligible": 0,
+            "supportReady": 26,
+            "primaryBlockers": {
+              "NONPOSITIVE_PREDICTED_MEAN": 26,
+              "SUPPORT_OR_DATA_GATE": 70
+            },
+            "reportedReasons": {
+              "SCORE_BELOW_MINIMUM": 26,
+              "INSUFFICIENT_SAMPLES": 52,
+              "INSUFFICIENT_DAYS": 18
+            },
+            "worstForecastNonpositive": 95,
+            "worstForecastAboveOneBp": 0,
+            "minimumWorstForecastBps": -13.282948904763177,
+            "maximumWorstForecastBps": 0.07549300250171988
+          },
+          "baseProfitablePathGates": {
+            "paths": 15,
+            "eligible": 0,
+            "supportReady": 4,
+            "primaryBlockers": {
+              "NONPOSITIVE_PREDICTED_MEAN": 4,
+              "SUPPORT_OR_DATA_GATE": 11
+            },
+            "reportedReasons": {
+              "SCORE_BELOW_MINIMUM": 4,
+              "INSUFFICIENT_SAMPLES": 4,
+              "INSUFFICIENT_DAYS": 7
+            },
+            "worstForecastNonpositive": 14,
+            "worstForecastAboveOneBp": 0,
+            "minimumWorstForecastBps": -12.812798638726967,
+            "maximumWorstForecastBps": 0.07549300250171988
+          },
+          "allStressProfitablePathGates": {
+            "paths": 9,
+            "eligible": 0,
+            "supportReady": 1,
+            "primaryBlockers": {
+              "NONPOSITIVE_PREDICTED_MEAN": 1,
+              "SUPPORT_OR_DATA_GATE": 8
+            },
+            "reportedReasons": {
+              "SCORE_BELOW_MINIMUM": 1,
+              "INSUFFICIENT_SAMPLES": 2,
+              "INSUFFICIENT_DAYS": 6
+            },
+            "worstForecastNonpositive": 8,
+            "worstForecastAboveOneBp": 0,
+            "minimumWorstForecastBps": -11.491819336322664,
+            "maximumWorstForecastBps": 0.07549300250171988
+          }
+        }
+      ],
+      "profitableActionPaths": [
+        {
+          "symbol": "ETH/USD",
+          "atMs": 1788854400160,
+          "at": "2026-09-08T08:00:00.160Z",
+          "actionId": "short-5m",
+          "cutoffMs": 1788854400000,
+          "bankSha256": "b119dcfa614503406907bc0663280577681644713f0a8ec0a258a21a16d037bb",
+          "baseKnown": true,
+          "baseNetBps": 19.282003710575317,
+          "baseProfitable": true,
+          "allScenariosKnown": true,
+          "allStressProfitable": true,
+          "actualWorstNetBps": 14.290070178269112,
+          "supportReady": true,
+          "worstMean": -11.491819336322664,
+          "blocker": "NONPOSITIVE_PREDICTED_MEAN",
+          "estimate": {
+            "actionId": "short-5m",
+            "samples": 63,
+            "effectiveSamples": 58.38879545345623,
+            "observedDays": 4,
+            "meanNetBps": -11.491819336322664,
+            "lowerMeanNetBps": -15.935256846827553,
+            "tailLossBps": 33.668904332347275,
+            "scoreBps": -19.30214728006228,
+            "fillProbability": 0.9246313476001862,
+            "reason": "SCORE_BELOW_MINIMUM",
+            "eligible": false
+          },
+          "forecast": [
+            {
+              "scenario": "base-250ms",
+              "meanNetBps": -8.283695398286678,
+              "samples": 63,
+              "effectiveSamples": 58.38879545345623
+            },
+            {
+              "scenario": "fees-1.5x",
+              "meanNetBps": -11.491819336322664,
+              "samples": 63,
+              "effectiveSamples": 58.38879545345623
+            },
+            {
+              "scenario": "latency-750ms-depth-half",
+              "meanNetBps": -7.624788128277379,
+              "samples": 63,
+              "effectiveSamples": 58.38879545345623
+            }
+          ]
+        },
+        {
+          "symbol": "ETH/USD",
+          "atMs": 1788854400160,
+          "at": "2026-09-08T08:00:00.160Z",
+          "actionId": "short-15m",
+          "cutoffMs": 1788854400000,
+          "bankSha256": "b119dcfa614503406907bc0663280577681644713f0a8ec0a258a21a16d037bb",
+          "baseKnown": true,
+          "baseNetBps": 12.018552875696313,
+          "baseProfitable": true,
+          "allScenariosKnown": true,
+          "allStressProfitable": true,
+          "actualWorstNetBps": 7.024804388159007,
+          "supportReady": false,
+          "worstMean": -9.529120638267235,
+          "blocker": "SUPPORT_OR_DATA_GATE",
+          "estimate": {
+            "actionId": "short-15m",
+            "samples": 44,
+            "effectiveSamples": 40.62823371484124,
+            "observedDays": 4,
+            "meanNetBps": -9.529120638267235,
+            "lowerMeanNetBps": -17.48855555705449,
+            "tailLossBps": 38.749149190893505,
+            "scoreBps": -21.36347047614384,
+            "fillProbability": 0.8879241703816658,
+            "reason": "INSUFFICIENT_SAMPLES",
+            "eligible": false
+          },
+          "forecast": [
+            {
+              "scenario": "base-250ms",
+              "meanNetBps": -6.825704290859793,
+              "samples": 44,
+              "effectiveSamples": 40.62823371484124
+            },
+            {
+              "scenario": "fees-1.5x",
+              "meanNetBps": -9.529120638267235,
+              "samples": 44,
+              "effectiveSamples": 40.62823371484124
+            },
+            {
+              "scenario": "latency-750ms-depth-half",
+              "meanNetBps": -6.117360227195192,
+              "samples": 44,
+              "effectiveSamples": 40.62823371484124
+            }
+          ]
+        },
+        {
+          "symbol": "ETH/USD",
+          "atMs": 1788854400160,
+          "at": "2026-09-08T08:00:00.160Z",
+          "actionId": "short-30m",
+          "cutoffMs": 1788854400000,
+          "bankSha256": "b119dcfa614503406907bc0663280577681644713f0a8ec0a258a21a16d037bb",
+          "baseKnown": true,
+          "baseNetBps": 1.9304267161426392,
+          "baseProfitable": true,
+          "allScenariosKnown": true,
+          "allStressProfitable": false,
+          "actualWorstNetBps": -3.06584254254898,
+          "supportReady": false,
+          "worstMean": -12.812798638726967,
+          "blocker": "SUPPORT_OR_DATA_GATE",
+          "estimate": {
+            "actionId": "short-30m",
+            "samples": 35,
+            "effectiveSamples": 32.55537813332648,
+            "observedDays": 4,
+            "meanNetBps": -12.812798638726967,
+            "lowerMeanNetBps": -21.91939312975086,
+            "tailLossBps": 63.630934074608696,
+            "scoreBps": -28.282486537211728,
+            "fillProbability": 0.9464338395393216,
+            "reason": "INSUFFICIENT_SAMPLES",
+            "eligible": false
+          },
+          "forecast": [
+            {
+              "scenario": "base-250ms",
+              "meanNetBps": -10.293504561260708,
+              "samples": 35,
+              "effectiveSamples": 32.55537813332648
+            },
+            {
+              "scenario": "fees-1.5x",
+              "meanNetBps": -12.812798638726967,
+              "samples": 35,
+              "effectiveSamples": 32.55537813332648
+            },
+            {
+              "scenario": "latency-750ms-depth-half",
+              "meanNetBps": -9.241459704050742,
+              "samples": 35,
+              "effectiveSamples": 32.55537813332648
+            }
+          ]
+        },
+        {
+          "symbol": "BTC/USD",
+          "atMs": 1788854400230,
+          "at": "2026-09-08T08:00:00.230Z",
+          "actionId": "short-5m",
+          "cutoffMs": 1788854400000,
+          "bankSha256": "b119dcfa614503406907bc0663280577681644713f0a8ec0a258a21a16d037bb",
+          "baseKnown": true,
+          "baseNetBps": 3.1946851899055257,
+          "baseProfitable": true,
+          "allScenariosKnown": true,
+          "allStressProfitable": false,
+          "actualWorstNetBps": -1.8012681621209854,
+          "supportReady": true,
+          "worstMean": -12.614140687948975,
+          "blocker": "NONPOSITIVE_PREDICTED_MEAN",
+          "estimate": {
+            "actionId": "short-5m",
+            "samples": 79,
+            "effectiveSamples": 75.37735536269248,
+            "observedDays": 4,
+            "meanNetBps": -12.614140687948975,
+            "lowerMeanNetBps": -14.46011470320555,
+            "tailLossBps": 26.524735135519638,
+            "scoreBps": -17.112588216757516,
+            "fillProbability": 1,
+            "reason": "SCORE_BELOW_MINIMUM",
+            "eligible": false
+          },
+          "forecast": [
+            {
+              "scenario": "base-250ms",
+              "meanNetBps": -8.960667058735682,
+              "samples": 79,
+              "effectiveSamples": 75.37735536269248
+            },
+            {
+              "scenario": "fees-1.5x",
+              "meanNetBps": -12.614140687948975,
+              "samples": 79,
+              "effectiveSamples": 75.37735536269248
+            },
+            {
+              "scenario": "latency-750ms-depth-half",
+              "meanNetBps": -8.326488346463417,
+              "samples": 79,
+              "effectiveSamples": 75.37735536269248
+            }
+          ]
+        },
+        {
+          "symbol": "ETH/USD",
+          "atMs": 1788858121009,
+          "at": "2026-09-08T09:02:01.009Z",
+          "actionId": "long-15m",
+          "cutoffMs": 1788854400000,
+          "bankSha256": "b119dcfa614503406907bc0663280577681644713f0a8ec0a258a21a16d037bb",
+          "baseKnown": true,
+          "baseNetBps": 1.5287894694332298,
+          "baseProfitable": true,
+          "allScenariosKnown": true,
+          "allStressProfitable": false,
+          "actualWorstNetBps": -3.474844544941316,
+          "supportReady": true,
+          "worstMean": -11.152122887073821,
+          "blocker": "NONPOSITIVE_PREDICTED_MEAN",
+          "estimate": {
+            "actionId": "long-15m",
+            "samples": 48,
+            "effectiveSamples": 44.731829097099265,
+            "observedDays": 4,
+            "meanNetBps": -11.152122887073821,
+            "lowerMeanNetBps": -17.453175448487638,
+            "tailLossBps": 40.936897662631914,
+            "scoreBps": -21.54686521475083,
+            "fillProbability": 0.9651269750100433,
+            "reason": "SCORE_BELOW_MINIMUM",
+            "eligible": false
+          },
+          "forecast": [
+            {
+              "scenario": "base-250ms",
+              "meanNetBps": -8.186240722847014,
+              "samples": 48,
+              "effectiveSamples": 44.731829097099265
+            },
+            {
+              "scenario": "fees-1.5x",
+              "meanNetBps": -11.152122887073821,
+              "samples": 48,
+              "effectiveSamples": 44.731829097099265
+            },
+            {
+              "scenario": "latency-750ms-depth-half",
+              "meanNetBps": -7.9847144725475205,
+              "samples": 48,
+              "effectiveSamples": 44.731829097099265
+            }
+          ]
+        },
+        {
+          "symbol": "BTC/USD",
+          "atMs": 1788859981563,
+          "at": "2026-09-08T09:33:01.563Z",
+          "actionId": "long-5m",
+          "cutoffMs": 1788854400000,
+          "bankSha256": "b119dcfa614503406907bc0663280577681644713f0a8ec0a258a21a16d037bb",
+          "baseKnown": true,
+          "baseNetBps": 1.0003820196105018,
+          "baseProfitable": true,
+          "allScenariosKnown": true,
+          "allStressProfitable": false,
+          "actualWorstNetBps": -4.003119826817615,
+          "supportReady": false,
+          "worstMean": -10.248882105896417,
+          "blocker": "SUPPORT_OR_DATA_GATE",
+          "estimate": {
+            "actionId": "long-5m",
+            "samples": 47,
+            "effectiveSamples": 43.868714256327124,
+            "observedDays": 3,
+            "meanNetBps": -10.248882105896417,
+            "lowerMeanNetBps": -12.713633430886588,
+            "tailLossBps": 25.28869404893878,
+            "scoreBps": -15.242502835780467,
+            "fillProbability": 0.9611251732101912,
+            "reason": "INSUFFICIENT_SAMPLES",
+            "eligible": false
+          },
+          "forecast": [
+            {
+              "scenario": "base-250ms",
+              "meanNetBps": -7.419905409676751,
+              "samples": 47,
+              "effectiveSamples": 43.868714256327124
+            },
+            {
+              "scenario": "fees-1.5x",
+              "meanNetBps": -10.248882105896417,
+              "samples": 47,
+              "effectiveSamples": 43.868714256327124
+            },
+            {
+              "scenario": "latency-750ms-depth-half",
+              "meanNetBps": -6.369555027985967,
+              "samples": 47,
+              "effectiveSamples": 43.868714256327124
+            }
+          ]
+        },
+        {
+          "symbol": "BTC/USD",
+          "atMs": 1788859981563,
+          "at": "2026-09-08T09:33:01.563Z",
+          "actionId": "long-15m",
+          "cutoffMs": 1788854400000,
+          "bankSha256": "b119dcfa614503406907bc0663280577681644713f0a8ec0a258a21a16d037bb",
+          "baseKnown": true,
+          "baseNetBps": 12.073411435121029,
+          "baseProfitable": true,
+          "allScenariosKnown": true,
+          "allStressProfitable": true,
+          "actualWorstNetBps": 6.0367057175605146,
+          "supportReady": false,
+          "worstMean": -9.06895037130951,
+          "blocker": "SUPPORT_OR_DATA_GATE",
+          "estimate": {
+            "actionId": "long-15m",
+            "samples": 41,
+            "effectiveSamples": 38.358574825021876,
+            "observedDays": 3,
+            "meanNetBps": -9.06895037130951,
+            "lowerMeanNetBps": -13.420131601647224,
+            "tailLossBps": 31.21240892535872,
+            "scoreBps": -16.541372494183097,
+            "fillProbability": 0.9464166334091938,
+            "reason": "INSUFFICIENT_SAMPLES",
+            "eligible": false
+          },
+          "forecast": [
+            {
+              "scenario": "base-250ms",
+              "meanNetBps": -6.479250173927519,
+              "samples": 41,
+              "effectiveSamples": 38.358574825021876
+            },
+            {
+              "scenario": "fees-1.5x",
+              "meanNetBps": -9.06895037130951,
+              "samples": 41,
+              "effectiveSamples": 38.358574825021876
+            },
+            {
+              "scenario": "latency-750ms-depth-half",
+              "meanNetBps": -6.051851735293353,
+              "samples": 41,
+              "effectiveSamples": 38.358574825021876
+            }
+          ]
+        },
+        {
+          "symbol": "BTC/USD",
+          "atMs": 1788859981563,
+          "at": "2026-09-08T09:33:01.563Z",
+          "actionId": "long-30m",
+          "cutoffMs": 1788854400000,
+          "bankSha256": "b119dcfa614503406907bc0663280577681644713f0a8ec0a258a21a16d037bb",
+          "baseKnown": true,
+          "baseNetBps": 10.29154463262414,
+          "baseProfitable": true,
+          "allScenariosKnown": true,
+          "allStressProfitable": true,
+          "actualWorstNetBps": 5.14577231631207,
+          "supportReady": false,
+          "worstMean": -8.679643123208821,
+          "blocker": "SUPPORT_OR_DATA_GATE",
+          "estimate": {
+            "actionId": "long-30m",
+            "samples": 37,
+            "effectiveSamples": 34.504335805656545,
+            "observedDays": 3,
+            "meanNetBps": -8.679643123208821,
+            "lowerMeanNetBps": -12.641022058202111,
+            "tailLossBps": 29.146580205387767,
+            "scoreBps": -15.555680078740888,
+            "fillProbability": 0.9380119495146523,
+            "reason": "INSUFFICIENT_SAMPLES",
+            "eligible": false
+          },
+          "forecast": [
+            {
+              "scenario": "base-250ms",
+              "meanNetBps": -6.244816235517662,
+              "samples": 37,
+              "effectiveSamples": 34.504335805656545
+            },
+            {
+              "scenario": "fees-1.5x",
+              "meanNetBps": -8.679643123208821,
+              "samples": 37,
+              "effectiveSamples": 34.504335805656545
+            },
+            {
+              "scenario": "latency-750ms-depth-half",
+              "meanNetBps": -5.703182156994815,
+              "samples": 37,
+              "effectiveSamples": 34.504335805656545
+            }
+          ]
+        },
+        {
+          "symbol": "ETH/USD",
+          "atMs": 1788865563755,
+          "at": "2026-09-08T11:06:03.755Z",
+          "actionId": "short-5m",
+          "cutoffMs": 1788854400000,
+          "bankSha256": "b119dcfa614503406907bc0663280577681644713f0a8ec0a258a21a16d037bb",
+          "baseKnown": true,
+          "baseNetBps": 3.55053459753813,
+          "baseProfitable": true,
+          "allScenariosKnown": true,
+          "allStressProfitable": false,
+          "actualWorstNetBps": -1.4453298365954197,
+          "supportReady": true,
+          "worstMean": -11.765924292197521,
+          "blocker": "NONPOSITIVE_PREDICTED_MEAN",
+          "estimate": {
+            "actionId": "short-5m",
+            "samples": 72,
+            "effectiveSamples": 67.77779256388968,
+            "observedDays": 4,
+            "meanNetBps": -11.765924292197521,
+            "lowerMeanNetBps": -15.266024409628738,
+            "tailLossBps": 34.991175055098154,
+            "scoreBps": -18.765141915138553,
+            "fillProbability": 0.9178107100480196,
+            "reason": "SCORE_BELOW_MINIMUM",
+            "eligible": false
+          },
+          "forecast": [
+            {
+              "scenario": "base-250ms",
+              "meanNetBps": -8.528152181012791,
+              "samples": 72,
+              "effectiveSamples": 67.77779256388968
+            },
+            {
+              "scenario": "fees-1.5x",
+              "meanNetBps": -11.765924292197521,
+              "samples": 72,
+              "effectiveSamples": 67.77779256388968
+            },
+            {
+              "scenario": "latency-750ms-depth-half",
+              "meanNetBps": -8.098685905302784,
+              "samples": 72,
+              "effectiveSamples": 67.77779256388968
+            }
+          ]
+        },
+        {
+          "symbol": "ETH/USD",
+          "atMs": 1788865563755,
+          "at": "2026-09-08T11:06:03.755Z",
+          "actionId": "short-15m",
+          "cutoffMs": 1788854400000,
+          "bankSha256": "b119dcfa614503406907bc0663280577681644713f0a8ec0a258a21a16d037bb",
+          "baseKnown": true,
+          "baseNetBps": 0.7248335686915954,
+          "baseProfitable": true,
+          "allScenariosKnown": true,
+          "allStressProfitable": false,
+          "actualWorstNetBps": -4.271736937663055,
+          "supportReady": true,
+          "worstMean": -10.406020906028983,
+          "blocker": "NONPOSITIVE_PREDICTED_MEAN",
+          "estimate": {
+            "actionId": "short-15m",
+            "samples": 53,
+            "effectiveSamples": 49.769762774551445,
+            "observedDays": 4,
+            "meanNetBps": -10.406020906028983,
+            "lowerMeanNetBps": -16.026146054508985,
+            "tailLossBps": 40.06813746768707,
+            "scoreBps": -20.03295980127769,
+            "fillProbability": 0.8913155171482722,
+            "reason": "SCORE_BELOW_MINIMUM",
+            "eligible": false
+          },
+          "forecast": [
+            {
+              "scenario": "base-250ms",
+              "meanNetBps": -7.610630714160359,
+              "samples": 53,
+              "effectiveSamples": 49.769762774551445
+            },
+            {
+              "scenario": "fees-1.5x",
+              "meanNetBps": -10.406020906028983,
+              "samples": 53,
+              "effectiveSamples": 49.769762774551445
+            },
+            {
+              "scenario": "latency-750ms-depth-half",
+              "meanNetBps": -7.064870698718242,
+              "samples": 53,
+              "effectiveSamples": 49.769762774551445
+            }
+          ]
+        },
+        {
+          "symbol": "BTC/USD",
+          "atMs": 1788867424031,
+          "at": "2026-09-08T11:37:04.031Z",
+          "actionId": "short-30m",
+          "cutoffMs": 1788854400000,
+          "bankSha256": "b119dcfa614503406907bc0663280577681644713f0a8ec0a258a21a16d037bb",
+          "baseKnown": true,
+          "baseNetBps": 8.168126027606329,
+          "baseProfitable": true,
+          "allScenariosKnown": true,
+          "allStressProfitable": true,
+          "actualWorstNetBps": 3.173415414419823,
+          "supportReady": true,
+          "worstMean": -10.802255345650279,
+          "blocker": "NONPOSITIVE_PREDICTED_MEAN",
+          "estimate": {
+            "actionId": "short-30m",
+            "samples": 52,
+            "effectiveSamples": 49.55822685335843,
+            "observedDays": 4,
+            "meanNetBps": -10.802255345650279,
+            "lowerMeanNetBps": -16.015807767982785,
+            "tailLossBps": 36.88503683733565,
+            "scoreBps": -19.70431145171635,
+            "fillProbability": 1,
+            "reason": "SCORE_BELOW_MINIMUM",
+            "eligible": false
+          },
+          "forecast": [
+            {
+              "scenario": "base-250ms",
+              "meanNetBps": -7.696239518680743,
+              "samples": 52,
+              "effectiveSamples": 49.55822685335843
+            },
+            {
+              "scenario": "fees-1.5x",
+              "meanNetBps": -10.802255345650279,
+              "samples": 52,
+              "effectiveSamples": 49.55822685335843
+            },
+            {
+              "scenario": "latency-750ms-depth-half",
+              "meanNetBps": -7.408605830168902,
+              "samples": 52,
+              "effectiveSamples": 49.55822685335843
+            }
+          ]
+        },
+        {
+          "symbol": "ETH/USD",
+          "atMs": 1788867424695,
+          "at": "2026-09-08T11:37:04.695Z",
+          "actionId": "short-15m",
+          "cutoffMs": 1788854400000,
+          "bankSha256": "b119dcfa614503406907bc0663280577681644713f0a8ec0a258a21a16d037bb",
+          "baseKnown": true,
+          "baseNetBps": 2.3537678701226756,
+          "baseProfitable": true,
+          "allScenariosKnown": true,
+          "allStressProfitable": false,
+          "actualWorstNetBps": -2.642395606171645,
+          "supportReady": false,
+          "worstMean": -9.821302274008453,
+          "blocker": "SUPPORT_OR_DATA_GATE",
+          "estimate": {
+            "actionId": "short-15m",
+            "samples": 42,
+            "effectiveSamples": 39.61661338777851,
+            "observedDays": 3,
+            "meanNetBps": -9.821302274008453,
+            "lowerMeanNetBps": -14.691230250819354,
+            "tailLossBps": 38.55024238165787,
+            "scoreBps": -18.54625448898514,
+            "fillProbability": 0.9299522594221048,
+            "reason": "INSUFFICIENT_SAMPLES",
+            "eligible": false
+          },
+          "forecast": [
+            {
+              "scenario": "base-250ms",
+              "meanNetBps": -7.118281100150055,
+              "samples": 42,
+              "effectiveSamples": 39.61661338777851
+            },
+            {
+              "scenario": "fees-1.5x",
+              "meanNetBps": -9.821302274008453,
+              "samples": 42,
+              "effectiveSamples": 39.61661338777851
+            },
+            {
+              "scenario": "latency-750ms-depth-half",
+              "meanNetBps": -7.477313069266478,
+              "samples": 42,
+              "effectiveSamples": 39.61661338777851
+            }
+          ]
+        },
+        {
+          "symbol": "ETH/USD",
+          "atMs": 1788867424695,
+          "at": "2026-09-08T11:37:04.695Z",
+          "actionId": "short-30m",
+          "cutoffMs": 1788854400000,
+          "bankSha256": "b119dcfa614503406907bc0663280577681644713f0a8ec0a258a21a16d037bb",
+          "baseKnown": true,
+          "baseNetBps": 11.242791373879196,
+          "baseProfitable": true,
+          "allScenariosKnown": true,
+          "allStressProfitable": true,
+          "actualWorstNetBps": 6.2488490428881605,
+          "supportReady": false,
+          "worstMean": -10.852044075628198,
+          "blocker": "SUPPORT_OR_DATA_GATE",
+          "estimate": {
+            "actionId": "short-30m",
+            "samples": 42,
+            "effectiveSamples": 39.415196956659365,
+            "observedDays": 3,
+            "meanNetBps": -10.852044075628198,
+            "lowerMeanNetBps": -17.683427089223716,
+            "tailLossBps": 52.3200612060622,
+            "scoreBps": -22.915433209829935,
+            "fillProbability": 0.9527720898417685,
+            "reason": "INSUFFICIENT_SAMPLES",
+            "eligible": false
+          },
+          "forecast": [
+            {
+              "scenario": "base-250ms",
+              "meanNetBps": -8.083771137967574,
+              "samples": 42,
+              "effectiveSamples": 39.415196956659365
+            },
+            {
+              "scenario": "fees-1.5x",
+              "meanNetBps": -10.852044075628198,
+              "samples": 42,
+              "effectiveSamples": 39.415196956659365
+            },
+            {
+              "scenario": "latency-750ms-depth-half",
+              "meanNetBps": -8.176284931880511,
+              "samples": 42,
+              "effectiveSamples": 39.415196956659365
+            }
+          ]
+        },
+        {
+          "symbol": "BTC/USD",
+          "atMs": 1788871144710,
+          "at": "2026-09-08T12:39:04.710Z",
+          "actionId": "long-30m",
+          "cutoffMs": 1788854400000,
+          "bankSha256": "b119dcfa614503406907bc0663280577681644713f0a8ec0a258a21a16d037bb",
+          "baseKnown": true,
+          "baseNetBps": 0.26442589898783986,
+          "baseProfitable": true,
+          "allScenariosKnown": true,
+          "allStressProfitable": false,
+          "actualWorstNetBps": -4.7388918663695865,
+          "supportReady": false,
+          "worstMean": -10.19921583312327,
+          "blocker": "SUPPORT_OR_DATA_GATE",
+          "estimate": {
+            "actionId": "long-30m",
+            "samples": 43,
+            "effectiveSamples": 40.8623823151516,
+            "observedDays": 4,
+            "meanNetBps": -10.19921583312327,
+            "lowerMeanNetBps": -14.419688565923792,
+            "tailLossBps": 34.730013736424674,
+            "scoreBps": -17.89268993956626,
+            "fillProbability": 0.9582517300145106,
+            "reason": "INSUFFICIENT_SAMPLES",
+            "eligible": false
+          },
+          "forecast": [
+            {
+              "scenario": "base-250ms",
+              "meanNetBps": -7.305159298681184,
+              "samples": 43,
+              "effectiveSamples": 40.8623823151516
+            },
+            {
+              "scenario": "fees-1.5x",
+              "meanNetBps": -10.19921583312327,
+              "samples": 43,
+              "effectiveSamples": 40.8623823151516
+            },
+            {
+              "scenario": "latency-750ms-depth-half",
+              "meanNetBps": -6.068212979498874,
+              "samples": 43,
+              "effectiveSamples": 40.8623823151516
+            }
+          ]
+        },
+        {
+          "symbol": "BTC/USD",
+          "atMs": 1788874866141,
+          "at": "2026-09-08T13:41:06.141Z",
+          "actionId": "long-15m",
+          "cutoffMs": 1788854400000,
+          "bankSha256": "b119dcfa614503406907bc0663280577681644713f0a8ec0a258a21a16d037bb",
+          "baseKnown": true,
+          "baseNetBps": 17.476089389787944,
+          "baseProfitable": true,
+          "allScenariosKnown": true,
+          "allStressProfitable": true,
+          "actualWorstNetBps": 12.468466556023618,
+          "supportReady": false,
+          "worstMean": -0.34182552858026066,
+          "blocker": "SUPPORT_OR_DATA_GATE",
+          "estimate": {
+            "actionId": "long-15m",
+            "samples": 1,
+            "effectiveSamples": 1,
+            "observedDays": 0,
+            "meanNetBps": -0.27884551493418636,
+            "lowerMeanNetBps": null,
+            "tailLossBps": 22.127511321273495,
+            "scoreBps": null,
+            "fillProbability": 1,
+            "reason": "INSUFFICIENT_DAYS",
+            "eligible": false
+          },
+          "forecast": [
+            {
+              "scenario": "base-250ms",
+              "meanNetBps": -0.27884551493418636,
+              "samples": 1,
+              "effectiveSamples": 1
+            },
+            {
+              "scenario": "fees-1.5x",
+              "meanNetBps": -0.34182552858026066,
+              "samples": 1,
+              "effectiveSamples": 1
+            },
+            {
+              "scenario": "latency-750ms-depth-half",
+              "meanNetBps": -0.27096724936480154,
+              "samples": 1,
+              "effectiveSamples": 1
+            }
+          ]
+        },
+        {
+          "symbol": "BTC/USD",
+          "atMs": 1788874866141,
+          "at": "2026-09-08T13:41:06.141Z",
+          "actionId": "long-30m",
+          "cutoffMs": 1788854400000,
+          "bankSha256": "b119dcfa614503406907bc0663280577681644713f0a8ec0a258a21a16d037bb",
+          "baseKnown": true,
+          "baseNetBps": 31.363927592728388,
+          "baseProfitable": true,
+          "allScenariosKnown": true,
+          "allStressProfitable": true,
+          "actualWorstNetBps": 26.352831062565127,
+          "supportReady": false,
+          "worstMean": -0.10396141904511678,
+          "blocker": "SUPPORT_OR_DATA_GATE",
+          "estimate": {
+            "actionId": "long-30m",
+            "samples": 1,
+            "effectiveSamples": 1,
+            "observedDays": 0,
+            "meanNetBps": -0.040921894738663415,
+            "lowerMeanNetBps": null,
+            "tailLossBps": 3.247316670420375,
+            "scoreBps": null,
+            "fillProbability": 1,
+            "reason": "INSUFFICIENT_DAYS",
+            "eligible": false
+          },
+          "forecast": [
+            {
+              "scenario": "base-250ms",
+              "meanNetBps": -0.040921894738663415,
+              "samples": 1,
+              "effectiveSamples": 1
+            },
+            {
+              "scenario": "fees-1.5x",
+              "meanNetBps": -0.10396141904511678,
+              "samples": 1,
+              "effectiveSamples": 1
+            },
+            {
+              "scenario": "latency-750ms-depth-half",
+              "meanNetBps": -0.040921894738663415,
+              "samples": 1,
+              "effectiveSamples": 1
+            }
+          ]
+        },
+        {
+          "symbol": "ETH/USD",
+          "atMs": 1788874867065,
+          "at": "2026-09-08T13:41:07.065Z",
+          "actionId": "long-5m",
+          "cutoffMs": 1788854400000,
+          "bankSha256": "b119dcfa614503406907bc0663280577681644713f0a8ec0a258a21a16d037bb",
+          "baseKnown": true,
+          "baseNetBps": 7.054666066090917,
+          "baseProfitable": true,
+          "allScenariosKnown": true,
+          "allStressProfitable": true,
+          "actualWorstNetBps": 2.049649891487091,
+          "supportReady": false,
+          "worstMean": -0.10958399250817362,
+          "blocker": "SUPPORT_OR_DATA_GATE",
+          "estimate": {
+            "actionId": "long-5m",
+            "samples": 1,
+            "effectiveSamples": 1,
+            "observedDays": 0,
+            "meanNetBps": -0.047157471657541354,
+            "lowerMeanNetBps": null,
+            "tailLossBps": 3.778780585639167,
+            "scoreBps": null,
+            "fillProbability": 1,
+            "reason": "INSUFFICIENT_DAYS",
+            "eligible": false
+          },
+          "forecast": [
+            {
+              "scenario": "base-250ms",
+              "meanNetBps": -0.047157471657541354,
+              "samples": 1,
+              "effectiveSamples": 1
+            },
+            {
+              "scenario": "fees-1.5x",
+              "meanNetBps": -0.10958399250817362,
+              "samples": 1,
+              "effectiveSamples": 1
+            },
+            {
+              "scenario": "latency-750ms-depth-half",
+              "meanNetBps": -0.052160804062598105,
+              "samples": 1,
+              "effectiveSamples": 1
+            }
+          ]
+        },
+        {
+          "symbol": "ETH/USD",
+          "atMs": 1788874867065,
+          "at": "2026-09-08T13:41:07.065Z",
+          "actionId": "long-15m",
+          "cutoffMs": 1788854400000,
+          "bankSha256": "b119dcfa614503406907bc0663280577681644713f0a8ec0a258a21a16d037bb",
+          "baseKnown": true,
+          "baseNetBps": 52.893902788584114,
+          "baseProfitable": true,
+          "allScenariosKnown": true,
+          "allStressProfitable": true,
+          "actualWorstNetBps": 47.877421072028696,
+          "supportReady": false,
+          "worstMean": -0.24964225900217102,
+          "blocker": "SUPPORT_OR_DATA_GATE",
+          "estimate": {
+            "actionId": "long-15m",
+            "samples": 1,
+            "effectiveSamples": 1,
+            "observedDays": 0,
+            "meanNetBps": -0.1872507789987977,
+            "lowerMeanNetBps": null,
+            "tailLossBps": 15.004612916165787,
+            "scoreBps": null,
+            "fillProbability": 1,
+            "reason": "INSUFFICIENT_DAYS",
+            "eligible": false
+          },
+          "forecast": [
+            {
+              "scenario": "base-250ms",
+              "meanNetBps": -0.1872507789987977,
+              "samples": 1,
+              "effectiveSamples": 1
+            },
+            {
+              "scenario": "fees-1.5x",
+              "meanNetBps": -0.24964225900217102,
+              "samples": 1,
+              "effectiveSamples": 1
+            },
+            {
+              "scenario": "latency-750ms-depth-half",
+              "meanNetBps": -0.17724411418871192,
+              "samples": 1,
+              "effectiveSamples": 1
+            }
+          ]
+        },
+        {
+          "symbol": "ETH/USD",
+          "atMs": 1788874867065,
+          "at": "2026-09-08T13:41:07.065Z",
+          "actionId": "long-30m",
+          "cutoffMs": 1788854400000,
+          "bankSha256": "b119dcfa614503406907bc0663280577681644713f0a8ec0a258a21a16d037bb",
+          "baseKnown": true,
+          "baseNetBps": 74.17640555259842,
+          "baseProfitable": true,
+          "allScenariosKnown": true,
+          "allStressProfitable": true,
+          "actualWorstNetBps": 69.15460054870833,
+          "supportReady": false,
+          "worstMean": 0.07549300250171988,
+          "blocker": "SUPPORT_OR_DATA_GATE",
+          "estimate": {
+            "actionId": "long-30m",
+            "samples": 1,
+            "effectiveSamples": 1,
+            "observedDays": 0,
+            "meanNetBps": 0.13796582732908716,
+            "lowerMeanNetBps": null,
+            "tailLossBps": 0,
+            "scoreBps": null,
+            "fillProbability": 1,
+            "reason": "INSUFFICIENT_DAYS",
+            "eligible": false
+          },
+          "forecast": [
+            {
+              "scenario": "base-250ms",
+              "meanNetBps": 0.13796582732908716,
+              "samples": 1,
+              "effectiveSamples": 1
+            },
+            {
+              "scenario": "fees-1.5x",
+              "meanNetBps": 0.07549300250171988,
+              "samples": 1,
+              "effectiveSamples": 1
+            },
+            {
+              "scenario": "latency-750ms-depth-half",
+              "meanNetBps": 0.13796582732908716,
+              "samples": 1,
+              "effectiveSamples": 1
+            }
+          ]
+        },
+        {
+          "symbol": "BTC/USD",
+          "atMs": 1788876726878,
+          "at": "2026-09-08T14:12:06.878Z",
+          "actionId": "long-5m",
+          "cutoffMs": 1788854400000,
+          "bankSha256": "b119dcfa614503406907bc0663280577681644713f0a8ec0a258a21a16d037bb",
+          "baseKnown": true,
+          "baseNetBps": 0.6861738885623652,
+          "baseProfitable": true,
+          "allScenariosKnown": true,
+          "allStressProfitable": false,
+          "actualWorstNetBps": -4.317249366537325,
+          "supportReady": false,
+          "worstMean": -8.93155371161894,
+          "blocker": "SUPPORT_OR_DATA_GATE",
+          "estimate": {
+            "actionId": "long-5m",
+            "samples": 36,
+            "effectiveSamples": 34.90746080159502,
+            "observedDays": 4,
+            "meanNetBps": -8.93155371161894,
+            "lowerMeanNetBps": -12.961884820044169,
+            "tailLossBps": 32.63230234246015,
+            "scoreBps": -16.225115054290185,
+            "fillProbability": 1,
+            "reason": "INSUFFICIENT_SAMPLES",
+            "eligible": false
+          },
+          "forecast": [
+            {
+              "scenario": "base-250ms",
+              "meanNetBps": -6.639615889999173,
+              "samples": 36,
+              "effectiveSamples": 34.90746080159502
+            },
+            {
+              "scenario": "fees-1.5x",
+              "meanNetBps": -8.93155371161894,
+              "samples": 36,
+              "effectiveSamples": 34.90746080159502
+            },
+            {
+              "scenario": "latency-750ms-depth-half",
+              "meanNetBps": -6.218657452618287,
+              "samples": 36,
+              "effectiveSamples": 34.90746080159502
+            }
+          ]
+        },
+        {
+          "symbol": "BTC/USD",
+          "atMs": 1788876726878,
+          "at": "2026-09-08T14:12:06.878Z",
+          "actionId": "long-15m",
+          "cutoffMs": 1788854400000,
+          "bankSha256": "b119dcfa614503406907bc0663280577681644713f0a8ec0a258a21a16d037bb",
+          "baseKnown": true,
+          "baseNetBps": 0.4303575541958651,
+          "baseProfitable": true,
+          "allScenariosKnown": true,
+          "allStressProfitable": false,
+          "actualWorstNetBps": -4.573001714827196,
+          "supportReady": false,
+          "worstMean": -6.739864089460878,
+          "blocker": "SUPPORT_OR_DATA_GATE",
+          "estimate": {
+            "actionId": "long-15m",
+            "samples": 27,
+            "effectiveSamples": 25.579576266738428,
+            "observedDays": 4,
+            "meanNetBps": -6.739864089460878,
+            "lowerMeanNetBps": -12.310025616689089,
+            "tailLossBps": 32.86057147686191,
+            "scoreBps": -15.596082764375279,
+            "fillProbability": 1,
+            "reason": "INSUFFICIENT_SAMPLES",
+            "eligible": false
+          },
+          "forecast": [
+            {
+              "scenario": "base-250ms",
+              "meanNetBps": -4.798160698180809,
+              "samples": 27,
+              "effectiveSamples": 25.579576266738428
+            },
+            {
+              "scenario": "fees-1.5x",
+              "meanNetBps": -6.739864089460878,
+              "samples": 27,
+              "effectiveSamples": 25.579576266738428
+            },
+            {
+              "scenario": "latency-750ms-depth-half",
+              "meanNetBps": -4.406418290196015,
+              "samples": 27,
+              "effectiveSamples": 25.579576266738428
+            }
+          ]
+        },
+        {
+          "symbol": "BTC/USD",
+          "atMs": 1788876726878,
+          "at": "2026-09-08T14:12:06.878Z",
+          "actionId": "long-30m",
+          "cutoffMs": 1788854400000,
+          "bankSha256": "b119dcfa614503406907bc0663280577681644713f0a8ec0a258a21a16d037bb",
+          "baseKnown": true,
+          "baseNetBps": 11.430459931917724,
+          "baseProfitable": true,
+          "allScenariosKnown": true,
+          "allStressProfitable": true,
+          "actualWorstNetBps": 6.424349261599588,
+          "supportReady": false,
+          "worstMean": -8.065415019520476,
+          "blocker": "SUPPORT_OR_DATA_GATE",
+          "estimate": {
+            "actionId": "long-30m",
+            "samples": 26,
+            "effectiveSamples": 24.794171285226824,
+            "observedDays": 3,
+            "meanNetBps": -8.065415019520476,
+            "lowerMeanNetBps": -16.114040003168586,
+            "tailLossBps": 54.39496248259415,
+            "scoreBps": -21.553536251428003,
+            "fillProbability": 1,
+            "reason": "INSUFFICIENT_SAMPLES",
+            "eligible": false
+          },
+          "forecast": [
+            {
+              "scenario": "base-250ms",
+              "meanNetBps": -6.19273544191523,
+              "samples": 26,
+              "effectiveSamples": 24.794171285226824
+            },
+            {
+              "scenario": "fees-1.5x",
+              "meanNetBps": -8.065415019520476,
+              "samples": 26,
+              "effectiveSamples": 24.794171285226824
+            },
+            {
+              "scenario": "latency-750ms-depth-half",
+              "meanNetBps": -5.5877697886549695,
+              "samples": 26,
+              "effectiveSamples": 24.794171285226824
+            }
+          ]
+        },
+        {
+          "symbol": "ETH/USD",
+          "atMs": 1788876727358,
+          "at": "2026-09-08T14:12:07.358Z",
+          "actionId": "long-5m",
+          "cutoffMs": 1788854400000,
+          "bankSha256": "b119dcfa614503406907bc0663280577681644713f0a8ec0a258a21a16d037bb",
+          "baseKnown": true,
+          "baseNetBps": 15.304138516930777,
+          "baseProfitable": true,
+          "allScenariosKnown": true,
+          "allStressProfitable": true,
+          "actualWorstNetBps": 10.297058942514337,
+          "supportReady": false,
+          "worstMean": -3.162397829154758,
+          "blocker": "SUPPORT_OR_DATA_GATE",
+          "estimate": {
+            "actionId": "long-5m",
+            "samples": 8,
+            "effectiveSamples": 7.108719555923075,
+            "observedDays": 2,
+            "meanNetBps": -3.162397829154758,
+            "lowerMeanNetBps": -14.397622727126535,
+            "tailLossBps": 43.10277932849628,
+            "scoreBps": -18.707900659976165,
+            "fillProbability": 1,
+            "reason": "INSUFFICIENT_DAYS",
+            "eligible": false
+          },
+          "forecast": [
+            {
+              "scenario": "base-250ms",
+              "meanNetBps": -2.436168389246565,
+              "samples": 8,
+              "effectiveSamples": 7.108719555923075
+            },
+            {
+              "scenario": "fees-1.5x",
+              "meanNetBps": -3.162397829154758,
+              "samples": 8,
+              "effectiveSamples": 7.108719555923075
+            },
+            {
+              "scenario": "latency-750ms-depth-half",
+              "meanNetBps": -2.478398175281644,
+              "samples": 8,
+              "effectiveSamples": 7.108719555923075
+            }
+          ]
+        },
+        {
+          "symbol": "ETH/USD",
+          "atMs": 1788876727358,
+          "at": "2026-09-08T14:12:07.358Z",
+          "actionId": "long-30m",
+          "cutoffMs": 1788854400000,
+          "bankSha256": "b119dcfa614503406907bc0663280577681644713f0a8ec0a258a21a16d037bb",
+          "baseKnown": true,
+          "baseNetBps": 19.751931712446567,
+          "baseProfitable": true,
+          "allScenariosKnown": true,
+          "allStressProfitable": true,
+          "actualWorstNetBps": 14.74373963347897,
+          "supportReady": false,
+          "worstMean": -1.794648311963506,
+          "blocker": "SUPPORT_OR_DATA_GATE",
+          "estimate": {
+            "actionId": "long-30m",
+            "samples": 5,
+            "effectiveSamples": 4.564748085913926,
+            "observedDays": 1,
+            "meanNetBps": -1.2832875180991863,
+            "lowerMeanNetBps": -25.215083414616345,
+            "tailLossBps": 39.599809797592314,
+            "scoreBps": -29.175064394375575,
+            "fillProbability": 1,
+            "reason": "INSUFFICIENT_DAYS",
+            "eligible": false
+          },
+          "forecast": [
+            {
+              "scenario": "base-250ms",
+              "meanNetBps": -1.4013993517190584,
+              "samples": 5,
+              "effectiveSamples": 4.564748085913926
+            },
+            {
+              "scenario": "fees-1.5x",
+              "meanNetBps": -1.794648311963506,
+              "samples": 5,
+              "effectiveSamples": 4.564748085913926
+            },
+            {
+              "scenario": "latency-750ms-depth-half",
+              "meanNetBps": -1.2832875180991863,
+              "samples": 5,
+              "effectiveSamples": 4.564748085913926
+            }
+          ]
+        },
+        {
+          "symbol": "BTC/USD",
+          "atMs": 1788880447908,
+          "at": "2026-09-08T15:14:07.908Z",
+          "actionId": "long-30m",
+          "cutoffMs": 1788854400000,
+          "bankSha256": "b119dcfa614503406907bc0663280577681644713f0a8ec0a258a21a16d037bb",
+          "baseKnown": true,
+          "baseNetBps": 1.2409709058985143,
+          "baseProfitable": true,
+          "allScenariosKnown": true,
+          "allStressProfitable": false,
+          "actualWorstNetBps": -3.762591117839831,
+          "supportReady": true,
+          "worstMean": -13.314293829200349,
+          "blocker": "NONPOSITIVE_PREDICTED_MEAN",
+          "estimate": {
+            "actionId": "long-30m",
+            "samples": 63,
+            "effectiveSamples": 59.968372321789296,
+            "observedDays": 4,
+            "meanNetBps": -13.314293829200349,
+            "lowerMeanNetBps": -19.965599796490228,
+            "tailLossBps": 52.693985728118236,
+            "scoreBps": -25.23499836930205,
+            "fillProbability": 0.9943479722347673,
+            "reason": "SCORE_BELOW_MINIMUM",
+            "eligible": false
+          },
+          "forecast": [
+            {
+              "scenario": "base-250ms",
+              "meanNetBps": -10.011365210670348,
+              "samples": 63,
+              "effectiveSamples": 59.968372321789296
+            },
+            {
+              "scenario": "fees-1.5x",
+              "meanNetBps": -13.314293829200349,
+              "samples": 63,
+              "effectiveSamples": 59.968372321789296
+            },
+            {
+              "scenario": "latency-750ms-depth-half",
+              "meanNetBps": -9.37765415742366,
+              "samples": 63,
+              "effectiveSamples": 59.968372321789296
+            }
+          ]
+        },
+        {
+          "symbol": "ETH/USD",
+          "atMs": 1788880448711,
+          "at": "2026-09-08T15:14:08.711Z",
+          "actionId": "short-15m",
+          "cutoffMs": 1788854400000,
+          "bankSha256": "b119dcfa614503406907bc0663280577681644713f0a8ec0a258a21a16d037bb",
+          "baseKnown": true,
+          "baseNetBps": 11.124904553309813,
+          "baseProfitable": true,
+          "allScenariosKnown": true,
+          "allStressProfitable": false,
+          "actualWorstNetBps": 0,
+          "supportReady": false,
+          "worstMean": -2.561320561850289,
+          "blocker": "SUPPORT_OR_DATA_GATE",
+          "estimate": {
+            "actionId": "short-15m",
+            "samples": 7,
+            "effectiveSamples": 6.534319819119796,
+            "observedDays": 1,
+            "meanNetBps": -2.561320561850289,
+            "lowerMeanNetBps": -21.755796425658176,
+            "tailLossBps": 56.87730786174778,
+            "scoreBps": -27.443527211832954,
+            "fillProbability": 1,
+            "reason": "INSUFFICIENT_DAYS",
+            "eligible": false
+          },
+          "forecast": [
+            {
+              "scenario": "base-250ms",
+              "meanNetBps": -1.8793803957607418,
+              "samples": 7,
+              "effectiveSamples": 6.534319819119796
+            },
+            {
+              "scenario": "fees-1.5x",
+              "meanNetBps": -2.561320561850289,
+              "samples": 7,
+              "effectiveSamples": 6.534319819119796
+            },
+            {
+              "scenario": "latency-750ms-depth-half",
+              "meanNetBps": -1.8757106006152078,
+              "samples": 7,
+              "effectiveSamples": 6.534319819119796
+            }
+          ]
+        },
+        {
+          "symbol": "ETH/USD",
+          "atMs": 1788880448711,
+          "at": "2026-09-08T15:14:08.711Z",
+          "actionId": "long-30m",
+          "cutoffMs": 1788854400000,
+          "bankSha256": "b119dcfa614503406907bc0663280577681644713f0a8ec0a258a21a16d037bb",
+          "baseKnown": true,
+          "baseNetBps": 8.562389487220937,
+          "baseProfitable": true,
+          "allScenariosKnown": true,
+          "allStressProfitable": true,
+          "actualWorstNetBps": 6.0586220061085765,
+          "supportReady": false,
+          "worstMean": -2.4200164759040788,
+          "blocker": "SUPPORT_OR_DATA_GATE",
+          "estimate": {
+            "actionId": "long-30m",
+            "samples": 8,
+            "effectiveSamples": 7.5335791233536415,
+            "observedDays": 1,
+            "meanNetBps": -2.4200164759040788,
+            "lowerMeanNetBps": -17.36352805467441,
+            "tailLossBps": 26.44368662481809,
+            "scoreBps": -20.00789671715622,
+            "fillProbability": 0.8594678421639328,
+            "reason": "INSUFFICIENT_DAYS",
+            "eligible": false
+          },
+          "forecast": [
+            {
+              "scenario": "base-250ms",
+              "meanNetBps": -1.7604954470522338,
+              "samples": 8,
+              "effectiveSamples": 7.5335791233536415
+            },
+            {
+              "scenario": "fees-1.5x",
+              "meanNetBps": -2.4200164759040788,
+              "samples": 8,
+              "effectiveSamples": 7.5335791233536415
+            },
+            {
+              "scenario": "latency-750ms-depth-half",
+              "meanNetBps": -1.7307955752118005,
+              "samples": 8,
+              "effectiveSamples": 7.5335791233536415
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Outcome-defined opportunities are an ex-post oracle, not signals known at entry.",
+    "Only the archived 31-minute probe grid is observed; this is not a census of one-second live opportunities or the entire 14-hour interval.",
+    "Action paths share origins; six actions and three scenarios are correlated, and the two datasets are inspected development data.",
+    "Recorded stops, targets, fills, latencies, fees, quantity and horizons are unchanged. No raw market data was replayed.",
+    "Counting alternative profitable paths ignores simultaneous portfolio conflicts; these counts are not realizable portfolio profit.",
+    "Unknown outcomes are never assumed to be zero or profitable. Restriction changes and additional training cannot establish predictive edge without new evaluation."
+  ],
+  "liveObservation": {
+    "snapshotAt": "2026-09-08T20:37:34.482000+00:00",
+    "snapshotSha256": "5b4c8bc393d994d5c4f418bb746026631c8cc10544027e5d264a80ae70e0356e",
+    "mode": "paper",
+    "overall": "healthy",
+    "entriesAllowed": true,
+    "haltReasons": [],
+    "databaseConnected": true,
+    "evaluationIntervalMs": 1000,
+    "evaluationsSinceRestartGlobal": 418,
+    "selectedSinceRestartGlobal": 0,
+    "retainedTrainingLabels": 1272,
+    "markets": [
+      {
+        "symbol": "BTC/USD",
+        "marketReady": true,
+        "decisionAtMs": 1788899853820,
+        "reason": "SCORE_BELOW_MINIMUM",
+        "allActionsPassSampleDateRequirements": true,
+        "estimates": [
+          {
+            "actionId": "long-5m",
+            "samples": 102,
+            "effectiveSamples": 95.47718989758053,
+            "observedDays": 4,
+            "meanNetBps": -13.271097012659476,
+            "lowerMeanNetBps": -15.043874675960845,
+            "tailLossBps": 28.50514281829335,
+            "scoreBps": -17.89438895779018,
+            "fillProbability": 0.9678501469154444,
+            "reason": "SCORE_BELOW_MINIMUM",
+            "eligible": false
+          },
+          {
+            "actionId": "short-5m",
+            "samples": 102,
+            "effectiveSamples": 95.38955273911728,
+            "observedDays": 4,
+            "meanNetBps": -13.548025120950232,
+            "lowerMeanNetBps": -15.771080644334525,
+            "tailLossBps": 28.669809996770834,
+            "scoreBps": -18.638061644011607,
+            "fillProbability": 0.958383420381495,
+            "reason": "SCORE_BELOW_MINIMUM",
+            "eligible": false
+          },
+          {
+            "actionId": "long-15m",
+            "samples": 95,
+            "effectiveSamples": 88.74273189252771,
+            "observedDays": 4,
+            "meanNetBps": -14.597480810778665,
+            "lowerMeanNetBps": -18.573610297908232,
+            "tailLossBps": 39.05111969407439,
+            "scoreBps": -22.47872226731567,
+            "fillProbability": 0.9886202601531021,
+            "reason": "SCORE_BELOW_MINIMUM",
+            "eligible": false
+          },
+          {
+            "actionId": "short-15m",
+            "samples": 95,
+            "effectiveSamples": 88.74273189252771,
+            "observedDays": 4,
+            "meanNetBps": -12.283148666817771,
+            "lowerMeanNetBps": -16.697574800208177,
+            "tailLossBps": 34.46196937503795,
+            "scoreBps": -20.143771737711972,
+            "fillProbability": 0.9799060277375569,
+            "reason": "SCORE_BELOW_MINIMUM",
+            "eligible": false
+          },
+          {
+            "actionId": "long-30m",
+            "samples": 95,
+            "effectiveSamples": 88.89903382546716,
+            "observedDays": 4,
+            "meanNetBps": -14.402627750725976,
+            "lowerMeanNetBps": -18.401598093320203,
+            "tailLossBps": 48.95202299137952,
+            "scoreBps": -23.296800392458156,
+            "fillProbability": 0.9760166464688336,
+            "reason": "SCORE_BELOW_MINIMUM",
+            "eligible": false
+          },
+          {
+            "actionId": "short-30m",
+            "samples": 94,
+            "effectiveSamples": 87.91293126326318,
+            "observedDays": 4,
+            "meanNetBps": -12.825573134116523,
+            "lowerMeanNetBps": -17.17061065509796,
+            "tailLossBps": 39.17848560305775,
+            "scoreBps": -21.088459215403734,
+            "fillProbability": 0.9795820941553255,
+            "reason": "SCORE_BELOW_MINIMUM",
+            "eligible": false
+          }
+        ]
+      },
+      {
+        "symbol": "ETH/USD",
+        "marketReady": true,
+        "decisionAtMs": 1788899853768,
+        "reason": "SCORE_BELOW_MINIMUM",
+        "allActionsPassSampleDateRequirements": true,
+        "estimates": [
+          {
+            "actionId": "long-5m",
+            "samples": 59,
+            "effectiveSamples": 55.25477318219335,
+            "observedDays": 4,
+            "meanNetBps": -11.600531278474568,
+            "lowerMeanNetBps": -15.511825302564548,
+            "tailLossBps": 34.34140343947062,
+            "scoreBps": -18.94596564651161,
+            "fillProbability": 0.968706993270661,
+            "reason": "SCORE_BELOW_MINIMUM",
+            "eligible": false
+          },
+          {
+            "actionId": "short-5m",
+            "samples": 59,
+            "effectiveSamples": 55.25517753608017,
+            "observedDays": 4,
+            "meanNetBps": -11.377597487735963,
+            "lowerMeanNetBps": -16.030013011282822,
+            "tailLossBps": 36.28689522635838,
+            "scoreBps": -19.65870253391866,
+            "fillProbability": 0.8895993343455683,
+            "reason": "SCORE_BELOW_MINIMUM",
+            "eligible": false
+          },
+          {
+            "actionId": "long-15m",
+            "samples": 55,
+            "effectiveSamples": 51.45027730125341,
+            "observedDays": 4,
+            "meanNetBps": -13.018732488333757,
+            "lowerMeanNetBps": -18.798958041568447,
+            "tailLossBps": 45.513794279088124,
+            "scoreBps": -23.35033746947726,
+            "fillProbability": 0.9658534679584374,
+            "reason": "SCORE_BELOW_MINIMUM",
+            "eligible": false
+          },
+          {
+            "actionId": "short-15m",
+            "samples": 55,
+            "effectiveSamples": 51.45027730125341,
+            "observedDays": 4,
+            "meanNetBps": -9.144562106202185,
+            "lowerMeanNetBps": -17.275419584733957,
+            "tailLossBps": 42.63166279276378,
+            "scoreBps": -21.538585864010336,
+            "fillProbability": 0.9071758681906571,
+            "reason": "SCORE_BELOW_MINIMUM",
+            "eligible": false
+          },
+          {
+            "actionId": "long-30m",
+            "samples": 55,
+            "effectiveSamples": 51.45027730125341,
+            "observedDays": 4,
+            "meanNetBps": -10.021964628960426,
+            "lowerMeanNetBps": -19.385873341829868,
+            "tailLossBps": 57.78808349540078,
+            "scoreBps": -25.164681691369946,
+            "fillProbability": 0.9658534679584374,
+            "reason": "SCORE_BELOW_MINIMUM",
+            "eligible": false
+          },
+          {
+            "actionId": "short-30m",
+            "samples": 55,
+            "effectiveSamples": 51.45027730125341,
+            "observedDays": 4,
+            "meanNetBps": -12.225145294278915,
+            "lowerMeanNetBps": -20.9091194507739,
+            "tailLossBps": 62.024011990448855,
+            "scoreBps": -27.111520649818786,
+            "fillProbability": 0.9071758681906571,
+            "reason": "SCORE_BELOW_MINIMUM",
+            "eligible": false
+          }
+        ]
+      }
+    ],
+    "interpretation": "At this snapshot every action passes sample/date requirements, but every displayed net mean is negative and every action fails the score. The current absence of entries is not explained by a market-data warmup or training timer."
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "createdAtMs": 1788902529520,
+  "originalCandidateManifest": {
+    "version": "btc-eth-native-regime-study-v1",
+    "createdAtMs": 1788901816003,
+    "spec": {
+      "version": "btc-eth-native-regime-study-v1",
+      "researchOnly": true,
+      "candidate": {
+        "version": "btc-eth-supervised-regime-distribution-v1",
+        "labelVersion": "btc-eth-distributional-control-v1",
+        "maximumDepth": 2,
+        "splitFeatureIndices": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11
+        ],
+        "excludedFeatureIndices": [
+          5
+        ],
+        "splitLoss": "MEAN_OF_THREE_RECENCY_WEIGHTED_GROSS_SSE",
+        "minimumLeafSamples": 48,
+        "minimumLeafEffectiveSamples": 32,
+        "minimumLeafDayWeight": 1,
+        "minimumTrainingDays": [
+          3,
+          7
+        ],
+        "grossPriorWeight": 16,
+        "costPriorWeight": 0,
+        "memoryHalfLifeMs": 604800000,
+        "maximumTrainingAgeMs": 86400000,
+        "uncertaintyMultiplier": 2.58,
+        "tailFraction": 0.1,
+        "tailPenalty": 0.1,
+        "minimumScoreBpsExclusive": 1
+      },
+      "minimumTrainingDays": 3,
+      "support": "EACH_MODEL_NATIVE_SUPPORT",
+      "modelPolicy": "CONDITIONAL_AND_REGIME_EXACT_ROBUSTNESS_ELIGIBILITY",
+      "baselinePolicy": "WHOLE_ACTION_BANK_SUPPORT_AND_WORST_NET_MEAN_ABOVE_ONE",
+      "fixedPolicySupport": "WHOLE_ACTION_BANK_SUPPORT",
+      "meanDiagnosticThresholdExclusive": 1,
+      "portfolioSlotsPerPolicy": 1,
+      "untouched": false,
+      "automaticPromotion": false
+    },
+    "sourceHashes": {
+      "src/distribution/regime-study.ts": "2aef96684689f6727a09db4932d33623bd6bf1f28c609aa8e31b54741f458055",
+      "src/distribution/regime-study-main.ts": "7b856ac1df70275b1fedad1913d4ee939aa4063350ee9fb6aaabfc08e4276682",
+      "src/distribution/regime-model.ts": "20f074a4037f619b391f782523780216a3c688885a389021ca6f63fd87237657",
+      "src/distribution/predictive-audit-data.ts": "5eee97b53becaedbdb7212315db34ae0897f5c73ad729b5c5c74903b4c1f5ecf",
+      "src/distribution/model.ts": "54dad777f1bbea1f9f24c531ab7600e0da9328c824f90ab3875de5c4606beabf",
+      "src/distribution/spec.ts": "c5e2f7d36fdcff775f7375de9447b7604b80e45c9eed32003acb6b53d46191a3",
+      "package.json": "accf5526c8ca6f71250241632826fa3853af802aa16e301b1ca11c41c84f705a",
+      "package-lock.json": "2315bada829d31ccb4d3970392ba56d73458d3219dda1ec98d8dda0d41893594"
+    },
+    "inputs": [
+      {
+        "name": "first",
+        "stem": "conditional-development-20260908",
+        "protocol": "first-protocol"
+      },
+      {
+        "name": "later",
+        "stem": "conditional-later-v2-20260908",
+        "protocol": "later-protocol"
+      }
+    ],
+    "untouched": false,
+    "evidenceClass": "INSPECTED_HISTORICAL_DEVELOPMENT"
+  },
+  "sourceHashesUnchanged": true,
+  "evidenceClass": "NEWLY_SCORED_CHRONOLOGICAL_DEVELOPMENT",
+  "untouched": false
+}

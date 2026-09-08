@@ -98,6 +98,7 @@ export interface DashboardLivePosition {
 }
 
 export interface DashboardOrderCard {
+  distributionDecision?: import("../distribution/spec.js").DistributionDecision | null;
   clientOrderId: string;
   decisionId?: string | null;
   venueOrderId: string | null;
@@ -179,6 +180,7 @@ export interface DashboardPositionCard {
 }
 
 export interface DashboardMarketCard {
+  distributional?: import("../engine/trading-engine.js").EngineMarketSnapshot["distributional"] | null;
   policyPulse?: PolicyMarketPulse | null;
   symbol: string;
   bookValid: boolean;

@@ -1,0 +1,18 @@
+{
+  "BTC/USD": {
+    "symbol": "BTC/USD",
+    "minOrderSize": 0.0001,
+    "minTradeIncrement": 0.0001,
+    "priceIncrement": 1,
+    "maximumOrderQty": 1200.0,
+    "shortable": true
+  },
+  "ETH/USD": {
+    "symbol": "ETH/USD",
+    "minOrderSize": 0.001,
+    "minTradeIncrement": 0.001,
+    "priceIncrement": 0.1,
+    "maximumOrderQty": 21000.0,
+    "shortable": true
+  }
+}

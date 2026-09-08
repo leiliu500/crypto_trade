@@ -1,0 +1,119 @@
+{
+  "version": "kraken-hourly-trend-recovery-v1",
+  "registeredAtUtc": "2026-09-08T22:07:31Z",
+  "status": "REGISTERED_BEFORE_RETURN_INSPECTION",
+  "purpose": "Find a testable BTC/ETH return forecast after costs; no promise of profits and no automatic real-money promotion",
+  "source": "Kraken Futures trade PF_XBTUSD/PF_ETHUSD completed 1h candles and official historical hourly funding",
+  "symbols": [
+    "BTC/USD",
+    "ETH/USD"
+  ],
+  "warmupFrom": "2023-12-01T00:00:00Z",
+  "trainingFrom": "2024-01-01T00:00:00Z",
+  "developmentFrom": "2025-01-01T00:00:00Z",
+  "testFrom": "2026-01-01T00:00:00Z",
+  "testUntilExclusive": "2026-08-01T00:00:00Z",
+  "maximumLabelPurgeHours": 25,
+  "candidates": [
+    {
+      "id": "trend-4h",
+      "kind": "trend",
+      "horizonHours": 4
+    },
+    {
+      "id": "trend-24h",
+      "kind": "trend",
+      "horizonHours": 24
+    },
+    {
+      "id": "recovery-4h",
+      "kind": "recovery",
+      "horizonHours": 4
+    },
+    {
+      "id": "recovery-24h",
+      "kind": "recovery",
+      "horizonHours": 24
+    }
+  ],
+  "model": {
+    "target": "gross endpoint return in basis points, one independent model per asset",
+    "ridgePenalty": 16,
+    "interceptPenalty": 0,
+    "standardization": "training-only mean and population standard deviation, floor 0.1",
+    "features": [
+      "volatility-normalized log return 4h",
+      "volatility-normalized log return 24h",
+      "volatility-normalized log return 168h",
+      "relative own-minus-peer 24h return normalized by combined volatility"
+    ],
+    "recoveryInteractions": [
+      "sign(trend168) * max(0, -sign(trend168)*trend24)",
+      "sign(trend24) * max(0, sign(trend24)*trend4)"
+    ],
+    "volatility": "168 completed hourly log returns; no contemporaneous quote interpolation",
+    "refit": "Train on 2024 for development; after selecting one candidate refit on 2024-2025 and freeze weights for final 2026 test",
+    "minimumSamplesPerAsset": 6000
+  },
+  "execution": {
+    "signal": "Required hourly candles must already be complete; next strictly later hourly open entry",
+    "baseDelayHours": 1,
+    "stressDelayHours": 2,
+    "exit": "Fixed horizon after actual entry, no candle stop/target assumptions",
+    "positions": "One shared BTC/ETH slot; highest expected net return wins; BTC tie break",
+    "entryNotionalUsd": 12,
+    "initialEquityUsd": 100000,
+    "baseFeeBpsPerSide": 5,
+    "baseSlippageBpsPerSide": 1.5,
+    "stressFeeBpsPerSide": 7.5,
+    "stressSlippageBpsPerSide": 3,
+    "stressExtraAdverseFundingBpsPer24h": 1,
+    "funding": "Explicit adverse-funding SCENARIO every holding hour on open mark notional, charged for both long and short: base uses 95th percentile absolute hourly training funding, stress uses 99th percentile plus the separate 1bp/24h stress reserve; actual incomplete rows remain available but are not called verified cashflows",
+    "forecastFundingReserve": "95th percentile absolute hourly training funding rate * holding hours; computed before evaluation period",
+    "entryHurdle": "Absolute predicted gross return minus 13 bps base round-trip friction minus forecast funding reserve must be strictly above 5 bps",
+    "stressEligibility": "Same prequalified forecasts under base and stress; stress does not filter expensive losing signals retrospectively",
+    "zeroVolumeAndMissingData": "No forced executable fills: present zero-volume entry resolves as a known nonfill at that bar's CLOSE, retaining the slot until then; zero-volume exit or missing selected price/mark remains unresolved and invalidates full-period profit. Present zero-volume OHLC may supply an explicitly stale indicative mark, never an execution. Adverse funding scenario does not invent actual funding observations.",
+    "endBoundary": "No position may cross evaluation endpoint; reserve at least 26h before endpoint for all candidate signals"
+  },
+  "selection": {
+    "objective": "2025 stress net PnL USD minus 0.5 * stress maximum mark-to-market drawdown USD",
+    "developmentGateBeforeOpeningFinalTest": "Selected candidate must have positive base and stress net PnL, at least 100 trades and 20 trades per asset, and no selected unknown outcome; otherwise stop with 2026 final test unopened",
+    "tieBreak": "Lexicographic candidate id",
+    "baselineReference": "Select strongest of fixed 24h-held 168h-trend, BTC buy-and-hold, ETH buy-and-hold by same 2025 utility; also report flat and every baseline",
+    "oneFinalTest": true,
+    "postTestModelChanges": "Any change is a new candidate and cannot reuse this final test as untouched evidence"
+  },
+  "paperTrialAcceptance": {
+    "minimumFinalTestMonths": 6,
+    "minimumTrades": 100,
+    "minimumActiveUtcDates": 40,
+    "minimumTradesPerClaimedAsset": 20,
+    "baseNetPnl": "strictly positive overall and each claimed asset",
+    "stressNetPnl": "nonnegative overall and each claimed asset",
+    "mustBeat": "Flat and development-selected simple baseline in final base and stress PnL",
+    "maximumMarkToMarketDrawdownUsd": 12,
+    "maximumOneDayLossUsd": 12,
+    "missingSelectedOutcomeCount": 0,
+    "predictiveAdvantage": "Report full-origin gross MSE versus zero and training unconditional forecasts; do not claim model advantage if no improvement",
+    "statisticalEvidence": "Report one-sided 95% lower bound on full-calendar daily PnL improvement using shared 7-day moving blocks, 2000 resamples and fixed seed 20260908",
+    "strongerValidation": "Positive lower bounds against flat and selected baseline, then at least 30 forward paper days and 50 reconciled fills INCLUDING ACTUAL FUNDING under unchanged rule; no automatic live promotion"
+  },
+  "amendmentsBeforeAnyModelFitOrReturnInspection": [
+    {
+      "atUtc": "2026-09-08T22:13:47Z",
+      "reason": "Official funding export ends February 1, 2026, has older hourly gaps, and source timestamp convention is unverified. Analytics OHLC rates are not verified settlement cashflows.",
+      "change": "Retain original train/development/test dates; use disclosed training-calibrated adverse funding scenarios, not unverifiable actual historical funding. Positive results only nominate an operational paper candidate, not verified historical profitability. No funding reserve is calibrated from final-test data."
+    },
+    {
+      "atUtc": "2026-09-08T22:22:18Z",
+      "reason": "Existing horizon study already inspected August 27, 2026. Exclude the entire August month to avoid calling reused prices untouched. No model returns have been inspected.",
+      "change": "Final test ends August 1 exclusive: January through July, seven full calendar months. August data remains downloaded but is excluded from all evaluation and fitting."
+    }
+  ],
+  "knownLimitations": [
+    "Hourly OHLCV cannot prove order-book fillability or intrahour path",
+    "Funding scenario percentiles are assumptions, not guaranteed upper bounds on future funding; exact after-cost profitability is not established",
+    "Synthetic small-notional fills require paper execution reconciliation and tick/lot validation before activation",
+    "Longer holding periods can have losses larger than historical samples; a $12 order cap is not a $12 risk allowance"
+  ]
+}

@@ -1,0 +1,439 @@
+[
+  {
+    "name": "first",
+    "protocol": {
+      "version": "conditional-study-v1",
+      "startMs": 1788746400000,
+      "endMs": 1788756556000,
+      "costs": {
+        "BTC/USD": {
+          "feeBps": 5,
+          "reserveBps": 3
+        },
+        "ETH/USD": {
+          "feeBps": 5,
+          "reserveBps": 3
+        }
+      },
+      "assets": {
+        "BTC/USD": {
+          "symbol": "BTC/USD",
+          "minOrderSize": 0.0001,
+          "minTradeIncrement": 0.0001,
+          "priceIncrement": 1,
+          "maximumOrderQty": 1200,
+          "shortable": true
+        },
+        "ETH/USD": {
+          "symbol": "ETH/USD",
+          "minOrderSize": 0.001,
+          "minTradeIncrement": 0.001,
+          "priceIncrement": 0.1,
+          "maximumOrderQty": 21000,
+          "shortable": true
+        }
+      },
+      "minimumTrainingDays": 3,
+      "mode": "DEVELOPMENT"
+    },
+    "reportSha256": "89df0bdaab9653cdeea6383a6c642a15acf18d5799af7699e6ba472cc248548e",
+    "auditHashVerified": true,
+    "freezeHashesVerified": true,
+    "predictionChecks": 360,
+    "maximumPredictionDifference": 0,
+    "summaries": [
+      {
+        "symbol": "BTC/USD",
+        "model": "current",
+        "origins": 5,
+        "actionForecasts": 30,
+        "unknown": 4,
+        "paired": 26,
+        "filled": 26,
+        "reasons": {
+          "INSUFFICIENT_DAYS": 30
+        },
+        "observed": {
+          "meanGross": -0.6777853254848087,
+          "meanNet": -13.676703896531725,
+          "meanCost": 12.998918571046916,
+          "positiveGross": 13,
+          "positiveNet": 5,
+          "filledPositiveGross": 13,
+          "filledPositiveNet": 5,
+          "meanAbsoluteGross": 12.181053822608723
+        },
+        "predicted": {
+          "meanGross": -0.061323838625887035,
+          "meanRawNet": -12.920162686912875,
+          "meanShrunkNet": -5.651266024606334,
+          "meanCost": 12.85883884828699,
+          "meanShrinkFactor": 0.436510308159554,
+          "meanAbsoluteGross": 1.0058270286445614,
+          "positiveRawNet": 0,
+          "positiveShrunkNet": 0,
+          "maxWorstStressedScore": -12.797549673257455,
+          "maxWorstStressedMean": -5.31612768277458
+        },
+        "errors": {
+          "rawNetRmse": 15.774286187532985,
+          "productionShrunkNetRmse": 17.5112331422874,
+          "rawGrossRmse": 15.774132458805022,
+          "zeroGrossRmse": 15.375495864154336,
+          "grossCorrelation": -0.2603288058722249,
+          "filledGrossDirectionAccuracy": 0.34615384615384615
+        }
+      },
+      {
+        "symbol": "BTC/USD",
+        "model": "efficient",
+        "origins": 5,
+        "actionForecasts": 30,
+        "unknown": 4,
+        "paired": 26,
+        "filled": 26,
+        "reasons": {
+          "INSUFFICIENT_SAMPLES": 14,
+          "INSUFFICIENT_DAYS": 16
+        },
+        "observed": {
+          "meanGross": -0.6777853254848087,
+          "meanNet": -13.676703896531725,
+          "meanCost": 12.998918571046916,
+          "positiveGross": 13,
+          "positiveNet": 5,
+          "filledPositiveGross": 13,
+          "filledPositiveNet": 5,
+          "meanAbsoluteGross": 12.181053822608723
+        },
+        "predicted": {
+          "meanGross": -0.06737719186355745,
+          "meanRawNet": -12.950048873553468,
+          "meanShrunkNet": -5.832558690798801,
+          "meanCost": 12.88267168168991,
+          "meanShrinkFactor": 0.44983182643602376,
+          "meanAbsoluteGross": 1.286405928232714,
+          "positiveRawNet": 0,
+          "positiveShrunkNet": 0,
+          "maxWorstStressedScore": -12.577354831843422,
+          "maxWorstStressedMean": -5.316313745249552
+        },
+        "errors": {
+          "rawNetRmse": 15.733744278879806,
+          "productionShrunkNetRmse": 17.39955368784763,
+          "rawGrossRmse": 15.667998622799436,
+          "zeroGrossRmse": 15.375495864154336,
+          "grossCorrelation": -0.14025348396755805,
+          "filledGrossDirectionAccuracy": 0.38461538461538464
+        }
+      },
+      {
+        "symbol": "ETH/USD",
+        "model": "current",
+        "origins": 5,
+        "actionForecasts": 30,
+        "unknown": 3,
+        "paired": 27,
+        "filled": 21,
+        "reasons": {
+          "INSUFFICIENT_SAMPLES": 6,
+          "INSUFFICIENT_DAYS": 24
+        },
+        "observed": {
+          "meanGross": -2.1690879844087028,
+          "meanNet": -12.28098348937027,
+          "meanCost": 10.11189550496157,
+          "positiveGross": 9,
+          "positiveNet": 5,
+          "filledPositiveGross": 9,
+          "filledPositiveNet": 5,
+          "meanAbsoluteGross": 16.954336950001657
+        },
+        "predicted": {
+          "meanGross": -0.1856329457750729,
+          "meanRawNet": -12.910430876478763,
+          "meanShrunkNet": -6.2714587883946376,
+          "meanCost": 12.724797930703685,
+          "meanShrinkFactor": 0.48931375947883887,
+          "meanAbsoluteGross": 2.224765773922012,
+          "positiveRawNet": 0,
+          "positiveShrunkNet": 0,
+          "maxWorstStressedScore": -13.54541080794905,
+          "maxWorstStressedMean": -3.7320383476484205
+        },
+        "errors": {
+          "rawNetRmse": 26.245215555336493,
+          "productionShrunkNetRmse": 27.384163446526628,
+          "rawGrossRmse": 25.607494186074256,
+          "zeroGrossRmse": 25.699938972216298,
+          "grossCorrelation": 0.08080498736252494,
+          "filledGrossDirectionAccuracy": 0.47619047619047616
+        }
+      },
+      {
+        "symbol": "ETH/USD",
+        "model": "efficient",
+        "origins": 5,
+        "actionForecasts": 30,
+        "unknown": 3,
+        "paired": 27,
+        "filled": 21,
+        "reasons": {
+          "SCORE_BELOW_MINIMUM": 4,
+          "INSUFFICIENT_SAMPLES": 12,
+          "INSUFFICIENT_DAYS": 14
+        },
+        "observed": {
+          "meanGross": -2.1690879844087028,
+          "meanNet": -12.28098348937027,
+          "meanCost": 10.11189550496157,
+          "positiveGross": 9,
+          "positiveNet": 5,
+          "filledPositiveGross": 9,
+          "filledPositiveNet": 5,
+          "meanAbsoluteGross": 16.954336950001657
+        },
+        "predicted": {
+          "meanGross": -0.23052797901833438,
+          "meanRawNet": -12.762361366079817,
+          "meanShrunkNet": -6.375507041789812,
+          "meanCost": 12.531833387061484,
+          "meanShrinkFactor": 0.504382905503169,
+          "meanAbsoluteGross": 2.112015345317195,
+          "positiveRawNet": 0,
+          "positiveShrunkNet": 0,
+          "maxWorstStressedScore": -13.847628630709814,
+          "maxWorstStressedMean": -3.7320383476484205
+        },
+        "errors": {
+          "rawNetRmse": 26.225333556304133,
+          "productionShrunkNetRmse": 27.38572162046276,
+          "rawGrossRmse": 25.61735297797841,
+          "zeroGrossRmse": 25.699938972216298,
+          "grossCorrelation": 0.0751576859952206,
+          "filledGrossDirectionAccuracy": 0.47619047619047616
+        }
+      }
+    ]
+  },
+  {
+    "name": "later",
+    "protocol": {
+      "version": "conditional-study-v1",
+      "startMs": 1788854400000,
+      "endMs": 1788885868000,
+      "costs": {
+        "BTC/USD": {
+          "feeBps": 5,
+          "reserveBps": 3
+        },
+        "ETH/USD": {
+          "feeBps": 5,
+          "reserveBps": 3
+        }
+      },
+      "assets": {
+        "BTC/USD": {
+          "symbol": "BTC/USD",
+          "minOrderSize": 0.0001,
+          "minTradeIncrement": 0.0001,
+          "priceIncrement": 1,
+          "maximumOrderQty": 1200,
+          "shortable": true
+        },
+        "ETH/USD": {
+          "symbol": "ETH/USD",
+          "minOrderSize": 0.001,
+          "minTradeIncrement": 0.001,
+          "priceIncrement": 0.1,
+          "maximumOrderQty": 21000,
+          "shortable": true
+        }
+      },
+      "minimumTrainingDays": 3,
+      "mode": "DEVELOPMENT"
+    },
+    "reportSha256": "764ae15919ca9a474dc0f9db5a4b366abb582f3ccacfe5d746a0c232075d598a",
+    "auditHashVerified": true,
+    "freezeHashesVerified": true,
+    "predictionChecks": 1152,
+    "maximumPredictionDifference": 0,
+    "summaries": [
+      {
+        "symbol": "BTC/USD",
+        "model": "current",
+        "origins": 16,
+        "actionForecasts": 96,
+        "unknown": 22,
+        "paired": 74,
+        "filled": 65,
+        "reasons": {
+          "SCORE_BELOW_MINIMUM": 36,
+          "INSUFFICIENT_SAMPLES": 48,
+          "INSUFFICIENT_DAYS": 12
+        },
+        "observed": {
+          "meanGross": 0.9126170988765481,
+          "meanNet": -10.507573237824671,
+          "meanCost": 11.420190336701221,
+          "positiveGross": 35,
+          "positiveNet": 12,
+          "filledPositiveGross": 35,
+          "filledPositiveNet": 12,
+          "meanAbsoluteGross": 9.146321641037058
+        },
+        "predicted": {
+          "meanGross": -0.31318173227653157,
+          "meanRawNet": -13.136322268465735,
+          "meanShrunkNet": -6.721648186271657,
+          "meanCost": 12.823140536189207,
+          "meanShrinkFactor": 0.5119417905936258,
+          "meanAbsoluteGross": 1.2372409260089074,
+          "positiveRawNet": 0,
+          "positiveShrunkNet": 0,
+          "maxWorstStressedScore": -12.408865732665564,
+          "maxWorstStressedMean": -0.040921894738663415
+        },
+        "errors": {
+          "rawNetRmse": 13.54777686541013,
+          "productionShrunkNetRmse": 13.238854175142778,
+          "rawGrossRmse": 12.747133180635082,
+          "zeroGrossRmse": 12.706970497266079,
+          "grossCorrelation": 0.08873904893561622,
+          "filledGrossDirectionAccuracy": 0.5692307692307692
+        }
+      },
+      {
+        "symbol": "BTC/USD",
+        "model": "efficient",
+        "origins": 16,
+        "actionForecasts": 96,
+        "unknown": 22,
+        "paired": 74,
+        "filled": 65,
+        "reasons": {
+          "SCORE_BELOW_MINIMUM": 46,
+          "INSUFFICIENT_SAMPLES": 42,
+          "INSUFFICIENT_DAYS": 8
+        },
+        "observed": {
+          "meanGross": 0.9126170988765481,
+          "meanNet": -10.507573237824671,
+          "meanCost": 11.420190336701221,
+          "positiveGross": 35,
+          "positiveNet": 12,
+          "filledPositiveGross": 35,
+          "filledPositiveNet": 12,
+          "meanAbsoluteGross": 9.146321641037058
+        },
+        "predicted": {
+          "meanGross": -0.2516644448418293,
+          "meanRawNet": -13.062680068081072,
+          "meanShrunkNet": -7.374821900357683,
+          "meanCost": 12.811015623239248,
+          "meanShrinkFactor": 0.5658911104482118,
+          "meanAbsoluteGross": 1.1681986552265902,
+          "positiveRawNet": 0,
+          "positiveShrunkNet": 0,
+          "maxWorstStressedScore": -13.237309111277007,
+          "maxWorstStressedMean": -0.040921894738663415
+        },
+        "errors": {
+          "rawNetRmse": 13.492370270294874,
+          "productionShrunkNetRmse": 12.976537395554146,
+          "rawGrossRmse": 12.751171473394244,
+          "zeroGrossRmse": 12.706970497266079,
+          "grossCorrelation": 0.08262318515851615,
+          "filledGrossDirectionAccuracy": 0.5846153846153846
+        }
+      },
+      {
+        "symbol": "ETH/USD",
+        "model": "current",
+        "origins": 16,
+        "actionForecasts": 96,
+        "unknown": 19,
+        "paired": 77,
+        "filled": 65,
+        "reasons": {
+          "INSUFFICIENT_SAMPLES": 78,
+          "INSUFFICIENT_DAYS": 18
+        },
+        "observed": {
+          "meanGross": -1.307266886173595,
+          "meanNet": -12.029604265933227,
+          "meanCost": 10.722337379759626,
+          "positiveGross": 29,
+          "positiveNet": 15,
+          "filledPositiveGross": 29,
+          "filledPositiveNet": 15,
+          "meanAbsoluteGross": 14.274353588699912
+        },
+        "predicted": {
+          "meanGross": -0.15331827678746057,
+          "meanRawNet": -12.44503926680832,
+          "meanShrunkNet": -5.056144705520229,
+          "meanCost": 12.29172099002086,
+          "meanShrinkFactor": 0.4072776746475241,
+          "meanAbsoluteGross": 3.577626333933371,
+          "positiveRawNet": 1,
+          "positiveShrunkNet": 1,
+          "maxWorstStressedScore": -12.696109330494625,
+          "maxWorstStressedMean": 0.13796582732908716
+        },
+        "errors": {
+          "rawNetRmse": 21.428482537777235,
+          "productionShrunkNetRmse": 23.587487325563792,
+          "rawGrossRmse": 20.604204474403463,
+          "zeroGrossRmse": 21.653699745525984,
+          "grossCorrelation": 0.3139669707199206,
+          "filledGrossDirectionAccuracy": 0.47692307692307695
+        }
+      },
+      {
+        "symbol": "ETH/USD",
+        "model": "efficient",
+        "origins": 16,
+        "actionForecasts": 96,
+        "unknown": 19,
+        "paired": 77,
+        "filled": 65,
+        "reasons": {
+          "SCORE_BELOW_MINIMUM": 26,
+          "INSUFFICIENT_SAMPLES": 52,
+          "INSUFFICIENT_DAYS": 18
+        },
+        "observed": {
+          "meanGross": -1.307266886173595,
+          "meanNet": -12.029604265933227,
+          "meanCost": 10.722337379759626,
+          "positiveGross": 29,
+          "positiveNet": 15,
+          "filledPositiveGross": 29,
+          "filledPositiveNet": 15,
+          "meanAbsoluteGross": 14.274353588699912
+        },
+        "predicted": {
+          "meanGross": -0.38203264953973876,
+          "meanRawNet": -12.52146669950759,
+          "meanShrunkNet": -5.90612767578575,
+          "meanCost": 12.139434049967846,
+          "meanShrinkFactor": 0.4720382753759832,
+          "meanAbsoluteGross": 2.8986484790766864,
+          "positiveRawNet": 1,
+          "positiveShrunkNet": 1,
+          "maxWorstStressedScore": -15.298012767206377,
+          "maxWorstStressedMean": 0.13796582732908716
+        },
+        "errors": {
+          "rawNetRmse": 21.50471025497567,
+          "productionShrunkNetRmse": 23.334369676080254,
+          "rawGrossRmse": 20.663962203267488,
+          "zeroGrossRmse": 21.653699745525984,
+          "grossCorrelation": 0.3013294851275445,
+          "filledGrossDirectionAccuracy": 0.49230769230769234
+        }
+      }
+    ]
+  }
+]

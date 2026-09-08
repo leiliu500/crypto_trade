@@ -1,0 +1,235 @@
+{
+  "inputReport": "/tmp/conditional-development-20260908.json",
+  "protocolHashVerified": true,
+  "seedHashVerified": true,
+  "auditHashChainVerified": true,
+  "auditRecords": 542,
+  "auditFinalHash": "1a0c6f334a4f7d537e387ae89f3377c33ad3012f97c622c5866e3162543cf4cf",
+  "seedSamples": 810,
+  "seedLatestCompletedMs": 1788737807359,
+  "sourceFirstMs": 1788738719050,
+  "sourceLastMs": 1788756553406,
+  "sourceSpanHours": 4.953987777777778,
+  "evaluationStartMs": 1788746400000,
+  "evaluationEndMs": 1788756556000,
+  "evaluationSpanHours": 2.821111111111111,
+  "learned": {
+    "current": {
+      "actionLabels": 60,
+      "byHorizon": {
+        "5m": 20,
+        "15m": 20,
+        "30m": 20
+      },
+      "meanPublicationDelayMinutes": 14.125983055555555
+    },
+    "efficient": {
+      "actionLabels": 256,
+      "byHorizon": {
+        "5m": 168,
+        "15m": 59,
+        "30m": 29
+      },
+      "meanPublicationDelayMinutes": 0
+    }
+  },
+  "perAssetActionNonoverlapVerified": true,
+  "allLearnedActionsHaveThreeValidScenarios": true,
+  "freezeChecks": [
+    {
+      "trainer": "current",
+      "cutoffMs": 1788746400000,
+      "seed": 810,
+      "newLabels": 36,
+      "hashMatched": true,
+      "latestCompletedMs": 1788746041043
+    },
+    {
+      "trainer": "efficient",
+      "cutoffMs": 1788746400000,
+      "seed": 810,
+      "newLabels": 105,
+      "hashMatched": true,
+      "latestCompletedMs": 1788746288561
+    }
+  ],
+  "forecastBeforeOutcomeVerified": true,
+  "forecastReportRecomputed": true,
+  "baseByAsset": {
+    "BTC/USD": {
+      "pairedActionOutcomes": 26,
+      "errors": {
+        "current": {
+          "maeBps": 13.969973835831272,
+          "rmseBps": 17.511233142287395
+        },
+        "efficient": {
+          "maeBps": 13.802272844318082,
+          "rmseBps": 17.39955368784763
+        },
+        "unconditionalCurrent": {
+          "maeBps": 12.173297666862462,
+          "rmseBps": 15.518685264794215
+        },
+        "unconditionalEfficient": {
+          "maeBps": 12.234624525543476,
+          "rmseBps": 15.536514181058887
+        }
+      }
+    },
+    "ETH/USD": {
+      "pairedActionOutcomes": 27,
+      "errors": {
+        "current": {
+          "maeBps": 20.003328224491376,
+          "rmseBps": 27.38416344652662
+        },
+        "efficient": {
+          "maeBps": 19.972490049221804,
+          "rmseBps": 27.38572162046276
+        },
+        "unconditionalCurrent": {
+          "maeBps": 20.08705948892795,
+          "rmseBps": 26.42505490701915
+        },
+        "unconditionalEfficient": {
+          "maeBps": 20.108678044126645,
+          "rmseBps": 26.3853698213016
+        }
+      }
+    }
+  },
+  "probeOrigins": 10,
+  "policyBase": [
+    {
+      "policy": "current",
+      "symbol": "BTC/USD",
+      "selections": 0,
+      "filled": 0,
+      "unfilled": 0,
+      "unknown": 0,
+      "knownNetBpsSum": 0,
+      "fullPathKnownNetBpsSum": 0
+    },
+    {
+      "policy": "current",
+      "symbol": "ETH/USD",
+      "selections": 0,
+      "filled": 0,
+      "unfilled": 0,
+      "unknown": 0,
+      "knownNetBpsSum": 0,
+      "fullPathKnownNetBpsSum": 0
+    },
+    {
+      "policy": "efficient",
+      "symbol": "BTC/USD",
+      "selections": 0,
+      "filled": 0,
+      "unfilled": 0,
+      "unknown": 0,
+      "knownNetBpsSum": 0,
+      "fullPathKnownNetBpsSum": 0
+    },
+    {
+      "policy": "efficient",
+      "symbol": "ETH/USD",
+      "selections": 0,
+      "filled": 0,
+      "unfilled": 0,
+      "unknown": 0,
+      "knownNetBpsSum": 0,
+      "fullPathKnownNetBpsSum": 0
+    },
+    {
+      "policy": "flat",
+      "symbol": "BTC/USD",
+      "selections": 0,
+      "filled": 0,
+      "unfilled": 0,
+      "unknown": 0,
+      "knownNetBpsSum": 0,
+      "fullPathKnownNetBpsSum": 0
+    },
+    {
+      "policy": "flat",
+      "symbol": "ETH/USD",
+      "selections": 0,
+      "filled": 0,
+      "unfilled": 0,
+      "unknown": 0,
+      "knownNetBpsSum": 0,
+      "fullPathKnownNetBpsSum": 0
+    },
+    {
+      "policy": "long-15m",
+      "symbol": "BTC/USD",
+      "selections": 4,
+      "filled": 3,
+      "unfilled": 0,
+      "unknown": 1,
+      "knownNetBpsSum": -51.00357254200964,
+      "fullPathKnownNetBpsSum": null
+    },
+    {
+      "policy": "long-15m",
+      "symbol": "ETH/USD",
+      "selections": 8,
+      "filled": 6,
+      "unfilled": 1,
+      "unknown": 1,
+      "knownNetBpsSum": -116.29404336898229,
+      "fullPathKnownNetBpsSum": null
+    },
+    {
+      "policy": "short-15m",
+      "symbol": "BTC/USD",
+      "selections": 6,
+      "filled": 5,
+      "unfilled": 1,
+      "unknown": 0,
+      "knownNetBpsSum": -51.99293557963176,
+      "fullPathKnownNetBpsSum": -51.99293557963176
+    },
+    {
+      "policy": "short-15m",
+      "symbol": "ETH/USD",
+      "selections": 7,
+      "filled": 5,
+      "unfilled": 1,
+      "unknown": 1,
+      "knownNetBpsSum": -50.15822220357583,
+      "fullPathKnownNetBpsSum": null
+    },
+    {
+      "policy": "momentum-15m",
+      "symbol": "BTC/USD",
+      "selections": 3,
+      "filled": 3,
+      "unfilled": 0,
+      "unknown": 0,
+      "knownNetBpsSum": -43.732658879626854,
+      "fullPathKnownNetBpsSum": -43.732658879626854
+    },
+    {
+      "policy": "momentum-15m",
+      "symbol": "ETH/USD",
+      "selections": 10,
+      "filled": 7,
+      "unfilled": 2,
+      "unknown": 1,
+      "knownNetBpsSum": -85.92522995251556,
+      "fullPathKnownNetBpsSum": null
+    }
+  ],
+  "status": "INCONCLUSIVE",
+  "profitabilityEstablished": false,
+  "limitations": [
+    "Counts are action labels, not independent market contexts; six action outcomes at each probe origin are correlated.",
+    "Only ten asset probe origins across a single date; overlapping horizons and BTC/ETH dependence prevent treating paired action counts as independent.",
+    "Collector throughput includes pre-evaluation warmup. Only labels completed before02:00 entered the frozen evaluation models.",
+    "Publication delay is after the last scenario exit until label release, not the elapsed holding horizon.",
+    "Neither conditional policy selected any trades. Some baseline execution paths remain unknown; known-only sums cannot establish complete profits.",
+    "Audit and frozen model bank hashes were independently verified from compact evidence; raw source-event hash was not recomputed in this lightweight audit."
+  ]
+}

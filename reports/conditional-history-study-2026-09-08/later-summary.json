@@ -1,0 +1,1051 @@
+{
+  "source": {
+    "inputFiles": [
+      {
+        "path": "/tmp/conditional-recorded-20260908T164428Z.jsonl.gz",
+        "bytes": 1095054734,
+        "sha256": "c1245cf2199226bebd52af4e85ac74cc35c43156c6cc60c67626c9dbb9164335"
+      }
+    ],
+    "eventsRead": 2588498,
+    "firstMs": 1788830683519,
+    "lastMs": 1788885866271,
+    "excludedAfterEnd": 0
+  },
+  "windowUTC": {
+    "start": "2026-09-08T08:00:00.000Z",
+    "end": "2026-09-08T16:44:28.000Z"
+  },
+  "developmentOnly": true,
+  "status": "INCONCLUSIVE",
+  "auditVerified": {
+    "sequence": 1801,
+    "finalHash": "985169ae1b475d16000add45354ceb7b9e4e4f2e03d4c902557add545976c4bb",
+    "byKind": {
+      "TRAINING": 1280,
+      "INVALIDATION": 10,
+      "DAILY_FREEZE": 1,
+      "SELECTION": 143,
+      "PROBE_FORECAST": 32,
+      "PROBE_OUTCOME": 192,
+      "SELECTED_OUTCOME": 143
+    }
+  },
+  "freeze": {
+    "cutoffMs": 1788854400000,
+    "current": {
+      "samples": 1020,
+      "latestCompletedMs": 1788852885866,
+      "sha256": "3b46dc07af0ae16713727cafbaa25c5abb3ccb3b697524b1fbc442a0fb876ea8"
+    },
+    "efficient": {
+      "samples": 1260,
+      "latestCompletedMs": 1788854068535,
+      "sha256": "b119dcfa614503406907bc0663280577681644713f0a8ec0a258a21a16d037bb"
+    }
+  },
+  "learnedBeforeEvaluation": {
+    "current": 126,
+    "efficient": 366
+  },
+  "learnedBeforeEvaluationByAction": {
+    "current": {
+      "BTC/USD:long-5m": 11,
+      "BTC/USD:short-5m": 11,
+      "BTC/USD:long-15m": 11,
+      "BTC/USD:short-15m": 11,
+      "BTC/USD:long-30m": 11,
+      "BTC/USD:short-30m": 11,
+      "ETH/USD:long-5m": 10,
+      "ETH/USD:short-5m": 10,
+      "ETH/USD:long-15m": 10,
+      "ETH/USD:short-15m": 10,
+      "ETH/USD:long-30m": 10,
+      "ETH/USD:short-30m": 10
+    },
+    "efficient": {
+      "BTC/USD:long-5m": 59,
+      "BTC/USD:long-15m": 21,
+      "BTC/USD:long-30m": 11,
+      "ETH/USD:long-5m": 60,
+      "ETH/USD:long-15m": 21,
+      "ETH/USD:long-30m": 11,
+      "BTC/USD:short-5m": 59,
+      "ETH/USD:short-5m": 60,
+      "BTC/USD:short-15m": 21,
+      "ETH/USD:short-15m": 21,
+      "BTC/USD:short-30m": 11,
+      "ETH/USD:short-30m": 11
+    }
+  },
+  "learnedByHorizon": [
+    {
+      "symbol": "BTC/USD",
+      "horizon": "5m",
+      "current": 40,
+      "efficient": 275
+    },
+    {
+      "symbol": "BTC/USD",
+      "horizon": "15m",
+      "current": 40,
+      "efficient": 93
+    },
+    {
+      "symbol": "BTC/USD",
+      "horizon": "30m",
+      "current": 40,
+      "efficient": 41
+    },
+    {
+      "symbol": "ETH/USD",
+      "horizon": "5m",
+      "current": 34,
+      "efficient": 278
+    },
+    {
+      "symbol": "ETH/USD",
+      "horizon": "15m",
+      "current": 34,
+      "efficient": 94
+    },
+    {
+      "symbol": "ETH/USD",
+      "horizon": "30m",
+      "current": 34,
+      "efficient": 38
+    }
+  ],
+  "training": {
+    "current": {
+      "emitted": 348,
+      "valid": 260,
+      "invalid": 88,
+      "learned": 222,
+      "publicationDelayMs": 194323874,
+      "byAction": {
+        "BTC/USD:long-5m": {
+          "valid": 26,
+          "invalid": 3,
+          "learned": 20
+        },
+        "BTC/USD:short-5m": {
+          "valid": 27,
+          "invalid": 2,
+          "learned": 20
+        },
+        "BTC/USD:long-15m": {
+          "valid": 23,
+          "invalid": 6,
+          "learned": 20
+        },
+        "BTC/USD:short-15m": {
+          "valid": 24,
+          "invalid": 5,
+          "learned": 20
+        },
+        "BTC/USD:long-30m": {
+          "valid": 20,
+          "invalid": 9,
+          "learned": 20
+        },
+        "BTC/USD:short-30m": {
+          "valid": 21,
+          "invalid": 8,
+          "learned": 20
+        },
+        "ETH/USD:long-5m": {
+          "valid": 23,
+          "invalid": 6,
+          "learned": 17
+        },
+        "ETH/USD:short-5m": {
+          "valid": 22,
+          "invalid": 7,
+          "learned": 17
+        },
+        "ETH/USD:long-15m": {
+          "valid": 20,
+          "invalid": 9,
+          "learned": 17
+        },
+        "ETH/USD:short-15m": {
+          "valid": 19,
+          "invalid": 10,
+          "learned": 17
+        },
+        "ETH/USD:long-30m": {
+          "valid": 18,
+          "invalid": 11,
+          "learned": 17
+        },
+        "ETH/USD:short-30m": {
+          "valid": 17,
+          "invalid": 12,
+          "learned": 17
+        }
+      },
+      "learnedPerObservedReadyAssetHour": 7.8391368317802845,
+      "meanPublicationDelayMs": 875332.7657657658
+    },
+    "efficient": {
+      "emitted": 932,
+      "valid": 819,
+      "invalid": 113,
+      "learned": 819,
+      "publicationDelayMs": 0,
+      "byAction": {
+        "BTC/USD:long-5m": {
+          "valid": 138,
+          "invalid": 10,
+          "learned": 138
+        },
+        "BTC/USD:long-15m": {
+          "valid": 47,
+          "invalid": 9,
+          "learned": 47
+        },
+        "BTC/USD:long-30m": {
+          "valid": 20,
+          "invalid": 9,
+          "learned": 20
+        },
+        "ETH/USD:long-5m": {
+          "valid": 138,
+          "invalid": 10,
+          "learned": 138
+        },
+        "ETH/USD:long-15m": {
+          "valid": 47,
+          "invalid": 9,
+          "learned": 47
+        },
+        "ETH/USD:long-30m": {
+          "valid": 19,
+          "invalid": 10,
+          "learned": 19
+        },
+        "BTC/USD:short-5m": {
+          "valid": 137,
+          "invalid": 11,
+          "learned": 137
+        },
+        "ETH/USD:short-5m": {
+          "valid": 140,
+          "invalid": 8,
+          "learned": 140
+        },
+        "BTC/USD:short-15m": {
+          "valid": 46,
+          "invalid": 10,
+          "learned": 46
+        },
+        "ETH/USD:short-15m": {
+          "valid": 47,
+          "invalid": 9,
+          "learned": 47
+        },
+        "BTC/USD:short-30m": {
+          "valid": 21,
+          "invalid": 8,
+          "learned": 21
+        },
+        "ETH/USD:short-30m": {
+          "valid": 19,
+          "invalid": 10,
+          "learned": 19
+        }
+      },
+      "learnedPerObservedReadyAssetHour": 28.920058852378617,
+      "meanPublicationDelayMs": 0
+    }
+  },
+  "basePolicies": [
+    {
+      "policy": "current",
+      "symbol": "BTC/USD",
+      "selections": 0,
+      "filled": 0,
+      "unfilled": 0,
+      "unknown": 0,
+      "knownMeanNetBps": null,
+      "knownNetBpsSum": 0,
+      "fullPathKnownNetBpsSum": 0
+    },
+    {
+      "policy": "current",
+      "symbol": "ETH/USD",
+      "selections": 0,
+      "filled": 0,
+      "unfilled": 0,
+      "unknown": 0,
+      "knownMeanNetBps": null,
+      "knownNetBpsSum": 0,
+      "fullPathKnownNetBpsSum": 0
+    },
+    {
+      "policy": "efficient",
+      "symbol": "BTC/USD",
+      "selections": 0,
+      "filled": 0,
+      "unfilled": 0,
+      "unknown": 0,
+      "knownMeanNetBps": null,
+      "knownNetBpsSum": 0,
+      "fullPathKnownNetBpsSum": 0
+    },
+    {
+      "policy": "efficient",
+      "symbol": "ETH/USD",
+      "selections": 0,
+      "filled": 0,
+      "unfilled": 0,
+      "unknown": 0,
+      "knownMeanNetBps": null,
+      "knownNetBpsSum": 0,
+      "fullPathKnownNetBpsSum": 0
+    },
+    {
+      "policy": "flat",
+      "symbol": "BTC/USD",
+      "selections": 0,
+      "filled": 0,
+      "unfilled": 0,
+      "unknown": 0,
+      "knownMeanNetBps": null,
+      "knownNetBpsSum": 0,
+      "fullPathKnownNetBpsSum": 0
+    },
+    {
+      "policy": "flat",
+      "symbol": "ETH/USD",
+      "selections": 0,
+      "filled": 0,
+      "unfilled": 0,
+      "unknown": 0,
+      "knownMeanNetBps": null,
+      "knownNetBpsSum": 0,
+      "fullPathKnownNetBpsSum": 0
+    },
+    {
+      "policy": "long-15m",
+      "symbol": "BTC/USD",
+      "selections": 17,
+      "filled": 12,
+      "unfilled": 2,
+      "unknown": 3,
+      "knownMeanNetBps": -15.016581077937072,
+      "knownNetBpsSum": -210.232135091119,
+      "fullPathKnownNetBpsSum": null
+    },
+    {
+      "policy": "long-15m",
+      "symbol": "ETH/USD",
+      "selections": 32,
+      "filled": 20,
+      "unfilled": 4,
+      "unknown": 8,
+      "knownMeanNetBps": -9.284321661382132,
+      "knownNetBpsSum": -222.82371987317114,
+      "fullPathKnownNetBpsSum": null
+    },
+    {
+      "policy": "short-15m",
+      "symbol": "BTC/USD",
+      "selections": 14,
+      "filled": 12,
+      "unfilled": 0,
+      "unknown": 2,
+      "knownMeanNetBps": -18.912778366294372,
+      "knownNetBpsSum": -226.95334039553245,
+      "fullPathKnownNetBpsSum": null
+    },
+    {
+      "policy": "short-15m",
+      "symbol": "ETH/USD",
+      "selections": 31,
+      "filled": 18,
+      "unfilled": 4,
+      "unknown": 9,
+      "knownMeanNetBps": -11.990692577149666,
+      "knownNetBpsSum": -263.79523669729264,
+      "fullPathKnownNetBpsSum": null
+    },
+    {
+      "policy": "momentum-15m",
+      "symbol": "BTC/USD",
+      "selections": 16,
+      "filled": 11,
+      "unfilled": 2,
+      "unknown": 3,
+      "knownMeanNetBps": -18.17752301288471,
+      "knownNetBpsSum": -236.30779916750123,
+      "fullPathKnownNetBpsSum": null
+    },
+    {
+      "policy": "momentum-15m",
+      "symbol": "ETH/USD",
+      "selections": 33,
+      "filled": 20,
+      "unfilled": 5,
+      "unknown": 8,
+      "knownMeanNetBps": -8.500170997638126,
+      "knownNetBpsSum": -212.50427494095314,
+      "fullPathKnownNetBpsSum": null
+    }
+  ],
+  "forecasts": [
+    {
+      "symbol": "BTC/USD",
+      "scenario": "base-250ms",
+      "horizon": null,
+      "probes": 96,
+      "unknown": 22,
+      "paired": 74,
+      "errors": {
+        "current": {
+          "rmseBps": 13.238854175142778,
+          "maeBps": 10.525825569718066
+        },
+        "efficient": {
+          "rmseBps": 12.976537395554143,
+          "maeBps": 10.221692046590478
+        },
+        "unconditionalCurrent": {
+          "rmseBps": 13.572284869972691,
+          "maeBps": 10.769964329636599
+        },
+        "unconditionalEfficient": {
+          "rmseBps": 13.533305500260738,
+          "maeBps": 10.72542100967973
+        }
+      }
+    },
+    {
+      "symbol": "BTC/USD",
+      "scenario": "base-250ms",
+      "horizon": "5m",
+      "probes": 32,
+      "unknown": 2,
+      "paired": 30,
+      "errors": {
+        "current": {
+          "rmseBps": 10.690203904731458,
+          "maeBps": 8.83344280114391
+        },
+        "efficient": {
+          "rmseBps": 10.017259607713775,
+          "maeBps": 8.229136843059496
+        },
+        "unconditionalCurrent": {
+          "rmseBps": 9.550751582424065,
+          "maeBps": 7.993003030910269
+        },
+        "unconditionalEfficient": {
+          "rmseBps": 9.340403915770622,
+          "maeBps": 7.897835947164083
+        }
+      }
+    },
+    {
+      "symbol": "BTC/USD",
+      "scenario": "base-250ms",
+      "horizon": "15m",
+      "probes": 32,
+      "unknown": 8,
+      "paired": 24,
+      "errors": {
+        "current": {
+          "rmseBps": 12.932925769196867,
+          "maeBps": 10.273521654429297
+        },
+        "efficient": {
+          "rmseBps": 12.785778128965143,
+          "maeBps": 10.091175820672914
+        },
+        "unconditionalCurrent": {
+          "rmseBps": 13.221755274022042,
+          "maeBps": 10.884045989426774
+        },
+        "unconditionalEfficient": {
+          "rmseBps": 13.286242040979417,
+          "maeBps": 10.86566294090917
+        }
+      }
+    },
+    {
+      "symbol": "BTC/USD",
+      "scenario": "base-250ms",
+      "horizon": "30m",
+      "probes": 32,
+      "unknown": 12,
+      "paired": 20,
+      "errors": {
+        "current": {
+          "rmseBps": 16.623943259425598,
+          "maeBps": 13.367164420925821
+        },
+        "efficient": {
+          "rmseBps": 16.623939135209408,
+          "maeBps": 13.36714432298802
+        },
+        "unconditionalCurrent": {
+          "rmseBps": 18.301981659758386,
+          "maeBps": 14.79850828597788
+        },
+        "unconditionalEfficient": {
+          "rmseBps": 18.301981659758386,
+          "maeBps": 14.79850828597788
+        }
+      }
+    },
+    {
+      "symbol": "BTC/USD",
+      "scenario": "fees-1.5x",
+      "horizon": null,
+      "probes": 96,
+      "unknown": 22,
+      "paired": 74,
+      "errors": {
+        "current": {
+          "rmseBps": 14.260855215471272,
+          "maeBps": 11.4951079007935
+        },
+        "efficient": {
+          "rmseBps": 13.807473748950088,
+          "maeBps": 10.987596472903428
+        },
+        "unconditionalCurrent": {
+          "rmseBps": 14.239921252704821,
+          "maeBps": 11.356611626063943
+        },
+        "unconditionalEfficient": {
+          "rmseBps": 14.164822169356405,
+          "maeBps": 11.308655098220427
+        }
+      }
+    },
+    {
+      "symbol": "BTC/USD",
+      "scenario": "fees-1.5x",
+      "horizon": "5m",
+      "probes": 32,
+      "unknown": 2,
+      "paired": 30,
+      "errors": {
+        "current": {
+          "rmseBps": 12.419620136094625,
+          "maeBps": 10.308525282646034
+        },
+        "efficient": {
+          "rmseBps": 11.359811023909906,
+          "maeBps": 9.248169903489552
+        },
+        "unconditionalCurrent": {
+          "rmseBps": 10.378181042078786,
+          "maeBps": 8.485496071722826
+        },
+        "unconditionalEfficient": {
+          "rmseBps": 10.11878070161028,
+          "maeBps": 8.390454703821714
+        }
+      }
+    },
+    {
+      "symbol": "BTC/USD",
+      "scenario": "fees-1.5x",
+      "horizon": "15m",
+      "probes": 32,
+      "unknown": 8,
+      "paired": 24,
+      "errors": {
+        "current": {
+          "rmseBps": 13.923847008633317,
+          "maeBps": 11.026972929911613
+        },
+        "efficient": {
+          "rmseBps": 13.643266173864436,
+          "maeBps": 10.787612773834644
+        },
+        "unconditionalCurrent": {
+          "rmseBps": 13.94247043478075,
+          "maeBps": 11.489988065740379
+        },
+        "unconditionalEfficient": {
+          "rmseBps": 13.944940144342526,
+          "maeBps": 11.460923814765929
+        }
+      }
+    },
+    {
+      "symbol": "BTC/USD",
+      "scenario": "fees-1.5x",
+      "horizon": "30m",
+      "probes": 32,
+      "unknown": 12,
+      "paired": 20,
+      "errors": {
+        "current": {
+          "rmseBps": 16.98404260923834,
+          "maeBps": 13.836743793072959
+        },
+        "efficient": {
+          "rmseBps": 16.984022253161516,
+          "maeBps": 13.836716765906786
+        },
+        "unconditionalCurrent": {
+          "rmseBps": 18.853060259412523,
+          "maeBps": 15.5032332299639
+        },
+        "unconditionalEfficient": {
+          "rmseBps": 18.853060259412523,
+          "maeBps": 15.5032332299639
+        }
+      }
+    },
+    {
+      "symbol": "BTC/USD",
+      "scenario": "latency-750ms-depth-half",
+      "horizon": null,
+      "probes": 96,
+      "unknown": 22,
+      "paired": 74,
+      "errors": {
+        "current": {
+          "rmseBps": 13.026225757671698,
+          "maeBps": 10.328223511759296
+        },
+        "efficient": {
+          "rmseBps": 12.856746051874207,
+          "maeBps": 10.125192992339942
+        },
+        "unconditionalCurrent": {
+          "rmseBps": 13.39387246999498,
+          "maeBps": 10.776923185793128
+        },
+        "unconditionalEfficient": {
+          "rmseBps": 13.46220614325872,
+          "maeBps": 10.830971753668601
+        }
+      }
+    },
+    {
+      "symbol": "BTC/USD",
+      "scenario": "latency-750ms-depth-half",
+      "horizon": "5m",
+      "probes": 32,
+      "unknown": 2,
+      "paired": 30,
+      "errors": {
+        "current": {
+          "rmseBps": 11.227666919865555,
+          "maeBps": 9.17464858351061
+        },
+        "efficient": {
+          "rmseBps": 10.772691480999018,
+          "maeBps": 8.715004348932439
+        },
+        "unconditionalCurrent": {
+          "rmseBps": 10.085771166846698,
+          "maeBps": 8.211287813115126
+        },
+        "unconditionalEfficient": {
+          "rmseBps": 10.053308290781946,
+          "maeBps": 8.180932487457051
+        }
+      }
+    },
+    {
+      "symbol": "BTC/USD",
+      "scenario": "latency-750ms-depth-half",
+      "horizon": "15m",
+      "probes": 32,
+      "unknown": 8,
+      "paired": 24,
+      "errors": {
+        "current": {
+          "rmseBps": 11.892784604464467,
+          "maeBps": 9.498508545345361
+        },
+        "efficient": {
+          "rmseBps": 11.850074617195345,
+          "maeBps": 9.44701195617188
+        },
+        "unconditionalCurrent": {
+          "rmseBps": 12.580181994234918,
+          "maeBps": 10.556199933432628
+        },
+        "unconditionalEfficient": {
+          "rmseBps": 12.834977571870626,
+          "maeBps": 10.760793841454591
+        }
+      }
+    },
+    {
+      "symbol": "BTC/USD",
+      "scenario": "latency-750ms-depth-half",
+      "horizon": "30m",
+      "probes": 32,
+      "unknown": 12,
+      "paired": 20,
+      "errors": {
+        "current": {
+          "rmseBps": 16.40148515346644,
+          "maeBps": 13.054243863829043
+        },
+        "efficient": {
+          "rmseBps": 16.401507727032808,
+          "maeBps": 13.054293200852873
+        },
+        "unconditionalCurrent": {
+          "rmseBps": 17.923927811518592,
+          "maeBps": 14.890244147642736
+        },
+        "unconditionalEfficient": {
+          "rmseBps": 17.923927811518592,
+          "maeBps": 14.890244147642736
+        }
+      }
+    },
+    {
+      "symbol": "ETH/USD",
+      "scenario": "base-250ms",
+      "horizon": null,
+      "probes": 96,
+      "unknown": 19,
+      "paired": 77,
+      "errors": {
+        "current": {
+          "rmseBps": 23.58748732556379,
+          "maeBps": 17.30502892867255
+        },
+        "efficient": {
+          "rmseBps": 23.334369676080254,
+          "maeBps": 17.035726722013386
+        },
+        "unconditionalCurrent": {
+          "rmseBps": 22.04237704177846,
+          "maeBps": 16.366648562869354
+        },
+        "unconditionalEfficient": {
+          "rmseBps": 22.023133520515774,
+          "maeBps": 16.30743559820575
+        }
+      }
+    },
+    {
+      "symbol": "ETH/USD",
+      "scenario": "base-250ms",
+      "horizon": "5m",
+      "probes": 32,
+      "unknown": 2,
+      "paired": 30,
+      "errors": {
+        "current": {
+          "rmseBps": 17.48191361485417,
+          "maeBps": 13.740390019635823
+        },
+        "efficient": {
+          "rmseBps": 16.742928730858086,
+          "maeBps": 13.010151697143552
+        },
+        "unconditionalCurrent": {
+          "rmseBps": 15.389115500902966,
+          "maeBps": 12.381693797708056
+        },
+        "unconditionalEfficient": {
+          "rmseBps": 15.324418457140414,
+          "maeBps": 12.1894393990246
+        }
+      }
+    },
+    {
+      "symbol": "ETH/USD",
+      "scenario": "base-250ms",
+      "horizon": "15m",
+      "probes": 32,
+      "unknown": 7,
+      "paired": 25,
+      "errors": {
+        "current": {
+          "rmseBps": 24.66296942682494,
+          "maeBps": 18.69416673421222
+        },
+        "efficient": {
+          "rmseBps": 24.420779328400343,
+          "maeBps": 18.594322404358206
+        },
+        "unconditionalCurrent": {
+          "rmseBps": 23.159353211740044,
+          "maeBps": 17.983488677766132
+        },
+        "unconditionalEfficient": {
+          "rmseBps": 23.233589422967068,
+          "maeBps": 17.99856254461294
+        }
+      }
+    },
+    {
+      "symbol": "ETH/USD",
+      "scenario": "base-250ms",
+      "horizon": "30m",
+      "probes": 32,
+      "unknown": 10,
+      "paired": 22,
+      "errors": {
+        "current": {
+          "rmseBps": 28.9712909296431,
+          "maeBps": 20.587334480154823
+        },
+        "efficient": {
+          "rmseBps": 29.0820272365312,
+          "maeBps": 20.754015753262227
+        },
+        "unconditionalCurrent": {
+          "rmseBps": 27.7145140745461,
+          "maeBps": 19.963359475706607
+        },
+        "unconditionalEfficient": {
+          "rmseBps": 27.63914517034942,
+          "maeBps": 20.001149794353687
+        }
+      }
+    },
+    {
+      "symbol": "ETH/USD",
+      "scenario": "fees-1.5x",
+      "horizon": null,
+      "probes": 96,
+      "unknown": 19,
+      "paired": 77,
+      "errors": {
+        "current": {
+          "rmseBps": 24.89497518337636,
+          "maeBps": 18.599017216136954
+        },
+        "efficient": {
+          "rmseBps": 24.515098877240668,
+          "maeBps": 18.188781800335676
+        },
+        "unconditionalCurrent": {
+          "rmseBps": 22.56338827161948,
+          "maeBps": 17.190144088818606
+        },
+        "unconditionalEfficient": {
+          "rmseBps": 22.552238667141236,
+          "maeBps": 17.126903840572094
+        }
+      }
+    },
+    {
+      "symbol": "ETH/USD",
+      "scenario": "fees-1.5x",
+      "horizon": "5m",
+      "probes": 32,
+      "unknown": 2,
+      "paired": 30,
+      "errors": {
+        "current": {
+          "rmseBps": 19.278200141053393,
+          "maeBps": 15.246581188058672
+        },
+        "efficient": {
+          "rmseBps": 18.224432265602598,
+          "maeBps": 14.224364238254903
+        },
+        "unconditionalCurrent": {
+          "rmseBps": 16.059072856978744,
+          "maeBps": 13.153899902624028
+        },
+        "unconditionalEfficient": {
+          "rmseBps": 16.000585221433397,
+          "maeBps": 12.962173637491649
+        }
+      }
+    },
+    {
+      "symbol": "ETH/USD",
+      "scenario": "fees-1.5x",
+      "horizon": "15m",
+      "probes": 32,
+      "unknown": 7,
+      "paired": 25,
+      "errors": {
+        "current": {
+          "rmseBps": 25.929514253425015,
+          "maeBps": 19.913335917490386
+        },
+        "efficient": {
+          "rmseBps": 25.63378188437243,
+          "maeBps": 19.80094816239695
+        },
+        "unconditionalCurrent": {
+          "rmseBps": 23.61354905942439,
+          "maeBps": 18.693279511226805
+        },
+        "unconditionalEfficient": {
+          "rmseBps": 23.706447724094428,
+          "maeBps": 18.71381376215872
+        }
+      }
+    },
+    {
+      "symbol": "ETH/USD",
+      "scenario": "fees-1.5x",
+      "horizon": "30m",
+      "probes": 32,
+      "unknown": 10,
+      "paired": 22,
+      "errors": {
+        "current": {
+          "rmseBps": 29.972366839012658,
+          "maeBps": 21.67697691197844
+        },
+        "efficient": {
+          "rmseBps": 30.064376634673213,
+          "maeBps": 21.762798519012556
+        },
+        "unconditionalCurrent": {
+          "rmseBps": 28.223453047600373,
+          "maeBps": 20.98600499907461
+        },
+        "unconditionalEfficient": {
+          "rmseBps": 28.14896549854799,
+          "maeBps": 21.002774661151527
+        }
+      }
+    },
+    {
+      "symbol": "ETH/USD",
+      "scenario": "latency-750ms-depth-half",
+      "horizon": null,
+      "probes": 96,
+      "unknown": 20,
+      "paired": 76,
+      "errors": {
+        "current": {
+          "rmseBps": 18.745082397295338,
+          "maeBps": 13.15056179347243
+        },
+        "efficient": {
+          "rmseBps": 18.375576481475306,
+          "maeBps": 12.873920913642932
+        },
+        "unconditionalCurrent": {
+          "rmseBps": 19.50276678314503,
+          "maeBps": 14.42194248654128
+        },
+        "unconditionalEfficient": {
+          "rmseBps": 19.409026172570314,
+          "maeBps": 14.250495181978211
+        }
+      }
+    },
+    {
+      "symbol": "ETH/USD",
+      "scenario": "latency-750ms-depth-half",
+      "horizon": "5m",
+      "probes": 32,
+      "unknown": 2,
+      "paired": 30,
+      "errors": {
+        "current": {
+          "rmseBps": 14.019782092015042,
+          "maeBps": 10.738269036408228
+        },
+        "efficient": {
+          "rmseBps": 12.937018734279688,
+          "maeBps": 9.988986577015403
+        },
+        "unconditionalCurrent": {
+          "rmseBps": 14.019111867392466,
+          "maeBps": 11.39957947871452
+        },
+        "unconditionalEfficient": {
+          "rmseBps": 13.657707747743792,
+          "maeBps": 10.870362254513315
+        }
+      }
+    },
+    {
+      "symbol": "ETH/USD",
+      "scenario": "latency-750ms-depth-half",
+      "horizon": "15m",
+      "probes": 32,
+      "unknown": 7,
+      "paired": 25,
+      "errors": {
+        "current": {
+          "rmseBps": 20.948883057638167,
+          "maeBps": 15.145587053147473
+        },
+        "efficient": {
+          "rmseBps": 20.668718658005876,
+          "maeBps": 15.087138377844399
+        },
+        "unconditionalCurrent": {
+          "rmseBps": 21.015408697734877,
+          "maeBps": 16.075733504816938
+        },
+        "unconditionalEfficient": {
+          "rmseBps": 20.983808472047226,
+          "maeBps": 16.05568210984096
+        }
+      }
+    },
+    {
+      "symbol": "ETH/USD",
+      "scenario": "latency-750ms-depth-half",
+      "horizon": "30m",
+      "probes": 32,
+      "unknown": 11,
+      "paired": 21,
+      "errors": {
+        "current": {
+          "rmseBps": 21.642897701086056,
+          "maeBps": 14.221664232522425
+        },
+        "efficient": {
+          "rmseBps": 21.779638538245898,
+          "maeBps": 14.36047298477576
+        },
+        "unconditionalCurrent": {
+          "rmseBps": 23.87462423757546,
+          "maeBps": 16.77080509501325
+        },
+        "unconditionalEfficient": {
+          "rmseBps": 23.930442548650024,
+          "maeBps": 16.930224449948604
+        }
+      }
+    }
+  ],
+  "quality": {
+    "events": 2588498,
+    "acceptedBooks": 2417621,
+    "duplicates": 0,
+    "invalidBooks": 0,
+    "disconnects": 9,
+    "recorderGaps": 0,
+    "timestampReversals": 0,
+    "readyEvaluations": 59807,
+    "trainingReadyEvaluations": 101950,
+    "probeOrigins": 32,
+    "firstMs": 1788830683519,
+    "lastMs": 1788885866271,
+    "sourceHash": "c48668699b16be2a6124fd9ed8d3efb6cce75064a6b80f1fbc1f19e66656ca06"
+  },
+  "coverage": [
+    {
+      "key": "2026-09-08:ETH/USD",
+      "readySeconds": 29877,
+      "readyHours": 8.299166666666666
+    },
+    {
+      "key": "2026-09-08:BTC/USD",
+      "readySeconds": 29930,
+      "readyHours": 8.313888888888888
+    }
+  ],
+  "brokerOrdersSubmitted": 0
+}

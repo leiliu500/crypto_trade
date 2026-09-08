@@ -1,0 +1,374 @@
+{
+  "status": "PASS",
+  "createdAtMs": 1788906770018,
+  "checks": {
+    "sourceSeals": true,
+    "dataHash": true,
+    "trainingOnly2024": true,
+    "forecastsAndSelectionCausal": true,
+    "costDecomposition": true,
+    "hourlyAccountEquity": true,
+    "drawdown": true,
+    "calendarDailyPnl": true,
+    "finalTestUnopened": true
+  },
+  "datasetSha256": "c141a993de40105fcb3d42551d918d28586502abbe96c97b0fa4194c1e167882",
+  "reports": [
+    {
+      "candidate": "trend-4h",
+      "origins": 17468,
+      "qualifiedForecasts": 4,
+      "trainingSamples": 17518,
+      "base": {
+        "scenario": "base",
+        "selected": 2,
+        "completed": 2,
+        "unknownTrades": 0,
+        "grossPnlUsd": -0.21578493392735254,
+        "netPnlUsd": -0.25207470638270024,
+        "feesUsd": 0.023888524256825406,
+        "slippageUsd": 0.007166552421887461,
+        "fundingScenarioUsd": 0.005234695769533813,
+        "extraFundingReserveUsd": 0,
+        "maximumDrawdownUsd": 0.3914653067913605,
+        "firstUnknownAtMs": null,
+        "unknowns": [],
+        "days": 365
+      },
+      "stress": {
+        "scenario": "stress",
+        "selected": 2,
+        "completed": 2,
+        "unknownTrades": 0,
+        "grossPnlUsd": 0.3582792244560551,
+        "netPnlUsd": 0.2996083354955772,
+        "feesUsd": 0.036257832044548265,
+        "slippageUsd": 0.014503165062948083,
+        "fundingScenarioUsd": 0.007506372248299891,
+        "extraFundingReserveUsd": 0.0004035196092848732,
+        "maximumDrawdownUsd": 0.06192926820949651,
+        "firstUnknownAtMs": null,
+        "unknowns": [],
+        "days": 365
+      },
+      "failedReasons": [
+        "NONPOSITIVE_BASE_RETURN",
+        "FEWER_THAN_100_COMPLETED_TRADES",
+        "FEWER_THAN_20_TRADES:BTC/USD",
+        "FEWER_THAN_20_TRADES:ETH/USD"
+      ]
+    },
+    {
+      "candidate": "recovery-4h",
+      "origins": 17468,
+      "qualifiedForecasts": 65,
+      "trainingSamples": 17518,
+      "base": {
+        "scenario": "base",
+        "selected": 29,
+        "completed": 29,
+        "unknownTrades": 0,
+        "grossPnlUsd": 0.6095442298974376,
+        "netPnlUsd": 0.07389623878407292,
+        "feesUsd": 0.34883350680949315,
+        "slippageUsd": 0.10465006575761639,
+        "fundingScenarioUsd": 0.08216441854295506,
+        "extraFundingReserveUsd": 0,
+        "maximumDrawdownUsd": 0.8363550646463409,
+        "firstUnknownAtMs": null,
+        "unknowns": [],
+        "days": 365
+      },
+      "stress": {
+        "scenario": "stress",
+        "selected": 29,
+        "completed": 29,
+        "unknownTrades": 0,
+        "grossPnlUsd": -0.03305055614328012,
+        "netPnlUsd": -0.9014584678807296,
+        "feesUsd": 0.5233103777302834,
+        "slippageUsd": 0.209324148117537,
+        "fundingScenarioUsd": 0.1299536807121902,
+        "extraFundingReserveUsd": 0.005819705183024632,
+        "maximumDrawdownUsd": 1.5533018458081642,
+        "firstUnknownAtMs": null,
+        "unknowns": [],
+        "days": 365
+      },
+      "failedReasons": [
+        "NONPOSITIVE_STRESS_RETURN",
+        "FEWER_THAN_100_COMPLETED_TRADES",
+        "FEWER_THAN_20_TRADES:BTC/USD",
+        "FEWER_THAN_20_TRADES:ETH/USD"
+      ]
+    },
+    {
+      "candidate": "trend-24h",
+      "origins": 17468,
+      "qualifiedForecasts": 1743,
+      "trainingSamples": 17516,
+      "base": {
+        "scenario": "base",
+        "selected": 142,
+        "completed": 141,
+        "unknownTrades": 1,
+        "grossPnlUsd": null,
+        "netPnlUsd": null,
+        "feesUsd": 1.69764687715925,
+        "slippageUsd": 0.5092937887164942,
+        "fundingScenarioUsd": 3.1523026374284995,
+        "extraFundingReserveUsd": 0,
+        "maximumDrawdownUsd": null,
+        "firstUnknownAtMs": 1762030800000,
+        "unknowns": [
+          {
+            "tradeId": "ETH/USD:1761940800000",
+            "symbol": "ETH/USD",
+            "atMs": 1762030800000,
+            "reason": "ZERO_VOLUME_EXIT_BAR"
+          },
+          {
+            "tradeId": "ETH/USD:1761940800000",
+            "symbol": "ETH/USD",
+            "atMs": 1767225600000,
+            "reason": "ENDPOINT_UNRESOLVED_POSITION"
+          }
+        ],
+        "days": 365
+      },
+      "stress": {
+        "scenario": "stress",
+        "selected": 156,
+        "completed": 156,
+        "unknownTrades": 0,
+        "grossPnlUsd": -0.06742626840423327,
+        "netPnlUsd": -8.245010599406669,
+        "feesUsd": 2.807107298113819,
+        "slippageUsd": 1.1228429131770266,
+        "fundingScenarioUsd": 4.060763836342116,
+        "extraFundingReserveUsd": 0.18687028337826597,
+        "maximumDrawdownUsd": 8.557632248484879,
+        "firstUnknownAtMs": null,
+        "unknowns": [],
+        "days": 365
+      },
+      "failedReasons": [
+        "UNKNOWN_BASE_RETURN",
+        "NONPOSITIVE_STRESS_RETURN"
+      ]
+    },
+    {
+      "candidate": "recovery-24h",
+      "origins": 17468,
+      "qualifiedForecasts": 2028,
+      "trainingSamples": 17516,
+      "base": {
+        "scenario": "base",
+        "selected": 183,
+        "completed": 182,
+        "unknownTrades": 1,
+        "grossPnlUsd": null,
+        "netPnlUsd": null,
+        "feesUsd": 2.1923977057712802,
+        "slippageUsd": 0.6577191644270051,
+        "fundingScenarioUsd": 3.894943222670834,
+        "extraFundingReserveUsd": 0,
+        "maximumDrawdownUsd": null,
+        "firstUnknownAtMs": 1762030800000,
+        "unknowns": [
+          {
+            "tradeId": "ETH/USD:1761940800000",
+            "symbol": "ETH/USD",
+            "atMs": 1762030800000,
+            "reason": "ZERO_VOLUME_EXIT_BAR"
+          },
+          {
+            "tradeId": "ETH/USD:1761940800000",
+            "symbol": "ETH/USD",
+            "atMs": 1767225600000,
+            "reason": "ENDPOINT_UNRESOLVED_POSITION"
+          }
+        ],
+        "days": 365
+      },
+      "stress": {
+        "scenario": "stress",
+        "selected": 208,
+        "completed": 208,
+        "unknownTrades": 0,
+        "grossPnlUsd": 3.3025507769198157,
+        "netPnlUsd": -7.836057620006613,
+        "feesUsd": 3.744998351531648,
+        "slippageUsd": 1.4979996378420581,
+        "fundingScenarioUsd": 5.646057427292494,
+        "extraFundingReserveUsd": 0.24955298026067171,
+        "maximumDrawdownUsd": 9.32777512013854,
+        "firstUnknownAtMs": null,
+        "unknowns": [],
+        "days": 365
+      },
+      "failedReasons": [
+        "UNKNOWN_BASE_RETURN",
+        "NONPOSITIVE_STRESS_RETURN"
+      ]
+    }
+  ],
+  "baselines": [
+    {
+      "id": "flat",
+      "base": {
+        "scenario": "base",
+        "selected": 0,
+        "completed": 0,
+        "unknownTrades": 0,
+        "grossPnlUsd": 0,
+        "netPnlUsd": 0,
+        "feesUsd": 0,
+        "slippageUsd": 0,
+        "fundingScenarioUsd": 0,
+        "extraFundingReserveUsd": 0,
+        "maximumDrawdownUsd": 0,
+        "firstUnknownAtMs": null,
+        "unknowns": [],
+        "days": 365
+      },
+      "stress": {
+        "scenario": "stress",
+        "selected": 0,
+        "completed": 0,
+        "unknownTrades": 0,
+        "grossPnlUsd": 0,
+        "netPnlUsd": 0,
+        "feesUsd": 0,
+        "slippageUsd": 0,
+        "fundingScenarioUsd": 0,
+        "extraFundingReserveUsd": 0,
+        "maximumDrawdownUsd": 0,
+        "firstUnknownAtMs": null,
+        "unknowns": [],
+        "days": 365
+      }
+    },
+    {
+      "id": "fixed-trend-168h-held-24h",
+      "base": {
+        "scenario": "base",
+        "selected": 10,
+        "completed": 9,
+        "unknownTrades": 1,
+        "grossPnlUsd": null,
+        "netPnlUsd": null,
+        "feesUsd": 0.11402911067669372,
+        "slippageUsd": 0.034208978138318226,
+        "fundingScenarioUsd": 6.8891705457049035,
+        "extraFundingReserveUsd": 0,
+        "maximumDrawdownUsd": null,
+        "firstUnknownAtMs": 1736589600000,
+        "unknowns": [
+          {
+            "tradeId": "BTC/USD:1736499600000",
+            "symbol": "BTC/USD",
+            "atMs": 1736589600000,
+            "reason": "ZERO_VOLUME_EXIT_BAR"
+          },
+          {
+            "tradeId": "BTC/USD:1736499600000",
+            "symbol": "BTC/USD",
+            "atMs": 1767225600000,
+            "reason": "ENDPOINT_UNRESOLVED_POSITION"
+          }
+        ],
+        "days": 365
+      },
+      "stress": {
+        "scenario": "stress",
+        "selected": 336,
+        "completed": 336,
+        "unknownTrades": 0,
+        "grossPnlUsd": -2.6804449677292723,
+        "netPnlUsd": -21.47170168730372,
+        "feesUsd": 6.047891339723435,
+        "slippageUsd": 2.419156294649078,
+        "fundingScenarioUsd": 9.921173984003548,
+        "extraFundingReserveUsd": 0.4030351011920312,
+        "maximumDrawdownUsd": 21.615396047578542,
+        "firstUnknownAtMs": null,
+        "unknowns": [],
+        "days": 365
+      }
+    },
+    {
+      "id": "buy-hold-btc",
+      "base": {
+        "scenario": "base",
+        "selected": 1,
+        "completed": 1,
+        "unknownTrades": 0,
+        "grossPnlUsd": -0.8326461260585347,
+        "netPnlUsd": -7.784592980809975,
+        "feesUsd": 0.011581939655388186,
+        "slippageUsd": 0.003474563162080551,
+        "fundingScenarioUsd": 6.936890351933621,
+        "extraFundingReserveUsd": 0,
+        "maximumDrawdownUsd": 9.403617464296985,
+        "firstUnknownAtMs": null,
+        "unknowns": [],
+        "days": 365
+      },
+      "stress": {
+        "scenario": "stress",
+        "selected": 1,
+        "completed": 1,
+        "unknownTrades": 0,
+        "grossPnlUsd": -0.7482349612109829,
+        "netPnlUsd": -12.96762881752511,
+        "feesUsd": 0.017433593751470584,
+        "slippageUsd": 0.006973370159441406,
+        "fundingScenarioUsd": 11.718920615970616,
+        "extraFundingReserveUsd": 0.4760662764239887,
+        "maximumDrawdownUsd": 14.255972632323392,
+        "firstUnknownAtMs": null,
+        "unknowns": [],
+        "days": 365
+      }
+    },
+    {
+      "id": "buy-hold-eth",
+      "base": {
+        "scenario": "base",
+        "selected": 1,
+        "completed": 1,
+        "unknownTrades": 0,
+        "grossPnlUsd": -1.3539728754840326,
+        "netPnlUsd": -6.653878832468763,
+        "feesUsd": 0.011321315380182924,
+        "slippageUsd": 0.003396364149664713,
+        "fundingScenarioUsd": 5.2851882774588015,
+        "extraFundingReserveUsd": 0,
+        "maximumDrawdownUsd": 9.786812207239564,
+        "firstUnknownAtMs": null,
+        "unknowns": [],
+        "days": 365
+      },
+      "stress": {
+        "scenario": "stress",
+        "selected": 1,
+        "completed": 1,
+        "unknownTrades": 0,
+        "grossPnlUsd": -1.320088785578264,
+        "netPnlUsd": -9.220218835354899,
+        "feesUsd": 0.017004832050310094,
+        "slippageUsd": 0.006801814012132904,
+        "fundingScenarioUsd": 7.474516274151812,
+        "extraFundingReserveUsd": 0.40180712956545445,
+        "maximumDrawdownUsd": 10.84754139429424,
+        "firstUnknownAtMs": null,
+        "unknowns": [],
+        "days": 365
+      }
+    }
+  ],
+  "selectedCandidate": "trend-4h",
+  "selectedBaseline": "buy-hold-eth",
+  "conclusion": "All four development candidates fail the declared gate. No final-period forecasts, labels or returns were evaluated by this audit. Funding costs are adverse training-reserve scenarios, not verified actual settlements."
+}

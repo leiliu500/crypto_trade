@@ -1,21 +1,70 @@
 # Multi-venue minimal-latency crypto engine
 
-A TypeScript research and paper-trading engine. The default strategy layer reconstructs Kraken's linear perpetual-futures L2 book, evaluates separate causal long/short trend, breakout, and recovery policies, and uses empirically measured executable policy returns. Its risk, order lifecycle, telemetry, and local paper broker remain shared with the legacy engine.
+A TypeScript BTC/ETH research and paper-trading engine using Kraken Futures order books and trades. The replacement strategy learns conditional distributions of executable net returns, compares six long/short actions with staying flat, and measures its selected shadow trades before permitting capped paper orders. Risk, order lifecycle, telemetry, and local paper accounts remain shared.
+
+Recent BTC/ETH price history is checkpointed every five seconds and before
+shutdown. A deployment with complete recent history needs about thirty seconds
+of fresh live flow before evaluation, instead of thirty minutes of price warmup.
+`DISTRIBUTIONAL_HISTORY_FILE` selects the compact history file; an observed gap
+over ninety seconds requires normal warmup. For the initial deployment,
+`npm run research:distribution:warmup -- --out=FILE RECORDING...` prepares it from
+frozen raw recordings. [History preparation and startup details](docs/DISTRIBUTIONAL_REBUILD.md#historical-market-warmup).
+
+Training also accepts completed historical Kraken Futures books and trades.
+`npm run research:distribution:train -- --state-out=FILE RECORDING...` prepares
+an immutable training artifact; `DISTRIBUTIONAL_TRAINING_FILE` imports it before
+startup, merging complete historical outcomes with existing training. Historical
+dates count toward training coverage. Replay does not count as live prospective
+validation. [Training backfill details](docs/DISTRIBUTIONAL_REBUILD.md#historical-training-backfill).
+
+The paper trial can enable `DISTRIBUTIONAL_EFFICIENT_TRAINING_ENABLED=true`
+alongside `DISTRIBUTIONAL_PAPER_TRIAL_ENABLED=true`. It collects paired 5-, 15-,
+and 30-minute actions every 6, 16, and 31 minutes and learns each action as soon
+as all execution scenarios finish. Entry checks remain on fresh quotes at most
+once per second. Existing historical labels are retained; sample, score, cost,
+and execution gates still apply. This improves collection efficiency but has
+not established profitable trading. [Deployment and rollback details](docs/DISTRIBUTIONAL_REBUILD.md#independent-horizon-paper-training).
 
 It does **not** promise profit or zero latency. The checked-in `.env.example` selects the Kraken Futures adapter and starts in shadow mode; `npm run paper` enables its local paper broker. Kraken market data is production public data, while orders, fills, balances, and positions remain strictly local. Kraken live order routing is intentionally unavailable.
 
 ## Rebuilt default strategy layer
 
-Configuration `btc-eth-profit-screen-v10.4.2` uses joint BTC/ETH forecasts as
-the only source of new paper entries. Breakout/retest and other rule entries are
-disabled by `MODEL_ONLY_ENTRIES=true`. New paper orders require the model's
-profitability screen and exact order economics to pass. Rejected model directions
-continue in separate shadow research, with fees and missing paths retained; see
-[model-only paper evaluation](docs/MODEL_PAPER_EVALUATION.md). Existing positions
-retain their exit management. The strategy layer uses version
-`executable-policy-v3`; prior versions and the descriptions below remain useful
-for historical compatibility. Qualifying paper submissions remain capped.
-Replay has not established profitability; the current model may place no orders.
+Configuration `btc-eth-distributional-v11.0.0` enables the replacement in Compose
+and `.env.example` through `DISTRIBUTIONAL_ENGINE_ENABLED=true`. It owns all new
+entries and cannot fall back to the earlier Bayesian or rule entry engines.
+Direct config loading leaves this flag off for explicit legacy compatibility.
+`DISTRIBUTIONAL_PAPER_ENTRIES_ENABLED=true` permits orders only after supported
+training and prospective selected-trade validation, fresh quotes, exact sizing,
+and portfolio checks. Existing positions keep their original exits.
+
+The mathematics combines local conditional distributions, temporal decay,
+shrinkage, effective sample counts, daily clustered uncertainty, and expected
+tail loss. Every action is evaluated under baseline, fee, and latency/depth
+stress. Training and validation require at least seven observed days each;
+these minimums do not establish profitability. Read the
+[design, equations, execution contract, and evidence](docs/DISTRIBUTIONAL_REBUILD.md).
+The current short history has not demonstrated profitable trading.
+
+The [predictive-quality study](docs/PREDICTIVE_QUALITY_STUDY.md) tests a fixed
+model that separates expected fills, gross returns, and costs against the
+current model and simple baselines using archived chronological audits. Run it
+with `npm run research:predictive-quality -- INPUT_DIRECTORY NEW_OUTPUT_DIRECTORY`.
+The tested candidate had mixed forecast results and no qualifying selections;
+it remains outside the running paper engine.
+
+```bash
+npm run research:distribution -- --validation-start=2026-09-07T01:00:00Z \
+  --later-start=2026-09-07T03:00:00Z --assets=reports/distribution-instrument-rules-2026-09-07.json \
+  recording.jsonl.gz
+```
+
+`npm run research:horizons` compares 1/3/5/15/30-minute deadlines and
+volatility-adjusted exits on identical recorded opportunities. See the
+[comparison method](docs/HORIZON_COMPARISON.md) and
+[September 7 results](docs/HORIZON_RESULTS.md). All candidates failed the
+training profitability screen; this offline study enables no new paper policy.
+
+The older strategy descriptions below apply when the replacement engine is off.
 
 `POLICY_ENGINE_ENABLED=true` replaces the legacy volatility-capture forecasts and micro-driven exits. The same versioned entry predicates and stop/target/deadline rules drive research and paper positions. V2 checks entries on every fresh quote, independently of the periodic research timer, and calibrates only separately tagged entry-timed evidence. Existing risk and liquidity limits remain mandatory. See [policy design and validation](docs/POLICY_REBUILD.md).
 

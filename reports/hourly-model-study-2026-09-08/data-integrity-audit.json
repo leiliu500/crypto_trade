@@ -1,0 +1,406 @@
+{
+  "version": "kraken-hourly-data-integrity-audit-v1",
+  "completedAtUtc": "2026-09-08T22:23:10.867475+00:00",
+  "method": "Independent Python reconstruction from raw candle JSON pages and raw CSV ZIP members; no loader implementation imported",
+  "status": "PASS",
+  "financialReturnsInspected": false,
+  "fundingQuantilesComputed": false,
+  "ordersSubmitted": 0,
+  "dataset": {
+    "file": "reports/hourly-model-study-2026-09-08/data/dataset.json",
+    "bytes": 9907083,
+    "sha256": "c141a993de40105fcb3d42551d918d28586502abbe96c97b0fa4194c1e167882",
+    "manifestFile": "reports/hourly-model-study-2026-09-08/data/manifest.json",
+    "manifestSha256": "e1cf420d814afd9881aa67c3c30ee914003ecac22fa3875d129ce845b8dd9dd6",
+    "hashMatchesManifest": true
+  },
+  "window": {
+    "startMs": 1701388800000,
+    "startUtc": "2023-12-01T00:00:00Z",
+    "endMsExclusive": 1788220800000,
+    "endUtcExclusive": "2026-09-01T00:00:00Z",
+    "barDurationMs": 3600000,
+    "completedBarsOnly": true
+  },
+  "sourceHashesAllMatch": true,
+  "sourceFilesVerified": 30,
+  "sourceFiles": [
+    {
+      "file": "raw/PF_XBTUSD-candles-1.json",
+      "url": "https://futures.kraken.com/api/charts/v1/trade/PF_XBTUSD/1h?from=1701388800&to=1788217200&count=7000",
+      "bytes": 738384,
+      "sha256": "072f60c4b4a8397e7a4a321bdeae07e32f2ef7cf6ba8db224309bf071a946e3b",
+      "matches": true
+    },
+    {
+      "file": "raw/PF_XBTUSD-candles-2.json",
+      "url": "https://futures.kraken.com/api/charts/v1/trade/PF_XBTUSD/1h?from=1726588800&to=1788217200&count=7000",
+      "bytes": 740458,
+      "sha256": "b973367da3c24be28bd4794a9f001ab95c0b89e13336de28feee3f0c15901061",
+      "matches": true
+    },
+    {
+      "file": "raw/PF_XBTUSD-candles-3.json",
+      "url": "https://futures.kraken.com/api/charts/v1/trade/PF_XBTUSD/1h?from=1751788800&to=1788217200&count=7000",
+      "bytes": 744770,
+      "sha256": "a7920658a850abeb1ceebb6da53d5760651cb0ee03f3b7e61d7041390f94ad1f",
+      "matches": true
+    },
+    {
+      "file": "raw/PF_XBTUSD-candles-4.json",
+      "url": "https://futures.kraken.com/api/charts/v1/trade/PF_XBTUSD/1h?from=1776988800&to=1788217200&count=7000",
+      "bytes": 327112,
+      "sha256": "9b184c8b169d35b72725291c824db848de915f7ababb5e991126a7afaac6fa15",
+      "matches": true
+    },
+    {
+      "file": "raw/PF_ETHUSD-candles-1.json",
+      "url": "https://futures.kraken.com/api/charts/v1/trade/PF_ETHUSD/1h?from=1701388800&to=1788217200&count=7000",
+      "bytes": 752821,
+      "sha256": "60481a913a8320f5be095f92101ff5bc6e8cf5ec49900214f53a5569b91cbc08",
+      "matches": true
+    },
+    {
+      "file": "raw/PF_ETHUSD-candles-2.json",
+      "url": "https://futures.kraken.com/api/charts/v1/trade/PF_ETHUSD/1h?from=1726588800&to=1788217200&count=7000",
+      "bytes": 751936,
+      "sha256": "c49021e3a801070a70f4f5a28b9b82017e1053d4bc17839765ab0de6c1397e1f",
+      "matches": true
+    },
+    {
+      "file": "raw/PF_ETHUSD-candles-3.json",
+      "url": "https://futures.kraken.com/api/charts/v1/trade/PF_ETHUSD/1h?from=1751788800&to=1788217200&count=7000",
+      "bytes": 757924,
+      "sha256": "42fd4d5923c740f4f0e070baab978319f8d2a8870f19b8ecd8f6b1f57d011530",
+      "matches": true
+    },
+    {
+      "file": "raw/PF_ETHUSD-candles-4.json",
+      "url": "https://futures.kraken.com/api/charts/v1/trade/PF_ETHUSD/1h?from=1776988800&to=1788217200&count=7000",
+      "bytes": 335869,
+      "sha256": "d16b066d3bf872534624a94491f5a9ac6d74b7382acdd3fd7b5bf53fefbc9252",
+      "matches": true
+    },
+    {
+      "file": "raw/funding-zip-tail.bin",
+      "url": "https://assets-cms.kraken.com/files/51n36hrp/facade/4b70936c1227e4ae5514cba8bf41a5561cf13bd7.zip?dl=",
+      "bytes": 65557,
+      "sha256": "b40319a51aba63ef6f68af8c81e112c616647118a770a3dee9bcf8f84db1e75d",
+      "matches": true
+    },
+    {
+      "file": "raw/funding-zip-directory.bin",
+      "url": "https://assets-cms.kraken.com/files/51n36hrp/facade/4b70936c1227e4ae5514cba8bf41a5561cf13bd7.zip?dl=",
+      "bytes": 93771,
+      "sha256": "98ba3c5405eb2af445ffaf2b3444a171bb3177aa31c22cb116dc8e6f6a114589",
+      "matches": true
+    },
+    {
+      "file": "raw/PF_XBTUSD-funding-header.bin",
+      "url": "https://assets-cms.kraken.com/files/51n36hrp/facade/4b70936c1227e4ae5514cba8bf41a5561cf13bd7.zip?dl=",
+      "bytes": 30,
+      "sha256": "d3199c62c0fb77002e9b0f1a40c961ee25888b528702f3617a597f137635b1c7",
+      "matches": true
+    },
+    {
+      "file": "raw/PF_XBTUSD-funding-member.bin",
+      "url": "https://assets-cms.kraken.com/files/51n36hrp/facade/4b70936c1227e4ae5514cba8bf41a5561cf13bd7.zip?dl=",
+      "bytes": 606599,
+      "sha256": "a65b8252bdfbc3e616fa18fdcf2575e56e259e5cc7cb98b15698cd6beed14677",
+      "matches": true
+    },
+    {
+      "file": "raw/PF_ETHUSD-funding-header.bin",
+      "url": "https://assets-cms.kraken.com/files/51n36hrp/facade/4b70936c1227e4ae5514cba8bf41a5561cf13bd7.zip?dl=",
+      "bytes": 30,
+      "sha256": "d3199c62c0fb77002e9b0f1a40c961ee25888b528702f3617a597f137635b1c7",
+      "matches": true
+    },
+    {
+      "file": "raw/PF_ETHUSD-funding-member.bin",
+      "url": "https://assets-cms.kraken.com/files/51n36hrp/facade/4b70936c1227e4ae5514cba8bf41a5561cf13bd7.zip?dl=",
+      "bytes": 584121,
+      "sha256": "472daecf21524f5d05a22241c943128dd64bba3014372e9e926051fb0b855cd6",
+      "matches": true
+    },
+    {
+      "file": "raw/PF_XBTUSD-funding-analytics-1.json",
+      "url": "https://futures.kraken.com/api/charts/v1/analytics/PF_XBTUSD/funding?since=1769904000&to=1772578800&interval=3600",
+      "bytes": 90972,
+      "sha256": "4fc47dbb93e34b0ed100b823f5663ff6e4d75c6c8eadd29996068a49537f0943",
+      "matches": true
+    },
+    {
+      "file": "raw/PF_XBTUSD-funding-analytics-2.json",
+      "url": "https://futures.kraken.com/api/charts/v1/analytics/PF_XBTUSD/funding?since=1772582400&to=1775257200&interval=3600",
+      "bytes": 144778,
+      "sha256": "dd77cde2f4554ec5d8746233c75d86234258b4268c0b1f8afad167bd1b587db5",
+      "matches": true
+    },
+    {
+      "file": "raw/PF_XBTUSD-funding-analytics-3.json",
+      "url": "https://futures.kraken.com/api/charts/v1/analytics/PF_XBTUSD/funding?since=1775260800&to=1777935600&interval=3600",
+      "bytes": 145486,
+      "sha256": "a8afffb73599184a068181a35bb67aba1fd95b501f2ffa5c2ca81762855bc0c4",
+      "matches": true
+    },
+    {
+      "file": "raw/PF_XBTUSD-funding-analytics-4.json",
+      "url": "https://futures.kraken.com/api/charts/v1/analytics/PF_XBTUSD/funding?since=1777939200&to=1780614000&interval=3600",
+      "bytes": 142998,
+      "sha256": "4f416dc533eeff28f3776605feb8f01f466f3d94749f0ca50e79cc36bac0ffa9",
+      "matches": true
+    },
+    {
+      "file": "raw/PF_XBTUSD-funding-analytics-5.json",
+      "url": "https://futures.kraken.com/api/charts/v1/analytics/PF_XBTUSD/funding?since=1780617600&to=1783292400&interval=3600",
+      "bytes": 138006,
+      "sha256": "f25a00301753e14649161f5d5b2ba8c2d623a525e8ef4a85b2c37b36f74308f6",
+      "matches": true
+    },
+    {
+      "file": "raw/PF_XBTUSD-funding-analytics-6.json",
+      "url": "https://futures.kraken.com/api/charts/v1/analytics/PF_XBTUSD/funding?since=1783296000&to=1785970800&interval=3600",
+      "bytes": 136272,
+      "sha256": "1b8beaffd1fc77743ffd6e633f7788abfed6c350ba9cbe4262efc687edf42a5c",
+      "matches": true
+    },
+    {
+      "file": "raw/PF_XBTUSD-funding-analytics-7.json",
+      "url": "https://futures.kraken.com/api/charts/v1/analytics/PF_XBTUSD/funding?since=1785974400&to=1788217200&interval=3600",
+      "bytes": 115054,
+      "sha256": "4ad660e6acfd0328117b6320e65a125eb7e7634c253d07c5968700eb216f3de5",
+      "matches": true
+    },
+    {
+      "file": "raw/PF_ETHUSD-funding-analytics-1.json",
+      "url": "https://futures.kraken.com/api/charts/v1/analytics/PF_ETHUSD/funding?since=1769904000&to=1772578800&interval=3600",
+      "bytes": 93326,
+      "sha256": "501b8df90957fda182f51e40e131c9ede486ed4c19a7ba7f8afffc7b3ece46be",
+      "matches": true
+    },
+    {
+      "file": "raw/PF_ETHUSD-funding-analytics-2.json",
+      "url": "https://futures.kraken.com/api/charts/v1/analytics/PF_ETHUSD/funding?since=1772582400&to=1775257200&interval=3600",
+      "bytes": 148184,
+      "sha256": "878207ca5b85842679a34457e30722c0140179ac0f9ad96761d645414dfafedd",
+      "matches": true
+    },
+    {
+      "file": "raw/PF_ETHUSD-funding-analytics-3.json",
+      "url": "https://futures.kraken.com/api/charts/v1/analytics/PF_ETHUSD/funding?since=1775260800&to=1777935600&interval=3600",
+      "bytes": 148036,
+      "sha256": "2f38dcfb7ffc17a082077128e6b7a26f5dcbd02136475afe1554586a4f8e622e",
+      "matches": true
+    },
+    {
+      "file": "raw/PF_ETHUSD-funding-analytics-4.json",
+      "url": "https://futures.kraken.com/api/charts/v1/analytics/PF_ETHUSD/funding?since=1777939200&to=1780614000&interval=3600",
+      "bytes": 144452,
+      "sha256": "3c454b2ca6e83ef6c5aad766c04428f2196e4671e835d757837104036e8d5750",
+      "matches": true
+    },
+    {
+      "file": "raw/PF_ETHUSD-funding-analytics-5.json",
+      "url": "https://futures.kraken.com/api/charts/v1/analytics/PF_ETHUSD/funding?since=1780617600&to=1783292400&interval=3600",
+      "bytes": 141136,
+      "sha256": "a9bf05c176f66b7798c4ca770259802c5457b7b7ac6728a48d4ce3ee86d6e5ee",
+      "matches": true
+    },
+    {
+      "file": "raw/PF_ETHUSD-funding-analytics-6.json",
+      "url": "https://futures.kraken.com/api/charts/v1/analytics/PF_ETHUSD/funding?since=1783296000&to=1785970800&interval=3600",
+      "bytes": 140258,
+      "sha256": "2c56ef05f5261b3cebada09de48570fcc1b605de4f0017a4a4bd1670b0cb17c6",
+      "matches": true
+    },
+    {
+      "file": "raw/PF_ETHUSD-funding-analytics-7.json",
+      "url": "https://futures.kraken.com/api/charts/v1/analytics/PF_ETHUSD/funding?since=1785974400&to=1788217200&interval=3600",
+      "bytes": 116350,
+      "sha256": "4bef3884f66ab43f05f49fd6b97a005c5d685adf77368da689467b046daf6d21",
+      "matches": true
+    },
+    {
+      "file": "raw/PF_XBTUSD-funding.csv",
+      "bytes": 2225969,
+      "sha256": "8abfb9f959d9989fab6ddbcf587f31d24ae39684974cc2147c283ef2455bc7ef",
+      "matches": true
+    },
+    {
+      "file": "raw/PF_ETHUSD-funding.csv",
+      "bytes": 2228795,
+      "sha256": "814bc79243578ff0b3846d409db421b346a35116334b8b709c181942c52615a8",
+      "matches": true
+    }
+  ],
+  "sourceModulesUnchanged": true,
+  "sourceModuleHashes": {
+    "src/research/hourly-data.ts": "0786552d6f700f8ad906a6f6db80b423560eef6f79dbb7403250ce1eeb260a91",
+    "src/research/hourly-data-main.ts": "c1fc652caa73cfa272375aa5ac99c5eed40f36ec76ca2ca0e52cfa2d9f6852af"
+  },
+  "rawCandlesExactlyReconstructDataset": true,
+  "rawCsvExactlyReconstructsFunding": true,
+  "fundingZipMemberChecks": [
+    {
+      "symbol": "BTC/USD",
+      "file": "raw/PF_XBTUSD-funding.csv",
+      "csvMatchesDecompressedMember": true,
+      "crc32Matches": true,
+      "uncompressedBytes": 2225969,
+      "sha256": "8abfb9f959d9989fab6ddbcf587f31d24ae39684974cc2147c283ef2455bc7ef"
+    },
+    {
+      "symbol": "ETH/USD",
+      "file": "raw/PF_ETHUSD-funding.csv",
+      "csvMatchesDecompressedMember": true,
+      "crc32Matches": true,
+      "uncompressedBytes": 2228795,
+      "sha256": "814bc79243578ff0b3846d409db421b346a35116334b8b709c181942c52615a8"
+    }
+  ],
+  "coverage": [
+    {
+      "symbol": "BTC/USD",
+      "bars": 24120,
+      "expectedBars": 24120,
+      "missingBars": 0,
+      "duplicateBars": 0,
+      "zeroVolumeHours": 12,
+      "firstOpenMs": 1701388800000,
+      "lastOpenMs": 1788217200000,
+      "lastKnownAtMs": 1788220800000,
+      "fundingRows": 19026,
+      "missingFundingHours": 5094,
+      "trainingFundingCountBySettlementYear": {
+        "2024": 8784,
+        "2025": 8753
+      }
+    },
+    {
+      "symbol": "ETH/USD",
+      "bars": 24120,
+      "expectedBars": 24120,
+      "missingBars": 0,
+      "duplicateBars": 0,
+      "zeroVolumeHours": 12,
+      "firstOpenMs": 1701388800000,
+      "lastOpenMs": 1788217200000,
+      "lastKnownAtMs": 1788220800000,
+      "fundingRows": 19026,
+      "missingFundingHours": 5094,
+      "trainingFundingCountBySettlementYear": {
+        "2024": 8784,
+        "2025": 8753
+      }
+    }
+  ],
+  "analyticsRawCoverage": [
+    {
+      "file": "raw/PF_XBTUSD-funding-analytics-1.json",
+      "rows": 467,
+      "firstMs": 1770901200000,
+      "lastMs": 1772578800000,
+      "importedAsSettlements": false
+    },
+    {
+      "file": "raw/PF_XBTUSD-funding-analytics-2.json",
+      "rows": 744,
+      "firstMs": 1772582400000,
+      "lastMs": 1775257200000,
+      "importedAsSettlements": false
+    },
+    {
+      "file": "raw/PF_XBTUSD-funding-analytics-3.json",
+      "rows": 744,
+      "firstMs": 1775260800000,
+      "lastMs": 1777935600000,
+      "importedAsSettlements": false
+    },
+    {
+      "file": "raw/PF_XBTUSD-funding-analytics-4.json",
+      "rows": 744,
+      "firstMs": 1777939200000,
+      "lastMs": 1780614000000,
+      "importedAsSettlements": false
+    },
+    {
+      "file": "raw/PF_XBTUSD-funding-analytics-5.json",
+      "rows": 744,
+      "firstMs": 1780617600000,
+      "lastMs": 1783292400000,
+      "importedAsSettlements": false
+    },
+    {
+      "file": "raw/PF_XBTUSD-funding-analytics-6.json",
+      "rows": 744,
+      "firstMs": 1783296000000,
+      "lastMs": 1785970800000,
+      "importedAsSettlements": false
+    },
+    {
+      "file": "raw/PF_XBTUSD-funding-analytics-7.json",
+      "rows": 624,
+      "firstMs": 1785974400000,
+      "lastMs": 1788217200000,
+      "importedAsSettlements": false
+    },
+    {
+      "file": "raw/PF_ETHUSD-funding-analytics-1.json",
+      "rows": 467,
+      "firstMs": 1770901200000,
+      "lastMs": 1772578800000,
+      "importedAsSettlements": false
+    },
+    {
+      "file": "raw/PF_ETHUSD-funding-analytics-2.json",
+      "rows": 744,
+      "firstMs": 1772582400000,
+      "lastMs": 1775257200000,
+      "importedAsSettlements": false
+    },
+    {
+      "file": "raw/PF_ETHUSD-funding-analytics-3.json",
+      "rows": 744,
+      "firstMs": 1775260800000,
+      "lastMs": 1777935600000,
+      "importedAsSettlements": false
+    },
+    {
+      "file": "raw/PF_ETHUSD-funding-analytics-4.json",
+      "rows": 744,
+      "firstMs": 1777939200000,
+      "lastMs": 1780614000000,
+      "importedAsSettlements": false
+    },
+    {
+      "file": "raw/PF_ETHUSD-funding-analytics-5.json",
+      "rows": 744,
+      "firstMs": 1780617600000,
+      "lastMs": 1783292400000,
+      "importedAsSettlements": false
+    },
+    {
+      "file": "raw/PF_ETHUSD-funding-analytics-6.json",
+      "rows": 744,
+      "firstMs": 1783296000000,
+      "lastMs": 1785970800000,
+      "importedAsSettlements": false
+    },
+    {
+      "file": "raw/PF_ETHUSD-funding-analytics-7.json",
+      "rows": 624,
+      "firstMs": 1785974400000,
+      "lastMs": 1788217200000,
+      "importedAsSettlements": false
+    }
+  ],
+  "fundingTimestampConvention": "CSV timestamp interpreted as effective-hour start; normalized settlement timestamp is source + 1 hour",
+  "fundingTimestampConventionVerified": false,
+  "limitations": [
+    "Funding timestamp interpretation remains unverified and missing hours remain absent.",
+    "Funding analytics OHLC rows remain separate raw coverage; none are imported as settlement payments.",
+    "2024 and 2025 funding counts only were computed; neither funding quantiles nor any trading returns were inspected.",
+    "Candle data does not establish execution parity, fills or actual historical net profitability."
+  ]
+}

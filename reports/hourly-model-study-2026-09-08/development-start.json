@@ -1,0 +1,14 @@
+{
+  "startedAtUtc": "2026-09-08T22:27:07.797Z",
+  "dataSha256": "c141a993de40105fcb3d42551d918d28586502abbe96c97b0fa4194c1e167882",
+  "sourceHashes": {
+    "src/research/hourly-data.ts": "0786552d6f700f8ad906a6f6db80b423560eef6f79dbb7403250ce1eeb260a91",
+    "src/research/hourly-model.ts": "69ac3085efe1377801d0d056224f5f6a3155764dc3faf71b00d315facc1c8c3f",
+    "src/research/hourly-simulator.ts": "0421f92bc37af0186d25b7c7710f61dd867945488dc85599072e23dfdf8a5eed",
+    "src/research/hourly-study-main.ts": "cb940afedec62ccf9d10c05d329ef2009a92ea46f4cfd263474b3fe2e4fe3ab0",
+    "src/research/hourly-study-statistics.ts": "0a9b6437903c26845958748d18f4b43f3ad35749f616da924cd61252442c7a36",
+    "package.json": "57b37eee487870483842e7af18ed1444bb9645a7d74abdd456c337c916ee2517",
+    "package-lock.json": "2315bada829d31ccb4d3970392ba56d73458d3219dda1ec98d8dda0d41893594"
+  },
+  "protocolSha256": "6fecdbe49bad959a5535f3e03fd7ebb689b7e0a89640102a6a4b6ea690934656"
+}

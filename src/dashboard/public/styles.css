@@ -127,3 +127,4 @@
 .model-entry-mode{font-size:12px;color:var(--text);font-weight:700;line-height:1.6}
 .model-entry-mode small,.entry-forecast small{display:block;font-weight:400;color:var(--muted);margin-top:5px;line-height:1.5;overflow-wrap:anywhere}
 .model-results,.entry-forecast{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:12px;overflow-wrap:anywhere}
+ .distribution-table{overflow-x:auto;margin:1rem 0}.distribution-table table{width:100%;border-collapse:collapse;font-size:.8rem}.distribution-table th,.distribution-table td{text-align:right;padding:.5rem .3rem;border-bottom:1px solid #334155}.distribution-table th:first-child,.distribution-table td:first-child{text-align:left}
