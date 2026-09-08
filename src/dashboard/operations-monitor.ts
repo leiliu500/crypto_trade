@@ -16,6 +16,7 @@ const ENGINE_EVENTS = [
   "pendingSignalGrace", "pendingSignalRecovered", "pendingAdverseFlowGrace", "pendingAdverseFlowRecovered",
   "missedEntryRetryArmed", "entryRouteEvaluated", "entryRouteShadowStarted", "entryRouteShadowMark",
   "policyObservation", "policyResearchReady", "policyEntryEvaluated", "policySignalEvaluated", "researchEpisode", "setupEvaluated", "crossAssetForecast",
+  "distributionalDecision", "distributionalSample", "distributionalSelection",
 ] as const;
 const TERMINAL_ORDER_STATES = new Set(["FILLED", "CANCELED", "REJECTED", "EXPIRED"]);
 const DEFAULT_MAXIMUM_PNL_HISTORY = 2_000;
@@ -175,6 +176,7 @@ export class OperationsMonitor extends EventEmitter {
       return {
         symbol: market.symbol,
         policyPulse: market.policyPulse ? safeClone(market.policyPulse) as NonNullable<DashboardMarketCard["policyPulse"]> : null,
+        distributional: market.distributional ? safeClone(market.distributional) as NonNullable<DashboardMarketCard["distributional"]> : null,
         bookValid: market.bookValid,
         bestBid: market.bestBid,
         bestAsk: market.bestAsk,
@@ -355,6 +357,7 @@ export class OperationsMonitor extends EventEmitter {
         style: order.plan.style,
         entryFamily: order.plan.entryFamily ?? null,
         modelVersion: order.plan.modelVersion,
+        distributionDecision: order.plan.distributionDecision ? structuredClone(order.plan.distributionDecision) : null,
         crossAssetForecast: order.plan.crossAssetForecast ? { ...order.plan.crossAssetForecast,
           expertWeights: { ...order.plan.crossAssetForecast.expertWeights } } : null,
         crossAssetEntryMode: order.plan.crossAssetEntryMode ?? null,

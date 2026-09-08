@@ -1,0 +1,731 @@
+{
+  "createdAtMs": 1788902099612,
+  "status": "PASS",
+  "checks": {
+    "sealedSourceHashesUnchanged": true,
+    "sourceFiles": 8,
+    "sourceChainsRevalidated": true,
+    "forecastsReconstructed": true,
+    "metricsIndependentlyRecalculated": true,
+    "chronologicalPolicyLedgerIndependentlyRecalculated": true
+  },
+  "windows": [
+    {
+      "name": "first",
+      "auditRecords": 542,
+      "auditFinalHash": "1a0c6f334a4f7d537e387ae89f3377c33ad3012f97c622c5866e3162543cf4cf",
+      "assetOrigins": 10,
+      "actionPaths": 60,
+      "regimeOpportunities": [
+        {
+          "symbol": "BTC/USD",
+          "model": "regime",
+          "actionPaths": 30,
+          "nativeSupportReady": 30,
+          "finiteForecasts": 30,
+          "positiveWorstMean": 0,
+          "supportedPositiveWorstMean": 0,
+          "eligible": 0,
+          "allScenariosKnown": 26,
+          "unknownPaths": 4,
+          "knownBaseWinners": 5,
+          "knownRobustWinners": 3,
+          "eligibleKnownPaths": 0,
+          "eligibleRobustWinners": 0,
+          "missedRobustWinners": 3,
+          "missedByReason": {
+            "SCORE_BELOW_MINIMUM": 3
+          },
+          "eligibleKnownRobustPrecision": null,
+          "knownRobustRecall": 0
+        },
+        {
+          "symbol": "ETH/USD",
+          "model": "regime",
+          "actionPaths": 30,
+          "nativeSupportReady": 30,
+          "finiteForecasts": 30,
+          "positiveWorstMean": 0,
+          "supportedPositiveWorstMean": 0,
+          "eligible": 0,
+          "allScenariosKnown": 27,
+          "unknownPaths": 3,
+          "knownBaseWinners": 5,
+          "knownRobustWinners": 2,
+          "eligibleKnownPaths": 0,
+          "eligibleRobustWinners": 0,
+          "missedRobustWinners": 2,
+          "missedByReason": {
+            "SCORE_BELOW_MINIMUM": 2
+          },
+          "eligibleKnownRobustPrecision": null,
+          "knownRobustRecall": 0
+        }
+      ],
+      "baseMetrics": [
+        {
+          "symbol": "BTC/USD",
+          "knownPaths": 26,
+          "unknown": 4,
+          "rmse": {
+            "conditional": 17.39955368784763,
+            "regime": 15.46984773455019,
+            "unconditional": 15.536514181058886,
+            "cost-only": 15.419875269362647
+          },
+          "grossRegimeRmse": 15.425461034577435,
+          "grossZeroRmse": 15.375495864154336
+        },
+        {
+          "symbol": "ETH/USD",
+          "knownPaths": 27,
+          "unknown": 3,
+          "rmse": {
+            "conditional": 27.38572162046276,
+            "regime": 26.377222997333085,
+            "unconditional": 26.3853698213016,
+            "cost-only": 26.391174752826323
+          },
+          "grossRegimeRmse": 25.677745930757098,
+          "grossZeroRmse": 25.699938972216298
+        }
+      ],
+      "policyBase": [
+        {
+          "policy": "conditional",
+          "scenario": "base-250ms",
+          "selections": 0,
+          "filled": 0,
+          "unfilled": 0,
+          "unknown": 0,
+          "knownNetBpsSum": 0,
+          "fullPathKnownNetBpsSum": 0,
+          "knownMeanNetBps": null
+        },
+        {
+          "policy": "regime",
+          "scenario": "base-250ms",
+          "selections": 0,
+          "filled": 0,
+          "unfilled": 0,
+          "unknown": 0,
+          "knownNetBpsSum": 0,
+          "fullPathKnownNetBpsSum": 0,
+          "knownMeanNetBps": null
+        },
+        {
+          "policy": "unconditional",
+          "scenario": "base-250ms",
+          "selections": 0,
+          "filled": 0,
+          "unfilled": 0,
+          "unknown": 0,
+          "knownNetBpsSum": 0,
+          "fullPathKnownNetBpsSum": 0,
+          "knownMeanNetBps": null
+        },
+        {
+          "policy": "cost-only",
+          "scenario": "base-250ms",
+          "selections": 0,
+          "filled": 0,
+          "unfilled": 0,
+          "unknown": 0,
+          "knownNetBpsSum": 0,
+          "fullPathKnownNetBpsSum": 0,
+          "knownMeanNetBps": null
+        },
+        {
+          "policy": "regime-mean-diagnostic",
+          "scenario": "base-250ms",
+          "selections": 0,
+          "filled": 0,
+          "unfilled": 0,
+          "unknown": 0,
+          "knownNetBpsSum": 0,
+          "fullPathKnownNetBpsSum": 0,
+          "knownMeanNetBps": null
+        },
+        {
+          "policy": "flat",
+          "scenario": "base-250ms",
+          "selections": 0,
+          "filled": 0,
+          "unfilled": 0,
+          "unknown": 0,
+          "knownNetBpsSum": 0,
+          "fullPathKnownNetBpsSum": 0,
+          "knownMeanNetBps": null
+        },
+        {
+          "policy": "long-15m",
+          "scenario": "base-250ms",
+          "selections": 6,
+          "filled": 5,
+          "unfilled": 1,
+          "unknown": 0,
+          "knownNetBpsSum": -28.04092590833038,
+          "fullPathKnownNetBpsSum": -28.04092590833038,
+          "knownMeanNetBps": -4.673487651388396
+        },
+        {
+          "policy": "short-15m",
+          "scenario": "base-250ms",
+          "selections": 5,
+          "filled": 5,
+          "unfilled": 0,
+          "unknown": 0,
+          "knownNetBpsSum": -65.04479314411746,
+          "fullPathKnownNetBpsSum": -65.04479314411746,
+          "knownMeanNetBps": -13.008958628823493
+        },
+        {
+          "policy": "momentum-15m",
+          "scenario": "base-250ms",
+          "selections": 6,
+          "filled": 5,
+          "unfilled": 1,
+          "unknown": 0,
+          "knownNetBpsSum": 35.310412376305194,
+          "fullPathKnownNetBpsSum": 35.310412376305194,
+          "knownMeanNetBps": 5.885068729384199
+        }
+      ],
+      "allFittedLeavesAtAllAssetProbeTimes": [
+        {
+          "symbol": "BTC/USD",
+          "actionId": "long-15m",
+          "leaf": 0,
+          "samples": 78,
+          "effectiveSamples": 76.66048862064018,
+          "observedDays": 4,
+          "maxBaseNetBps": -12.378616170416374,
+          "maxWorstNetBps": -17.35260152733827,
+          "maxAnyScenarioNetBps": -11.783388790284794
+        },
+        {
+          "symbol": "BTC/USD",
+          "actionId": "long-30m",
+          "leaf": 0,
+          "samples": 76,
+          "effectiveSamples": 74.68290705377488,
+          "observedDays": 4,
+          "maxBaseNetBps": -12.581360902540673,
+          "maxWorstNetBps": -17.40572288874058,
+          "maxAnyScenarioNetBps": -11.613823334669247
+        },
+        {
+          "symbol": "BTC/USD",
+          "actionId": "long-5m",
+          "leaf": 0,
+          "samples": 88,
+          "effectiveSamples": 86.56624729027611,
+          "observedDays": 4,
+          "maxBaseNetBps": -12.605998516965787,
+          "maxWorstNetBps": -17.520268154517076,
+          "maxAnyScenarioNetBps": -11.838776705929698
+        },
+        {
+          "symbol": "BTC/USD",
+          "actionId": "short-15m",
+          "leaf": 0,
+          "samples": 78,
+          "effectiveSamples": 76.66048822776742,
+          "observedDays": 4,
+          "maxBaseNetBps": -13.731080777279498,
+          "maxWorstNetBps": -18.731306052246467,
+          "maxAnyScenarioNetBps": -13.4250058064368
+        },
+        {
+          "symbol": "BTC/USD",
+          "actionId": "short-30m",
+          "leaf": 0,
+          "samples": 75,
+          "effectiveSamples": 73.6950229550977,
+          "observedDays": 4,
+          "maxBaseNetBps": -13.69965875673076,
+          "maxWorstNetBps": -18.699876191014564,
+          "maxAnyScenarioNetBps": -13.323206148496409
+        },
+        {
+          "symbol": "BTC/USD",
+          "actionId": "short-5m",
+          "leaf": 0,
+          "samples": 89,
+          "effectiveSamples": 87.55749110687412,
+          "observedDays": 4,
+          "maxBaseNetBps": -13.176893119577054,
+          "maxWorstNetBps": -18.114602831050515,
+          "maxAnyScenarioNetBps": -12.869035203227037
+        },
+        {
+          "symbol": "ETH/USD",
+          "actionId": "long-15m",
+          "leaf": 0,
+          "samples": 69,
+          "effectiveSamples": 67.68873316358622,
+          "observedDays": 4,
+          "maxBaseNetBps": -11.487607564908423,
+          "maxWorstNetBps": -16.24546557992678,
+          "maxAnyScenarioNetBps": -10.846451401366359
+        },
+        {
+          "symbol": "ETH/USD",
+          "actionId": "long-30m",
+          "leaf": 0,
+          "samples": 67,
+          "effectiveSamples": 65.71310035606662,
+          "observedDays": 4,
+          "maxBaseNetBps": -10.54340946082947,
+          "maxWorstNetBps": -15.37783073174386,
+          "maxAnyScenarioNetBps": -9.070518823037226
+        },
+        {
+          "symbol": "ETH/USD",
+          "actionId": "long-5m",
+          "leaf": 0,
+          "samples": 80,
+          "effectiveSamples": 78.57474696962404,
+          "observedDays": 4,
+          "maxBaseNetBps": -11.477779664600591,
+          "maxWorstNetBps": -16.13307894331716,
+          "maxAnyScenarioNetBps": -9.884607573305063
+        },
+        {
+          "symbol": "ETH/USD",
+          "actionId": "short-15m",
+          "leaf": 0,
+          "samples": 70,
+          "effectiveSamples": 68.6752950520691,
+          "observedDays": 4,
+          "maxBaseNetBps": -13.519183762946398,
+          "maxWorstNetBps": -18.15762513785436,
+          "maxAnyScenarioNetBps": -13.244106614809397
+        },
+        {
+          "symbol": "ETH/USD",
+          "actionId": "short-30m",
+          "leaf": 0,
+          "samples": 66,
+          "effectiveSamples": 64.72745639887877,
+          "observedDays": 4,
+          "maxBaseNetBps": -14.376209502012461,
+          "maxWorstNetBps": -19.076467556749765,
+          "maxAnyScenarioNetBps": -13.761322100981932
+        },
+        {
+          "symbol": "ETH/USD",
+          "actionId": "short-5m",
+          "leaf": 0,
+          "samples": 79,
+          "effectiveSamples": 77.58416826086423,
+          "observedDays": 4,
+          "maxBaseNetBps": -12.906304983467024,
+          "maxWorstNetBps": -17.449794778192707,
+          "maxAnyScenarioNetBps": -12.046181929127139
+        }
+      ],
+      "leafSummary": {
+        "count": 12,
+        "positiveWorstMeanAboveZero": 0,
+        "positiveWorstMeanAboveOne": 0,
+        "maxWorstNetBps": -15.37783073174386,
+        "maxAnyScenarioNetBps": -9.070518823037226
+      }
+    },
+    {
+      "name": "later",
+      "auditRecords": 1801,
+      "auditFinalHash": "985169ae1b475d16000add45354ceb7b9e4e4f2e03d4c902557add545976c4bb",
+      "assetOrigins": 32,
+      "actionPaths": 192,
+      "regimeOpportunities": [
+        {
+          "symbol": "BTC/USD",
+          "model": "regime",
+          "actionPaths": 96,
+          "nativeSupportReady": 96,
+          "finiteForecasts": 96,
+          "positiveWorstMean": 0,
+          "supportedPositiveWorstMean": 0,
+          "eligible": 0,
+          "allScenariosKnown": 74,
+          "unknownPaths": 22,
+          "knownBaseWinners": 12,
+          "knownRobustWinners": 6,
+          "eligibleKnownPaths": 0,
+          "eligibleRobustWinners": 0,
+          "missedRobustWinners": 6,
+          "missedByReason": {
+            "SCORE_BELOW_MINIMUM": 6
+          },
+          "eligibleKnownRobustPrecision": null,
+          "knownRobustRecall": 0
+        },
+        {
+          "symbol": "ETH/USD",
+          "model": "regime",
+          "actionPaths": 96,
+          "nativeSupportReady": 96,
+          "finiteForecasts": 96,
+          "positiveWorstMean": 0,
+          "supportedPositiveWorstMean": 0,
+          "eligible": 0,
+          "allScenariosKnown": 76,
+          "unknownPaths": 20,
+          "knownBaseWinners": 15,
+          "knownRobustWinners": 9,
+          "eligibleKnownPaths": 0,
+          "eligibleRobustWinners": 0,
+          "missedRobustWinners": 9,
+          "missedByReason": {
+            "SCORE_BELOW_MINIMUM": 9
+          },
+          "eligibleKnownRobustPrecision": null,
+          "knownRobustRecall": 0
+        }
+      ],
+      "baseMetrics": [
+        {
+          "symbol": "BTC/USD",
+          "knownPaths": 74,
+          "unknown": 22,
+          "rmse": {
+            "conditional": 12.976537395554145,
+            "regime": 13.575141801139935,
+            "unconditional": 13.533305500260735,
+            "cost-only": 13.418400980582597
+          },
+          "grossRegimeRmse": 12.95198056979878,
+          "grossZeroRmse": 12.706970497266079
+        },
+        {
+          "symbol": "ETH/USD",
+          "knownPaths": 77,
+          "unknown": 19,
+          "rmse": {
+            "conditional": 23.334369676080254,
+            "regime": 22.090676030005117,
+            "unconditional": 22.023133520515774,
+            "cost-only": 22.27889108981622
+          },
+          "grossRegimeRmse": 21.46809080900421,
+          "grossZeroRmse": 21.653699745525984
+        }
+      ],
+      "policyBase": [
+        {
+          "policy": "conditional",
+          "scenario": "base-250ms",
+          "selections": 0,
+          "filled": 0,
+          "unfilled": 0,
+          "unknown": 0,
+          "knownNetBpsSum": 0,
+          "fullPathKnownNetBpsSum": 0,
+          "knownMeanNetBps": null
+        },
+        {
+          "policy": "regime",
+          "scenario": "base-250ms",
+          "selections": 0,
+          "filled": 0,
+          "unfilled": 0,
+          "unknown": 0,
+          "knownNetBpsSum": 0,
+          "fullPathKnownNetBpsSum": 0,
+          "knownMeanNetBps": null
+        },
+        {
+          "policy": "unconditional",
+          "scenario": "base-250ms",
+          "selections": 0,
+          "filled": 0,
+          "unfilled": 0,
+          "unknown": 0,
+          "knownNetBpsSum": 0,
+          "fullPathKnownNetBpsSum": 0,
+          "knownMeanNetBps": null
+        },
+        {
+          "policy": "cost-only",
+          "scenario": "base-250ms",
+          "selections": 0,
+          "filled": 0,
+          "unfilled": 0,
+          "unknown": 0,
+          "knownNetBpsSum": 0,
+          "fullPathKnownNetBpsSum": 0,
+          "knownMeanNetBps": null
+        },
+        {
+          "policy": "regime-mean-diagnostic",
+          "scenario": "base-250ms",
+          "selections": 0,
+          "filled": 0,
+          "unfilled": 0,
+          "unknown": 0,
+          "knownNetBpsSum": 0,
+          "fullPathKnownNetBpsSum": 0,
+          "knownMeanNetBps": null
+        },
+        {
+          "policy": "flat",
+          "scenario": "base-250ms",
+          "selections": 0,
+          "filled": 0,
+          "unfilled": 0,
+          "unknown": 0,
+          "knownNetBpsSum": 0,
+          "fullPathKnownNetBpsSum": 0,
+          "knownMeanNetBps": null
+        },
+        {
+          "policy": "long-15m",
+          "scenario": "base-250ms",
+          "selections": 17,
+          "filled": 12,
+          "unfilled": 1,
+          "unknown": 4,
+          "knownNetBpsSum": -133.2224159972672,
+          "fullPathKnownNetBpsSum": null,
+          "knownMeanNetBps": -10.24787815363594
+        },
+        {
+          "policy": "short-15m",
+          "scenario": "base-250ms",
+          "selections": 18,
+          "filled": 11,
+          "unfilled": 3,
+          "unknown": 4,
+          "knownNetBpsSum": -229.61912656799024,
+          "fullPathKnownNetBpsSum": null,
+          "knownMeanNetBps": -16.401366183427875
+        },
+        {
+          "policy": "momentum-15m",
+          "scenario": "base-250ms",
+          "selections": 19,
+          "filled": 12,
+          "unfilled": 3,
+          "unknown": 4,
+          "knownNetBpsSum": -226.00459086771104,
+          "fullPathKnownNetBpsSum": null,
+          "knownMeanNetBps": -15.06697272451407
+        }
+      ],
+      "allFittedLeavesAtAllAssetProbeTimes": [
+        {
+          "symbol": "BTC/USD",
+          "actionId": "long-15m",
+          "leaf": 0,
+          "samples": 51,
+          "effectiveSamples": 49.99141968631165,
+          "observedDays": 4,
+          "maxBaseNetBps": -14.769385600670876,
+          "maxWorstNetBps": -19.437213355068067,
+          "maxAnyScenarioNetBps": -14.735721187702042
+        },
+        {
+          "symbol": "BTC/USD",
+          "actionId": "long-15m",
+          "leaf": 1,
+          "samples": 49,
+          "effectiveSamples": 47.85955859238604,
+          "observedDays": 4,
+          "maxBaseNetBps": -10.975026810940165,
+          "maxWorstNetBps": -15.812232904867447,
+          "maxAnyScenarioNetBps": -9.898563903571349
+        },
+        {
+          "symbol": "BTC/USD",
+          "actionId": "long-30m",
+          "leaf": 0,
+          "samples": 90,
+          "effectiveSamples": 88.12794951550663,
+          "observedDays": 4,
+          "maxBaseNetBps": -14.033902720634144,
+          "maxWorstNetBps": -18.815749311025105,
+          "maxAnyScenarioNetBps": -12.48479252016881
+        },
+        {
+          "symbol": "BTC/USD",
+          "actionId": "long-5m",
+          "leaf": 0,
+          "samples": 70,
+          "effectiveSamples": 68.88528081158223,
+          "observedDays": 4,
+          "maxBaseNetBps": -12.646749723508202,
+          "maxWorstNetBps": -17.567493122765388,
+          "maxAnyScenarioNetBps": -11.628037236968648
+        },
+        {
+          "symbol": "BTC/USD",
+          "actionId": "long-5m",
+          "leaf": 1,
+          "samples": 68,
+          "effectiveSamples": 66.23119510597304,
+          "observedDays": 4,
+          "maxBaseNetBps": -13.393056552862978,
+          "maxWorstNetBps": -18.038882700385308,
+          "maxAnyScenarioNetBps": -12.905134215910355
+        },
+        {
+          "symbol": "BTC/USD",
+          "actionId": "short-15m",
+          "leaf": 0,
+          "samples": 51,
+          "effectiveSamples": 49.99138359577653,
+          "observedDays": 4,
+          "maxBaseNetBps": -10.374320263508594,
+          "maxWorstNetBps": -15.146099464633206,
+          "maxAnyScenarioNetBps": -10.134285667000603
+        },
+        {
+          "symbol": "BTC/USD",
+          "actionId": "short-15m",
+          "leaf": 1,
+          "samples": 49,
+          "effectiveSamples": 47.85912604688913,
+          "observedDays": 4,
+          "maxBaseNetBps": -14.548609899634277,
+          "maxWorstNetBps": -19.549157987524595,
+          "maxAnyScenarioNetBps": -14.07134704829235
+        },
+        {
+          "symbol": "BTC/USD",
+          "actionId": "short-30m",
+          "leaf": 0,
+          "samples": 90,
+          "effectiveSamples": 88.12605527637857,
+          "observedDays": 4,
+          "maxBaseNetBps": -12.412033941259761,
+          "maxWorstNetBps": -17.41185481079735,
+          "maxAnyScenarioNetBps": -11.628948698772614
+        },
+        {
+          "symbol": "BTC/USD",
+          "actionId": "short-5m",
+          "leaf": 0,
+          "samples": 48,
+          "effectiveSamples": 47.08109978027459,
+          "observedDays": 4,
+          "maxBaseNetBps": -13.5698134166732,
+          "maxWorstNetBps": -18.570010451514985,
+          "maxAnyScenarioNetBps": -13.0879684620576
+        },
+        {
+          "symbol": "BTC/USD",
+          "actionId": "short-5m",
+          "leaf": 1,
+          "samples": 90,
+          "effectiveSamples": 88.08164662334795,
+          "observedDays": 4,
+          "maxBaseNetBps": -11.909087721056553,
+          "maxWorstNetBps": -16.90875875560838,
+          "maxAnyScenarioNetBps": -11.230715472296783
+        },
+        {
+          "symbol": "ETH/USD",
+          "actionId": "long-15m",
+          "leaf": 0,
+          "samples": 91,
+          "effectiveSamples": 88.82331037365284,
+          "observedDays": 4,
+          "maxBaseNetBps": -11.770884513009314,
+          "maxWorstNetBps": -16.450405942231598,
+          "maxAnyScenarioNetBps": -10.456962959136241
+        },
+        {
+          "symbol": "ETH/USD",
+          "actionId": "long-30m",
+          "leaf": 0,
+          "samples": 81,
+          "effectiveSamples": 79.13700337985286,
+          "observedDays": 4,
+          "maxBaseNetBps": -9.963238713750348,
+          "maxWorstNetBps": -14.599541314046824,
+          "maxAnyScenarioNetBps": -7.842564185386493
+        },
+        {
+          "symbol": "ETH/USD",
+          "actionId": "long-5m",
+          "leaf": 0,
+          "samples": 77,
+          "effectiveSamples": 75.69832420217678,
+          "observedDays": 4,
+          "maxBaseNetBps": -11.045899306963536,
+          "maxWorstNetBps": -15.555708700194913,
+          "maxAnyScenarioNetBps": -9.853703488953819
+        },
+        {
+          "symbol": "ETH/USD",
+          "actionId": "long-5m",
+          "leaf": 1,
+          "samples": 53,
+          "effectiveSamples": 51.45962460625325,
+          "observedDays": 4,
+          "maxBaseNetBps": -14.145900023180388,
+          "maxWorstNetBps": -18.930584252316372,
+          "maxAnyScenarioNetBps": -13.558470104017655
+        },
+        {
+          "symbol": "ETH/USD",
+          "actionId": "short-15m",
+          "leaf": 0,
+          "samples": 91,
+          "effectiveSamples": 88.82307387885344,
+          "observedDays": 4,
+          "maxBaseNetBps": -12.398576599195803,
+          "maxWorstNetBps": -16.999282481900867,
+          "maxAnyScenarioNetBps": -11.560684177739374
+        },
+        {
+          "symbol": "ETH/USD",
+          "actionId": "short-30m",
+          "leaf": 0,
+          "samples": 81,
+          "effectiveSamples": 79.13600350119891,
+          "observedDays": 4,
+          "maxBaseNetBps": -13.715846278894098,
+          "maxWorstNetBps": -18.48219177113338,
+          "maxAnyScenarioNetBps": -12.701785732754582
+        },
+        {
+          "symbol": "ETH/USD",
+          "actionId": "short-5m",
+          "leaf": 0,
+          "samples": 79,
+          "effectiveSamples": 77.67478185364399,
+          "observedDays": 4,
+          "maxBaseNetBps": -12.908303809594049,
+          "maxWorstNetBps": -17.507711915509628,
+          "maxAnyScenarioNetBps": -12.821208701039499
+        },
+        {
+          "symbol": "ETH/USD",
+          "actionId": "short-5m",
+          "leaf": 1,
+          "samples": 51,
+          "effectiveSamples": 49.48906978205361,
+          "observedDays": 4,
+          "maxBaseNetBps": -11.352717080539565,
+          "maxWorstNetBps": -16.07862930280678,
+          "maxAnyScenarioNetBps": -10.28103866221257
+        }
+      ],
+      "leafSummary": {
+        "count": 18,
+        "positiveWorstMeanAboveZero": 0,
+        "positiveWorstMeanAboveOne": 0,
+        "maxWorstNetBps": -14.599541314046824,
+        "maxAnyScenarioNetBps": -7.842564185386493
+      }
+    }
+  ],
+  "interpretation": {
+    "candidateTradingImprovementDemonstrated": false,
+    "fundamentalDataInformationLimitEstablished": false,
+    "reason": "Negative predictions across fitted leaves bound this fixed support-constrained model on these banks, not all possible predictors, partitions, features or markets. Inspected short windows, dependent action paths, limited leaf capacity, and unknown outcomes prevent a general no-information or profitability conclusion. No results-driven candidate changes were made."
+  }
+}

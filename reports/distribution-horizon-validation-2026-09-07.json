@@ -1,0 +1,175 @@
+{
+  "generatedAt": "2026-09-08T00:24:29.499Z",
+  "protocol": "reports/distribution-horizon-protocol-2026-09-07.json",
+  "sourceVerification": [
+    {
+      "path": "src/distribution/checkpoint.ts",
+      "sha256": "98bcdca5bcc0e196cc5afa71238b2cc34746560f95864a97b5032f37e4169799",
+      "matchesPrespecifiedSource": true
+    },
+    {
+      "path": "src/distribution/controller.ts",
+      "sha256": "d8407956f05d67c7de5145cb5db3a0e85f18142aa878cdadcaf952510e81e241",
+      "matchesPrespecifiedSource": true
+    },
+    {
+      "path": "src/distribution/execution.ts",
+      "sha256": "e7ebe161ce78547a3a3ba47fadbfbb02d90fbb39ff0f295a5e8b9e7e2dfe684f",
+      "matchesPrespecifiedSource": true
+    },
+    {
+      "path": "src/distribution/history-checkpoint.ts",
+      "sha256": "dc90e8965745161ac353123d1d7655b2742ce7a63d463792b68f01b473e47d14",
+      "matchesPrespecifiedSource": true
+    },
+    {
+      "path": "src/distribution/history-main.ts",
+      "sha256": "d5c96079d4a1638d1a02f760b8fc34fdac5a6a227feea19211f5c6fc75dab463",
+      "matchesPrespecifiedSource": true
+    },
+    {
+      "path": "src/distribution/history-replay.ts",
+      "sha256": "ea05e984c2f20956a53573c2d231ed4d9b0bd9e8272b12cbf7425b1ef6ba53c2",
+      "matchesPrespecifiedSource": true
+    },
+    {
+      "path": "src/distribution/horizon-assessment.ts",
+      "sha256": "bc34224eb50cf53db7f755b5593bb1bb602859994cf70170b8c4069a86c6ae8d",
+      "matchesPrespecifiedSource": true
+    },
+    {
+      "path": "src/distribution/horizon-main.ts",
+      "sha256": "426060052ef904a0358e553608cf0f6e447bc55c823f1315c9e8bca2eb34a072",
+      "matchesPrespecifiedSource": true
+    },
+    {
+      "path": "src/distribution/horizon-replay.ts",
+      "sha256": "73f4bcbf027341a94dca4564bc216e7d8b924f2b18826168a1162a3d3457ee3f",
+      "matchesPrespecifiedSource": true
+    },
+    {
+      "path": "src/distribution/horizon-spec.ts",
+      "sha256": "52dcfce6878f471e25fe8821841910203d1b4b5a2a667529b60a17bb4fcc4f61",
+      "matchesPrespecifiedSource": true
+    },
+    {
+      "path": "src/distribution/market.ts",
+      "sha256": "a5f88bcbcdbed0dbc0cc90f8fa682f9c83651349dedff0da64569f883b8be5d9",
+      "matchesPrespecifiedSource": true
+    },
+    {
+      "path": "src/distribution/model.ts",
+      "sha256": "bd639d5ba1e645fe1dacb62727c14b28ca0884fc21484f48bec89af05130b1b4",
+      "matchesPrespecifiedSource": true
+    },
+    {
+      "path": "src/distribution/planner.ts",
+      "sha256": "947aecf1d2f711c8ef097147bedd3988550f7dfbcaef665e892703a3070f4f6b",
+      "matchesPrespecifiedSource": true
+    },
+    {
+      "path": "src/distribution/replay-main.ts",
+      "sha256": "3793cabd107f41710aedfe582f4fc80f41d1c301ec92c8b2bf40405c18b7b918",
+      "matchesPrespecifiedSource": true
+    },
+    {
+      "path": "src/distribution/replay.ts",
+      "sha256": "9ed29f3e2b3679c5bf3936e0e9ffb2aee04b8463c84a4e137c240e8a7c48887b",
+      "matchesPrespecifiedSource": true
+    },
+    {
+      "path": "src/distribution/spec.ts",
+      "sha256": "f429aaf2b169888381bb915425065b7fa6750c10aa3cd8fb2ba8bcd8932ca2c6",
+      "matchesPrespecifiedSource": true
+    },
+    {
+      "path": "src/distribution/training-backfill.ts",
+      "sha256": "2ac997817acc2e038d5eaf022f163da0f08b26ae14d4c0ad74c5928c00712a88",
+      "matchesPrespecifiedSource": true
+    },
+    {
+      "path": "src/distribution/training-import.ts",
+      "sha256": "3e6ef569257fd06c77a739d02c379a65acfb86484c0b941b62648091a234ee4a",
+      "matchesPrespecifiedSource": true
+    },
+    {
+      "path": "src/distribution/training-main.ts",
+      "sha256": "a2df2d8bcae703a5056f0a756ea29cb1a0c1c699b04ef9e8096f762a32167fc8",
+      "matchesPrespecifiedSource": true
+    },
+    {
+      "path": "src/core/order-book.ts",
+      "sha256": "030a9979f2f6a1f4d736e4b927202ffeb446fb1a5a25a18f0a427dc61624db63",
+      "matchesPrespecifiedSource": true
+    },
+    {
+      "path": "src/config.ts",
+      "sha256": "7e3ef648e042a29345b97e75138db7b97731ada5f9e95ae3d886e344ee4eb420",
+      "matchesPrespecifiedSource": true
+    },
+    {
+      "path": "config/base.json",
+      "sha256": "4279c1b10631fe13cb0ce132a100c5abe5b91f3235019411555e5c44f4d9bc94",
+      "matchesPrespecifiedSource": true
+    },
+    {
+      "path": "docs/HORIZON_COMPARISON.md",
+      "sha256": "e0f6fbf6cdc5ea5685ab70fd2d090564cf365eb448bc66a768dc63c471421970",
+      "matchesPrespecifiedSource": true
+    }
+  ],
+  "report": {
+    "path": "reports/distribution-horizon-comparison-2026-09-07.json.gz",
+    "uncompressedSha256": "4cc03104c602b83a9750d4ca6068e16d1189df9d650b39d0a818ad8e8e4d9dda",
+    "compressedSha256": "263760294255bafe0734df67d4fc2ca5675561db405a07dd2daa8d2d0c80e695",
+    "uncompressedBytes": 10200458,
+    "compressedBytes": 379643
+  },
+  "checks": {
+    "buildPassed": true,
+    "testsPassed": 569,
+    "testsFailed": 0,
+    "all21InputHashesMatch": true,
+    "allSourceHashesUnchanged": true,
+    "commonAggregatesRecomputed": true,
+    "legacy5mEqualsFixed5mAcrossAll242Panels": true,
+    "all52BaseTrainingMeansNegative": true,
+    "allSelectionsFlatForInsufficientNetReturn": true,
+    "trainingPanelsAcceptedAfterLock": 0,
+    "brokerOrdersSubmitted": 0
+  },
+  "coverage": [
+    {
+      "symbol": "BTC/USD",
+      "period": "TRAINING",
+      "origins": 92,
+      "common": 70,
+      "excluded": 22
+    },
+    {
+      "symbol": "BTC/USD",
+      "period": "LATER",
+      "origins": 29,
+      "common": 7,
+      "excluded": 22
+    },
+    {
+      "symbol": "ETH/USD",
+      "period": "TRAINING",
+      "origins": 92,
+      "common": 56,
+      "excluded": 36
+    },
+    {
+      "symbol": "ETH/USD",
+      "period": "LATER",
+      "origins": 29,
+      "common": 6,
+      "excluded": 23
+    }
+  ],
+  "deployment": {
+    "newHorizonPoliciesEnabled": false,
+    "reason": "All candidates failed the prespecified training profitability screen; later comparison coverage is limited."
+  }
+}

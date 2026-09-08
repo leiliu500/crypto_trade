@@ -1,0 +1,9 @@
+{
+  "status": "SUPERSEDED_SOURCE_ATTESTATION_INCOMPLETE",
+  "reason": "Loader parser hardening completed during execution; post-run source hash comparison detected the change. All outputs retained. Repeat uses identical fixed candidate parameters and data with final source hashes checked before and after.",
+  "changedDuringRun": [
+    "src/distribution/predictive-audit-data.ts"
+  ],
+  "candidateParametersChanged": false,
+  "rerunDirectory": "../fixed-ridge-v1-verified"
+}

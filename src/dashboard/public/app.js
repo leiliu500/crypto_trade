@@ -1,4 +1,12 @@
-const state={snapshot:null,paused:false,orderFilter:"all",symbol:"all",socket:null,retry:0};
+const state={snapshot:null,snapshotReceivedAt:null,paused:false,orderFilter:"all",symbol:"all",socket:null,retry:0,polling:false,lastPollAt:-Infinity};
+const monotonicNow=()=>performance.now();
+const snapshotAgeMs=()=>state.snapshotReceivedAt===null?Infinity:Math.max(0,monotonicNow()-state.snapshotReceivedAt);
+const dashboardNowMs=()=>Number.isFinite(state.snapshot?.generatedAtMs)?state.snapshot.generatedAtMs+(Number.isFinite(snapshotAgeMs())?snapshotAgeMs():0):0;
+function acceptSnapshot(snapshot){
+  if(state.paused||!Number.isFinite(snapshot?.generatedAtMs)||snapshot.generatedAtMs<0
+    ||(state.snapshot&&snapshot.generatedAtMs<=state.snapshot.generatedAtMs))return false;
+  state.snapshot=snapshot;state.snapshotReceivedAt=monotonicNow();return true;
+}
 const el=(id)=>document.getElementById(id);
 const esc=(value)=>String(value??"").replace(/[&<>'"]/g,(char)=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"})[char]);
 const num=(value,digits=2)=>value==null||!Number.isFinite(Number(value))?"—":Number(value).toLocaleString(undefined,{minimumFractionDigits:digits,maximumFractionDigits:digits});
@@ -9,23 +17,38 @@ const orderMatchesFilter=(order,filter)=>filter==="all"||(filter==="open"?!order
 const signed=(value,suffix="")=>value==null?"—":`${value>=0?"+":""}${num(value,2)}${suffix}`;
 const duration=(ms)=>{const s=Math.max(0,Math.floor(ms/1000));const h=Math.floor(s/3600),m=Math.floor(s%3600/60);return h?`${h}h ${m}m`:m?`${m}m ${s%60}s`:`${s}s`};
 const time=(ms)=>new Date(ms).toLocaleTimeString([],{hour12:false,hour:"2-digit",minute:"2-digit",second:"2-digit"});
-const relative=(ms)=>{const d=Date.now()-ms;return d<1000?"now":`${Math.floor(d/1000)}s ago`};
+const relative=(ms)=>{const d=dashboardNowMs()-ms;return d<1000?"now":`${Math.floor(d/1000)}s ago`};
 const pnlClass=(value)=>value>0?"positive":value<0?"negative":"";
 const signedMoney=(value,digits=4)=>value==null||!Number.isFinite(Number(value))?"—":`${Number(value)>=0?"+":"-"}${money(Math.abs(Number(value)),digits)}`;
 
 function setConnection(kind,label){const node=el("connection-status");node.className=`connection ${kind}`;node.innerHTML=`<i></i>${esc(label)}`;}
 async function bootstrap(){
-  try{const response=await fetch("/api/dashboard",{cache:"no-store"});if(response.ok)applySnapshot(await response.json());}catch{}
-  connect();setInterval(()=>{el("clock").textContent=new Date().toLocaleTimeString([],{hour12:false});if(state.snapshot){el("last-update").textContent=`Updated ${relative(state.snapshot.generatedAtMs)}`;refreshCrossAssetPanels();}},1000);
+  connect();void refreshDashboard();setInterval(()=>{
+    el("clock").textContent=new Date().toLocaleTimeString([],{hour12:false});
+    if(state.paused)setConnection("connecting","Paused");
+    else if(snapshotAgeMs()>5000){setConnection("offline","Waiting for updates");void refreshDashboard();}
+    if(state.snapshot){el("last-update").textContent=`Updated ${relative(state.snapshot.generatedAtMs)}`;refreshCrossAssetPanels();}
+  },1000);
+}
+async function refreshDashboard(){
+  const now=monotonicNow();
+  if(state.paused||state.polling||now-state.lastPollAt<5000)return;
+  state.polling=true;state.lastPollAt=now;
+  const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),5000);
+  try{const response=await fetch("/api/dashboard",{cache:"no-store",signal:controller.signal});if(response.ok)applySnapshot(await response.json(),"http");}catch{}
+  finally{clearTimeout(timeout);state.polling=false;}
 }
 function connect(){
   setConnection("connecting","Connecting");const protocol=location.protocol==="https:"?"wss":"ws";const socket=new WebSocket(`${protocol}://${location.host}/ws`);state.socket=socket;
-  socket.addEventListener("open",()=>{state.retry=0;setConnection("live","Live stream");});
-  socket.addEventListener("message",(message)=>{try{const parsed=JSON.parse(message.data);if(parsed.type==="snapshot"&&!state.paused)applySnapshot(parsed.data);}catch{}});
+  socket.addEventListener("open",()=>{state.retry=0;setConnection("connecting",state.paused?"Paused":"Waiting for updates");});
+  socket.addEventListener("message",(message)=>{try{const parsed=JSON.parse(message.data);if(parsed.type==="snapshot")applySnapshot(parsed.data,"ws");}catch{}});
   socket.addEventListener("close",()=>{setConnection("offline","Reconnecting");state.retry+=1;setTimeout(connect,Math.min(10000,600*2**state.retry));});
   socket.addEventListener("error",()=>socket.close());
 }
-function applySnapshot(snapshot){state.snapshot=snapshot;render(snapshot);}
+function applySnapshot(snapshot,source="ws"){
+  if(!acceptSnapshot(snapshot))return false;
+  setConnection("live",source==="http"?"Live polling":"Live stream");render(snapshot);return true;
+}
 function render(s){
   const score=s.overall==="healthy"?"100%":s.overall==="degraded"?"68%":"24%";
   const mode=String(s.mode).toUpperCase();el("mode-badge").textContent=`${mode}${s.paper&&mode!=="PAPER"?" · PAPER":""}${s.paperEntryExercise?" · EXERCISE":""}`;
@@ -37,7 +60,7 @@ function render(s){
   el("latency").textContent=s.latencyP95Ms==null?"—":`${num(s.latencyP95Ms,1)} ms`;el("uptime").textContent=duration(s.uptimeMs);el("strategy-version").textContent=`Strategy ${s.strategyVersion}`;el("last-update").textContent=`Updated ${relative(s.generatedAtMs)}`;
   renderLiveness(s.liveness||[]);syncSymbols(s.markets||[]);renderMarkets(filtered(s.markets||[]));renderOrders(filtered(s.orders||[]));renderEvents(s.events||[]);
   const hasJointModel=(s.markets||[]).some(m=>m.policyPulse?.research?.crossAsset);
-  el("market-subtitle").textContent=hasJointModel?`BTC / ETH JOINT MODEL · ${s.crossAssetPaperEntriesEnabled&&s.mode==="paper"?"PAPER ORDERS ENABLED":"RESEARCH"}`:s.policyEngineEnabled&&!s.paperEntryExercise?"EXECUTABLE POLICIES · LIVE SIGNALS & PAPER RESEARCH":"KRAKEN FUTURES MARKET DATA · LEGACY RULES";
+  el("market-subtitle").textContent=(s.markets||[]).some(m=>m.distributional)?"BTC / ETH · EXECUTABLE RETURN DISTRIBUTIONS":hasJointModel?`BTC / ETH JOINT MODEL · ${s.crossAssetPaperEntriesEnabled&&s.mode==="paper"?"PAPER ORDERS ENABLED":"RESEARCH"}`:s.policyEngineEnabled&&!s.paperEntryExercise?"EXECUTABLE POLICIES · LIVE SIGNALS & PAPER RESEARCH":"KRAKEN FUTURES MARKET DATA · LEGACY RULES";
   el("footer-detail").textContent=`DB ${s.database.status} · ${s.database.queuedRecords} queued · ${s.policyEngineEnabled&&!s.paperEntryExercise?"EXECUTABLE POLICIES":s.signalMode||"DETERMINISTIC_ONLY"} · config ${s.configurationVersion||"-"}${s.modelVersion&&s.modelVersion!=="none"?` · model ${s.modelVersion}`:""}`;
 }
 function filtered(items){return state.symbol==="all"?items:items.filter(item=>item.symbol===state.symbol);}
@@ -52,6 +75,7 @@ function renderSessionPnlBreakdown(breakdown){const node=el("session-pnl-breakdo
 function renderLiveness(items){el("liveness-grid").className="liveness-grid";el("liveness-grid").innerHTML=items.map(item=>`<article class="live-card ${item.healthy?"":"bad"}"><span class="status-icon">${item.healthy?"✓":"!"}</span><div><b>${esc(item.label)}</b><small title="${esc(item.detail)}">${esc(item.detail)}</small></div><i class="live-dot"></i></article>`).join("");}
 function syncSymbols(markets){const select=el("symbol-filter"),current=select.value||state.symbol,values=[...new Set(markets.map(m=>m.symbol))];select.innerHTML=`<option value="all">All symbols</option>${values.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join("")}`;select.value=values.includes(current)||current==="all"?current:"all";state.symbol=select.value;}
 function renderMarkets(items){const grid=el("market-grid");if(!items.length){grid.className="market-grid empty-grid";grid.innerHTML="<p>Waiting for order books…</p>";return;}grid.className=items.some(m=>m.policyPulse)?"market-grid policy-grid":"market-grid";grid.innerHTML=items.map(m=>{
+  if(m.distributional)return renderDistributionMarket(m);
   if(m.policyPulse||(state.snapshot?.policyEngineEnabled&&!state.snapshot?.paperEntryExercise))return renderPolicyMarket(m);
   const seed=[m.qi1,m.ofi,m.tfi,m.efficiency,m.velocityZ,m.sigmaHBps,1-m.providerAgeMs/(m.staleThresholdMs||1000),m.spreadBps].map((v,i)=>Math.max(3,Math.min(33,6+Math.abs(Number(v)||0)*(i<3?10:4))));
   const focus=Number(m.longScore)>=Number(m.shortScore)?m.longRule:m.shortRule;
@@ -83,7 +107,7 @@ function modelTradeResults(items,symbol,mode){
     fees:closed.length&&closed.every(p=>Number.isFinite(p.realizedBreakdown?.entryFee)&&Number.isFinite(p.realizedBreakdown?.exitFee))?
       closed.reduce((s,p)=>s+p.realizedBreakdown.entryFee+p.realizedBreakdown.exitFee,0):null};
 }
-function renderCrossAssetModel(m,nowMs=Math.max(state.snapshot?.generatedAtMs||0,Date.now())){
+function renderCrossAssetModel(m,nowMs=dashboardNowMs()){
   const p=m.policyPulse,c=p?.research?.crossAsset;
   if(!c)return "";
   const learning=c.learning||{},f=c.forecast;
@@ -137,13 +161,68 @@ function renderCrossAssetModel(m,nowMs=Math.max(state.snapshot?.generatedAtMs||0
   return `<section class="cross-asset-panel ${tone}" data-testid="cross-asset-panel" data-symbol="${esc(m.symbol)}" aria-label="${esc(m.symbol)} joint model"><div class="joint-heading"><div><h3>BTC/ETH joint model</h3><small>${esc(learning.version||"Version unavailable")}</small></div><span class="joint-submission ${enabled?"enabled":"disabled"}">PAPER ORDERS ${enabled?"ENABLED":"DISABLED"}</span></div><p class="model-entry-mode">${modelOnly?"MODEL-ONLY ENTRIES · BREAKOUT/RETEST DISABLED":"MODEL + RULE ENTRIES"}<small>${evaluation?"Paper evaluation: collect outcomes even when the profitability screen fails.":"Model entries require the profitability screen to pass."}</small></p><p class="joint-entry-gate">${esc(entryGate)}</p><div class="joint-training"><div><span>Completed 15m training intervals</span><strong>${count}</strong></div>${progress}${trainingSource}<small>${num(learning.historySamples,0)} recent minute samples · ${num(learning.invalidLabelPairs,0)} discarded intervals</small></div><div class="joint-status"><b>${status}</b><p>${esc(detail)}</p></div>${metrics}<div class="joint-forecast-time">${esc(forecastTime)}</div>${reason}${resultPanel}<small class="joint-limit">Paper cap ${money(p.maximumNotional,0)} · shared 30m entry cooldown · profitability unproven</small></section>`;
 }
 function refreshCrossAssetPanels(){
+  for(const card of document.querySelectorAll('[data-testid="distribution-market-card"]')){
+    const market=state.snapshot?.markets?.find(m=>m.symbol===card.dataset.symbol);
+    if(market?.distributional)card.outerHTML=renderDistributionMarket(market);
+  }
   for(const panel of document.querySelectorAll(".cross-asset-panel")){
     const market=state.snapshot?.markets?.find(m=>m.symbol===panel.dataset.symbol);
     if(market)panel.outerHTML=renderCrossAssetModel(market);
   }
 }
 function policyFamilyName(family){return {CONTINUATION:"Trend",EARLY_BREAKOUT:"Breakout",PULLBACK_RECOVERY:"Recovery",BREAKOUT_RETEST:"Breakout retest"}[family]||String(family);}
+function renderDistributionMarket(m){
+  const c=m.distributional,s=c.statistics||{},d=c.decision,v=s.validation||{};
+  const now=dashboardNowMs();
+  const snapshotFresh=!state.paused&&snapshotAgeMs()<=5000;
+  const markets=s.markets||[],ownMarket=markets.find(item=>item.symbol===m.symbol);
+  const marketReady=ownMarket?.ready===true&&markets.every(item=>item.ready===true);
+  const dataFresh=m.bookValid&&!m.stale&&snapshotFresh;
+  const current=dataFresh&&marketReady&&d&&now>=d.atMs&&now-d.atMs<=1000;
+  const occupied=(state.snapshot?.positions||[]).some(p=>p.active);
+  const allowed=c.paperEnabled&&state.snapshot?.mode==="paper"&&state.snapshot?.paper===true;
+  const trial=s.entryMode==="PAPER_TRIAL",matchingEntryMode=(d?.entryMode||"VALIDATED")===(s.entryMode||"VALIDATED");
+  const validationDays=s.minimumValidationDays??(trial?null:s.minimumDays);
+  const reasonText=(reason)=>({READY:"Market context ready",BOOK_NOT_READY:"Waiting for a fresh book",STALE_BOOK:"Waiting for a fresh book",PEER_NOT_SYNCHRONIZED:"Waiting for synchronized BTC and ETH quotes",WARMING_30_MINUTES:"Collecting observed price history",WARMING_FLOW_30_SECONDS:"Collecting fresh live flow",MARKET_WARMUP:"Collecting market context"}[reason]||reason||"Waiting for market telemetry");
+  const priceHistoryReady=markets.length>=2&&markets.every(item=>item.coverageMs>=1800000);
+  const restored=markets.some(item=>item.restoredSampleCount>0);
+  const supportedDays=(d?.estimates||[]).map(e=>e.observedDays).filter(Number.isFinite);
+  const trainingDays=supportedDays.length?`${Math.min(...supportedDays)}–${Math.max(...supportedDays)}`:"—";
+  const supportRange=(key,digits)=>{
+    const estimates=d?.estimates||[],values=estimates.map(e=>e[key]);
+    return values.length&&values.every(value=>Number.isFinite(value)&&value>=0)?`${num(Math.min(...values),digits)}–${num(Math.max(...values),digits)}`:"—";
+  };
+  const relevantSamples=supportRange("samples",0),effectiveSamples=supportRange("effectiveSamples",1);
+  const sampleGate=d?.reason==="INSUFFICIENT_SAMPLES"||d?.reason==="INSUFFICIENT_EFFECTIVE_SAMPLES";
+  const flatExplanation=sampleGate?`The reported action needs more completed outcomes from similar market conditions. Each action requires at least ${num(s.minimumSamples,0)} relevant samples and ${num(s.minimumEffectiveSamples,0)} effective samples. See each action's support and gate below.`:"No supported action currently clears the net-return and downside-risk requirements.";
+  const status=occupied?"POSITION OPEN":!snapshotFresh?state.paused?"DASHBOARD PAUSED":"DASHBOARD STALE":!dataFresh?"WAITING FOR FRESH DATA":!marketReady?"MARKET WARMUP":!d?"WAITING FOR EVALUATION":d.actionId?current&&d.paperReady&&allowed&&matchingEntryMode?trial?"PAPER TRIAL · UNVALIDATED":"PAPER ENTRY CHECKS":trial?"TRIAL SIGNAL · UNVALIDATED":"SHADOW VALIDATION":"STAY FLAT";
+  const bookStatus=!snapshotFresh?state.paused?"DASHBOARD PAUSED":"DASHBOARD STALE":dataFresh?"BOOK VALID":"DATA GATED";
+  const explanation=occupied?"An existing position blocks another entry.":!snapshotFresh?state.paused?"Dashboard display is paused. Resume updates to see current market status.":"Dashboard updates are stale. Warmup progress shows the last observed data and does not advance until new updates arrive.":!dataFresh?"Fresh executable quotes are required before evaluation or entry.":!marketReady?priceHistoryReady?`${restored?"Recorded price history is restored.":"Price history is ready."} Waiting for fresh BTC and ETH quotes and 30 seconds of live book and trade flow.`:"Collecting BTC and ETH observed price history, order books, and trade flow.":!d?"Market context is ready. Waiting for the first evaluation on a fresh quote.":d.actionId?trial?"Paper trial permits eligible paper orders while prospective evidence is collected. Fresh-quote, liquidity, risk and portfolio checks still apply.":"The selected action must pass prospective validation, fresh-quote, liquidity, and portfolio checks.":trial?`Paper trial stays flat: ${d.reason}. ${flatExplanation}`:flatExplanation;
+  const entryMode=trial?`<p class="model-entry-mode">PAPER TRIAL · UNVALIDATED<small>${num(s.minimumDays,0)} qualifying training dates required. Prospective validation is collected alongside eligible paper orders, without being an entry prerequisite. Positive stressed net returns and execution checks remain required; no forced trades.</small></p>`:"";
+  const restoredExplanation=trial?"Restored price history speeds market warmup; trial training and execution requirements still apply.":"Restored price history speeds market warmup; training and prospective validation requirements still apply.";
+  const cadenceExplanation=trial?"Training outcomes update the model when complete. Faster checks do not force orders; trial training and execution requirements still apply.":"Training outcomes update the model when complete. Faster checks do not force orders; training, validation and execution requirements still apply.";
+  const warmup=markets.map(item=>{
+    const coverage=Number.isFinite(item.coverageMs)?Math.max(0,Math.min(1800000,item.coverageMs)):null;
+    const flow=Number.isFinite(item.flowCoverageMs)?Math.max(0,Math.min(30000,item.flowCoverageMs)):null;
+    return `<div class="joint-training" data-testid="distribution-warmup-progress" data-symbol="${esc(item.symbol)}"><div><span>${esc(item.symbol)} observed price history</span><strong>${coverage===null?"—":duration(coverage)} / 30m</strong></div>${coverage===null?"":`<progress max="1800000" value="${coverage}" aria-label="${esc(item.symbol)} observed price history">${duration(coverage)} / 30m</progress>`}<small>Fresh live flow ${flow===null?"—":duration(flow)} / 30s · ${num(item.restoredSampleCount||0,0)} recorded price samples restored</small><small>${esc(reasonText(item.reason))}</small></div>`;
+  }).join("");
+  const rows=(d?.estimates||[]).map(e=>`<tr><td>${esc(e.actionId)}</td><td>${signed(e.meanNetBps," bp")}</td><td>${signed(e.scoreBps," bp")}</td><td>Relevant ${num(e.samples,0)} / ${num(s.minimumSamples,0)}<br>Effective ${num(e.effectiveSamples,1)} / ${num(s.minimumEffectiveSamples,0)}<br>Dates ${num(e.observedDays,0)} / ${num(s.minimumDays,0)}</td><td>${esc(e.reason||"Evidence unavailable")}</td></tr>`).join("");
+  const learned=(s.learning?.byAction||[]).filter(a=>a.symbol===m.symbol);
+  const learnedRange=learned.length?`${Math.min(...learned.map(a=>a.samples))}–${Math.max(...learned.map(a=>a.samples))}`:"0";
+  const next=s.nextEvaluations?.[m.symbol],nextTraining=s.nextProposals?.[m.symbol];
+  const evaluationCadenceKnown=Number.isFinite(s.evaluationIntervalMs)&&s.evaluationIntervalMs>0;
+  const evaluationCadence=evaluationCadenceKnown?`Fresh quotes · at most once per ${duration(s.evaluationIntervalMs)} per symbol`:"Waiting for cadence telemetry";
+  const independent=s.trainingMode==="INDEPENDENT_HORIZONS",trainer=s.efficientTraining||{};
+  const trainingCadence=independent?(s.trainingIntervals||[]).map(h=>`${duration(h.horizonMs)} outcomes: every ${duration(h.intervalMs)}`).join(" · ")||"Waiting for cadence telemetry":Number.isFinite(s.trainingIntervalMs)&&s.trainingIntervalMs>0?`Every ${duration(s.trainingIntervalMs)}`:"Waiting for cadence telemetry";
+  const trainingClocks=(trainer.byAction||[]).filter(a=>a.symbol===m.symbol).map(a=>a.nextOriginAtMs).filter(Number.isFinite);
+  const nextCollection=independent?trainingClocks.length?Math.min(...trainingClocks):null:nextTraining;
+  const trainingProgress=independent?`This run: learned action outcomes ${num(trainer.learnedActions||0,0)} · excluded action outcomes ${num(trainer.invalidActions||0,0)} · pending actions ${num(s.pendingTrainingActions||0,0)}. Each action updates the model once its three execution scenarios complete.`:`This run: complete research panels ${num(s.completePanels||0,0)} · excluded panels ${num(s.invalidPanels||0,0)}.`;
+  const nextEvaluation=!snapshotFresh?"after fresh dashboard and market updates":!dataFresh?"on a fresh executable quote":!marketReady?"after market warmup":!evaluationCadenceKnown?"timing unavailable; waiting for current controller telemetry":Number.isFinite(next)&&next>now?`eligible in ${duration(Math.ceil((next-now)/1000)*1000)}, on a fresh quote`:"on the next fresh quote";
+  const nextTrainingCollection=!snapshotFresh?"after fresh dashboard and market updates":!dataFresh?"on a fresh executable quote":!marketReady?"after market warmup":Number.isFinite(nextCollection)&&nextCollection>now?`eligible in ${duration(Math.ceil((nextCollection-now)/1000)*1000)}, on a fresh quote`:"on the next fresh quote";
+  return `<article class="market-card policy-card" data-testid="distribution-market-card" data-symbol="${esc(m.symbol)}"><div class="market-top"><div><div class="symbol">${esc(m.symbol)}</div><div class="venue">KRAKEN FUTURES · DISTRIBUTIONAL ENGINE</div></div><span class="book-state ${dataFresh?"":"bad"}">${esc(bookStatus)}</span></div><div class="market-price">${priceMoney(m.mid)}</div><div class="market-spread">${priceMoney(m.bestBid)} bid · ${priceMoney(m.bestAsk)} ask</div><div class="policy-version">${esc(s.predictionModelVersion||s.version||"")}<span>${allowed?"PAPER PERMISSION ENABLED":"SHADOW ONLY"}</span></div><section class="cross-asset-panel" data-testid="distribution-model-panel"><div class="joint-heading"><h3>Executable net-return model</h3><b>${esc(status)}</b></div><p>${esc(explanation)}</p>${entryMode}${warmup}${restored?`<small>${esc(restoredExplanation)}</small>`:""}<div class="joint-metrics"><div><span>Training outcomes per action (includes restored)</span><strong>${learnedRange}</strong></div><div><span>Relevant training dates / required</span><strong>${trainingDays} / ${num(s.minimumDays,0)}</strong></div><div><span>Relevant samples / required</span><strong>${relevantSamples} / ${num(s.minimumSamples,0)}</strong></div><div><span>Effective samples / required</span><strong>${effectiveSamples} / ${num(s.minimumEffectiveSamples,0)}</strong></div><div><span>Prospective selections / required</span><strong>${num(v.selections||0,0)} / ${num(s.minimumValidationSelections,0)}</strong></div><div><span>Prospective days / required</span><strong>${num(v.observedDays||0,0)} / ${num(validationDays,0)}</strong></div><div><span>Prospective stressed lower mean</span><strong>${signed(v.lowerNetBps," bp")}</strong></div><div><span>Selected action</span><strong>${esc(d?.actionId||"FLAT")}</strong></div></div><small>Completed historical data counts toward training dates. Relevant dates depend on the current market context; prospective evidence is collected separately.</small><small>Training support is from the last evaluation. Only completed outcomes from similar market conditions count toward relevant samples, so stored totals can be larger. Effective samples account for their weights. Relevant and effective counts can change as market conditions change; a healthy feed can still have insufficient model evidence.</small>${rows?`<div class="distribution-table"><table><thead><tr><th>Action</th><th>Net mean</th><th>Risk score</th><th>Training support</th><th>Entry gate</th></tr></thead><tbody>${rows}</tbody></table></div>`:""}<p>${d?`Last evaluation ${time(d.atMs)} · ${current?"current":"reference only"} · ${esc(d.reason)}`:marketReady?"Waiting for the first evaluation on a fresh quote.":"Waiting for the first complete market context."}</p><div class="joint-metrics" data-testid="distribution-cadence"><div><span>Entry evaluation cadence</span><strong>${esc(evaluationCadence)}</strong></div><div><span>Training collection cadence</span><strong>${esc(trainingCadence)}</strong></div></div><small>Next entry evaluation ${esc(nextEvaluation)}. Next training collection ${esc(nextTrainingCollection)}.</small><small>${esc(cadenceExplanation)}</small><small>Six actions · three execution scenarios · $12 cap · one portfolio trade slot.</small><small>${esc(trainingProgress)} Shadow outcomes are hypothetical; actual fills and fees determine account P&amp;L.</small></section></article>`;
+}
 function renderPolicyMarket(m){
+  if(m.distributional)return renderDistributionMarket(m);
   const p=m.policyPulse;
   if(!p)return `<article class="market-card policy-card"><div class="symbol">${esc(m.symbol)}</div><div class="market-price">${priceMoney(m.mid)}</div><div class="policy-status"><b>WAITING FOR POLICY TELEMETRY</b><p>The policy engine is active; its per-symbol snapshot is not available yet.</p></div></article>`;
   const dataValid=m.bookValid&&!m.stale,motionReady=m.kinematicsReady!==false;
@@ -156,7 +235,7 @@ function renderPolicyMarket(m){
   const models=p.promotedModels||[];
   const evidence=models.length?models.map(model=>`${model.policyId} ${model.side>0?"LONG":"SHORT"} · LCB ${num(model.lowerNetBps,2)} bp`).join("; "):"No validated models · profitability unproven";
   const sampled=p.lastSample?(p.lastSample.candidates||[]).map(c=>`${c.policyId} ${c.side>0?"LONG":"SHORT"}`).join(", ")||"no candidates":"not sampled yet";
-  const nowMs=state.snapshot?.generatedAtMs??Date.now();
+  const nowMs=dashboardNowMs();
   const sampleTime=p.lastSample?`${time(p.lastSample.atMs)} · ${duration(Math.max(0,nowMs-p.lastSample.atMs))} ago`:"waiting for first fresh-quote sample";
   const nextSample=p.nextSampleAtMs==null?"on a fresh quote":p.nextSampleAtMs>nowMs?`in ${duration(p.nextSampleAtMs-nowMs)}`:"waiting for a fresh quote";
   const counters=p.entryCounters||{};
@@ -283,5 +362,5 @@ function renderOrders(items){
 
 el("symbol-filter").addEventListener("change",event=>{state.symbol=event.target.value;if(state.snapshot)render(state.snapshot);});
 document.querySelectorAll("[data-order-filter]").forEach(button=>button.addEventListener("click",()=>{document.querySelectorAll("[data-order-filter]").forEach(b=>b.classList.remove("active"));button.classList.add("active");state.orderFilter=button.dataset.orderFilter;if(state.snapshot)renderOrders(filtered(state.snapshot.orders||[]));}));
-el("pause-button").addEventListener("click",()=>{state.paused=!state.paused;el("pause-button").innerHTML=state.paused?"<span>▶</span> Resume stream":"<span>Ⅱ</span> Pause stream";if(!state.paused&&state.snapshot)fetch("/api/dashboard",{cache:"no-store"}).then(r=>r.json()).then(applySnapshot).catch(()=>{});});
+el("pause-button").addEventListener("click",()=>{state.paused=!state.paused;el("pause-button").innerHTML=state.paused?"<span>▶</span> Resume stream":"<span>Ⅱ</span> Pause stream";setConnection("connecting",state.paused?"Paused":"Waiting for updates");if(!state.paused)void refreshDashboard();});
 bootstrap();

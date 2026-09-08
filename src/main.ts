@@ -16,6 +16,9 @@ import { PolicyStore } from "./research/policy-store.js";
 import { recoverPolicyPositions } from "./research/policy-restore.js";
 import type { Position } from "./strategy/position-manager.js";
 import { readCrossAssetHistory } from "./research/cross-asset-history.js";
+import { DistributionCheckpoint } from "./distribution/checkpoint.js";
+import { DistributionHistoryCheckpoint } from "./distribution/history-checkpoint.js";
+import { readDistributionTrainingArtifact } from "./distribution/training-import.js";
 
 async function main(): Promise<void> {
   loadLocalEnv();
@@ -44,7 +47,12 @@ async function main(): Promise<void> {
   marketStream.on("book", (delta) => paperBroker.onBook(delta));
   marketStream.on("trade", (trade) => paperBroker.onTrade(trade));
   const rest: VenueClient = paperBroker;
-  const engine = new TradingEngine(cfg, { rest, gateway: paperBroker, marketStream, tradeStream: paperBroker.tradeStream });
+  const distributionalAssets = Object.fromEntries([...instruments].filter(([symbol]) => cfg.symbols.includes(symbol))
+    .map(([symbol, rules]) => [symbol, { symbol, minOrderSize: rules.quantityIncrement,
+      minTradeIncrement: rules.quantityIncrement, priceIncrement: rules.tickSize,
+      maximumOrderQty: rules.maximumOrderQty, shortable: true }]));
+  const engine = new TradingEngine(cfg, { rest, gateway: paperBroker, marketStream,
+    tradeStream: paperBroker.tradeStream, distributionalAssets });
   const monitor = new OperationsMonitor({ marketSampleMs: cfg.databaseMarketSampleMs });
   let store: PostgresTelemetryStore | undefined;
   let persistedPositions: readonly Position[] = [];
@@ -120,6 +128,60 @@ async function main(): Promise<void> {
     return policyRefresh;
   };
   await refreshPolicies();
+  let distributionSaveError: unknown = null;
+  const distributionCheckpoint = cfg.distributionalEngineEnabled ? new DistributionCheckpoint(cfg.distributionalStateFile, engine,
+    error => { distributionSaveError = error;
+      process.stderr.write(`${JSON.stringify({ type: "distributional-state-error", message: String(error) })}\n`); }) : null;
+  if (distributionCheckpoint) {
+    try {
+      const restored = await distributionCheckpoint.restore();
+      process.stdout.write(`${JSON.stringify({ type: "distributional-state-ready", restored })}\n`);
+    } catch (error) {
+      // An incompatible per-action bank must not be replaced by an empty
+      // legacy bank on rollback or by a failed efficient-mode migration.
+      if (cfg.distributionalEfficientTrainingEnabled || String(error).includes("TRAINING_POLICY")) throw error;
+      process.stderr.write(`${JSON.stringify({ type: "distributional-state-invalid", message: String(error), fallback: "LIVE_WARMUP" })}\n`);
+    }
+    if (cfg.distributionalTrainingFile) {
+      const previous = engine.exportDistributionalState();
+      try {
+        const prepared = await readDistributionTrainingArtifact(cfg.distributionalTrainingFile, [cfg.distributionalStateFile,
+          `${cfg.distributionalStateFile}.pending`, `${cfg.distributionalStateFile}.tmp`, `${cfg.distributionalStateFile}.pending.tmp`,
+          cfg.distributionalHistoryFile, `${cfg.distributionalHistoryFile}.tmp`, cfg.krakenFutures.paperStateFile,
+          `${cfg.krakenFutures.paperStateFile}.tmp`, cfg.recordFile, cfg.continuousRecordFile]);
+        const imported = engine.importDistributionalTraining(prepared.artifact, distributionalAssets);
+        if (imported.addedSamples) {
+          distributionSaveError = null;
+          distributionCheckpoint.save(); await distributionCheckpoint.flush();
+          if (distributionSaveError !== null) throw distributionSaveError;
+        }
+        process.stdout.write(`${JSON.stringify({ type: "distributional-training-ready", file: prepared.file, ...imported })}\n`);
+      } catch (error) {
+        if (previous) engine.restoreDistributionalState(previous);
+        process.stderr.write(`${JSON.stringify({ type: "distributional-training-invalid", message: String(error),
+          fallback: "EXISTING_LIVE_TRAINING_PRESERVED" })}\n`);
+      }
+    }
+    if (cfg.distributionalEfficientTrainingEnabled) {
+      // Persist the migrated policy and independent clocks before accepting
+      // market events, even when historical import added no new labels.
+      distributionSaveError = null;
+      distributionCheckpoint.save(); await distributionCheckpoint.flush();
+      if (distributionSaveError !== null) throw distributionSaveError;
+    }
+    engine.on("distributionalCheckpoint", () => distributionCheckpoint.save());
+    engine.on("distributionalDecision", decision => {
+      // Flat/occupied evaluations run on fresh quotes every second. They do
+      // not mutate learned evidence and must not enqueue full model writes.
+      if (!decision.actionId) return;
+      try { distributionCheckpoint.markPending(decision); }
+      catch (error) {
+        engine.invalidateDistributionalValidation();
+        process.stderr.write(`${JSON.stringify({ type: "distributional-journal-error", message: String(error) })}\n`);
+      }
+      distributionCheckpoint.save();
+    });
+  }
   if (activeStore && cfg.policyEngineEnabled && !cfg.paperEntryExercise) {
     try {
       const cutoffMs = Date.now();
@@ -141,6 +203,19 @@ async function main(): Promise<void> {
   engine.on("decision", (event) => process.stdout.write(`${JSON.stringify({ type: "decision", event }, bigintReplacer)}\n`));
   engine.on("positionDecision", (event) => process.stdout.write(`${JSON.stringify({ type: "position", event }, bigintReplacer)}\n`));
   engine.on("engineError", (error) => process.stderr.write(`${JSON.stringify({ type: "error", message: error instanceof Error ? error.message : String(error) })}\n`));
+  const distributionHistory = cfg.distributionalEngineEnabled
+    ? new DistributionHistoryCheckpoint(cfg.distributionalHistoryFile, engine,
+      error => process.stderr.write(`${JSON.stringify({ type: "distributional-history-save-error", message: String(error) })}\n`)) : null;
+  if (distributionHistory) {
+    try {
+      const restored = await distributionHistory.restore();
+      process.stdout.write(`${JSON.stringify({ type: "distributional-market-history-ready", restored,
+        next: restored?.restoredSamples ? "LIVE_MARKET_READINESS_CHECKS" : "LIVE_PRICE_WARMUP" })}\n`);
+    } catch (error) {
+      process.stderr.write(`${JSON.stringify({ type: "distributional-market-history-invalid", message: String(error),
+        fallback: "LIVE_PRICE_WARMUP" })}\n`);
+    }
+  }
   try {
     await engine.start();
   } catch (error) {
@@ -155,6 +230,8 @@ async function main(): Promise<void> {
     paperEntryExercise: cfg.paperEntryExercise, policyEngineEnabled: cfg.policyEngineEnabled })}\n`);
   const policyTimer = policyStore ? setInterval(() => { void refreshPolicies(); }, 3_600_000) : undefined;
   policyTimer?.unref();
+  const historyTimer = distributionHistory ? setInterval(() => distributionHistory.save(), 5_000) : undefined;
+  historyTimer?.unref();
   if (paperDemoSymbol !== null) {
     void submitPaperDemoWhenReady(engine, paperDemoSymbol || "BTC/USD").then((plan) => {
       process.stdout.write(`${JSON.stringify({ type: "paper-demo-entry-submitted", symbol: plan.symbol, clientOrderId: plan.clientOrderId,
@@ -169,7 +246,12 @@ async function main(): Promise<void> {
     shuttingDown = true;
     if (policyTimer) clearInterval(policyTimer);
     if (policyRefresh) await policyRefresh;
+    if (historyTimer) clearInterval(historyTimer);
+    distributionHistory?.save();
     await engine.stop();
+    await distributionHistory?.flush();
+    distributionCheckpoint?.save();
+    await distributionCheckpoint?.flush();
     monitor.stop();
     if (dashboard) await dashboard.stop();
     if (activeStore) await activeStore.close();

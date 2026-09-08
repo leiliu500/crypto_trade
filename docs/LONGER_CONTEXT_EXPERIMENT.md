@@ -57,5 +57,8 @@ The failed comparison is why the five-minute strategy remains shadow-only.
 TypeScript build and all 314 tests pass, including longer-range history and
 symmetric isolated shadow-entry regressions.
 No positive model, larger position size or profitable submitting strategy is
-claimed. These new changes are local, not deployed; existing paper submission
-permissions remain enabled.
+claimed. These changes were deployed at the user's request on September 6.
+Post-restart checks confirmed a healthy paper engine, connected database,
+valid BTC/ETH books, and the five-minute hypothesis registered for both symbols.
+The submitting detector still uses one-minute context; paper entries remain
+enabled without system halts.

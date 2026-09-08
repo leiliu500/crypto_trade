@@ -56,6 +56,14 @@ export interface EngineConfig extends Omit<SymbolConfig, "symbol"> {
   crossAssetPaperEntriesEnabled: boolean;
   modelOnlyEntries: boolean;
   crossAssetPaperEvaluationEnabled: boolean;
+  distributionalEngineEnabled: boolean;
+  distributionalPaperEntriesEnabled: boolean;
+  distributionalPaperTrialEnabled: boolean;
+  distributionalEfficientTrainingEnabled: boolean;
+  distributionalRegimeModelEnabled: boolean;
+  distributionalStateFile: string;
+  distributionalHistoryFile: string;
+  distributionalTrainingFile?: string;
   breakoutRetestEnabled: boolean;
   symbols: string[];
   symbolConfigs: Readonly<Record<string, SymbolConfig>>;
@@ -100,6 +108,7 @@ interface SymbolParameterFile { schemaVersion: number; symbol: string; parameter
 const RUNTIME_ONLY_KEYS = new Set([
   "TRADING_MODE", "PAPER_ENTRY_EXERCISE", "POLICY_ENGINE_ENABLED", "CROSS_ASSET_PAPER_ENTRIES_ENABLED",
   "MODEL_ONLY_ENTRIES", "CROSS_ASSET_PAPER_EVALUATION_ENABLED", "DATABASE_URL",
+  "DISTRIBUTIONAL_ENGINE_ENABLED", "DISTRIBUTIONAL_PAPER_ENTRIES_ENABLED", "DISTRIBUTIONAL_PAPER_TRIAL_ENABLED", "DISTRIBUTIONAL_EFFICIENT_TRAINING_ENABLED", "DISTRIBUTIONAL_REGIME_MODEL_ENABLED", "DISTRIBUTIONAL_STATE_FILE", "DISTRIBUTIONAL_HISTORY_FILE", "DISTRIBUTIONAL_TRAINING_FILE",
   "POSTGRES_DB", "POSTGRES_USER", "POSTGRES_PASSWORD", "POSTGRES_HOST", "POSTGRES_PORT", "CONFIG_DIR",
   "TRADING_VENUE", "KRAKEN_FUTURES_WEBSOCKET_URL", "KRAKEN_FUTURES_SYMBOL_MAP_JSON", "KRAKEN_PAPER_INITIAL_EQUITY",
   "KRAKEN_PAPER_STATE_FILE",
@@ -120,6 +129,23 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env, modeOverride?: 
   const venue = parseVenue(env.TRADING_VENUE ?? "kraken_futures");
   const paper = mode === "paper";
   const paperEntryExercise = parseBoolean(env.PAPER_ENTRY_EXERCISE, false);
+  const distributionalPaperTrialEnabled = parseBoolean(configuredEnv.DISTRIBUTIONAL_PAPER_TRIAL_ENABLED, false);
+  const distributionalEfficientTrainingEnabled = parseBoolean(configuredEnv.DISTRIBUTIONAL_EFFICIENT_TRAINING_ENABLED, false);
+  const distributionalRegimeModelEnabled = parseBoolean(configuredEnv.DISTRIBUTIONAL_REGIME_MODEL_ENABLED, false);
+  if (distributionalRegimeModelEnabled && (!distributionalEfficientTrainingEnabled || !distributionalPaperTrialEnabled)) {
+    throw new Error("DISTRIBUTIONAL_REGIME_MODEL_REQUIRES_EFFICIENT_PAPER_TRIAL");
+  }
+  if (distributionalEfficientTrainingEnabled && !distributionalPaperTrialEnabled) {
+    throw new Error("DISTRIBUTIONAL_EFFICIENT_TRAINING_REQUIRES_PAPER_TRIAL");
+  }
+  if (distributionalPaperTrialEnabled && (mode !== "paper" || !paper
+    || !parseBoolean(configuredEnv.DISTRIBUTIONAL_ENGINE_ENABLED, false) || paperEntryExercise)) {
+    throw new Error("DISTRIBUTIONAL_PAPER_TRIAL_REQUIRES_PAPER_DISTRIBUTION_ENGINE");
+  }
+  if (parseBoolean(configuredEnv.DISTRIBUTIONAL_ENGINE_ENABLED, false)
+    && (paperEntryExercise || !["BTC/USD", "ETH/USD"].every(symbol => files.base.symbols.includes(symbol)))) {
+    throw new Error("DISTRIBUTIONAL_ENGINE_REQUIRES_BTC_ETH_AND_NORMAL_MARKET_DATA");
+  }
   if (paperEntryExercise && (mode !== "paper" || !paper)) {
     throw new Error("PAPER_ENTRY_EXERCISE is restricted to Kraken paper mode");
   }
@@ -145,6 +171,24 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env, modeOverride?: 
   }
   const krakenPaperInitialEquity = numberEnv(env.KRAKEN_PAPER_INITIAL_EQUITY, 100_000);
   if (!(krakenPaperInitialEquity > 0)) throw new Error("KRAKEN_PAPER_INITIAL_EQUITY must be positive");
+  const distributionalStateFile = configuredEnv.DISTRIBUTIONAL_STATE_FILE ?? "data/distributional-state.json";
+  const distributionalHistoryFile = configuredEnv.DISTRIBUTIONAL_HISTORY_FILE ?? `${distributionalStateFile}.market.json`;
+  const distributionalTrainingFile = configuredEnv.DISTRIBUTIONAL_TRAINING_FILE?.trim() || undefined;
+  if (distributionalTrainingFile && [distributionalStateFile, `${distributionalStateFile}.pending`, `${distributionalStateFile}.tmp`,
+    `${distributionalStateFile}.pending.tmp`, distributionalHistoryFile, `${distributionalHistoryFile}.tmp`,
+    env.KRAKEN_PAPER_STATE_FILE ?? "data/kraken-paper-state.json",
+    `${env.KRAKEN_PAPER_STATE_FILE ?? "data/kraken-paper-state.json"}.tmp`,
+    configuredEnv.CONTINUOUS_RECORD_FILE ?? "data/continuous-events.jsonl.gz",
+    configuredEnv.RECORD_FILE ?? "data/events.jsonl"].some(path => resolve(path) === resolve(distributionalTrainingFile))) {
+    throw new Error("DISTRIBUTIONAL_TRAINING_REQUIRES_SEPARATE_FILE");
+  }
+  if (parseBoolean(configuredEnv.DISTRIBUTIONAL_ENGINE_ENABLED, false)
+    && (!distributionalHistoryFile.trim() || [distributionalStateFile, `${distributionalStateFile}.pending`,
+      env.KRAKEN_PAPER_STATE_FILE ?? "data/kraken-paper-state.json",
+      configuredEnv.CONTINUOUS_RECORD_FILE ?? "data/continuous-events.jsonl.gz",
+      configuredEnv.RECORD_FILE ?? "data/events.jsonl"].some(path => resolve(path) === resolve(distributionalHistoryFile)))) {
+    throw new Error("DISTRIBUTIONAL_HISTORY_REQUIRES_SEPARATE_FILE");
+  }
   return {
     ...baselineConfig,
     mode, venue, paper, paperEntryExercise, symbols: [...files.base.symbols], symbolConfigs,
@@ -152,6 +196,13 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env, modeOverride?: 
     crossAssetPaperEntriesEnabled: parseBoolean(configuredEnv.CROSS_ASSET_PAPER_ENTRIES_ENABLED, false),
     modelOnlyEntries: parseBoolean(configuredEnv.MODEL_ONLY_ENTRIES, true),
     crossAssetPaperEvaluationEnabled: parseBoolean(configuredEnv.CROSS_ASSET_PAPER_EVALUATION_ENABLED, false),
+    distributionalEngineEnabled: parseBoolean(configuredEnv.DISTRIBUTIONAL_ENGINE_ENABLED, false),
+    distributionalPaperEntriesEnabled: parseBoolean(configuredEnv.DISTRIBUTIONAL_PAPER_ENTRIES_ENABLED, false),
+    distributionalPaperTrialEnabled,
+    distributionalEfficientTrainingEnabled,
+    distributionalRegimeModelEnabled,
+    distributionalStateFile, distributionalHistoryFile,
+    ...(distributionalTrainingFile ? { distributionalTrainingFile } : {}),
     breakoutRetestEnabled: parseBoolean(configuredEnv.BREAKOUT_RETEST_ENABLED, true),
     recordFile: configuredEnv.RECORD_FILE ?? "data/events.jsonl", replayFile: configuredEnv.REPLAY_FILE ?? "data/events.jsonl",
     krakenFutures: {

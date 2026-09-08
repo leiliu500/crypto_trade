@@ -1,0 +1,41 @@
+{
+  "createdAtUtc": "2026-09-08T22:30:49.663031+00:00",
+  "status": "IMPLEMENTATION_TESTED_ALL_CANDIDATES_FAILED_DEVELOPMENT",
+  "profitObjectiveAchieved": false,
+  "candidateActivated": false,
+  "deployedThisTurn": false,
+  "profitabilityEstablished": false,
+  "finalTestOpened": false,
+  "finalTestExecutionRefused": true,
+  "finalTestRefusal": "HOURLY_FINAL_TEST_DENIED_DEVELOPMENT_FAILED",
+  "finalTestStartMarkerExists": false,
+  "tests": {
+    "passed": 729,
+    "failed": 0,
+    "command": "npm test",
+    "fullLog": "/tmp/hourly-model-final-tests-20260908.out"
+  },
+  "productionBuildPassed": true,
+  "gitDiffCheckPassed": true,
+  "sourceHashesUnchanged": true,
+  "sourceChecks": {
+    "src/research/hourly-data.ts": true,
+    "src/research/hourly-model.ts": true,
+    "src/research/hourly-simulator.ts": true,
+    "src/research/hourly-study-main.ts": true,
+    "src/research/hourly-study-statistics.ts": true,
+    "package.json": true,
+    "package-lock.json": true
+  },
+  "runningServiceHealth": {
+    "status": "healthy",
+    "database": "connected",
+    "entriesAllowed": true,
+    "generatedAtMs": 1788906611952
+  },
+  "selectionFile": "selection.json",
+  "dataIntegrityAuditFile": "data-integrity-audit.json",
+  "interpretation": "Projected PnL under declared funding reserves; not verified actual historical returns",
+  "developmentIndependentAuditFile": "development-independent-audit.json",
+  "developmentIndependentAuditStatus": "PASS"
+}

@@ -1,0 +1,61 @@
+{
+  "version": "btc-eth-cost-aware-predictive-study-v1",
+  "createdAtMs": 1788898782482,
+  "spec": {
+    "version": "btc-eth-cost-aware-predictive-study-v1",
+    "researchOnly": true,
+    "candidate": {
+      "version": "btc-eth-cost-aware-ridge-v1",
+      "researchOnly": true,
+      "labelVersion": "btc-eth-distributional-control-v1",
+      "featureDimension": 12,
+      "ridgeLambda": 16,
+      "featureScaleFloor": 0.1,
+      "memoryHalfLifeMs": 604800000,
+      "maximumTrainingAgeMs": 86400000,
+      "maximumSamplesPerAction": 1024,
+      "minimumSamples": 48,
+      "minimumEffectiveSamples": 32,
+      "minimumTrainingDays": 3,
+      "minimumDayWeight": 1,
+      "minimumFilledEffectiveSamples": 16,
+      "fillTarget": "FILLED_FRACTION_INCLUDING_UNFILLED_ZERO",
+      "grossTarget": "GROSS_BPS_PER_FILLED_FRACTION",
+      "grossAndCostWeights": "RECENCY_TIMES_FILLED_FRACTION",
+      "coefficientRefresh": "FROZEN_AT_STRICT_TRAINING_CUTOFF"
+    },
+    "minimumPredictedWorstNetBpsExclusive": 1,
+    "sampleGate": 48,
+    "effectiveSampleGate": 32,
+    "trainingDateGate": 3,
+    "probePolicyOnly": true,
+    "portfolioSlotsPerPolicy": 1,
+    "candidateTuningOnEvaluation": false,
+    "untouched": false,
+    "automaticPromotion": false
+  },
+  "sourceHashes": {
+    "src/distribution/predictive-study.ts": "7e34abad8aa2bc043eba7d1f74ebe5c371c6a68577c129cc10a5cac0d48e90c4",
+    "src/distribution/predictive-study-main.ts": "a43f06755b617673d73903c43527a4fcef80b574183e48d699f9d5299349a6f2",
+    "src/distribution/predictive-audit-data.ts": "5eee97b53becaedbdb7212315db34ae0897f5c73ad729b5c5c74903b4c1f5ecf",
+    "src/distribution/cost-aware-model.ts": "1bee1b88bac491711eed56217d612d716c6f7fedd57cefc35d3ec21a3b70d29c",
+    "src/distribution/model.ts": "54dad777f1bbea1f9f24c531ab7600e0da9328c824f90ab3875de5c4606beabf",
+    "src/distribution/spec.ts": "c3adfd6f459349f6dd73ab4e3a7ef2768cf2766372d0158a0ab5839e1d5519af",
+    "package.json": "5decf8f2596ff68061f069302efc0a61ff57728d7227e36f88d18f2ed4deb791",
+    "package-lock.json": "2315bada829d31ccb4d3970392ba56d73458d3219dda1ec98d8dda0d41893594"
+  },
+  "inputs": [
+    {
+      "name": "first",
+      "stem": "conditional-development-20260908",
+      "protocol": "first-protocol"
+    },
+    {
+      "name": "later",
+      "stem": "conditional-later-v2-20260908",
+      "protocol": "later-protocol"
+    }
+  ],
+  "untouched": false,
+  "evidenceClass": "INSPECTED_HISTORICAL_DEVELOPMENT"
+}

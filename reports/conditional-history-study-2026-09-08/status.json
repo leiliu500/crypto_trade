@@ -1,0 +1,48 @@
+{
+  "firstReplay": {
+    "report": "conditional-development-20260908.json",
+    "audit": "conditional-development-20260908.json.audit.jsonl.gz"
+  },
+  "futureCollectorStarted": false,
+  "laterReplayStatus": "COMPLETED",
+  "evidenceClass": "HISTORICAL_DEVELOPMENT",
+  "validation": {
+    "tests": 619,
+    "passed": 619,
+    "failed": 0
+  },
+  "researchImage": "crypto-trade-study:20260908",
+  "researchImageId": "sha256:be9dcfa22cd132b909946e9d3257cd703d0eaa8ff0f1cec24a705a0293671053",
+  "firstIndependentAudit": "first-independent-audit.json",
+  "researchImages": {
+    "firstReplay": "crypto-trade-study:20260908",
+    "firstImageId": "sha256:be9dcfa22cd132b909946e9d3257cd703d0eaa8ff0f1cec24a705a0293671053",
+    "laterReplay": "crypto-trade-study:20260908-hash2",
+    "laterImageId": "sha256:576bdf0cacc33f43d7995a621a1669380f5c896e2c5d0f035cb0e8d176a34443"
+  },
+  "interruptedDevelopmentAttempt": {
+    "protocol": "/tmp/conditional-later-protocol-20260908",
+    "reason": "Replaced with byte-identical faster source hashing before evaluation; no completed result claimed"
+  },
+  "laterReplay": {
+    "report": "conditional-later-v2-20260908.json",
+    "audit": "conditional-later-v2-20260908.json.audit.jsonl.gz",
+    "summary": "later-summary.json",
+    "independentAudit": "later-independent-audit.json"
+  },
+  "effectivenessConclusion": "INCONCLUSIVE: small and inconsistent prediction changes, no conditional selections, previously inspected history",
+  "productionCandidatePromoted": false,
+  "artifactHashes": {
+    "conditional-development-20260908.json": "89df0bdaab9653cdeea6383a6c642a15acf18d5799af7699e6ba472cc248548e",
+    "conditional-development-20260908.json.audit.jsonl.gz": "bf3dee9784a0252c658412d46656a7ff01f3d479fe30274efb41c549759882e2",
+    "first-independent-audit.json": "ff5a7ea5f50ec762672e112c58e7334170d1736bea0b8d458c88671fd6cc0855",
+    "benchmark-study-hashing-20260908.json": "a46a31ac1eee7613566b9a6776fb052228c2bb5e3cafd8f1663f0c63fa699d1b",
+    "conditional-study-profile-summary-20260908.json": "c5ddf90dcb213a69b8cb066312fb47fe66da61f47a7155c9ff39ff11b795e839",
+    "conditional-later-v2-20260908.json": "764ae15919ca9a474dc0f9db5a4b366abb582f3ccacfe5d746a0c232075d598a",
+    "conditional-later-v2-20260908.json.audit.jsonl.gz": "87c56dd55ba17daf45d091bee90589d9b149e62ce7cecc61523107cdb01c60c0",
+    "later-summary.json": "788ef237875db4c4ac57203cb398e327e47e6576d9e506e74be392be11d881e4",
+    "later-independent-audit.json": "6f4e1876a8d6aa58a4f08fb2e3d8be6b6a3286061200aa5b6b3042372e58d7cc",
+    "audit-conditional-study.mjs": "52a3d77e7adb35ab6153a81b3227432f2ec64d0cb385e098281b3896f6e92530"
+  },
+  "engineHealthAtCompletion": "HEALTHY"
+}

@@ -1,0 +1,111 @@
+{
+  "version": "btc-eth-regime-fix-status-v1",
+  "generatedAt": "2026-09-08T21:23:19.623759+00:00",
+  "status": "IMPLEMENTED_CANDIDATE_FAILED_TRADING_ACCEPTANCE",
+  "requestedNoEntryFixComplete": false,
+  "candidateImplemented": true,
+  "candidateRuntimeIntegrationImplemented": true,
+  "candidateActivated": false,
+  "deployedThisTurn": false,
+  "profitabilityEstablished": false,
+  "reason": "Zero eligible actions and zero positive worst-scenario means across all three historical comparisons; forecast accuracy gains are mixed and do not establish trading improvement.",
+  "tests": {
+    "fullSuitePassed": 690,
+    "fullSuiteFailed": 0,
+    "newTests": 26,
+    "typeScriptBuildPassed": true,
+    "finalModelAndDashboardChecksPassed": true
+  },
+  "results": [
+    {
+      "report": "reports/regime-model-fix-2026-09-08/archived/first.json",
+      "sha256": "4c03431ffe49e8c2d84c31bdcc64e1533cf8f010772674dbc30fcb777edd8b4b",
+      "actionForecasts": 60,
+      "nativeSupportReady": 60,
+      "eligibleActions": 0,
+      "positiveWorstMeanActions": 0,
+      "netRmseBase": [
+        {
+          "symbol": "BTC/USD",
+          "candidate": 15.46984773455019,
+          "current": 17.39955368784763,
+          "costOnly": 15.419875269362647,
+          "knownPaths": 26,
+          "unknownPaths": 4
+        },
+        {
+          "symbol": "ETH/USD",
+          "candidate": 26.377222997333085,
+          "current": 27.38572162046276,
+          "costOnly": 26.391174752826323,
+          "knownPaths": 27,
+          "unknownPaths": 3
+        }
+      ]
+    },
+    {
+      "report": "reports/regime-model-fix-2026-09-08/archived/later.json",
+      "sha256": "c0085427c349ecb17c173a2c48cb5794b3f776a163c9373753b65cddfd72da5b",
+      "actionForecasts": 192,
+      "nativeSupportReady": 192,
+      "eligibleActions": 0,
+      "positiveWorstMeanActions": 0,
+      "netRmseBase": [
+        {
+          "symbol": "BTC/USD",
+          "candidate": 13.575141801139935,
+          "current": 12.976537395554145,
+          "costOnly": 13.418400980582597,
+          "knownPaths": 74,
+          "unknownPaths": 22
+        },
+        {
+          "symbol": "ETH/USD",
+          "candidate": 22.090676030005117,
+          "current": 23.334369676080254,
+          "costOnly": 22.27889108981622,
+          "knownPaths": 77,
+          "unknownPaths": 19
+        }
+      ]
+    },
+    {
+      "report": "reports/regime-model-fix-2026-09-08/chronological/regime-result.json",
+      "sha256": "b64f701bdc52518d9099c7efc931119381c2a9e99d4aafbe2c9da29aab214d92",
+      "actionForecasts": 72,
+      "nativeSupportReady": 72,
+      "eligibleActions": 0,
+      "positiveWorstMeanActions": 0,
+      "netRmseBase": [
+        {
+          "symbol": "BTC/USD",
+          "candidate": 14.381489002071463,
+          "current": 13.749602033836638,
+          "costOnly": 13.580801160062872,
+          "knownPaths": 26,
+          "unknownPaths": 10
+        },
+        {
+          "symbol": "ETH/USD",
+          "candidate": 21.27099045654098,
+          "current": 22.286697255138044,
+          "costOnly": 21.33849394624371,
+          "knownPaths": 29,
+          "unknownPaths": 7
+        }
+      ]
+    }
+  ],
+  "productionObservation": {
+    "atMs": 1788902040825,
+    "overall": "healthy",
+    "mode": "paper",
+    "activeSelectionPolicy": "btc-eth-selected-policy-paper-trial-3d-efficient-v1"
+  },
+  "limitations": [
+    "Sparse dependent probe origins, not continuous one-second candidate trading replay.",
+    "Historical development windows, not a certified untouched holdout.",
+    "Unknown execution paths are excluded from paired prediction metrics and remain unknown in full-period selected-policy returns.",
+    "Negative results for this candidate do not establish that no useful predictive information exists."
+  ]
+}

@@ -3,6 +3,7 @@ import type { DeterministicFeatures } from "../strategy/deterministic-features.j
 import type { EntryFamily } from "../economics/types.js";
 import type { AssetRules } from "../execution/planner.js";
 import { newNetProtection, updateNetProtection, type NetProtection } from "../economics/net-liquidation.js";
+import { DISTRIBUTION_ACTIONS } from "../distribution/spec.js";
 
 // Changing a signal, exit, or execution assumption requires a new version.
 export const POLICY_VERSION = "executable-policy-v3";
@@ -75,7 +76,12 @@ export function policyCandidates(f: DeterministicFeatures): PolicyCandidate[] {
   return candidates;
 }
 
-export function findPolicy(id: string): TradingPolicy | undefined { return TRADING_POLICIES.find((p) => p.id === id); }
+export function findPolicy(id: string): TradingPolicy | undefined {
+  const distribution = DISTRIBUTION_ACTIONS.find(a => a.policyId === id);
+  return distribution ? { id, family: "CONTINUATION", horizonMs: distribution.horizonMs,
+    stopLossBps: distribution.stopLossBps, takeProfitNetBps: distribution.takeProfitNetBps }
+    : TRADING_POLICIES.find((p) => p.id === id);
+}
 
 export function policyExit(policy: TradingPolicy, grossBps: number, netBps: number,
   elapsedMs: number, protection?: NetProtection, volatilityBps = 0): "POLICY_STOP" | "POLICY_TARGET" | "POLICY_DEADLINE" | "POLICY_NET_FLOOR" | null {

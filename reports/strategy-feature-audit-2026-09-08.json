@@ -1,0 +1,109 @@
+{
+  "version": "btc-eth-strategy-feature-audit-v1",
+  "date": "2026-09-08",
+  "readOnlyAudit": true,
+  "sourceHashes": {
+    "src/distribution/market.ts": "0279523eb000862aa43d4af8f203ac6e476c8a01b45c6c4d13703811d49d0b28",
+    "src/distribution/model.ts": "54dad777f1bbea1f9f24c531ab7600e0da9328c824f90ab3875de5c4606beabf"
+  },
+  "scope": [
+    "market features",
+    "conditional neighborhood geometry",
+    "training feature timestamps and execution horizons",
+    "bounded first100000 recording events"
+  ],
+  "findings": [
+    {
+      "id": "VOLATILITY_PARTIAL_INTERVAL_PHASE",
+      "file": "src/distribution/market.ts",
+      "description": "Equal averaging of per-interval squared log return divided by elapsed time makes the incomplete final interval disproportionately influential. A single observed1bps change1ms after the retained10s endpoint gives approximately100bps volatility; with no subsequent price change the same input becomes1bps by10s.",
+      "reproduction": {
+        "initialMid": 10000,
+        "laterMid": 10001,
+        "warmupMs": 1800000,
+        "cleanBookIntervalMs": 1000,
+        "samplesEveryMs": 10000,
+        "phaseMs": [
+          1,
+          100,
+          1000,
+          10000
+        ],
+        "reportedVolatilityBps": [
+          99.99500033329733,
+          9.999500033329733,
+          3.1621195568251577,
+          0.9999500033329732
+        ],
+        "return30mBps": 0.9999999999998899
+      },
+      "implication": "Sampling phase can move an otherwise unchanged market context through feature space. Version any formula correction and rebuild or segregate stored feature vectors.",
+      "limitation": "The feature is explicitly documented as a variance-rate proxy. This reproduction establishes instability, not that it caused all observed missed entries."
+    },
+    {
+      "id": "DIRECTIONAL_GEOMETRY_UNBALANCED",
+      "file": "src/distribution/model.ts",
+      "description": "Fixed raw feature scales and equal-coordinate Euclidean distance cause top1/top5 imbalance and aggressor flow to dominate directional returns. Microprice-minus-mid divided by halfspread is algebraically top1 quantity imbalance.",
+      "basis": "Efficient bank frozen2026-09-08T08:00:00Z plus16 later prespecified probes per asset; long-5m bank138BTC130ETH; all query-bank pairs, contribution=sum squared coordinate differences divided by sum total squared distances.",
+      "assets": {
+        "BTC/USD": {
+          "samples": 138,
+          "probes": 16,
+          "distancePercentByFeature": [
+            29.2,
+            3.7,
+            12.8,
+            35.6,
+            0.1,
+            0.6,
+            4.7,
+            3.0,
+            2.2,
+            5.8,
+            1.2,
+            1.0
+          ],
+          "weightedNeighborOpposite15mReturnPercent": 42.9
+        },
+        "ETH/USD": {
+          "samples": 130,
+          "probes": 16,
+          "distancePercentByFeature": [
+            18.4,
+            1.9,
+            18.8,
+            37.7,
+            0.1,
+            0.8,
+            7.5,
+            5.5,
+            4.3,
+            2.9,
+            1.1,
+            0.9
+          ],
+          "weightedNeighborOpposite15mReturnPercent": 47.0
+        }
+      },
+      "implication": "Use train-only learned directional partitions or scales in a separately versioned candidate and compare against baselines. More training dates alone do not correct the distance geometry.",
+      "limitation": "This diagnoses representation weighting; it does not establish predictive direction or profitability."
+    }
+  ],
+  "negativeChecks": {
+    "firstRecordingEvents": 100000,
+    "books": 95395,
+    "trades": 4605,
+    "spanMinutes": 39.3245,
+    "tradesReceivedBeforeMostRecentOwnBook": 0,
+    "returnSignInversionFound": false,
+    "futureFeatureLeakageFound": false,
+    "actionHorizonMislabelingFound": false,
+    "tradeScope": "First39.32min only; not full-feed proof."
+  },
+  "inputs": [
+    "/tmp/conditional-later-protocol-v2-20260908/seed.json",
+    "/tmp/conditional-later-v2-20260908.json.audit.jsonl.gz",
+    "/tmp/conditional-recorded-20260908T164428Z.jsonl.gz"
+  ],
+  "runtimeChangesMadeByAudit": false
+}

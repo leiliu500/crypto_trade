@@ -1,0 +1,339 @@
+{
+  "version": "distribution-paper-trial-sample-gate-v1",
+  "observedAt": "2026-09-07T21:59:40.090Z",
+  "profile": "PAPER_TRIAL",
+  "markets": [
+    {
+      "symbol": "BTC/USD",
+      "paperEnabled": true,
+      "required": {
+        "relevantSamples": 48,
+        "effectiveSamples": 32,
+        "dates": 3
+      },
+      "storedSamplesPerAction": [
+        {
+          "actionId": "long-5m",
+          "samples": 82
+        },
+        {
+          "actionId": "short-5m",
+          "samples": 82
+        },
+        {
+          "actionId": "long-15m",
+          "samples": 82
+        },
+        {
+          "actionId": "short-15m",
+          "samples": 82
+        },
+        {
+          "actionId": "long-30m",
+          "samples": 82
+        },
+        {
+          "actionId": "short-30m",
+          "samples": 82
+        }
+      ],
+      "estimates": [
+        {
+          "actionId": "long-5m",
+          "samples": 47,
+          "effectiveSamples": 44.473310621949565,
+          "observedDays": 3,
+          "meanNetBps": -11.149640175798591,
+          "lowerMeanNetBps": -12.938618909748966,
+          "tailLossBps": 25.641571137510212,
+          "scoreBps": -15.502776023499987,
+          "fillProbability": 0.9931920871380048,
+          "reason": "INSUFFICIENT_SAMPLES",
+          "eligible": false
+        },
+        {
+          "actionId": "short-5m",
+          "samples": 47,
+          "effectiveSamples": 44.473310621949565,
+          "observedDays": 3,
+          "meanNetBps": -11.336158832481697,
+          "lowerMeanNetBps": -13.10666109684349,
+          "tailLossBps": 25.523385941089046,
+          "scoreBps": -15.658999690952395,
+          "fillProbability": 1,
+          "reason": "INSUFFICIENT_SAMPLES",
+          "eligible": false
+        },
+        {
+          "actionId": "long-15m",
+          "samples": 47,
+          "effectiveSamples": 44.473310621949565,
+          "observedDays": 3,
+          "meanNetBps": -9.79535948274002,
+          "lowerMeanNetBps": -13.813230882119338,
+          "tailLossBps": 30.530021892303406,
+          "scoreBps": -16.86623307134968,
+          "fillProbability": 0.9931920871380048,
+          "reason": "INSUFFICIENT_SAMPLES",
+          "eligible": false
+        },
+        {
+          "actionId": "short-15m",
+          "samples": 47,
+          "effectiveSamples": 44.473310621949565,
+          "observedDays": 3,
+          "meanNetBps": -12.6285398485054,
+          "lowerMeanNetBps": -16.469425129233134,
+          "tailLossBps": 41.636448074634934,
+          "scoreBps": -20.63306993669663,
+          "fillProbability": 1,
+          "reason": "INSUFFICIENT_SAMPLES",
+          "eligible": false
+        },
+        {
+          "actionId": "long-30m",
+          "samples": 47,
+          "effectiveSamples": 44.473310621949565,
+          "observedDays": 3,
+          "meanNetBps": -10.66517958739591,
+          "lowerMeanNetBps": -15.473178189937006,
+          "tailLossBps": 41.59167311558991,
+          "scoreBps": -19.632345501495998,
+          "fillProbability": 0.9931920871380048,
+          "reason": "INSUFFICIENT_SAMPLES",
+          "eligible": false
+        },
+        {
+          "actionId": "short-30m",
+          "samples": 47,
+          "effectiveSamples": 44.473310621949565,
+          "observedDays": 3,
+          "meanNetBps": -12.27786648124249,
+          "lowerMeanNetBps": -16.169940929748325,
+          "tailLossBps": 36.460728340670435,
+          "scoreBps": -19.81601376381537,
+          "fillProbability": 1,
+          "reason": "INSUFFICIENT_SAMPLES",
+          "eligible": false
+        }
+      ],
+      "decisionReason": "INSUFFICIENT_SAMPLES",
+      "datesSatisfied": true,
+      "allScoresNegative": true
+    },
+    {
+      "symbol": "ETH/USD",
+      "paperEnabled": true,
+      "required": {
+        "relevantSamples": 48,
+        "effectiveSamples": 32,
+        "dates": 3
+      },
+      "storedSamplesPerAction": [
+        {
+          "actionId": "long-5m",
+          "samples": 73
+        },
+        {
+          "actionId": "short-5m",
+          "samples": 73
+        },
+        {
+          "actionId": "long-15m",
+          "samples": 73
+        },
+        {
+          "actionId": "short-15m",
+          "samples": 73
+        },
+        {
+          "actionId": "long-30m",
+          "samples": 73
+        },
+        {
+          "actionId": "short-30m",
+          "samples": 73
+        }
+      ],
+      "estimates": [
+        {
+          "actionId": "long-5m",
+          "samples": 43,
+          "effectiveSamples": 39.4935848406755,
+          "observedDays": 3,
+          "meanNetBps": -10.141855435578014,
+          "lowerMeanNetBps": -15.236049147767345,
+          "tailLossBps": 35.89466884636042,
+          "scoreBps": -18.825516032403385,
+          "fillProbability": 1,
+          "reason": "INSUFFICIENT_SAMPLES",
+          "eligible": false
+        },
+        {
+          "actionId": "short-5m",
+          "samples": 43,
+          "effectiveSamples": 39.4935848406755,
+          "observedDays": 3,
+          "meanNetBps": -10.44660855722076,
+          "lowerMeanNetBps": -15.775336599977745,
+          "tailLossBps": 35.50222972574719,
+          "scoreBps": -19.325559572552464,
+          "fillProbability": 0.9318877521806438,
+          "reason": "INSUFFICIENT_SAMPLES",
+          "eligible": false
+        },
+        {
+          "actionId": "long-15m",
+          "samples": 43,
+          "effectiveSamples": 39.4935848406755,
+          "observedDays": 3,
+          "meanNetBps": -10.301244680139128,
+          "lowerMeanNetBps": -16.962065033961892,
+          "tailLossBps": 37.72591888522483,
+          "scoreBps": -20.734656922484376,
+          "fillProbability": 1,
+          "reason": "INSUFFICIENT_SAMPLES",
+          "eligible": false
+        },
+        {
+          "actionId": "short-15m",
+          "samples": 43,
+          "effectiveSamples": 39.4935848406755,
+          "observedDays": 3,
+          "meanNetBps": -10.510961775995572,
+          "lowerMeanNetBps": -17.512034048982436,
+          "tailLossBps": 41.674751099118424,
+          "scoreBps": -21.679509158894277,
+          "fillProbability": 0.9318877521806438,
+          "reason": "INSUFFICIENT_SAMPLES",
+          "eligible": false
+        },
+        {
+          "actionId": "long-30m",
+          "samples": 43,
+          "effectiveSamples": 39.4935848406755,
+          "observedDays": 3,
+          "meanNetBps": -10.20595391055351,
+          "lowerMeanNetBps": -22.755616463129698,
+          "tailLossBps": 47.825545891590174,
+          "scoreBps": -27.538171052288718,
+          "fillProbability": 1,
+          "reason": "INSUFFICIENT_SAMPLES",
+          "eligible": false
+        },
+        {
+          "actionId": "short-30m",
+          "samples": 43,
+          "effectiveSamples": 39.4935848406755,
+          "observedDays": 3,
+          "meanNetBps": -11.031744629922704,
+          "lowerMeanNetBps": -21.373166703307774,
+          "tailLossBps": 54.81929335215915,
+          "scoreBps": -26.85509603852369,
+          "fillProbability": 0.9318877521806438,
+          "reason": "INSUFFICIENT_SAMPLES",
+          "eligible": false
+        }
+      ],
+      "decisionReason": "INSUFFICIENT_SAMPLES",
+      "datesSatisfied": true,
+      "allScoresNegative": true
+    }
+  ],
+  "diagnosis": "The model counts completed historical outcomes similar to the current market context. The former dashboard showed all stored outcomes and the effective-sample minimum but omitted the relevant-sample count and 48-sample threshold.",
+  "notes": [
+    "Three qualifying dates do not waive the separate 48 relevant and32effective sample requirements.",
+    "Relevant sample counts can rise or fall with current market conditions, so missing samples do not imply a fixed waiting time.",
+    "All actions at this observation also had negative stressed scores; more samples alone do not authorize entry.",
+    "No model thresholds or paper permissions are changed by the dashboard correction."
+  ],
+  "dashboardCorrection": {
+    "publishedAt": "2026-09-07T22:04:19.239Z",
+    "assetSha256": "a530af3a0b8a857e61462363e579042e4b9201f989168f29cd697e5798ba837f",
+    "servedAssetMatchesSource": true,
+    "replacementImageMatchesSource": true,
+    "tradingCodeHashesUnchanged": true,
+    "imageHashes": {
+      "dashboard/public/app.js": "a530af3a0b8a857e61462363e579042e4b9201f989168f29cd697e5798ba837f",
+      "distribution/spec.js": "0503fad5022033b0efcfb47e9becba51d3706a5c67200a97b64deb13673567e5",
+      "distribution/model.js": "8a181567a29c8c944a2bf9d63a63e8b735131a513e8904a2b43d7f4ec9da65df",
+      "distribution/controller.js": "50a6cd830768f176a0321c34cd7f96ef4fd0266c9e3332d29ef8752dcad365e7",
+      "distribution/planner.js": "da0af89b5b5a270de450a45cb2d4bd287392f543a49e58d88a1076352466c959",
+      "engine/trading-engine.js": "0a61d26a5eb340c459b2b47ba9f21ab99988aa46776e265f5c7a6e842d640153"
+    },
+    "engineNotRestarted": true,
+    "containerId": "89beb5cc860864253817c29abe2a0910dc4f753f1a351e29ace0086862c1b19f",
+    "engineStartedAt": "2026-09-07T21:49:31.691930918Z",
+    "restartCount": 0,
+    "overall": "healthy",
+    "tests": {
+      "dashboardPassed": 17
+    },
+    "imageBuild": "passed",
+    "diffCheck": "passed",
+    "cacheControl": "no-store",
+    "latestMarkets": [
+      {
+        "symbol": "BTC/USD",
+        "storedPerAction": [
+          82,
+          82,
+          82,
+          82,
+          82,
+          82
+        ],
+        "relevantRange": [
+          48,
+          48
+        ],
+        "effectiveRange": [
+          45.44384786535282,
+          45.44384786535282
+        ],
+        "dates": [
+          3
+        ],
+        "gate": "SCORE_BELOW_MINIMUM",
+        "allScoresNegative": true,
+        "paperEnabled": true,
+        "activeProfile": "PAPER_TRIAL",
+        "pendingPanels": 2,
+        "renderedCountsVerified": true
+      },
+      {
+        "symbol": "ETH/USD",
+        "storedPerAction": [
+          73,
+          73,
+          73,
+          73,
+          73,
+          73
+        ],
+        "relevantRange": [
+          37,
+          37
+        ],
+        "effectiveRange": [
+          34.26874614177123,
+          34.26874614177123
+        ],
+        "dates": [
+          3
+        ],
+        "gate": "INSUFFICIENT_SAMPLES",
+        "allScoresNegative": true,
+        "paperEnabled": true,
+        "activeProfile": "PAPER_TRIAL",
+        "pendingPanels": 2,
+        "renderedCountsVerified": true
+      }
+    ],
+    "orders": 106,
+    "positions": 0,
+    "rollbackAsset": "/app/data/backups/paper-trial-3d-2026-09-07/dashboard-before-sample-gate.js",
+    "rollbackImage": "crypto-trade-engine:before-sample-gate-ui-20260907",
+    "note": "The dashboard asset was replaced atomically in the active container. The replacement image was built for persistence without recreating the engine or interrupting its pending training panels."
+  }
+}

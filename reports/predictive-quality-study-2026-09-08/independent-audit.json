@@ -1,0 +1,331 @@
+{
+  "version": "predictive-quality-independent-audit-v1",
+  "verifiedAt": "2026-09-08T20:23:16.222Z",
+  "verifiedRun": "/home/ec2-user/crypto_trade/reports/predictive-quality-study-2026-09-08/fixed-ridge-v1-verified",
+  "sourceFilesUnchanged": true,
+  "sourceHashCount": 8,
+  "manifestSha256": "1211be263974aec5e1f98a33673bd466dd09b7f2fd8e50a1db5a8523b66bd354",
+  "totalProbeOrigins": 42,
+  "results": [
+    {
+      "name": "first",
+      "reportPath": "/home/ec2-user/crypto_trade/reports/predictive-quality-study-2026-09-08/fixed-ridge-v1-verified/first.json",
+      "reportSha256": "67f2c69304f064f2b51cbed7ba8b8ac8a6aea818ad27aa516cd93dbf6062a17f",
+      "auditRecords": 542,
+      "probeOrigins": 10,
+      "actionPaths": 60,
+      "freezeSamples": [
+        915
+      ],
+      "strictTrainingCutoffs": true,
+      "restoredConditionalAndRidgeForecasts": true,
+      "independentMetricsRecomputed": true,
+      "chronologicalPolicyRecomputed": true,
+      "identicalFirstAttemptNumbers": true,
+      "baseMetrics": [
+        {
+          "symbol": "BTC/USD",
+          "actionPaths": 30,
+          "unknown": 4,
+          "common": 26,
+          "availability": {
+            "conditional": 30,
+            "unconditional": 30,
+            "cost-only": 30,
+            "cost-aware-ridge": 30
+          },
+          "netRmseBps": {
+            "conditional": 17.39955368784763,
+            "unconditional": 15.536514181058886,
+            "cost-only": 15.419875269362647,
+            "cost-aware-ridge": 14.600768069563957
+          },
+          "grossRmseBps": {
+            "candidate": 14.405717119210529,
+            "zeroGross": 15.375495864154336
+          },
+          "costRmseBps": 0.6831552443874043
+        },
+        {
+          "symbol": "ETH/USD",
+          "actionPaths": 30,
+          "unknown": 3,
+          "common": 27,
+          "availability": {
+            "conditional": 30,
+            "unconditional": 30,
+            "cost-only": 30,
+            "cost-aware-ridge": 30
+          },
+          "netRmseBps": {
+            "conditional": 27.38572162046276,
+            "unconditional": 26.3853698213016,
+            "cost-only": 26.391174752826323,
+            "cost-aware-ridge": 27.408377455647727
+          },
+          "grossRmseBps": {
+            "candidate": 26.32844164115028,
+            "zeroGross": 25.699938972216298
+          },
+          "costRmseBps": 5.754312438068008
+        }
+      ],
+      "basePolicy": [
+        {
+          "policy": "conditional",
+          "scenario": "base-250ms",
+          "selections": 0,
+          "filled": 0,
+          "unfilled": 0,
+          "unknown": 0,
+          "knownNetBpsSum": 0,
+          "fullPathKnownNetBpsSum": 0,
+          "knownMeanNetBps": null
+        },
+        {
+          "policy": "unconditional",
+          "scenario": "base-250ms",
+          "selections": 0,
+          "filled": 0,
+          "unfilled": 0,
+          "unknown": 0,
+          "knownNetBpsSum": 0,
+          "fullPathKnownNetBpsSum": 0,
+          "knownMeanNetBps": null
+        },
+        {
+          "policy": "cost-only",
+          "scenario": "base-250ms",
+          "selections": 0,
+          "filled": 0,
+          "unfilled": 0,
+          "unknown": 0,
+          "knownNetBpsSum": 0,
+          "fullPathKnownNetBpsSum": 0,
+          "knownMeanNetBps": null
+        },
+        {
+          "policy": "cost-aware-ridge",
+          "scenario": "base-250ms",
+          "selections": 0,
+          "filled": 0,
+          "unfilled": 0,
+          "unknown": 0,
+          "knownNetBpsSum": 0,
+          "fullPathKnownNetBpsSum": 0,
+          "knownMeanNetBps": null
+        },
+        {
+          "policy": "flat",
+          "scenario": "base-250ms",
+          "selections": 0,
+          "filled": 0,
+          "unfilled": 0,
+          "unknown": 0,
+          "knownNetBpsSum": 0,
+          "fullPathKnownNetBpsSum": 0,
+          "knownMeanNetBps": null
+        },
+        {
+          "policy": "long-15m",
+          "scenario": "base-250ms",
+          "selections": 0,
+          "filled": 0,
+          "unfilled": 0,
+          "unknown": 0,
+          "knownNetBpsSum": 0,
+          "fullPathKnownNetBpsSum": 0,
+          "knownMeanNetBps": null
+        },
+        {
+          "policy": "short-15m",
+          "scenario": "base-250ms",
+          "selections": 0,
+          "filled": 0,
+          "unfilled": 0,
+          "unknown": 0,
+          "knownNetBpsSum": 0,
+          "fullPathKnownNetBpsSum": 0,
+          "knownMeanNetBps": null
+        },
+        {
+          "policy": "momentum-15m",
+          "scenario": "base-250ms",
+          "selections": 0,
+          "filled": 0,
+          "unfilled": 0,
+          "unknown": 0,
+          "knownNetBpsSum": 0,
+          "fullPathKnownNetBpsSum": 0,
+          "knownMeanNetBps": null
+        }
+      ],
+      "candidateSelections": [],
+      "candidateRealized": []
+    },
+    {
+      "name": "later",
+      "reportPath": "/home/ec2-user/crypto_trade/reports/predictive-quality-study-2026-09-08/fixed-ridge-v1-verified/later.json",
+      "reportSha256": "c68141809e138e48b44b72d86873cf2fbe1873133c9641fa100e68e98f71a0dd",
+      "auditRecords": 1801,
+      "probeOrigins": 32,
+      "actionPaths": 192,
+      "freezeSamples": [
+        1260
+      ],
+      "strictTrainingCutoffs": true,
+      "restoredConditionalAndRidgeForecasts": true,
+      "independentMetricsRecomputed": true,
+      "chronologicalPolicyRecomputed": true,
+      "identicalFirstAttemptNumbers": true,
+      "baseMetrics": [
+        {
+          "symbol": "BTC/USD",
+          "actionPaths": 96,
+          "unknown": 22,
+          "common": 74,
+          "availability": {
+            "conditional": 96,
+            "unconditional": 96,
+            "cost-only": 96,
+            "cost-aware-ridge": 96
+          },
+          "netRmseBps": {
+            "conditional": 12.976537395554145,
+            "unconditional": 13.533305500260735,
+            "cost-only": 13.418400980582597,
+            "cost-aware-ridge": 13.829994210908298
+          },
+          "grossRmseBps": {
+            "candidate": 14.14657710295931,
+            "zeroGross": 12.706970497266079
+          },
+          "costRmseBps": 4.582491049499567
+        },
+        {
+          "symbol": "ETH/USD",
+          "actionPaths": 96,
+          "unknown": 19,
+          "common": 77,
+          "availability": {
+            "conditional": 96,
+            "unconditional": 96,
+            "cost-only": 96,
+            "cost-aware-ridge": 96
+          },
+          "netRmseBps": {
+            "conditional": 23.334369676080254,
+            "unconditional": 22.023133520515774,
+            "cost-only": 22.27889108981622,
+            "cost-aware-ridge": 22.94055870933421
+          },
+          "grossRmseBps": {
+            "candidate": 22.744020906932526,
+            "zeroGross": 21.653699745525984
+          },
+          "costRmseBps": 5.169293461569218
+        }
+      ],
+      "basePolicy": [
+        {
+          "policy": "conditional",
+          "scenario": "base-250ms",
+          "selections": 0,
+          "filled": 0,
+          "unfilled": 0,
+          "unknown": 0,
+          "knownNetBpsSum": 0,
+          "fullPathKnownNetBpsSum": 0,
+          "knownMeanNetBps": null
+        },
+        {
+          "policy": "unconditional",
+          "scenario": "base-250ms",
+          "selections": 0,
+          "filled": 0,
+          "unfilled": 0,
+          "unknown": 0,
+          "knownNetBpsSum": 0,
+          "fullPathKnownNetBpsSum": 0,
+          "knownMeanNetBps": null
+        },
+        {
+          "policy": "cost-only",
+          "scenario": "base-250ms",
+          "selections": 0,
+          "filled": 0,
+          "unfilled": 0,
+          "unknown": 0,
+          "knownNetBpsSum": 0,
+          "fullPathKnownNetBpsSum": 0,
+          "knownMeanNetBps": null
+        },
+        {
+          "policy": "cost-aware-ridge",
+          "scenario": "base-250ms",
+          "selections": 0,
+          "filled": 0,
+          "unfilled": 0,
+          "unknown": 0,
+          "knownNetBpsSum": 0,
+          "fullPathKnownNetBpsSum": 0,
+          "knownMeanNetBps": null
+        },
+        {
+          "policy": "flat",
+          "scenario": "base-250ms",
+          "selections": 0,
+          "filled": 0,
+          "unfilled": 0,
+          "unknown": 0,
+          "knownNetBpsSum": 0,
+          "fullPathKnownNetBpsSum": 0,
+          "knownMeanNetBps": null
+        },
+        {
+          "policy": "long-15m",
+          "scenario": "base-250ms",
+          "selections": 8,
+          "filled": 7,
+          "unfilled": 0,
+          "unknown": 1,
+          "knownNetBpsSum": -108.28857518438949,
+          "fullPathKnownNetBpsSum": null,
+          "knownMeanNetBps": -15.469796454912784
+        },
+        {
+          "policy": "short-15m",
+          "scenario": "base-250ms",
+          "selections": 8,
+          "filled": 5,
+          "unfilled": 2,
+          "unknown": 1,
+          "knownNetBpsSum": -59.13243967305201,
+          "fullPathKnownNetBpsSum": null,
+          "knownMeanNetBps": -8.447491381864573
+        },
+        {
+          "policy": "momentum-15m",
+          "scenario": "base-250ms",
+          "selections": 8,
+          "filled": 6,
+          "unfilled": 1,
+          "unknown": 1,
+          "knownNetBpsSum": -127.2646299621029,
+          "fullPathKnownNetBpsSum": null,
+          "knownMeanNetBps": -18.180661423157556
+        }
+      ],
+      "candidateSelections": [],
+      "candidateRealized": []
+    }
+  ],
+  "limitations": [
+    "Two separate, already inspected development replays; do not pool as a continuous model or call untouched.",
+    "Model reconstruction uses the frozen model implementations; numerical metrics and portfolio ordering use separate audit code.",
+    "Raw execution events are not replayed; fixed recorded execution paths and unknown outcomes are preserved.",
+    "A terminal INVALID record releases a hypothetical slot only after its receipt; actual exposure would remain uncertain.",
+    "Gross forecast improvements do not isolate directional feature skill from intercept and fill-fraction effects.",
+    "No significance, profitability, live policy equivalence, or deployment readiness is established."
+  ]
+}
