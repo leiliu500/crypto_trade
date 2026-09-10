@@ -1,0 +1,1137 @@
+{
+  "protocol": {
+    "version": "bounded-funded-parity-observation-v1",
+    "observations": 3,
+    "targetStartOffsetsSeconds": [
+      0,
+      4,
+      8
+    ],
+    "perRequestTimeoutSeconds": 1.75,
+    "maximumResponseBytes": 200000,
+    "receiptSkewDiagnosticLimitMs": 1000,
+    "requestDurationDiagnosticLimitMs": 2000,
+    "coinbaseBookAgeDiagnosticLimitMs": 2000,
+    "futureTimestampToleranceMs": 1000,
+    "feeAssumption": "NONE_ACCOUNT_FEES_UNKNOWN;REPORT_MAXIMUM_ALL_IN_COST_BUDGET_ONLY",
+    "positionModel": "BUY_WITH_CASH_AT_ONE_VENUE_AND_SELL_ALREADY_OWNED_INVENTORY_AT_THE_OTHER;NO_BORROWING",
+    "atomicExecution": false,
+    "quoteSynchronizationProven": false
+  },
+  "startedAtUtc": "2026-09-10T19:43:17.821089+00:00",
+  "completedAtUtc": "2026-09-10T19:43:26.042881+00:00",
+  "elapsedSeconds": 8.221818084828556,
+  "sourceScriptSha256": "c573a5b84e2e4e13e7ec9905ffaab877aa55031b94dacbde81511ee67c2e691b",
+  "observations": [
+    {
+      "round": 1,
+      "targetStartOffsetSeconds": 0,
+      "responses": [
+        {
+          "venue": "Kraken",
+          "symbol": "BTC/USD",
+          "url": "https://api.kraken.com/0/public/Depth?pair=XBTUSD&count=1",
+          "requestStartedMs": 1789069397822.6074,
+          "requestStartedUtc": "2026-09-10T19:43:17.822608+00:00",
+          "httpStatus": 200,
+          "rawBody": "{\"error\":[],\"result\":{\"XXBTZUSD\":{\"asks\":[[\"77236.40000\",\"1.457\",1789069397]],\"bids\":[[\"77236.30000\",\"0.004\",1789069397]]}}}",
+          "bodySha256": "2f8449bf13e85a09bede97ed0fd446dfb12bf65612c5019ccefbf33e09ec4a8d",
+          "book": {
+            "bid": "77236.30000",
+            "bidQuantity": "0.004",
+            "ask": "77236.40000",
+            "askQuantity": "1.457",
+            "snapshotTimestampMs": null,
+            "levelLastChangeMs": {
+              "bid": 1789069397000.0,
+              "ask": 1789069397000.0
+            },
+            "sequence": null,
+            "auctionMode": null,
+            "timestampInterpretation": "LEVEL_LAST_CHANGE_IS_NOT_SNAPSHOT_CREATION_OR_HEARTBEAT;SNAPSHOT_AGE_UNKNOWN",
+            "apparentSnapshotAgeMs": null,
+            "levelLastChangeApparentAgeMs": {
+              "bid": 956.75439453125,
+              "ask": 956.75439453125
+            }
+          },
+          "error": null,
+          "responseReceivedMs": 1789069397956.7544,
+          "responseReceivedUtc": "2026-09-10T19:43:17.956754+00:00",
+          "requestDurationMs": 134.170432,
+          "selectedResponseHeaders": {
+            "date": "Thu, 10 Sep 2026 19:43:17 GMT",
+            "content-type": "application/json",
+            "cf-cache-status": "HIT",
+            "age": "0",
+            "cache-control": "public, max-age=2"
+          },
+          "httpDateMs": 1789069397000.0,
+          "httpDateApparentAgeMs": 956.75439453125
+        },
+        {
+          "venue": "Coinbase",
+          "symbol": "BTC/USD",
+          "url": "https://api.exchange.coinbase.com/products/BTC-USD/book?level=1",
+          "requestStartedMs": 1789069397826.7473,
+          "requestStartedUtc": "2026-09-10T19:43:17.826747+00:00",
+          "httpStatus": 200,
+          "rawBody": "{\"bids\":[[\"77234.76\",\"0.00000076\",1]],\"asks\":[[\"77234.77\",\"0.135\",3]],\"sequence\":135895133019,\"auction_mode\":false,\"auction\":null,\"time\":\"2026-09-10T19:43:16.290914021Z\"}",
+          "bodySha256": "1bc9db6b103d4493653bdf23d0592615619fe024c01be97b25f6e9154084acf7",
+          "book": null,
+          "error": "ValueError: Invalid isoformat string: '2026-09-10T19:43:16.290914021+00:00'",
+          "responseReceivedMs": 1789069397944.6853,
+          "responseReceivedUtc": "2026-09-10T19:43:17.944685+00:00",
+          "requestDurationMs": 117.966327,
+          "selectedResponseHeaders": {
+            "date": "Thu, 10 Sep 2026 19:43:17 GMT",
+            "content-type": "application/json; charset=utf-8",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "etag": "W/\"98-+p7Nxo5lQJQTsRxXK/4Lnlwlmsg\"",
+            "age": "1",
+            "cf-cache-status": "HIT"
+          },
+          "httpDateMs": 1789069397000.0,
+          "httpDateApparentAgeMs": 944.685302734375
+        },
+        {
+          "venue": "Kraken",
+          "symbol": "ETH/USD",
+          "url": "https://api.kraken.com/0/public/Depth?pair=ETHUSD&count=1",
+          "requestStartedMs": 1789069397827.1553,
+          "requestStartedUtc": "2026-09-10T19:43:17.827155+00:00",
+          "httpStatus": 200,
+          "rawBody": "{\"error\":[],\"result\":{\"XETHZUSD\":{\"asks\":[[\"2468.87000\",\"4.295\",1789069396]],\"bids\":[[\"2468.85000\",\"0.304\",1789069394]]}}}",
+          "bodySha256": "c376c370fc779997d20d79318bec1416d65465a1599825cff44957e1174d75fe",
+          "book": {
+            "bid": "2468.85000",
+            "bidQuantity": "0.304",
+            "ask": "2468.87000",
+            "askQuantity": "4.295",
+            "snapshotTimestampMs": null,
+            "levelLastChangeMs": {
+              "bid": 1789069394000.0,
+              "ask": 1789069396000.0
+            },
+            "sequence": null,
+            "auctionMode": null,
+            "timestampInterpretation": "LEVEL_LAST_CHANGE_IS_NOT_SNAPSHOT_CREATION_OR_HEARTBEAT;SNAPSHOT_AGE_UNKNOWN",
+            "apparentSnapshotAgeMs": null,
+            "levelLastChangeApparentAgeMs": {
+              "bid": 4081.9921875,
+              "ask": 2081.9921875
+            }
+          },
+          "error": null,
+          "responseReceivedMs": 1789069398081.9922,
+          "responseReceivedUtc": "2026-09-10T19:43:18.081992+00:00",
+          "requestDurationMs": 254.862435,
+          "selectedResponseHeaders": {
+            "date": "Thu, 10 Sep 2026 19:43:18 GMT",
+            "content-type": "application/json",
+            "cf-cache-status": "HIT",
+            "cache-control": "public, max-age=2"
+          },
+          "httpDateMs": 1789069398000.0,
+          "httpDateApparentAgeMs": 81.9921875
+        },
+        {
+          "venue": "Coinbase",
+          "symbol": "ETH/USD",
+          "url": "https://api.exchange.coinbase.com/products/ETH-USD/book?level=1",
+          "requestStartedMs": 1789069397827.4185,
+          "requestStartedUtc": "2026-09-10T19:43:17.827419+00:00",
+          "httpStatus": 200,
+          "rawBody": "{\"bids\":[[\"2468.82\",\"3.57451072\",2]],\"asks\":[[\"2468.83\",\"3.64545173\",2]],\"sequence\":102695612314,\"auction_mode\":false,\"auction\":null,\"time\":\"2026-09-10T19:43:17.566660290Z\"}",
+          "bodySha256": "0f1b9f028eab22d217a72f23fc95e5650a7b39e80b203806ab523a9307016082",
+          "book": null,
+          "error": "ValueError: Invalid isoformat string: '2026-09-10T19:43:17.566660290+00:00'",
+          "responseReceivedMs": 1789069398031.9653,
+          "responseReceivedUtc": "2026-09-10T19:43:18.031965+00:00",
+          "requestDurationMs": 204.572355,
+          "selectedResponseHeaders": {
+            "date": "Thu, 10 Sep 2026 19:43:18 GMT",
+            "content-type": "application/json; charset=utf-8",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "etag": "W/\"9a-vl6N2EvWGMJkvVPFpQQFcHsNTQM\"",
+            "cf-cache-status": "EXPIRED"
+          },
+          "httpDateMs": 1789069398000.0,
+          "httpDateApparentAgeMs": 31.96533203125
+        }
+      ],
+      "comparisons": [
+        {
+          "symbol": "BTC/USD",
+          "buyVenue": "Kraken",
+          "sellVenue": "Coinbase",
+          "status": "UNKNOWN_MISSING_OR_INVALID_BOOK",
+          "grossSpreadUsdPerBase": null,
+          "maximumAllInCostBudgetBpsOfBuyNotional": null,
+          "equalPerSideFeeBreakEvenBps": null,
+          "actualFeesVerified": false,
+          "netProfitAfterActualCostsUsd": null,
+          "executableOpportunityVerified": false,
+          "quoteSynchronizationProven": false,
+          "failureReasons": [
+            "Coinbase: ValueError: Invalid isoformat string: '2026-09-10T19:43:16.290914021+00:00'"
+          ]
+        },
+        {
+          "symbol": "BTC/USD",
+          "buyVenue": "Coinbase",
+          "sellVenue": "Kraken",
+          "status": "UNKNOWN_MISSING_OR_INVALID_BOOK",
+          "grossSpreadUsdPerBase": null,
+          "maximumAllInCostBudgetBpsOfBuyNotional": null,
+          "equalPerSideFeeBreakEvenBps": null,
+          "actualFeesVerified": false,
+          "netProfitAfterActualCostsUsd": null,
+          "executableOpportunityVerified": false,
+          "quoteSynchronizationProven": false,
+          "failureReasons": [
+            "Coinbase: ValueError: Invalid isoformat string: '2026-09-10T19:43:16.290914021+00:00'"
+          ]
+        },
+        {
+          "symbol": "ETH/USD",
+          "buyVenue": "Kraken",
+          "sellVenue": "Coinbase",
+          "status": "UNKNOWN_MISSING_OR_INVALID_BOOK",
+          "grossSpreadUsdPerBase": null,
+          "maximumAllInCostBudgetBpsOfBuyNotional": null,
+          "equalPerSideFeeBreakEvenBps": null,
+          "actualFeesVerified": false,
+          "netProfitAfterActualCostsUsd": null,
+          "executableOpportunityVerified": false,
+          "quoteSynchronizationProven": false,
+          "failureReasons": [
+            "Coinbase: ValueError: Invalid isoformat string: '2026-09-10T19:43:17.566660290+00:00'"
+          ]
+        },
+        {
+          "symbol": "ETH/USD",
+          "buyVenue": "Coinbase",
+          "sellVenue": "Kraken",
+          "status": "UNKNOWN_MISSING_OR_INVALID_BOOK",
+          "grossSpreadUsdPerBase": null,
+          "maximumAllInCostBudgetBpsOfBuyNotional": null,
+          "equalPerSideFeeBreakEvenBps": null,
+          "actualFeesVerified": false,
+          "netProfitAfterActualCostsUsd": null,
+          "executableOpportunityVerified": false,
+          "quoteSynchronizationProven": false,
+          "failureReasons": [
+            "Coinbase: ValueError: Invalid isoformat string: '2026-09-10T19:43:17.566660290+00:00'"
+          ]
+        }
+      ]
+    },
+    {
+      "round": 2,
+      "targetStartOffsetSeconds": 4,
+      "responses": [
+        {
+          "venue": "Kraken",
+          "symbol": "BTC/USD",
+          "url": "https://api.kraken.com/0/public/Depth?pair=XBTUSD&count=1",
+          "requestStartedMs": 1789069401825.7385,
+          "requestStartedUtc": "2026-09-10T19:43:21.825738+00:00",
+          "httpStatus": 200,
+          "rawBody": "{\"error\":[],\"result\":{\"XXBTZUSD\":{\"asks\":[[\"77236.40000\",\"0.808\",1789069400]],\"bids\":[[\"77236.30000\",\"0.004\",1789069398]]}}}",
+          "bodySha256": "546ce2e2f2e2838abe666e72d57cfaee460d618042f6a2b57ef1d0d8e27d0dbd",
+          "book": {
+            "bid": "77236.30000",
+            "bidQuantity": "0.004",
+            "ask": "77236.40000",
+            "askQuantity": "0.808",
+            "snapshotTimestampMs": null,
+            "levelLastChangeMs": {
+              "bid": 1789069398000.0,
+              "ask": 1789069400000.0
+            },
+            "sequence": null,
+            "auctionMode": null,
+            "timestampInterpretation": "LEVEL_LAST_CHANGE_IS_NOT_SNAPSHOT_CREATION_OR_HEARTBEAT;SNAPSHOT_AGE_UNKNOWN",
+            "apparentSnapshotAgeMs": null,
+            "levelLastChangeApparentAgeMs": {
+              "bid": 3913.968017578125,
+              "ask": 1913.968017578125
+            }
+          },
+          "error": null,
+          "responseReceivedMs": 1789069401913.968,
+          "responseReceivedUtc": "2026-09-10T19:43:21.913968+00:00",
+          "requestDurationMs": 88.252555,
+          "selectedResponseHeaders": {
+            "date": "Thu, 10 Sep 2026 19:43:21 GMT",
+            "content-type": "application/json",
+            "cf-cache-status": "HIT",
+            "age": "0",
+            "cache-control": "public, max-age=2"
+          },
+          "httpDateMs": 1789069401000.0,
+          "httpDateApparentAgeMs": 913.968017578125
+        },
+        {
+          "venue": "Coinbase",
+          "symbol": "BTC/USD",
+          "url": "https://api.exchange.coinbase.com/products/BTC-USD/book?level=1",
+          "requestStartedMs": 1789069401826.0322,
+          "requestStartedUtc": "2026-09-10T19:43:21.826032+00:00",
+          "httpStatus": 200,
+          "rawBody": "{\"bids\":[[\"77234.02\",\"0.00001696\",1]],\"asks\":[[\"77234.03\",\"0.06535442\",2]],\"sequence\":135895137021,\"auction_mode\":false,\"auction\":null,\"time\":\"2026-09-10T19:43:20.655060072Z\"}",
+          "bodySha256": "e8242f2079972684992b8ea75c947c5effcbb0a59e01461fdcc165d561627322",
+          "book": null,
+          "error": "ValueError: Invalid isoformat string: '2026-09-10T19:43:20.655060072+00:00'",
+          "responseReceivedMs": 1789069401899.645,
+          "responseReceivedUtc": "2026-09-10T19:43:21.899645+00:00",
+          "requestDurationMs": 73.64198,
+          "selectedResponseHeaders": {
+            "date": "Thu, 10 Sep 2026 19:43:21 GMT",
+            "content-type": "application/json; charset=utf-8",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "etag": "W/\"9f-rMsar2sySJxTch9I9+redlRExi4\"",
+            "age": "1",
+            "cf-cache-status": "HIT"
+          },
+          "httpDateMs": 1789069401000.0,
+          "httpDateApparentAgeMs": 899.64501953125
+        },
+        {
+          "venue": "Kraken",
+          "symbol": "ETH/USD",
+          "url": "https://api.kraken.com/0/public/Depth?pair=ETHUSD&count=1",
+          "requestStartedMs": 1789069401826.2244,
+          "requestStartedUtc": "2026-09-10T19:43:21.826224+00:00",
+          "httpStatus": 200,
+          "rawBody": "{\"error\":[],\"result\":{\"XETHZUSD\":{\"asks\":[[\"2469.02000\",\"4.567\",1789069399]],\"bids\":[[\"2469.01000\",\"0.968\",1789069399]]}}}",
+          "bodySha256": "b9c1ce36747fdbddb1985b0653fb99f99441f166195a996493325e40b948c1db",
+          "book": {
+            "bid": "2469.01000",
+            "bidQuantity": "0.968",
+            "ask": "2469.02000",
+            "askQuantity": "4.567",
+            "snapshotTimestampMs": null,
+            "levelLastChangeMs": {
+              "bid": 1789069399000.0,
+              "ask": 1789069399000.0
+            },
+            "sequence": null,
+            "auctionMode": null,
+            "timestampInterpretation": "LEVEL_LAST_CHANGE_IS_NOT_SNAPSHOT_CREATION_OR_HEARTBEAT;SNAPSHOT_AGE_UNKNOWN",
+            "apparentSnapshotAgeMs": null,
+            "levelLastChangeApparentAgeMs": {
+              "bid": 3053.1064453125,
+              "ask": 3053.1064453125
+            }
+          },
+          "error": null,
+          "responseReceivedMs": 1789069402053.1064,
+          "responseReceivedUtc": "2026-09-10T19:43:22.053107+00:00",
+          "requestDurationMs": 226.913293,
+          "selectedResponseHeaders": {
+            "date": "Thu, 10 Sep 2026 19:43:22 GMT",
+            "content-type": "application/json",
+            "cf-cache-status": "HIT",
+            "cache-control": "public, max-age=2"
+          },
+          "httpDateMs": 1789069402000.0,
+          "httpDateApparentAgeMs": 53.1064453125
+        },
+        {
+          "venue": "Coinbase",
+          "symbol": "ETH/USD",
+          "url": "https://api.exchange.coinbase.com/products/ETH-USD/book?level=1",
+          "requestStartedMs": 1789069401841.339,
+          "requestStartedUtc": "2026-09-10T19:43:21.841339+00:00",
+          "httpStatus": 200,
+          "rawBody": "{\"bids\":[[\"2468.78\",\"0.7838738\",1]],\"asks\":[[\"2468.94\",\"0.19718729\",1]],\"sequence\":102695614386,\"auction_mode\":false,\"auction\":null,\"time\":\"2026-09-10T19:43:19.796853574Z\"}",
+          "bodySha256": "539d75a5b08bc1ced6fd0273debd3af71e2511f5f598c63e2018467df82a47eb",
+          "book": null,
+          "error": "ValueError: Invalid isoformat string: '2026-09-10T19:43:19.796853574+00:00'",
+          "responseReceivedMs": 1789069401897.322,
+          "responseReceivedUtc": "2026-09-10T19:43:21.897322+00:00",
+          "requestDurationMs": 56.002978,
+          "selectedResponseHeaders": {
+            "date": "Thu, 10 Sep 2026 19:43:21 GMT",
+            "content-type": "application/json; charset=utf-8",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "etag": "W/\"99-ZBoeLzQ1kgxuTkdSO8jlPKWSAH4\"",
+            "age": "1",
+            "cf-cache-status": "HIT"
+          },
+          "httpDateMs": 1789069401000.0,
+          "httpDateApparentAgeMs": 897.322021484375
+        }
+      ],
+      "comparisons": [
+        {
+          "symbol": "BTC/USD",
+          "buyVenue": "Kraken",
+          "sellVenue": "Coinbase",
+          "status": "UNKNOWN_MISSING_OR_INVALID_BOOK",
+          "grossSpreadUsdPerBase": null,
+          "maximumAllInCostBudgetBpsOfBuyNotional": null,
+          "equalPerSideFeeBreakEvenBps": null,
+          "actualFeesVerified": false,
+          "netProfitAfterActualCostsUsd": null,
+          "executableOpportunityVerified": false,
+          "quoteSynchronizationProven": false,
+          "failureReasons": [
+            "Coinbase: ValueError: Invalid isoformat string: '2026-09-10T19:43:20.655060072+00:00'"
+          ]
+        },
+        {
+          "symbol": "BTC/USD",
+          "buyVenue": "Coinbase",
+          "sellVenue": "Kraken",
+          "status": "UNKNOWN_MISSING_OR_INVALID_BOOK",
+          "grossSpreadUsdPerBase": null,
+          "maximumAllInCostBudgetBpsOfBuyNotional": null,
+          "equalPerSideFeeBreakEvenBps": null,
+          "actualFeesVerified": false,
+          "netProfitAfterActualCostsUsd": null,
+          "executableOpportunityVerified": false,
+          "quoteSynchronizationProven": false,
+          "failureReasons": [
+            "Coinbase: ValueError: Invalid isoformat string: '2026-09-10T19:43:20.655060072+00:00'"
+          ]
+        },
+        {
+          "symbol": "ETH/USD",
+          "buyVenue": "Kraken",
+          "sellVenue": "Coinbase",
+          "status": "UNKNOWN_MISSING_OR_INVALID_BOOK",
+          "grossSpreadUsdPerBase": null,
+          "maximumAllInCostBudgetBpsOfBuyNotional": null,
+          "equalPerSideFeeBreakEvenBps": null,
+          "actualFeesVerified": false,
+          "netProfitAfterActualCostsUsd": null,
+          "executableOpportunityVerified": false,
+          "quoteSynchronizationProven": false,
+          "failureReasons": [
+            "Coinbase: ValueError: Invalid isoformat string: '2026-09-10T19:43:19.796853574+00:00'"
+          ]
+        },
+        {
+          "symbol": "ETH/USD",
+          "buyVenue": "Coinbase",
+          "sellVenue": "Kraken",
+          "status": "UNKNOWN_MISSING_OR_INVALID_BOOK",
+          "grossSpreadUsdPerBase": null,
+          "maximumAllInCostBudgetBpsOfBuyNotional": null,
+          "equalPerSideFeeBreakEvenBps": null,
+          "actualFeesVerified": false,
+          "netProfitAfterActualCostsUsd": null,
+          "executableOpportunityVerified": false,
+          "quoteSynchronizationProven": false,
+          "failureReasons": [
+            "Coinbase: ValueError: Invalid isoformat string: '2026-09-10T19:43:19.796853574+00:00'"
+          ]
+        }
+      ]
+    },
+    {
+      "round": 3,
+      "targetStartOffsetSeconds": 8,
+      "responses": [
+        {
+          "venue": "Kraken",
+          "symbol": "BTC/USD",
+          "url": "https://api.kraken.com/0/public/Depth?pair=XBTUSD&count=1",
+          "requestStartedMs": 1789069405826.4297,
+          "requestStartedUtc": "2026-09-10T19:43:25.826430+00:00",
+          "httpStatus": 200,
+          "rawBody": "{\"error\":[],\"result\":{\"XXBTZUSD\":{\"asks\":[[\"77235.90000\",\"0.188\",1789069405]],\"bids\":[[\"77235.80000\",\"0.554\",1789069405]]}}}",
+          "bodySha256": "f9a058843bc2b363c9b5032ff8535f32446c98c06ad56975dbe4168526b7c98e",
+          "book": {
+            "bid": "77235.80000",
+            "bidQuantity": "0.554",
+            "ask": "77235.90000",
+            "askQuantity": "0.188",
+            "snapshotTimestampMs": null,
+            "levelLastChangeMs": {
+              "bid": 1789069405000.0,
+              "ask": 1789069405000.0
+            },
+            "sequence": null,
+            "auctionMode": null,
+            "timestampInterpretation": "LEVEL_LAST_CHANGE_IS_NOT_SNAPSHOT_CREATION_OR_HEARTBEAT;SNAPSHOT_AGE_UNKNOWN",
+            "apparentSnapshotAgeMs": null,
+            "levelLastChangeApparentAgeMs": {
+              "bid": 1042.09228515625,
+              "ask": 1042.09228515625
+            }
+          },
+          "error": null,
+          "responseReceivedMs": 1789069406042.0923,
+          "responseReceivedUtc": "2026-09-10T19:43:26.042092+00:00",
+          "requestDurationMs": 215.683351,
+          "selectedResponseHeaders": {
+            "date": "Thu, 10 Sep 2026 19:43:26 GMT",
+            "content-type": "application/json",
+            "cf-cache-status": "HIT",
+            "cache-control": "public, max-age=2"
+          },
+          "httpDateMs": 1789069406000.0,
+          "httpDateApparentAgeMs": 42.09228515625
+        },
+        {
+          "venue": "Coinbase",
+          "symbol": "BTC/USD",
+          "url": "https://api.exchange.coinbase.com/products/BTC-USD/book?level=1",
+          "requestStartedMs": 1789069405826.6858,
+          "requestStartedUtc": "2026-09-10T19:43:25.826686+00:00",
+          "httpStatus": 200,
+          "rawBody": "{\"bids\":[[\"77234.19\",\"0.18630233\",3]],\"asks\":[[\"77234.2\",\"0.06556154\",2]],\"sequence\":135895139518,\"auction_mode\":false,\"auction\":null,\"time\":\"2026-09-10T19:43:25.263291042Z\"}",
+          "bodySha256": "878250240811c0793de9e2fce633d3b4c3bca6eeedbbdc6c430c104f51298c2c",
+          "book": null,
+          "error": "ValueError: Invalid isoformat string: '2026-09-10T19:43:25.263291042+00:00'",
+          "responseReceivedMs": 1789069405902.0186,
+          "responseReceivedUtc": "2026-09-10T19:43:25.902019+00:00",
+          "requestDurationMs": 75.353465,
+          "selectedResponseHeaders": {
+            "date": "Thu, 10 Sep 2026 19:43:25 GMT",
+            "content-type": "application/json; charset=utf-8",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "etag": "W/\"9f-kdhpqB76e/Nh02Tn0XUv4npX354\"",
+            "age": "0",
+            "cf-cache-status": "HIT"
+          },
+          "httpDateMs": 1789069405000.0,
+          "httpDateApparentAgeMs": 902.0185546875
+        },
+        {
+          "venue": "Kraken",
+          "symbol": "ETH/USD",
+          "url": "https://api.kraken.com/0/public/Depth?pair=ETHUSD&count=1",
+          "requestStartedMs": 1789069405826.9917,
+          "requestStartedUtc": "2026-09-10T19:43:25.826992+00:00",
+          "httpStatus": 200,
+          "rawBody": "{\"error\":[],\"result\":{\"XETHZUSD\":{\"asks\":[[\"2468.86000\",\"4.541\",1789069405]],\"bids\":[[\"2468.85000\",\"2.219\",1789069405]]}}}",
+          "bodySha256": "e55f65b97907f976569b53c77c07dc611af5c5935e1bfb32ba4f6889b7c52fba",
+          "book": {
+            "bid": "2468.85000",
+            "bidQuantity": "2.219",
+            "ask": "2468.86000",
+            "askQuantity": "4.541",
+            "snapshotTimestampMs": null,
+            "levelLastChangeMs": {
+              "bid": 1789069405000.0,
+              "ask": 1789069405000.0
+            },
+            "sequence": null,
+            "auctionMode": null,
+            "timestampInterpretation": "LEVEL_LAST_CHANGE_IS_NOT_SNAPSHOT_CREATION_OR_HEARTBEAT;SNAPSHOT_AGE_UNKNOWN",
+            "apparentSnapshotAgeMs": null,
+            "levelLastChangeApparentAgeMs": {
+              "bid": 1038.364990234375,
+              "ask": 1038.364990234375
+            }
+          },
+          "error": null,
+          "responseReceivedMs": 1789069406038.365,
+          "responseReceivedUtc": "2026-09-10T19:43:26.038365+00:00",
+          "requestDurationMs": 211.395924,
+          "selectedResponseHeaders": {
+            "date": "Thu, 10 Sep 2026 19:43:26 GMT",
+            "content-type": "application/json",
+            "cf-cache-status": "HIT",
+            "cache-control": "public, max-age=2"
+          },
+          "httpDateMs": 1789069406000.0,
+          "httpDateApparentAgeMs": 38.364990234375
+        },
+        {
+          "venue": "Coinbase",
+          "symbol": "ETH/USD",
+          "url": "https://api.exchange.coinbase.com/products/ETH-USD/book?level=1",
+          "requestStartedMs": 1789069405864.249,
+          "requestStartedUtc": "2026-09-10T19:43:25.864249+00:00",
+          "httpStatus": 200,
+          "rawBody": "{\"bids\":[[\"2468.71\",\"2.914\",1]],\"asks\":[[\"2468.72\",\"0.99842406\",1]],\"sequence\":102695615925,\"auction_mode\":false,\"auction\":null,\"time\":\"2026-09-10T19:43:24.602575682Z\"}",
+          "bodySha256": "da38950712bc54e47ced7247389a1252b79132a8466d20ed2b5d5b407b0545a0",
+          "book": null,
+          "error": "ValueError: Invalid isoformat string: '2026-09-10T19:43:24.602575682+00:00'",
+          "responseReceivedMs": 1789069405897.349,
+          "responseReceivedUtc": "2026-09-10T19:43:25.897349+00:00",
+          "requestDurationMs": 33.120857,
+          "selectedResponseHeaders": {
+            "date": "Thu, 10 Sep 2026 19:43:25 GMT",
+            "content-type": "application/json; charset=utf-8",
+            "cache-control": "public, max-age=2, must-revalidate",
+            "etag": "W/\"97-QSbWp0af8huO6rAHGLhxovQSDxo\"",
+            "age": "1",
+            "cf-cache-status": "HIT"
+          },
+          "httpDateMs": 1789069405000.0,
+          "httpDateApparentAgeMs": 897.34912109375
+        }
+      ],
+      "comparisons": [
+        {
+          "symbol": "BTC/USD",
+          "buyVenue": "Kraken",
+          "sellVenue": "Coinbase",
+          "status": "UNKNOWN_MISSING_OR_INVALID_BOOK",
+          "grossSpreadUsdPerBase": null,
+          "maximumAllInCostBudgetBpsOfBuyNotional": null,
+          "equalPerSideFeeBreakEvenBps": null,
+          "actualFeesVerified": false,
+          "netProfitAfterActualCostsUsd": null,
+          "executableOpportunityVerified": false,
+          "quoteSynchronizationProven": false,
+          "failureReasons": [
+            "Coinbase: ValueError: Invalid isoformat string: '2026-09-10T19:43:25.263291042+00:00'"
+          ]
+        },
+        {
+          "symbol": "BTC/USD",
+          "buyVenue": "Coinbase",
+          "sellVenue": "Kraken",
+          "status": "UNKNOWN_MISSING_OR_INVALID_BOOK",
+          "grossSpreadUsdPerBase": null,
+          "maximumAllInCostBudgetBpsOfBuyNotional": null,
+          "equalPerSideFeeBreakEvenBps": null,
+          "actualFeesVerified": false,
+          "netProfitAfterActualCostsUsd": null,
+          "executableOpportunityVerified": false,
+          "quoteSynchronizationProven": false,
+          "failureReasons": [
+            "Coinbase: ValueError: Invalid isoformat string: '2026-09-10T19:43:25.263291042+00:00'"
+          ]
+        },
+        {
+          "symbol": "ETH/USD",
+          "buyVenue": "Kraken",
+          "sellVenue": "Coinbase",
+          "status": "UNKNOWN_MISSING_OR_INVALID_BOOK",
+          "grossSpreadUsdPerBase": null,
+          "maximumAllInCostBudgetBpsOfBuyNotional": null,
+          "equalPerSideFeeBreakEvenBps": null,
+          "actualFeesVerified": false,
+          "netProfitAfterActualCostsUsd": null,
+          "executableOpportunityVerified": false,
+          "quoteSynchronizationProven": false,
+          "failureReasons": [
+            "Coinbase: ValueError: Invalid isoformat string: '2026-09-10T19:43:24.602575682+00:00'"
+          ]
+        },
+        {
+          "symbol": "ETH/USD",
+          "buyVenue": "Coinbase",
+          "sellVenue": "Kraken",
+          "status": "UNKNOWN_MISSING_OR_INVALID_BOOK",
+          "grossSpreadUsdPerBase": null,
+          "maximumAllInCostBudgetBpsOfBuyNotional": null,
+          "equalPerSideFeeBreakEvenBps": null,
+          "actualFeesVerified": false,
+          "netProfitAfterActualCostsUsd": null,
+          "executableOpportunityVerified": false,
+          "quoteSynchronizationProven": false,
+          "failureReasons": [
+            "Coinbase: ValueError: Invalid isoformat string: '2026-09-10T19:43:24.602575682+00:00'"
+          ]
+        }
+      ]
+    }
+  ],
+  "preservedFailedCaptureAttempts": [
+    {
+      "protocol": {
+        "version": "bounded-funded-parity-observation-v1",
+        "observations": 3,
+        "targetStartOffsetsSeconds": [
+          0,
+          4,
+          8
+        ],
+        "perRequestTimeoutSeconds": 1.75,
+        "maximumResponseBytes": 200000,
+        "receiptSkewDiagnosticLimitMs": 1000,
+        "requestDurationDiagnosticLimitMs": 2000,
+        "coinbaseBookAgeDiagnosticLimitMs": 2000,
+        "futureTimestampToleranceMs": 1000,
+        "feeAssumption": "NONE_ACCOUNT_FEES_UNKNOWN;REPORT_MAXIMUM_ALL_IN_COST_BUDGET_ONLY",
+        "positionModel": "BUY_WITH_CASH_AT_ONE_VENUE_AND_SELL_ALREADY_OWNED_INVENTORY_AT_THE_OTHER;NO_BORROWING",
+        "atomicExecution": false,
+        "quoteSynchronizationProven": false
+      },
+      "startedAtUtc": "2026-09-10T19:41:31.691933+00:00",
+      "completedAtUtc": "2026-09-10T19:41:39.757225+00:00",
+      "elapsedSeconds": 8.0653209509328,
+      "sourceScriptSha256": "8b3fabc418af9e1da730a2102e9a5b506d70bf89104fabe1bce3a3e525c79c72",
+      "observations": [
+        {
+          "round": 1,
+          "targetStartOffsetSeconds": 0,
+          "responses": [
+            {
+              "venue": "Kraken",
+              "symbol": "BTC/USD",
+              "url": "https://api.kraken.com/0/public/Depth?pair=XBTUSD&count=1",
+              "requestStartedMs": 1789069291695.7432,
+              "requestStartedUtc": "2026-09-10T19:41:31.695743+00:00",
+              "httpStatus": null,
+              "rawBody": null,
+              "bodySha256": null,
+              "book": null,
+              "error": "URLError: <urlopen error [Errno -2] Name or service not known>",
+              "responseReceivedMs": 1789069291766.803,
+              "responseReceivedUtc": "2026-09-10T19:41:31.766803+00:00",
+              "requestDurationMs": 71.093945,
+              "selectedResponseHeaders": {},
+              "httpDateMs": null,
+              "httpDateApparentAgeMs": null
+            },
+            {
+              "venue": "Coinbase",
+              "symbol": "BTC/USD",
+              "url": "https://api.exchange.coinbase.com/products/BTC-USD/book?level=1",
+              "requestStartedMs": 1789069291698.0647,
+              "requestStartedUtc": "2026-09-10T19:41:31.698065+00:00",
+              "httpStatus": null,
+              "rawBody": null,
+              "bodySha256": null,
+              "book": null,
+              "error": "URLError: <urlopen error [Errno -2] Name or service not known>",
+              "responseReceivedMs": 1789069291767.7393,
+              "responseReceivedUtc": "2026-09-10T19:41:31.767739+00:00",
+              "requestDurationMs": 69.705352,
+              "selectedResponseHeaders": {},
+              "httpDateMs": null,
+              "httpDateApparentAgeMs": null
+            },
+            {
+              "venue": "Kraken",
+              "symbol": "ETH/USD",
+              "url": "https://api.kraken.com/0/public/Depth?pair=ETHUSD&count=1",
+              "requestStartedMs": 1789069291698.6191,
+              "requestStartedUtc": "2026-09-10T19:41:31.698619+00:00",
+              "httpStatus": null,
+              "rawBody": null,
+              "bodySha256": null,
+              "book": null,
+              "error": "URLError: <urlopen error [Errno -2] Name or service not known>",
+              "responseReceivedMs": 1789069291768.672,
+              "responseReceivedUtc": "2026-09-10T19:41:31.768672+00:00",
+              "requestDurationMs": 70.186522,
+              "selectedResponseHeaders": {},
+              "httpDateMs": null,
+              "httpDateApparentAgeMs": null
+            },
+            {
+              "venue": "Coinbase",
+              "symbol": "ETH/USD",
+              "url": "https://api.exchange.coinbase.com/products/ETH-USD/book?level=1",
+              "requestStartedMs": 1789069291699.0696,
+              "requestStartedUtc": "2026-09-10T19:41:31.699069+00:00",
+              "httpStatus": null,
+              "rawBody": null,
+              "bodySha256": null,
+              "book": null,
+              "error": "URLError: <urlopen error [Errno -2] Name or service not known>",
+              "responseReceivedMs": 1789069291769.7205,
+              "responseReceivedUtc": "2026-09-10T19:41:31.769721+00:00",
+              "requestDurationMs": 70.674714,
+              "selectedResponseHeaders": {},
+              "httpDateMs": null,
+              "httpDateApparentAgeMs": null
+            }
+          ],
+          "comparisons": [
+            {
+              "symbol": "BTC/USD",
+              "buyVenue": "Kraken",
+              "sellVenue": "Coinbase",
+              "status": "UNKNOWN_MISSING_OR_INVALID_BOOK",
+              "grossSpreadUsdPerBase": null,
+              "maximumAllInCostBudgetBpsOfBuyNotional": null,
+              "equalPerSideFeeBreakEvenBps": null,
+              "actualFeesVerified": false,
+              "netProfitAfterActualCostsUsd": null,
+              "executableOpportunityVerified": false,
+              "quoteSynchronizationProven": false,
+              "failureReasons": [
+                "Kraken: URLError: <urlopen error [Errno -2] Name or service not known>",
+                "Coinbase: URLError: <urlopen error [Errno -2] Name or service not known>"
+              ]
+            },
+            {
+              "symbol": "BTC/USD",
+              "buyVenue": "Coinbase",
+              "sellVenue": "Kraken",
+              "status": "UNKNOWN_MISSING_OR_INVALID_BOOK",
+              "grossSpreadUsdPerBase": null,
+              "maximumAllInCostBudgetBpsOfBuyNotional": null,
+              "equalPerSideFeeBreakEvenBps": null,
+              "actualFeesVerified": false,
+              "netProfitAfterActualCostsUsd": null,
+              "executableOpportunityVerified": false,
+              "quoteSynchronizationProven": false,
+              "failureReasons": [
+                "Coinbase: URLError: <urlopen error [Errno -2] Name or service not known>",
+                "Kraken: URLError: <urlopen error [Errno -2] Name or service not known>"
+              ]
+            },
+            {
+              "symbol": "ETH/USD",
+              "buyVenue": "Kraken",
+              "sellVenue": "Coinbase",
+              "status": "UNKNOWN_MISSING_OR_INVALID_BOOK",
+              "grossSpreadUsdPerBase": null,
+              "maximumAllInCostBudgetBpsOfBuyNotional": null,
+              "equalPerSideFeeBreakEvenBps": null,
+              "actualFeesVerified": false,
+              "netProfitAfterActualCostsUsd": null,
+              "executableOpportunityVerified": false,
+              "quoteSynchronizationProven": false,
+              "failureReasons": [
+                "Kraken: URLError: <urlopen error [Errno -2] Name or service not known>",
+                "Coinbase: URLError: <urlopen error [Errno -2] Name or service not known>"
+              ]
+            },
+            {
+              "symbol": "ETH/USD",
+              "buyVenue": "Coinbase",
+              "sellVenue": "Kraken",
+              "status": "UNKNOWN_MISSING_OR_INVALID_BOOK",
+              "grossSpreadUsdPerBase": null,
+              "maximumAllInCostBudgetBpsOfBuyNotional": null,
+              "equalPerSideFeeBreakEvenBps": null,
+              "actualFeesVerified": false,
+              "netProfitAfterActualCostsUsd": null,
+              "executableOpportunityVerified": false,
+              "quoteSynchronizationProven": false,
+              "failureReasons": [
+                "Coinbase: URLError: <urlopen error [Errno -2] Name or service not known>",
+                "Kraken: URLError: <urlopen error [Errno -2] Name or service not known>"
+              ]
+            }
+          ]
+        },
+        {
+          "round": 2,
+          "targetStartOffsetSeconds": 4,
+          "responses": [
+            {
+              "venue": "Kraken",
+              "symbol": "BTC/USD",
+              "url": "https://api.kraken.com/0/public/Depth?pair=XBTUSD&count=1",
+              "requestStartedMs": 1789069295696.1177,
+              "requestStartedUtc": "2026-09-10T19:41:35.696118+00:00",
+              "httpStatus": null,
+              "rawBody": null,
+              "bodySha256": null,
+              "book": null,
+              "error": "URLError: <urlopen error [Errno -2] Name or service not known>",
+              "responseReceivedMs": 1789069295753.025,
+              "responseReceivedUtc": "2026-09-10T19:41:35.753025+00:00",
+              "requestDurationMs": 56.940662,
+              "selectedResponseHeaders": {},
+              "httpDateMs": null,
+              "httpDateApparentAgeMs": null
+            },
+            {
+              "venue": "Coinbase",
+              "symbol": "BTC/USD",
+              "url": "https://api.exchange.coinbase.com/products/BTC-USD/book?level=1",
+              "requestStartedMs": 1789069295696.9387,
+              "requestStartedUtc": "2026-09-10T19:41:35.696939+00:00",
+              "httpStatus": null,
+              "rawBody": null,
+              "bodySha256": null,
+              "book": null,
+              "error": "URLError: <urlopen error [Errno -2] Name or service not known>",
+              "responseReceivedMs": 1789069295754.2515,
+              "responseReceivedUtc": "2026-09-10T19:41:35.754251+00:00",
+              "requestDurationMs": 57.352228,
+              "selectedResponseHeaders": {},
+              "httpDateMs": null,
+              "httpDateApparentAgeMs": null
+            },
+            {
+              "venue": "Kraken",
+              "symbol": "ETH/USD",
+              "url": "https://api.kraken.com/0/public/Depth?pair=ETHUSD&count=1",
+              "requestStartedMs": 1789069295710.4753,
+              "requestStartedUtc": "2026-09-10T19:41:35.710475+00:00",
+              "httpStatus": null,
+              "rawBody": null,
+              "bodySha256": null,
+              "book": null,
+              "error": "URLError: <urlopen error [Errno -2] Name or service not known>",
+              "responseReceivedMs": 1789069295757.0283,
+              "responseReceivedUtc": "2026-09-10T19:41:35.757028+00:00",
+              "requestDurationMs": 46.584003,
+              "selectedResponseHeaders": {},
+              "httpDateMs": null,
+              "httpDateApparentAgeMs": null
+            },
+            {
+              "venue": "Coinbase",
+              "symbol": "ETH/USD",
+              "url": "https://api.exchange.coinbase.com/products/ETH-USD/book?level=1",
+              "requestStartedMs": 1789069295725.1787,
+              "requestStartedUtc": "2026-09-10T19:41:35.725179+00:00",
+              "httpStatus": null,
+              "rawBody": null,
+              "bodySha256": null,
+              "book": null,
+              "error": "URLError: <urlopen error [Errno -2] Name or service not known>",
+              "responseReceivedMs": 1789069295755.7207,
+              "responseReceivedUtc": "2026-09-10T19:41:35.755721+00:00",
+              "requestDurationMs": 30.57137,
+              "selectedResponseHeaders": {},
+              "httpDateMs": null,
+              "httpDateApparentAgeMs": null
+            }
+          ],
+          "comparisons": [
+            {
+              "symbol": "BTC/USD",
+              "buyVenue": "Kraken",
+              "sellVenue": "Coinbase",
+              "status": "UNKNOWN_MISSING_OR_INVALID_BOOK",
+              "grossSpreadUsdPerBase": null,
+              "maximumAllInCostBudgetBpsOfBuyNotional": null,
+              "equalPerSideFeeBreakEvenBps": null,
+              "actualFeesVerified": false,
+              "netProfitAfterActualCostsUsd": null,
+              "executableOpportunityVerified": false,
+              "quoteSynchronizationProven": false,
+              "failureReasons": [
+                "Kraken: URLError: <urlopen error [Errno -2] Name or service not known>",
+                "Coinbase: URLError: <urlopen error [Errno -2] Name or service not known>"
+              ]
+            },
+            {
+              "symbol": "BTC/USD",
+              "buyVenue": "Coinbase",
+              "sellVenue": "Kraken",
+              "status": "UNKNOWN_MISSING_OR_INVALID_BOOK",
+              "grossSpreadUsdPerBase": null,
+              "maximumAllInCostBudgetBpsOfBuyNotional": null,
+              "equalPerSideFeeBreakEvenBps": null,
+              "actualFeesVerified": false,
+              "netProfitAfterActualCostsUsd": null,
+              "executableOpportunityVerified": false,
+              "quoteSynchronizationProven": false,
+              "failureReasons": [
+                "Coinbase: URLError: <urlopen error [Errno -2] Name or service not known>",
+                "Kraken: URLError: <urlopen error [Errno -2] Name or service not known>"
+              ]
+            },
+            {
+              "symbol": "ETH/USD",
+              "buyVenue": "Kraken",
+              "sellVenue": "Coinbase",
+              "status": "UNKNOWN_MISSING_OR_INVALID_BOOK",
+              "grossSpreadUsdPerBase": null,
+              "maximumAllInCostBudgetBpsOfBuyNotional": null,
+              "equalPerSideFeeBreakEvenBps": null,
+              "actualFeesVerified": false,
+              "netProfitAfterActualCostsUsd": null,
+              "executableOpportunityVerified": false,
+              "quoteSynchronizationProven": false,
+              "failureReasons": [
+                "Kraken: URLError: <urlopen error [Errno -2] Name or service not known>",
+                "Coinbase: URLError: <urlopen error [Errno -2] Name or service not known>"
+              ]
+            },
+            {
+              "symbol": "ETH/USD",
+              "buyVenue": "Coinbase",
+              "sellVenue": "Kraken",
+              "status": "UNKNOWN_MISSING_OR_INVALID_BOOK",
+              "grossSpreadUsdPerBase": null,
+              "maximumAllInCostBudgetBpsOfBuyNotional": null,
+              "equalPerSideFeeBreakEvenBps": null,
+              "actualFeesVerified": false,
+              "netProfitAfterActualCostsUsd": null,
+              "executableOpportunityVerified": false,
+              "quoteSynchronizationProven": false,
+              "failureReasons": [
+                "Coinbase: URLError: <urlopen error [Errno -2] Name or service not known>",
+                "Kraken: URLError: <urlopen error [Errno -2] Name or service not known>"
+              ]
+            }
+          ]
+        },
+        {
+          "round": 3,
+          "targetStartOffsetSeconds": 8,
+          "responses": [
+            {
+              "venue": "Kraken",
+              "symbol": "BTC/USD",
+              "url": "https://api.kraken.com/0/public/Depth?pair=XBTUSD&count=1",
+              "requestStartedMs": 1789069299696.1475,
+              "requestStartedUtc": "2026-09-10T19:41:39.696147+00:00",
+              "httpStatus": null,
+              "rawBody": null,
+              "bodySha256": null,
+              "book": null,
+              "error": "URLError: <urlopen error [Errno -2] Name or service not known>",
+              "responseReceivedMs": 1789069299752.9995,
+              "responseReceivedUtc": "2026-09-10T19:41:39.753000+00:00",
+              "requestDurationMs": 56.88062,
+              "selectedResponseHeaders": {},
+              "httpDateMs": null,
+              "httpDateApparentAgeMs": null
+            },
+            {
+              "venue": "Coinbase",
+              "symbol": "BTC/USD",
+              "url": "https://api.exchange.coinbase.com/products/BTC-USD/book?level=1",
+              "requestStartedMs": 1789069299696.45,
+              "requestStartedUtc": "2026-09-10T19:41:39.696450+00:00",
+              "httpStatus": null,
+              "rawBody": null,
+              "bodySha256": null,
+              "book": null,
+              "error": "URLError: <urlopen error [Errno -2] Name or service not known>",
+              "responseReceivedMs": 1789069299754.8071,
+              "responseReceivedUtc": "2026-09-10T19:41:39.754807+00:00",
+              "requestDurationMs": 58.383511,
+              "selectedResponseHeaders": {},
+              "httpDateMs": null,
+              "httpDateApparentAgeMs": null
+            },
+            {
+              "venue": "Kraken",
+              "symbol": "ETH/USD",
+              "url": "https://api.kraken.com/0/public/Depth?pair=ETHUSD&count=1",
+              "requestStartedMs": 1789069299697.237,
+              "requestStartedUtc": "2026-09-10T19:41:39.697237+00:00",
+              "httpStatus": null,
+              "rawBody": null,
+              "bodySha256": null,
+              "book": null,
+              "error": "URLError: <urlopen error [Errno -2] Name or service not known>",
+              "responseReceivedMs": 1789069299755.6726,
+              "responseReceivedUtc": "2026-09-10T19:41:39.755673+00:00",
+              "requestDurationMs": 58.455855,
+              "selectedResponseHeaders": {},
+              "httpDateMs": null,
+              "httpDateApparentAgeMs": null
+            },
+            {
+              "venue": "Coinbase",
+              "symbol": "ETH/USD",
+              "url": "https://api.exchange.coinbase.com/products/ETH-USD/book?level=1",
+              "requestStartedMs": 1789069299711.098,
+              "requestStartedUtc": "2026-09-10T19:41:39.711098+00:00",
+              "httpStatus": null,
+              "rawBody": null,
+              "bodySha256": null,
+              "book": null,
+              "error": "URLError: <urlopen error [Errno -2] Name or service not known>",
+              "responseReceivedMs": 1789069299751.1904,
+              "responseReceivedUtc": "2026-09-10T19:41:39.751190+00:00",
+              "requestDurationMs": 40.131902,
+              "selectedResponseHeaders": {},
+              "httpDateMs": null,
+              "httpDateApparentAgeMs": null
+            }
+          ],
+          "comparisons": [
+            {
+              "symbol": "BTC/USD",
+              "buyVenue": "Kraken",
+              "sellVenue": "Coinbase",
+              "status": "UNKNOWN_MISSING_OR_INVALID_BOOK",
+              "grossSpreadUsdPerBase": null,
+              "maximumAllInCostBudgetBpsOfBuyNotional": null,
+              "equalPerSideFeeBreakEvenBps": null,
+              "actualFeesVerified": false,
+              "netProfitAfterActualCostsUsd": null,
+              "executableOpportunityVerified": false,
+              "quoteSynchronizationProven": false,
+              "failureReasons": [
+                "Kraken: URLError: <urlopen error [Errno -2] Name or service not known>",
+                "Coinbase: URLError: <urlopen error [Errno -2] Name or service not known>"
+              ]
+            },
+            {
+              "symbol": "BTC/USD",
+              "buyVenue": "Coinbase",
+              "sellVenue": "Kraken",
+              "status": "UNKNOWN_MISSING_OR_INVALID_BOOK",
+              "grossSpreadUsdPerBase": null,
+              "maximumAllInCostBudgetBpsOfBuyNotional": null,
+              "equalPerSideFeeBreakEvenBps": null,
+              "actualFeesVerified": false,
+              "netProfitAfterActualCostsUsd": null,
+              "executableOpportunityVerified": false,
+              "quoteSynchronizationProven": false,
+              "failureReasons": [
+                "Coinbase: URLError: <urlopen error [Errno -2] Name or service not known>",
+                "Kraken: URLError: <urlopen error [Errno -2] Name or service not known>"
+              ]
+            },
+            {
+              "symbol": "ETH/USD",
+              "buyVenue": "Kraken",
+              "sellVenue": "Coinbase",
+              "status": "UNKNOWN_MISSING_OR_INVALID_BOOK",
+              "grossSpreadUsdPerBase": null,
+              "maximumAllInCostBudgetBpsOfBuyNotional": null,
+              "equalPerSideFeeBreakEvenBps": null,
+              "actualFeesVerified": false,
+              "netProfitAfterActualCostsUsd": null,
+              "executableOpportunityVerified": false,
+              "quoteSynchronizationProven": false,
+              "failureReasons": [
+                "Kraken: URLError: <urlopen error [Errno -2] Name or service not known>",
+                "Coinbase: URLError: <urlopen error [Errno -2] Name or service not known>"
+              ]
+            },
+            {
+              "symbol": "ETH/USD",
+              "buyVenue": "Coinbase",
+              "sellVenue": "Kraken",
+              "status": "UNKNOWN_MISSING_OR_INVALID_BOOK",
+              "grossSpreadUsdPerBase": null,
+              "maximumAllInCostBudgetBpsOfBuyNotional": null,
+              "equalPerSideFeeBreakEvenBps": null,
+              "actualFeesVerified": false,
+              "netProfitAfterActualCostsUsd": null,
+              "executableOpportunityVerified": false,
+              "quoteSynchronizationProven": false,
+              "failureReasons": [
+                "Coinbase: URLError: <urlopen error [Errno -2] Name or service not known>",
+                "Kraken: URLError: <urlopen error [Errno -2] Name or service not known>"
+              ]
+            }
+          ]
+        }
+      ],
+      "ordersSubmitted": false,
+      "authenticatedRequests": false,
+      "borrowed": false,
+      "summary": {
+        "requestedDirections": 12,
+        "availableDisplayedComparisons": 0,
+        "positiveDisplayedGrossComparisons": 0,
+        "failedRequests": 12,
+        "actualNetProfitKnown": false,
+        "executableOpportunitiesVerified": 0,
+        "bestDisplayedCostBudgetBps": null
+      }
+    }
+  ],
+  "ordersSubmitted": false,
+  "authenticatedRequests": false,
+  "borrowed": false,
+  "summary": {
+    "requestedDirections": 12,
+    "availableDisplayedComparisons": 0,
+    "positiveDisplayedGrossComparisons": 0,
+    "failedRequests": 6,
+    "actualNetProfitKnown": false,
+    "executableOpportunitiesVerified": 0,
+    "bestDisplayedCostBudgetBps": null
+  }
+}

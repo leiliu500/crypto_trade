@@ -1,0 +1,42 @@
+{
+  "passed": true,
+  "differentEnvironmentKeys": [],
+  "containers": [
+    {
+      "name": "/crypto-trade-engine",
+      "image": "sha256:dccf9b4434c9760c366231fca34f8c483368fb0af3450f8bdeef2117b9d2601e",
+      "startedAt": "2026-09-10T16:57:40.041929371Z",
+      "health": "healthy",
+      "mounts": [
+        {
+          "name": "crypto_trade_event_data",
+          "destination": "/app/data"
+        }
+      ],
+      "networks": [
+        "crypto-trade_default"
+      ]
+    },
+    {
+      "name": "/crypto-spot-trend-paper",
+      "image": "sha256:3682285933465fb691269a080586f08421f007c1c087d8d4f208dfcd72038b63",
+      "startedAt": "2026-09-10T16:55:32.13218234Z",
+      "health": "healthy",
+      "mounts": [
+        {
+          "name": "crypto_trade_spot_trend_research",
+          "destination": "/app/data"
+        }
+      ],
+      "networks": [
+        "crypto-spot-paper_default",
+        "crypto-trade_default"
+      ]
+    }
+  ],
+  "spot": {
+    "cycles": 139,
+    "orders": 1,
+    "cashUsd": 99900.09999846495
+  }
+}

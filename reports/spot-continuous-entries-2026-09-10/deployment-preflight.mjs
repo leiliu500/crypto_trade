@@ -1,0 +1,17 @@
+import { execFileSync } from 'node:child_process';
+import { writeFileSync } from 'node:fs';
+import assert from 'node:assert/strict';
+const run=(cmd,args)=>execFileSync(cmd,args,{encoding:'utf8',maxBuffer:16*1024*1024});
+const config=JSON.parse(run('docker-compose',['-f','docker-compose.yml','-f','docker-compose.dashboard-spot.yml','config','--format','json']));
+const containers=JSON.parse(run('docker',['inspect','crypto-trade-engine','crypto-spot-trend-paper']));
+const actual=Object.fromEntries(containers[0].Config.Env.map(x=>{const i=x.indexOf('=');return[x.slice(0,i),x.slice(i+1)]}));
+const differentEnvironmentKeys=Object.entries(config.services.engine.environment).filter(([k,v])=>String(v)!==actual[k]).map(([k])=>k);
+assert.deepEqual(differentEnvironmentKeys,[]);
+const statuses=await Promise.all(['http://127.0.0.1:3001/api/dashboard','http://127.0.0.1:3002/status'].map(async u=>{const r=await fetch(u);assert.ok(r.ok);return r.json()}));
+assert.equal(statuses[1].state.version,'btc-spot-weekly-research-paper-runner-v2');
+assert.ok(!statuses[1].state.orders.some(o=>['SUBMITTED','ACCEPTED'].includes(o.status)));
+const out='reports/spot-continuous-entries-2026-09-10';
+writeFileSync(out+'/before-futures.json',JSON.stringify(statuses[0],null,2)+'\n');
+writeFileSync(out+'/before-spot.json',JSON.stringify(statuses[1],null,2)+'\n');
+const result={passed:true,differentEnvironmentKeys,containers:containers.map(x=>({name:x.Name,image:x.Image,startedAt:x.State.StartedAt,health:x.State.Health?.Status,mounts:x.Mounts.map(m=>({name:m.Name,destination:m.Destination})),networks:Object.keys(x.NetworkSettings.Networks)})),spot:{cycles:statuses[1].state.cycles,orders:statuses[1].state.orders.length,cashUsd:statuses[1].state.account.cashUsd}};
+writeFileSync(out+'/deployment-preflight.json',JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result,null,2));

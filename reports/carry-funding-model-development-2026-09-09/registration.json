@@ -1,0 +1,55 @@
+{
+  "registeredAtUtc": "2026-09-09T05:10:41.508Z",
+  "protocol": {
+    "version": "monthly-funding-development-v1",
+    "symbols": [
+      "BTC/USD",
+      "ETH/USD"
+    ],
+    "years": [
+      2024,
+      2025
+    ],
+    "historyHours": 2184,
+    "publicationLagHours": 1,
+    "point": "0.5*mean(last7days)+0.5*mean(last30days)",
+    "conservative": "min(mean(last7days),nearestRankQ10(13_nonoverlapping_weekly_means))",
+    "scope": "FUNDING_CASH_ONLY_NOT_STRATEGY_PNL",
+    "untouchedTest": false,
+    "activationAllowed": false
+  },
+  "sources": [
+    {
+      "path": "docs/FUNDING_ECONOMIC_PROTOCOL.md",
+      "sha256": "21c082adb28c2d9c6db81ed9e8de561b8ea0ab234b8b1fe6ab43eaf3b2701388"
+    },
+    {
+      "path": "src/carry/funding-model.ts",
+      "sha256": "82f57b69ce484021b7c17c475f1ad79d8b71e78d83f5868eced9bd5ef90720c3"
+    },
+    {
+      "path": "src/carry/funding-study-main.ts",
+      "sha256": "fcfa09e79f2424ec24c8b1305bd26978d5485fc9c0440e371ba8450d5eba2634"
+    },
+    {
+      "path": "test/carry-funding-model.test.ts",
+      "sha256": "bbfb9be82b88a705f6ff29944e4aaa47f1d63a5c505ab678fb503f0a8a7e1c13"
+    }
+  ],
+  "inputs": [
+    {
+      "path": "reports/hourly-adaptive-study-2026-09-08/data-older-restored/dataset.json",
+      "sha256": "6995137d4366500628885518de3908f663ab7584caba0a4fe9845f700ac3f36f"
+    },
+    {
+      "path": "reports/hourly-adaptive-study-2026-09-08/data-recent/dataset.json",
+      "sha256": "802694ae936dd864681dee2278f027ea1732a91fd6b635f1b08371673abcb227"
+    }
+  ],
+  "publicationAvailabilityEvidence": "ASSUMED_EXTRA_ONE_HOUR_LAG_NOT_ARCHIVED_KNOWN_AT",
+  "permittedAccrualStartInclusive": "2023-01-01T00:00:00.000Z",
+  "permittedAccrualEndExclusive": "2026-01-01T00:00:00.000Z",
+  "priceReturnsInspected": false,
+  "untouchedTest": false,
+  "activationAllowed": false
+}

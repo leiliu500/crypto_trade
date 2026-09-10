@@ -66,6 +66,7 @@ export interface DistributionOutcome {
   entryAtMs: number | null; exitAtMs: number; reason: string;
 }
 export interface DistributionSample {
+  sizingPolicyId?: string;
   id: string; symbol: string; actionId: string; signalAtMs: number; completedAtMs: number;
   features: number[]; outcomes: DistributionOutcome[];
 }
@@ -75,6 +76,7 @@ export interface DistributionEstimate {
   scoreBps: number | null; fillProbability: number; reason: string; eligible: boolean;
 }
 export interface DistributionDecision {
+  sizingPolicyId?: string;
   version: string; symbol: string; atMs: number; quoteSequence: string;
   selectionPolicyVersion?: string;
   entryMode?: DistributionEntryMode;

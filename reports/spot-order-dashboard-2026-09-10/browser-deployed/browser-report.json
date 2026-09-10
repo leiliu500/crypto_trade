@@ -1,0 +1,175 @@
+{
+  "generatedAt": "2026-09-10T06:22:16.329Z",
+  "mode": "DEPLOYED_READ_ONLY",
+  "url": "http://127.0.0.1:3001",
+  "results": [
+    {
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 1100
+      },
+      "heading": "BTC spot strategy",
+      "orderMode": "Paper orders enabled",
+      "exchangeMode": "Live exchange orders disabled",
+      "serviceStatus": "Spot service connected · market cycle 1 min ago · checks every 5 minutes",
+      "bodyWidth": 1425,
+      "viewportWidth": 1440,
+      "spotWidth": 1377,
+      "spotOrders": 0,
+      "partialOrders": [],
+      "values": [
+        {
+          "label": "Forward net P&L",
+          "value": "+$0.00"
+        },
+        {
+          "label": "Spot equity",
+          "value": "$100,000.00"
+        },
+        {
+          "label": "Cash",
+          "value": "$100,000.00"
+        },
+        {
+          "label": "BTC held",
+          "value": "0.00000000"
+        },
+        {
+          "label": "Realized net P&L",
+          "value": "+$0.00"
+        },
+        {
+          "label": "Unrealized net P&L",
+          "value": "+$0.00"
+        },
+        {
+          "label": "Fees paid",
+          "value": "$0.00"
+        },
+        {
+          "label": "Paper fills",
+          "value": "0"
+        }
+      ],
+      "futuresHeading": "Futures engine operational",
+      "scripts": [
+        "http://127.0.0.1:3001/app.js?v=20260910-spot-orders-1",
+        "http://127.0.0.1:3001/spot.js?v=20260910-spot-orders-1"
+      ],
+      "sourceStatus": {
+        "generatedAtMs": 1789021337471,
+        "orderSubmissionEnabled": true,
+        "liveTradingEnabled": false,
+        "healthy": true,
+        "lastSuccessMs": 1789021246037,
+        "lastDecisionReason": "NEXT_WEEK_ENTRY_WINDOW",
+        "account": {
+          "cashUsd": 100000,
+          "quantity": 0,
+          "realizedNetUsd": 0,
+          "feesUsd": 0
+        },
+        "mark": {
+          "equityUsd": 100000,
+          "liquidationEquityUsd": 100000,
+          "unrealizedNetUsd": 0,
+          "netPnlUsd": 0
+        },
+        "orderCount": 0,
+        "receiptCount": 0
+      },
+      "javascriptErrors": [],
+      "consoleErrors": [],
+      "screenshot": "/home/ec2-user/crypto_trade/reports/spot-order-dashboard-2026-09-10/browser-deployed/desktop-deployed.png",
+      "spotScreenshot": "/home/ec2-user/crypto_trade/reports/spot-order-dashboard-2026-09-10/browser-deployed/desktop-deployed-spot.png"
+    },
+    {
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "heading": "BTC spot strategy",
+      "orderMode": "Paper orders enabled",
+      "exchangeMode": "Live exchange orders disabled",
+      "serviceStatus": "Spot service connected · market cycle 1 min ago · checks every 5 minutes",
+      "bodyWidth": 390,
+      "viewportWidth": 390,
+      "spotWidth": 366,
+      "spotOrders": 0,
+      "partialOrders": [],
+      "values": [
+        {
+          "label": "Forward net P&L",
+          "value": "+$0.00"
+        },
+        {
+          "label": "Spot equity",
+          "value": "$100,000.00"
+        },
+        {
+          "label": "Cash",
+          "value": "$100,000.00"
+        },
+        {
+          "label": "BTC held",
+          "value": "0.00000000"
+        },
+        {
+          "label": "Realized net P&L",
+          "value": "+$0.00"
+        },
+        {
+          "label": "Unrealized net P&L",
+          "value": "+$0.00"
+        },
+        {
+          "label": "Fees paid",
+          "value": "$0.00"
+        },
+        {
+          "label": "Paper fills",
+          "value": "0"
+        }
+      ],
+      "futuresHeading": "Futures engine operational",
+      "scripts": [
+        "http://127.0.0.1:3001/app.js?v=20260910-spot-orders-1",
+        "http://127.0.0.1:3001/spot.js?v=20260910-spot-orders-1"
+      ],
+      "sourceStatus": {
+        "generatedAtMs": 1789021339996,
+        "orderSubmissionEnabled": true,
+        "liveTradingEnabled": false,
+        "healthy": true,
+        "lastSuccessMs": 1789021246037,
+        "lastDecisionReason": "NEXT_WEEK_ENTRY_WINDOW",
+        "account": {
+          "cashUsd": 100000,
+          "quantity": 0,
+          "realizedNetUsd": 0,
+          "feesUsd": 0
+        },
+        "mark": {
+          "equityUsd": 100000,
+          "liquidationEquityUsd": 100000,
+          "unrealizedNetUsd": 0,
+          "netPnlUsd": 0
+        },
+        "orderCount": 0,
+        "receiptCount": 0
+      },
+      "javascriptErrors": [],
+      "consoleErrors": [],
+      "screenshot": "/home/ec2-user/crypto_trade/reports/spot-order-dashboard-2026-09-10/browser-deployed/mobile-deployed.png",
+      "spotScreenshot": "/home/ec2-user/crypto_trade/reports/spot-order-dashboard-2026-09-10/browser-deployed/mobile-deployed-spot.png"
+    }
+  ],
+  "passed": true,
+  "cleanup": {
+    "temporaryProfileRemoved": true,
+    "initialError": "ENOTEMPTY during temporary Chrome profile cleanup after all browser assertions and screenshots passed",
+    "recoveredAt": "2026-09-10T06:23:02.471Z"
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "version": "kraken-independent-spot-history-v1",
+  "datasetSha256": "9a47c7bb44432393e0327bad95d801c19982fab218c6f7e96e01af74e683683d",
+  "datasetBytes": 208930,
+  "sources": [
+    {
+      "symbol": "BTC/USD",
+      "intervalMinutes": 1440,
+      "url": "https://api.kraken.com/0/public/OHLC?pair=XBTUSD&interval=1440",
+      "retrievedAtMs": 1788986187716,
+      "originalResponseSha256": "de5ba93e2bd382a1fe12dc012e0dae3c39da123faf0d72aedfe4bb8b2e1321fc",
+      "originalResponseBytes": 62277,
+      "originalRows": 721,
+      "filteredRows": 285,
+      "file": "sources/XBTUSD-1440.json",
+      "sha256": "dd441f7a4d1e9b423e92d4b5bc5dd166af1fed361180edbe901dd2bb61020946",
+      "persistedContent": "PERMITTED_COMPLETED_BARS_ONLY_ORIGINAL_RESPONSE_HASH_PRESERVED"
+    },
+    {
+      "symbol": "BTC/USD",
+      "intervalMinutes": 10080,
+      "url": "https://api.kraken.com/0/public/OHLC?pair=XBTUSD&interval=10080",
+      "retrievedAtMs": 1788986187716,
+      "originalResponseSha256": "767a83808db17751fb3a586ef66ccab3c82d7d73ee5ae7779f2bf690548f2045",
+      "originalResponseBytes": 55564,
+      "originalRows": 675,
+      "filteredRows": 130,
+      "file": "sources/XBTUSD-10080.json",
+      "sha256": "38fd58fb3138bba09ad1787c0b874089cdabd716684ab6fdc31e6e488a6b0a9f",
+      "persistedContent": "PERMITTED_COMPLETED_BARS_ONLY_ORIGINAL_RESPONSE_HASH_PRESERVED"
+    },
+    {
+      "symbol": "ETH/USD",
+      "intervalMinutes": 1440,
+      "url": "https://api.kraken.com/0/public/OHLC?pair=ETHUSD&interval=1440",
+      "retrievedAtMs": 1788986187716,
+      "originalResponseSha256": "b51da1a58b12173143d8b63a49c7972424a38af726cafe38072b3d13ddd5dc7d",
+      "originalResponseBytes": 61898,
+      "originalRows": 721,
+      "filteredRows": 285,
+      "file": "sources/ETHUSD-1440.json",
+      "sha256": "8a87aa9de159f22b19852a77091b755dce28bbad336a2c714c4c2938c844f4c3",
+      "persistedContent": "PERMITTED_COMPLETED_BARS_ONLY_ORIGINAL_RESPONSE_HASH_PRESERVED"
+    },
+    {
+      "symbol": "ETH/USD",
+      "intervalMinutes": 10080,
+      "url": "https://api.kraken.com/0/public/OHLC?pair=ETHUSD&interval=10080",
+      "retrievedAtMs": 1788986187716,
+      "originalResponseSha256": "de8d2279cf03009937696fdf9f71ecffb06eda24d184534f5a6c06771186ce4d",
+      "originalResponseBytes": 48470,
+      "originalRows": 579,
+      "filteredRows": 130,
+      "file": "sources/ETHUSD-10080.json",
+      "sha256": "905bbb016b26483f2806ddb0ef5e1ca45ca0ac3c0beb4975988716b94445e169",
+      "persistedContent": "PERMITTED_COMPLETED_BARS_ONLY_ORIGINAL_RESPONSE_HASH_PRESERVED"
+    }
+  ],
+  "coverage": [
+    {
+      "symbol": "BTC/USD",
+      "intervalMinutes": 1440,
+      "bars": 285,
+      "firstOpenMs": 1726704000000,
+      "lastEndMsExclusive": 1751328000000,
+      "missingPeriodsWithinObservedRange": 0
+    },
+    {
+      "symbol": "BTC/USD",
+      "intervalMinutes": 10080,
+      "bars": 130,
+      "firstOpenMs": 1672272000000,
+      "lastEndMsExclusive": 1750896000000,
+      "missingPeriodsWithinObservedRange": 0
+    },
+    {
+      "symbol": "ETH/USD",
+      "intervalMinutes": 1440,
+      "bars": 285,
+      "firstOpenMs": 1726704000000,
+      "lastEndMsExclusive": 1751328000000,
+      "missingPeriodsWithinObservedRange": 0
+    },
+    {
+      "symbol": "ETH/USD",
+      "intervalMinutes": 10080,
+      "bars": 130,
+      "firstOpenMs": 1672272000000,
+      "lastEndMsExclusive": 1750896000000,
+      "missingPeriodsWithinObservedRange": 0
+    }
+  ]
+}

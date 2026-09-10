@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "beforeSequence": 6,
+  "afterSequence": 31,
+  "startedAt": "2026-09-10T20:13:41.861000+00:00",
+  "firstExecutionAt": "2026-09-12T00:00:00+00:00",
+  "reviewAt": "2027-03-10T20:13:41.861000+00:00",
+  "accountsUnchanged": true,
+  "manifestUnchanged": true,
+  "collectorHealthy": true,
+  "errors": [
+    "ETH/USD:BOOK_UNVERIFIED_OR_STALE",
+    "BTC/USD:BOOK_UNVERIFIED_OR_STALE"
+  ],
+  "limitation": "Live restart occurred before the first eligible trade. Committed-fill crash recovery is covered by synthetic durability tests."
+}

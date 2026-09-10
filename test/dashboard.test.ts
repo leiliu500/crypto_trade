@@ -9,6 +9,21 @@ import type { EngineOperationalSnapshot } from "../src/engine/trading-engine.js"
 import { loadConfig } from "../src/config.js";
 import { policyMarketPulse, type PolicyMarketPulse } from "../src/research/policy-pulse.js";
 
+test("dashboard keeps exact trailing loss separate from session P&L and never substitutes unknown history", () => {
+  const monitor = new OperationsMonitor(), snapshot = engineState();
+  monitor.ingestEngineSnapshot({ ...snapshot, realizedPnl24h: -12, realizedPnlMeasurement: "KNOWN" });
+  assert.equal(monitor.snapshot().realizedPnl24h, -12);
+  assert.equal(monitor.snapshot().sessionRealizedPnl, 4);
+  assert.equal(compactHealthSnapshot(monitor.snapshot()).realizedPnl24h, -12);
+  monitor.ingestEngineSnapshot({ ...snapshot, realizedPnl24h: -12, realizedPnlMeasurement: "UNKNOWN" });
+  assert.equal(monitor.snapshot().realizedPnl24h, null);
+  assert.equal(monitor.snapshot().realizedPnlMeasurement, "UNKNOWN");
+  monitor.ingestEngineSnapshot(snapshot);
+  assert.equal(monitor.snapshot().realizedPnlMeasurement, "UNAVAILABLE");
+  assert.equal(monitor.snapshot().realizedPnl24h, null);
+  monitor.stop();
+});
+
 test("operations monitor retains an order's full P&L history after the position closes", () => {
   const monitor = new OperationsMonitor();
   monitor.recordEvent("engineError", { message: "sample", apiKey: "must-not-leak", nested: { password: "must-not-leak" } }, 1_699_999_999_999);
@@ -479,19 +494,17 @@ test("partial exits allocate entry fees once and aggregate as one realized trade
   assert.ok(Math.abs((snapshot.realizedSessionBreakdown?.realizedPnl ?? 0) - 2.7985) < 1e-12);
 });
 
-test("dashboard distinguishes a motion reset from invalid market data", async () => {
+test("dashboard retains account P&L breakdown and versioned assets after market-model removal", async () => {
   const app = await readFile("src/dashboard/public/app.js", "utf8");
   const html = await readFile("src/dashboard/public/index.html", "utf8");
-  assert.match(app, /MOTION RESET/);
-  assert.match(app, /motion evidence unavailable until the next valid update/);
   assert.match(app, /Estimated net position P&amp;L/);
   assert.match(app, /mark \/ net \/ change/);
   assert.match(app, /Gross price gain/);
-  assert.match(app, /Actual realized P&amp;L/);
+  assert.match(app, /Price P&amp;L after fill fees/);
   assert.match(app, /signedMoney\(breakdown\.grossPricePnl,5\)/);
   assert.match(html, /Total · UTC day/);
   assert.match(html, /id="session-pnl-breakdown"/);
-  assert.match(html, /app\.js\?v=20260906-model-evaluation-1/);
+  assert.match(html, /src="\/app\.js\?v=[^"\s]+"/);
 });
 
 function pulseFixture(): PolicyMarketPulse {
@@ -523,7 +536,7 @@ test("market projection carries authoritative policy pulse instead of legacy rea
   monitor.stop();
 });
 
-test("Market Pulse renders new policy signals, evidence and clocks without the legacy ready fallback", async () => {
+test("active futures market cards retain quotes without restoring residual policy recommendations", async () => {
   const app = await readFile("src/dashboard/public/app.js", "utf8");
   const utilities = app.slice(0, app.indexOf("function setConnection"));
   const source = app.slice(app.indexOf("function renderMarkets"), app.indexOf("function renderEvents"));
@@ -531,36 +544,27 @@ test("Market Pulse renders new policy signals, evidence and clocks without the l
   const base = monitor.snapshot().markets[0]!; monitor.stop();
   const renderMarket = (pulse: PolicyMarketPulse | null, enabled = true) => {
     const grid = { innerHTML: "", className: "" };
-    runInNewContext(`${utilities}\n${source}\nstate.snapshot={policyEngineEnabled:enabled,generatedAtMs:1700000000000};renderMarkets([market]);`,
-      { enabled, market: { ...base, policyPulse: pulse }, document: { getElementById: () => grid } });
+    runInNewContext(`${utilities}\n${source}\nstate.snapshot={policyEngineEnabled:enabled,generatedAtMs:1700000000000};state.snapshotReceivedAt=0;renderMarkets([market]);`,
+      { enabled, market: { ...base, policyPulse: pulse }, performance: { now: () => 0 }, document: { getElementById: () => grid } });
     return grid.innerHTML;
   };
   const p = pulseFixture();
   const html = renderMarket(p);
-  for (const value of ["executable-policy-v3", "PAPER RESEARCH", "Trend", "Breakout", "Recovery",
-    "NO QUALIFYING SIGNAL", "0 validated models", "profitability unproven", "cap $12", "Last sample", "Next sample",
-    "Short pullback", "LONG —", "SHORT —"]) assert.ok(html.includes(value), `missing ${value}`);
-  assert.doesNotMatch(html, /All deterministic gates ready|Rule state|micro 0|armed 0|ENTRY READY/);
+  for (const value of ["futures-market-card", "BTC/USD", "bid", "ask", "spread"])
+    assert.ok(html.includes(value), `missing ${value}`);
+  assert.doesNotMatch(html, /All deterministic gates ready|Rule state|micro 0|armed 0|ENTRY READY|PAPER RESEARCH|executable-policy-v3|LONG MATCH|SHORT MATCH/);
   const short = renderMarket({ ...p, status: "WAITING_FOR_QUOTE", families: p.families.map((f) => ({ ...f, shortSignal: true })),
     lastEvaluation: { atMs: 1_700_000_000_000, side: -1, policyId: "trend-15m", reason: "POLICY_RISK_SIZE_BLOCK", modelKey: null } });
-  assert.match(short, /SHORT MATCH/);
-  assert.match(short, /SIGNAL PRESENT · FRESH-QUOTE CHECKS/);
-  assert.match(short, /periodic sample timer does not delay entry checks/);
-  assert.match(renderMarket({ ...p, status: "LIQUIDITY_BLOCKED", liquidityReasons: ["DEPTH_Z_BELOW_LIMIT"] }), /LIQUIDITY GATED/);
-  assert.match(renderMarket({ ...p, status: "LIQUIDITY_BLOCKED", liquidityReasons: ["DEPTH_Z_BELOW_LIMIT"] }), /DEPTH_Z_BELOW_LIMIT/);
-  assert.match(short, /Last plan check/);
-  assert.match(short, /POLICY_RISK_SIZE_BLOCK/);
-  assert.match(renderMarket({ ...p, status: "COOLDOWN", cooldownRemainingMs: 60_000 }), /Next entry check in 1m 0s/);
-  assert.match(renderMarket({ ...p, status: "AWAITING_VALIDATION", mode: "CALIBRATED_PAPER" }), /unscored orders are disabled/);
-  assert.match(renderMarket({ ...p, mode: "SHADOW" }), /SHADOW · NO ORDERS/);
-  assert.match(renderMarket({ ...p, status: "DATA_GATED", reasons: ["STALE_BOOK"] }), /STALE_BOOK/);
-  assert.match(renderMarket(null), /WAITING FOR POLICY TELEMETRY/);
-  assert.doesNotMatch(renderMarket(null), /All deterministic gates ready/);
-  assert.match(renderMarket(null, false), /Rule state/);
+  assert.equal(short, html, "retained policy recommendations do not alter the active quote display");
+  for (const pulse of [null, { ...p, status: "COOLDOWN", cooldownRemainingMs: 60_000 },
+    { ...p, status: "LIQUIDITY_BLOCKED", liquidityReasons: ["DEPTH_Z_BELOW_LIMIT"] }] as Array<PolicyMarketPulse | null>) {
+    assert.equal(renderMarket(pulse), html);
+    assert.equal(renderMarket(pulse, false), html);
+  }
   const unsafe = renderMarket({ ...p, version: "<script>bad()</script>", lastEvaluation: { atMs: 1_700_000_000_000,
     policyId: "<img src=x onerror=bad()>", side: 1, reason: "<b>unsafe</b>", modelKey: null } });
   assert.doesNotMatch(unsafe, /<script>|<img src=x|<b>unsafe/);
-  assert.match(unsafe, /&lt;script&gt;/);
+  assert.equal(unsafe, html, "removed policy text is not evaluated or inserted into the dashboard");
 });
 
 test("joint model display separates submission permission, training, forecast freshness and entry gates", async () => {
@@ -661,7 +665,7 @@ test("dashboard formats the realized P&L reconciliation at five-decimal USD prec
     "Gross price gain", "+$1.34588",
     "Entry maker fee", "-$0.68148",
     "Exit maker fee", "-$0.68247",
-    "Actual realized P&amp;L", "-$0.01807",
+    "Price P&amp;L after fill fees", "-$0.01807",
   ]) assert.ok(rendered.includes(expected), `missing ${expected} from ${rendered}`);
 
   const sessionSource = app.slice(
@@ -917,7 +921,7 @@ test("dashboard server serves the read-only API, health probe, and browser route
     const htmlText = await html.text();
     assert.match(htmlText, /data-testid="dashboard-root"/);
     assert.match(htmlText, /Trades and order attempts/);
-    assert.match(htmlText, /app\.js\?v=20260906-model-evaluation-1/);
+    assert.match(htmlText, /app\.js\?v=20260910-spot-position-events-1/);
     assert.doesNotMatch(htmlText, /Exit dynamics/);
     assert.equal(dashboardAlias.status, 200);
     assert.match(await dashboardAlias.text(), /data-testid="dashboard-root"/);
@@ -969,7 +973,7 @@ function engineState(): EngineOperationalSnapshot {
     generatedAtMs: now, started: true, startedAtMs: now - 10_000, uptimeMs: 10_000, mode: "paper", paper: true,
     paperEntryExercise: false,
     strategyVersion: "test", modelVersion: "test-model", symbols: ["BTC/USD"], equity: 10_000, equityHighWater: 10_100, realizedSessionPnl: 4,
-    risk: { health: { publicStream: true, privateStream: true, accountReconciled: true, bookValid: true, clockValid: true, riskRecomputed: true }, reasons: [], equity: 10_000, equityHighWater: 10_100 },
+    risk: { health: { publicStream: true, privateStream: true, accountReconciled: true, bookValid: true, clockValid: true, riskRecomputed: true, persistenceReady: true }, reasons: [], equity: 10_000, equityHighWater: 10_100 },
     markets: [{ symbol: "BTC/USD", bookValid: true, bestBid: 101, bestAsk: 102, sequence: "8", exchangeTsMs: now - 2, receiveTsMs: now - 1, features: null }],
     positions: [{ symbol: "BTC/USD", side: 1, qty: 1, entryPx: 100, openedMs: now - 5_000, initialRiskPx: 2, roundTripCostPx: .2,
       mfePx: 2, maePx: .5, floorPx: .2, breakEvenArmed: true, phase: "PROTECTED", entryFamily: "CONTINUATION" }],

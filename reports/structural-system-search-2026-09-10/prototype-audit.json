@@ -1,0 +1,53 @@
+{
+  "changepoint": {
+    "passed": true,
+    "enumeratedObservationUpdates": 6,
+    "finalEnumeratedPaths": 64,
+    "verified": [
+      "Student-t predictive density against direct gamma expression",
+      "Run-length posterior against all binary reset/growth paths",
+      "Conjugate state updates and mixture latent-mean moments",
+      "20-day hazard-survival expectation and declared mean-uncertainty penalty"
+    ],
+    "limitation": "Latent-mean uncertainty omits future observation/process uncertainty; it is not a calibrated trade-loss quantile."
+  },
+  "hmm": {
+    "passed": true,
+    "enumeratedLatentPaths": 81,
+    "independentRegularizedEMIterations": 40,
+    "verified": [
+      "Normal emissions and forward likelihood/posterior against exhaustive paths",
+      "Scaled probability-domain forward/backward and regularized parameter updates match fitted model",
+      "Sorted means permute both transition axes consistently",
+      "Fourteen-day conditional log-growth expectation"
+    ],
+    "limitation": "Expected log growth is a model projection, not calibrated net cash profit; 90-return parameter fit stays frozen."
+  },
+  "study": {
+    "passed": true,
+    "prefixChecks": 20,
+    "developmentOnlyReplays": 8,
+    "ledgerReconciliations": 96,
+    "selectedId": "bocpd",
+    "newPrototypes": 2,
+    "originalMathematics": 0,
+    "requested10000Complete": false,
+    "statement": "Two distinct latent-state inference templates using established mathematics. Under its frozen learned parameters, HMM trading control is equivalent to long-only buy-and-hold after warmup; only BOCPD adds nonbaseline fitted behavior. No new economic premium or future profit established.",
+    "hmmPolicyRedundancy": {
+      "alwaysLongForAnyPostTrainingPosterior": true,
+      "pureState14DayGrowth": [
+        0.02972619565077071,
+        0.031804527266314324,
+        0.05830718809719439
+      ],
+      "entryLogHurdle": 0.016600341364441277,
+      "reason": "Forecast is linear in the posterior; every simplex vertex exceeds the hurdle, so every convex mixture does.",
+      "identicalBuyHoldWindowScenarioLedgers": 16
+    },
+    "hashes": {
+      "reports/structural-system-search-2026-09-10/prototype-screen/integrity.json": "168bf2c49f47f91794264488cf389ca92003a5860a83bbb5c6106d6b165f5a8c",
+      "reports/structural-system-search-2026-09-10/changepoint.py": "1b306719063cb49ee068682861e5285d2b72233ce740245fecb5a19d74a5a71f",
+      "reports/structural-system-search-2026-09-10/hmm.py": "56837987000dd71be110fdf98e5e80443ccd24ef68dee5cb653e4bdd38bcc6d4"
+    }
+  }
+}

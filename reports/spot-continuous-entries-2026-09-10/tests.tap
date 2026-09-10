@@ -1,0 +1,1226 @@
+TAP version 13
+# Subtest: dashboard keeps exact trailing loss separate from session P&L and never substitutes unknown history
+ok 1 - dashboard keeps exact trailing loss separate from session P&L and never substitutes unknown history
+  ---
+  duration_ms: 29.333282
+  type: 'test'
+  ...
+# Subtest: operations monitor retains an order's full P&L history after the position closes
+ok 2 - operations monitor retains an order's full P&L history after the position closes
+  ---
+  duration_ms: 29.609593
+  type: 'test'
+  ...
+# Subtest: operations monitor emits one authoritative closed-position telemetry record
+ok 3 - operations monitor emits one authoritative closed-position telemetry record
+  ---
+  duration_ms: 4.158158
+  type: 'test'
+  ...
+# Subtest: operations monitor bounds default P&L history retained in memory
+ok 4 - operations monitor bounds default P&L history retained in memory
+  ---
+  duration_ms: 14794.481615
+  type: 'test'
+  ...
+# Subtest: dashboard broadcast skips serialization when there are no websocket clients
+ok 5 - dashboard broadcast skips serialization when there are no websocket clients
+  ---
+  duration_ms: 1.348322
+  type: 'test'
+  ...
+# Subtest: ordinary database telemetry is sampled and unchanged orders are deduplicated
+ok 6 - ordinary database telemetry is sampled and unchanged orders are deduplicated
+  ---
+  duration_ms: 2.341598
+  type: 'test'
+  ...
+# Subtest: durable health payload excludes high-cardinality dashboard collections
+ok 7 - durable health payload excludes high-cardinality dashboard collections
+  ---
+  duration_ms: 1.566971
+  type: 'test'
+  ...
+# Subtest: dashboard resets total session P&L at UTC rollover and carries live equity forward
+ok 8 - dashboard resets total session P&L at UTC rollover and carries live equity forward
+  ---
+  duration_ms: 1.609011
+  type: 'test'
+  ...
+# Subtest: dashboard does not subtract the prior Kraken UTC session after the broker resets its counter
+ok 9 - dashboard does not subtract the prior Kraken UTC session after the broker resets its counter
+  ---
+  duration_ms: 1.464565
+  type: 'test'
+  ...
+# Subtest: dashboard waits for account reconciliation before locking the UTC opening equity
+ok 10 - dashboard waits for account reconciliation before locking the UTC opening equity
+  ---
+  duration_ms: 1.565892
+  type: 'test'
+  ...
+# Subtest: filled reduce-only exit cards inherit complete history and actual realized P&L
+ok 11 - filled reduce-only exit cards inherit complete history and actual realized P&L
+  ---
+  duration_ms: 2.411845
+  type: 'test'
+  ...
+# Subtest: closed-trade P&L uses exact asymmetric fees from each execution leg
+ok 12 - closed-trade P&L uses exact asymmetric fees from each execution leg
+  ---
+  duration_ms: 1.025076
+  type: 'test'
+  ...
+# Subtest: partial exits allocate entry fees once and aggregate as one realized trade
+ok 13 - partial exits allocate entry fees once and aggregate as one realized trade
+  ---
+  duration_ms: 1.68146
+  type: 'test'
+  ...
+# Subtest: dashboard distinguishes a motion reset from invalid market data
+ok 14 - dashboard distinguishes a motion reset from invalid market data
+  ---
+  duration_ms: 19.556434
+  type: 'test'
+  ...
+# Subtest: market projection carries authoritative policy pulse instead of legacy readiness
+ok 15 - market projection carries authoritative policy pulse instead of legacy readiness
+  ---
+  duration_ms: 3.578122
+  type: 'test'
+  ...
+# Subtest: Market Pulse renders new policy signals, evidence and clocks without the legacy ready fallback
+ok 16 - Market Pulse renders new policy signals, evidence and clocks without the legacy ready fallback
+  ---
+  duration_ms: 73.268422
+  type: 'test'
+  ...
+# Subtest: joint model display separates submission permission, training, forecast freshness and entry gates
+ok 17 - joint model display separates submission permission, training, forecast freshness and entry gates
+  ---
+  duration_ms: 60.661221
+  type: 'test'
+  ...
+# Subtest: dashboard formats the realized P&L reconciliation at five-decimal USD precision
+ok 18 - dashboard formats the realized P&L reconciliation at five-decimal USD precision
+  ---
+  duration_ms: 10.277085
+  type: 'test'
+  ...
+# Subtest: dashboard fills a complete twenty-minute P&L history with one-minute checkpoints
+ok 19 - dashboard fills a complete twenty-minute P&L history with one-minute checkpoints
+  ---
+  duration_ms: 4.851837
+  type: 'test'
+  ...
+# Subtest: dashboard uses adaptive price precision for micro-priced assets
+ok 20 - dashboard uses adaptive price precision for micro-priced assets
+  ---
+  duration_ms: 6.713149
+  type: 'test'
+  ...
+# Subtest: dashboard assets provide a phone-safe layout
+ok 21 - dashboard assets provide a phone-safe layout
+  ---
+  duration_ms: 3.981777
+  type: 'test'
+  ...
+# Subtest: dashboard groups one trade into one card while keeping standalone order filters strict
+ok 22 - dashboard groups one trade into one card while keeping standalone order filters strict
+  ---
+  duration_ms: 7.107552
+  type: 'test'
+  ...
+# Subtest: operations monitor exposes structured cancellation reasons in order cards and timelines
+ok 23 - operations monitor exposes structured cancellation reasons in order cards and timelines
+  ---
+  duration_ms: 1.828067
+  type: 'test'
+  ...
+# Subtest: order cards stay in reverse creation-time order when an older order updates later
+ok 24 - order cards stay in reverse creation-time order when an older order updates later
+  ---
+  duration_ms: 0.920265
+  type: 'test'
+  ...
+# Subtest: dashboard only exposes orders and events from the current UTC session
+ok 25 - dashboard only exposes orders and events from the current UTC session
+  ---
+  duration_ms: 1.864553
+  type: 'test'
+  ...
+# Subtest: hydrated database orders retain their full card details after an engine reboot
+ok 26 - hydrated database orders retain their full card details after an engine reboot
+  ---
+  duration_ms: 6.198528
+  type: 'test'
+  ...
+# Subtest: dashboard server serves the read-only API, health probe, and browser routes
+ok 27 - dashboard server serves the read-only API, health probe, and browser routes
+  ---
+  duration_ms: 82.735602
+  type: 'test'
+  ...
+# Subtest: PostgreSQL migration defines the complete operational record set
+ok 28 - PostgreSQL migration defines the complete operational record set
+  ---
+  duration_ms: 17.77477
+  type: 'test'
+  ...
+# Subtest: model results count each actual entry once and separate evaluation, qualified, and legacy trades
+ok 29 - model results count each actual entry once and separate evaluation, qualified, and legacy trades
+  ---
+  duration_ms: 3.621637
+  type: 'test'
+  ...
+# Subtest: monitor retains the exact model forecast and evaluation mode in persisted order cards
+ok 30 - monitor retains the exact model forecast and evaluation mode in persisted order cards
+  ---
+  duration_ms: 0.872962
+  type: 'test'
+  ...
+# Subtest: main dashboard proxies only its fixed paper URL, preserves other endpoints, and serves spot.js
+ok 31 - main dashboard proxies only its fixed paper URL, preserves other endpoints, and serves spot.js
+  ---
+  duration_ms: 152.898194
+  type: 'test'
+  ...
+# Subtest: spot proxy shares one in-flight request and a bounded cache between dashboard clients
+ok 32 - spot proxy shares one in-flight request and a bounded cache between dashboard clients
+  ---
+  duration_ms: 24.258363
+  type: 'test'
+  ...
+# Subtest: spot proxy preserves paper order transitions, fills, and durable rejection details
+ok 33 - spot proxy preserves paper order transitions, fills, and durable rejection details
+  ---
+  duration_ms: 11.877104
+  type: 'test'
+  ...
+# Subtest: an expired successful cache never hides an upstream failure with stale green telemetry
+ok 34 - an expired successful cache never hides an upstream failure with stale green telemetry
+  ---
+  duration_ms: 56.008811
+  type: 'test'
+  ...
+# Subtest: spot proxy rejects live mode, malformed accounting, order arrays, and non-JSON statuses
+    # Subtest: live mode
+    ok 1 - live mode
+      ---
+      duration_ms: 7.248923
+      type: 'test'
+      ...
+    # Subtest: live enabled
+    ok 2 - live enabled
+      ---
+      duration_ms: 17.187337
+      type: 'test'
+      ...
+    # Subtest: claimed proof
+    ok 3 - claimed proof
+      ---
+      duration_ms: 12.814259
+      type: 'test'
+      ...
+    # Subtest: missing account
+    ok 4 - missing account
+      ---
+      duration_ms: 9.40363
+      type: 'test'
+      ...
+    # Subtest: non-finite cash
+    ok 5 - non-finite cash
+      ---
+      duration_ms: 10.95657
+      type: 'test'
+      ...
+    # Subtest: negative quantity
+    ok 6 - negative quantity
+      ---
+      duration_ms: 6.035057
+      type: 'test'
+      ...
+    # Subtest: invalid timestamp
+    ok 7 - invalid timestamp
+      ---
+      duration_ms: 5.871443
+      type: 'test'
+      ...
+    # Subtest: invalid receipts
+    ok 8 - invalid receipts
+      ---
+      duration_ms: 5.651316
+      type: 'test'
+      ...
+    # Subtest: missing enabled orders
+    ok 9 - missing enabled orders
+      ---
+      duration_ms: 31.91191
+      type: 'test'
+      ...
+    # Subtest: invalid order
+    ok 10 - invalid order
+      ---
+      duration_ms: 6.65648
+      type: 'test'
+      ...
+    # Subtest: null response
+    ok 11 - null response
+      ---
+      duration_ms: 6.378494
+      type: 'test'
+      ...
+    # Subtest: array response
+    ok 12 - array response
+      ---
+      duration_ms: 6.129717
+      type: 'test'
+      ...
+    # Subtest: HTML response
+    ok 13 - HTML response
+      ---
+      duration_ms: 26.34905
+      type: 'test'
+      ...
+    1..13
+ok 35 - spot proxy rejects live mode, malformed accounting, order arrays, and non-JSON statuses
+  ---
+  duration_ms: 156.861123
+  type: 'test'
+  ...
+# Subtest: spot proxy caps both declared and streamed response bodies
+    # Subtest: content length
+    ok 1 - content length
+      ---
+      duration_ms: 22.504258
+      type: 'test'
+      ...
+    # Subtest: chunked stream
+    ok 2 - chunked stream
+      ---
+      duration_ms: 30.532547
+      type: 'test'
+      ...
+    1..2
+ok 36 - spot proxy caps both declared and streamed response bodies
+  ---
+  duration_ms: 56.192984
+  type: 'test'
+  ...
+# Subtest: spot proxy never follows an upstream redirect
+ok 37 - spot proxy never follows an upstream redirect
+  ---
+  duration_ms: 5.763649
+  type: 'test'
+  ...
+# Subtest: spot proxy enforces its deadline through both headers and body streaming
+    # Subtest: headers stall
+    ok 1 - headers stall
+      ---
+      duration_ms: 32.351069
+      type: 'test'
+      ...
+    # Subtest: body stalls
+    ok 2 - body stalls
+      ---
+      duration_ms: 32.990484
+      type: 'test'
+      ...
+    1..2
+ok 38 - spot proxy enforces its deadline through both headers and body streaming
+  ---
+  duration_ms: 66.089671
+  type: 'test'
+  ...
+# Subtest: a cached response cannot claim health with stale or future upstream success time
+    # Subtest: -600001
+    ok 1 - -600001
+      ---
+      duration_ms: 7.760233
+      type: 'test'
+      ...
+    # Subtest: 10000
+    ok 2 - 10000
+      ---
+      duration_ms: 19.999903
+      type: 'test'
+      ...
+    1..2
+ok 39 - a cached response cannot claim health with stale or future upstream success time
+  ---
+  duration_ms: 28.494471
+  type: 'test'
+  ...
+# Subtest: invalid or credential-bearing upstream configuration fails closed without throwing
+ok 40 - invalid or credential-bearing upstream configuration fails closed without throwing
+  ---
+  duration_ms: 0.874199
+  type: 'test'
+  ...
+# Subtest: main dashboard includes the spot module and clearly separates futures capital
+ok 41 - main dashboard includes the spot module and clearly separates futures capital
+  ---
+  duration_ms: 21.433123
+  type: 'test'
+  ...
+# Subtest: spot dashboard shows current account P&L and never imports historical gains
+ok 42 - spot dashboard shows current account P&L and never imports historical gains
+  ---
+  duration_ms: 68.98966
+  type: 'test'
+  ...
+# Subtest: missing marks and metrics remain unknown instead of displaying fabricated zero profit
+ok 43 - missing marks and metrics remain unknown instead of displaying fabricated zero profit
+  ---
+  duration_ms: 3.308375
+  type: 'test'
+  ...
+# Subtest: a failed request retains the last account snapshot but removes order readiness
+ok 44 - a failed request retains the last account snapshot but removes order readiness
+  ---
+  duration_ms: 7.251967
+  type: 'test'
+  ...
+# Subtest: staleness uses server cycle time and monotonic elapsed time despite browser clock changes
+ok 45 - staleness uses server cycle time and monotonic elapsed time despite browser clock changes
+  ---
+  duration_ms: 8.447704
+  type: 'test'
+  ...
+# Subtest: startup failure, malformed status, halted and unexpected execution modes are explicit
+ok 46 - startup failure, malformed status, halted and unexpected execution modes are explicit
+  ---
+  duration_ms: 6.40728
+  type: 'test'
+  ...
+# Subtest: IOC partial fills show booked quantity, canceled remainder and escaped lifecycle details
+ok 47 - IOC partial fills show booked quantity, canceled remainder and escaped lifecycle details
+  ---
+  duration_ms: 5.238337
+  type: 'test'
+  ...
+# Subtest: rejected orders show their reason without fabricating fills or fill prices
+ok 48 - rejected orders show their reason without fabricating fills or fill prices
+  ---
+  duration_ms: 4.324696
+  type: 'test'
+  ...
+# Subtest: entry window observes Thursday UTC boundaries and never announces a guaranteed entry
+ok 49 - entry window observes Thursday UTC boundaries and never announces a guaranteed entry
+  ---
+  duration_ms: 2.266501
+  type: 'test'
+  ...
+# Subtest: entry schedule follows service metadata during the legacy-to-continuous rollout
+ok 50 - entry schedule follows service metadata during the legacy-to-continuous rollout
+  ---
+  duration_ms: 11.256152
+  type: 'test'
+  ...
+# Subtest: continuous entry cadence uses configuration and retains consumed-entry and position limits
+ok 51 - continuous entry cadence uses configuration and retains consumed-entry and position limits
+  ---
+  duration_ms: 6.849185
+  type: 'test'
+  ...
+# Subtest: unrecognized or contradictory schedule metadata does not invent continuous or weekly entry timing
+ok 52 - unrecognized or contradictory schedule metadata does not invent continuous or weekly entry timing
+  ---
+  duration_ms: 3.753568
+  type: 'test'
+  ...
+# Subtest: spot polling runs every five seconds, permits one request at a time, and times out for retry
+ok 53 - spot polling runs every five seconds, permits one request at a time, and times out for retry
+  ---
+  duration_ms: 22.596956
+  type: 'test'
+  ...
+# Subtest: missing enablement and order ledger fields are not reported as disabled or zero submissions
+ok 54 - missing enablement and order ledger fields are not reported as disabled or zero submissions
+  ---
+  duration_ms: 14.141824
+  type: 'test'
+  ...
+# Subtest: spot response reachability is independent of stale recorded evaluations and market checks
+ok 55 - spot response reachability is independent of stale recorded evaluations and market checks
+  ---
+  duration_ms: 3.806557
+  type: 'test'
+  ...
+# Subtest: liveness ages, approximate countdown and header clock tick every second without extra polling
+ok 56 - liveness ages, approximate countdown and header clock tick every second without extra polling
+  ---
+  duration_ms: 27.233659
+  type: 'test'
+  ...
+# Subtest: overdue evaluation estimate never resets on unchanged polls or claims a cycle is running
+ok 57 - overdue evaluation estimate never resets on unchanged polls or claims a cycle is running
+  ---
+  duration_ms: 8.584811
+  type: 'test'
+  ...
+# Subtest: session observations track distinct recorded evaluations and merge later settlement timestamps
+ok 58 - session observations track distinct recorded evaluations and merge later settlement timestamps
+  ---
+  duration_ms: 19.82277
+  type: 'test'
+  ...
+# Subtest: missing and future telemetry stay unknown; zero only means no successful check when explicitly recorded
+ok 59 - missing and future telemetry stay unknown; zero only means no successful check when explicitly recorded
+  ---
+  duration_ms: 7.245927
+  type: 'test'
+  ...
+# Subtest: paper broker liveness counts lifecycle states separately and never reports terminal orders as profitable trades
+ok 60 - paper broker liveness counts lifecycle states separately and never reports terminal orders as profitable trades
+  ---
+  duration_ms: 14.206597
+  type: 'test'
+  ...
+# Subtest: cached upstream timestamps cannot renew liveness, and futures view starts no spot timers
+ok 61 - cached upstream timestamps cannot renew liveness, and futures view starts no spot timers
+  ---
+  duration_ms: 6.735223
+  type: 'test'
+  ...
+# Subtest: known untraded v1 migration preserves cash, history, clocks and decision without inventing orders
+ok 62 - known untraded v1 migration preserves cash, history, clocks and decision without inventing orders
+  ---
+  duration_ms: 12.340176
+  type: 'test'
+  ...
+# Subtest: migration rejects unknown runtime, strategy evidence, versions and preexisting order fields
+ok 63 - migration rejects unknown runtime, strategy evidence, versions and preexisting order fields
+  ---
+  duration_ms: 1.897313
+  type: 'test'
+  ...
+# Subtest: migration refuses any legacy fill or changed capital even when the old account reconciles
+ok 64 - migration refuses any legacy fill or changed capital even when the old account reconciles
+  ---
+  duration_ms: 1.438382
+  type: 'test'
+  ...
+# Subtest: durable envelope migration backs up exact v1 bytes and reloads the current ledger
+ok 65 - durable envelope migration backs up exact v1 bytes and reloads the current ledger
+  ---
+  duration_ms: 92.327961
+  type: 'test'
+  ...
+# Subtest: legacy envelope rejects changed or mismatched last-cycle evidence before migration
+ok 66 - legacy envelope rejects changed or mismatched last-cycle evidence before migration
+  ---
+  duration_ms: 12.550194
+  type: 'test'
+  ...
+# Subtest: migration detects a journal changed after loading and preserves the newer bytes
+ok 67 - migration detects a journal changed after loading and preserves the newer bytes
+  ---
+  duration_ms: 19.190287
+  type: 'test'
+  ...
+# Subtest: recovery after writing migration proof but before journal replacement is idempotent
+ok 68 - recovery after writing migration proof but before journal replacement is idempotent
+  ---
+  duration_ms: 24.789566
+  type: 'test'
+  ...
+# Subtest: a previously written migration proof cannot be reused for a different runtime
+ok 69 - a previously written migration proof cannot be reused for a different runtime
+  ---
+  duration_ms: 38.884786
+  type: 'test'
+  ...
+# Subtest: changed migration proof is rejected on the next startup
+ok 70 - changed migration proof is rejected on the next startup
+  ---
+  duration_ms: 9.353209
+  type: 'test'
+  ...
+# Subtest: v2 validation leaves historical version and settled ledger untouched
+ok 71 - v2 validation leaves historical version and settled ledger untouched
+  ---
+  duration_ms: 17.193403
+  type: 'test'
+  ...
+# Subtest: v2 policy upgrade preserves filled orders, historical proofs and exact backup bytes
+ok 72 - v2 policy upgrade preserves filled orders, historical proofs and exact backup bytes
+  ---
+  duration_ms: 32.716996
+  type: 'test'
+  ...
+# Subtest: later v3 cycles retain and verify the original runtime upgrade and v2 fill proofs
+ok 73 - later v3 cycles retain and verify the original runtime upgrade and v2 fill proofs
+  ---
+  duration_ms: 27.742182
+  type: 'test'
+  ...
+# Subtest: pending v2 submitted and accepted requests block policy migration without changing the journal
+ok 74 - pending v2 submitted and accepted requests block policy migration without changing the journal
+  ---
+  duration_ms: 39.640162
+  type: 'test'
+  ...
+# Subtest: unknown v2 source, evidence, account changes and existing upgrade metadata fail closed
+ok 75 - unknown v2 source, evidence, account changes and existing upgrade metadata fail closed
+  ---
+  duration_ms: 5.542459
+  type: 'test'
+  ...
+# Subtest: v2 upgrade refuses a changed last-cycle proof before writing any backup
+ok 76 - v2 upgrade refuses a changed last-cycle proof before writing any backup
+  ---
+  duration_ms: 5.628209
+  type: 'test'
+  ...
+# Subtest: v2 upgrade detects a concurrent journal change and invalid target hash
+ok 77 - v2 upgrade detects a concurrent journal change and invalid target hash
+  ---
+  duration_ms: 5.582336
+  type: 'test'
+  ...
+# Subtest: v2 upgrade recovers idempotently after proof creation but before journal replacement
+ok 78 - v2 upgrade recovers idempotently after proof creation but before journal replacement
+  ---
+  duration_ms: 48.225007
+  type: 'test'
+  ...
+# Subtest: a written v2 upgrade proof cannot be retargeted to a different runtime
+ok 79 - a written v2 upgrade proof cannot be retargeted to a different runtime
+  ---
+  duration_ms: 35.617314
+  type: 'test'
+  ...
+# Subtest: changed upgrade backup and proof are rejected after v3 migration
+ok 80 - changed upgrade backup and proof are rejected after v3 migration
+  ---
+  duration_ms: 12.549608
+  type: 'test'
+  ...
+# Subtest: spot ledger preserves cash identity through a profitable complete round trip
+ok 81 - spot ledger preserves cash identity through a profitable complete round trip
+  ---
+  duration_ms: 2.976657
+  type: 'test'
+  ...
+# Subtest: spot weighted entry cost includes fees and allocates them on partial exits
+ok 82 - spot weighted entry cost includes fees and allocates them on partial exits
+  ---
+  duration_ms: 0.692649
+  type: 'test'
+  ...
+# Subtest: spot marks count entry and hypothetical exit fees exactly once
+ok 83 - spot marks count entry and hypothetical exit fees exactly once
+  ---
+  duration_ms: 0.348177
+  type: 'test'
+  ...
+# Subtest: exact duplicate fills remain idempotent even after a newer fill
+ok 84 - exact duplicate fills remain idempotent even after a newer fill
+  ---
+  duration_ms: 1.091783
+  type: 'test'
+  ...
+# Subtest: spot ledger rejects overspending, overselling, and reversed new receipts without mutation
+ok 85 - spot ledger rejects overspending, overselling, and reversed new receipts without mutation
+  ---
+  duration_ms: 0.931601
+  type: 'test'
+  ...
+# Subtest: spot ledger rejects invalid quantities, prices, fees, clocks, and overflow
+ok 86 - spot ledger rejects invalid quantities, prices, fees, clocks, and overflow
+  ---
+  duration_ms: 0.988006
+  type: 'test'
+  ...
+# Subtest: spot ledger fails closed when floating precision would grant inventory without a cash debit
+ok 87 - spot ledger fails closed when floating precision would grant inventory without a cash debit
+  ---
+  duration_ms: 1.517138
+  type: 'test'
+  ...
+# Subtest: restored spot accounts reconcile their receipts and cannot manufacture cash from rounded aggregates
+ok 88 - restored spot accounts reconcile their receipts and cannot manufacture cash from rounded aggregates
+  ---
+  duration_ms: 2.12416
+  type: 'test'
+  ...
+# Subtest: L2 purchases round down to lots and respect the all-in budget including fees
+ok 89 - L2 purchases round down to lots and respect the all-in budget including fees
+  ---
+  duration_ms: 0.746658
+  type: 'test'
+  ...
+# Subtest: L2 cash caps a larger requested budget and omitted budgets use available cash
+ok 90 - L2 cash caps a larger requested budget and omitted budgets use available cash
+  ---
+  duration_ms: 5.609224
+  type: 'test'
+  ...
+# Subtest: L2 walks actual depth and caps fills at five percent of depth inside ten basis points
+ok 91 - L2 walks actual depth and caps fills at five percent of depth inside ten basis points
+  ---
+  duration_ms: 0.715585
+  type: 'test'
+  ...
+# Subtest: L2 sale book walks toward lower bids and cannot exceed actual inventory
+ok 92 - L2 sale book walks toward lower bids and cannot exceed actual inventory
+  ---
+  duration_ms: 0.553155
+  type: 'test'
+  ...
+# Subtest: L2 quantity bounds permit partial inventory reductions without flattening
+ok 93 - L2 quantity bounds permit partial inventory reductions without flattening
+  ---
+  duration_ms: 0.470845
+  type: 'test'
+  ...
+# Subtest: L2 rejects insufficient liquidity, lot quantity, and gross minimum notional
+ok 94 - L2 rejects insufficient liquidity, lot quantity, and gross minimum notional
+  ---
+  duration_ms: 0.493943
+  type: 'test'
+  ...
+# Subtest: L2 rejects stale and future data; exactly five seconds is allowed
+ok 95 - L2 rejects stale and future data; exactly five seconds is allowed
+  ---
+  duration_ms: 0.369678
+  type: 'test'
+  ...
+# Subtest: L2 validates both sides, ordering, tick alignment, and positive real depth
+ok 96 - L2 validates both sides, ordering, tick alignment, and positive real depth
+  ---
+  duration_ms: 0.379897
+  type: 'test'
+  ...
+# Subtest: L2 planner rejects malformed rules, reused IDs, and account time reversal
+ok 97 - L2 planner rejects malformed rules, reused IDs, and account time reversal
+  ---
+  duration_ms: 0.48655
+  type: 'test'
+  ...
+# Subtest: L2 discrete search never rounds purchases above cash over varied fractional budgets
+ok 98 - L2 discrete search never rounds purchases above cash over varied fractional budgets
+  ---
+  duration_ms: 50.35461
+  type: 'test'
+  ...
+# Subtest: continuous entry cadence retains delayed weekly signals and pays fees on late and midweek entries
+ok 99 - continuous entry cadence retains delayed weekly signals and pays fees on late and midweek entries
+  ---
+  duration_ms: 22.752242
+  type: 'test'
+  ...
+# Subtest: midweek eligibility does not bypass stale data, insufficient history or depth requirements
+ok 100 - midweek eligibility does not bypass stale data, insufficient history or depth requirements
+  ---
+  duration_ms: 24.899105
+  type: 'test'
+  ...
+# Subtest: a fresh pending buy may cross the native-week boundary when the new delayed signal remains long
+ok 101 - a fresh pending buy may cross the native-week boundary when the new delayed signal remains long
+  ---
+  duration_ms: 2.473402
+  type: 'test'
+  ...
+# Subtest: a pending prior-week buy is canceled when the newly eligible weekly signal is cash
+ok 102 - a pending prior-week buy is canceled when the newly eligible weekly signal is cash
+  ---
+  duration_ms: 2.053154
+  type: 'test'
+  ...
+# Subtest: synthetic completed round trips realize higher-price profit and unchanged-price losses after both fees
+ok 103 - synthetic completed round trips realize higher-price profit and unchanged-price losses after both fees
+  ---
+  duration_ms: 20.811404
+  type: 'test'
+  ...
+# Subtest: a midweek protective exit cannot trigger another buy in the same native week
+ok 104 - a midweek protective exit cannot trigger another buy in the same native week
+  ---
+  duration_ms: 3.630619
+  type: 'test'
+  ...
+# Subtest: native spot weekly bars preserve pre-2017 warmup and causal availability
+ok 105 - native spot weekly bars preserve pre-2017 warmup and causal availability
+  ---
+  duration_ms: 3.315024
+  type: 'test'
+  ...
+# Subtest: incomplete and future prices are excluded before their fields are read
+ok 106 - incomplete and future prices are excluded before their fields are read
+  ---
+  duration_ms: 0.514612
+  type: 'test'
+  ...
+# Subtest: missing weeks, reversed or duplicate times, and nonnative boundaries fail closed
+ok 107 - missing weeks, reversed or duplicate times, and nonnative boundaries fail closed
+  ---
+  duration_ms: 1.289457
+  type: 'test'
+  ...
+# Subtest: malformed OHLCVT, wrong pairs, oversized row counts and API errors are rejected
+ok 108 - malformed OHLCVT, wrong pairs, oversized row counts and API errors are rejected
+  ---
+  duration_ms: 1.232409
+  type: 'test'
+  ...
+# Subtest: acquisition preserves full raw bytes, seals complete bars, and reconstructs from source
+ok 109 - acquisition preserves full raw bytes, seals complete bars, and reconstructs from source
+  ---
+  duration_ms: 136.945691
+  type: 'test'
+  ...
+# Subtest: cached prices cannot be forged by changing the dataset hash alone
+ok 110 - cached prices cannot be forged by changing the dataset hash alone
+  ---
+  duration_ms: 16.544951
+  type: 'test'
+  ...
+# Subtest: failed, oversized or empty data cannot publish a successful manifest
+ok 111 - failed, oversized or empty data cannot publish a successful manifest
+  ---
+  duration_ms: 24.473196
+  type: 'test'
+  ...
+# Subtest: retrieval registration must precede source time and remain acquisition only
+ok 112 - retrieval registration must precede source time and remain acquisition only
+  ---
+  duration_ms: 16.243558
+  type: 'test'
+  ...
+# Subtest: audited research nomination loads with negative uncertainty and never claims proven profit
+ok 113 - audited research nomination loads with negative uncertainty and never claims proven profit
+  ---
+  duration_ms: 299.577302
+  type: 'test'
+  ...
+# Subtest: missing required run, source copy or data bindings cannot inherit a passed audit
+ok 114 - missing required run, source copy or data bindings cannot inherit a passed audit
+  ---
+  duration_ms: 239.711767
+  type: 'test'
+  ...
+# Subtest: source edits and artifact edits after the audit fail hash validation
+ok 115 - source edits and artifact edits after the audit fail hash validation
+  ---
+  duration_ms: 140.863643
+  type: 'test'
+  ...
+# Subtest: profit claims, missing eligibility and protocol retuning fail even with updated hashes
+ok 116 - profit claims, missing eligibility and protocol retuning fail even with updated hashes
+  ---
+  duration_ms: 431.915794
+  type: 'test'
+  ...
+# Subtest: failed audits, hidden failures and duplicate run substitutions are rejected
+ok 117 - failed audits, hidden failures and duplicate run substitutions are rejected
+  ---
+  duration_ms: 210.027193
+  type: 'test'
+  ...
+# Subtest: altered run summaries and synchronized nonflat inventory fail independent gate checks
+ok 118 - altered run summaries and synchronized nonflat inventory fail independent gate checks
+  ---
+  duration_ms: 400.320321
+  type: 'test'
+  ...
+# Subtest: unsafe relative paths and source symlinks escaping the repository are rejected
+ok 119 - unsafe relative paths and source symlinks escaping the repository are rejected
+  ---
+  duration_ms: 319.501685
+  type: 'test'
+  ...
+# Subtest: paper economic checks cannot be satisfied by retained report booleans alone
+ok 120 - paper economic checks cannot be satisfied by retained report booleans alone
+  ---
+  duration_ms: 171.903366
+  type: 'test'
+  ...
+# Subtest: spot kernel lock remains held after its flock helper exits and blocks independent open descriptions
+ok 121 - spot kernel lock remains held after its flock helper exits and blocks independent open descriptions
+  ---
+  duration_ms: 121.739848
+  type: 'test'
+  ...
+# Subtest: an independent Node process owns the lock until it releases its inherited open description
+ok 122 - an independent Node process owns the lock until it releases its inherited open description
+  ---
+  duration_ms: 755.746882
+  type: 'test'
+  ...
+# Subtest: SIGKILL releases the parent's kernel lock without deleting a stale file or consulting process IDs
+ok 123 - SIGKILL releases the parent's kernel lock without deleting a stale file or consulting process IDs
+  ---
+  duration_ms: 627.70286
+  type: 'test'
+  ...
+# Subtest: atomic spot journal replacement ignores abandoned pending files and preserves their evidence
+ok 124 - atomic spot journal replacement ignores abandoned pending files and preserves their evidence
+  ---
+  duration_ms: 23.330592
+  type: 'test'
+  ...
+# Subtest: exclusive cycle evidence cannot be overwritten, including by a competing writer
+ok 125 - exclusive cycle evidence cannot be overwritten, including by a competing writer
+  ---
+  duration_ms: 4.953692
+  type: 'test'
+  ...
+# Subtest: concurrent readers observe complete journal generations during repeated atomic replacement
+ok 126 - concurrent readers observe complete journal generations during repeated atomic replacement
+  ---
+  duration_ms: 130.289378
+  type: 'test'
+  ...
+# Subtest: public snapshot validates concurrent context before requesting fresh depth and preserves exact source hashes
+ok 127 - public snapshot validates concurrent context before requesting fresh depth and preserves exact source hashes
+  ---
+  duration_ms: 102.346909
+  type: 'test'
+  ...
+# Subtest: pair rules require online native spot identity, unit lots and usable increments
+ok 128 - pair rules require online native spot identity, unit lots and usable increments
+  ---
+  duration_ms: 1.492079
+  type: 'test'
+  ...
+# Subtest: book parsing rejects crossed, unsorted, duplicate, empty, oversized and invalid levels
+ok 129 - book parsing rejects crossed, unsorted, duplicate, empty, oversized and invalid levels
+  ---
+  duration_ms: 0.828195
+  type: 'test'
+  ...
+# Subtest: level change timestamps never replace receipt clocks or reject quiet levels as stale
+ok 130 - level change timestamps never replace receipt clocks or reject quiet levels as stale
+  ---
+  duration_ms: 0.400388
+  type: 'test'
+  ...
+# Subtest: failed rules prevent any depth request
+ok 131 - failed rules prevent any depth request
+  ---
+  duration_ms: 1.850378
+  type: 'test'
+  ...
+# Subtest: HTTP errors and both declared and streamed response-size excesses fail closed
+ok 132 - HTTP errors and both declared and streamed response-size excesses fail closed
+  ---
+  duration_ms: 10.05616
+  type: 'test'
+  ...
+# Subtest: invalid JSON, lossy UTF-8 and reversed or invalid local clocks are rejected
+ok 133 - invalid JSON, lossy UTF-8 and reversed or invalid local clocks are rejected
+  ---
+  duration_ms: 9.427506
+  type: 'test'
+  ...
+# Subtest: valid context cannot make an invalid final depth snapshot executable
+ok 134 - valid context cannot make an invalid final depth snapshot executable
+  ---
+  duration_ms: 1.479197
+  type: 'test'
+  ...
+# Subtest: fresh HTTP receipt cannot disguise a source missing the most recent completed week
+ok 135 - fresh HTTP receipt cannot disguise a source missing the most recent completed week
+  ---
+  duration_ms: 1.855883
+  type: 'test'
+  ...
+# Subtest: received malformed OHLC remains auditable while valid depth remains available for exits
+ok 136 - received malformed OHLC remains auditable while valid depth remains available for exits
+  ---
+  duration_ms: 6.914752
+  type: 'test'
+  ...
+# Subtest: failed OHLC network requests do not invent a source or discard fresh exit quotes
+ok 137 - failed OHLC network requests do not invent a source or discard fresh exit quotes
+  ---
+  duration_ms: 1.368001
+  type: 'test'
+  ...
+# Subtest: paper submission creates a durable order without changing cash or inventing a fill
+ok 138 - paper submission creates a durable order without changing cash or inventing a fill
+  ---
+  duration_ms: 5.208347
+  type: 'test'
+  ...
+# Subtest: client IDs retry idempotently and reject conflicting quantity, price, fee or time
+ok 139 - client IDs retry idempotently and reject conflicting quantity, price, fee or time
+  ---
+  duration_ms: 24.428353
+  type: 'test'
+  ...
+# Subtest: one pending order prevents double reservation without destroying the first request
+ok 140 - one pending order prevents double reservation without destroying the first request
+  ---
+  duration_ms: 0.687388
+  type: 'test'
+  ...
+# Subtest: fully funded request reserves fees at its limit and cannot request excess cash or inventory
+ok 141 - fully funded request reserves fees at its limit and cannot request excess cash or inventory
+  ---
+  duration_ms: 0.483438
+  type: 'test'
+  ...
+# Subtest: semantically invalid requests have explicit durable rejections
+ok 142 - semantically invalid requests have explicit durable rejections
+  ---
+  duration_ms: 1.699047
+  type: 'test'
+  ...
+# Subtest: non-JSON requests and forged restored account balances fail closed
+ok 143 - non-JSON requests and forged restored account balances fail closed
+  ---
+  duration_ms: 1.038601
+  type: 'test'
+  ...
+# Subtest: execution accepts and fills requested quantity with one fee-bearing receipt
+ok 144 - execution accepts and fills requested quantity with one fee-bearing receipt
+  ---
+  duration_ms: 1.03485
+  type: 'test'
+  ...
+# Subtest: IOC keeps nominal request independent of depth and cancels an unfilled partial remainder
+ok 145 - IOC keeps nominal request independent of depth and cancels an unfilled partial remainder
+  ---
+  duration_ms: 1.564645
+  type: 'test'
+  ...
+# Subtest: buy matching respects a stricter submitted limit and never borrows out-of-limit depth
+ok 146 - buy matching respects a stricter submitted limit and never borrows out-of-limit depth
+  ---
+  duration_ms: 2.879358
+  type: 'test'
+  ...
+# Subtest: abundant depth cannot overfill even at much better prices than the request limit
+ok 147 - abundant depth cannot overfill even at much better prices than the request limit
+  ---
+  duration_ms: 1.10502
+  type: 'test'
+  ...
+# Subtest: eight-decimal lot boundaries fill the requested lots without numerical dust
+ok 148 - eight-decimal lot boundaries fill the requested lots without numerical dust
+  ---
+  duration_ms: 2.887566
+  type: 'test'
+  ...
+# Subtest: nonmarketable limits and insufficient executable liquidity cancel without cash changes
+ok 149 - nonmarketable limits and insufficient executable liquidity cancel without cash changes
+  ---
+  duration_ms: 0.787431
+  type: 'test'
+  ...
+# Subtest: sell IOC only reduces inventory and matches the submitted sell price limit
+ok 150 - sell IOC only reduces inventory and matches the submitted sell price limit
+  ---
+  duration_ms: 0.87223
+  type: 'test'
+  ...
+# Subtest: order quantities and limits must match current lot, tick and minimum rules
+ok 151 - order quantities and limits must match current lot, tick and minimum rules
+  ---
+  duration_ms: 0.567038
+  type: 'test'
+  ...
+# Subtest: freshness, fee policy and full original depth are validated before matching
+ok 152 - freshness, fee policy and full original depth are validated before matching
+  ---
+  duration_ms: 1.097536
+  type: 'test'
+  ...
+# Subtest: restored pending orders expire instead of executing against a later market
+ok 153 - restored pending orders expire instead of executing against a later market
+  ---
+  duration_ms: 0.477742
+  type: 'test'
+  ...
+# Subtest: filled and partially filled restart retries never apply a second cash debit
+ok 154 - filled and partially filled restart retries never apply a second cash debit
+  ---
+  duration_ms: 1.103964
+  type: 'test'
+  ...
+# Subtest: accepted recovery continues once and a pending order with a preexisting receipt is rejected
+ok 155 - accepted recovery continues once and a pending order with a preexisting receipt is rejected
+  ---
+  duration_ms: 0.678825
+  type: 'test'
+  ...
+# Subtest: explicit strategy cancellation is terminal and reversible request retries cannot reopen it
+ok 156 - explicit strategy cancellation is terminal and reversible request retries cannot reopen it
+  ---
+  duration_ms: 0.773145
+  type: 'test'
+  ...
+# Subtest: ledger validation rejects missing, orphaned, duplicated, altered and nonterminal fill evidence
+ok 157 - ledger validation rejects missing, orphaned, duplicated, altered and nonterminal fill evidence
+  ---
+  duration_ms: 1.847151
+  type: 'test'
+  ...
+# Subtest: execution rejects reversed clocks without mutating pending order or account
+ok 158 - execution rejects reversed clocks without mutating pending order or account
+  ---
+  duration_ms: 3.153918
+  type: 'test'
+  ...
+# Subtest: spot paper starts with independent funded cash and makes a fresh, fee-inclusive entry
+ok 159 - spot paper starts with independent funded cash and makes a fresh, fee-inclusive entry
+  ---
+  duration_ms: 17.445046
+  type: 'test'
+  ...
+# Subtest: spot paper follows the native-week delay and cannot use the newly finalized close
+ok 160 - spot paper follows the native-week delay and cannot use the newly finalized close
+  ---
+  duration_ms: 9.087909
+  type: 'test'
+  ...
+# Subtest: spot paper may enter on a qualifying cycle after the first native-week hour
+ok 161 - spot paper may enter on a qualifying cycle after the first native-week hour
+  ---
+  duration_ms: 16.15313
+  type: 'test'
+  ...
+# Subtest: a partial L2 entry consumes the entry and larger fresh depth cannot add inventory
+ok 162 - a partial L2 entry consumes the entry and larger fresh depth cannot add inventory
+  ---
+  duration_ms: 1.687648
+  type: 'test'
+  ...
+# Subtest: a denied first attempt may retry on a later cycle with executable depth
+ok 163 - a denied first attempt may retry on a later cycle with executable depth
+  ---
+  duration_ms: 3.846328
+  type: 'test'
+  ...
+# Subtest: preparation persists a submitted request before settlement changes any cash or inventory
+ok 164 - preparation persists a submitted request before settlement changes any cash or inventory
+  ---
+  duration_ms: 2.488242
+  type: 'test'
+  ...
+# Subtest: a crash after submission recovers the same request without a duplicate order
+ok 165 - a crash after submission recovers the same request without a duplicate order
+  ---
+  duration_ms: 2.361855
+  type: 'test'
+  ...
+# Subtest: an old recovered pending order expires without applying a fill
+ok 166 - an old recovered pending order expires without applying a fill
+  ---
+  duration_ms: 1.028618
+  type: 'test'
+  ...
+# Subtest: submission before 01:00 UTC can settle afterward when signal and execution checks remain valid
+ok 167 - submission before 01:00 UTC can settle afterward when signal and execution checks remain valid
+  ---
+  duration_ms: 1.091831
+  type: 'test'
+  ...
+# Subtest: history failure between submission and settlement cancels the buy
+ok 168 - history failure between submission and settlement cancels the buy
+  ---
+  duration_ms: 1.229984
+  type: 'test'
+  ...
+# Subtest: bearish eligible weekly signals exit partially and retry with fresh depth
+ok 169 - bearish eligible weekly signals exit partially and retry with fresh depth
+  ---
+  duration_ms: 5.308375
+  type: 'test'
+  ...
+# Subtest: subminimum exit dust stays in inventory and liquidation P&L instead of being discarded
+ok 170 - subminimum exit dust stays in inventory and liquidation P&L instead of being discarded
+  ---
+  duration_ms: 7.280858
+  type: 'test'
+  ...
+# Subtest: spot paper reduces appreciated marked exposure without adding or flattening the remaining position
+ok 171 - spot paper reduces appreciated marked exposure without adding or flattening the remaining position
+  ---
+  duration_ms: 3.568439
+  type: 'test'
+  ...
+# Subtest: a subminimum marked-cap reduction flattens inventory and cannot re-enter that week
+ok 172 - a subminimum marked-cap reduction flattens inventory and cannot re-enter that week
+  ---
+  duration_ms: 21.594084
+  type: 'test'
+  ...
+# Subtest: stale and future books cannot trade or manufacture a fresh mark
+ok 173 - stale and future books cannot trade or manufacture a fresh mark
+  ---
+  duration_ms: 3.953071
+  type: 'test'
+  ...
+# Subtest: missing, stale, or failed history blocks entries but permits protective exits against fresh books
+ok 174 - missing, stale, or failed history blocks entries but permits protective exits against fresh books
+  ---
+  duration_ms: 3.349695
+  type: 'test'
+  ...
+# Subtest: backward cycle clocks are rejected while an exact duplicate remains idempotent
+ok 175 - backward cycle clocks are rejected while an exact duplicate remains idempotent
+  ---
+  duration_ms: 2.436449
+  type: 'test'
+  ...
+# Subtest: repeated cycles are idempotent and serialized restarts preserve receipt IDs and cash
+ok 176 - repeated cycles are idempotent and serialized restarts preserve receipt IDs and cash
+  ---
+  duration_ms: 1.834337
+  type: 'test'
+  ...
+# Subtest: weekly signal requires 40 available consecutive closes and ignores unfinished prices
+ok 177 - weekly signal requires 40 available consecutive closes and ignores unfinished prices
+  ---
+  duration_ms: 3.893946
+  type: 'test'
+  ...
+# Subtest: hysteresis preserves state inside cost-scaled band and equality goes to cash
+ok 178 - hysteresis preserves state inside cost-scaled band and equality goes to cash
+  ---
+  duration_ms: 1.387484
+  type: 'test'
+  ...
+# Subtest: historical fills occur strictly after finalized signal; stress waits another native week
+ok 179 - historical fills occur strictly after finalized signal; stress waits another native week
+  ---
+  duration_ms: 28.473174
+  type: 'test'
+  ...
+# Subtest: cash is exactly flat and buy-hold starts independently of a bullish candidate
+ok 180 - cash is exactly flat and buy-hold starts independently of a bullish candidate
+  ---
+  duration_ms: 3.347194
+  type: 'test'
+  ...
+# Subtest: missing weekly history rejects the replay and unavailable terminal volume leaves explicit inventory
+ok 181 - missing weekly history rejects the replay and unavailable terminal volume leaves explicit inventory
+  ---
+  duration_ms: 1.881884
+  type: 'test'
+  ...
+# Subtest: later prices cannot change earlier signals, fills or marked cash
+ok 182 - later prices cannot change earlier signals, fills or marked cash
+  ---
+  duration_ms: 12.521563
+  type: 'test'
+  ...
+# Subtest: bootstrap keeps calendar cash weeks and is deterministic without inventing evidence
+ok 183 - bootstrap keeps calendar cash weeks and is deterministic without inventing evidence
+  ---
+  duration_ms: 1.352334
+  type: 'test'
+  ...
+1..183
+# tests 202
+# suites 0
+# pass 202
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 16267.610083

@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
+import {writeFileSync} from 'node:fs';
+const out='reports/eth40-liveness-2026-09-10';
+const run=args=>execFileSync('docker',args,{encoding:'utf8',maxBuffer:16*1024*1024});
+const [before,after]=JSON.parse(run(['image','inspect','crypto-trade-engine:spot-dashboard-v6','crypto-trade-engine:spot-dashboard-v7']));
+assert.equal(before.Id,'sha256:5833b804a7196affb7ebf5d3679b7a8d0672322ec05379c5f89d68e207bca9fa');
+assert.deepEqual(before.Config,after.Config,'Dashboard patch must preserve image command/environment/user/health configuration');
+assert.deepEqual(after.RootFS.Layers.slice(0,before.RootFS.Layers.length),before.RootFS.Layers);
+const code=`const fs=require('node:fs');const c=require('node:crypto');const files=[];function scan(p){for(const e of fs.readdirSync(p,{withFileTypes:true})){const f=p+'/'+e.name;if(e.isDirectory()){if(f!=='/app/dist/src/dashboard/public'&&f!=='/app/src/dashboard/public')scan(f)}else if(e.isFile())files.push({file:f,sha256:c.createHash('sha256').update(fs.readFileSync(f)).digest('hex')})}}for(const p of ['/app/src','/app/dist/src','/app/config'])scan(p);for(const p of ['/app/package.json','/app/package-lock.json'])files.push({file:p,sha256:c.createHash('sha256').update(fs.readFileSync(p)).digest('hex')});files.sort((a,b)=>a.file.localeCompare(b.file));process.stdout.write(JSON.stringify(files));`;
+const fingerprints= [before,after].map(image=>JSON.parse(run(['run','--rm','--network','none','--read-only','--entrypoint','node',image.Id,'-e',code])));
+assert.deepEqual(fingerprints[0],fingerprints[1],'All non-static strategy/runtime/config bytes must remain unchanged');
+const result={passed:true,beforeImage:before.Id,afterImage:after.Id,inheritedLayers:before.RootFS.Layers.length,imageConfigUnchanged:true,nonStaticFilesCompared:fingerprints[0].length,nonStaticFingerprints:fingerprints[0]};
+writeFileSync(out+'/image-verification.json',JSON.stringify(result,null,2)+'\n');
+console.log(JSON.stringify({passed:true,beforeImage:before.Id,afterImage:after.Id,inheritedLayers:result.inheritedLayers,nonStaticFilesCompared:result.nonStaticFilesCompared}));

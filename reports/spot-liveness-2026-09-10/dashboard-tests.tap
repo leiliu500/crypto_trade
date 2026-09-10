@@ -1,0 +1,298 @@
+TAP version 13
+# Subtest: dashboard keeps exact trailing loss separate from session P&L and never substitutes unknown history
+ok 1 - dashboard keeps exact trailing loss separate from session P&L and never substitutes unknown history
+  ---
+  duration_ms: 8.402712
+  type: 'test'
+  ...
+# Subtest: operations monitor retains an order's full P&L history after the position closes
+ok 2 - operations monitor retains an order's full P&L history after the position closes
+  ---
+  duration_ms: 4.3413
+  type: 'test'
+  ...
+# Subtest: operations monitor emits one authoritative closed-position telemetry record
+ok 3 - operations monitor emits one authoritative closed-position telemetry record
+  ---
+  duration_ms: 2.417572
+  type: 'test'
+  ...
+# Subtest: operations monitor bounds default P&L history retained in memory
+ok 4 - operations monitor bounds default P&L history retained in memory
+  ---
+  duration_ms: 7955.826752
+  type: 'test'
+  ...
+# Subtest: dashboard broadcast skips serialization when there are no websocket clients
+ok 5 - dashboard broadcast skips serialization when there are no websocket clients
+  ---
+  duration_ms: 0.952313
+  type: 'test'
+  ...
+# Subtest: ordinary database telemetry is sampled and unchanged orders are deduplicated
+ok 6 - ordinary database telemetry is sampled and unchanged orders are deduplicated
+  ---
+  duration_ms: 3.056334
+  type: 'test'
+  ...
+# Subtest: durable health payload excludes high-cardinality dashboard collections
+ok 7 - durable health payload excludes high-cardinality dashboard collections
+  ---
+  duration_ms: 2.154219
+  type: 'test'
+  ...
+# Subtest: dashboard resets total session P&L at UTC rollover and carries live equity forward
+ok 8 - dashboard resets total session P&L at UTC rollover and carries live equity forward
+  ---
+  duration_ms: 2.579871
+  type: 'test'
+  ...
+# Subtest: dashboard does not subtract the prior Kraken UTC session after the broker resets its counter
+ok 9 - dashboard does not subtract the prior Kraken UTC session after the broker resets its counter
+  ---
+  duration_ms: 2.057071
+  type: 'test'
+  ...
+# Subtest: dashboard waits for account reconciliation before locking the UTC opening equity
+ok 10 - dashboard waits for account reconciliation before locking the UTC opening equity
+  ---
+  duration_ms: 2.093843
+  type: 'test'
+  ...
+# Subtest: filled reduce-only exit cards inherit complete history and actual realized P&L
+ok 11 - filled reduce-only exit cards inherit complete history and actual realized P&L
+  ---
+  duration_ms: 3.662835
+  type: 'test'
+  ...
+# Subtest: closed-trade P&L uses exact asymmetric fees from each execution leg
+ok 12 - closed-trade P&L uses exact asymmetric fees from each execution leg
+  ---
+  duration_ms: 1.179454
+  type: 'test'
+  ...
+# Subtest: partial exits allocate entry fees once and aggregate as one realized trade
+ok 13 - partial exits allocate entry fees once and aggregate as one realized trade
+  ---
+  duration_ms: 1.77625
+  type: 'test'
+  ...
+# Subtest: dashboard distinguishes a motion reset from invalid market data
+ok 14 - dashboard distinguishes a motion reset from invalid market data
+  ---
+  duration_ms: 30.650156
+  type: 'test'
+  ...
+# Subtest: market projection carries authoritative policy pulse instead of legacy readiness
+ok 15 - market projection carries authoritative policy pulse instead of legacy readiness
+  ---
+  duration_ms: 3.242559
+  type: 'test'
+  ...
+# Subtest: Market Pulse renders new policy signals, evidence and clocks without the legacy ready fallback
+ok 16 - Market Pulse renders new policy signals, evidence and clocks without the legacy ready fallback
+  ---
+  duration_ms: 64.069115
+  type: 'test'
+  ...
+# Subtest: joint model display separates submission permission, training, forecast freshness and entry gates
+ok 17 - joint model display separates submission permission, training, forecast freshness and entry gates
+  ---
+  duration_ms: 44.503179
+  type: 'test'
+  ...
+# Subtest: dashboard formats the realized P&L reconciliation at five-decimal USD precision
+ok 18 - dashboard formats the realized P&L reconciliation at five-decimal USD precision
+  ---
+  duration_ms: 6.675046
+  type: 'test'
+  ...
+# Subtest: dashboard fills a complete twenty-minute P&L history with one-minute checkpoints
+ok 19 - dashboard fills a complete twenty-minute P&L history with one-minute checkpoints
+  ---
+  duration_ms: 2.755665
+  type: 'test'
+  ...
+# Subtest: dashboard uses adaptive price precision for micro-priced assets
+ok 20 - dashboard uses adaptive price precision for micro-priced assets
+  ---
+  duration_ms: 3.690297
+  type: 'test'
+  ...
+# Subtest: dashboard assets provide a phone-safe layout
+ok 21 - dashboard assets provide a phone-safe layout
+  ---
+  duration_ms: 2.95658
+  type: 'test'
+  ...
+# Subtest: dashboard groups one trade into one card while keeping standalone order filters strict
+ok 22 - dashboard groups one trade into one card while keeping standalone order filters strict
+  ---
+  duration_ms: 4.095131
+  type: 'test'
+  ...
+# Subtest: operations monitor exposes structured cancellation reasons in order cards and timelines
+ok 23 - operations monitor exposes structured cancellation reasons in order cards and timelines
+  ---
+  duration_ms: 0.981806
+  type: 'test'
+  ...
+# Subtest: order cards stay in reverse creation-time order when an older order updates later
+ok 24 - order cards stay in reverse creation-time order when an older order updates later
+  ---
+  duration_ms: 0.837768
+  type: 'test'
+  ...
+# Subtest: dashboard only exposes orders and events from the current UTC session
+ok 25 - dashboard only exposes orders and events from the current UTC session
+  ---
+  duration_ms: 1.504116
+  type: 'test'
+  ...
+# Subtest: hydrated database orders retain their full card details after an engine reboot
+ok 26 - hydrated database orders retain their full card details after an engine reboot
+  ---
+  duration_ms: 1.384527
+  type: 'test'
+  ...
+# Subtest: dashboard server serves the read-only API, health probe, and browser routes
+ok 27 - dashboard server serves the read-only API, health probe, and browser routes
+  ---
+  duration_ms: 61.477402
+  type: 'test'
+  ...
+# Subtest: PostgreSQL migration defines the complete operational record set
+ok 28 - PostgreSQL migration defines the complete operational record set
+  ---
+  duration_ms: 10.246016
+  type: 'test'
+  ...
+# Subtest: model results count each actual entry once and separate evaluation, qualified, and legacy trades
+ok 29 - model results count each actual entry once and separate evaluation, qualified, and legacy trades
+  ---
+  duration_ms: 4.353417
+  type: 'test'
+  ...
+# Subtest: monitor retains the exact model forecast and evaluation mode in persisted order cards
+ok 30 - monitor retains the exact model forecast and evaluation mode in persisted order cards
+  ---
+  duration_ms: 1.235724
+  type: 'test'
+  ...
+# Subtest: main dashboard includes the spot module and clearly separates futures capital
+ok 31 - main dashboard includes the spot module and clearly separates futures capital
+  ---
+  duration_ms: 10.343842
+  type: 'test'
+  ...
+# Subtest: spot dashboard shows current account P&L and never imports historical gains
+ok 32 - spot dashboard shows current account P&L and never imports historical gains
+  ---
+  duration_ms: 49.951669
+  type: 'test'
+  ...
+# Subtest: missing marks and metrics remain unknown instead of displaying fabricated zero profit
+ok 33 - missing marks and metrics remain unknown instead of displaying fabricated zero profit
+  ---
+  duration_ms: 2.724754
+  type: 'test'
+  ...
+# Subtest: a failed request retains the last account snapshot but removes order readiness
+ok 34 - a failed request retains the last account snapshot but removes order readiness
+  ---
+  duration_ms: 4.674049
+  type: 'test'
+  ...
+# Subtest: staleness uses server cycle time and monotonic elapsed time despite browser clock changes
+ok 35 - staleness uses server cycle time and monotonic elapsed time despite browser clock changes
+  ---
+  duration_ms: 4.850694
+  type: 'test'
+  ...
+# Subtest: startup failure, malformed status, halted and unexpected execution modes are explicit
+ok 36 - startup failure, malformed status, halted and unexpected execution modes are explicit
+  ---
+  duration_ms: 3.963389
+  type: 'test'
+  ...
+# Subtest: IOC partial fills show booked quantity, canceled remainder and escaped lifecycle details
+ok 37 - IOC partial fills show booked quantity, canceled remainder and escaped lifecycle details
+  ---
+  duration_ms: 3.264168
+  type: 'test'
+  ...
+# Subtest: rejected orders show their reason without fabricating fills or fill prices
+ok 38 - rejected orders show their reason without fabricating fills or fill prices
+  ---
+  duration_ms: 2.456869
+  type: 'test'
+  ...
+# Subtest: entry window observes Thursday UTC boundaries and never announces a guaranteed entry
+ok 39 - entry window observes Thursday UTC boundaries and never announces a guaranteed entry
+  ---
+  duration_ms: 1.452085
+  type: 'test'
+  ...
+# Subtest: spot polling runs every five seconds, permits one request at a time, and times out for retry
+ok 40 - spot polling runs every five seconds, permits one request at a time, and times out for retry
+  ---
+  duration_ms: 11.681545
+  type: 'test'
+  ...
+# Subtest: missing enablement and order ledger fields are not reported as disabled or zero submissions
+ok 41 - missing enablement and order ledger fields are not reported as disabled or zero submissions
+  ---
+  duration_ms: 2.37293
+  type: 'test'
+  ...
+# Subtest: spot response reachability is independent of stale recorded evaluations and market checks
+ok 42 - spot response reachability is independent of stale recorded evaluations and market checks
+  ---
+  duration_ms: 2.306954
+  type: 'test'
+  ...
+# Subtest: liveness ages, approximate countdown and header clock tick every second without extra polling
+ok 43 - liveness ages, approximate countdown and header clock tick every second without extra polling
+  ---
+  duration_ms: 7.532246
+  type: 'test'
+  ...
+# Subtest: overdue evaluation estimate never resets on unchanged polls or claims a cycle is running
+ok 44 - overdue evaluation estimate never resets on unchanged polls or claims a cycle is running
+  ---
+  duration_ms: 6.542623
+  type: 'test'
+  ...
+# Subtest: session observations track distinct recorded evaluations and merge later settlement timestamps
+ok 45 - session observations track distinct recorded evaluations and merge later settlement timestamps
+  ---
+  duration_ms: 8.610412
+  type: 'test'
+  ...
+# Subtest: missing and future telemetry stay unknown; zero only means no successful check when explicitly recorded
+ok 46 - missing and future telemetry stay unknown; zero only means no successful check when explicitly recorded
+  ---
+  duration_ms: 6.340231
+  type: 'test'
+  ...
+# Subtest: paper broker liveness counts lifecycle states separately and never reports terminal orders as profitable trades
+ok 47 - paper broker liveness counts lifecycle states separately and never reports terminal orders as profitable trades
+  ---
+  duration_ms: 6.124088
+  type: 'test'
+  ...
+# Subtest: cached upstream timestamps cannot renew liveness, and futures view starts no spot timers
+ok 48 - cached upstream timestamps cannot renew liveness, and futures view starts no spot timers
+  ---
+  duration_ms: 6.59107
+  type: 'test'
+  ...
+1..48
+# tests 48
+# suites 0
+# pass 48
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 8853.016849

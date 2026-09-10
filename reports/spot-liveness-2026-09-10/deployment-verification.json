@@ -1,0 +1,70 @@
+{
+  "passed": true,
+  "checkedAt": "2026-09-10T15:59:01.955614+00:00",
+  "checks": {
+    "exactNewImage": true,
+    "spotImageAndProcessUnchanged": true,
+    "volumesAndNetworksPreserved": true,
+    "futuresCashPreserved": true,
+    "futuresOrdersPreserved": true,
+    "futuresActivitiesPreserved": true,
+    "futuresPositionsPreserved": true,
+    "spotAccountPreserved": true,
+    "spotOrdersPreserved": true,
+    "spotRuntimePreserved": true,
+    "spotHistoryPreserved": true,
+    "servedAssetsMatchSource": true,
+    "spotProxyHealthy": true
+  },
+  "containers": [
+    {
+      "name": "/crypto-trade-engine",
+      "image": "sha256:c9eb00619c56e06b0e68c8e9b11c676c622b88a0dd69089ca459b8d20dca274f",
+      "startedAt": "2026-09-10T15:57:55.842205968Z",
+      "health": "healthy",
+      "volumes": [
+        "crypto_trade_event_data"
+      ],
+      "networks": [
+        "crypto-trade_default"
+      ]
+    },
+    {
+      "name": "/crypto-spot-trend-paper",
+      "image": "sha256:6b8b607debf4afa5054d1bac78cdd9086a8354b85494db73ab8b03864e43b8fe",
+      "startedAt": "2026-09-10T06:20:45.441977439Z",
+      "health": "healthy",
+      "volumes": [
+        "crypto_trade_spot_trend_research"
+      ],
+      "networks": [
+        "crypto-spot-paper_default",
+        "crypto-trade_default"
+      ]
+    }
+  ],
+  "assets": [
+    {
+      "asset": "index.html",
+      "sha256": "1b84ac4fcbb2ddd2478baaabdd2e7a7f53a14e4cda49a679ace73d041c8b026e"
+    },
+    {
+      "asset": "app.js",
+      "sha256": "3c443db4f8f688a3b2dcef5bc09534e46334ad372534a83e29dcb35cba1424d0"
+    },
+    {
+      "asset": "spot.js",
+      "sha256": "b4febbc749dbe5e67f87155860e6b342e0bda44021c71097627d66f85587be4b"
+    },
+    {
+      "asset": "styles.css",
+      "sha256": "8ad315f64408599c03048177b301bf0a488dd1ce8fbf1145ade1610efb027f6f"
+    }
+  ],
+  "recordedEvaluations": 124,
+  "lastCycleMs": 1789055781613,
+  "upstreamFetchedAtMs": 1789055941953,
+  "entryReason": "NEXT_WEEK_ENTRY_WINDOW",
+  "futuresCashUsd": 99998.28269740003,
+  "spotCashUsd": 100000
+}

@@ -1,0 +1,149 @@
+{
+  "passed": true,
+  "network": "none",
+  "readOnlyRootFilesystem": true,
+  "readOnlySpotJournal": true,
+  "futuresSourceClosure": {
+    "count": 82,
+    "sha256": "c57475ab04ce281cbd83f86f95f0099d56d24ef5edcee758e293be197f8d036b"
+  },
+  "activity": {
+    "passed": true,
+    "journalSha256": "af888dc284548a126b56aed1f7cb1056b18f131a93b00b008626d99503249cb1",
+    "sourceCycle": 141,
+    "activity": {
+      "orderId": "paper-spot-4dd38b8829b96a6dff78b6bdd6bdee31",
+      "entryOrderId": "paper-spot-4dd38b8829b96a6dff78b6bdd6bdee31",
+      "direction": "LONG",
+      "intent": "OPEN_LONG",
+      "positionStatus": "OPEN",
+      "openedAtMs": 1789059332724,
+      "closedAtMs": null,
+      "remainingQuantity": 0.00128587,
+      "remainingEntryCostUsd": 99.90000153503999,
+      "realizedNetUsd": 0,
+      "unrealizedNetUsd": -1.5423444867199976,
+      "totalNetUsd": -1.5423444867199976,
+      "markPrice": 77108,
+      "markAtMs": 1789060834214,
+      "events": [
+        {
+          "id": "cycle:1789019349083:141:STRATEGY_EVALUATION:1789060834215",
+          "timestampMs": 1789060834215,
+          "type": "STRATEGY_EVALUATION",
+          "cycle": 141,
+          "reason": "HOLD_SPOT_NO_ADDITIONS",
+          "quantity": 0.00128587,
+          "markPrice": 77108,
+          "realizedNetUsd": 0,
+          "unrealizedNetUsd": -1.5423444867199976,
+          "totalNetUsd": -1.5423444867199976
+        },
+        {
+          "id": "cycle:1789019349083:140:STRATEGY_EVALUATION:1789060533953",
+          "timestampMs": 1789060533953,
+          "type": "STRATEGY_EVALUATION",
+          "cycle": 140,
+          "reason": "HOLD_SPOT_NO_ADDITIONS",
+          "quantity": 0.00128587,
+          "markPrice": 77118.3,
+          "realizedNetUsd": 0,
+          "unrealizedNetUsd": -1.5292059814079977,
+          "totalNetUsd": -1.5292059814079977
+        },
+        {
+          "id": "cycle:1789019349083:139:STRATEGY_EVALUATION:1789060233716",
+          "timestampMs": 1789060233716,
+          "type": "STRATEGY_EVALUATION",
+          "cycle": 139,
+          "reason": "HOLD_SPOT_NO_ADDITIONS",
+          "quantity": 0.00128587,
+          "markPrice": 77143.2,
+          "realizedNetUsd": 0,
+          "unrealizedNetUsd": -1.4974439637119872,
+          "totalNetUsd": -1.4974439637119872
+        },
+        {
+          "id": "cycle:1789019349083:138:STRATEGY_EVALUATION:1789059933434",
+          "timestampMs": 1789059933434,
+          "type": "STRATEGY_EVALUATION",
+          "cycle": 138,
+          "reason": "HOLD_SPOT_NO_ADDITIONS",
+          "quantity": 0.00128587,
+          "markPrice": 77138,
+          "realizedNetUsd": 0,
+          "unrealizedNetUsd": -1.5040769955199949,
+          "totalNetUsd": -1.5040769955199949
+        },
+        {
+          "id": "cycle:1789019349083:137:STRATEGY_EVALUATION:1789059633161",
+          "timestampMs": 1789059633161,
+          "type": "STRATEGY_EVALUATION",
+          "cycle": 137,
+          "reason": "HOLD_SPOT_NO_ADDITIONS",
+          "quantity": 0.00128587,
+          "markPrice": 77130.5,
+          "realizedNetUsd": 0,
+          "unrealizedNetUsd": -1.5136438683199884,
+          "totalNetUsd": -1.5136438683199884
+        },
+        {
+          "id": "cycle:1789019349083:136:BROKER_SETTLEMENT:1789059332724",
+          "timestampMs": 1789059332724,
+          "type": "BROKER_SETTLEMENT",
+          "orderId": "paper-spot-4dd38b8829b96a6dff78b6bdd6bdee31",
+          "cycle": 136,
+          "reason": "WEEKLY_TREND_ENTER",
+          "quantity": 0.00128587,
+          "markPrice": 77073.9,
+          "realizedNetUsd": 0,
+          "unrealizedNetUsd": -1.5858418683840085,
+          "totalNetUsd": -1.5858418683840085
+        },
+        {
+          "id": "paper-spot-4dd38b8829b96a6dff78b6bdd6bdee31:lifecycle:2:FILLED:1789059332724",
+          "timestampMs": 1789059332724,
+          "type": "FILLED",
+          "orderId": "paper-spot-4dd38b8829b96a6dff78b6bdd6bdee31",
+          "quantity": 0.00128587
+        },
+        {
+          "id": "paper-spot-4dd38b8829b96a6dff78b6bdd6bdee31:lifecycle:1:ACCEPTED:1789059332724",
+          "timestampMs": 1789059332724,
+          "type": "ACCEPTED",
+          "orderId": "paper-spot-4dd38b8829b96a6dff78b6bdd6bdee31"
+        },
+        {
+          "id": "paper-spot-4dd38b8829b96a6dff78b6bdd6bdee31:lifecycle:0:SUBMITTED:1789059332678",
+          "timestampMs": 1789059332678,
+          "type": "SUBMITTED",
+          "orderId": "paper-spot-4dd38b8829b96a6dff78b6bdd6bdee31"
+        }
+      ],
+      "totalEvents": 9,
+      "nextCursor": null
+    }
+  },
+  "images": [
+    {
+      "id": "sha256:dccf9b4434c9760c366231fca34f8c483368fb0af3450f8bdeef2117b9d2601e",
+      "tags": [
+        "crypto-trade-engine:spot-dashboard-v4"
+      ]
+    },
+    {
+      "id": "sha256:066bf2b331a199d2918c124e5914c176e55a9daefc458b857a912ed5bd92cb36",
+      "tags": [
+        "crypto-trade-engine:spot-dashboard-v5"
+      ]
+    },
+    {
+      "id": "sha256:3682285933465fb691269a080586f08421f007c1c087d8d4f208dfcd72038b63",
+      "tags": [
+        "crypto-spot-trend-paper:v3"
+      ]
+    }
+  ],
+  "initialReviewedImageId": "sha256:f1570aeb0d2ce2709d69613ccb34cd305e21ca48762086ededd62887c9be5e70",
+  "finalAssetsOnlyRebuild": true
+}

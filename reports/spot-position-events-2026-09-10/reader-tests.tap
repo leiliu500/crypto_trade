@@ -1,0 +1,64 @@
+TAP version 13
+# Subtest: committed holding history updates fee-inclusive position values without any journal writes
+ok 1 - committed holding history updates fee-inclusive position values without any journal writes
+  ---
+  duration_ms: 63.728435
+  type: 'test'
+  ...
+# Subtest: unreferenced cycle orphans are excluded and ambiguous committed predecessors fail closed
+ok 2 - unreferenced cycle orphans are excluded and ambiguous committed predecessors fail closed
+  ---
+  duration_ms: 38.398071
+  type: 'test'
+  ...
+# Subtest: the current anchor and receipt/submission proof hashes are checked after cache hits
+ok 3 - the current anchor and receipt/submission proof hashes are checked after cache hits
+  ---
+  duration_ms: 53.419419
+  type: 'test'
+  ...
+# Subtest: missing holding documents, receipt evidence and altered anchor state are unavailable
+ok 4 - missing holding documents, receipt evidence and altered anchor state are unavailable
+  ---
+  duration_ms: 34.205958
+  type: 'test'
+  ...
+# Subtest: new cycles extend the durable timeline and mismatched status cannot reuse cached green activity
+ok 5 - new cycles extend the durable timeline and mismatched status cannot reuse cached green activity
+  ---
+  duration_ms: 28.696852
+  type: 'test'
+  ...
+# Subtest: history pages use stable opaque event IDs across fresh readers and new cycle heads
+ok 6 - history pages use stable opaque event IDs across fresh readers and new cycle heads
+  ---
+  duration_ms: 250.668655
+  type: 'test'
+  ...
+# Subtest: query values cannot select filesystem paths and symlinked evidence is rejected
+ok 7 - query values cannot select filesystem paths and symlinked evidence is rejected
+  ---
+  duration_ms: 20.501944
+  type: 'test'
+  ...
+# Subtest: a version migration bridges complete entry history without adding synthetic evaluations
+ok 8 - a version migration bridges complete entry history without adding synthetic evaluations
+  ---
+  duration_ms: 23.776389
+  type: 'test'
+  ...
+# Subtest: the latest twenty reduction cards retain history back to their older entry
+ok 9 - the latest twenty reduction cards retain history back to their older entry
+  ---
+  duration_ms: 181.626962
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1083.738135

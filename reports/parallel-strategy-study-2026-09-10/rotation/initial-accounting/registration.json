@@ -1,0 +1,32 @@
+{
+  "registeredAt": "2026-09-10T18:02:12.245828+00:00",
+  "specSha256": "3928546ae038b145c9eabb7bb330be7561896315e40e649ce706bddd4de6e64e",
+  "candidateSha256": "36539a5769e5f9b6f2bc81278d437b366ef2fecff9cc37636a53ac5b0a9d0ba2",
+  "commonSha256": "423315441fe6b87ae1dd122a38321e75f2d1811cf2cb99ad4d7d91043e5a0b18",
+  "variants": [
+    {
+      "id": "rotation_m60_t60",
+      "momentum_days": 60,
+      "trend_days": 60
+    },
+    {
+      "id": "rotation_m60_t90",
+      "momentum_days": 60,
+      "trend_days": 90
+    },
+    {
+      "id": "rotation_m90_t60",
+      "momentum_days": 90,
+      "trend_days": 60
+    },
+    {
+      "id": "rotation_m90_t90",
+      "momentum_days": 90,
+      "trend_days": 90
+    }
+  ],
+  "selectionRule": "Maximum development stress netPnlUsd minus 0.5*maxDrawdownUsd; ties use registered variant order",
+  "developmentStart": "2025-01-01",
+  "developmentEndExclusive": "2025-07-01",
+  "developmentOnly": true
+}

@@ -1,0 +1,1509 @@
+{
+  "sourceHashes": {
+    "src/research/hourly-data.ts": "0786552d6f700f8ad906a6f6db80b423560eef6f79dbb7403250ce1eeb260a91",
+    "src/research/hourly-volume-features.ts": "ca773fc49553949cc15736ddede96c4c2721cbc75be51d07a72774573a1c8059",
+    "src/research/hourly-net-labels.ts": "f19fcca8cef7d3648ead5abbd24434d24dde574c0faf622766719afab77bb371",
+    "src/research/hourly-student-model.ts": "79754c03b1abe2218f40c5873091c024cbee2c521e9d6363158aa0036c30f203",
+    "src/research/hourly-net-calibration.ts": "b6ba46abdcda565b2d57082c474480e60e2916e25fd1657756f77b1263273452",
+    "src/research/hourly-student-study-main.ts": "d2a4902a2e4a1d1e5ed4eae6ac01f59895f89214f69bd91d4967f7ff645f5d67",
+    "src/research/hourly-retry-simulator.ts": "239759778a583c623ca55636a9b53140aa9f9690eb1bbbac2d304117265f08aa",
+    "src/research/hourly-adaptive-study-gates.ts": "e27cbedcca1d8cc18fbc9a0ad764d7116fd3fbf813f9a2abf2914b419abc5ba1",
+    "src/research/hourly-study-statistics.ts": "0a9b6437903c26845958748d18f4b43f3ad35749f616da924cd61252442c7a36",
+    "reports/distribution-instrument-rules-2026-09-07.json": "a89ee77c1a871c63266cde004776e7484ccdc81d544b7d32a81f56cb07d89cdf",
+    "package.json": "57b37eee487870483842e7af18ed1444bb9645a7d74abdd456c337c916ee2517",
+    "package-lock.json": "2315bada829d31ccb4d3970392ba56d73458d3219dda1ec98d8dda0d41893594"
+  },
+  "protocolSha256": "998bba4aeada806fe8ff98a96a3970dcbbb07945d1498bfca53f3352c3fadd80",
+  "dataSeal": {
+    "files": [
+      {
+        "directory": "/home/ec2-user/crypto_trade/reports/hourly-adaptive-study-2026-09-08/data-older-restored",
+        "datasetSha256": "6995137d4366500628885518de3908f663ab7584caba0a4fe9845f700ac3f36f",
+        "manifestSha256": "b49fc0c9fe648aec3a049605f1e5c79d6d0a917bcf93c40bd151f47b992e941b"
+      },
+      {
+        "directory": "/home/ec2-user/crypto_trade/reports/hourly-adaptive-study-2026-09-08/data-recent",
+        "datasetSha256": "802694ae936dd864681dee2278f027ea1732a91fd6b635f1b08371673abcb227",
+        "manifestSha256": "5a57cfcc6dc6cc352f708f3101d0e2026580c5faf7b6661509016feb6483ecb4"
+      }
+    ],
+    "barsSha256": "b7cd4397ffebedec4791ac45a9028bcd38f8d906abfae8dbb3550dac671fcf58",
+    "fundingSha256": "1940ed6bf7cd6ed413c80035440d7df52453e263ffda110a75bbc7448e33a9ba"
+  },
+  "completedAtUtc": "2026-09-08T23:44:26.613Z",
+  "stage": "develop",
+  "selectedByAsset": {
+    "BTC/USD": null,
+    "ETH/USD": null
+  },
+  "comparisons": [
+    {
+      "candidate": "student-t-boost-net-24h",
+      "symbol": "BTC/USD",
+      "eligible": false,
+      "predictiveGatePassed": false,
+      "utility": -5.519360262675036,
+      "summary": {
+        "base": {
+          "netPnlUsd": -0.35123479370668065,
+          "maximumDrawdownUsd": 3.073244735307526,
+          "maximumOneDayLossUsd": 0.6754418692871695,
+          "completed": 212,
+          "activeUtcDates": 212,
+          "unknownTrades": 0,
+          "perAsset": [
+            {
+              "symbol": "BTC/USD",
+              "selected": 212,
+              "filled": 212,
+              "completed": 212,
+              "unknownTrades": 0,
+              "grossPnlUsd": 3.488699999999999,
+              "netPnlUsd": -0.3512347937077458,
+              "knownCompletedGrossPnlUsd": 3.488699999999999,
+              "knownCompletedNetPnlUsd": -0.3512347937077458
+            },
+            {
+              "symbol": "ETH/USD",
+              "selected": 0,
+              "filled": 0,
+              "completed": 0,
+              "unknownTrades": 0,
+              "grossPnlUsd": 0,
+              "netPnlUsd": 0,
+              "knownCompletedGrossPnlUsd": 0,
+              "knownCompletedNetPnlUsd": 0
+            }
+          ]
+        },
+        "stress": {
+          "netPnlUsd": -3.3119930065440712,
+          "maximumDrawdownUsd": 4.41473451226193,
+          "maximumOneDayLossUsd": 0.7150761581142433,
+          "completed": 206,
+          "activeUtcDates": 206,
+          "unknownTrades": 0,
+          "perAsset": [
+            {
+              "symbol": "BTC/USD",
+              "selected": 206,
+              "filled": 206,
+              "completed": 206,
+              "unknownTrades": 0,
+              "grossPnlUsd": 2.857899999999999,
+              "netPnlUsd": -3.3119930065417726,
+              "knownCompletedGrossPnlUsd": 2.857899999999999,
+              "knownCompletedNetPnlUsd": -3.3119930065417726
+            },
+            {
+              "symbol": "ETH/USD",
+              "selected": 0,
+              "filled": 0,
+              "completed": 0,
+              "unknownTrades": 0,
+              "grossPnlUsd": 0,
+              "netPnlUsd": 0,
+              "knownCompletedGrossPnlUsd": 0,
+              "knownCompletedNetPnlUsd": 0
+            }
+          ]
+        },
+        "accounting": {
+          "base": {
+            "selected": 212,
+            "filled": 212,
+            "completed": 212,
+            "unfilled": 0,
+            "zeroQuantityNoFills": 0,
+            "exitRetriedTrades": 0,
+            "exitRetryAttempts": 0,
+            "exitZeroVolumeNoFills": 0,
+            "exitRetryExhaustedTrades": 0,
+            "maximumObservedExitDelayHours": 0,
+            "unknownTrades": 0,
+            "activeUtcDates": 212,
+            "finalEquityUsd": 99999.6487652063,
+            "totalGrossPnlUsd": 3.4887000000016997,
+            "totalNetPnlUsd": -0.35123479370668065,
+            "knownCompletedGrossPnlUsd": 3.488699999999999,
+            "knownCompletedNetPnlUsd": -0.3512347937077458,
+            "totalFeesUsd": 1.7185204500000009,
+            "totalSlippageUsd": 0.5413999999999993,
+            "totalFundingUsd": 1.5800143437077478,
+            "knownFundingUsd": 1.5800143437077478,
+            "totalFundingReserveUsd": 0,
+            "knownFundingReserveUsd": 0,
+            "turnoverUsd": 3437.0409,
+            "turnoverInitialEquity": 0.034370409,
+            "positionHours": 5088,
+            "unknownPositionHours": 0,
+            "staleMarkHours": 0,
+            "maximumDrawdownUsd": 3.073244735307526,
+            "maximumDrawdownFraction": 0.00003073244332914446,
+            "maximumLiquidationDrawdownUsd": 3.071830135304481,
+            "knownMaximumDrawdownUsd": 3.073244735307526,
+            "knownMaximumLiquidationDrawdownUsd": 3.071830135304481,
+            "maximumOneDayLossUsd": 0.6754418692871695,
+            "perAsset": [
+              {
+                "symbol": "BTC/USD",
+                "selected": 212,
+                "filled": 212,
+                "completed": 212,
+                "unknownTrades": 0,
+                "grossPnlUsd": 3.488699999999999,
+                "netPnlUsd": -0.3512347937077458,
+                "knownCompletedGrossPnlUsd": 3.488699999999999,
+                "knownCompletedNetPnlUsd": -0.3512347937077458
+              },
+              {
+                "symbol": "ETH/USD",
+                "selected": 0,
+                "filled": 0,
+                "completed": 0,
+                "unknownTrades": 0,
+                "grossPnlUsd": 0,
+                "netPnlUsd": 0,
+                "knownCompletedGrossPnlUsd": 0,
+                "knownCompletedNetPnlUsd": 0
+              }
+            ]
+          },
+          "stress": {
+            "selected": 206,
+            "filled": 206,
+            "completed": 206,
+            "unfilled": 0,
+            "zeroQuantityNoFills": 0,
+            "exitRetriedTrades": 0,
+            "exitRetryAttempts": 0,
+            "exitZeroVolumeNoFills": 0,
+            "exitRetryExhaustedTrades": 0,
+            "maximumObservedExitDelayHours": 0,
+            "unknownTrades": 0,
+            "activeUtcDates": 206,
+            "finalEquityUsd": 99996.68800699346,
+            "totalGrossPnlUsd": 2.857900000002701,
+            "totalNetPnlUsd": -3.3119930065440712,
+            "knownCompletedGrossPnlUsd": 2.857899999999999,
+            "knownCompletedNetPnlUsd": -3.3119930065417726,
+            "totalFeesUsd": 2.525156849999999,
+            "totalSlippageUsd": 1.0347,
+            "totalFundingUsd": 2.44160646695844,
+            "knownFundingUsd": 2.44160646695844,
+            "totalFundingReserveUsd": 0.1684296895833334,
+            "knownFundingReserveUsd": 0.1684296895833334,
+            "turnoverUsd": 3366.8758000000016,
+            "turnoverInitialEquity": 0.033668758000000014,
+            "positionHours": 4944,
+            "unknownPositionHours": 0,
+            "staleMarkHours": 0,
+            "maximumDrawdownUsd": 4.41473451226193,
+            "maximumDrawdownFraction": 0.0000441472965524878,
+            "maximumLiquidationDrawdownUsd": 4.4156743122584885,
+            "knownMaximumDrawdownUsd": 4.41473451226193,
+            "knownMaximumLiquidationDrawdownUsd": 4.4156743122584885,
+            "maximumOneDayLossUsd": 0.7150761581142433,
+            "perAsset": [
+              {
+                "symbol": "BTC/USD",
+                "selected": 206,
+                "filled": 206,
+                "completed": 206,
+                "unknownTrades": 0,
+                "grossPnlUsd": 2.857899999999999,
+                "netPnlUsd": -3.3119930065417726,
+                "knownCompletedGrossPnlUsd": 2.857899999999999,
+                "knownCompletedNetPnlUsd": -3.3119930065417726
+              },
+              {
+                "symbol": "ETH/USD",
+                "selected": 0,
+                "filled": 0,
+                "completed": 0,
+                "unknownTrades": 0,
+                "grossPnlUsd": 0,
+                "netPnlUsd": 0,
+                "knownCompletedGrossPnlUsd": 0,
+                "knownCompletedNetPnlUsd": 0
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "candidate": "student-t-boost-net-24h",
+      "symbol": "ETH/USD",
+      "eligible": false,
+      "predictiveGatePassed": false,
+      "utility": -8.326371575116355,
+      "summary": {
+        "base": {
+          "netPnlUsd": -2.7034088122600224,
+          "maximumDrawdownUsd": 6.7575008908170275,
+          "maximumOneDayLossUsd": 1.2760717943165218,
+          "completed": 202,
+          "activeUtcDates": 202,
+          "unknownTrades": 0,
+          "perAsset": [
+            {
+              "symbol": "BTC/USD",
+              "selected": 0,
+              "filled": 0,
+              "completed": 0,
+              "unknownTrades": 0,
+              "grossPnlUsd": 0,
+              "netPnlUsd": 0,
+              "knownCompletedGrossPnlUsd": 0,
+              "knownCompletedNetPnlUsd": 0
+            },
+            {
+              "symbol": "ETH/USD",
+              "selected": 202,
+              "filled": 202,
+              "completed": 202,
+              "unknownTrades": 0,
+              "grossPnlUsd": 2.110399999999996,
+              "netPnlUsd": -2.7034088122632474,
+              "knownCompletedGrossPnlUsd": 2.110399999999996,
+              "knownCompletedNetPnlUsd": -2.7034088122632474
+            }
+          ]
+        },
+        "stress": {
+          "netPnlUsd": -4.118280737806344,
+          "maximumDrawdownUsd": 8.41618167462002,
+          "maximumOneDayLossUsd": 1.652638399391435,
+          "completed": 199,
+          "activeUtcDates": 199,
+          "unknownTrades": 0,
+          "perAsset": [
+            {
+              "symbol": "BTC/USD",
+              "selected": 0,
+              "filled": 0,
+              "completed": 0,
+              "unknownTrades": 0,
+              "grossPnlUsd": 0,
+              "netPnlUsd": 0,
+              "knownCompletedGrossPnlUsd": 0,
+              "knownCompletedNetPnlUsd": 0
+            },
+            {
+              "symbol": "ETH/USD",
+              "selected": 199,
+              "filled": 199,
+              "completed": 199,
+              "unknownTrades": 0,
+              "grossPnlUsd": 3.399400000000008,
+              "netPnlUsd": -4.118280737800308,
+              "knownCompletedGrossPnlUsd": 3.399400000000008,
+              "knownCompletedNetPnlUsd": -4.118280737800308
+            }
+          ]
+        },
+        "accounting": {
+          "base": {
+            "selected": 202,
+            "filled": 202,
+            "completed": 202,
+            "unfilled": 0,
+            "zeroQuantityNoFills": 0,
+            "exitRetriedTrades": 0,
+            "exitRetryAttempts": 0,
+            "exitZeroVolumeNoFills": 0,
+            "exitRetryExhaustedTrades": 0,
+            "maximumObservedExitDelayHours": 0,
+            "unknownTrades": 0,
+            "activeUtcDates": 202,
+            "finalEquityUsd": 99997.29659118774,
+            "totalGrossPnlUsd": 2.110400000005029,
+            "totalNetPnlUsd": -2.7034088122600224,
+            "knownCompletedGrossPnlUsd": 2.110399999999996,
+            "knownCompletedNetPnlUsd": -2.7034088122632474,
+            "totalFeesUsd": 2.1207660999999995,
+            "totalSlippageUsd": 0.6996000000000098,
+            "totalFundingUsd": 1.993442712263234,
+            "knownFundingUsd": 1.993442712263234,
+            "totalFundingReserveUsd": 0,
+            "knownFundingReserveUsd": 0,
+            "turnoverUsd": 4241.532200000003,
+            "turnoverInitialEquity": 0.04241532200000003,
+            "positionHours": 4848,
+            "unknownPositionHours": 0,
+            "staleMarkHours": 0,
+            "maximumDrawdownUsd": 6.7575008908170275,
+            "maximumDrawdownFraction": 0.00006757358321815647,
+            "maximumLiquidationDrawdownUsd": 6.757242090810905,
+            "knownMaximumDrawdownUsd": 6.7575008908170275,
+            "knownMaximumLiquidationDrawdownUsd": 6.757242090810905,
+            "maximumOneDayLossUsd": 1.2760717943165218,
+            "perAsset": [
+              {
+                "symbol": "BTC/USD",
+                "selected": 0,
+                "filled": 0,
+                "completed": 0,
+                "unknownTrades": 0,
+                "grossPnlUsd": 0,
+                "netPnlUsd": 0,
+                "knownCompletedGrossPnlUsd": 0,
+                "knownCompletedNetPnlUsd": 0
+              },
+              {
+                "symbol": "ETH/USD",
+                "selected": 202,
+                "filled": 202,
+                "completed": 202,
+                "unknownTrades": 0,
+                "grossPnlUsd": 2.110399999999996,
+                "netPnlUsd": -2.7034088122632474,
+                "knownCompletedGrossPnlUsd": 2.110399999999996,
+                "knownCompletedNetPnlUsd": -2.7034088122632474
+              }
+            ]
+          },
+          "stress": {
+            "selected": 199,
+            "filled": 199,
+            "completed": 199,
+            "unfilled": 0,
+            "zeroQuantityNoFills": 0,
+            "exitRetriedTrades": 0,
+            "exitRetryAttempts": 0,
+            "exitZeroVolumeNoFills": 0,
+            "exitRetryExhaustedTrades": 0,
+            "maximumObservedExitDelayHours": 0,
+            "unknownTrades": 0,
+            "activeUtcDates": 199,
+            "finalEquityUsd": 99995.8817192622,
+            "totalGrossPnlUsd": 3.3993999999947846,
+            "totalNetPnlUsd": -4.118280737806344,
+            "knownCompletedGrossPnlUsd": 3.399400000000008,
+            "knownCompletedNetPnlUsd": -4.118280737800308,
+            "totalFeesUsd": 3.146539425000001,
+            "totalSlippageUsd": 1.3249000000000029,
+            "totalFundingUsd": 2.8363742032169776,
+            "knownFundingUsd": 2.8363742032169776,
+            "totalFundingReserveUsd": 0.2098671095833335,
+            "knownFundingReserveUsd": 0.2098671095833335,
+            "turnoverUsd": 4195.3859,
+            "turnoverInitialEquity": 0.041953859,
+            "positionHours": 4776,
+            "unknownPositionHours": 0,
+            "staleMarkHours": 0,
+            "maximumDrawdownUsd": 8.41618167462002,
+            "maximumDrawdownFraction": 0.00008416035664495976,
+            "maximumLiquidationDrawdownUsd": 8.417666749621276,
+            "knownMaximumDrawdownUsd": 8.41618167462002,
+            "knownMaximumLiquidationDrawdownUsd": 8.417666749621276,
+            "maximumOneDayLossUsd": 1.652638399391435,
+            "perAsset": [
+              {
+                "symbol": "BTC/USD",
+                "selected": 0,
+                "filled": 0,
+                "completed": 0,
+                "unknownTrades": 0,
+                "grossPnlUsd": 0,
+                "netPnlUsd": 0,
+                "knownCompletedGrossPnlUsd": 0,
+                "knownCompletedNetPnlUsd": 0
+              },
+              {
+                "symbol": "ETH/USD",
+                "selected": 199,
+                "filled": 199,
+                "completed": 199,
+                "unknownTrades": 0,
+                "grossPnlUsd": 3.399400000000008,
+                "netPnlUsd": -4.118280737800308,
+                "knownCompletedGrossPnlUsd": 3.399400000000008,
+                "knownCompletedNetPnlUsd": -4.118280737800308
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "candidate": "matched-linear-net-24h",
+      "symbol": "BTC/USD",
+      "eligible": false,
+      "predictiveGatePassed": false,
+      "utility": -10.727473890605324,
+      "summary": {
+        "base": {
+          "netPnlUsd": -3.184447793159052,
+          "maximumDrawdownUsd": 6.117850851209369,
+          "maximumOneDayLossUsd": 0.7940089985495433,
+          "completed": 186,
+          "activeUtcDates": 186,
+          "unknownTrades": 0,
+          "perAsset": [
+            {
+              "symbol": "BTC/USD",
+              "selected": 186,
+              "filled": 186,
+              "completed": 186,
+              "unknownTrades": 0,
+              "grossPnlUsd": 0.16720000000000046,
+              "netPnlUsd": -3.1844477931641397,
+              "knownCompletedGrossPnlUsd": 0.16720000000000046,
+              "knownCompletedNetPnlUsd": -3.1844477931641397
+            },
+            {
+              "symbol": "ETH/USD",
+              "selected": 0,
+              "filled": 0,
+              "completed": 0,
+              "unknownTrades": 0,
+              "grossPnlUsd": 0,
+              "netPnlUsd": 0,
+              "knownCompletedGrossPnlUsd": 0,
+              "knownCompletedNetPnlUsd": 0
+            }
+          ]
+        },
+        "stress": {
+          "netPnlUsd": -6.627356477314606,
+          "maximumDrawdownUsd": 8.200234826581436,
+          "maximumOneDayLossUsd": 0.7680072694638511,
+          "completed": 181,
+          "activeUtcDates": 181,
+          "unknownTrades": 0,
+          "perAsset": [
+            {
+              "symbol": "BTC/USD",
+              "selected": 181,
+              "filled": 181,
+              "completed": 181,
+              "unknownTrades": 0,
+              "grossPnlUsd": -1.2938000000000043,
+              "netPnlUsd": -6.627356477316074,
+              "knownCompletedGrossPnlUsd": -1.2938000000000043,
+              "knownCompletedNetPnlUsd": -6.627356477316074
+            },
+            {
+              "symbol": "ETH/USD",
+              "selected": 0,
+              "filled": 0,
+              "completed": 0,
+              "unknownTrades": 0,
+              "grossPnlUsd": 0,
+              "netPnlUsd": 0,
+              "knownCompletedGrossPnlUsd": 0,
+              "knownCompletedNetPnlUsd": 0
+            }
+          ]
+        },
+        "accounting": {
+          "base": {
+            "selected": 186,
+            "filled": 186,
+            "completed": 186,
+            "unfilled": 0,
+            "zeroQuantityNoFills": 0,
+            "exitRetriedTrades": 0,
+            "exitRetryAttempts": 0,
+            "exitZeroVolumeNoFills": 0,
+            "exitRetryExhaustedTrades": 0,
+            "maximumObservedExitDelayHours": 0,
+            "unknownTrades": 0,
+            "activeUtcDates": 186,
+            "finalEquityUsd": 99996.81555220684,
+            "totalGrossPnlUsd": 0.16719999999622814,
+            "totalNetPnlUsd": -3.184447793159052,
+            "knownCompletedGrossPnlUsd": 0.16720000000000046,
+            "knownCompletedNetPnlUsd": -3.1844477931641397,
+            "totalFeesUsd": 1.50073115,
+            "totalSlippageUsd": 0.4722999999999995,
+            "totalFundingUsd": 1.3786166431641365,
+            "knownFundingUsd": 1.3786166431641365,
+            "totalFundingReserveUsd": 0,
+            "knownFundingReserveUsd": 0,
+            "turnoverUsd": 3001.462299999998,
+            "turnoverInitialEquity": 0.03001462299999998,
+            "positionHours": 4464,
+            "unknownPositionHours": 0,
+            "staleMarkHours": 0,
+            "maximumDrawdownUsd": 6.117850851209369,
+            "maximumDrawdownFraction": 0.00006117850851209368,
+            "maximumLiquidationDrawdownUsd": 6.124431751202792,
+            "knownMaximumDrawdownUsd": 6.117850851209369,
+            "knownMaximumLiquidationDrawdownUsd": 6.124431751202792,
+            "maximumOneDayLossUsd": 0.7940089985495433,
+            "perAsset": [
+              {
+                "symbol": "BTC/USD",
+                "selected": 186,
+                "filled": 186,
+                "completed": 186,
+                "unknownTrades": 0,
+                "grossPnlUsd": 0.16720000000000046,
+                "netPnlUsd": -3.1844477931641397,
+                "knownCompletedGrossPnlUsd": 0.16720000000000046,
+                "knownCompletedNetPnlUsd": -3.1844477931641397
+              },
+              {
+                "symbol": "ETH/USD",
+                "selected": 0,
+                "filled": 0,
+                "completed": 0,
+                "unknownTrades": 0,
+                "grossPnlUsd": 0,
+                "netPnlUsd": 0,
+                "knownCompletedGrossPnlUsd": 0,
+                "knownCompletedNetPnlUsd": 0
+              }
+            ]
+          },
+          "stress": {
+            "selected": 181,
+            "filled": 181,
+            "completed": 181,
+            "unfilled": 0,
+            "zeroQuantityNoFills": 0,
+            "exitRetriedTrades": 0,
+            "exitRetryAttempts": 0,
+            "exitZeroVolumeNoFills": 0,
+            "exitRetryExhaustedTrades": 0,
+            "maximumObservedExitDelayHours": 0,
+            "unknownTrades": 0,
+            "activeUtcDates": 181,
+            "finalEquityUsd": 99993.37264352269,
+            "totalGrossPnlUsd": -1.2937999999994645,
+            "totalNetPnlUsd": -6.627356477314606,
+            "knownCompletedGrossPnlUsd": -1.2938000000000043,
+            "knownCompletedNetPnlUsd": -6.627356477316074,
+            "totalFeesUsd": 2.182979774999999,
+            "totalSlippageUsd": 0.8947000000000003,
+            "totalFundingUsd": 2.11030147273274,
+            "knownFundingUsd": 2.11030147273274,
+            "totalFundingReserveUsd": 0.1455752295833333,
+            "knownFundingReserveUsd": 0.1455752295833333,
+            "turnoverUsd": 2910.639699999998,
+            "turnoverInitialEquity": 0.02910639699999998,
+            "positionHours": 4344,
+            "unknownPositionHours": 0,
+            "staleMarkHours": 0,
+            "maximumDrawdownUsd": 8.200234826581436,
+            "maximumDrawdownFraction": 0.00008200234826581436,
+            "maximumLiquidationDrawdownUsd": 8.210705126577523,
+            "knownMaximumDrawdownUsd": 8.200234826581436,
+            "knownMaximumLiquidationDrawdownUsd": 8.210705126577523,
+            "maximumOneDayLossUsd": 0.7680072694638511,
+            "perAsset": [
+              {
+                "symbol": "BTC/USD",
+                "selected": 181,
+                "filled": 181,
+                "completed": 181,
+                "unknownTrades": 0,
+                "grossPnlUsd": -1.2938000000000043,
+                "netPnlUsd": -6.627356477316074,
+                "knownCompletedGrossPnlUsd": -1.2938000000000043,
+                "knownCompletedNetPnlUsd": -6.627356477316074
+              },
+              {
+                "symbol": "ETH/USD",
+                "selected": 0,
+                "filled": 0,
+                "completed": 0,
+                "unknownTrades": 0,
+                "grossPnlUsd": 0,
+                "netPnlUsd": 0,
+                "knownCompletedGrossPnlUsd": 0,
+                "knownCompletedNetPnlUsd": 0
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "candidate": "matched-linear-net-24h",
+      "symbol": "ETH/USD",
+      "eligible": false,
+      "predictiveGatePassed": false,
+      "utility": -15.775929668714525,
+      "summary": {
+        "base": {
+          "netPnlUsd": -3.9012601031718077,
+          "maximumDrawdownUsd": 7.512110297800973,
+          "maximumOneDayLossUsd": 1.1634432192513486,
+          "completed": 222,
+          "activeUtcDates": 222,
+          "unknownTrades": 0,
+          "perAsset": [
+            {
+              "symbol": "BTC/USD",
+              "selected": 0,
+              "filled": 0,
+              "completed": 0,
+              "unknownTrades": 0,
+              "grossPnlUsd": 0,
+              "netPnlUsd": 0,
+              "knownCompletedGrossPnlUsd": 0,
+              "knownCompletedNetPnlUsd": 0
+            },
+            {
+              "symbol": "ETH/USD",
+              "selected": 222,
+              "filled": 222,
+              "completed": 222,
+              "unknownTrades": 0,
+              "grossPnlUsd": 1.4125000000000039,
+              "netPnlUsd": -3.901260103177581,
+              "knownCompletedGrossPnlUsd": 1.4125000000000039,
+              "knownCompletedNetPnlUsd": -3.901260103177581
+            }
+          ]
+        },
+        "stress": {
+          "netPnlUsd": -10.101784502810915,
+          "maximumDrawdownUsd": 11.34829033180722,
+          "maximumOneDayLossUsd": 1.0789559717959492,
+          "completed": 215,
+          "activeUtcDates": 215,
+          "unknownTrades": 0,
+          "perAsset": [
+            {
+              "symbol": "BTC/USD",
+              "selected": 0,
+              "filled": 0,
+              "completed": 0,
+              "unknownTrades": 0,
+              "grossPnlUsd": 0,
+              "netPnlUsd": 0,
+              "knownCompletedGrossPnlUsd": 0,
+              "knownCompletedNetPnlUsd": 0
+            },
+            {
+              "symbol": "ETH/USD",
+              "selected": 215,
+              "filled": 215,
+              "completed": 215,
+              "unknownTrades": 0,
+              "grossPnlUsd": -1.972600000000002,
+              "netPnlUsd": -10.101784502817463,
+              "knownCompletedGrossPnlUsd": -1.972600000000002,
+              "knownCompletedNetPnlUsd": -10.101784502817463
+            }
+          ]
+        },
+        "accounting": {
+          "base": {
+            "selected": 222,
+            "filled": 222,
+            "completed": 222,
+            "unfilled": 0,
+            "zeroQuantityNoFills": 0,
+            "exitRetriedTrades": 0,
+            "exitRetryAttempts": 0,
+            "exitZeroVolumeNoFills": 0,
+            "exitRetryExhaustedTrades": 0,
+            "maximumObservedExitDelayHours": 0,
+            "unknownTrades": 0,
+            "activeUtcDates": 222,
+            "finalEquityUsd": 99996.09873989683,
+            "totalGrossPnlUsd": 1.4125000000058208,
+            "totalNetPnlUsd": -3.9012601031718077,
+            "knownCompletedGrossPnlUsd": 1.4125000000000039,
+            "knownCompletedNetPnlUsd": -3.901260103177581,
+            "totalFeesUsd": 2.339476800000001,
+            "totalSlippageUsd": 0.773700000000001,
+            "totalFundingUsd": 2.2005833031775794,
+            "knownFundingUsd": 2.2005833031775794,
+            "totalFundingReserveUsd": 0,
+            "knownFundingReserveUsd": 0,
+            "turnoverUsd": 4678.953599999995,
+            "turnoverInitialEquity": 0.04678953599999995,
+            "positionHours": 5328,
+            "unknownPositionHours": 0,
+            "staleMarkHours": 0,
+            "maximumDrawdownUsd": 7.512110297800973,
+            "maximumDrawdownFraction": 0.00007512043877872229,
+            "maximumLiquidationDrawdownUsd": 7.510378147795564,
+            "knownMaximumDrawdownUsd": 7.512110297800973,
+            "knownMaximumLiquidationDrawdownUsd": 7.510378147795564,
+            "maximumOneDayLossUsd": 1.1634432192513486,
+            "perAsset": [
+              {
+                "symbol": "BTC/USD",
+                "selected": 0,
+                "filled": 0,
+                "completed": 0,
+                "unknownTrades": 0,
+                "grossPnlUsd": 0,
+                "netPnlUsd": 0,
+                "knownCompletedGrossPnlUsd": 0,
+                "knownCompletedNetPnlUsd": 0
+              },
+              {
+                "symbol": "ETH/USD",
+                "selected": 222,
+                "filled": 222,
+                "completed": 222,
+                "unknownTrades": 0,
+                "grossPnlUsd": 1.4125000000000039,
+                "netPnlUsd": -3.901260103177581,
+                "knownCompletedGrossPnlUsd": 1.4125000000000039,
+                "knownCompletedNetPnlUsd": -3.901260103177581
+              }
+            ]
+          },
+          "stress": {
+            "selected": 215,
+            "filled": 215,
+            "completed": 215,
+            "unfilled": 0,
+            "zeroQuantityNoFills": 0,
+            "exitRetriedTrades": 0,
+            "exitRetryAttempts": 0,
+            "exitZeroVolumeNoFills": 0,
+            "exitRetryExhaustedTrades": 0,
+            "maximumObservedExitDelayHours": 0,
+            "unknownTrades": 0,
+            "activeUtcDates": 215,
+            "finalEquityUsd": 99989.89821549719,
+            "totalGrossPnlUsd": -1.9725999999936903,
+            "totalNetPnlUsd": -10.101784502810915,
+            "knownCompletedGrossPnlUsd": -1.972600000000002,
+            "knownCompletedNetPnlUsd": -10.101784502817463,
+            "totalFeesUsd": 3.400725375000002,
+            "totalSlippageUsd": 1.4340999999999884,
+            "totalFundingUsd": 3.0673982415674663,
+            "knownFundingUsd": 3.0673982415674663,
+            "totalFundingReserveUsd": 0.22696088625000035,
+            "knownFundingReserveUsd": 0.22696088625000035,
+            "turnoverUsd": 4534.300500000005,
+            "turnoverInitialEquity": 0.04534300500000005,
+            "positionHours": 5160,
+            "unknownPositionHours": 0,
+            "staleMarkHours": 0,
+            "maximumDrawdownUsd": 11.34829033180722,
+            "maximumDrawdownFraction": 0.00011348175220218504,
+            "maximumLiquidationDrawdownUsd": 11.34628968180914,
+            "knownMaximumDrawdownUsd": 11.34829033180722,
+            "knownMaximumLiquidationDrawdownUsd": 11.34628968180914,
+            "maximumOneDayLossUsd": 1.0789559717959492,
+            "perAsset": [
+              {
+                "symbol": "BTC/USD",
+                "selected": 0,
+                "filled": 0,
+                "completed": 0,
+                "unknownTrades": 0,
+                "grossPnlUsd": 0,
+                "netPnlUsd": 0,
+                "knownCompletedGrossPnlUsd": 0,
+                "knownCompletedNetPnlUsd": 0
+              },
+              {
+                "symbol": "ETH/USD",
+                "selected": 215,
+                "filled": 215,
+                "completed": 215,
+                "unknownTrades": 0,
+                "grossPnlUsd": -1.972600000000002,
+                "netPnlUsd": -10.101784502817463,
+                "knownCompletedGrossPnlUsd": -1.972600000000002,
+                "knownCompletedNetPnlUsd": -10.101784502817463
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "gates": {
+    "bothAssetsSelected": false,
+    "properPredictiveScores": false,
+    "fullPeriodKnownAndRiskWithinLimits": true,
+    "sufficientTrades": false,
+    "positiveBaseAndStressForBothAssets": false,
+    "beatsSelectedBaseline": false
+  },
+  "intervals": {
+    "versusFlat": {
+      "days": 366,
+      "meanDailyImprovementUsd": 0,
+      "lower95DailyUsd": 0,
+      "lower95TotalUsd": 0,
+      "repetitions": 2000,
+      "blockDays": 7,
+      "seed": 20260908
+    },
+    "versusBuyHoldBtc": {
+      "days": 366,
+      "meanDailyImprovementUsd": -0.016168186230220146,
+      "lower95DailyUsd": -0.047543385524358064,
+      "lower95TotalUsd": -17.400879101915052,
+      "repetitions": 2000,
+      "blockDays": 7,
+      "seed": 20260908
+    }
+  },
+  "confidencePassed": false,
+  "quality": [
+    {
+      "candidate": "student-t-boost-net-24h",
+      "BTC/USD": {
+        "unavailable": 0,
+        "incoherentDirections": 0,
+        "predictiveGatePassed": false,
+        "heads": {
+          "long-base": {
+            "count": 8733,
+            "unknown": 0,
+            "mseNetBps2": 38560.070585090194,
+            "brier": 0.25711013783513853,
+            "crpsBps": 104.2937434948085,
+            "rawStudentNll": 6.619503760642274,
+            "observedPositiveRate": 0.48448414061605405,
+            "meanPredictedPositiveProbability": 0.49366841612583784,
+            "empirical80Coverage": 0.7577006755983052,
+            "referenceMseNetBps2": 38013.604589702365,
+            "referenceBrier": 0.25453350495308424,
+            "referenceCrpsBps": 103.85769286202034,
+            "referenceRawStudentNll": 6.616553129153126
+          },
+          "long-stress": {
+            "count": 8733,
+            "unknown": 0,
+            "mseNetBps2": 38343.90167215859,
+            "brier": 0.2556229523870282,
+            "crpsBps": 104.0355563835232,
+            "rawStudentNll": 6.617259164529844,
+            "observedPositiveRate": 0.45139127447612504,
+            "meanPredictedPositiveProbability": 0.464693907976152,
+            "empirical80Coverage": 0.7593037902210008,
+            "referenceMseNetBps2": 37776.66568879469,
+            "referenceBrier": 0.25329767817926907,
+            "referenceCrpsBps": 103.52324598855853,
+            "referenceRawStudentNll": 6.6132689525525485
+          },
+          "short-base": {
+            "count": 8733,
+            "unknown": 0,
+            "mseNetBps2": 39211.98785700948,
+            "brier": 0.24812315619597072,
+            "crpsBps": 105.12428424733508,
+            "rawStudentNll": 6.627049322408215,
+            "observedPositiveRate": 0.41635176915149436,
+            "meanPredictedPositiveProbability": 0.4109558489635334,
+            "empirical80Coverage": 0.7591892820336654,
+            "referenceMseNetBps2": 38768.99461361492,
+            "referenceBrier": 0.24630327091563498,
+            "referenceCrpsBps": 104.83140615503123,
+            "referenceRawStudentNll": 6.6270802097314085
+          },
+          "short-stress": {
+            "count": 8733,
+            "unknown": 0,
+            "mseNetBps2": 39523.785781145154,
+            "brier": 0.2432521250047461,
+            "crpsBps": 105.51840506305729,
+            "rawStudentNll": 6.630146582042306,
+            "observedPositiveRate": 0.38680865681896254,
+            "meanPredictedPositiveProbability": 0.38180196177001247,
+            "empirical80Coverage": 0.7568991182869576,
+            "referenceMseNetBps2": 39024.26398219531,
+            "referenceBrier": 0.24067492797488324,
+            "referenceCrpsBps": 105.14392221289968,
+            "referenceRawStudentNll": 6.6304891985945025
+          }
+        }
+      },
+      "ETH/USD": {
+        "unavailable": 0,
+        "incoherentDirections": 0,
+        "predictiveGatePassed": false,
+        "heads": {
+          "long-base": {
+            "count": 8733,
+            "unknown": 0,
+            "mseNetBps2": 90339.42049906905,
+            "brier": 0.25830241521320774,
+            "crpsBps": 158.6446484933269,
+            "rawStudentNll": 7.063208476117267,
+            "observedPositiveRate": 0.4878048780487805,
+            "meanPredictedPositiveProbability": 0.5036686266565886,
+            "empirical80Coverage": 0.771556166265888,
+            "referenceMseNetBps2": 90179.34322959845,
+            "referenceBrier": 0.257881841110187,
+            "referenceCrpsBps": 158.58282943524483,
+            "referenceRawStudentNll": 7.042960016570053
+          },
+          "long-stress": {
+            "count": 8733,
+            "unknown": 0,
+            "mseNetBps2": 90694.62592317398,
+            "brier": 0.25869265377146705,
+            "crpsBps": 158.83560154573095,
+            "rawStudentNll": 7.064176667375453,
+            "observedPositiveRate": 0.46352914233367687,
+            "meanPredictedPositiveProbability": 0.4802365544024298,
+            "empirical80Coverage": 0.772128707202565,
+            "referenceMseNetBps2": 90045.1249124305,
+            "referenceBrier": 0.2561712114302087,
+            "referenceCrpsBps": 158.44569777658742,
+            "referenceRawStudentNll": 7.042020331840453
+          },
+          "short-base": {
+            "count": 8733,
+            "unknown": 0,
+            "mseNetBps2": 90897.24886394042,
+            "brier": 0.2538316679929513,
+            "crpsBps": 159.1965736266897,
+            "rawStudentNll": 7.067525081571013,
+            "observedPositiveRate": 0.43272643994045573,
+            "meanPredictedPositiveProbability": 0.4187588373704754,
+            "empirical80Coverage": 0.7698385434558571,
+            "referenceMseNetBps2": 90578.39987633616,
+            "referenceBrier": 0.25279116479396596,
+            "referenceCrpsBps": 159.02504744900577,
+            "referenceRawStudentNll": 7.046031840514262
+          },
+          "short-stress": {
+            "count": 8733,
+            "unknown": 0,
+            "mseNetBps2": 91259.91443852342,
+            "brier": 0.2505803110172276,
+            "crpsBps": 159.5134795277901,
+            "rawStudentNll": 7.06971520950702,
+            "observedPositiveRate": 0.4103973434100538,
+            "meanPredictedPositiveProbability": 0.3972475586563471,
+            "empirical80Coverage": 0.7673193633344784,
+            "referenceMseNetBps2": 90669.05493888937,
+            "referenceBrier": 0.2487941469360388,
+            "referenceCrpsBps": 159.13186147876044,
+            "referenceRawStudentNll": 7.046780423340926
+          }
+        }
+      }
+    },
+    {
+      "candidate": "matched-linear-net-24h",
+      "BTC/USD": {
+        "unavailable": 0,
+        "incoherentDirections": 0,
+        "predictiveGatePassed": false,
+        "heads": {
+          "long-base": {
+            "count": 8733,
+            "unknown": 0,
+            "mseNetBps2": 38236.82323130132,
+            "brier": 0.2606996127645753,
+            "crpsBps": 104.52647833342843,
+            "rawStudentNll": 6.624438774695001,
+            "observedPositiveRate": 0.48448414061605405,
+            "meanPredictedPositiveProbability": 0.49463497477139806,
+            "empirical80Coverage": 0.7620519867170503,
+            "referenceMseNetBps2": 38013.604589702365,
+            "referenceBrier": 0.25453350495308424,
+            "referenceCrpsBps": 103.85769286202034,
+            "referenceRawStudentNll": 6.616553129153126
+          },
+          "long-stress": {
+            "count": 8733,
+            "unknown": 0,
+            "mseNetBps2": 37983.342252586874,
+            "brier": 0.2587921520454556,
+            "crpsBps": 104.19095594059195,
+            "rawStudentNll": 6.621084035676533,
+            "observedPositiveRate": 0.45139127447612504,
+            "meanPredictedPositiveProbability": 0.46603514288790576,
+            "empirical80Coverage": 0.7622810030917211,
+            "referenceMseNetBps2": 37776.66568879469,
+            "referenceBrier": 0.25329767817926907,
+            "referenceCrpsBps": 103.52324598855853,
+            "referenceRawStudentNll": 6.6132689525525485
+          },
+          "short-base": {
+            "count": 8733,
+            "unknown": 0,
+            "mseNetBps2": 38988.9808056948,
+            "brier": 0.2527492996544519,
+            "crpsBps": 105.4940856304276,
+            "rawStudentNll": 6.634760122112155,
+            "observedPositiveRate": 0.41635176915149436,
+            "meanPredictedPositiveProbability": 0.41166891489543034,
+            "empirical80Coverage": 0.7627390358410626,
+            "referenceMseNetBps2": 38768.99461361492,
+            "referenceBrier": 0.24630327091563498,
+            "referenceCrpsBps": 104.83140615503123,
+            "referenceRawStudentNll": 6.6270802097314085
+          },
+          "short-stress": {
+            "count": 8733,
+            "unknown": 0,
+            "mseNetBps2": 39225.881360176805,
+            "brier": 0.2463905055631441,
+            "crpsBps": 105.80092395516726,
+            "rawStudentNll": 6.63797372531718,
+            "observedPositiveRate": 0.38680865681896254,
+            "meanPredictedPositiveProbability": 0.38302235545566315,
+            "empirical80Coverage": 0.7614794457803733,
+            "referenceMseNetBps2": 39024.26398219531,
+            "referenceBrier": 0.24067492797488324,
+            "referenceCrpsBps": 105.14392221289968,
+            "referenceRawStudentNll": 6.6304891985945025
+          }
+        }
+      },
+      "ETH/USD": {
+        "unavailable": 0,
+        "incoherentDirections": 0,
+        "predictiveGatePassed": false,
+        "heads": {
+          "long-base": {
+            "count": 8733,
+            "unknown": 0,
+            "mseNetBps2": 91166.84183979157,
+            "brier": 0.2655755214676611,
+            "crpsBps": 160.02969042670082,
+            "rawStudentNll": 7.055119919493103,
+            "observedPositiveRate": 0.4878048780487805,
+            "meanPredictedPositiveProbability": 0.4989467471886905,
+            "empirical80Coverage": 0.7686934615825032,
+            "referenceMseNetBps2": 90179.34322959845,
+            "referenceBrier": 0.257881841110187,
+            "referenceCrpsBps": 158.58282943524483,
+            "referenceRawStudentNll": 7.042960016570053
+          },
+          "long-stress": {
+            "count": 8733,
+            "unknown": 0,
+            "mseNetBps2": 91075.7682180248,
+            "brier": 0.2636405316151957,
+            "crpsBps": 159.96496417046734,
+            "rawStudentNll": 7.054698223142213,
+            "observedPositiveRate": 0.46352914233367687,
+            "meanPredictedPositiveProbability": 0.4774457382671457,
+            "empirical80Coverage": 0.76777739608382,
+            "referenceMseNetBps2": 90045.1249124305,
+            "referenceBrier": 0.2561712114302087,
+            "referenceCrpsBps": 158.44569777658742,
+            "referenceRawStudentNll": 7.042020331840453
+          },
+          "short-base": {
+            "count": 8733,
+            "unknown": 0,
+            "mseNetBps2": 91611.26724203909,
+            "brier": 0.26073874543312575,
+            "crpsBps": 160.51905082534657,
+            "rawStudentNll": 7.058521716332401,
+            "observedPositiveRate": 0.43272643994045573,
+            "meanPredictedPositiveProbability": 0.4252029610550614,
+            "empirical80Coverage": 0.7665178060231307,
+            "referenceMseNetBps2": 90578.39987633616,
+            "referenceBrier": 0.25279116479396596,
+            "referenceCrpsBps": 159.02504744900577,
+            "referenceRawStudentNll": 7.046031840514262
+          },
+          "short-stress": {
+            "count": 8733,
+            "unknown": 0,
+            "mseNetBps2": 91754.4316017993,
+            "brier": 0.25649125925659505,
+            "crpsBps": 160.7081372949121,
+            "rawStudentNll": 7.059914066845905,
+            "observedPositiveRate": 0.4103973434100538,
+            "meanPredictedPositiveProbability": 0.4041974696258041,
+            "empirical80Coverage": 0.767204855147143,
+            "referenceMseNetBps2": 90669.05493888937,
+            "referenceBrier": 0.2487941469360388,
+            "referenceCrpsBps": 159.13186147876044,
+            "referenceRawStudentNll": 7.046780423340926
+          }
+        }
+      }
+    }
+  ],
+  "portfolio": {
+    "base": {
+      "netPnlUsd": 0,
+      "maximumDrawdownUsd": 0,
+      "maximumOneDayLossUsd": 0,
+      "completed": 0,
+      "activeUtcDates": 0,
+      "unknownTrades": 0,
+      "perAsset": [
+        {
+          "symbol": "BTC/USD",
+          "selected": 0,
+          "filled": 0,
+          "completed": 0,
+          "unknownTrades": 0,
+          "grossPnlUsd": 0,
+          "netPnlUsd": 0,
+          "knownCompletedGrossPnlUsd": 0,
+          "knownCompletedNetPnlUsd": 0
+        },
+        {
+          "symbol": "ETH/USD",
+          "selected": 0,
+          "filled": 0,
+          "completed": 0,
+          "unknownTrades": 0,
+          "grossPnlUsd": 0,
+          "netPnlUsd": 0,
+          "knownCompletedGrossPnlUsd": 0,
+          "knownCompletedNetPnlUsd": 0
+        }
+      ]
+    },
+    "stress": {
+      "netPnlUsd": 0,
+      "maximumDrawdownUsd": 0,
+      "maximumOneDayLossUsd": 0,
+      "completed": 0,
+      "activeUtcDates": 0,
+      "unknownTrades": 0,
+      "perAsset": [
+        {
+          "symbol": "BTC/USD",
+          "selected": 0,
+          "filled": 0,
+          "completed": 0,
+          "unknownTrades": 0,
+          "grossPnlUsd": 0,
+          "netPnlUsd": 0,
+          "knownCompletedGrossPnlUsd": 0,
+          "knownCompletedNetPnlUsd": 0
+        },
+        {
+          "symbol": "ETH/USD",
+          "selected": 0,
+          "filled": 0,
+          "completed": 0,
+          "unknownTrades": 0,
+          "grossPnlUsd": 0,
+          "netPnlUsd": 0,
+          "knownCompletedGrossPnlUsd": 0,
+          "knownCompletedNetPnlUsd": 0
+        }
+      ]
+    },
+    "accounting": {
+      "base": {
+        "selected": 0,
+        "filled": 0,
+        "completed": 0,
+        "unfilled": 0,
+        "zeroQuantityNoFills": 0,
+        "exitRetriedTrades": 0,
+        "exitRetryAttempts": 0,
+        "exitZeroVolumeNoFills": 0,
+        "exitRetryExhaustedTrades": 0,
+        "maximumObservedExitDelayHours": 0,
+        "unknownTrades": 0,
+        "activeUtcDates": 0,
+        "finalEquityUsd": 100000,
+        "totalGrossPnlUsd": 0,
+        "totalNetPnlUsd": 0,
+        "knownCompletedGrossPnlUsd": 0,
+        "knownCompletedNetPnlUsd": 0,
+        "totalFeesUsd": 0,
+        "totalSlippageUsd": 0,
+        "totalFundingUsd": 0,
+        "knownFundingUsd": 0,
+        "totalFundingReserveUsd": 0,
+        "knownFundingReserveUsd": 0,
+        "turnoverUsd": 0,
+        "turnoverInitialEquity": 0,
+        "positionHours": 0,
+        "unknownPositionHours": 0,
+        "staleMarkHours": 0,
+        "maximumDrawdownUsd": 0,
+        "maximumDrawdownFraction": 0,
+        "maximumLiquidationDrawdownUsd": 0,
+        "knownMaximumDrawdownUsd": 0,
+        "knownMaximumLiquidationDrawdownUsd": 0,
+        "maximumOneDayLossUsd": 0,
+        "perAsset": [
+          {
+            "symbol": "BTC/USD",
+            "selected": 0,
+            "filled": 0,
+            "completed": 0,
+            "unknownTrades": 0,
+            "grossPnlUsd": 0,
+            "netPnlUsd": 0,
+            "knownCompletedGrossPnlUsd": 0,
+            "knownCompletedNetPnlUsd": 0
+          },
+          {
+            "symbol": "ETH/USD",
+            "selected": 0,
+            "filled": 0,
+            "completed": 0,
+            "unknownTrades": 0,
+            "grossPnlUsd": 0,
+            "netPnlUsd": 0,
+            "knownCompletedGrossPnlUsd": 0,
+            "knownCompletedNetPnlUsd": 0
+          }
+        ]
+      },
+      "stress": {
+        "selected": 0,
+        "filled": 0,
+        "completed": 0,
+        "unfilled": 0,
+        "zeroQuantityNoFills": 0,
+        "exitRetriedTrades": 0,
+        "exitRetryAttempts": 0,
+        "exitZeroVolumeNoFills": 0,
+        "exitRetryExhaustedTrades": 0,
+        "maximumObservedExitDelayHours": 0,
+        "unknownTrades": 0,
+        "activeUtcDates": 0,
+        "finalEquityUsd": 100000,
+        "totalGrossPnlUsd": 0,
+        "totalNetPnlUsd": 0,
+        "knownCompletedGrossPnlUsd": 0,
+        "knownCompletedNetPnlUsd": 0,
+        "totalFeesUsd": 0,
+        "totalSlippageUsd": 0,
+        "totalFundingUsd": 0,
+        "knownFundingUsd": 0,
+        "totalFundingReserveUsd": 0,
+        "knownFundingReserveUsd": 0,
+        "turnoverUsd": 0,
+        "turnoverInitialEquity": 0,
+        "positionHours": 0,
+        "unknownPositionHours": 0,
+        "staleMarkHours": 0,
+        "maximumDrawdownUsd": 0,
+        "maximumDrawdownFraction": 0,
+        "maximumLiquidationDrawdownUsd": 0,
+        "knownMaximumDrawdownUsd": 0,
+        "knownMaximumLiquidationDrawdownUsd": 0,
+        "maximumOneDayLossUsd": 0,
+        "perAsset": [
+          {
+            "symbol": "BTC/USD",
+            "selected": 0,
+            "filled": 0,
+            "completed": 0,
+            "unknownTrades": 0,
+            "grossPnlUsd": 0,
+            "netPnlUsd": 0,
+            "knownCompletedGrossPnlUsd": 0,
+            "knownCompletedNetPnlUsd": 0
+          },
+          {
+            "symbol": "ETH/USD",
+            "selected": 0,
+            "filled": 0,
+            "completed": 0,
+            "unknownTrades": 0,
+            "grossPnlUsd": 0,
+            "netPnlUsd": 0,
+            "knownCompletedGrossPnlUsd": 0,
+            "knownCompletedNetPnlUsd": 0
+          }
+        ]
+      }
+    }
+  },
+  "baseline": {
+    "base": {
+      "netPnlUsd": 5.917556160260574,
+      "maximumDrawdownUsd": 6.5206306193285855,
+      "maximumOneDayLossUsd": 1.2242847721790895,
+      "completed": 1,
+      "activeUtcDates": 1,
+      "unknownTrades": 0,
+      "perAsset": [
+        {
+          "symbol": "BTC/USD",
+          "selected": 1,
+          "filled": 1,
+          "completed": 1,
+          "unknownTrades": 0,
+          "grossPnlUsd": 10.3504,
+          "netPnlUsd": 5.917556160266325,
+          "knownCompletedGrossPnlUsd": 10.3504,
+          "knownCompletedNetPnlUsd": 5.917556160266325
+        },
+        {
+          "symbol": "ETH/USD",
+          "selected": 0,
+          "filled": 0,
+          "completed": 0,
+          "unknownTrades": 0,
+          "grossPnlUsd": 0,
+          "netPnlUsd": 0,
+          "knownCompletedGrossPnlUsd": 0,
+          "knownCompletedNetPnlUsd": 0
+        }
+      ]
+    },
+    "stress": {
+      "netPnlUsd": 2.387404912733473,
+      "maximumDrawdownUsd": 7.706927176579484,
+      "maximumOneDayLossUsd": 1.237384991152794,
+      "completed": 1,
+      "activeUtcDates": 1,
+      "unknownTrades": 0,
+      "perAsset": [
+        {
+          "symbol": "BTC/USD",
+          "selected": 1,
+          "filled": 1,
+          "completed": 1,
+          "unknownTrades": 0,
+          "grossPnlUsd": 9.861600000000001,
+          "netPnlUsd": 2.3874049127336914,
+          "knownCompletedGrossPnlUsd": 9.861600000000001,
+          "knownCompletedNetPnlUsd": 2.3874049127336914
+        },
+        {
+          "symbol": "ETH/USD",
+          "selected": 0,
+          "filled": 0,
+          "completed": 0,
+          "unknownTrades": 0,
+          "grossPnlUsd": 0,
+          "netPnlUsd": 0,
+          "knownCompletedGrossPnlUsd": 0,
+          "knownCompletedNetPnlUsd": 0
+        }
+      ]
+    },
+    "accounting": {
+      "base": {
+        "selected": 1,
+        "filled": 1,
+        "completed": 1,
+        "unfilled": 0,
+        "zeroQuantityNoFills": 0,
+        "exitRetriedTrades": 0,
+        "exitRetryAttempts": 0,
+        "exitZeroVolumeNoFills": 0,
+        "exitRetryExhaustedTrades": 0,
+        "maximumObservedExitDelayHours": 0,
+        "unknownTrades": 0,
+        "activeUtcDates": 1,
+        "finalEquityUsd": 100005.91755616026,
+        "totalGrossPnlUsd": 10.350399999995716,
+        "totalNetPnlUsd": 5.917556160260574,
+        "knownCompletedGrossPnlUsd": 10.3504,
+        "knownCompletedNetPnlUsd": 5.917556160266325,
+        "totalFeesUsd": 0.013669400000000002,
+        "totalSlippageUsd": 0.0044,
+        "totalFundingUsd": 4.414774439733676,
+        "knownFundingUsd": 4.414774439733676,
+        "totalFundingReserveUsd": 0,
+        "knownFundingReserveUsd": 0,
+        "turnoverUsd": 27.338800000000003,
+        "turnoverInitialEquity": 0.000273388,
+        "positionHours": 8756,
+        "unknownPositionHours": 0,
+        "staleMarkHours": 0,
+        "maximumDrawdownUsd": 6.5206306193285855,
+        "maximumDrawdownFraction": 0.00006520266637080603,
+        "maximumLiquidationDrawdownUsd": 6.51743481932499,
+        "knownMaximumDrawdownUsd": 6.5206306193285855,
+        "knownMaximumLiquidationDrawdownUsd": 6.51743481932499,
+        "maximumOneDayLossUsd": 1.2242847721790895,
+        "perAsset": [
+          {
+            "symbol": "BTC/USD",
+            "selected": 1,
+            "filled": 1,
+            "completed": 1,
+            "unknownTrades": 0,
+            "grossPnlUsd": 10.3504,
+            "netPnlUsd": 5.917556160266325,
+            "knownCompletedGrossPnlUsd": 10.3504,
+            "knownCompletedNetPnlUsd": 5.917556160266325
+          },
+          {
+            "symbol": "ETH/USD",
+            "selected": 0,
+            "filled": 0,
+            "completed": 0,
+            "unknownTrades": 0,
+            "grossPnlUsd": 0,
+            "netPnlUsd": 0,
+            "knownCompletedGrossPnlUsd": 0,
+            "knownCompletedNetPnlUsd": 0
+          }
+        ]
+      },
+      "stress": {
+        "selected": 1,
+        "filled": 1,
+        "completed": 1,
+        "unfilled": 0,
+        "zeroQuantityNoFills": 0,
+        "exitRetriedTrades": 0,
+        "exitRetryAttempts": 0,
+        "exitZeroVolumeNoFills": 0,
+        "exitRetryExhaustedTrades": 0,
+        "maximumObservedExitDelayHours": 0,
+        "unknownTrades": 0,
+        "activeUtcDates": 1,
+        "finalEquityUsd": 100002.38740491273,
+        "totalGrossPnlUsd": 9.861600000003818,
+        "totalNetPnlUsd": 2.387404912733473,
+        "knownCompletedGrossPnlUsd": 9.861600000000001,
+        "knownCompletedNetPnlUsd": 2.3874049127336914,
+        "totalFeesUsd": 0.02018295,
+        "totalSlippageUsd": 0.0082,
+        "totalFundingUsd": 6.965322308099643,
+        "knownFundingUsd": 6.965322308099643,
+        "totalFundingReserveUsd": 0.48048982916666555,
+        "knownFundingReserveUsd": 0.48048982916666555,
+        "turnoverUsd": 26.910600000000002,
+        "turnoverInitialEquity": 0.000269106,
+        "positionHours": 8756,
+        "unknownPositionHours": 0,
+        "staleMarkHours": 0,
+        "maximumDrawdownUsd": 7.706927176579484,
+        "maximumDrawdownFraction": 0.00007706535169960166,
+        "maximumLiquidationDrawdownUsd": 7.701734076574212,
+        "knownMaximumDrawdownUsd": 7.706927176579484,
+        "knownMaximumLiquidationDrawdownUsd": 7.701734076574212,
+        "maximumOneDayLossUsd": 1.237384991152794,
+        "perAsset": [
+          {
+            "symbol": "BTC/USD",
+            "selected": 1,
+            "filled": 1,
+            "completed": 1,
+            "unknownTrades": 0,
+            "grossPnlUsd": 9.861600000000001,
+            "netPnlUsd": 2.3874049127336914,
+            "knownCompletedGrossPnlUsd": 9.861600000000001,
+            "knownCompletedNetPnlUsd": 2.3874049127336914
+          },
+          {
+            "symbol": "ETH/USD",
+            "selected": 0,
+            "filled": 0,
+            "completed": 0,
+            "unknownTrades": 0,
+            "grossPnlUsd": 0,
+            "netPnlUsd": 0,
+            "knownCompletedGrossPnlUsd": 0,
+            "knownCompletedNetPnlUsd": 0
+          }
+        ]
+      }
+    }
+  },
+  "developmentGatePassed": false,
+  "confirmationGatePassed": false,
+  "finalTestOpened": false,
+  "candidateActivated": false,
+  "profitabilityEstablished": false,
+  "livePromotionAllowed": false,
+  "status": "STUDENT_DEVELOP_FAILED_FINAL_UNOPENED"
+}

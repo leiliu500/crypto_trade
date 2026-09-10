@@ -1,0 +1,230 @@
+{
+  "version": "rotation-independent-final-audit-v1",
+  "passed": true,
+  "candidateId": "rotation_m60_t90",
+  "candidateUnchangedAfterDevelopment": true,
+  "validation": {
+    "base": {
+      "accountingPassed": true,
+      "netPnlUsd": 461.5939696320256,
+      "closedEpisodes": 2,
+      "strategyExitEpisodes": 2,
+      "forcedTerminalEpisodes": 0,
+      "winningEpisodes": 1,
+      "bestEpisodePnlUsd": 544.0308138688638,
+      "bestEpisodeShareOfGrossPositivePnl": 1.0,
+      "bestEpisodeShareOfNetPnl": 1.178591683731387,
+      "pnlExcludingBestEpisodeArithmeticOnlyUsd": -82.43684423683817,
+      "turnoverUsd": 4465.5724794966,
+      "turnoverAsMultipleOfEntryBudget": 4.4655724794966,
+      "feesUsd": 35.724579835972804,
+      "adversePriceCostUsd": 1.3489972286000358,
+      "exposedDayFraction": 0.5434782608695652,
+      "episodes": [
+        {
+          "symbol": "ETH/USD",
+          "entryDate": "2025-07-03",
+          "exitDate": "2025-09-27",
+          "netPnlUsd": 544.0308138688638,
+          "feesUsd": 20.388369287536,
+          "holdingDays": 86.0,
+          "exitReason": "target_change"
+        },
+        {
+          "symbol": "ETH/USD",
+          "entryDate": "2025-09-28",
+          "exitDate": "2025-10-12",
+          "netPnlUsd": -82.4368442368368,
+          "feesUsd": 15.3362105484368,
+          "holdingDays": 14.0,
+          "exitReason": "target_change"
+        }
+      ]
+    },
+    "stress": {
+      "accountingPassed": true,
+      "netPnlUsd": 498.3410431832599,
+      "closedEpisodes": 2,
+      "strategyExitEpisodes": 2,
+      "forcedTerminalEpisodes": 0,
+      "winningEpisodes": 1,
+      "bestEpisodePnlUsd": 517.410735310442,
+      "bestEpisodeShareOfGrossPositivePnl": 1.0,
+      "bestEpisodeShareOfNetPnl": 1.0382663486944008,
+      "pnlExcludingBestEpisodeArithmeticOnlyUsd": -19.069692127182066,
+      "turnoverUsd": 4503.7747780340005,
+      "turnoverAsMultipleOfEntryBudget": 4.503774778034001,
+      "feesUsd": 45.037747780340005,
+      "adversePriceCostUsd": 4.509646576900054,
+      "exposedDayFraction": 0.5434782608695652,
+      "episodes": [
+        {
+          "symbol": "ETH/USD",
+          "entryDate": "2025-07-04",
+          "exitDate": "2025-09-28",
+          "netPnlUsd": 517.410735310442,
+          "feesUsd": 25.228370946158,
+          "holdingDays": 86.0,
+          "exitReason": "target_change"
+        },
+        {
+          "symbol": "ETH/USD",
+          "entryDate": "2025-09-29",
+          "exitDate": "2025-10-13",
+          "netPnlUsd": -19.069692127182066,
+          "feesUsd": 19.809376834182004,
+          "holdingDays": 14.0,
+          "exitReason": "target_change"
+        }
+      ]
+    }
+  },
+  "final": {
+    "base": {
+      "accountingPassed": true,
+      "netPnlUsd": -97.99974610398931,
+      "closedEpisodes": 4,
+      "strategyExitEpisodes": 3,
+      "forcedTerminalEpisodes": 1,
+      "winningEpisodes": 1,
+      "bestEpisodePnlUsd": 266.1467595224351,
+      "bestEpisodeShareOfGrossPositivePnl": 1.0,
+      "bestEpisodeShareOfNetPnl": null,
+      "pnlExcludingBestEpisodeArithmeticOnlyUsd": -364.1465056264244,
+      "turnoverUsd": 7761.6859290611,
+      "turnoverAsMultipleOfEntryBudget": 7.7616859290611,
+      "feesUsd": 62.0934874324888,
+      "adversePriceCostUsd": 2.346551682199853,
+      "exposedDayFraction": 0.3531746031746032,
+      "episodes": [
+        {
+          "symbol": "ETH/USD",
+          "entryDate": "2026-01-15",
+          "exitDate": "2026-01-21",
+          "netPnlUsd": -139.10884590592002,
+          "feesUsd": 14.879178277920001,
+          "holdingDays": 6.0,
+          "exitReason": "target_change"
+        },
+        {
+          "symbol": "ETH/USD",
+          "entryDate": "2026-04-15",
+          "exitDate": "2026-05-16",
+          "netPnlUsd": -57.76431716946399,
+          "feesUsd": 15.312594137864,
+          "holdingDays": 31.0,
+          "exitReason": "target_change"
+        },
+        {
+          "symbol": "BTC/USD",
+          "entryDate": "2026-05-16",
+          "exitDate": "2026-06-03",
+          "netPnlUsd": -167.27334255104006,
+          "feesUsd": 14.337018007040001,
+          "holdingDays": 18.0,
+          "exitReason": "target_change"
+        },
+        {
+          "symbol": "ETH/USD",
+          "entryDate": "2026-08-07",
+          "exitDate": "2026-09-10",
+          "netPnlUsd": 266.1467595224351,
+          "feesUsd": 17.5646970096648,
+          "holdingDays": 34.0,
+          "exitReason": "terminal"
+        }
+      ]
+    },
+    "stress": {
+      "accountingPassed": true,
+      "netPnlUsd": -159.49069677063198,
+      "closedEpisodes": 4,
+      "strategyExitEpisodes": 3,
+      "forcedTerminalEpisodes": 1,
+      "winningEpisodes": 1,
+      "bestEpisodePnlUsd": 251.28063851385593,
+      "bestEpisodeShareOfGrossPositivePnl": 1.0,
+      "bestEpisodeShareOfNetPnl": null,
+      "pnlExcludingBestEpisodeArithmeticOnlyUsd": -410.7713352844879,
+      "turnoverUsd": 7689.854898843201,
+      "turnoverAsMultipleOfEntryBudget": 7.689854898843201,
+      "feesUsd": 76.898548988432,
+      "adversePriceCostUsd": 7.700708365700193,
+      "exposedDayFraction": 0.3492063492063492,
+      "episodes": [
+        {
+          "symbol": "ETH/USD",
+          "entryDate": "2026-01-16",
+          "exitDate": "2026-01-22",
+          "netPnlUsd": -121.44807831389994,
+          "feesUsd": 18.7752518855,
+          "holdingDays": 6.0,
+          "exitReason": "target_change"
+        },
+        {
+          "symbol": "ETH/USD",
+          "entryDate": "2026-04-16",
+          "exitDate": "2026-05-17",
+          "netPnlUsd": -95.46752546359824,
+          "feesUsd": 18.794761115198,
+          "holdingDays": 31.0,
+          "exitReason": "target_change"
+        },
+        {
+          "symbol": "BTC/USD",
+          "entryDate": "2026-05-17",
+          "exitDate": "2026-06-04",
+          "netPnlUsd": -193.85573150698997,
+          "feesUsd": 17.60997246799,
+          "holdingDays": 18.0,
+          "exitReason": "target_change"
+        },
+        {
+          "symbol": "ETH/USD",
+          "entryDate": "2026-08-08",
+          "exitDate": "2026-09-10",
+          "netPnlUsd": 251.28063851385593,
+          "feesUsd": 21.718563519744002,
+          "holdingDays": 33.0,
+          "exitReason": "terminal"
+        }
+      ]
+    }
+  },
+  "splitStateChecks": [
+    {
+      "start": "2025-07-01",
+      "targetAtStart": "ETH/USD",
+      "historicalTargetBegan": "2025-05-10",
+      "resetIncumbentAtSplitMatchesEntireSubsequentSignalSeries": true,
+      "explanation": "Retain only the exact indicator warmup needed before split; the first eligible stateful decision is at split, so incumbent begins in cash."
+    },
+    {
+      "start": "2026-01-01",
+      "targetAtStart": null,
+      "historicalTargetBegan": "2025-10-10",
+      "resetIncumbentAtSplitMatchesEntireSubsequentSignalSeries": true,
+      "explanation": "Retain only the exact indicator warmup needed before split; the first eligible stateful decision is at split, so incumbent begins in cash."
+    }
+  ],
+  "zeroFeeFinalPnlUsd": -35.47618002590025,
+  "conclusions": [
+    "Validation profit depends entirely on one July\u2013September 2025 ETH move; both validation episodes were ETH, so that window does not demonstrate successful cross-asset rotation.",
+    "Final 2026 contains three losing strategy exits and one profitable forced terminal liquidation. The latter is a conservative liquidation mark of an otherwise open signal position, not evidence of a strategy-triggered winning exit.",
+    "Final 2026 still loses with zero commissions at unchanged base slippage and delay. Lower fees alone do not repair the model on this window.",
+    "Stress validation earns more than base because delay changes market prices, particularly the second losing episode. The combined stress scenario is not a guaranteed lower-bound or worst-case return.",
+    "Warm historical intended allocation and actual cash inventory differ conceptually. The first validation target began May 10; resetting incumbent at July 1 independently yields the identical subsequent target series. Final begins in cash and also matches a split reset, so this distinction does not change these recorded rotation results."
+  ],
+  "methodologicalLimits": [
+    "Twelve disclosed current variants do not capture the unknown number of prior trials on reused history; chronological splits and adjusted bootstrap are descriptive rather than independent prospective evidence.",
+    "Daily bars and delayed open proxies cannot establish order-book execution quality or intraday stop behavior; historical minimums and tick rules are approximated using current metadata.",
+    "The model tracks desired allocation without fill/rejection feedback; a production implementation needs durable broker-confirmed position state and reconciliation.",
+    "There are only six combined later-period episodes, including one forced terminal liquidation, and only two gross-positive episodes. Long serially dependent exposures weaken inference from resampled daily PnL.",
+    "Removing a best episode above is arithmetic concentration analysis, not a counterfactual resimulation; changed intervening equity could alter later sizing."
+  ],
+  "sourceSha256": {
+    "validation.json": "54b0510155f584565d4dd7056eb66c1d2cdc8e91f89e512e3660447f7cf740a2",
+    "final-detail.json": "9eb691b8fa5a41c3e16561321df02b3ab65b111208f54f2031d073b123a3c688",
+    "sensitivity.json": "b0c0b39d7dfbb339ae2d360a1183386a902ff23809030c66a73f9b1f5eab47d0"
+  }
+}

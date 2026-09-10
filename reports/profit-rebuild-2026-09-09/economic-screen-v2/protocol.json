@@ -1,0 +1,261 @@
+{
+  "registeredAtMs": 1788984110600,
+  "registeredAt": "2026-09-09T20:01:50.600Z",
+  "strategy": {
+    "version": "btc-eth-weekly-mean-variance-inventory-v2",
+    "forecastVersion": "btc-eth-weekly-gross-forecast-inventory-v1",
+    "decision": "POSITIVE_ABSOLUTE_GROSS_MEAN_MINUS_FULL_ROUND_TRIP_COST_HURDLE",
+    "confidenceIntervalGate": false,
+    "parameterVariance": "SAMPLE_VARIANCE_OF_BOOTSTRAP_CONDITIONAL_MEAN_DECIMAL_RETURNS",
+    "variance": "HISTORICAL_WEEKLY_VOLATILITY_SQUARED_PLUS_PARAMETER_VARIANCE",
+    "fraction": "MIN(0.01,0.25*NET_MEAN/(VARIANCE+NET_MEAN_SQUARED))",
+    "fractionalKellyMultiplier": 0.25,
+    "maximumEquityFraction": 0.01,
+    "score": "NET_MEAN_DIVIDED_BY_SQRT_VARIANCE",
+    "quantityDeadbandFraction": 0.25,
+    "switchImprovementFraction": 0.25,
+    "remainingControls": "ONE_SLOT; FULL_COST_HURDLE; NOTIONAL_AND_REMAINING_RISK_CAPS; LOTS; STOPS; FUNDING_COVERAGE",
+    "varianceInterpretation": "HISTORICAL_VOLATILITY_AND_PARAMETER_UNCERTAINTY_PROXY_NOT_CALIBRATED_PREDICTIVE_DISTRIBUTION",
+    "sizingInterpretation": "FRACTIONAL_SECOND_ORDER_EXPECTED_LOG_UTILITY_APPROXIMATION_NOT_EXACT_KELLY",
+    "validation": "UNCHANGED_EIGHT_RUN_AFTER_COST_ECONOMIC_AND_ACCOUNTING_GATES; PRIOR_FAILURES_PRESERVED",
+    "winProbability": null,
+    "returnGuarantee": false,
+    "sources": [
+      "https://www.columbia.edu/~ww2040/PortfolioChoice96.pdf",
+      "https://arxiv.org/abs/1803.03573"
+    ]
+  },
+  "modelSpecification": {
+    "version": "btc-eth-weekly-gross-forecast-inventory-v1",
+    "symbols": [
+      "BTC/USD",
+      "ETH/USD"
+    ],
+    "dayMs": 86400000,
+    "hourMs": 3600000,
+    "weekMs": 604800000,
+    "fastLookbackDays": 7,
+    "slowLookbackDays": 90,
+    "volatilityLookbackDays": 30,
+    "minimumDailyVolatility": 0.005,
+    "featureClip": 3,
+    "forecastHorizonDays": 7,
+    "labelPublicationLagDays": 1,
+    "trainingLookbackDays": 365,
+    "minimumTrainingWeeks": 26,
+    "ridgeLambda": 10,
+    "bootstrapRepetitions": 256,
+    "bootstrapBlockWeeks": 4,
+    "bootstrapSeed": 1800526119,
+    "lowerQuantile": 0.05,
+    "upperQuantile": 0.95,
+    "candleFinalizationDelayMs": 60000,
+    "maximumSignalAgeMs": 172800000,
+    "maximumNotionalUsd": 1000,
+    "maximumEquityFraction": 0.01,
+    "baseRiskFraction": 0.001,
+    "initialStopDailySigma": 4,
+    "maximumDrawdownFraction": 0.05,
+    "rollingLossFraction": 0.0075,
+    "sessionLossFraction": 0.0075,
+    "quantityDeadbandFraction": 0.25,
+    "switchImprovementFraction": 0.25,
+    "fundingReserveBpsPerDay": 3,
+    "costErrorReserveBps": 2,
+    "maximumQuoteAgeMs": 1000,
+    "maximumSpreadBps": 5,
+    "maximumEntrySlippageBps": 3,
+    "maximumBookParticipation": 0.01,
+    "entryLatencyMs": 250,
+    "entryTtlMs": 2000,
+    "interpretation": "CONDITIONAL_GROSS_MEAN_WITH_PARAMETER_UNCERTAINTY;NOT_A_RETURN_GUARANTEE"
+  },
+  "variant": "utility",
+  "study": {
+    "version": "weekly-inventory-chronological-study-v1",
+    "windows": [
+      {
+        "id": "development-2024",
+        "startMs": 1704067200000,
+        "endMs": 1735689600000
+      },
+      {
+        "id": "confirmation-2025-h1",
+        "startMs": 1735689600000,
+        "endMs": 1751328000000
+      }
+    ],
+    "historyStartMs": 1669852800000,
+    "training": "MONTHLY_ROLLING_365_DAYS; PAIRED_7_DAY_LABELS_MATURE_PLUS_ONE_DAY",
+    "decision": "MONDAY_00_01_UTC; FIRST_NEXT_FULL_HOUR_BASE_OR_TWO_HOURS_STRESS",
+    "scenarios": [
+      "base",
+      "stress"
+    ],
+    "fundingAssumptions": [
+      "source-plus-hour",
+      "source-as-end"
+    ],
+    "benchmarkPolicies": [
+      "risk-managed-long-btc",
+      "risk-managed-long-eth"
+    ],
+    "benchmarkInterpretation": "INDEPENDENT_ONE_SLOT_RISK_MANAGED_LONG_PATHS; MEAN_IS_A_BENCHMARK_MIXTURE_NOT_AN_EXECUTABLE_TWO_POSITION_PORTFOLIO",
+    "evidence": "REUSED_DEVELOPMENT_DATA; NOT_UNTOUCHED_HOLDOUT; PREVIOUS_FAILED_CANDIDATES_PRESERVED",
+    "reservedWindow": {
+      "startMs": 1767225600000,
+      "endMs": 1785542400000,
+      "evaluated": false
+    },
+    "tuning": "ONE_FROZEN_CANDIDATE; NO_PARAMETER_SEARCH_OR_POST_RESULT_THRESHOLD_CHANGES",
+    "forecastMeaning": "CONDITIONAL_GROSS_MEAN_PARAMETER_UNCERTAINTY; NOT_RETURN_QUANTILES_OR_WIN_PROBABILITY",
+    "liveOrderSubmission": false
+  },
+  "validation": {
+    "version": "weekly-mean-variance-economic-validation-v2",
+    "strategyVersion": "btc-eth-weekly-mean-variance-inventory-v2",
+    "windows": [
+      {
+        "id": "development-2024",
+        "startMs": 1704067200000,
+        "endMs": 1735689600000
+      },
+      {
+        "id": "confirmation-2025-h1",
+        "startMs": 1735689600000,
+        "endMs": 1751328000000
+      }
+    ],
+    "scenarios": [
+      "base",
+      "stress"
+    ],
+    "fundingAssumptions": [
+      "source-plus-hour",
+      "source-as-end"
+    ],
+    "candidatePolicy": "weekly-mean-variance",
+    "benchmarkPolicies": [
+      "risk-managed-long-btc",
+      "risk-managed-long-eth"
+    ],
+    "historicalEvidence": "REUSED_DEVELOPMENT_AND_REUSED_CONFIRMATION; NOT_UNTOUCHED_HOLDOUT",
+    "historicalEvidenceKind": "HOURLY_CANDLE_PROXY",
+    "previousFailedStudiesMustBePreserved": true,
+    "reserved2026WindowExcluded": true,
+    "everyCandidateRun": {
+      "completeFundedAccounting": true,
+      "minimumNetPnlUsdExclusive": 0,
+      "maximumDrawdownUsd": 200,
+      "maximumRiskBreaches": 0,
+      "minimumActiveCalendarWeeks": 8,
+      "unresolvedPositionMustBeNull": true
+    },
+    "calendar": "UTC_MONDAY_WEEKS; ALL_FLAT_AND_PARTIAL_BOUNDARY_WEEKS_INCLUDED; ACTIVITY_MEANS_POSITIVE_EXPOSURE",
+    "uncertainty": {
+      "method": "MOVING_BLOCK_BOOTSTRAP_CALENDAR_WEEK_NET_PNL",
+      "blockWeeks": 4,
+      "repetitions": 2000,
+      "seed": 1940204825,
+      "lowerQuantile": 0.05,
+      "minimumWeeks": 8,
+      "minimumLowerMeanNetUsdPerWeekExclusive": 0,
+      "requiredScenarios": [
+        "base"
+      ],
+      "interpretation": "NOMINAL_SERIAL_DEPENDENCE_SENSITIVITY; NOT_MULTIPLE_RESEARCH_ADJUSTED_OR_A_RETURN_GUARANTEE"
+    },
+    "benchmark": {
+      "flatCashNetPnlUsd": 0,
+      "interpretation": "MEAN_OF_INDEPENDENT_ONE_SLOT_RISK_MANAGED_LONG_PATHS; NOT_AN_EXECUTABLE_TWO_POSITION_PORTFOLIO",
+      "requiredComparison": "POOLED_TWO_PERIOD_BASE_CANDIDATE_NET_EXCEEDS_MEAN_BTC_ETH_NET_FOR_EACH_FUNDING_ASSUMPTION",
+      "perPeriodExcessIsDiagnosticOnly": true
+    },
+    "historicalPromotion": "ELIGIBLE_FOR_BOUNDED_PAPER_PILOT_ONLY; CALLER_MUST_VERIFY_SEALED_SOURCE_AND_DATA_ARTIFACTS",
+    "prospective": {
+      "minimumCalendarDays": 90,
+      "evidenceKind": "INDEPENDENTLY_HELD_RECORDED_BOOK_FILLS",
+      "knownExecutionFeesAndFundingRequired": true,
+      "positiveCalendarNetLowerBoundRequired": true,
+      "riskAndDrawdownLimitsRequired": true,
+      "frozenSourceAndConfigHashesRequired": true,
+      "independentEvidenceVerifierImplemented": false
+    },
+    "fullValidationWithoutIndependentProspectiveVerification": false,
+    "unknownOrMalformedAccounting": "FAIL_CLOSED",
+    "realOrdersAllowed": false,
+    "predecessor": "weekly-confidence-v1-produced-zero-trades-and-failed-validation",
+    "thresholdChangesAfterPredecessor": false
+  },
+  "executionAssumptions": {
+    "version": "weekly-inventory-hourly-proxy-v1",
+    "initialEquityUsd": 100000,
+    "evidenceKind": "HOURLY_CANDLE_PROXY",
+    "fees": {
+      "base": 5,
+      "stress": 7.5
+    },
+    "adverseSlippage": {
+      "base": 1.5,
+      "stress": 3
+    },
+    "spreadBps": 1,
+    "fillHourAfterMondayMidnight": {
+      "base": 1,
+      "stress": 2
+    },
+    "fundingReserveBps": 21,
+    "lots": {
+      "BTC/USD": 0.0001,
+      "ETH/USD": 0.001
+    },
+    "ticks": {
+      "BTC/USD": 1,
+      "ETH/USD": 0.1
+    },
+    "flattenLeadHours": 48,
+    "intrabar": "FAVORABLE_EXTREME_THEN_ADVERSE_EXTREME_THEN_CLOSE; STOP_FIRST_EXIT_WITH_ADVERSE_ALLOWANCE",
+    "limitations": [
+      "Hourly candles do not establish executable depth, latency, spread, partial fills or impact; this is not executable-profit evidence.",
+      "Positive full-hour volume is used only as a fill-availability proxy; future candle volume never permits fallback to a second symbol at the same open.",
+      "Within-hour chronology is synthetic. Favorable-before-adverse marks retain peak-to-trough drawdown; stops receive an extra adverse execution allowance.",
+      "Funding uses archived absolute USD-per-unit rates prorated over synthetic holding intervals. FundingRow timestamps are normalized interval ends; source-plus-hour assigns [end-1h,end), while source-as-end shifts that interval one hour earlier. Actual settlement timing is unverified.",
+      "Missing held funding makes total funded P&L and drawdown unknown and permanently blocks later entries in that run.",
+      "Current lots, ticks and fixed fee assumptions do not establish historical contract specifications or account fee tiers.",
+      "Sizing reserves current rolling-loss, UTC-session-loss and drawdown dollar headroom. The notional cap is enforced at entry and hourly trims; intrabar price moves and zero-volume hours can exceed it before an executable reduction.",
+      "Depth is unavailable. Quantities are optimistic liquidity-feasible ceilings, with no claim of live depth participation parity.",
+      "Weekly forecast confidence bounds concern parameter uncertainty of a conditional mean; they are not predictive intervals or profit guarantees.",
+      "Flat orders are requested 48 hours before each window ends. Unfilled inventory is reported unresolved, never silently assigned a closing fill."
+    ]
+  },
+  "sourceHashes": {
+    "src/profit/spec.ts": "5643bb2c2f3930ca290b474722cd14db3ebcd85c1d620247b239ebc58c76d396",
+    "src/profit/model.ts": "cebdf2b12ada5577d04c7d79526210ff7ce1140af9d4ad54a7292cfdfaeda5de",
+    "src/profit/replay.ts": "56cb3561f5750ba270ffa3d96c75306717f55c4c5e15a25b4a936c28769e643a",
+    "src/profit/study.ts": "39c8159f75eb773d6191abe61b637d864c8cfbcd1567cc9f524a9c76af6b62a5",
+    "src/profit/study-main.ts": "a332d0c2fe0981e2c759f9fea8f37e2349c18c28d68cba9f5722c18b2f72ae6c",
+    "src/profit/validation.ts": "dcb900846bda6fdb059ad605b2c49eca1b7b1541333d62e7bfd3a24ab8a0b371",
+    "src/risk/risk-state.ts": "81683068282d66579354b36969eeb2da50ea81e5b0af049eda683b505d67c7aa",
+    "src/research/hourly-data.ts": "0786552d6f700f8ad906a6f6db80b423560eef6f79dbb7403250ce1eeb260a91",
+    "src/profit/utility.ts": "a89c429438771af34c6c61992488a80bc392ccd78aca8155cc2be30d238d3ec2",
+    "src/profit/utility-replay.ts": "c62be07f2c698a8ca77a77330dad3139734bcdc900d1be47152cfdd34f5789d8",
+    "src/profit/utility-validation.ts": "69f1781732f69532eb6cc3ec3c0c13a9272a0441635795d8e8496f756d471442",
+    "package.json": "2114cb6f52451861e8d57093622879111cb3efa6aa265182499f7bfa01ffa49c",
+    "package-lock.json": "2315bada829d31ccb4d3970392ba56d73458d3219dda1ec98d8dda0d41893594"
+  },
+  "sourceSha256": "9222418193fe5cc565032a2c7b484f015a638ae898e516890d87c5ce0d54cb4d",
+  "dataSha256": "824769157ba868eed0740a529ab18517217983690961e49f96e0baf667ed20bb",
+  "dataSources": [
+    {
+      "directory": "/home/ec2-user/crypto_trade/reports/hourly-adaptive-study-2026-09-08/data-older-restored",
+      "datasetSha256": "6995137d4366500628885518de3908f663ab7584caba0a4fe9845f700ac3f36f",
+      "manifestSha256": "b49fc0c9fe648aec3a049605f1e5c79d6d0a917bcf93c40bd151f47b992e941b"
+    },
+    {
+      "directory": "/home/ec2-user/crypto_trade/reports/hourly-adaptive-study-2026-09-08/data-recent",
+      "datasetSha256": "802694ae936dd864681dee2278f027ea1732a91fd6b635f1b08371673abcb227",
+      "manifestSha256": "5a57cfcc6dc6cc352f708f3101d0e2026580c5faf7b6661509016feb6483ecb4"
+    }
+  ],
+  "interpretation": "SEALED_BEFORE_THIS_MODEL_FIT_AND_REPLAY; REUSED_HISTORICAL_PERIODS; NO_FUTURE_PROFIT_GUARANTEE"
+}

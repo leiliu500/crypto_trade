@@ -1,0 +1,82 @@
+{
+  "system": "BTC spot weekly trend",
+  "mode": "RESEARCH_PAPER",
+  "liveTradingEnabled": false,
+  "orderSubmissionEnabled": true,
+  "orderExecutionMode": "LOCAL_SPOT_PAPER_BROKER",
+  "provenProfitable": false,
+  "strategy": {
+    "version": "btc-spot-weekly-research-paper-runner-v2",
+    "mode": "RESEARCH_PAPER",
+    "cycleIntervalMs": 300000,
+    "maximumBookAgeMs": 5000,
+    "entryWindowMs": 3600000,
+    "signalCutoff": "CURRENT_NATIVE_WEEK_OPEN;ONLY_ALREADY_FINALIZED_PREVIOUS_SIGNALS;MATCHES_HISTORICAL_BASE_WEEK_DELAY",
+    "entries": "FIRST_HOUR_OF_NATIVE_WEEK_ONLY;NO_MIDWEEK_CATCH_UP;FIRST_PARTIAL_FILL_CONSUMES_ENTRY_NO_ADDITIONS",
+    "exits": "CURRENT_DELAYED_WEEKLY_CASH_STATE_OR_MISSING_HISTORY_OR_PERSISTENT_ACCOUNT_DRAWDOWN_HALT;RETRY_PARTIAL_EXITS_WITH_FRESH_BOOKS",
+    "execution": "DURABLE_SUBMITTED_PAPER_IOC_THEN_BROKER_ACCEPTANCE_FILL_OR_CANCEL;10_BPS_COLLAR;5_PERCENT_ELIGIBLE_DEPTH;NO_LIVE_EXCHANGE_ORDERS",
+    "interpretation": "FORWARD_RESEARCH_PAPER_ONLY;L2_SIMULATED_FILLS_ARE_NOT_OBSERVED_VENUE_FILLS;LIVE_TRADING_DISABLED"
+  },
+  "healthy": true,
+  "lastError": null,
+  "lastSuccessMs": 1789021246037,
+  "evidence": {
+    "baseNetUsd": 1175.5967730305565,
+    "stressNetUsd": 1228.512191738846,
+    "baseEpisodes": 11,
+    "stressEpisodes": 11,
+    "lowerMeanWeeklyNetUsd": -0.4781742076421477,
+    "provenProfitable": false
+  },
+  "state": {
+    "version": "btc-spot-weekly-research-paper-runner-v2",
+    "mode": "RESEARCH_PAPER",
+    "startedAtMs": 1789019349083,
+    "lastCycleMs": 1789021246037,
+    "cycles": 9,
+    "account": {
+      "initialCashUsd": 100000,
+      "cashUsd": 100000,
+      "quantity": 0,
+      "entryCostUsd": 0,
+      "realizedNetUsd": 0,
+      "feesUsd": 0,
+      "receipts": []
+    },
+    "peakEquityUsd": 100000,
+    "halted": false,
+    "lastSignal": {
+      "version": "btc-spot-funded-weekly-trend-v1",
+      "availableAtMs": 1788393660000,
+      "lastWeekEndMs": 1788393600000,
+      "close": 77305.1,
+      "state": "long",
+      "reason": "TREND_ENTER",
+      "movingAverage": 74385.5475
+    },
+    "lastDecision": {
+      "timestampMs": 1789021246037,
+      "action": "hold",
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "fill": null,
+      "orderId": null,
+      "signal": {
+        "version": "btc-spot-funded-weekly-trend-v1",
+        "availableAtMs": 1788393660000,
+        "lastWeekEndMs": 1788393600000,
+        "close": 77305.1,
+        "state": "long",
+        "reason": "TREND_ENTER",
+        "movingAverage": 74385.5475
+      },
+      "mark": {
+        "equityUsd": 100000,
+        "liquidationEquityUsd": 100000,
+        "unrealizedNetUsd": 0,
+        "netPnlUsd": 0
+      }
+    },
+    "evidenceSha256": "3eed46dd2a5f17dc48e87e190243971754b1c7b0394ebcadb4eb289d30ebb509",
+    "orders": []
+  }
+}

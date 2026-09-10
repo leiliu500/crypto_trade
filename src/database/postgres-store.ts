@@ -10,12 +10,15 @@ import type { Position } from "../strategy/position-manager.js";
 import { runMigrations } from "./migrations.js";
 import { CalibratedEdgeTable, type CalibratedEdgeBucket } from "../calibration/calibrated-edge-table.js";
 import type { PolicyPositionSpec } from "../research/trading-policy.js";
+import type { SystematicPositionSpec } from "../systematic/spec.js";
+import type { SystematicProtection } from "../systematic/position.js";
 import { validLinearLedger, validNetProtection } from "../economics/net-liquidation.js";
 
 export interface PostgresStoreOptions {
   connectionString: string;
   flushIntervalMs: number;
   maximumQueue: number;
+  statementTimeoutMs?: number;
 }
 
 export interface EngineRunMetadata {
@@ -47,12 +50,18 @@ export class PostgresTelemetryStore extends EventEmitter {
   private lastError: string | null = null;
   private status: DatabaseHealth["status"] = "connecting";
   private activeFlush: Promise<void> | null = null;
+  private inFlightRecords = 0;
   private closing = false;
   private readonly lastOrderStatus = new Map<string, string>();
 
   public constructor(private readonly options: PostgresStoreOptions) {
     super();
-    this.pool = new Pool({ connectionString: options.connectionString, max: 5, idleTimeoutMillis: 30_000, connectionTimeoutMillis: 5_000, application_name: "crypto-trade-engine" });
+    const statementTimeoutMs = options.statementTimeoutMs ?? 5_000;
+    if (!Number.isSafeInteger(statementTimeoutMs) || statementTimeoutMs < 1_000 || statementTimeoutMs > 60_000)
+      throw new Error("INVALID_DATABASE_STATEMENT_TIMEOUT");
+    this.pool = new Pool({ connectionString: options.connectionString, max: 5, idleTimeoutMillis: 30_000,
+      connectionTimeoutMillis: 5_000, statement_timeout: statementTimeoutMs, query_timeout: statementTimeoutMs + 1_000,
+      application_name: "crypto-trade-engine" });
     this.pool.on("error", (error) => { this.lastError = error.message; this.status = "degraded"; this.publishHealth(); });
   }
 
@@ -104,7 +113,7 @@ export class PostgresTelemetryStore extends EventEmitter {
   }
 
   public health(): DatabaseHealth {
-    return { connected: this.status === "connected", status: this.status, queuedRecords: this.queue.length,
+    return { connected: this.status === "connected", status: this.status, queuedRecords: this.queue.length + this.inFlightRecords,
       droppedRecords: this.droppedRecords, lastPersistedAtMs: this.lastPersistedAtMs, lastError: this.lastError };
   }
 
@@ -337,8 +346,12 @@ export class PostgresTelemetryStore extends EventEmitter {
   private async flushBatch(): Promise<void> {
     const batch = this.queue.splice(0, Math.min(500, this.queue.length));
     if (batch.length === 0 || !this.runId) return;
-    const client = await this.pool.connect();
+    this.inFlightRecords = batch.length;
+    let client: PoolClient | undefined;
     try {
+      // Acquiring a connection can fail as well as the transaction itself.
+      // Keep that failure inside the same batch recovery/accounting boundary.
+      client = await this.pool.connect();
       await client.query("BEGIN");
       for (const record of batch) await this.persist(client, record, this.runId);
       await client.query("COMMIT");
@@ -346,7 +359,7 @@ export class PostgresTelemetryStore extends EventEmitter {
       this.lastError = null;
       this.status = "connected";
     } catch (error) {
-      await client.query("ROLLBACK").catch(() => undefined);
+      if (client) await client.query("ROLLBACK").catch(() => undefined);
       this.lastOrderStatus.clear();
       const capacity = Math.max(0, this.options.maximumQueue - this.queue.length);
       const recoverable = batch.slice(0, capacity);
@@ -355,8 +368,8 @@ export class PostgresTelemetryStore extends EventEmitter {
       this.lastError = error instanceof Error ? error.message : String(error);
       this.status = "degraded";
     } finally {
-      client.release();
-      this.publishHealth();
+      this.inFlightRecords = 0;
+      try { client?.release(); } finally { this.publishHealth(); }
     }
   }
 
@@ -565,6 +578,9 @@ export function compactHealthSnapshot(snapshot: DashboardSnapshot): Record<strin
     sessionRealizedPnl: snapshot.sessionRealizedPnl,
     sessionUnrealizedPnl: snapshot.sessionUnrealizedPnl,
     realizedSessionPnl: snapshot.realizedSessionPnl,
+    realizedPnl24h: snapshot.realizedPnl24h,
+    realizedPnlMeasurement: snapshot.realizedPnlMeasurement,
+    rollingPnlDetails: snapshot.rollingPnlDetails,
     realizedSessionBreakdown: snapshot.realizedSessionBreakdown,
     latencyP95Ms: snapshot.latencyP95Ms,
     liveness: snapshot.liveness,
@@ -661,6 +677,10 @@ function restorePositionState(value: unknown, fallback?: Partial<PersistedPositi
     // Preserve even unknown versions so PositionManager fails closed on them;
     // silently dropping the field would restore the incompatible legacy exits.
     ...(position.policy && typeof position.policy === "object" ? { policy: position.policy as PolicyPositionSpec } : {}),
+    ...(position.systematic !== undefined
+      ? { systematic: position.systematic as SystematicPositionSpec } : {}),
+    ...(position.systematicProtection !== undefined
+      ? { systematicProtection: position.systematicProtection as SystematicProtection } : {}),
     ...(validLinearLedger(position.ledger) ? { ledger: { ...position.ledger } } : {}),
     ...(validNetProtection(position.netProtection) ? { netProtection: { ...position.netProtection } } : {}),
     ...(Number.isFinite(selectedHorizonMs) && selectedHorizonMs > 0 ? { selectedHorizonMs } : {}),

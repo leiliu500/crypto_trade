@@ -1,0 +1,31 @@
+{
+  "balanced": {
+    "warmup": 32,
+    "insufficient_excursion_or_edge": 215,
+    "eligible": 6,
+    "nonstationary_fit": 37,
+    "half_life": 6,
+    "falling_trend": 66
+  },
+  "fast": {
+    "half_life": 30,
+    "insufficient_excursion_or_edge": 207,
+    "eligible": 30,
+    "nonstationary_fit": 20,
+    "falling_trend": 75
+  },
+  "patient": {
+    "warmup": 92,
+    "insufficient_excursion_or_edge": 153,
+    "nonstationary_fit": 59,
+    "falling_trend": 58
+  },
+  "rising_trend": {
+    "warmup": 32,
+    "insufficient_excursion_or_edge": 145,
+    "eligible": 6,
+    "nonstationary_fit": 37,
+    "falling_trend": 136,
+    "half_life": 6
+  }
+}

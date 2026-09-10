@@ -7,13 +7,14 @@ import { DistributionController, type SelectedPolicyOutcome } from "../src/distr
 import { DistributionMarket } from "../src/distribution/market.js";
 import { ConditionalDistributionModel } from "../src/distribution/model.js";
 import { DISTRIBUTION_SPEC as S, DISTRIBUTION_ENTRY_PROFILES, type DistributionDecision, type DistributionEstimate } from "../src/distribution/spec.js";
+import { createDistributionSizingPolicy } from "../src/distribution/sizing.js";
 import { TradingEngine } from "../src/engine/trading-engine.js";
 import type { AssetRules, ExecutionPlan } from "../src/execution/planner.js";
 import { KrakenPaperBroker } from "../src/kraken/paper-broker.js";
 import type { DeterministicFeatures } from "../src/strategy/deterministic-features.js";
 import type { VenueOrder } from "../src/venue/types.js";
 
-const cfg = loadConfig({ TRADING_MODE: "paper", CONFIG_DIR: "config", DISTRIBUTIONAL_ENGINE_ENABLED: "true",
+const cfg = loadConfig({ DISTRIBUTIONAL_SIZING_MODE: "LEGACY_FIXED", TRADING_MODE: "paper", CONFIG_DIR: "config", DISTRIBUTIONAL_ENGINE_ENABLED: "true",
   DISTRIBUTIONAL_PAPER_ENTRIES_ENABLED: "true", CONTINUOUS_RECORDING_ENABLED: "false" });
 const asset = (symbol: string): AssetRules => ({ symbol, minOrderSize: .001, minTradeIncrement: .001,
   priceIncrement: .001, maximumOrderQty: 100, shortable: true });
@@ -51,7 +52,7 @@ interface Internals {
 // Synthetic market readiness and positive evidence isolate scheduling/routing.
 // They are not fitted market results or evidence of profitable trading. The
 // controller, execution paths, planner, risk and order reservation remain real.
-function fixture(t: TestContext, paperEnabled = true, trialEnabled = false, realPaperBroker = false, selectedAction = "long-5m") {
+function fixture(t: TestContext, paperEnabled = true, trialEnabled = false, realPaperBroker = false, selectedAction = "long-5m", riskSizing = false) {
   let nowMs = Date.now(), supported = false;
   t.mock.method(DistributionMarket.prototype, "onBook", (b: BookState) => ({ symbol: b.symbol,
     atMs: b.receiveTsMs, ready: true, reason: "READY", features: Array<number>(S.featureDimension).fill(0) }));
@@ -77,7 +78,7 @@ function fixture(t: TestContext, paperEnabled = true, trialEnabled = false, real
     created_at: new Date(nowMs).toISOString(), updated_at: new Date(nowMs).toISOString(), submitted_at: null,
     filled_at: null, canceled_at: null, failed_at: null, replaced_at: null, replaced_by: null, replaces: null,
   }));
-  const engine = new TradingEngine({ ...cfg, distributionalPaperEntriesEnabled: paperEnabled, distributionalPaperTrialEnabled: trialEnabled },
+  const engine = new TradingEngine({ ...cfg, ...(riskSizing ? { distributionalSizingPolicy: createDistributionSizingPolicy(cfg.symbolConfigs, 1000, .01) } : {}), distributionalPaperEntriesEnabled: paperEnabled, distributionalPaperTrialEnabled: trialEnabled },
     { rest: broker, gateway: broker, tradeStream: broker.tradeStream, now: () => nowMs });
   const internals = engine as unknown as Internals;
   internals.equity = internals.equityHighWater = 100_000;
@@ -188,9 +189,9 @@ test("three-date trial still requires the separate paper-order permission", asyn
   } finally { await f.engine.stop(); }
 });
 
-for (const [symbol, action, stopMid] of [["BTC/USD", "long-5m", 99], ["ETH/USD", "short-5m", 101]] as const) {
-  test(`three-date trial submits, fills and closes ${symbol} through the real local paper broker`, async t => {
-    const f = fixture(t, true, true, true, action), errors: unknown[] = [];
+for (const riskSizing of [false, true]) for (const [symbol, action, stopMid] of [["BTC/USD", "long-5m", 99], ["ETH/USD", "short-5m", 101]] as const) {
+  test(`three-date trial submits, fills and closes ${symbol} through the real local paper broker (${riskSizing ? "risk-bounded" : "$12 legacy"})`, async t => {
+    const f = fixture(t, true, true, true, action, riskSizing), errors: unknown[] = [];
     f.engine.on("engineError", error => errors.push(error));
     const flush = async () => { for (let i = 0; i < 10; i++) await Promise.resolve(); };
     try {
@@ -202,7 +203,9 @@ for (const [symbol, action, stopMid] of [["BTC/USD", "long-5m", 99], ["ETH/USD",
       assert.equal(entry.distributionDecision!.validation.ready, false);
       assert.equal(entry.distributionDecision!.validation.selections, 0);
       assert.equal(entry.distributionDecision!.estimates.find(e => e.actionId === action)!.observedDays, 3);
-      assert.ok(entry.qty * entry.limitPx <= S.maximumNotional);
+      assert.ok(entry.qty * entry.limitPx <= (riskSizing ? 1000 : S.maximumNotional));
+      if (riskSizing) assert.ok(entry.qty * entry.limitPx > 12);
+      assert.equal(entry.qty, entry.distributionDecision!.requestedQty);
       assert.equal((await f.broker.listPositions()).data.length, 0, "the decision quote cannot fill a delayed IOC");
       f.tick(250, true, symbol); await flush();
       orders = (await f.broker.listOrders()).data;

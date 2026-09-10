@@ -1,0 +1,23 @@
+{
+  "capturedAtMs": 1788931430291,
+  "inputSha256": "8fbe1b960643cbc0a25a65feaf166dc938cc5543b3c7f4a742da1646c18c11f8",
+  "sourceSha256": "1199ebd4816b4dfd052ff7f0ec67eaa09e27060edee1b25468ea91fb8918fef3",
+  "orders": 382,
+  "activities": 382,
+  "positions": 0,
+  "restored": false,
+  "snapshot": {
+    "status": "UNKNOWN",
+    "reason": "ROLLING_PNL_RECORDED_FEE_MISSING",
+    "asOfMs": 1788931430291,
+    "windowStartExclusiveMs": 1788845030291,
+    "windowEndInclusiveMs": 1788931430291,
+    "realizedPricePnl24hUsd": null,
+    "fees24hUsd": null,
+    "netRealizedPnl24hUsd": null,
+    "utcSessionNetPnlUsd": null,
+    "retainedFillEvents": 0,
+    "measurement": "REALIZED_PRICE_PNL_MINUS_RECORDED_EXECUTION_FEES",
+    "fundingIncluded": false
+  }
+}

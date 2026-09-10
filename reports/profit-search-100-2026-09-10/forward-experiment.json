@@ -1,0 +1,48 @@
+{
+  "version": "eth-sma40-forward-observation-nomination-v1",
+  "status": "SPECIFIED_NOT_STARTED",
+  "candidateId": "sma_eth-040",
+  "selectionAuthority": "screen/development-lock.json",
+  "historicalScreenPassed": false,
+  "validatedProfitable": false,
+  "reasonToInvestigate": "The development-selected configuration was positive in all 12 historical window/scenario runs and in continuous-account diagnostics, while failing episode and drawdown requirements.",
+  "signal": {
+    "symbol": "ETH/USD",
+    "interval": "native_completed_daily_bars",
+    "warmupBars": 90,
+    "movingAverageDays": 40,
+    "entryBandFraction": 0.016738892635532743,
+    "entry": "close > latest40CloseMean * (1 + entryBandFraction)",
+    "exit": "close <= latest40CloseMean",
+    "otherwise": "retain_previous_target",
+    "entryBandMeaning": "turnover control, not predicted net return"
+  },
+  "nominationOnly": {
+    "collectorStarted": false,
+    "executionAdapterImplemented": false,
+    "ordersAuthorizedByThisArtifact": false,
+    "automaticPromotionAllowed": false,
+    "runtimeConfigurationChanged": false,
+    "liveTradingEnabled": false
+  },
+  "observationRequirements": [
+    "Freeze source and configuration hashes before the first newly collected decision.",
+    "Use only completed native daily candles with explicit availability times and gap checks.",
+    "Preserve the historical signal-to-execution delays when checking replay-to-observation parity; any different executable timing is a separately labeled experiment.",
+    "Persist all decisions and rejections as well as fills; record synchronized executable books, quote age, size limits and both-side fees.",
+    "Use fresh product-specific fee evidence when available; preserve conservative public-tier scenarios separately.",
+    "Maintain one funded position or cash with no leverage, additions or automatic size increases.",
+    "Keep any changed sizing or hard risk limits a separate candidate with an explicit replay and execution contract.",
+    "Measure cash and funded passive BTC/ETH benchmarks on matching dates; a weekly-rule comparison needs native weekly history and clearly identified timing differences.",
+    "Reconcile cash plus net liquidation inventory to marked P&L, distinguishing strategy exits from terminal valuation.",
+    "Retain known historical failures and count all future variants; do not reset accumulated losses or change the nominee after seeing later outcomes."
+  ],
+  "reviewProtocol": {
+    "duration": "Six calendar months after the actual collector start timestamp, recorded before collection begins.",
+    "minimumCompletedStrategyEpisodesForEconomicReview": 10,
+    "sparseSampleResult": "INCONCLUSIVE; no automatic promotion or claim of dependable profitability.",
+    "evaluation": "Report fee-inclusive return, passive excess, full-account drawdown, concentration, timing/fill failures and uncertainty; positive nominal net alone is insufficient.",
+    "drawdownIssue": "Historical continuous sampled drawdown reached $752.57 on $10,000 starting cash. The candidate is not a demonstrated fit for a 5% drawdown objective.",
+    "implementationDependencies": "A separate forward collector and reviewed execution/accounting adapter remain to be implemented before this specification can collect evidence."
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "id": "cusum_l28_h6",
+  "params": {
+    "id": "cusum_l28_h6",
+    "half_life": 28,
+    "entry_evidence": 6
+  },
+  "selectionScoreUsd": -169.37585560200387,
+  "selectionRule": "Maximum development stress netPnlUsd minus 0.5 * maxDrawdownUsd; ties lexicographically first variant ID",
+  "specificationSha256": "cf806ba98fa520eff033df5d4b355225f02e57d5f715d4126f1cd35330b953ed",
+  "candidateSha256": "12d722994475f2ff824df04ed2c64f9bdb0333598851045859a0950df7cae2bd",
+  "developmentClosedTrades": 1,
+  "laterWindowsInspectedByCandidateAgent": false
+}

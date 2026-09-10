@@ -1,0 +1,123 @@
+{
+  "version": "trade-lifecycle-entry-gates-v1",
+  "frozenAt": "2026-09-10T21:55:26.721954+00:00",
+  "researchOnly": true,
+  "entryApplicationCount": 6,
+  "newGatedAlternatives": 4,
+  "originalMathematicsCount": 0,
+  "newPnLInspectedBeforeFreeze": false,
+  "historicalDataAlreadyReused": true,
+  "stageContract": "Entry eligibility while flat only, never a holding target or exit. Coordinator supplies a causal frozen baseline and applies execution delay once. Every gate requires baseline[i] and i>=90.",
+  "candidatesByAsset": {
+    "BTC/USD": [
+      {
+        "id": "btc_entry_baseline",
+        "name": "BTC unchanged normalized weekly eligibility",
+        "equation": "eligible_i = (i>=90) AND baseline_i",
+        "parameters": {
+          "warmupBars": 90
+        },
+        "economicHypothesis": "Control: preserve every supplied weekly long-state entry opportunity.",
+        "lineage": "Current 40-native-week BTC trend; this function does not reconstruct or change its baseline."
+      },
+      {
+        "id": "btc_entry_path_efficiency",
+        "name": "BTC directional path-quality gate",
+        "equation": "eligible_i = baseline_i AND i>=90 AND (C_i-C_(i-28))/sum_(j=i-27..i)|C_j-C_(j-1)|>=.35 AND C_i/C_(i-28)-1>baseRoundTripGross",
+        "parameters": {
+          "warmupBars": 90,
+          "returnDays": 28,
+          "minimumSignedEfficiency": 0.35,
+          "minimumGrossMove": 0.016738892635532743
+        },
+        "economicHypothesis": "Within the slow bullish regime, avoid entries whose recent price displacement is small relative to its traveled path and costs.",
+        "lineage": "Signed Kaufman-style efficiency ratio; established indicator gate, not new mathematics.",
+        "failure": "Strong trends can begin after noisy paths; historical displacement is not a forecast of remaining return.",
+        "sources": [
+          "https://ta-lib.org/functions/er.html"
+        ]
+      },
+      {
+        "id": "btc_entry_pullback_recovery",
+        "name": "BTC pullback recovery crossing gate",
+        "equation": "E_i=(2/11)C_i+(9/11)E_(i-1), E_0=C_0; eligible_i=baseline_i AND i>=90 AND C_(i-1)<=E_(i-1) AND C_i>E_i AND max(C_(i-19)..C_i)/C_i-1>=.02",
+        "parameters": {
+          "warmupBars": 90,
+          "emaSpan": 10,
+          "peakLookbackDays": 20,
+          "minimumDistanceBelowPeak": 0.02
+        },
+        "economicHypothesis": "Enter only after a local pullback starts recovering while the slower weekly regime remains eligible.",
+        "lineage": "Established trend-conditioned pullback and crossing event; one fixed application.",
+        "failure": "May miss uninterrupted rallies; the rebound can fail and later fill prices can erase apparent entry improvement."
+      }
+    ],
+    "ETH/USD": [
+      {
+        "id": "eth_entry_baseline",
+        "name": "ETH unchanged ETH40 eligibility",
+        "equation": "eligible_i = (i>=90) AND baseline_i",
+        "parameters": {
+          "warmupBars": 90
+        },
+        "economicHypothesis": "Control: preserve every supplied ETH40 long-state entry opportunity.",
+        "lineage": "Current frozen daily ETH40 hysteresis; no redefinition of its original target."
+      },
+      {
+        "id": "eth_entry_volatility_confirmation",
+        "name": "ETH cost and volatility confirmation gate",
+        "equation": "r_j=log(C_j/C_(j-1)); sigma_i=sqrt(sum_(j=i-19..i)r_j^2/20); TR_j=max(H_j-L_j,|H_j-C_(j-1)|,|L_j-C_(j-1)|); eligible_i=baseline_i AND baseline_(i-1) AND i>=90 AND log(C_i/C_(i-5))>max(baseRoundTripLog,sqrt(5)*sigma_i) AND TR_i<=2*mean(TR_(i-20)..TR_(i-1))",
+        "parameters": {
+          "warmupBars": 90,
+          "returnDays": 5,
+          "volatilityDays": 20,
+          "volatilityMultiplier": 1.0,
+          "maximumTrueRangeRatio": 2.0,
+          "baselineConfirmationBars": 2,
+          "minimumLogMove": 0.01660034136444128
+        },
+        "economicHypothesis": "Require short-term confirmation scaled by the asset's recently observed fluctuations, while excluding isolated large range shocks.",
+        "lineage": "Established volatility-normalized momentum and shock filtering; fixed composite entry gate.",
+        "failure": "The scale is RMS return, not a calibrated standard error or confidence test; it can reject the beginning of a successful large breakout."
+      },
+      {
+        "id": "eth_entry_volume_pressure",
+        "name": "ETH volume-pressure confirmation gate",
+        "equation": "CLV_j=(2*C_j-H_j-L_j)/(H_j-L_j), zero when H_j=L_j; pressure_i=sum_(j=i-27..i)(CLV_j*V_j)/sum_(j=i-27..i)V_j; eligible_i=baseline_i AND i>=90 AND pressure_i>.15 AND C_i>C_(i-1)",
+        "parameters": {
+          "warmupBars": 90,
+          "pressureDays": 28,
+          "minimumPressure": 0.15
+        },
+        "economicHypothesis": "Require native-venue volume-weighted close location to support the ETH40 bullish target.",
+        "lineage": "Reuses the earlier eth_volume_pressure_v1 entry statistic unchanged, now solely as an ETH40 entry gate; not a new primitive method.",
+        "failure": "A volume-weighted close location is not signed order flow; one venue may not reflect the global market.",
+        "sources": [
+          "https://help.chaikinanalytics.com/chaikin-analytics-platform/analytics-chart-overview",
+          "https://library.tradingtechnologies.com/trade/analytics/charts/technical-indicators/chaikin-money-flow-cmf/"
+        ]
+      }
+    ]
+  },
+  "codeAndTestHashes": {
+    "candidates.py": "e43773ed29f16655dd6edd881b4a7f25c5dcd51b382ef4d34ac54b897a411e8e",
+    "self_test.py": "36e71b1b791a8f1ffb9f1a46c5b4d83d5c2d1594db451255561f93afae2b552a",
+    "self-test.json": "4d59a024e6d607a47bd499decc5ec873a5981c53c6c31e71d403501f9e90939d"
+  },
+  "inspectedRuntimeSourceHashes": {
+    "src/spot-trend/spec.ts": "a93cbc06c54668cb915f5011d7f6ffd04c3062261732f0c62b0f2d13ea98e25a",
+    "src/spot-trend/signal.ts": "f9ef8b0a81f81a75c9186a00e58226de2d39464d16e6b8ea78227f26e61ddc03",
+    "src/spot-trend/paper.ts": "d673a171e240b5090cb4db6eb47c2b4aaceea6cecb27589799ed6168901199a9",
+    "src/eth40/spec.ts": "f332f07ebacb136bba1979c144f192af79f374a632542694e108f448da6fc3b6",
+    "src/eth40/engine.ts": "cafba852e81c17d4bd4af983185e0161ec396d63f877a91dd8a6dab474f24c34"
+  },
+  "costAssumption": {
+    "baseFeeBpsPerSide": 80,
+    "baseAdversePriceBpsPerSide": 3,
+    "grossBreakEvenFraction": 0.016738892635532743,
+    "logBreakEven": 0.01660034136444128,
+    "source": "https://www.kraken.com/features/fee-schedule",
+    "verifiedDate": "2026-09-10",
+    "actualAccountFeeTierVerified": false
+  }
+}

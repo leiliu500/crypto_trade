@@ -1,0 +1,182 @@
+{
+  "checkedAtUtc": "2026-09-09T20:38:57.099815+00:00",
+  "sourcePage": "https://support.kraken.com/articles/360047124832-downloadable-historical-ohlcvt-open-high-low-close-volume-trades-data",
+  "sourceFolder": "https://drive.google.com/drive/folders/15RSlNuW_h0kVM8or8McOGOMfHeBFvFGI",
+  "probes": [
+    {
+      "quarter": 1,
+      "year": 2023,
+      "id": "17ghRNMQGK0Is7_by784qGzP1eCUokI2V",
+      "url": "https://drive.usercontent.google.com/download?id=17ghRNMQGK0Is7_by784qGzP1eCUokI2V&export=download&confirm=t",
+      "requestedRange": "bytes=-65557",
+      "status": "ZIP_TAIL",
+      "bytes": 65557,
+      "file": "archive-probes/2023-q1.bin",
+      "sha256": "c2a5de36103082959df5941431b97a6b5d1647ee628ec3c06ac8eea9ff564c9c",
+      "responseHeaders": {
+        "content-type": "application/octet-stream",
+        "content-length": "65557",
+        "content-range": "bytes 249780844-249846400/249846401"
+      },
+      "zipDirectory": {
+        "entries": 3870,
+        "bytes": 323877,
+        "offset": 249522502
+      }
+    },
+    {
+      "quarter": 2,
+      "year": 2023,
+      "id": "1QGRW_Qg9H2pC2dBTk0b6vlGi93AFiZfI",
+      "url": "https://drive.usercontent.google.com/download?id=1QGRW_Qg9H2pC2dBTk0b6vlGi93AFiZfI&export=download&confirm=t",
+      "requestedRange": "bytes=-65557",
+      "status": "GOOGLE_DRIVE_QUOTA_EXCEEDED",
+      "bytes": 2009,
+      "file": "archive-probes/2023-q2.html",
+      "sha256": "f3dc6cd8a92a57958d41662b8389238b736f3ed707897886542cc986ebf2cac2",
+      "responseHeaders": {
+        "content-type": "text/html; charset=utf-8",
+        "content-length": "2009"
+      }
+    },
+    {
+      "quarter": 3,
+      "year": 2023,
+      "id": "1gE9XyED-bm4ks1PZomDnlpt-f_r9nWu6",
+      "url": "https://drive.usercontent.google.com/download?id=1gE9XyED-bm4ks1PZomDnlpt-f_r9nWu6&export=download&confirm=t",
+      "requestedRange": "bytes=-65557",
+      "status": "ZIP_TAIL",
+      "bytes": 65557,
+      "file": "archive-probes/2023-q3.bin",
+      "sha256": "abbc739f9e3bfbf19a1cce81f65f90f3053daa6b1ef0913aa963912ad7b61e43",
+      "responseHeaders": {
+        "content-type": "application/octet-stream",
+        "content-length": "65557",
+        "content-range": "bytes 202519542-202585098/202585099"
+      },
+      "zipDirectory": {
+        "entries": 3984,
+        "bytes": 333442,
+        "offset": 202251635
+      }
+    },
+    {
+      "quarter": 4,
+      "year": 2023,
+      "id": "1c3HQ0-YMvhAuGwo-f4BKAdhkG8Cj6jxx",
+      "url": "https://drive.usercontent.google.com/download?id=1c3HQ0-YMvhAuGwo-f4BKAdhkG8Cj6jxx&export=download&confirm=t",
+      "requestedRange": "bytes=-65557",
+      "status": "ZIP_TAIL",
+      "bytes": 65557,
+      "file": "archive-probes/2023-q4.bin",
+      "sha256": "ad3993aab975abf401f629bf6c52d569d4d3b30778f18526c2e46b90f48b2c29",
+      "responseHeaders": {
+        "content-type": "application/octet-stream",
+        "content-length": "65557",
+        "content-range": "bytes 311221665-311287221/311287222"
+      },
+      "zipDirectory": {
+        "entries": 4062,
+        "bytes": 339977,
+        "offset": 310947223
+      }
+    },
+    {
+      "quarter": 1,
+      "year": 2024,
+      "id": "1JkH3c13madqdpF-dzXoseX_sYY1E2iHx",
+      "url": "https://drive.usercontent.google.com/download?id=1JkH3c13madqdpF-dzXoseX_sYY1E2iHx&export=download&confirm=t",
+      "requestedRange": "bytes=-65557",
+      "status": "GOOGLE_DRIVE_QUOTA_EXCEEDED",
+      "bytes": 2009,
+      "file": "archive-probes/2024-q1.html",
+      "sha256": "fc72cc394d4af451a3b8503c088cfdc51456d11365265fe9f2ac7585d32b67a2",
+      "responseHeaders": {
+        "content-type": "text/html; charset=utf-8",
+        "content-length": "2009"
+      }
+    },
+    {
+      "quarter": 2,
+      "year": 2024,
+      "id": "1nb0vaPClwYoAGnWjYXkjrBEPQC58lmPN",
+      "url": "https://drive.usercontent.google.com/download?id=1nb0vaPClwYoAGnWjYXkjrBEPQC58lmPN&export=download&confirm=t",
+      "requestedRange": "bytes=-65557",
+      "status": "ZIP_TAIL",
+      "bytes": 65557,
+      "file": "archive-probes/2024-q2.bin",
+      "sha256": "14754813425cec8ecadbc033200f5564e5fd6df05c685442915764c11cfc2b69",
+      "responseHeaders": {
+        "content-type": "application/octet-stream",
+        "content-length": "65557",
+        "content-range": "bytes 337752456-337818012/337818013"
+      },
+      "zipDirectory": {
+        "entries": 5600,
+        "bytes": 469248,
+        "offset": 337348743
+      }
+    },
+    {
+      "quarter": 3,
+      "year": 2024,
+      "id": "1_GQZ7gqQ9BcIEIA_L8zPwfXTUjxIKEIk",
+      "url": "https://drive.usercontent.google.com/download?id=1_GQZ7gqQ9BcIEIA_L8zPwfXTUjxIKEIk&export=download&confirm=t",
+      "requestedRange": "bytes=-65557",
+      "status": "GOOGLE_DRIVE_QUOTA_EXCEEDED",
+      "bytes": 2009,
+      "file": "archive-probes/2024-q3.html",
+      "sha256": "1035066798ca5ab7441066bc931716c86f1b90f916824c1aee624fd74866db8a",
+      "responseHeaders": {
+        "content-type": "text/html; charset=utf-8",
+        "content-length": "2009"
+      }
+    },
+    {
+      "quarter": 4,
+      "year": 2024,
+      "id": "1fCJPY1SwJa6py-Dln-Q7S349lBXyH0Dl",
+      "url": "https://drive.usercontent.google.com/download?id=1fCJPY1SwJa6py-Dln-Q7S349lBXyH0Dl&export=download&confirm=t",
+      "requestedRange": "bytes=-65557",
+      "status": "GOOGLE_DRIVE_QUOTA_EXCEEDED",
+      "bytes": 2009,
+      "file": "archive-probes/2024-q4.html",
+      "sha256": "0dc7fcfbbf9178bdb02651514d0e74a39c6f15527255d648fcb2dcaf76f28b53",
+      "responseHeaders": {
+        "content-type": "text/html; charset=utf-8",
+        "content-length": "2009"
+      }
+    },
+    {
+      "quarter": 1,
+      "year": 2025,
+      "id": "1dXJummu2qF5J6UC4rQh0T0XmriqngONG",
+      "url": "https://drive.usercontent.google.com/download?id=1dXJummu2qF5J6UC4rQh0T0XmriqngONG&export=download&confirm=t",
+      "requestedRange": "bytes=-65557",
+      "status": "GOOGLE_DRIVE_QUOTA_EXCEEDED",
+      "bytes": 2009,
+      "file": "archive-probes/2025-q1.html",
+      "sha256": "b0b7f11dc84fc45b93323548692d9b37c1526dea6aaa0685792aec94ff9a2be1",
+      "responseHeaders": {
+        "content-type": "text/html; charset=utf-8",
+        "content-length": "2009"
+      }
+    },
+    {
+      "quarter": 2,
+      "year": 2025,
+      "id": "1THrQiXsMSyhGb4DmUPCbivAKXoI8rxEG",
+      "url": "https://drive.usercontent.google.com/download?id=1THrQiXsMSyhGb4DmUPCbivAKXoI8rxEG&export=download&confirm=t",
+      "requestedRange": "bytes=-65557",
+      "status": "GOOGLE_DRIVE_QUOTA_EXCEEDED",
+      "bytes": 2009,
+      "file": "archive-probes/2025-q2.html",
+      "sha256": "1383922d229dbde74387b551023d785893770725e1131907ed52480bf8313a1d",
+      "responseHeaders": {
+        "content-type": "text/html; charset=utf-8",
+        "content-length": "2009"
+      }
+    }
+  ],
+  "fullArchiveStatus": "GOOGLE_DRIVE_QUOTA_EXCEEDED"
+}

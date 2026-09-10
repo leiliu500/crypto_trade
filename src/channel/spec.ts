@@ -1,0 +1,45 @@
+/** One fixed classical trend-state candidate. No fitted forecasts or search. */
+export const CHANNEL_SPEC = Object.freeze({
+  version: "btc-eth-daily-55-20-channel-portfolio-v1", symbols: ["BTC/USD", "ETH/USD"] as const,
+  hourMs: 3_600_000, dayMs: 86_400_000, initialEquityUsd: 100_000,
+  entryLookbackDays: 55, exitLookbackDays: 20, atrDays: 20, stopAtr: 2,
+  atrMethod: "WILDER_SEEDED_WITH_FIRST_20_TRUE_RANGES", finalizationLagMs: 60_000,
+  riskFractionPerAsset: .0005, maximumClusterRiskFraction: .001,
+  maximumLegNotionalUsd: 1000, maximumLegEquityFraction: .01, maximumGrossUsd: 2000,
+  sessionLossFraction: .0075, rolling24HourLossFraction: .0075, maximumAccountDrawdownFraction: .05,
+  feesBps: { base: 5, stress: 7.5 }, adverseSlippageBps: { base: 2, stress: 5 },
+  executionDelayHoursAfterDayClose: { base: 1, stress: 2 },
+  lots: { "BTC/USD": .0001, "ETH/USD": .001 }, ticks: { "BTC/USD": 1, "ETH/USD": .1 },
+  finalFlattenLeadHours: 24, noNewEntryLeadHours: 48,
+  stopRatchet: "MAX_PREVIOUS_STOP_AND_COMPLETED_CLOSE_MINUS_2ATR_FOR_LONG_REVERSE_FOR_SHORT",
+  intrahourStops: "OPEN_GAP_FIRST_ELSE_ADVERSE_STOP_TOUCH;PAY_FULL_HOUR_FUNDING_AND_FORGO_RECEIPT_ON_AMBIGUOUS_TOUCH",
+  riskMark: "PRIOR_HOURLY_LIQUIDATION_CLOSE_PEAK_TO_SUM_OF_SEPARATE_ADVERSE_HOURLY_EXTREMES;NOT_FULL_INTRAHOUR_PEAK_TO_TROUGH_DRAWDOWN_OR_OBSERVED_SIMULTANEOUS_PRICES",
+  funding: "ABSOLUTE_USD_PER_BASE_PER_HOUR;NORMALIZED_ROW_END_MINUS_ONE_HOUR_IS_ACCRUAL_START",
+  fundingKnownAt: "FIXED_CURRENT_HOUR_RATE_ASSUMED_KNOWN_AT_INTERVAL_START;NORMALIZED_ROW_TIMESTAMP_IS_PERIOD_END_NOT_PUBLICATION_TIME",
+  riskSizing: "STOP_DISTANCE_PLUS_TWO_EXECUTION_FEES_AND_TWO_ADVERSE_SLIPPAGE_ALLOWANCES;RESERVE_REMAINING_SESSION_ROLLING_AND_ACCOUNT_LOSS_HEADROOM_AFTER_EXISTING_POSITION_RISK;NO_DUPLICATE_VOLATILITY_SCALER",
+  positionSizing: "NO_ADDITIONS;HOURLY_CAP_REDUCTIONS_ONLY;NO_ORIGINAL_STOP_BASED_WINNER_TRIMMING",
+  reentry: "AFTER_STOP_REQUIRE_A_LATER_COMPLETED_DAILY_SIGNAL;NO_SAME_SIGNAL_REENTRY",
+  missingData: "NO_SYNTHETIC_BARS_OR_ZERO_FUNDING;HELD_MISSING_DATA_INVALIDATES_RUN",
+  interpretation: "REUSED_DEVELOPMENT_DATA_AFTER_FAILED_PRIOR_CANDIDATES;NOT_INDEPENDENT_FINAL_VALIDATION",
+});
+export const CHANNEL_STUDY_SPEC = Object.freeze({
+  windows: [{ id: "2024", startMs: Date.UTC(2024, 0, 1), endMs: Date.UTC(2025, 0, 1) },
+    { id: "2025-h1", startMs: Date.UTC(2025, 0, 1), endMs: Date.UTC(2025, 6, 1) }],
+  warmupStartMs: Date.UTC(2023, 0, 1), reservedStartMs: Date.UTC(2026, 0, 1),
+  scenarios: ["base", "stress"] as const,
+  minimumClosedEpisodesTotal: 8, positiveNetRequiredEveryWindowAndScenario: true,
+  bootstrap: { repetitions: 2000, contiguousBlockWeeks: 4, lowerQuantile: .05, seed: 0x3d729a41,
+    metric: "MEAN_COMPLETE_MONDAY_UTC_WEEKLY_MARKED_NET_CHANGE_POOLED_BASE_WINDOWS;BLOCKS_CANNOT_CROSS_GAPS" },
+  benchmark: "CASH_ZERO;SEPARATE_COSTED_BTC_AND_ETH_CONSTANT_UNIT_BUY_HOLD_WITH_ENTRY_CAP_AND_FUNDING;DESCRIPTIVE_NOT_SELECTION",
+  activationAllowed: false, productionChanges: false, strategySearch: false,
+});
+
+/** Distinct development hypothesis declared after v1's observed delay failure. */
+export const CHANNEL_PRICE_PROTECTED_SPEC = Object.freeze({ ...CHANNEL_SPEC,
+  version: "btc-eth-daily-55-20-channel-price-protected-v2",
+  maximumEntryDisplacementAtr: .5,
+  initialStopAnchor: "COMPLETED_SIGNAL_CLOSE_MINUS_SIDE_TIMES_2ATR;NEVER_REANCHORED_AT_LATE_FILL",
+  entryProtection: "ADVERSE_TICK_ROUNDED_FILL_WITHIN_ABSOLUTE_HALF_ATR_OF_SIGNAL_CLOSE;STOP_AT_LEAST_ONE_TICK_ON_CORRECT_SIDE",
+  skippedSignal: "PRICE_DISPLACEMENT_OR_INVALID_STOP_DISCARDS_THIS_DAILY_SIGNAL;NEXT_COMPLETED_DAY_REQUIRED",
+  hypothesisOrigin: "NEW_PRICE_PROTECTION_HYPOTHESIS_AFTER_V1_DELAY_SENSITIVITY;NOT_A_BUG_FIX_OR_UNTOUCHED_VALIDATION",
+});

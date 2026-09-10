@@ -1,0 +1,110 @@
+{
+  "verifiedAtUtc": "2026-09-09T21:29:19.590780+00:00",
+  "checks": 10258,
+  "allChecksPassed": true,
+  "results": [
+    {
+      "scenario": "base",
+      "grossUsd": 121.98510000000003,
+      "feesUsd": 1.77447315,
+      "knownFundingComponentUsd": -1.4502771153447749,
+      "partialCashChangeUsd": 118.76034973465525,
+      "fullNetPnlUsd": null,
+      "firstMissingFundingStartMs": 1770206400000,
+      "newEntriesHaltedAfterFirstGap": true,
+      "episodes": [
+        {
+          "symbol": "BTC/USD",
+          "entryMs": 1768352400000,
+          "exitMs": 1768888800000,
+          "missingFunding": [],
+          "knownFundingComponentUsd": -0.8337459380910137,
+          "fullEpisodeNetKnown": true
+        },
+        {
+          "symbol": "BTC/USD",
+          "entryMs": 1769907600000,
+          "exitMs": 1770400800000,
+          "missingFunding": [
+            {
+              "sourceStartUtc": "2026-02-04T12:00:00+00:00",
+              "signedBaseQty": -0.0066
+            }
+          ],
+          "knownFundingComponentUsd": -0.10526796028581736,
+          "fullEpisodeNetKnown": false
+        },
+        {
+          "symbol": "ETH/USD",
+          "entryMs": 1769821200000,
+          "exitMs": 1772056800000,
+          "missingFunding": [
+            {
+              "sourceStartUtc": "2026-02-04T12:00:00+00:00",
+              "signedBaseQty": -0.179
+            },
+            {
+              "sourceStartUtc": "2026-02-13T18:00:00+00:00",
+              "signedBaseQty": -0.179
+            }
+          ],
+          "knownFundingComponentUsd": -0.5112632169679437,
+          "fullEpisodeNetKnown": false
+        }
+      ]
+    },
+    {
+      "scenario": "stress",
+      "grossUsd": 110.75250000000004,
+      "feesUsd": 2.560809525,
+      "knownFundingComponentUsd": -1.3988708891924808,
+      "partialCashChangeUsd": 106.79281958580756,
+      "fullNetPnlUsd": null,
+      "firstMissingFundingStartMs": 1770206400000,
+      "newEntriesHaltedAfterFirstGap": true,
+      "episodes": [
+        {
+          "symbol": "BTC/USD",
+          "entryMs": 1768356000000,
+          "exitMs": 1768888800000,
+          "missingFunding": [],
+          "knownFundingComponentUsd": -0.8126368837450443,
+          "fullEpisodeNetKnown": true
+        },
+        {
+          "symbol": "BTC/USD",
+          "entryMs": 1769911200000,
+          "exitMs": 1770400800000,
+          "missingFunding": [
+            {
+              "sourceStartUtc": "2026-02-04T12:00:00+00:00",
+              "signedBaseQty": -0.0062
+            }
+          ],
+          "knownFundingComponentUsd": -0.09592164812228629,
+          "fullEpisodeNetKnown": false
+        },
+        {
+          "symbol": "ETH/USD",
+          "entryMs": 1769824800000,
+          "exitMs": 1772056800000,
+          "missingFunding": [
+            {
+              "sourceStartUtc": "2026-02-04T12:00:00+00:00",
+              "signedBaseQty": -0.172
+            },
+            {
+              "sourceStartUtc": "2026-02-13T18:00:00+00:00",
+              "signedBaseQty": -0.172
+            }
+          ],
+          "knownFundingComponentUsd": -0.4903123573251502,
+          "fullEpisodeNetKnown": false
+        }
+      ]
+    }
+  ],
+  "scope": "INDEPENDENT_PUBLIC_RATE_AND_RECORDED_FILL_CASH_RECONCILIATION;NOT_FULL_STRATEGY_OR_EXECUTABILITY_VALIDATION",
+  "partialCashIsNotFullPeriodProfit": true,
+  "ordersSubmitted": 0
+}

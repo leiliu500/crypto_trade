@@ -1,32 +1,75 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-dashboard-view="spot">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="dark">
   <meta name="theme-color" content="#080b10">
-  <title>Northstar · Crypto Operations</title>
-  <link rel="stylesheet" href="/styles.css?v=20260906-model-evaluation-1">
+  <title>Northstar · BTC Spot Strategy</title>
+  <link rel="stylesheet" href="/styles.css?v=20260910-spot-position-events-1-futures-monitor-1">
 </head>
 <body>
   <div class="ambient ambient-a"></div><div class="ambient ambient-b"></div>
   <main class="shell" data-testid="dashboard-root">
     <header class="topbar">
-      <a class="brand" href="#top" aria-label="Northstar operations home">
+      <a class="brand" href="/?view=spot" aria-label="Northstar operations home">
         <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
         <span><b>NORTHSTAR</b><small>CRYPTO OPERATIONS</small></span>
       </a>
       <div class="top-meta">
-        <span id="mode-badge" class="mode-badge">OFFLINE</span>
-        <span id="connection-status" class="connection connecting" data-testid="connection-status"><i></i>Connecting</span>
+        <span id="mode-badge" class="mode-badge">SPOT · CONNECTING</span>
+        <span id="connection-status" class="connection connecting" data-testid="connection-status"><i></i>Spot connecting</span>
         <time id="clock">--:--:--</time>
       </div>
     </header>
 
+    <nav class="dashboard-views" aria-label="Strategy views">
+      <a id="spot-view-link" href="/?view=spot" aria-current="page">BTC spot strategy</a>
+      <a id="eth40-view-link" href="/?view=eth40">ETH40 paper</a>
+      <a id="futures-view-link" href="/?view=futures">Futures monitoring</a>
+    </nav>
+
+    <section id="spot-system" class="spot-panel panel" aria-labelledby="spot-heading" data-testid="spot-dashboard">
+      <div class="spot-heading-row">
+        <div><span class="kicker">BTC / USD · FULLY FUNDED WEEKLY TREND</span><h2 id="spot-heading">BTC spot strategy</h2></div>
+        <div class="spot-badges"><span class="spot-badge">PAPER</span><span id="spot-order-mode" class="spot-badge neutral">Order status unknown</span><span id="spot-exchange-mode" class="spot-badge neutral">Exchange status unknown</span></div>
+      </div>
+      <p class="spot-account-note">BTC spot paper account. Forward results reflect this strategy's recorded fills and current BTC valuation.</p>
+      <div id="spot-service-status" class="spot-service-status" role="status" aria-live="polite">Connecting to the spot order service…</div>
+      <section id="spot-liveness" class="spot-liveness" aria-labelledby="spot-liveness-heading" data-testid="spot-liveness-panel">
+        <div class="spot-liveness-heading"><h3 id="spot-liveness-heading">Spot system liveness</h3><span>Ages update every second</span></div>
+        <p id="spot-liveness-note" class="spot-liveness-note">Recorded evaluations and service responses are shown independently.</p>
+        <div id="spot-liveness-grid" class="spot-liveness-grid"><p class="spot-empty">Waiting for service and evaluation status.</p></div>
+        <div class="spot-observations"><h4>Recent evaluations observed here</h4><ol id="spot-observations"><li>No evaluations observed yet.</li></ol><p>Observed during this browser session. Polling does not create an evaluation.</p></div>
+      </section>
+      <div id="spot-content"><p class="spot-empty">Waiting for spot signals, account balances, and submitted orders.</p></div>
+    </section>
+
+    <section id="eth40-system" class="spot-panel panel eth40-panel" aria-labelledby="eth40-heading" data-testid="eth40-dashboard" hidden>
+      <div class="spot-heading-row">
+        <div><span class="kicker">ETH / USD · FUNDED DAILY TREND</span><h2 id="eth40-heading">ETH40 forward observation</h2></div>
+        <div class="spot-badges"><span class="spot-badge">PAPER</span><span class="spot-badge neutral">Profitability unvalidated</span></div>
+      </div>
+      <p class="spot-account-note">ETH40 holds ETH or cash in a separate $10,000 paper account. Results below come from this forward observation. Zero P&amp;L before the first trade is expected.</p>
+      <div id="eth40-service-status" class="spot-service-status" role="status" aria-live="polite">Connecting to the ETH40 paper observation…</div>
+      <section id="eth40-liveness" class="spot-liveness" aria-labelledby="eth40-liveness-heading" data-testid="eth40-liveness-panel">
+        <div class="spot-liveness-heading"><h3 id="eth40-liveness-heading">ETH40 system liveness</h3><span>Ages update every second</span></div>
+        <p id="eth40-liveness-note" class="spot-liveness-note">The dashboard checks every five seconds. The collector normally records about every 30 seconds, and more often during the daily opening minute. Quote checks describe each recorded capture, not live prices or a live connection.</p>
+        <div id="eth40-liveness-grid" class="spot-liveness-grid"><p class="spot-empty">Waiting for recorded service and market checks.</p></div>
+        <p id="eth40-market-errors" class="spot-liveness-note">Market-data checks unavailable.</p>
+        <div class="spot-observations"><h4>Recent committed observations seen here</h4><ol id="eth40-observations"><li>No committed observations seen yet.</li></ol><p>Seen during this browser session. Repeated dashboard polls do not add observations; the initial account record is excluded.</p></div>
+      </section>
+      <div id="eth40-content"><p class="spot-empty">Waiting for recorded account data.</p></div>
+      <details class="eth40-details"><summary>Recorded market quotes</summary><p class="spot-ledger-note">Bid, ask and quote ages are measured at the recorded observation. These are captured quotes, not live prices.</p><div id="eth40-quotes" class="eth40-quotes"><p class="spot-empty">Quote capture unavailable.</p></div></details>
+      <section class="eth40-ledger" aria-labelledby="eth40-ledger-heading"><div class="spot-orders-heading"><h3 id="eth40-ledger-heading">Recent ETH40 paper fills</h3></div><p class="spot-ledger-note">Filled purchases and sales only. Passive benchmark receipts are shown separately.</p><div id="eth40-receipts"><p class="spot-empty">Waiting for the paper fill ledger.</p></div></section>
+      <details class="eth40-details"><summary>Strategy and review</summary><p>Enter when the completed daily close exceeds its 40-day average by 1.6739%; exit at or below that average. Between those thresholds, retain the target. A signal becomes eligible two UTC days later, during the first minute of that day. Entry is capped at $1,000 and 10% of cash, with volume and displayed-depth limits.</p><p>Paper fees assume 0.80% per side. Open ETH is valued at a verified bid less estimated exit fees. Missing marks stay unavailable. Review requires six calendar months and at least ten completed ETH40 episodes; there is no automatic promotion to live trading.</p><a href="/api/eth40/manifest">Frozen experiment record</a></details>
+    </section>
+
+    <div id="futures-monitoring" hidden>
     <section id="top" class="hero panel" data-testid="overall-health">
       <div class="hero-copy">
-        <div class="eyebrow"><span id="health-pulse" class="pulse"></span> LIVE CONTROL PLANE</div>
-        <h1 id="health-title">Establishing system state</h1>
+        <div class="eyebrow"><span id="health-pulse" class="pulse"></span> FUTURES ENGINE · SEPARATE PAPER ACCOUNT</div>
+        <h1 id="health-title">Establishing futures monitoring state</h1>
         <p id="health-description">Waiting for the first operational snapshot.</p>
         <div id="halt-reasons" class="halt-reasons"></div>
       </div>
@@ -34,10 +77,10 @@
         <div id="health-orbit" class="health-orbit"><div><strong id="health-score">—</strong><span>SYSTEM</span></div></div>
       </div>
       <div class="hero-stats">
-        <article><span>Equity</span><strong id="equity">—</strong><small id="drawdown">Peak —</small></article>
-        <article class="session-pnl-stat"><span>Session P&amp;L</span><strong id="session-pnl">—</strong><small>Total · UTC day</small><div id="session-pnl-breakdown" class="session-pnl-breakdown" data-testid="session-pnl-breakdown" hidden></div></article>
+        <article><span>Futures equity</span><strong id="equity">—</strong><small id="drawdown">Peak —</small></article>
+        <article class="session-pnl-stat"><span>Futures session P&amp;L</span><strong id="session-pnl">—</strong><small>Total · UTC day</small><div id="session-pnl-breakdown" class="session-pnl-breakdown" data-testid="session-pnl-breakdown" hidden></div><div class="session-pnl-breakdown"><div class="session-pnl-row"><span>Trailing 24h realized</span><strong id="rolling-pnl">—</strong></div><small id="rolling-pnl-detail">After fill fees · funding excluded</small></div></article>
         <article><span>Latency P95</span><strong id="latency">—</strong><small>Decision → venue</small></article>
-        <article><span>Uptime</span><strong id="uptime">—</strong><small id="strategy-version">Strategy —</small></article>
+        <article><span>Uptime</span><strong id="uptime">—</strong><small id="strategy-version">Futures monitor</small></article>
       </div>
     </section>
 
@@ -47,13 +90,13 @@
     </section>
 
     <section class="section" data-testid="market-panel">
-      <div class="section-head"><div><span class="kicker" id="market-subtitle">KRAKEN FUTURES MARKET DATA</span><h2>Market pulse</h2></div><div class="section-actions"><select id="symbol-filter" aria-label="Filter dashboard by symbol"><option value="all">All symbols</option></select></div></div>
+      <div class="section-head"><div><span class="kicker" id="market-subtitle">KRAKEN FUTURES MARKET DATA</span><h2>Futures market data</h2></div><div class="section-actions"><select id="symbol-filter" aria-label="Filter dashboard by symbol"><option value="all">All symbols</option></select></div></div>
       <div id="market-grid" class="market-grid empty-grid"><p>Waiting for order books…</p></div>
     </section>
 
     <section class="section orders-section" data-testid="orders-panel">
       <div class="section-head">
-        <div><span class="kicker">EXECUTION LEDGER</span><h2>Trades and order attempts</h2></div>
+        <div><span class="kicker">FUTURES EXECUTION LEDGER</span><h2>Trades and order attempts · Futures</h2></div>
         <div class="segmented" role="group" aria-label="Filter orders">
           <button class="active" data-order-filter="all" data-testid="filter-all">All</button>
           <button data-order-filter="open" data-testid="filter-open">Open</button>
@@ -69,9 +112,12 @@
         <table class="event-table"><thead><tr><th>Time</th><th>Severity</th><th>Event</th><th>Context</th></tr></thead><tbody id="events-body"><tr><td colspan="4" class="empty-row">Waiting for events…</td></tr></tbody></table>
       </div>
     </section>
+    </div>
 
     <footer><span>Northstar operations console</span><span id="footer-detail">Local read-only control plane</span></footer>
   </main>
-  <script type="module" src="/app.js?v=20260906-model-evaluation-1"></script>
+  <script type="module" src="/app.js?v=20260910-spot-position-events-1-futures-monitor-1"></script>
+  <script type="module" src="/spot.js?v=20260910-spot-position-events-1-eth40-tab-1"></script>
+  <script type="module" src="/eth40.js?v=20260910-eth40-liveness-1"></script>
 </body>
 </html>

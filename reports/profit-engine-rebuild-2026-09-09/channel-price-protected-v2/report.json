@@ -1,0 +1,742 @@
+{
+  "generatedAtUtc": "2026-09-09T21:01:11.349Z",
+  "strategyVersion": "btc-eth-daily-55-20-channel-price-protected-v2",
+  "variant": "price-protected-v2",
+  "dataSha256": "0c959208f727e238e3162116073d7b76aae08fa3f8a24718065627e8b4581613",
+  "historicalDevelopmentEligible": false,
+  "checks": {
+    "allRunsAccounted": true,
+    "bothPeriodsPositiveBaseAndStress": true,
+    "enoughEpisodes": true,
+    "lowerBootstrapWeeklyNetPositive": false
+  },
+  "baseEpisodes": 19,
+  "bootstrap": {
+    "weeks": [
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1704067200000,
+        "netUsd": -49.93837772165716
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1704672000000,
+        "netUsd": -80.60923464044754
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1705276800000,
+        "netUsd": -4.42641893059772
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1705881600000,
+        "netUsd": -12.264091588556767
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1706486400000,
+        "netUsd": 0
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1707091200000,
+        "netUsd": 0
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1707696000000,
+        "netUsd": 33.72537474868295
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1708300800000,
+        "netUsd": 28.177060804810026
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1708905600000,
+        "netUsd": 216.0301201421389
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1709510400000,
+        "netUsd": -20.91574446290906
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1710115200000,
+        "netUsd": -98.71397214238823
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1710720000000,
+        "netUsd": 0
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1711324800000,
+        "netUsd": 0
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1711929600000,
+        "netUsd": 0
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1712534400000,
+        "netUsd": 0
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1713139200000,
+        "netUsd": 0
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1713744000000,
+        "netUsd": 0
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1714348800000,
+        "netUsd": 0
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1714953600000,
+        "netUsd": 0
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1715558400000,
+        "netUsd": 0
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1716163200000,
+        "netUsd": 4.067259473507875
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1716768000000,
+        "netUsd": -8.972382902677055
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1717372800000,
+        "netUsd": -33.66080601781141
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1717977600000,
+        "netUsd": 0
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1718582400000,
+        "netUsd": 0
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1719187200000,
+        "netUsd": 0
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1719792000000,
+        "netUsd": 17.519447178172413
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1720396800000,
+        "netUsd": -55.511935890084715
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1721001600000,
+        "netUsd": 0
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1721606400000,
+        "netUsd": 0
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1722211200000,
+        "netUsd": 0
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1722816000000,
+        "netUsd": 0
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1723420800000,
+        "netUsd": 0
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1724025600000,
+        "netUsd": 0
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1724630400000,
+        "netUsd": 0
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1725235200000,
+        "netUsd": 0
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1725840000000,
+        "netUsd": 0
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1726444800000,
+        "netUsd": 0
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1727049600000,
+        "netUsd": 0
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1727654400000,
+        "netUsd": 0
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1728259200000,
+        "netUsd": 0
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1728864000000,
+        "netUsd": 23.1658327524201
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1729468800000,
+        "netUsd": -14.177923701834516
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1730073600000,
+        "netUsd": 2.292936660538544
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1730678400000,
+        "netUsd": 96.83498197013978
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1731283200000,
+        "netUsd": 76.84560869548295
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1731888000000,
+        "netUsd": 79.53847035269428
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1732492800000,
+        "netUsd": -51.72699818132969
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1733097600000,
+        "netUsd": 38.11442493372306
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1733702400000,
+        "netUsd": -51.517250101445825
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1734307200000,
+        "netUsd": -49.68578385934234
+      },
+      {
+        "windowStartMs": 1704067200000,
+        "weekStartMs": 1734912000000,
+        "netUsd": 0
+      },
+      {
+        "windowStartMs": 1735689600000,
+        "weekStartMs": 1736121600000,
+        "netUsd": 0
+      },
+      {
+        "windowStartMs": 1735689600000,
+        "weekStartMs": 1736726400000,
+        "netUsd": 0
+      },
+      {
+        "windowStartMs": 1735689600000,
+        "weekStartMs": 1737331200000,
+        "netUsd": 0
+      },
+      {
+        "windowStartMs": 1735689600000,
+        "weekStartMs": 1737936000000,
+        "netUsd": 0
+      },
+      {
+        "windowStartMs": 1735689600000,
+        "weekStartMs": 1738540800000,
+        "netUsd": 20.482107749092393
+      },
+      {
+        "windowStartMs": 1735689600000,
+        "weekStartMs": 1739145600000,
+        "netUsd": -3.5449719435709994
+      },
+      {
+        "windowStartMs": 1735689600000,
+        "weekStartMs": 1739750400000,
+        "netUsd": -16.96688106546935
+      },
+      {
+        "windowStartMs": 1735689600000,
+        "weekStartMs": 1740355200000,
+        "netUsd": 9.68028062619851
+      },
+      {
+        "windowStartMs": 1735689600000,
+        "weekStartMs": 1740960000000,
+        "netUsd": 53.851129543138086
+      },
+      {
+        "windowStartMs": 1735689600000,
+        "weekStartMs": 1741564800000,
+        "netUsd": 14.273393408686388
+      },
+      {
+        "windowStartMs": 1735689600000,
+        "weekStartMs": 1742169600000,
+        "netUsd": -12.908216927666217
+      },
+      {
+        "windowStartMs": 1735689600000,
+        "weekStartMs": 1742774400000,
+        "netUsd": 21.483815994375618
+      },
+      {
+        "windowStartMs": 1735689600000,
+        "weekStartMs": 1743379200000,
+        "netUsd": 24.59877954031981
+      },
+      {
+        "windowStartMs": 1735689600000,
+        "weekStartMs": 1743984000000,
+        "netUsd": -2.081765491544502
+      },
+      {
+        "windowStartMs": 1735689600000,
+        "weekStartMs": 1744588800000,
+        "netUsd": 0.9863703760493081
+      },
+      {
+        "windowStartMs": 1735689600000,
+        "weekStartMs": 1745193600000,
+        "netUsd": -17.854355055998894
+      },
+      {
+        "windowStartMs": 1735689600000,
+        "weekStartMs": 1745798400000,
+        "netUsd": -20.82566697942093
+      },
+      {
+        "windowStartMs": 1735689600000,
+        "weekStartMs": 1746403200000,
+        "netUsd": 140.52766208357934
+      },
+      {
+        "windowStartMs": 1735689600000,
+        "weekStartMs": 1747008000000,
+        "netUsd": -14.296859779642546
+      },
+      {
+        "windowStartMs": 1735689600000,
+        "weekStartMs": 1747612800000,
+        "netUsd": 16.923947351737297
+      },
+      {
+        "windowStartMs": 1735689600000,
+        "weekStartMs": 1748217600000,
+        "netUsd": -26.074730043052114
+      },
+      {
+        "windowStartMs": 1735689600000,
+        "weekStartMs": 1748822400000,
+        "netUsd": 0
+      },
+      {
+        "windowStartMs": 1735689600000,
+        "weekStartMs": 1749427200000,
+        "netUsd": -49.93860783825221
+      },
+      {
+        "windowStartMs": 1735689600000,
+        "weekStartMs": 1750032000000,
+        "netUsd": 0
+      },
+      {
+        "windowStartMs": 1735689600000,
+        "weekStartMs": 1750636800000,
+        "netUsd": 0
+      }
+    ],
+    "completeWeeks": 77,
+    "validBlocks": 71,
+    "lowerMeanWeeklyNetUsd": -2.926909572920534
+  },
+  "runs": [
+    {
+      "version": "btc-eth-daily-55-20-channel-price-protected-v2",
+      "startMs": 1704067200000,
+      "endMs": 1735689600000,
+      "scenario": "base",
+      "policy": "channel",
+      "accountingKnown": true,
+      "netPnlUsd": 84.19059757122886,
+      "grossPnlUsd": 168.99779999999998,
+      "feeUsd": 8.909491399999999,
+      "fundingCashUsd": -75.89771102880732,
+      "maxDrawdownUsd": 342.96641102497233,
+      "conservativeDrawdownEnvelopeUsd": 347.7391799491015,
+      "drawdownBasis": "HOURLY_LIQUIDATION_CLOSE_DRAWDOWN;ENVELOPE_USES_PRIOR_CLOSE_PEAK_NOT_FULL_INTRAHOUR_HIGHWATER",
+      "maximumGrossUsd": 1659.3944999999999,
+      "maximumEntryRiskUsd": 99.90195313005228,
+      "closedEpisodes": 14,
+      "orderCount": 31,
+      "unresolved": [],
+      "missingFunding": [],
+      "missingBars": [],
+      "haltReasons": {
+        "ENTRY_PRICE_DISPLACEMENT": 2
+      },
+      "runtimeActivated": false,
+      "evidence": "HOURLY_CANDLE_ECONOMIC_PROXY_WITH_CONSERVATIVE_STOP_FUNDING"
+    },
+    {
+      "version": "btc-eth-daily-55-20-channel-price-protected-v2",
+      "startMs": 1704067200000,
+      "endMs": 1735689600000,
+      "scenario": "stress",
+      "policy": "channel",
+      "accountingKnown": true,
+      "netPnlUsd": 98.238571966358,
+      "grossPnlUsd": 189.89609999999993,
+      "feeUsd": 13.195519425,
+      "fundingCashUsd": -78.46200860853237,
+      "maxDrawdownUsd": 372.78465851658257,
+      "conservativeDrawdownEnvelopeUsd": 376.6156831118424,
+      "drawdownBasis": "HOURLY_LIQUIDATION_CLOSE_DRAWDOWN;ENVELOPE_USES_PRIOR_CLOSE_PEAK_NOT_FULL_INTRAHOUR_HIGHWATER",
+      "maximumGrossUsd": 1875.3341999999998,
+      "maximumEntryRiskUsd": 99.91587508018854,
+      "closedEpisodes": 14,
+      "orderCount": 28,
+      "unresolved": [],
+      "missingFunding": [],
+      "missingBars": [],
+      "haltReasons": {
+        "ENTRY_PRICE_DISPLACEMENT": 2
+      },
+      "runtimeActivated": false,
+      "evidence": "HOURLY_CANDLE_ECONOMIC_PROXY_WITH_CONSERVATIVE_STOP_FUNDING"
+    },
+    {
+      "version": "btc-eth-daily-55-20-channel-price-protected-v2",
+      "startMs": 1735689600000,
+      "endMs": 1751328000000,
+      "scenario": "base",
+      "policy": "channel",
+      "accountingKnown": true,
+      "netPnlUsd": 138.315431548559,
+      "grossPnlUsd": 147.08459999999997,
+      "feeUsd": 2.5702183000000005,
+      "fundingCashUsd": -6.198950151487933,
+      "maxDrawdownUsd": 126.30531031239661,
+      "conservativeDrawdownEnvelopeUsd": 127.61692749850044,
+      "drawdownBasis": "HOURLY_LIQUIDATION_CLOSE_DRAWDOWN;ENVELOPE_USES_PRIOR_CLOSE_PEAK_NOT_FULL_INTRAHOUR_HIGHWATER",
+      "maximumGrossUsd": 1366.8375,
+      "maximumEntryRiskUsd": 93.33814047189838,
+      "closedEpisodes": 5,
+      "orderCount": 10,
+      "unresolved": [],
+      "missingFunding": [],
+      "missingBars": [],
+      "haltReasons": {},
+      "runtimeActivated": false,
+      "evidence": "HOURLY_CANDLE_ECONOMIC_PROXY_WITH_CONSERVATIVE_STOP_FUNDING"
+    },
+    {
+      "version": "btc-eth-daily-55-20-channel-price-protected-v2",
+      "startMs": 1735689600000,
+      "endMs": 1751328000000,
+      "scenario": "stress",
+      "policy": "channel",
+      "accountingKnown": true,
+      "netPnlUsd": 31.696293763598078,
+      "grossPnlUsd": 41.604099999999946,
+      "feeUsd": 3.825007275,
+      "fundingCashUsd": -6.082798961223164,
+      "maxDrawdownUsd": 114.38430685954518,
+      "conservativeDrawdownEnvelopeUsd": 114.7503156986495,
+      "drawdownBasis": "HOURLY_LIQUIDATION_CLOSE_DRAWDOWN;ENVELOPE_USES_PRIOR_CLOSE_PEAK_NOT_FULL_INTRAHOUR_HIGHWATER",
+      "maximumGrossUsd": 1329.4180000000001,
+      "maximumEntryRiskUsd": 93.97539752514624,
+      "closedEpisodes": 5,
+      "orderCount": 10,
+      "unresolved": [],
+      "missingFunding": [],
+      "missingBars": [],
+      "haltReasons": {
+        "ENTRY_PRICE_DISPLACEMENT": 1
+      },
+      "runtimeActivated": false,
+      "evidence": "HOURLY_CANDLE_ECONOMIC_PROXY_WITH_CONSERVATIVE_STOP_FUNDING"
+    }
+  ],
+  "benchmarks": [
+    {
+      "version": "btc-eth-daily-55-20-channel-price-protected-v2",
+      "startMs": 1704067200000,
+      "endMs": 1735689600000,
+      "scenario": "base",
+      "policy": "buy-hold-btc",
+      "accountingKnown": true,
+      "netPnlUsd": 910.6064120449009,
+      "grossPnlUsd": 1178.5955,
+      "feeUsd": 1.5876717500000002,
+      "fundingCashUsd": -266.40141620531676,
+      "maxDrawdownUsd": 653.9696454901423,
+      "conservativeDrawdownEnvelopeUsd": 678.9580287128338,
+      "drawdownBasis": "HOURLY_LIQUIDATION_CLOSE_DRAWDOWN;ENVELOPE_USES_PRIOR_CLOSE_PEAK_NOT_FULL_INTRAHOUR_HIGHWATER",
+      "maximumGrossUsd": 2546.366,
+      "maximumEntryRiskUsd": 1.4447236,
+      "closedEpisodes": 1,
+      "orderCount": 2,
+      "unresolved": [],
+      "missingFunding": [],
+      "missingBars": [],
+      "haltReasons": {},
+      "runtimeActivated": false,
+      "evidence": "HOURLY_CANDLE_ECONOMIC_PROXY_WITH_CONSERVATIVE_STOP_FUNDING"
+    },
+    {
+      "version": "btc-eth-daily-55-20-channel-price-protected-v2",
+      "startMs": 1704067200000,
+      "endMs": 1735689600000,
+      "scenario": "base",
+      "policy": "buy-hold-eth",
+      "accountingKnown": true,
+      "netPnlUsd": 239.47249018852017,
+      "grossPnlUsd": 460.70849999999996,
+      "feeUsd": 1.22976675,
+      "fundingCashUsd": -220.006243061662,
+      "maxDrawdownUsd": 921.0150929545634,
+      "conservativeDrawdownEnvelopeUsd": 1001.5749023031676,
+      "drawdownBasis": "HOURLY_LIQUIDATION_CLOSE_DRAWDOWN;ENVELOPE_USES_PRIOR_CLOSE_PEAK_NOT_FULL_INTRAHOUR_HIGHWATER",
+      "maximumGrossUsd": 1779.1065,
+      "maximumEntryRiskUsd": 2.2691775,
+      "closedEpisodes": 1,
+      "orderCount": 2,
+      "unresolved": [],
+      "missingFunding": [],
+      "missingBars": [],
+      "haltReasons": {},
+      "runtimeActivated": false,
+      "evidence": "HOURLY_CANDLE_ECONOMIC_PROXY_WITH_CONSERVATIVE_STOP_FUNDING"
+    },
+    {
+      "version": "btc-eth-daily-55-20-channel-price-protected-v2",
+      "startMs": 1704067200000,
+      "endMs": 1735689600000,
+      "scenario": "stress",
+      "policy": "buy-hold-btc",
+      "accountingKnown": true,
+      "netPnlUsd": 901.3699512008316,
+      "grossPnlUsd": 1168.9938,
+      "feeUsd": 2.37383055,
+      "fundingCashUsd": -265.2500182491351,
+      "maxDrawdownUsd": 650.8829703347728,
+      "conservativeDrawdownEnvelopeUsd": 675.1229123118537,
+      "drawdownBasis": "HOURLY_LIQUIDATION_CLOSE_DRAWDOWN;ENVELOPE_USES_PRIOR_CLOSE_PEAK_NOT_FULL_INTRAHOUR_HIGHWATER",
+      "maximumGrossUsd": 2535.5304,
+      "maximumEntryRiskUsd": 2.541942,
+      "closedEpisodes": 1,
+      "orderCount": 2,
+      "unresolved": [],
+      "missingFunding": [],
+      "missingBars": [],
+      "haltReasons": {},
+      "runtimeActivated": false,
+      "evidence": "HOURLY_CANDLE_ECONOMIC_PROXY_WITH_CONSERVATIVE_STOP_FUNDING"
+    },
+    {
+      "version": "btc-eth-daily-55-20-channel-price-protected-v2",
+      "startMs": 1704067200000,
+      "endMs": 1735689600000,
+      "scenario": "stress",
+      "policy": "buy-hold-eth",
+      "accountingKnown": true,
+      "netPnlUsd": 233.3855468610127,
+      "grossPnlUsd": 454.17370000000005,
+      "feeUsd": 1.838831925,
+      "fundingCashUsd": -218.9493212138274,
+      "maxDrawdownUsd": 916.3144920783816,
+      "conservativeDrawdownEnvelopeUsd": 996.0095770489279,
+      "drawdownBasis": "HOURLY_LIQUIDATION_CLOSE_DRAWDOWN;ENVELOPE_USES_PRIOR_CLOSE_PEAK_NOT_FULL_INTRAHOUR_HIGHWATER",
+      "maximumGrossUsd": 1770.9267,
+      "maximumEntryRiskUsd": 3.36300275,
+      "closedEpisodes": 1,
+      "orderCount": 2,
+      "unresolved": [],
+      "missingFunding": [],
+      "missingBars": [],
+      "haltReasons": {},
+      "runtimeActivated": false,
+      "evidence": "HOURLY_CANDLE_ECONOMIC_PROXY_WITH_CONSERVATIVE_STOP_FUNDING"
+    },
+    {
+      "version": "btc-eth-daily-55-20-channel-price-protected-v2",
+      "startMs": 1735689600000,
+      "endMs": 1751328000000,
+      "scenario": "base",
+      "policy": "buy-hold-btc",
+      "accountingKnown": true,
+      "netPnlUsd": 114.19467129907571,
+      "grossPnlUsd": 149.6084,
+      "feeUsd": 1.074098,
+      "fundingCashUsd": -34.33963070099001,
+      "maxDrawdownUsd": 367.60490602761274,
+      "conservativeDrawdownEnvelopeUsd": 370.4361973160994,
+      "drawdownBasis": "HOURLY_LIQUIDATION_CLOSE_DRAWDOWN;ENVELOPE_USES_PRIOR_CLOSE_PEAK_NOT_FULL_INTRAHOUR_HIGHWATER",
+      "maximumGrossUsd": 1185.451,
+      "maximumEntryRiskUsd": 1.4202113200000002,
+      "closedEpisodes": 1,
+      "orderCount": 2,
+      "unresolved": [],
+      "missingFunding": [],
+      "missingBars": [],
+      "haltReasons": {},
+      "runtimeActivated": false,
+      "evidence": "HOURLY_CANDLE_ECONOMIC_PROXY_WITH_CONSERVATIVE_STOP_FUNDING"
+    },
+    {
+      "version": "btc-eth-daily-55-20-channel-price-protected-v2",
+      "startMs": 1735689600000,
+      "endMs": 1751328000000,
+      "scenario": "base",
+      "policy": "buy-hold-eth",
+      "accountingKnown": true,
+      "netPnlUsd": -266.0257748447766,
+      "grossPnlUsd": -254.826,
+      "feeUsd": 0.8702694,
+      "fundingCashUsd": -10.32950544480616,
+      "maxDrawdownUsd": 687.073430850869,
+      "conservativeDrawdownEnvelopeUsd": 697.0330418441008,
+      "drawdownBasis": "HOURLY_LIQUIDATION_CLOSE_DRAWDOWN;ENVELOPE_USES_PRIOR_CLOSE_PEAK_NOT_FULL_INTRAHOUR_HIGHWATER",
+      "maximumGrossUsd": 1103.3253,
+      "maximumEntryRiskUsd": 1.9907553599999999,
+      "closedEpisodes": 1,
+      "orderCount": 2,
+      "unresolved": [],
+      "missingFunding": [],
+      "missingBars": [],
+      "haltReasons": {},
+      "runtimeActivated": false,
+      "evidence": "HOURLY_CANDLE_ECONOMIC_PROXY_WITH_CONSERVATIVE_STOP_FUNDING"
+    },
+    {
+      "version": "btc-eth-daily-55-20-channel-price-protected-v2",
+      "startMs": 1735689600000,
+      "endMs": 1751328000000,
+      "scenario": "stress",
+      "policy": "buy-hold-btc",
+      "accountingKnown": true,
+      "netPnlUsd": 121.33938981876418,
+      "grossPnlUsd": 157.251,
+      "feeUsd": 1.6048903500000002,
+      "fundingCashUsd": -34.306719831295304,
+      "maxDrawdownUsd": 367.41001972761296,
+      "conservativeDrawdownEnvelopeUsd": 369.7997653661005,
+      "drawdownBasis": "HOURLY_LIQUIDATION_CLOSE_DRAWDOWN;ENVELOPE_USES_PRIOR_CLOSE_PEAK_NOT_FULL_INTRAHOUR_HIGHWATER",
+      "maximumGrossUsd": 1185.451,
+      "maximumEntryRiskUsd": 2.4994535,
+      "closedEpisodes": 1,
+      "orderCount": 2,
+      "unresolved": [],
+      "missingFunding": [],
+      "missingBars": [],
+      "haltReasons": {},
+      "runtimeActivated": false,
+      "evidence": "HOURLY_CANDLE_ECONOMIC_PROXY_WITH_CONSERVATIVE_STOP_FUNDING"
+    },
+    {
+      "version": "btc-eth-daily-55-20-channel-price-protected-v2",
+      "startMs": 1735689600000,
+      "endMs": 1751328000000,
+      "scenario": "stress",
+      "policy": "buy-hold-eth",
+      "accountingKnown": true,
+      "netPnlUsd": -263.6524855636526,
+      "grossPnlUsd": -251.96729999999994,
+      "feeUsd": 1.310449725,
+      "fundingCashUsd": -10.374735838272453,
+      "maxDrawdownUsd": 691.3492516614788,
+      "conservativeDrawdownEnvelopeUsd": 701.1205847422098,
+      "drawdownBasis": "HOURLY_LIQUIDATION_CLOSE_DRAWDOWN;ENVELOPE_USES_PRIOR_CLOSE_PEAK_NOT_FULL_INTRAHOUR_HIGHWATER",
+      "maximumGrossUsd": 1110.7551,
+      "maximumEntryRiskUsd": 3.097042,
+      "closedEpisodes": 1,
+      "orderCount": 2,
+      "unresolved": [],
+      "missingFunding": [],
+      "missingBars": [],
+      "haltReasons": {},
+      "runtimeActivated": false,
+      "evidence": "HOURLY_CANDLE_ECONOMIC_PROXY_WITH_CONSERVATIVE_STOP_FUNDING"
+    }
+  ],
+  "cashBenchmarkNetUsd": 0,
+  "sourceHashes": {
+    "src/channel/spec.ts": "441313a0bf02b599fc3d0792fcff2143ffeed6fc1229fecf1d93aae5cb189f36",
+    "src/channel/replay.ts": "6dad38d4e00faf56f25914b28732623b67cdfe7789733e41095af93085f46a46",
+    "src/channel/study-main.ts": "4d7e86f24141faae8407381a365f859714788c8ea21d6297a0682a01f09da489",
+    "test/channel-replay.test.ts": "ca8875d01609c87fbc26c8ac9d7d2e54ee6bc85716627d39206e3ef9e5456cab",
+    "test/channel-study.test.ts": "16e3bec085f481d051f32fafabe20266460e8c21fde16a4aed7355374ea25259",
+    "src/channel/verify-v1-parity-main.ts": "85db3419740c9aa373aa61bae19ebffe8ac136156ecd266ce98d5c6c79eccd85",
+    "test/channel-price-protection.test.ts": "207dc4c0b6819bf506a588b533b1d7fb73e2faed1fff4d2ce4ed0d0b532795b1",
+    "src/research/hourly-data.ts": "0786552d6f700f8ad906a6f6db80b423560eef6f79dbb7403250ce1eeb260a91",
+    "package-lock.json": "2315bada829d31ccb4d3970392ba56d73458d3219dda1ec98d8dda0d41893594",
+    "tsconfig.json": "f67c2b8d0029850632819cc5da43e2c89468c9217e0dd8f93b3e1887afedaca3"
+  },
+  "reserved2026Evaluated": false,
+  "runtimeActivated": false,
+  "futureProfitGuaranteed": false,
+  "limitations": [
+    "Prior candidate failures and repeated use of 2024/2025 make this development evidence, not untouched validation.",
+    "Hourly trade candles do not prove executable books, price-impact depth, exact intrahour chronology, or live latency.",
+    "Stops use adverse execution and charge paying funding for the whole touched hour while dropping receiving funding; this is a conservative timing bound, not exact observed cash.",
+    "Drawdown uses hourly liquidation closes. The additional downside envelope uses prior close peaks, not intrahour high-water marks.",
+    "The sum of separate adverse asset extremes is a risk envelope rather than synchronized observed portfolio prices.",
+    "Known positive candle volume is a retrospective fill availability proxy; intrahour arrival and partial fills remain unobserved.",
+    "Passive comparators are independent constant-unit paths with $1000 entry caps; later mark notional can exceed the entry cap. They are descriptive, not risk-matched alternatives.",
+    "Quoted fees, ticks, minimum quantities and known-at-hour-start funding are declared assumptions rather than verified historical account entitlements."
+  ]
+}

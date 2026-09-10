@@ -188,7 +188,7 @@ test("training artifact loader rejects hard links and symlinks to mutable checkp
 });
 
 test("engine startup installs only verified training and an invalid later import preserves its state", () => {
-  const cfg = loadConfig({ TRADING_MODE: "paper", DISTRIBUTIONAL_ENGINE_ENABLED: "true" });
+  const cfg = loadConfig({ TRADING_MODE: "paper", DISTRIBUTIONAL_ENGINE_ENABLED: "true", DISTRIBUTIONAL_SIZING_MODE: "LEGACY_FIXED" });
   const actualCosts = Object.fromEntries(S.symbols.map(symbol => [symbol, { feeBps: cfg.symbolConfigs[symbol]!.cost.takerFeeBps,
     reserveBps: policyReserveBps(cfg.symbolConfigs[symbol]!) }]));
   const engine = new TradingEngine(cfg, { now: () => cutoffMs });

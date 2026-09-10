@@ -1,0 +1,422 @@
+{
+  "version": "profit-search-economics-v1",
+  "createdAtUtc": "2026-09-10T19:24:05.937384+00:00",
+  "scope": "25 hypotheses reviewed by one economics agent; these are not 25 agents",
+  "statusMeaning": "supported means evidence supports the bounded mechanism/intervention, never future profitability; rejected applies only to its bounded claim; needs_data specifies unresolved empirical work",
+  "profitabilityEstablished": false,
+  "productionChanged": false,
+  "topPriorityIds": [
+    "E01",
+    "E12",
+    "E04"
+  ],
+  "publicSources": [
+    {
+      "title": "Kraken fee schedule",
+      "url": "https://www.kraken.com/features/fee-schedule",
+      "accessedDate": "2026-09-10"
+    },
+    {
+      "title": "Kraken TradeVolume account fee lookup",
+      "url": "https://docs.kraken.com/api-reference/account-data/get-trade-volume",
+      "accessedDate": "2026-09-10"
+    },
+    {
+      "title": "Kraken linear derivatives specifications",
+      "url": "https://support.kraken.com/articles/4844359082772-linear-multi-collateral-derivatives-contract-specifications",
+      "accessedDate": "2026-09-10"
+    }
+  ],
+  "liveSpotSnapshot": {
+    "source": "GET http://127.0.0.1:3002/status; selected fields from read-only response",
+    "lastCycleMs": 1789068042270,
+    "cycles": 165,
+    "healthy": true,
+    "mode": "RESEARCH_PAPER",
+    "liveTradingEnabled": false,
+    "provenProfitable": false,
+    "version": "btc-spot-weekly-research-paper-runner-v3",
+    "intervalMs": 300000,
+    "initialCashUsd": 100000,
+    "cashUsd": 99900.09999846495,
+    "quantity": 0.00128587,
+    "entryPrice": 77074,
+    "entryCostUsd": 99.90000153503999,
+    "entryFeeUsd": 0.79285715504,
+    "feeBps": 80,
+    "realizedNetUsd": 0,
+    "equityUsd": 99999.26783590895,
+    "liquidationEquityUsd": 99998.4744932094,
+    "netPnlUsd": -1.5255067905964097,
+    "lastReason": "HOLD_SPOT_NO_ADDITIONS"
+  },
+  "calculations": {
+    "baseReferenceBreakEvenFraction": 0.016738892635532743,
+    "feeOnlyBreakEvenExitBid": 78317.12903225808,
+    "observedEntryFeeUsd": 0.79285715504,
+    "observedEstimatedExitFeeUsd": 0.793342699544155,
+    "observedGrossInventoryPriceMovementUsd": 0.06069306398774532,
+    "observedNetLiquidationPnlUsd": -1.5255067905964097
+  },
+  "evidenceSha256": {
+    "config/carry-research.json": "8331c1d03d90c4ea99f035abb32b55b9a53192224b488a8733274c068f93b304",
+    "docs/SPOT_TREND_SYSTEM.md": "14e90de7121822bc012f588373ab16162087f62cf09d195a5fec23eb3ae07d1a",
+    "reports/carry-feasibility-reviewed-2026-09-09/report.json": "d7016c6b06e80379adddd906a45406402121e0bc8e913250f26cf625669c6356",
+    "reports/carry-fee-frontier-2026-09-09/frontier.json": "01e3d3e9111017a89bdf433616c76c9ef5176cf71e32815a23e43121c9023025",
+    "reports/carry-funding-model-development-2026-09-09/README.md": "4b30544b583f65bbe6e9ff05e5d88f3e2f4719e618fcb1fb5831f749bfad9a2d",
+    "reports/new-spot-system-2026-09-10/historical-study/report.md": "70660cd7840333a0dff1de9f123addb7ac0691980f0b9ff923aef489cd5a3659",
+    "reports/paper-accounting-rebuild-v13-2026-09-09/README.md": "2352494e9acca3194bc9b615442ab0b7e7c98af01cd8f3ac4a3334aa865ec6e2",
+    "reports/parallel-strategy-study-2026-09-10/final-selection-lock.json": "570d73ab2dbc66437ab0973e4255d3f64b88bd224771efab92539eec5e690863",
+    "reports/parallel-strategy-study-2026-09-10/report.md": "991b53d07ea5db3ac9bd8efcc161cc9a6ab54fe3f0396aa8c514bcd6ec0797c0",
+    "reports/parallel-strategy-study-2026-09-10/sensitivity.json": "b0c0b39d7dfbb339ae2d360a1183386a902ff23809030c66a73f9b1f5eab47d0",
+    "reports/profit-engine-rebuild-2026-09-09/channel-price-protected-v2/holdout-2026/report.md": "37ad1bf2207cb371f9ca89d7981288814e827e395bc5d731e1070a28d307f771",
+    "reports/profit-engine-rebuild-2026-09-09/long-horizon-carry/report.md": "4312a52343193419578a6dc2f645d379ce79f44046aea9160c2d2da92d34b9e9",
+    "reports/profitability-status-2026-09-09.json": "770105a9d39b486d32d55790ed4f8305e10a74766b4e0665766f772bec9c0a5b",
+    "reports/spot-continuous-entries-2026-09-10/replay-report.json": "3a894e2c75277e111f9d610758bd2ae1f16139c4f98997b1aaacf3ca76eb39ae",
+    "reports/spot-continuous-entries-2026-09-10/report.md": "283057947d361338f36e8dcbcafd453af356433be4a66c418fa10c8a140a6950",
+    "reports/spot-position-events-2026-09-10/report.md": "8eca4d07e78fe7c3cefa0e84979ea2c196172a354d52bfc7b316a3675f351f20",
+    "reports/systematic-rebuild-2026-09-09/economic-screen/report.md": "2e892078e8918bec9a4833ff8e0bf09dc791e4f7a16185d7f5032ed9fcf0d8a8",
+    "src/carry/economics.ts": "57a37a9788b9030eaaf30f5a499b95223f769a7193223747627814a5f6143ce5",
+    "src/carry/execution.ts": "59d2e34358928c1b797468fc6f2ba289cfc00639ba878a1227874b5af369a4f1",
+    "src/carry/funding-accrual.ts": "900a3299e620a4e84630697e65c06e493617bc70e0fb5d77d5afbe63343e34b6",
+    "src/carry/inventory.ts": "a35bf93c725781736dcf8cb709acc84620d45655fc5a3c4175c5fd0fd9d01edf",
+    "src/carry/monitor.ts": "6fda02de3b8a9bf6d55f62e45f4aeed6ea172e0c4c03f9ea7e9f2ca4b9bcd641",
+    "src/kraken/account-fees.ts": "727a71f506f03e6ab93845a9214260e7f6550ba4966f97185044ca5bc191180f",
+    "src/kraken/paper-broker.ts": "b32d8f5bf9b0d675cc1296a28941dfc630fc28f2084f5be4cb39b65dea5ef0e0",
+    "src/kraken/paper-funding.ts": "3f3b1c13ba639c48a5631085b0f0c873abeee92f7af97be7ac14d31cdfe680e5",
+    "src/risk/rolling-pnl.ts": "04e44da24fd4fef6ab270256c1a9db71a19ab628aaca0f13c7d1af355a7fbf58",
+    "src/spot-trend/account.ts": "12a33739b685eb68506ebe0a76d21ee53804213dd7bd73706425a7f5470cdd2f",
+    "src/spot-trend/journal.ts": "149cd6448f9dc39046670ee69bf360d0acfdaa288c60c619d301b9224b8acedd",
+    "src/spot-trend/market.ts": "2f9c90c460164ffeb0bacc08822c25b59c6523bd6b1d64fcc93162e3dc652565",
+    "src/spot-trend/orders.ts": "b077dd94798993280563d161dee561ad3dc7345849d643bd4993ffd172946f8e",
+    "src/spot-trend/spec.ts": "a93cbc06c54668cb915f5011d7f6ffd04c3062261732f0c62b0f2d13ea98e25a"
+  },
+  "hypotheses": [
+    {
+      "id": "E01",
+      "title": "Verify actual account and product fee tiers",
+      "status": "needs_data",
+      "rationale": "Spot uses 80 bp per side. Authenticated fee loader currently accepts PF_ derivatives only; public fees and simulated equity do not establish account entitlement.",
+      "evidencePaths": [
+        "src/spot-trend/spec.ts",
+        "src/kraken/account-fees.ts"
+      ],
+      "testability": "Extend read-only fee snapshots to spot; retain product, maker/taker rate, timestamp and expiry. Reprice fixed decisions without retuning.",
+      "likelyImpact": "High diagnostic value; smaller costs can matter, but known daily models lose even without commission.",
+      "priority": 1
+    },
+    {
+      "id": "E02",
+      "title": "Test passive orders with queue-aware evidence",
+      "status": "needs_data",
+      "rationale": "Maker fees are lower on the published entry tier, but IOC paper fills cannot validate post-only profitability.",
+      "evidencePaths": [
+        "src/spot-trend/orders.ts",
+        "src/spot-trend/account.ts"
+      ],
+      "testability": "Compare a fixed post-only timeout policy with IOC using synchronized book/trade events, queue position, markouts, cancelled and unfilled winners.",
+      "likelyImpact": "Potential reduction in trading costs; adverse selection and missed fills can offset all savings.",
+      "priority": null
+    },
+    {
+      "id": "E03",
+      "title": "Zero commission rescues the three daily candidates",
+      "status": "rejected",
+      "rationale": "With zero fees and 3 bp adverse price, trend, reversion and rotation still lose $1.10, $141.53 and $35.48 in final 2026 comparison.",
+      "evidencePaths": [
+        "reports/parallel-strategy-study-2026-09-10/sensitivity.json"
+      ],
+      "testability": "Already evaluated in saved fixed-decision fee-only sensitivities.",
+      "likelyImpact": "Rejects fee-only rescue for these exact candidates.",
+      "priority": null
+    },
+    {
+      "id": "E04",
+      "title": "Reduce cumulative costs through infrequent funded spot positions",
+      "status": "supported",
+      "rationale": "Weekly parent study had 11 episodes and $27.22 fees across almost ten years. Hourly futures trend had 493 trades and -$1,021.72 in 2024; different instruments/sizing prevent a causal strategy comparison.",
+      "evidencePaths": [
+        "reports/new-spot-system-2026-09-10/historical-study/report.md",
+        "reports/systematic-rebuild-2026-09-09/economic-screen/report.md"
+      ],
+      "testability": "Keep the funded weekly policy frozen in paper, measure net executable returns prospectively and compare with matched-exposure alternatives. Isolate turnover in any future predeclared equal-risk comparison.",
+      "likelyImpact": "Most plausible existing cost-reduction mechanism; positive parent history is not proof and revised timing remains unvalidated.",
+      "priority": 3
+    },
+    {
+      "id": "E05",
+      "title": "Larger positions create positive expectancy",
+      "status": "rejected",
+      "rationale": "The daily models lose at the main cap and approximate $100 exposure sensitivity. Bigger allocation scales loss and risk without creating alpha.",
+      "evidencePaths": [
+        "reports/parallel-strategy-study-2026-09-10/sensitivity.json"
+      ],
+      "testability": "Saved cap sensitivity rejects a sign-rescue claim; retain realistic market impact in later sizing studies.",
+      "likelyImpact": "Avoids amplifying unproven economics.",
+      "priority": null
+    },
+    {
+      "id": "E06",
+      "title": "Separate whole-account and allocated-capital returns",
+      "status": "supported",
+      "rationale": "The weekly $1,175.60 profit used a $100,000 ledger and initial $100 purchase, approximately 1.176% whole-account return over the full decade. The large ledger can fund later entries after losses.",
+      "evidencePaths": [
+        "reports/new-spot-system-2026-09-10/historical-study/report.md",
+        "src/spot-trend/spec.ts"
+      ],
+      "testability": "Report total starting cash, committed capital, exposure and cash needs. A standalone $100 replay must enforce cash exhaustion and venue minimums.",
+      "likelyImpact": "Prevents overstated capital efficiency; does not generate alpha.",
+      "priority": null
+    },
+    {
+      "id": "E07",
+      "title": "Value open positions after estimated selling fees",
+      "status": "supported",
+      "rationale": "Spot accounting reserves an exit fee in liquidation equity while realized P&L remains zero before a sale.",
+      "evidencePaths": [
+        "src/spot-trend/account.ts",
+        "reports/spot-continuous-entries-2026-09-10/report.md"
+      ],
+      "testability": "Independently reconcile cash, inventory, acquisition fees, estimated exit fees and realized/unrealized P&L. Label estimated liquidation separately from actual fills.",
+      "likelyImpact": "Prevents apparent profit from omitted costs or unclosed inventory.",
+      "priority": null
+    },
+    {
+      "id": "E08",
+      "title": "Include real operating expenses and a capital hurdle",
+      "status": "needs_data",
+      "rationale": "Reports establish trading costs but do not establish attributable infrastructure/data/transfer expenses paid by the user. These can dominate a $100 allocation.",
+      "evidencePaths": [
+        "reports/new-spot-system-2026-09-10/historical-study/report.md",
+        "src/spot-trend/spec.ts"
+      ],
+      "testability": "Collect actual attributable expenses; report trading net, business net and excess over an explicit capital benchmark separately. Do not invent interest receipts.",
+      "likelyImpact": "Material for small deployments; determines business profitability.",
+      "priority": null
+    },
+    {
+      "id": "E09",
+      "title": "Compare forecasted future executable movement with exact break-even",
+      "status": "supported",
+      "rationale": "80 bp fees and 3 bp adverse price per side require about 1.674% reference-price appreciation. A 1.66% distance above a moving average is a turnover band, not a future profit forecast.",
+      "evidencePaths": [
+        "src/spot-trend/spec.ts",
+        "reports/parallel-strategy-study-2026-09-10/report.md"
+      ],
+      "testability": "Calculate ((1+entryFee)*(1+entrySlippage))/((1-exitFee)*(1-exitSlippage))-1; compare a calibrated future executable-return distribution and uncertainty with this hurdle.",
+      "likelyImpact": "Critical economic distinction; prevents a past move from masquerading as expected profit.",
+      "priority": null
+    },
+    {
+      "id": "E10",
+      "title": "Loosen economic gates to make more profit",
+      "status": "rejected",
+      "rationale": "Saved actions reaching SCORE_BELOW_MINIMUM in the 14-hour audit had negative estimated means despite healthy feeds. No fills occurred.",
+      "evidencePaths": [
+        "reports/profitability-status-2026-09-09.json"
+      ],
+      "testability": "Record rejected opportunities and later executable returns to test forecast errors; an activity target alone does not justify relaxing gates.",
+      "likelyImpact": "Rejects an unsupported fix; estimated returns still require empirical calibration.",
+      "priority": null
+    },
+    {
+      "id": "E11",
+      "title": "Faster checks improve weekly-strategy execution",
+      "status": "needs_data",
+      "rationale": "Five-minute evaluations are active. Continuous entries resolved the old weekly window blocker, but archived-book replay ended -$3.22 liquidation P&L.",
+      "evidencePaths": [
+        "reports/spot-position-events-2026-09-10/report.md",
+        "reports/spot-continuous-entries-2026-09-10/replay-report.json"
+      ],
+      "testability": "Hold the weekly signal fixed; compare predefined monitoring schedules on event data with serialized orders, quote latency and implementation shortfall.",
+      "likelyImpact": "May improve fills or exits; faster evaluation does not establish price predictability.",
+      "priority": null
+    },
+    {
+      "id": "E12",
+      "title": "Collect all executable opportunities and decompose gross-to-net returns",
+      "status": "supported",
+      "rationale": "Daily/weekly candles cannot establish executable quotes, depth, arrivals, rejects or actual order acceptance. Current journals and receipts provide useful infrastructure.",
+      "evidencePaths": [
+        "src/spot-trend/market.ts",
+        "src/spot-trend/journal.ts",
+        "src/spot-trend/orders.ts",
+        "reports/parallel-strategy-study-2026-09-10/report.md"
+      ],
+      "testability": "Log every eligible/rejected decision with synchronized quotes, signal availability, intended order, fill/cancel result and fixed-horizon executable markouts. Attribute gross movement, spread, slippage, fees and funding. Freeze criteria before observing a new period.",
+      "likelyImpact": "Highest-value diagnostic: identifies whether signal, costs, constraints or execution cause failure.",
+      "priority": 2
+    },
+    {
+      "id": "E13",
+      "title": "Measure partial fills, dust and liquidation capacity",
+      "status": "needs_data",
+      "rationale": "IOC paper participation is 5% of displayed quantity within a 10 bp collar. The first partial buy consumes the week opportunity; minimum rules can leave residuals.",
+      "evidencePaths": [
+        "src/spot-trend/account.ts",
+        "src/spot-trend/orders.ts",
+        "docs/SPOT_TREND_SYSTEM.md"
+      ],
+      "testability": "Report requested/filled amounts, opportunity consumption, partial-exit duration and terminal dust on recorded books. Apply conservative liquidation values.",
+      "likelyImpact": "Explains capital underuse and possible execution drag without assuming displayed depth persists.",
+      "priority": null
+    },
+    {
+      "id": "E14",
+      "title": "Price asynchronous carry-leg execution risk",
+      "status": "needs_data",
+      "rationale": "Paired historical execution and a venue-verified two-leg coordinator are absent; a mathematical hedge does not imply both orders fill.",
+      "evidencePaths": [
+        "src/carry/execution.ts",
+        "src/carry/economics.ts",
+        "reports/carry-feasibility-reviewed-2026-09-09/report.json"
+      ],
+      "testability": "Shadow both legs with synchronized markets, partial fills, second-leg failure, timeouts, repair orders and explicit cash/inventory limits. Retain every one-leg loss.",
+      "likelyImpact": "Necessary to validate carry; rare repair losses can dominate small funding income.",
+      "priority": null
+    },
+    {
+      "id": "E15",
+      "title": "Discounted spot fees rescue saved carry scenarios",
+      "status": "rejected",
+      "rationale": "All 36 declared paths remain negative at each 0/20/40/80 bp spot fee under retained futures costs, capital hurdle and basis/unwind reserves.",
+      "evidencePaths": [
+        "reports/carry-fee-frontier-2026-09-09/frontier.json"
+      ],
+      "testability": "Saved fee frontier already evaluates the bounded claim; current opportunities require new synchronized quotes.",
+      "likelyImpact": "Rejects this fee-only rescue; excess-return loss after reserves/hurdle differs from realized trading cash loss.",
+      "priority": null
+    },
+    {
+      "id": "E16",
+      "title": "Existing long-horizon carry selector is ready for profit",
+      "status": "rejected",
+      "rationale": "Every development/confirmation cost and funding-timing case generated zero cycles and failed the numeric economic screen.",
+      "evidencePaths": [
+        "reports/profit-engine-rebuild-2026-09-09/long-horizon-carry/report.md"
+      ],
+      "testability": "Inspect saved entry rejections and compare conservative funding income with break-even; zero-trade cash is not profit evidence.",
+      "likelyImpact": "Prevents promoting an inactive selector as a solution.",
+      "priority": null
+    },
+    {
+      "id": "E17",
+      "title": "Check hedge size against both venues before evaluating returns",
+      "status": "supported",
+      "rationale": "Saved BTC minimum paired gross $15.7796766 exceeded the $12 cap. Larger/ETH cases were feasible but still economically negative.",
+      "evidencePaths": [
+        "reports/carry-feasibility-reviewed-2026-09-09/report.json",
+        "src/carry/inventory.ts"
+      ],
+      "testability": "Intersect exact decimal lot sizes, minimum quantity/notional, displayed liquidity and cash/collateral limits at each timestamp.",
+      "likelyImpact": "Fixes mechanical infeasibility; capital increases alone do not fix economics.",
+      "priority": null
+    },
+    {
+      "id": "E18",
+      "title": "Reconcile continuous funding separately from model and venue receipts",
+      "status": "supported",
+      "rationale": "Current source includes paper funding and labels it PAPER_MODEL_NOT_VENUE_CASH_RECEIPTS. Older v13 documentation predates this implementation.",
+      "evidencePaths": [
+        "src/kraken/paper-funding.ts",
+        "src/kraken/paper-broker.ts",
+        "src/risk/rolling-pnl.ts",
+        "src/carry/funding-accrual.ts"
+      ],
+      "testability": "Integrate signed absolute funding over actual exposure intervals; reconcile position-change/hour-end postings, missing rates and cash receipts. Verify deployment before claiming runtime availability.",
+      "likelyImpact": "Essential complete accounting; paper postings do not establish exchange-settled profit.",
+      "priority": null
+    },
+    {
+      "id": "E19",
+      "title": "Recover exact missing funding intervals",
+      "status": "needs_data",
+      "rationale": "2026 channel holdout exposed three missing funding hours and full net/drawdown remained unknown. Seven missing 2025 hours reduced comparable funding-model cohorts to six months per asset.",
+      "evidencePaths": [
+        "reports/profit-engine-rebuild-2026-09-09/channel-price-protected-v2/holdout-2026/report.md",
+        "reports/carry-funding-model-development-2026-09-09/README.md"
+      ],
+      "testability": "Obtain authoritative rates or cash postings, verify effective intervals and units, preserve failed originals and recalculate the fixed ledger. Never replace unknown funding with zero.",
+      "likelyImpact": "Can resolve uncertainty but cannot justify assuming profit.",
+      "priority": null
+    },
+    {
+      "id": "E20",
+      "title": "Existing adaptive funding forecast supplies a validated advantage",
+      "status": "rejected",
+      "rationale": "The 30-day mean had lower 2024 MAE for both assets, while zero funding beat ETH for comparable 2025 months. Mixed forecasts do not establish a profitable paired trade.",
+      "evidencePaths": [
+        "reports/carry-funding-model-development-2026-09-09/README.md"
+      ],
+      "testability": "Existing frozen monthly cohorts test this claim; any renewed forecast must beat baselines and produce complete paired net P&L.",
+      "likelyImpact": "Avoids unnecessary complexity built on an unproven forecast.",
+      "priority": null
+    },
+    {
+      "id": "E21",
+      "title": "Monitor dated carry where executable premium exceeds liabilities",
+      "status": "needs_data",
+      "rationale": "No saved dated contract met the 30-to-90-day maturity policy. Settlement index and executable spot exit can differ.",
+      "evidencePaths": [
+        "reports/carry-feasibility-reviewed-2026-09-09/report.json",
+        "src/carry/economics.ts",
+        "src/carry/monitor.ts"
+      ],
+      "testability": "Monitor synchronized spot asks/futures bids for eligible expiries; include verified fees, financing, collateral, settlement and unwind assumptions. Require positive stressed cash profit and capital excess.",
+      "likelyImpact": "Potential defined convergence source; no qualifying opportunity is demonstrated in current evidence.",
+      "priority": null
+    },
+    {
+      "id": "E22",
+      "title": "Improve collateral efficiency under explicit margin stress",
+      "status": "needs_data",
+      "rationale": "Saved carry reserves 100% derivative notional and a 5% annual hurdle on spot cash plus collateral. Less collateral improves ratios but increases liquidation risk.",
+      "evidencePaths": [
+        "config/carry-research.json",
+        "src/carry/economics.ts",
+        "reports/carry-feasibility-reviewed-2026-09-09/report.json"
+      ],
+      "testability": "Compare predefined collateral levels under applicable margin rules, haircuts, basis shocks, forced exits and replenishment costs. Report cash P&L separately from benchmark excess.",
+      "likelyImpact": "Could improve return on committed capital; deleting reserves is not evidence of safe profit.",
+      "priority": null
+    },
+    {
+      "id": "E23",
+      "title": "Preserve exact rolling losses while retaining unknown legacy fees",
+      "status": "supported",
+      "rationale": "v13 preflight found 102 legacy fills with missing fees outside the recent 24-hour window. Later complete windows remain computable without inventing old fees.",
+      "evidencePaths": [
+        "reports/paper-accounting-rebuild-v13-2026-09-09/README.md",
+        "src/risk/rolling-pnl.ts"
+      ],
+      "testability": "Maintain boundaries, receipt uniqueness, restart and inventory invariants; report lifetime and rolling completeness separately.",
+      "likelyImpact": "Prevents wrong risk permissions and inflated historical profit; preserves an existing accounting fix.",
+      "priority": null
+    },
+    {
+      "id": "E24",
+      "title": "Fee mismatch or double subtraction caused prior futures failure",
+      "status": "rejected",
+      "rationale": "The September 9 audit found no maker/taker mismatch or double subtraction. Paper taker cost was 5 bp per fill; the 3 bp model reserve was not a second broker fee.",
+      "evidencePaths": [
+        "reports/profitability-status-2026-09-09.json"
+      ],
+      "testability": "Reconcile a decision and both fills against the deployed cost pipeline if code changes; saved evidence rejects the claim for its audited version.",
+      "likelyImpact": "Prevents removing real costs to manufacture positive results.",
+      "priority": null
+    },
+    {
+      "id": "E25",
+      "title": "Freeze selection and require prospective net evidence",
+      "status": "supported",
+      "rationale": "Of 12 daily variants, preselected rotation earned $461.59 in 2025 H2 largely from one ETH trade, then lost $98 in 2026. Reused history and sparse episodes weaken inference.",
+      "evidencePaths": [
+        "reports/parallel-strategy-study-2026-09-10/report.md",
+        "reports/parallel-strategy-study-2026-09-10/final-selection-lock.json"
+      ],
+      "testability": "Predeclare family, parameters, costs, hurdle and test end. Retain every trial and assess dependent uncertainty plus cash and matched-exposure alternatives before selecting a new candidate.",
+      "likelyImpact": "Reduces false discovery; 100 searches make disciplined selection more necessary.",
+      "priority": null
+    }
+  ]
+}

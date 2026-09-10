@@ -1,0 +1,40 @@
+{
+  "asOf": "2026-09-09T20:14:22.342Z",
+  "sourceHashes": {
+    "src/main.ts": "359a86a705856f1d80edcce46b1dda18275d68b634d65b3b6e711834341d3c8e",
+    "src/engine/trading-engine.ts": "31a09f630952af6fd17a8c07f1aacef5b3faff98deac3d9db3fea4be5a7cc767",
+    "src/kraken/paper-broker.ts": "b32d8f5bf9b0d675cc1296a28941dfc630fc28f2084f5be4cb39b65dea5ef0e0",
+    "src/kraken/paper-funding.ts": "3f3b1c13ba639c48a5631085b0f0c873abeee92f7af97be7ac14d31cdfe680e5",
+    "src/carry/funding-accrual.ts": "900a3299e620a4e84630697e65c06e493617bc70e0fb5d77d5afbe63343e34b6",
+    "src/risk/rolling-pnl.ts": "04e44da24fd4fef6ab270256c1a9db71a19ab628aaca0f13c7d1af355a7fbf58",
+    "src/risk/paper-funding-cash.ts": "7486c4c4fe29f3460ce02b492cf9529042e16b01da6162507c5baa82173ffd78",
+    "src/dashboard/public/app.js": "800b1dee9d0d8f23c8e0c5b54f8b667f83aa3b804f0e1354ee35deaac7e46b40"
+  },
+  "checks": {
+    "fullRegression": {
+      "command": "npx tsx --test --test-reporter=dot test/*.test.ts",
+      "exitCode": 0
+    },
+    "finalRecoveryRegression": {
+      "tests": 20,
+      "exitCode": 0
+    },
+    "typecheck": {
+      "exitCode": 0
+    },
+    "diffCheck": {
+      "exitCode": 0
+    },
+    "independentStudyAudit": {
+      "paths": 48,
+      "anomalies": 0,
+      "artifact": "verification.json"
+    }
+  },
+  "previousImageId": "sha256:6dc570af07e92a0bfc987af407f9b78e4b1f1c8223ee098b9891136242497c74",
+  "paperStateBackup": "/app/data/kraken-paper-state.json.pre-funding-2026-09-09T20-10-46.526Z",
+  "strategyProfitabilityEstablished": false,
+  "rejectedStrategiesActivated": false,
+  "capPolicy": "MIN(1000_USD,1_PERCENT_CURRENT_EQUITY,OTHER_RISK_AND_VENUE_LIMITS)",
+  "fundingModel": "PAPER_MODEL_NOT_VENUE_CASH_RECEIPTS"
+}

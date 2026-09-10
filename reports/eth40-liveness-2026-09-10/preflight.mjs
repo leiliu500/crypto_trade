@@ -1,0 +1,30 @@
+import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
+import {mkdirSync,writeFileSync} from 'node:fs';
+const out='reports/eth40-liveness-2026-09-10';mkdirSync(out,{recursive:true});
+const run=(cmd,args)=>execFileSync(cmd,args,{encoding:'utf8',maxBuffer:16*1024*1024});
+const hash=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
+const config=JSON.parse(run('docker-compose',['-f','docker-compose.yml','-f','docker-compose.dashboard-spot.yml','config','--format','json']));
+const containers=JSON.parse(run('docker',['inspect','crypto-trade-engine','crypto-spot-trend-paper','crypto-eth40-paper']));
+const actual=Object.fromEntries(containers[0].Config.Env.map(x=>{const i=x.indexOf('=');return[x.slice(0,i),x.slice(i+1)]}));
+const differentEnvironmentKeys=Object.entries(config.services.engine.environment).filter(([k,v])=>String(v)!==actual[k]).map(([k])=>k);
+assert.deepEqual(differentEnvironmentKeys,[],'Rendered compose must preserve running engine environment');
+const base=JSON.parse(run('docker',['image','inspect','crypto-trade-engine:spot-dashboard-v6']))[0];
+assert.equal(base.Id,containers[0].Image,'Layer from the actual running image');
+assert.equal(base.Id,'sha256:5833b804a7196affb7ebf5d3679b7a8d0672322ec05379c5f89d68e207bca9fa');
+assert.equal(containers[2].Image,'sha256:39dbd1a51ea727fc50db700a2e2df36b53806050f5cd5a7dcfa8b60566644cc7');
+for(const [target,name,readOnly] of [['/app/data','crypto_trade_event_data',false],['/app/spot-paper-data','crypto_trade_spot_trend_research',true]]){
+ const mount=config.services.engine.volumes.find(v=>v.target===target);assert.ok(mount);assert.equal(config.volumes[mount.source].name,name);assert.equal(!!mount.read_only,readOnly);
+}
+const ethConfig=JSON.parse(run('docker-compose',['-f','docker-compose.eth40-paper.yml','config','--format','json']));
+assert.equal((ethConfig.services['eth40-paper'].ports??[]).length,0);
+assert.equal(ethConfig.networks.trading_dashboard.name,'crypto-trade_default');
+assert.equal(ethConfig.volumes.eth40_observation.name,'crypto_trade_eth40_observation_v1');
+const urls={futures:'http://127.0.0.1:3001/api/dashboard',spot:'http://127.0.0.1:3001/api/spot-dashboard',eth40:'http://127.0.0.1:3001/api/eth40/status',eth40Receipts:'http://127.0.0.1:3001/api/eth40/receipts',eth40Manifest:'http://127.0.0.1:3001/api/eth40/manifest'};
+const snapshots=Object.fromEntries(await Promise.all(Object.entries(urls).map(async([key,url])=>{const r=await fetch(url);assert.ok(r.ok,url);return[key,await r.json()]})));
+assert.equal(snapshots.eth40.liveTradingEnabled,false);assert.equal(snapshots.eth40.collectorHealthy,true);
+for(const [key,value] of Object.entries(snapshots))writeFileSync(`${out}/before-${key}.json`,JSON.stringify(value,null,2)+'\n');
+const result={passed:true,at:new Date().toISOString(),differentEnvironmentKeys,containers:containers.map(x=>({name:x.Name,id:x.Id,image:x.Image,startedAt:x.State.StartedAt,health:x.State.Health?.Status,environmentSha256:hash([...x.Config.Env].sort()),mounts:x.Mounts.map(m=>({name:m.Name,destination:m.Destination,readWrite:m.RW})),networks:Object.keys(x.NetworkSettings.Networks),publishedPorts:x.HostConfig.PortBindings})),frozenEth40ManifestSha256:hash(snapshots.eth40Manifest),eth40StartedAtMs:snapshots.eth40.startedAtMs,eth40Sequence:snapshots.eth40.sequence};
+writeFileSync(out+'/preflight.json',JSON.stringify(result,null,2)+'\n');
+console.log(JSON.stringify({passed:true,environmentPreserved:true,baseImage:base.Id,eth40Sequence:result.eth40Sequence,willPublishEth40Port:false}));

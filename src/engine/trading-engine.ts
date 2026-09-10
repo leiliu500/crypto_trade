@@ -3,6 +3,7 @@ import { EventEmitter } from "node:events";
 import { DistributionController } from "../distribution/controller.js";
 import { buildDistributionPlan, executableDistributionDecision } from "../distribution/planner.js";
 import { distributionExitLimit } from "../distribution/execution.js";
+import { SYSTEMATIC_SPEC } from "../systematic/spec.js";
 import { DISTRIBUTION_SPEC, DISTRIBUTION_ACTIONS, distributionEntryProfile,
   type DistributionEntryProfile, type DistributionDecision } from "../distribution/spec.js";
 import type { EngineConfig, SymbolConfig } from "../config.js";
@@ -21,6 +22,8 @@ import { EntryRouteShadowTracker } from "../execution/entry-route-shadow.js";
 import { HybridEntryRouter } from "../execution/hybrid-entry-router.js";
 import { PortfolioRiskEngine } from "../risk/portfolio.js";
 import { RiskState } from "../risk/risk-state.js";
+import { RollingRealizedPnlLedger, type RollingPnlSnapshot } from "../risk/rolling-pnl.js";
+import type { KrakenPaperHistory } from "../kraken/paper-broker.js";
 import { entryRiskSigmaBps, RiskSizer, type RiskApproval } from "../risk/sizing.js";
 import { CostModel, incrementalHoldCostBps } from "../strategy/cost.js";
 import { ForecastEngine } from "../strategy/forecast.js";
@@ -49,6 +52,8 @@ import { EPISODE_VERSION, type EpisodeContext } from "../research/execution-stre
 import { validPolicyModel, type PolicyModel } from "../research/policy-validation.js";
 import { buildPolicyPlan, policyReserveBps } from "../research/policy-planner.js";
 import { mergeDistributionTraining } from "../distribution/training-import.js";
+import { createRiskBoundedTrainingContext } from "../distribution/risk-training-context.js";
+import { readRiskTrainingSourceHashes } from "../distribution/risk-training-source.js";
 import { policyCandidates, TRADING_POLICIES, POLICY_MAX_ENTRY_DELAY_MS,
   POLICY_RESEARCH_COOLDOWN_MS, POLICY_VERSION } from "../research/trading-policy.js";
 import { policyMarketPulse, type PolicyMarketPulse, type PolicySampleState,
@@ -97,6 +102,9 @@ export interface EngineOperationalSnapshot {
   equity: number;
   equityHighWater: number;
   realizedSessionPnl: number;
+  realizedPnl24h?: number | null;
+  realizedPnlMeasurement?: "KNOWN" | "UNKNOWN" | "UNAVAILABLE";
+  rollingPnlDetails?: RollingPnlSnapshot | null;
   risk: ReturnType<RiskState["snapshot"]>;
   orders: ReturnType<OrderStateReconciler["all"]>;
   positions: readonly Position[];
@@ -176,6 +184,10 @@ interface PendingAdverseFlowAssessment {
 }
 
 export interface EngineDependencies {
+  /** Complete retained paper history, captured synchronously after fills. */
+  paperHistory?: () => KrakenPaperHistory;
+  /** Immutable funding journal plus a current snapshot, without copying orders. */
+  paperFunding?: (asOfMs: number) => KrakenPaperHistory["funding"];
   distributionalAssets?: Readonly<Record<string, AssetRules>>;
   rest?: VenueClient;
   gateway?: OrderGateway;
@@ -249,8 +261,15 @@ export class TradingEngine extends EventEmitter {
   private equityHighWater = 0;
   private realizedSessionPnl = 0;
   private realizedSessionDayStartMs: number;
+  private readonly paperHistory: (() => KrakenPaperHistory) | undefined;
+  private readonly paperFunding: ((asOfMs: number) => KrakenPaperHistory["funding"]) | undefined;
+  private readonly rollingPnlLedger: RollingRealizedPnlLedger | undefined;
+  private privateEventRevision = 0;
   private started = false;
   private startedAtMs: number | null = null;
+  private persistenceConnected = true;
+  private persistenceEpoch = 0;
+  private auditDataLoss = false;
 
   public constructor(private readonly cfg: EngineConfig, dependencies: EngineDependencies = {}) {
     super();
@@ -267,13 +286,17 @@ export class TradingEngine extends EventEmitter {
       this.distributional = new DistributionController(Object.fromEntries(CROSS_ASSET_SYMBOLS.map(s =>
         [s, { feeBps: cfg.symbolConfigs[s]!.cost.takerFeeBps, reserveBps: policyReserveBps(cfg.symbolConfigs[s]!) }])),
         structuredClone(dependencies.distributionalAssets ?? {}), this.distributionalProfile,
-        { efficientTraining: cfg.distributionalEfficientTrainingEnabled, regimeModel: cfg.distributionalRegimeModelEnabled });
+        { efficientTraining: cfg.distributionalEfficientTrainingEnabled, regimeModel: cfg.distributionalRegimeModelEnabled,
+          sizingPolicy: cfg.distributionalSizingPolicy });
     }
     if (!this.distributional && cfg.policyEngineEnabled && !cfg.paperEntryExercise && CROSS_ASSET_SYMBOLS.every((s) => cfg.symbols.includes(s))) {
       this.crossAssetModel = new CrossAssetModel(Object.fromEntries(CROSS_ASSET_SYMBOLS.map((s) =>
         [s, { feeBps: cfg.symbolConfigs[s]!.cost.takerFeeBps, reserveBps: policyReserveBps(cfg.symbolConfigs[s]!) }])));
     }
     this.now = dependencies.now ?? Date.now;
+    this.paperHistory = dependencies.paperHistory;
+    this.paperFunding = dependencies.paperFunding;
+    this.rollingPnlLedger = dependencies.paperHistory ? new RollingRealizedPnlLedger() : undefined;
     this.realizedSessionDayStartMs = utcDayStartMs(this.now());
     this.rest = dependencies.rest ?? unavailableVenueClient();
     this.gateway = dependencies.gateway ?? unavailableOrderGateway();
@@ -331,6 +354,36 @@ export class TradingEngine extends EventEmitter {
     this.marketStream.connect();
     if (this.cfg.mode !== "record") this.tradeStream.connect();
     this.watchdog.start();
+  }
+
+  /** Persistence gates new risk only. Existing positions and reduce-only
+   * orders continue through the normal reconciliation and exit paths. */
+  public setPersistenceHealth(health: { connected: boolean; status: string; droppedRecords: number }): void {
+    if (!this.cfg.databaseRequired) return;
+    const validCount = Number.isSafeInteger(health.droppedRecords) && health.droppedRecords >= 0;
+    const connected = health.connected === true && health.status === "connected" && validCount;
+    const newDataLoss = health.droppedRecords > 0 && !this.auditDataLoss;
+    const changed = connected !== this.persistenceConnected || newDataLoss;
+    if (changed) this.persistenceEpoch += 1;
+    this.persistenceConnected = connected;
+    this.auditDataLoss ||= health.droppedRecords > 0;
+    if (!connected || this.auditDataLoss) {
+      this.riskState.setHealth({ persistenceReady: false });
+      const reason = this.auditDataLoss ? "AUDIT_DATA_LOSS" : "PERSISTENCE_UNAVAILABLE";
+      this.riskState.halt(reason);
+      // cancelTracked synchronously latches an intent even while send() is
+      // unresolved; its acknowledgment path then cancels the accepted order.
+      for (const tracked of this.orderState.all()) {
+        if (!tracked.plan.reduceOnlyIntent && isPendingOrderStatus(tracked.status)) {
+          void this.cancelTracked(tracked, reason, { source: "persistence-health" })
+            .catch(error => this.emit("engineError", error));
+        }
+      }
+    } else if (changed && this.started) {
+      // Do not make persistenceReady true here: books can otherwise clear the
+      // halt using an account snapshot from before the database outage.
+      void this.reconcileAccount();
+    }
   }
 
   public installPromotedAlphaBuckets(buckets: readonly CalibratedEdgeBucket[]): number {
@@ -398,7 +451,14 @@ export class TradingEngine extends EventEmitter {
     if (this.started) throw new Error("Distributional training must be imported before starting");
     if (!this.distributional) throw new Error("Distributional training requires the distributional engine");
     const current = this.distributional.exportState();
-    const merged = mergeDistributionTraining(current, value, current.costs, assets, this.now(), this.distributionalProfile);
+    // Import runs before account reconciliation. These configured reference
+    // balances authenticate the feature/policy configuration only; artifact
+    // balances remain explicit counterfactual sizing inputs, not live cash.
+    const expectedRiskContext = this.cfg.distributionalSizingPolicy
+      ? createRiskBoundedTrainingContext(this.cfg.symbolConfigs, this.cfg.distributionalSizingPolicy,
+        this.cfg.krakenFutures.initialEquity, this.cfg.krakenFutures.initialEquity) : undefined;
+    const merged = mergeDistributionTraining(current, value, current.costs, assets, this.now(), this.distributionalProfile,
+      expectedRiskContext, expectedRiskContext ? readRiskTrainingSourceHashes() : undefined);
     if (merged.report.addedSamples) this.distributional.restoreState(merged.state, this.now());
     return merged.report;
   }
@@ -418,6 +478,7 @@ export class TradingEngine extends EventEmitter {
       if (!runtime) continue;
       const candidate = { ...position, phase: position.phase === "EXITING" && !position.policy?.id.startsWith("retest-")
         && !position.policy?.id.startsWith("distribution-")
+        && position.systematic === undefined
         ? "OPEN" as const : position.phase };
       delete candidate.adverseEvidenceSinceMs;
       const candidates = this.restoredPositionCandidates.get(position.symbol) ?? [];
@@ -494,7 +555,7 @@ export class TradingEngine extends EventEmitter {
       volatilityScale: 1, bindingLimit: "exchange",
     };
     const candidate = { symbol, notional, cluster: runtime.cluster, stressedLoss: risk.modeledMaximumLoss };
-    if (!this.portfolio.canAdd(candidate, this.equity, Math.max(0, -this.realizedSessionPnl))) throw new Error("Paper demo entry blocked by portfolio risk limits");
+    if (!this.portfolio.canAdd(candidate, this.equity, this.portfolioRealizedLoss24h())) throw new Error("Paper demo entry blocked by portfolio risk limits");
     const nowMs = this.now();
     const plan: ExecutionPlan = {
       clientOrderId: `mlce-demo-entry-${nowMs}-${randomUUID().slice(0, 8)}`,
@@ -518,6 +579,7 @@ export class TradingEngine extends EventEmitter {
   }
 
   public async reconcileAccount(): Promise<boolean> {
+    const persistenceEpoch = this.persistenceEpoch;
     this.riskState.setHealth({ accountReconciled: false, riskRecomputed: false });
     try {
       const [accountResponse, assetsResponse, ordersResponse, positionsResponse, historyResponse, activitiesResponse] = await Promise.all([
@@ -526,11 +588,8 @@ export class TradingEngine extends EventEmitter {
         this.rest.getPortfolioHistory({ period: "1D", timeframe: "1Min" }),
         this.rest.getActivities({ direction: "desc", page_size: 100 }),
       ]);
-      const account = accountResponse.data;
+      let account = accountResponse.data;
       if (account.account_blocked || account.trading_blocked || (account.crypto_status && account.crypto_status !== "ACTIVE")) throw new Error("Trading account is not available");
-      this.equity = Number(account.equity);
-      this.equityHighWater = Math.max(this.equityHighWater, this.equity);
-      this.riskState.updateEquity(this.equity);
       const assets = new Map(assetsResponse.data.map((asset) => [asset.symbol, asset]));
       for (const [symbol, runtime] of this.runtimes) {
         const asset = assets.get(symbol) ?? (await this.rest.getAsset(symbol)).data;
@@ -538,11 +597,43 @@ export class TradingEngine extends EventEmitter {
       }
       const fillAdvancedDuringOrderResolution = await this.reconcileTrackedOrders(ordersResponse.data);
       const refreshedPositionsResponse = fillAdvancedDuringOrderResolution ? await this.rest.listPositions() : undefined;
-      const reconciledPositions = refreshedPositionsResponse?.data ?? positionsResponse.data;
+      let reconciledPositions = refreshedPositionsResponse?.data ?? positionsResponse.data;
+      let exactHistory: KrakenPaperHistory | undefined;
+      if (this.paperHistory) {
+        // Public/private events can run while REST promises resolve. Retry a
+        // bounded number of times; never combine pre-fill positions with a
+        // post-fill ledger or overwrite a newer private fill with stale cash.
+        let stable = false;
+        for (let attempt = 0; attempt < 3; attempt++) {
+          const revision = this.privateEventRevision;
+          const [freshAccount, freshPositions] = await Promise.all([this.rest.getAccount(), this.rest.listPositions()]);
+          const candidateHistory = this.paperHistory();
+          if (revision !== this.privateEventRevision) continue;
+          account = freshAccount.data; reconciledPositions = freshPositions.data; exactHistory = candidateHistory;
+          stable = true; break;
+        }
+        if (!stable) throw new Error("ROLLING_PNL_RECONCILIATION_RACE");
+      }
+      if (account.account_blocked || account.trading_blocked || (account.crypto_status && account.crypto_status !== "ACTIVE")) throw new Error("Trading account is not available");
+      this.equity = Number(account.equity);
+      this.equityHighWater = Math.max(this.equityHighWater, this.equity);
+      this.riskState.updateEquity(this.equity);
       this.reconcilePositions(reconciledPositions);
-      const portfolioSessionPnl = sessionPnlFromPortfolioHistory(historyResponse.data);
-      if (portfolioSessionPnl !== null) this.realizedSessionPnl = portfolioSessionPnl;
-      this.recomputePortfolioRisk();
+      if (this.rollingPnlLedger && exactHistory) {
+        const asOfMs = this.now();
+        if (!this.rollingPnlLedger.restore(exactHistory, asOfMs, reconciledPositions))
+          throw new Error(this.rollingPnlLedger.snapshot(asOfMs).reason ?? "ROLLING_PNL_HISTORY_UNKNOWN");
+        this.refreshExactSessionPnl(asOfMs);
+      } else {
+        const portfolioSessionPnl = sessionPnlFromPortfolioHistory(historyResponse.data);
+        if (portfolioSessionPnl !== null) this.realizedSessionPnl = portfolioSessionPnl;
+      }
+      const accountingAtMs = this.now();
+      this.recomputePortfolioRisk(accountingAtMs);
+      const latestAccounting = this.refreshExactSessionPnl(accountingAtMs);
+      if (latestAccounting?.status === "UNKNOWN") throw new Error(latestAccounting.reason ?? "ROLLING_PNL_HISTORY_UNKNOWN");
+      if (this.cfg.databaseRequired && this.persistenceConnected && !this.auditDataLoss
+        && persistenceEpoch === this.persistenceEpoch) this.riskState.setHealth({ persistenceReady: true });
       this.riskState.setHealth({ accountReconciled: true, riskRecomputed: true });
       this.riskState.resumeAfterReconciliation();
       this.emit("reconciled", { recentTradeActivities: activitiesResponse.data.length,
@@ -550,7 +641,13 @@ export class TradingEngine extends EventEmitter {
           refreshedPositionsResponse?.requestId, historyResponse.requestId, activitiesResponse.requestId].filter(Boolean) });
       return true;
     } catch (error) {
+      const reason = error instanceof Error ? error.message : "ROLLING_PNL_RECONCILIATION_FAILED";
+      // Missing recorded fees affect their cash-flow windows, not the verified
+      // inventory history. Health remains blocked until a fresh reconciliation.
+      if (reason !== "ROLLING_PNL_RECORDED_FEE_MISSING_IN_WINDOW" && !reason.startsWith("PAPER_FUNDING_"))
+        this.rollingPnlLedger?.invalidate(reason);
       this.riskState.halt("ACCOUNT_UNKNOWN");
+      this.riskState.setHealth({ accountReconciled: false, riskRecomputed: false });
       this.emit("engineError", error);
       return false;
     }
@@ -558,7 +655,8 @@ export class TradingEngine extends EventEmitter {
 
   public state(): EngineOperationalSnapshot {
     const generatedAtMs = this.now();
-    if (this.rollRealizedSessionPnl(generatedAtMs)) this.recomputePortfolioRisk();
+    if (this.rollingPnlLedger || this.rollRealizedSessionPnl(generatedAtMs)) this.recomputePortfolioRisk(generatedAtMs);
+    const rollingPnlDetails = this.refreshExactSessionPnl(generatedAtMs) ?? null;
     const markets = [...this.runtimes.entries()].map(([symbol, runtime]): EngineMarketSnapshot => {
       const book = runtime.book.snapshot();
       const policyPulse = this.cfg.policyEngineEnabled && !this.cfg.paperEntryExercise ? policyMarketPulse({
@@ -582,6 +680,8 @@ export class TradingEngine extends EventEmitter {
         ...(this.crossAssetForecasts.get(symbol) ? { crossAssetForecast: this.crossAssetForecasts.get(symbol)! } : {}),
       }) : null;
       if (policyPulse && this.cfg.breakoutRetestEnabled) policyPulse.setup = runtime.breakoutRetest.snapshot();
+      if (policyPulse && this.distributional) policyPulse.maximumNotional =
+        this.cfg.distributionalSizingPolicy?.symbols[symbol]?.maximumNotional ?? DISTRIBUTION_SPEC.maximumNotional;
       if (policyPulse) policyPulse.research = { version: EPISODE_VERSION,
         hypotheses: [...EPISODE_HYPOTHESES], counters: runtime.researchEpisodes.stats(),
         ...(this.crossAssetModel ? { crossAsset: { learning: this.crossAssetModel.stats(this.now()),
@@ -632,6 +732,9 @@ export class TradingEngine extends EventEmitter {
       equity: this.equity,
       equityHighWater: this.equityHighWater,
       realizedSessionPnl: this.realizedSessionPnl,
+      realizedPnl24h: rollingPnlDetails?.netRealizedPnl24hUsd ?? null,
+      realizedPnlMeasurement: rollingPnlDetails?.status ?? "UNAVAILABLE",
+      rollingPnlDetails,
       risk: this.riskState.snapshot(),
       orders: this.orderState.all(),
       positions: [...this.runtimes.values()].flatMap((runtime) => runtime.position ? [structuredClone(runtime.position)] : []),
@@ -711,9 +814,22 @@ export class TradingEngine extends EventEmitter {
       void this.reconcileAccount();
     });
     this.tradeStream.on("order", (event: PrivateOrderEvent) => this.onPrivateEvent(event));
+    this.tradeStream.on("funding", () => {
+      if (!this.paperFunding) return;
+      // Funding cash changes must invalidate any in-flight account snapshot in
+      // the same way as fills, then reconcile cash and loss budgets together.
+      this.privateEventRevision++;
+      this.riskState.setHealth({ accountReconciled: false, riskRecomputed: false });
+      void this.reconcileAccount();
+    });
     this.tradeStream.on("heartbeat", () => this.watchdog.markPrivate());
     this.tradeStream.on("disconnect", () => { this.riskState.setHealth({ privateStream: false }); this.riskState.halt("PRIVATE_STREAM_DOWN"); void this.cancelAllSafely("PRIVATE_STREAM_DOWN"); });
-    this.tradeStream.on("streamError", (error) => this.emit("engineError", error));
+    this.tradeStream.on("streamError", (error) => {
+      this.privateEventRevision++;
+      this.riskState.halt("ACCOUNT_UNKNOWN");
+      this.riskState.setHealth({ accountReconciled: false, riskRecomputed: false });
+      this.emit("engineError", error);
+    });
   }
 
   private onBook(delta: BookDelta): void {
@@ -738,6 +854,7 @@ export class TradingEngine extends EventEmitter {
   }
 
   private processMarketState(runtime: SymbolRuntime, book: BookState, features: DeterministicFeatures, quoteEvent = true): void {
+    if (this.rollingPnlLedger) this.recomputePortfolioRisk();
     if (!this.distributional && this.cfg.breakoutRetestEnabled && this.cfg.policyEngineEnabled && !this.cfg.paperEntryExercise) {
       const previousSetupPhase = runtime.breakoutRetest.snapshot().phase;
       features.retestCandidate = quoteEvent ? runtime.breakoutRetest.observe(book, features.stale) : null;
@@ -762,7 +879,8 @@ export class TradingEngine extends EventEmitter {
     runtime.latestFeatures = features;
     if (quoteEvent && this.distributional) {
       const current = this.now() >= book.receiveTsMs && this.now() - book.receiveTsMs <= DISTRIBUTION_SPEC.maximumQuoteAgeMs;
-      const update = this.distributional.onBook(current ? book : { ...book, valid: false }, runtime.asset);
+      const update = this.distributional.onBook(current ? book : { ...book, valid: false }, runtime.asset,
+        { equity: this.equity, equityHighWater: this.equityHighWater, features });
       for (const sample of update.samples) this.emit("distributionalSample", sample);
       for (const selection of update.selections ?? []) this.emit("distributionalSelection", selection);
       if (update.samples.length || update.selections?.length) this.emit("distributionalCheckpoint");
@@ -780,7 +898,7 @@ export class TradingEngine extends EventEmitter {
     // Collection precedes legacy score, economics, cooldown, and exposure gates.
     // Trades do not count as fresh quotes, even though they advance feature clocks.
     const previousPolicySample = runtime.policyCollector.lastSampleAtMs();
-    const policyEvents = quoteEvent && !this.cfg.paperEntryExercise && !this.distributional
+    const policyEvents = quoteEvent && this.cfg.policyEngineEnabled && !this.cfg.paperEntryExercise && !this.distributional
       ? runtime.policyCollector.observe(book, features, runtime.asset) : [];
     for (const observation of policyEvents) this.emit("policyObservation", observation);
     if (runtime.policyCollector.lastSampleAtMs() !== previousPolicySample) {
@@ -859,13 +977,13 @@ export class TradingEngine extends EventEmitter {
     if (runtime.position && runtime.position.qty > 0) {
       // Trade messages do not refresh the executable order book. The new
       // strategy's stop/target/deadline clock advances on real book events.
-      if (!quoteEvent && runtime.position.policy?.id.startsWith("distribution-")) return;
+      if (!quoteEvent && (runtime.position.policy?.id.startsWith("distribution-") || runtime.position.systematic)) return;
       const pending = this.pendingForSymbol(book.symbol);
       if (pending) {
         void this.handlePendingWithPosition(runtime, pending, book, features);
         return;
       }
-      if (!features.kinematicsReady && !runtime.position.policy) {
+      if (!features.kinematicsReady && !runtime.position.policy && !runtime.position.systematic) {
         void this.enforceProtectiveExitWithoutKinematics(runtime, book, features);
         return;
       }
@@ -1113,7 +1231,7 @@ export class TradingEngine extends EventEmitter {
     runtime.entryAudit.pass("FINAL_COST_PASS");
     runtime.entryAudit.pass("FINAL_COST_QUALITY_PASS");
     const candidate = { symbol: plan.symbol, notional: plan.qty * features.mid * plan.side, cluster: runtime.cluster, stressedLoss: plan.risk.modeledMaximumLoss };
-    if (!this.portfolio.canAdd(candidate, this.equity, Math.max(0, -this.realizedSessionPnl))) {
+    if (!this.portfolio.canAdd(candidate, this.equity, this.portfolioRealizedLoss24h())) {
       this.rejectEntry(runtime, "PORTFOLIO_PASS", "PORTFOLIO_CAPACITY_BLOCK", features.receiveTsMs);
       return;
     }
@@ -1180,12 +1298,13 @@ export class TradingEngine extends EventEmitter {
     if (!runtime.asset || !liquidity?.pass) { report("DISTRIBUTION_LIQUIDITY_BLOCK"); return; }
     const { plan, reason } = buildDistributionPlan({ config: runtime.config, book, features, asset: runtime.asset, decision: d,
       paperAllowed: this.distributionalPaperEnabled(runtime), profile: this.distributionalProfile,
+      sizingPolicy: this.cfg.distributionalSizingPolicy,
       equity: this.equity, equityHighWater: this.equityHighWater, nowMs });
     report(reason);
     if (!plan) { runtime.policyEntryCounters.planningRejected++; return; }
     const exposure = { symbol: plan.symbol, notional: plan.qty * features.mid * plan.side,
       cluster: runtime.cluster, stressedLoss: plan.risk.modeledMaximumLoss };
-    if (!this.portfolio.canAdd(exposure, this.equity, Math.max(0, -this.realizedSessionPnl))) {
+    if (!this.portfolio.canAdd(exposure, this.equity, this.portfolioRealizedLoss24h())) {
       report("DISTRIBUTION_PORTFOLIO_BLOCK"); return;
     }
     runtime.policyEntryCounters.plansApproved++; runtime.lastPolicyEntryMs = nowMs;
@@ -1266,7 +1385,7 @@ export class TradingEngine extends EventEmitter {
     runtime.entryAudit.pass("EXECUTION_PLAN_PASS");
     const exposure = { symbol: plan.symbol, notional: plan.qty * features.mid * plan.side,
       cluster: runtime.cluster, stressedLoss: plan.risk.modeledMaximumLoss };
-    if (!this.portfolio.canAdd(exposure, this.equity, Math.max(0, -this.realizedSessionPnl))) {
+    if (!this.portfolio.canAdd(exposure, this.equity, this.portfolioRealizedLoss24h())) {
       runtime.policyEntryCounters.planningRejected++;
       report("PORTFOLIO_CAPACITY_BLOCK", "PORTFOLIO_PASS"); return;
     }
@@ -1423,10 +1542,18 @@ export class TradingEngine extends EventEmitter {
   }
 
   private onPrivateEvent(event: PrivateOrderEvent): void {
+    this.privateEventRevision++;
     this.watchdog.markPrivate(event.timestampMs);
     this.recorder?.write({ kind: "PRIVATE", event });
     const fill = this.orderState.apply(event);
     const tracked = this.orderState.get(event.clientOrderId);
+    if (!fill && this.rollingPnlLedger && ["fill", "partial_fill"].includes(event.event) && event.eventQty > 0) {
+      if (tracked && event.feeUsd !== undefined) {
+        this.rollingPnlLedger.recordFill({ plan: tracked.plan, cumulativeFilledQty: event.filledQty,
+          qty: event.eventQty, price: event.eventPx, feeUsd: event.feeUsd, atMs: event.timestampMs }, this.now());
+      } else this.rollingPnlLedger.invalidate("ROLLING_PNL_UNVERIFIED_PRIVATE_FILL");
+      this.recomputePortfolioRisk();
+    }
     if (tracked && !tracked.plan.reduceOnlyIntent && tracked.plan.policy) {
       const runtime = this.runtimes.get(tracked.plan.symbol);
       const terminal = ["FILLED", "CANCELED", "REJECTED", "EXPIRED"].includes(tracked.status);
@@ -1450,9 +1577,24 @@ export class TradingEngine extends EventEmitter {
   private async submit(plan: ExecutionPlan): Promise<boolean> {
     if (this.cfg.mode === "shadow") return false;
     if (this.cfg.mode !== "paper") return false;
+    // Research feasibility is not authorization. No economic/prospective
+    // acceptance artifact is installed for this candidate; protective exits
+    // remain available for any recovered systematic exposure.
+    if (!plan.reduceOnlyIntent && (plan.systematic !== undefined || plan.systematicDecision !== undefined
+      || plan.strategyVersion === SYSTEMATIC_SPEC.version || plan.modelVersion === "unestimated-systematic-paper")) {
+      const runtime = this.runtimes.get(plan.symbol);
+      if (runtime) this.rejectEntry(runtime, "EXECUTION_PLAN_PASS", "SYSTEMATIC_PROFITABILITY_NOT_VALIDATED", this.now());
+      return false;
+    }
+    if (!plan.reduceOnlyIntent && !this.persistenceEntriesAllowed()) return false;
+    if (!plan.reduceOnlyIntent && this.rollingPnlLedger) {
+      this.recomputePortfolioRisk();
+      if (!this.riskState.entriesAllowed()) return false;
+    }
     if (!plan.reduceOnlyIntent && this.distributional) {
       const runtime = this.runtimes.get(plan.symbol), decision = this.distributional.currentDecision(plan.symbol);
-      const selected = runtime ? executableDistributionDecision(plan.distributionDecision, runtime.book.snapshot(), this.now(), this.distributionalProfile) : null;
+      const selected = runtime ? executableDistributionDecision(plan.distributionDecision, runtime.book.snapshot(), this.now(),
+        this.distributionalProfile, this.cfg.distributionalSizingPolicy) : null;
       if (!runtime || !this.distributionalPaperEnabled(runtime) || !selected || !decision
         || JSON.stringify(decision) !== JSON.stringify(plan.distributionDecision)
         || plan.side !== selected.action.side || plan.policy?.id !== selected.action.policyId
@@ -1461,6 +1603,7 @@ export class TradingEngine extends EventEmitter {
         || !runtime.latestFeatures || !runtime.asset || !this.riskState.entriesAllowed()) return false;
       const rebuilt = buildDistributionPlan({ config: runtime.config, book: runtime.book.snapshot(), features: runtime.latestFeatures,
         asset: runtime.asset, decision, paperAllowed: this.distributionalPaperEnabled(runtime), profile: this.distributionalProfile,
+        sizingPolicy: this.cfg.distributionalSizingPolicy,
         equity: this.equity, equityHighWater: this.equityHighWater, nowMs: this.now() }).plan;
       const fields = ["qty", "limitPx", "side", "style", "timeInForce", "createdMs", "expiresMs", "modelVersion", "strategyVersion",
         "configurationVersion", "economicHorizonMs", "policy", "risk", "expectedCost", "expectedValue",
@@ -1470,7 +1613,7 @@ export class TradingEngine extends EventEmitter {
         || fields.some(key => JSON.stringify(plan[key]) !== JSON.stringify(rebuilt[key]))) return false;
       if ([...this.runtimes.values()].some(r => r.position || this.pendingForSymbol(r.book.symbol))
         || !this.portfolio.canAdd({ symbol: plan.symbol, notional: plan.qty * runtime.latestFeatures.mid * plan.side,
-          cluster: runtime.cluster, stressedLoss: plan.risk.modeledMaximumLoss }, this.equity, Math.max(0, -this.realizedSessionPnl))) return false;
+          cluster: runtime.cluster, stressedLoss: plan.risk.modeledMaximumLoss }, this.equity, this.portfolioRealizedLoss24h())) return false;
     } else if (!plan.reduceOnlyIntent && (this.cfg.modelOnlyEntries || plan.distributionDecision)) {
       const runtime = this.runtimes.get(plan.symbol);
       const evaluation = plan.crossAssetEntryMode === "PAPER_EVALUATION";
@@ -1495,6 +1638,21 @@ export class TradingEngine extends EventEmitter {
       this.orderState.markSending(plan.clientOrderId);
       this.runtimes.get(plan.symbol)?.entryAudit.pass("ORDER_SEND_ATTEMPT");
       this.emit("orderSending", { plan });
+      // Telemetry listeners can synchronously discover persistence loss when
+      // the reservation/send event is enqueued. Recheck before network I/O.
+      if (!plan.reduceOnlyIntent && !this.persistenceEntriesAllowed()) {
+        const reason = this.auditDataLoss ? "AUDIT_DATA_LOSS" : "PERSISTENCE_UNAVAILABLE";
+        const timestampMs = this.now();
+        this.orderState.cancelBeforeSend(plan.clientOrderId, reason, timestampMs);
+        this.clearOrderDeadline(plan.clientOrderId);
+        const tracked = this.orderState.get(plan.clientOrderId)!;
+        const runtime = this.runtimes.get(plan.symbol);
+        if (runtime) this.finalizeTerminalEntry(runtime, tracked);
+        this.emit("orderUpdate", { event: { id: randomUUID(), event: "canceled", orderId: "",
+          clientOrderId: plan.clientOrderId, symbol: plan.symbol, filledQty: 0, eventQty: 0, eventPx: 0, timestampMs },
+          order: tracked, source: "local-persistence-gate" });
+        return false;
+      }
       const sentMs = this.now();
       const order = await this.gateway.send(plan);
       const acknowledgedMs = this.now();
@@ -1526,7 +1684,7 @@ export class TradingEngine extends EventEmitter {
 
   private reevaluatePending(runtime: SymbolRuntime, pending: ReturnType<OrderStateReconciler["all"]>[number], book: ReturnType<LocalOrderBook["snapshot"]>, features: DeterministicFeatures): void {
     if (pending.status === "UNKNOWN") { this.riskState.halt("ORDER_SEND_UNKNOWN"); return; }
-    if (pending.plan.policy) {
+    if (pending.plan.policy || pending.plan.systematic) {
       const reason = this.now() >= pending.plan.expiresMs ? "TTL_EXPIRED" : features.stale ? "STALE_BOOK" : null;
       if (reason) void this.cancelTracked(pending, reason);
       return;
@@ -1750,10 +1908,10 @@ export class TradingEngine extends EventEmitter {
     const remainingEconomicHorizonMs = position.selectedHorizonMs === undefined ? runtime.config.deterministicHold.holdHorizonMs
       : Math.max(1, position.selectedHorizonMs - (this.now() - position.openedMs));
     const hold = runtime.holdEngine.evaluate(position.side, features, expectedIncrementalDelayCostBps, remainingEconomicHorizonMs);
-    const executableExit = position.policy
+    const executableExit = position.policy || position.systematic
       ? estimateSweep(position.side === 1 ? book.bids : book.asks, position.qty)?.vwap ?? Number.NaN
       : position.side === 1 ? book.bids[0]!.px : book.asks[0]!.px;
-    const nowMs = position.policy?.id.startsWith("distribution-") ? book.receiveTsMs : this.now();
+    const nowMs = position.policy?.id.startsWith("distribution-") || position.systematic ? book.receiveTsMs : this.now();
     // Continuation entries were selected on a multi-hour structural edge. Do
     // not let a one-event micro reversal liquidate them while that slow trend
     // is still aligned; hard stops, the early-adverse stop, profit floors, and
@@ -1887,7 +2045,7 @@ export class TradingEngine extends EventEmitter {
     const makerEligible = (runtime.position.executionPath === "MAKER_MAKER_TAKER_FALLBACK"
       || runtime.position.executionPath === "MAKER_TAKER")
       && makerExitEligible(reason) && signedMovePx > runtime.position.roundTripCostPx;
-    const style = forcedStyle ?? (makerEligible ? "maker" : "taker");
+    const style = runtime.position.systematic !== undefined ? "taker" : forcedStyle ?? (makerEligible ? "maker" : "taker");
     const exitSide = -runtime.position.side as 1 | -1;
     const sweep = style === "taker" ? estimateSweep(exitSide === 1 ? book.asks : book.bids, qty) : null;
     const cost = runtime.cost.estimate(features, book, exitSide, qty, style === "maker");
@@ -1909,6 +2067,9 @@ export class TradingEngine extends EventEmitter {
       ...(runtime.position.policy?.id.startsWith("distribution-") ? { policy: { ...runtime.position.policy },
         strategyVersion: DISTRIBUTION_SPEC.version, modelVersion: DISTRIBUTION_SPEC.version,
         createdMs: book.receiveTsMs, expiresMs: book.receiveTsMs + DISTRIBUTION_SPEC.maximumQuoteAgeMs } : {}),
+      ...(runtime.position.systematic ? { systematic: { ...runtime.position.systematic },
+        strategyVersion: SYSTEMATIC_SPEC.version, modelVersion: "unestimated-systematic-paper",
+        createdMs: book.receiveTsMs, expiresMs: book.receiveTsMs + SYSTEMATIC_SPEC.entryTtlMs } : {}),
       expectedCost: cost, risk,
       fillProbability: style === "maker" ? runtime.cost.makerExitFillProbability() : 1,
       expectedValue: -qty * features.mid * cost.roundTripBps / 10_000, reduceOnlyIntent: true,
@@ -1950,6 +2111,17 @@ export class TradingEngine extends EventEmitter {
     const feeBps = tracked?.plan.style === "maker" ? runtime.config.cost.makerFeeBps
       : tracked ? runtime.config.cost.takerFeeBps : 0;
     const executionFee = fill.feeUsd ?? fill.qty * fill.price * feeBps / 10_000;
+    if (this.rollingPnlLedger) {
+      // Use recorded fees only in the exact ledger. A missing stream fee may
+      // be recovered from the authoritative activity, never today's fee tier.
+      if (tracked && fill.feeUsd !== undefined && Number.isFinite(fill.feeUsd)) {
+        this.rollingPnlLedger.recordFill({ plan: tracked.plan, cumulativeFilledQty: tracked.filledQty,
+          qty: fill.qty, price: fill.price, feeUsd: fill.feeUsd, atMs: occurredAtMs }, this.now());
+      } else if (this.paperHistory) {
+        try { this.rollingPnlLedger.restore(this.paperHistory(), this.now()); }
+        catch (error) { this.rollingPnlLedger.invalidate(error instanceof Error ? error.message : "ROLLING_PNL_FILL_HISTORY_FAILED"); }
+      }
+    }
     runtime.entryAudit.pass(fill.final ? "FULL_FILL" : "PARTIAL_FILL");
     this.realizedSessionPnl -= executionFee;
     const closing = tracked?.plan.reduceOnlyIntent === true
@@ -1957,14 +2129,16 @@ export class TradingEngine extends EventEmitter {
     if (!closing) {
       if (!runtime.position) {
         const positionQty = fill.positionQty !== undefined && fill.positionQty > 0 ? fill.positionQty : fill.qty;
-        const initialRiskPx = tracked?.plan.risk.maximumLossPerUnit || Math.max(fill.price * .005, runtime.asset?.priceIncrement ?? 0);
+        const initialRiskPx = tracked?.plan.systematic ? fill.price * tracked.plan.systematic.stopBps / 10_000
+          : tracked?.plan.risk.maximumLossPerUnit || Math.max(fill.price * .005, runtime.asset?.priceIncrement ?? 0);
         runtime.position = { symbol: fill.symbol, side: fill.side, qty: positionQty, entryPx: fill.price,
-          openedMs: tracked?.plan.policy?.id.startsWith("distribution-") ? occurredAtMs
+          openedMs: tracked?.plan.policy?.id.startsWith("distribution-") || tracked?.plan.systematic ? occurredAtMs
             : fill.final ? this.now() : (tracked?.plan.createdMs ?? this.now()),
           initialRiskPx, roundTripCostPx: fill.price * (tracked?.plan.expectedCost.roundTripBps ?? 0) / 10_000,
           mfePx: 0, maePx: 0, floorPx: -initialRiskPx, breakEvenArmed: false, phase: "OPEN",
           ...(tracked?.plan.entryFamily === undefined ? {} : { entryFamily: tracked.plan.entryFamily }),
           ...(tracked?.plan.policy === undefined ? {} : { policy: { ...tracked.plan.policy } }),
+          ...(tracked?.plan.systematic === undefined ? {} : { systematic: { ...tracked.plan.systematic } }),
           ...(tracked?.plan.economicHorizonMs === undefined ? {} : { selectedHorizonMs: tracked.plan.economicHorizonMs }),
           ...(tracked?.plan.executionPath === undefined ? {} : { executionPath: tracked.plan.executionPath }) };
       } else if (tracked && runtime.position.symbol === tracked.plan.symbol && runtime.position.side === fill.side) {
@@ -1973,8 +2147,9 @@ export class TradingEngine extends EventEmitter {
         const added = Math.max(0, total - previous);
         if (added > 0) runtime.position.entryPx = (runtime.position.entryPx * previous + fill.price * added) / total;
         runtime.position.qty = total;
+        if (runtime.position.systematic) runtime.position.initialRiskPx = runtime.position.entryPx * runtime.position.systematic.stopBps / 10_000;
       } else throw new Error("NO_AVERAGING_DOWN_INVARIANT");
-      if (runtime.position?.policy?.id.startsWith("retest-")) {
+      if (runtime.position?.policy?.id.startsWith("retest-") || runtime.position?.systematic) {
         runtime.position.ledger ??= newLinearLedger(fill.side);
         recordLinearFill(runtime.position.ledger, fill.qty, fill.price, executionFee, false);
         if (tracked?.cancelRequestReason === "POSITION_PROTECTION") runtime.position.phase = "EXITING";
@@ -2038,7 +2213,7 @@ export class TradingEngine extends EventEmitter {
     for (const symbol of previouslyOpen) {
       const runtime = this.runtimes.get(symbol);
       if (runtime && !runtime.position) {
-        this.armReentryCooldown(runtime);
+        this.armReentryCooldown(runtime, previousPositions.get(symbol)?.systematic !== undefined);
         this.lastPositionDecisionTelemetryMs.delete(symbol);
       }
     }
@@ -2054,19 +2229,48 @@ export class TradingEngine extends EventEmitter {
     this.emit("positionDust", { symbol, qty, reason: "BELOW_MINIMUM_ORDER_SIZE" });
   }
 
-  private armReentryCooldown(runtime: SymbolRuntime): void {
+  private armReentryCooldown(runtime: SymbolRuntime, systematic = runtime.position?.systematic !== undefined): void {
     runtime.reentryBlockedUntilMs = Math.max(runtime.reentryBlockedUntilMs ?? 0,
-      this.now() + runtime.config.position.reentryCooldownMs);
+      this.now() + (systematic ? SYSTEMATIC_SPEC.reentryCooldownMs : runtime.config.position.reentryCooldownMs));
   }
 
-  private recomputePortfolioRisk(): void {
+  private recomputePortfolioRisk(asOfMs = this.now()): void {
     for (const [symbol, runtime] of this.runtimes) {
       const position = runtime.position;
       if (!position) this.portfolio.updateExposure({ symbol, notional: 0, cluster: runtime.cluster, stressedLoss: 0 });
       else this.portfolio.updateExposure({ symbol, notional: position.side * position.qty * position.entryPx, cluster: runtime.cluster,
         stressedLoss: position.qty * (position.initialRiskPx + position.roundTripCostPx) });
     }
-    this.riskState.updateLosses(Math.max(0, -this.realizedSessionPnl), Math.max(0, -this.realizedSessionPnl), this.portfolio.stressedOpenLoss());
+    const rolling = this.refreshExactSessionPnl(asOfMs);
+    if (rolling?.status === "UNKNOWN") {
+      this.riskState.halt("ACCOUNT_UNKNOWN");
+      this.riskState.setHealth({ accountReconciled: false, riskRecomputed: false });
+      return;
+    }
+    this.riskState.updateLosses(rolling ? Math.max(0, -rolling.netRealizedPnl24hUsd!) : Math.max(0, -this.realizedSessionPnl),
+      Math.max(0, -this.realizedSessionPnl), this.portfolio.stressedOpenLoss());
+  }
+
+  private refreshExactSessionPnl(asOfMs = this.now()): RollingPnlSnapshot | undefined {
+    if (this.paperFunding && this.rollingPnlLedger) {
+      try { this.rollingPnlLedger.updateFunding(this.paperFunding(asOfMs)); }
+      catch (error) {
+        this.rollingPnlLedger.markFundingUnavailable(`PAPER_FUNDING_SNAPSHOT_UNAVAILABLE:${error instanceof Error ? error.message : String(error)}`);
+      }
+    }
+    const rolling = this.rollingPnlLedger?.snapshot(asOfMs);
+    if (rolling && rolling.utcSessionNetPnlUsd !== null) {
+      this.realizedSessionPnl = rolling.utcSessionNetPnlUsd;
+      this.realizedSessionDayStartMs = utcDayStartMs(asOfMs);
+    }
+    return rolling;
+  }
+
+  private portfolioRealizedLoss24h(): number {
+    const rolling = this.refreshExactSessionPnl();
+    if (!rolling) return Math.max(0, -this.realizedSessionPnl);
+    // An unknown value is a denied budget, not a fabricated numeric P&L.
+    return rolling.status === "KNOWN" ? Math.max(0, -rolling.netRealizedPnl24hUsd!) : Infinity;
   }
 
   private rollRealizedSessionPnl(nowMs: number): boolean {
@@ -2079,6 +2283,10 @@ export class TradingEngine extends EventEmitter {
 
   private pendingForSymbol(symbol: string): ReturnType<OrderStateReconciler["all"]>[number] | undefined {
     return this.orderState.all().find((order) => order.plan.symbol === symbol && ["RESERVED", "SENDING", "OPEN", "PARTIALLY_FILLED", "CANCEL_PENDING", "UNKNOWN"].includes(order.status));
+  }
+  private persistenceEntriesAllowed(): boolean {
+    return !this.cfg.databaseRequired || this.persistenceConnected && !this.auditDataLoss
+      && this.riskState.snapshot().health.persistenceReady;
   }
   private async cancelTracked(tracked: TrackedOrder, reason: OrderCancelRequestReason, details: Record<string, unknown> = {}): Promise<void> {
     this.pendingKinematicsFaults.delete(tracked.plan.clientOrderId);

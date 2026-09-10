@@ -7,7 +7,7 @@ export class PolicyStore {
   private readonly pool: Pool;
   public constructor(connectionString: string) {
     this.pool = new Pool({ connectionString, max: 1, connectionTimeoutMillis: 5_000,
-      idleTimeoutMillis: 10_000, statement_timeout: 30_000, application_name: "crypto-policy-research" });
+      idleTimeoutMillis: 10_000, statement_timeout: 30_000, query_timeout: 31_000, application_name: "crypto-policy-research" });
     // Transient idle-connection failures are handled by the next refresh, not
     // an unhandled EventEmitter error that could terminate the trading engine.
     this.pool.on("error", () => undefined);

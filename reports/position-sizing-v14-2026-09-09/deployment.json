@@ -1,0 +1,115 @@
+{
+  "version": "paper-risk-bounded-sizing-deployment-v14",
+  "verifiedAtUtc": "2026-09-09T16:37:55.288000+00:00",
+  "configurationVersion": "btc-eth-risk-bounded-sizing-v14.0.0",
+  "configurationSha256": "a41fda405b7d1447ec2f17890882f77151cc5252b369cb0ecfde73409dbb1c97",
+  "mode": "paper",
+  "overall": "healthy",
+  "entriesAllowed": true,
+  "haltReasons": [],
+  "equityBeforeUsd": 99998.28269740003,
+  "equityAfterUsd": 99998.28269740003,
+  "openPositions": 0,
+  "dashboardOrders": 0,
+  "database": {
+    "connected": true,
+    "status": "connected",
+    "queuedRecords": 0,
+    "droppedRecords": 0,
+    "lastPersistedAtMs": 1788971875070,
+    "lastError": null
+  },
+  "markets": [
+    {
+      "symbol": "BTC/USD",
+      "mode": "RISK_BOUNDED",
+      "maximumNotionalUsd": 1000,
+      "maximumEquityFraction": 0.01,
+      "size": {
+        "qty": 0.0002,
+        "maximumNotional": 999.9828269740003,
+        "minimumOrderNotional": 7.8796,
+        "reason": "RISK_BOUNDED_SIZE_READY",
+        "bindingLimit": "liquidity"
+      },
+      "decisionReason": "NO_COMPLETED_SAMPLES",
+      "proposedNotionalUsd": 15.7592,
+      "globalEvaluations": 11,
+      "globalSelected": 0,
+      "sizingPolicyId": "827a3c64f88eb32848104dc94f37b416f185a057441576e12cc16a4144ba7c02"
+    },
+    {
+      "symbol": "ETH/USD",
+      "mode": "RISK_BOUNDED",
+      "maximumNotionalUsd": 1000,
+      "maximumEquityFraction": 0.01,
+      "size": {
+        "qty": 0,
+        "maximumNotional": 999.9828269740003,
+        "minimumOrderNotional": 2.4954,
+        "reason": "LIQUIDITY_BELOW_MINIMUM_ORDER",
+        "bindingLimit": null
+      },
+      "decisionReason": null,
+      "proposedNotionalUsd": null,
+      "globalEvaluations": 11,
+      "globalSelected": 0,
+      "sizingPolicyId": "827a3c64f88eb32848104dc94f37b416f185a057441576e12cc16a4144ba7c02"
+    }
+  ],
+  "checkpointEvidence": [
+    {
+      "path": "/app/data/distributional-state.json",
+      "bytes": 2396560,
+      "sha256": "6cefac60d4a10f34a91fba09722ec9a2dd350f9712a78355775da290b2a6a512",
+      "sizingPolicyId": null,
+      "samples": 2432,
+      "maximumNotional": null
+    },
+    {
+      "path": "/app/data/distributional-training-2026-09-07.json",
+      "bytes": 895979,
+      "sha256": "77d57bef131815926289d198791cb76c033d73814db8eab304aa51a5d9d313b7",
+      "sizingPolicyId": null,
+      "samples": 894,
+      "maximumNotional": null
+    },
+    {
+      "path": "/app/data/kraken-paper-state.json",
+      "bytes": 906873,
+      "sha256": "9b049ad2c04c61de4a099434f5afba98eada2d0471e14aa15e1b772d5900b21a",
+      "sizingPolicyId": null,
+      "samples": null,
+      "maximumNotional": null
+    },
+    {
+      "path": "/app/data/distributional-state.json.sizing-827a3c64f88eb32848104dc94f37b416f185a057441576e12cc16a4144ba7c02.json",
+      "bytes": 1792,
+      "sha256": "0e7bde2154eef4d641a26fa19aaee959f305616ed6f580adf6f6695c916faade",
+      "sizingPolicyId": "827a3c64f88eb32848104dc94f37b416f185a057441576e12cc16a4144ba7c02",
+      "samples": 0,
+      "maximumNotional": 1000
+    }
+  ],
+  "validation": {
+    "fullRegression": {
+      "passed": 1077,
+      "failed": 0,
+      "note": "Full suite passed before final decimal-lot normalization fix."
+    },
+    "finalDecimalAndLifecycleRegression": {
+      "passed": 28,
+      "failed": 0
+    },
+    "typescriptBuild": "PASS",
+    "diffWhitespaceCheck": "PASS"
+  },
+  "limits": [
+    "Paper-only sizing change; no positive-return gate was relaxed.",
+    "Fresh size-matched training requires new completed outcomes and qualifying dates.",
+    "Observed quantities remain subject to book liquidity and can be below the maximum or zero.",
+    "Legacy checkpoint may have received its final graceful-shutdown flush; separate new checkpoint prevents replacement.",
+    "Paper-account file includes mutable operational metadata; unchanged equity and empty positions/orders are verified, not byte-identical broker state.",
+    "Sizing and software tests do not establish profitability."
+  ]
+}

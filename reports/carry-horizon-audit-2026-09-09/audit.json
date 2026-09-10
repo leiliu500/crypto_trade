@@ -1,0 +1,176 @@
+{
+  "version": "carry-horizon-source-audit-v1",
+  "scope": "EXISTING_REPORT_AGGREGATION_NOT_NEW_STRATEGY_PERFORMANCE",
+  "priorConfiguration": {
+    "schemaVersion": 1,
+    "mode": "MONITOR_ONLY",
+    "spotTakerFeeBps": 80,
+    "derivativeTakerFeeBps": 5,
+    "annualCapitalHurdleFraction": 0.05,
+    "slippageBpsPerExecution": 1.5,
+    "settlementBasisReserveBps": 50,
+    "unwindReserveBps": 25,
+    "maximumQuoteAgeMs": 2000,
+    "maximumQuoteSkewMs": 1000,
+    "maximumFundingAgeMs": 2000,
+    "settlementPriceMultipliers": [
+      0.5,
+      1,
+      2
+    ],
+    "perpetualScenarioHoldingHours": 720,
+    "minimumDatedMaturityDays": 30,
+    "maximumDatedMaturityDays": 90,
+    "derivativeReserveFraction": 1,
+    "budgets": [
+      {
+        "id": "prior-12-usd-research",
+        "availableGrossUsd": 12,
+        "availableCashUsd": 6.12,
+        "availableCollateralUsd": 6
+      },
+      {
+        "id": "1000-usd-sensitivity",
+        "availableGrossUsd": 1000,
+        "availableCashUsd": 510,
+        "availableCollateralUsd": 500
+      }
+    ]
+  },
+  "priorCaptureUtc": "2026-09-09T04:31:40.065Z",
+  "datedMaturityDays": [
+    2.144675173611111,
+    16.144675173611112,
+    107.1446751736111
+  ],
+  "priorFeeFrontierCounts": [
+    {
+      "spotTakerFeeBpsPerExecutedSide": 0,
+      "counts": {
+        "productBudgetRows": 16,
+        "individuallyFeasibleRows": 12,
+        "infeasibleRows": 4,
+        "invalidRows": 0,
+        "declaredPaths": 36,
+        "positiveNetPaths": 0,
+        "negativeNetPaths": 36,
+        "zeroNetPaths": 0,
+        "rowsPositiveInAllDeclaredPaths": 0
+      }
+    },
+    {
+      "spotTakerFeeBpsPerExecutedSide": 20,
+      "counts": {
+        "productBudgetRows": 16,
+        "individuallyFeasibleRows": 12,
+        "infeasibleRows": 4,
+        "invalidRows": 0,
+        "declaredPaths": 36,
+        "positiveNetPaths": 0,
+        "negativeNetPaths": 36,
+        "zeroNetPaths": 0,
+        "rowsPositiveInAllDeclaredPaths": 0
+      }
+    },
+    {
+      "spotTakerFeeBpsPerExecutedSide": 40,
+      "counts": {
+        "productBudgetRows": 16,
+        "individuallyFeasibleRows": 12,
+        "infeasibleRows": 4,
+        "invalidRows": 0,
+        "declaredPaths": 36,
+        "positiveNetPaths": 0,
+        "negativeNetPaths": 36,
+        "zeroNetPaths": 0,
+        "rowsPositiveInAllDeclaredPaths": 0
+      }
+    },
+    {
+      "spotTakerFeeBpsPerExecutedSide": 80,
+      "counts": {
+        "productBudgetRows": 16,
+        "individuallyFeasibleRows": 12,
+        "infeasibleRows": 4,
+        "invalidRows": 0,
+        "declaredPaths": 36,
+        "positiveNetPaths": 0,
+        "negativeNetPaths": 36,
+        "zeroNetPaths": 0,
+        "rowsPositiveInAllDeclaredPaths": 0
+      }
+    }
+  ],
+  "historicalFundingOnly": [
+    {
+      "symbol": "BTC/USD",
+      "year": 2024,
+      "months": 12,
+      "fundingCoverageComplete": true,
+      "fundingCashUsdPerOneBaseShort": 11383.158983070145,
+      "startingPerpetualTradeOpenReferenceUsd": 42288,
+      "fundingDividedByStartingPerpetualReference": 0.26918177693601364,
+      "negativeFundingMonths": [],
+      "completeStrategyPnlUsd": null
+    },
+    {
+      "symbol": "BTC/USD",
+      "year": 2025,
+      "months": 6,
+      "fundingCoverageComplete": true,
+      "fundingCashUsdPerOneBaseShort": 3263.7298683581166,
+      "startingPerpetualTradeOpenReferenceUsd": 93432,
+      "fundingDividedByStartingPerpetualReference": 0.03493160660542551,
+      "negativeFundingMonths": [],
+      "completeStrategyPnlUsd": null
+    },
+    {
+      "symbol": "ETH/USD",
+      "year": 2024,
+      "months": 12,
+      "fundingCoverageComplete": true,
+      "fundingCashUsdPerOneBaseShort": 507.18319527617166,
+      "startingPerpetualTradeOpenReferenceUsd": 2281.6,
+      "fundingDividedByStartingPerpetualReference": 0.22229277492819585,
+      "negativeFundingMonths": [
+        8
+      ],
+      "completeStrategyPnlUsd": null
+    },
+    {
+      "symbol": "ETH/USD",
+      "year": 2025,
+      "months": 6,
+      "fundingCoverageComplete": true,
+      "fundingCashUsdPerOneBaseShort": 35.101502539519785,
+      "startingPerpetualTradeOpenReferenceUsd": 3331.8,
+      "fundingDividedByStartingPerpetualReference": 0.010535296998475234,
+      "negativeFundingMonths": [
+        3,
+        4
+      ],
+      "completeStrategyPnlUsd": null
+    }
+  ],
+  "activationAllowed": false,
+  "validatedProfitability": false,
+  "sourceSha256": [
+    {
+      "path": "reports/carry-feasibility-reviewed-2026-09-09/report.json",
+      "sha256": "d7016c6b06e80379adddd906a45406402121e0bc8e913250f26cf625669c6356"
+    },
+    {
+      "path": "reports/carry-fee-frontier-2026-09-09/frontier.json",
+      "sha256": "01e3d3e9111017a89bdf433616c76c9ef5176cf71e32815a23e43121c9023025"
+    },
+    {
+      "path": "reports/carry-funding-model-development-2026-09-09/report.json",
+      "sha256": "664770cd5d6928d07c984e58ac80fffb3c6e8a6217b023690c6e0bd604eb2c27"
+    },
+    {
+      "path": "reports/hourly-adaptive-study-2026-09-08/data-recent/dataset.json",
+      "sha256": "802694ae936dd864681dee2278f027ea1732a91fd6b635f1b08371673abcb227"
+    }
+  ],
+  "scriptSha256": "809793c3580668c8b3a1e1f17990715c61fb76d6195ccdcc9fa063af11659bc5"
+}

@@ -1,0 +1,120 @@
+{
+  "frozenAtUtc": "2026-09-09T20:52:37.004Z",
+  "strategy": {
+    "version": "btc-eth-daily-55-20-channel-portfolio-v1",
+    "symbols": [
+      "BTC/USD",
+      "ETH/USD"
+    ],
+    "hourMs": 3600000,
+    "dayMs": 86400000,
+    "initialEquityUsd": 100000,
+    "entryLookbackDays": 55,
+    "exitLookbackDays": 20,
+    "atrDays": 20,
+    "stopAtr": 2,
+    "atrMethod": "WILDER_SEEDED_WITH_FIRST_20_TRUE_RANGES",
+    "finalizationLagMs": 60000,
+    "riskFractionPerAsset": 0.0005,
+    "maximumClusterRiskFraction": 0.001,
+    "maximumLegNotionalUsd": 1000,
+    "maximumLegEquityFraction": 0.01,
+    "maximumGrossUsd": 2000,
+    "sessionLossFraction": 0.0075,
+    "rolling24HourLossFraction": 0.0075,
+    "maximumAccountDrawdownFraction": 0.05,
+    "feesBps": {
+      "base": 5,
+      "stress": 7.5
+    },
+    "adverseSlippageBps": {
+      "base": 2,
+      "stress": 5
+    },
+    "executionDelayHoursAfterDayClose": {
+      "base": 1,
+      "stress": 2
+    },
+    "lots": {
+      "BTC/USD": 0.0001,
+      "ETH/USD": 0.001
+    },
+    "ticks": {
+      "BTC/USD": 1,
+      "ETH/USD": 0.1
+    },
+    "finalFlattenLeadHours": 24,
+    "noNewEntryLeadHours": 48,
+    "stopRatchet": "MAX_PREVIOUS_STOP_AND_COMPLETED_CLOSE_MINUS_2ATR_FOR_LONG_REVERSE_FOR_SHORT",
+    "intrahourStops": "OPEN_GAP_FIRST_ELSE_ADVERSE_STOP_TOUCH;PAY_FULL_HOUR_FUNDING_AND_FORGO_RECEIPT_ON_AMBIGUOUS_TOUCH",
+    "riskMark": "PRIOR_HOURLY_LIQUIDATION_CLOSE_PEAK_TO_SUM_OF_SEPARATE_ADVERSE_HOURLY_EXTREMES;NOT_FULL_INTRAHOUR_PEAK_TO_TROUGH_DRAWDOWN_OR_OBSERVED_SIMULTANEOUS_PRICES",
+    "funding": "ABSOLUTE_USD_PER_BASE_PER_HOUR;NORMALIZED_ROW_END_MINUS_ONE_HOUR_IS_ACCRUAL_START",
+    "fundingKnownAt": "FIXED_CURRENT_HOUR_RATE_ASSUMED_KNOWN_AT_INTERVAL_START;NORMALIZED_ROW_TIMESTAMP_IS_PERIOD_END_NOT_PUBLICATION_TIME",
+    "riskSizing": "STOP_DISTANCE_PLUS_TWO_EXECUTION_FEES_AND_TWO_ADVERSE_SLIPPAGE_ALLOWANCES;RESERVE_REMAINING_SESSION_ROLLING_AND_ACCOUNT_LOSS_HEADROOM_AFTER_EXISTING_POSITION_RISK;NO_DUPLICATE_VOLATILITY_SCALER",
+    "positionSizing": "NO_ADDITIONS;HOURLY_CAP_REDUCTIONS_ONLY;NO_ORIGINAL_STOP_BASED_WINNER_TRIMMING",
+    "reentry": "AFTER_STOP_REQUIRE_A_LATER_COMPLETED_DAILY_SIGNAL;NO_SAME_SIGNAL_REENTRY",
+    "missingData": "NO_SYNTHETIC_BARS_OR_ZERO_FUNDING;HELD_MISSING_DATA_INVALIDATES_RUN",
+    "interpretation": "REUSED_DEVELOPMENT_DATA_AFTER_FAILED_PRIOR_CANDIDATES;NOT_INDEPENDENT_FINAL_VALIDATION"
+  },
+  "study": {
+    "windows": [
+      {
+        "id": "2024",
+        "startMs": 1704067200000,
+        "endMs": 1735689600000
+      },
+      {
+        "id": "2025-h1",
+        "startMs": 1735689600000,
+        "endMs": 1751328000000
+      }
+    ],
+    "warmupStartMs": 1672531200000,
+    "reservedStartMs": 1767225600000,
+    "scenarios": [
+      "base",
+      "stress"
+    ],
+    "minimumClosedEpisodesTotal": 8,
+    "positiveNetRequiredEveryWindowAndScenario": true,
+    "bootstrap": {
+      "repetitions": 2000,
+      "contiguousBlockWeeks": 4,
+      "lowerQuantile": 0.05,
+      "seed": 1030920769,
+      "metric": "MEAN_COMPLETE_MONDAY_UTC_WEEKLY_MARKED_NET_CHANGE_POOLED_BASE_WINDOWS;BLOCKS_CANNOT_CROSS_GAPS"
+    },
+    "benchmark": "CASH_ZERO;SEPARATE_COSTED_BTC_AND_ETH_CONSTANT_UNIT_BUY_HOLD_WITH_ENTRY_CAP_AND_FUNDING;DESCRIPTIVE_NOT_SELECTION",
+    "activationAllowed": false,
+    "productionChanges": false,
+    "strategySearch": false
+  },
+  "sourceHashes": {
+    "src/channel/spec.ts": "0ce2ad89bba7d5b6f5fd2a301486d527649310f8db92cc260d09923dfbc2944d",
+    "src/channel/replay.ts": "8765b5e885fa5bc5aeb5942258db6d81ee4d52a73d0f8b521ae2d01985c18eef",
+    "src/channel/study-main.ts": "e27b3a521ba45569b19c712186921cdde036e3f44a41e446a438a2062e203e1d",
+    "test/channel-replay.test.ts": "ca8875d01609c87fbc26c8ac9d7d2e54ee6bc85716627d39206e3ef9e5456cab",
+    "test/channel-study.test.ts": "16e3bec085f481d051f32fafabe20266460e8c21fde16a4aed7355374ea25259",
+    "src/research/hourly-data.ts": "0786552d6f700f8ad906a6f6db80b423560eef6f79dbb7403250ce1eeb260a91",
+    "package-lock.json": "2315bada829d31ccb4d3970392ba56d73458d3219dda1ec98d8dda0d41893594",
+    "tsconfig.json": "f67c2b8d0029850632819cc5da43e2c89468c9217e0dd8f93b3e1887afedaca3"
+  },
+  "inputs": [
+    {
+      "path": "reports/hourly-adaptive-study-2026-09-08/data-older-restored",
+      "datasetSha256": "6995137d4366500628885518de3908f663ab7584caba0a4fe9845f700ac3f36f",
+      "manifestSha256": "b49fc0c9fe648aec3a049605f1e5c79d6d0a917bcf93c40bd151f47b992e941b"
+    },
+    {
+      "path": "reports/hourly-adaptive-study-2026-09-08/data-recent",
+      "datasetSha256": "802694ae936dd864681dee2278f027ea1732a91fd6b635f1b08371673abcb227",
+      "manifestSha256": "5a57cfcc6dc6cc352f708f3101d0e2026580c5faf7b6661509016feb6483ecb4"
+    }
+  ],
+  "permittedDataSha256": "0c959208f727e238e3162116073d7b76aae08fa3f8a24718065627e8b4581613",
+  "barRows": 43776,
+  "fundingRows": 43776,
+  "priorFailedResearchAcknowledged": true,
+  "reserved2026PerformanceInspected": false,
+  "strategyOutcomesComputedBeforeSeal": false
+}

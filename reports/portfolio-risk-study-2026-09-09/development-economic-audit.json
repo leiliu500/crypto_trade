@@ -1,0 +1,2241 @@
+{
+  "version": "portfolio-risk-development-economic-audit-v1",
+  "createdAtUtc": "2026-09-09T02:41:12.931448+00:00",
+  "scope": {
+    "stage": "develop",
+    "startInclusiveUtc": "2024-01-01T00:00:00Z",
+    "endExclusiveUtc": "2025-01-01T00:00:00Z",
+    "savedArtifactsOnly": true,
+    "replaysOrNewStrategiesRun": false,
+    "laterPerformanceOpened": false
+  },
+  "selectedPolicy": "sign-trend-90d",
+  "savedStagePassed": true,
+  "artifactHashes": {
+    "reports/portfolio-risk-study-2026-09-09/develop-multiscale-trend-targets.json": "c423885b1dd89381376f3a4356176f1aa3368a84513c4fd184fa95a786e5dc7f",
+    "reports/portfolio-risk-study-2026-09-09/develop-governed-multiscale-trend-base-source-plus-hour.json": "f128e99884af01af071657e8c2a4f796ffbefc516e93ce06e6d66bec347c177f",
+    "reports/portfolio-risk-study-2026-09-09/develop-governed-multiscale-trend-base-source-as-end.json": "a9cd5393ee8011a8944cbd74254dfeef5aff3209f1649e8911ad0d4aed1d287d",
+    "reports/portfolio-risk-study-2026-09-09/develop-governed-multiscale-trend-stress-source-plus-hour.json": "8cc9e159155b8a6416e2552ff65535c2b3b331432f57e8da9173a4cff81fb333",
+    "reports/portfolio-risk-study-2026-09-09/develop-governed-multiscale-trend-stress-source-as-end.json": "eb225cc98add8253659abc3ac831ea85d16d69fb0c83a9c97213a2d2825d718d",
+    "reports/portfolio-risk-study-2026-09-09/develop-ungoverned-multiscale-trend-base-source-plus-hour.json": "57ae14f45a4f4684ce2c7fa3069643912b089a72fb070e71c7cf31e53b4b9bc3",
+    "reports/portfolio-risk-study-2026-09-09/develop-ungoverned-multiscale-trend-base-source-as-end.json": "81915559e082b500c28ea0f655c81a4aa483ed1d5e781b458b2bc8f9ebb79fbb",
+    "reports/portfolio-risk-study-2026-09-09/develop-ungoverned-multiscale-trend-stress-source-plus-hour.json": "dd9c6d0c0acb87d789866384d875bf1e8ca29da6733035fcfce59840a499efae",
+    "reports/portfolio-risk-study-2026-09-09/develop-ungoverned-multiscale-trend-stress-source-as-end.json": "4d54ad992aff7b556b79ed80dc03079a61fec557b677bdf99e561126ecc902ff",
+    "reports/portfolio-risk-study-2026-09-09/develop-sign-trend-90d-targets.json": "d35ea219bf62326dbb6eb69ddf8ed1507d5ea78676410949a4fbad61cee630b4",
+    "reports/portfolio-risk-study-2026-09-09/develop-governed-sign-trend-90d-base-source-plus-hour.json": "cd401aa6730517fef579e2959b7df00cb4bd903e1dee003ce0003c1cdb4d93ba",
+    "reports/portfolio-risk-study-2026-09-09/develop-governed-sign-trend-90d-base-source-as-end.json": "85d5d3d477fdee99bfc39ec3d260cdaa9cb6c245c221ebce847511d767672494",
+    "reports/portfolio-risk-study-2026-09-09/develop-governed-sign-trend-90d-stress-source-plus-hour.json": "fb57ad0d34430bcdf3c1355332e05e598e97c9427f9b61953b522cef082b1f7c",
+    "reports/portfolio-risk-study-2026-09-09/develop-governed-sign-trend-90d-stress-source-as-end.json": "0a8cefecac76c51459dbdf78d8a04fce735093b2bf6ead07408ab6a0ba3c3e06",
+    "reports/portfolio-risk-study-2026-09-09/develop-ungoverned-sign-trend-90d-base-source-plus-hour.json": "876bdd5913fd67a87b78fac25446c5a1685bd70451fd508e31128a6fa82c1459",
+    "reports/portfolio-risk-study-2026-09-09/develop-ungoverned-sign-trend-90d-base-source-as-end.json": "c34e7b15a323dde08f4adcaa982e644782efac6c376bd28f7e2a8ca3b7d45e76",
+    "reports/portfolio-risk-study-2026-09-09/develop-ungoverned-sign-trend-90d-stress-source-plus-hour.json": "e60f07b73864d5d691601c5611efa067eb16dbe2b33ffc6d5e49418187a96d3b",
+    "reports/portfolio-risk-study-2026-09-09/develop-ungoverned-sign-trend-90d-stress-source-as-end.json": "ddb034da15bc28072d06800033a78bf40c2a980cb99e7f38994976019f4742e2",
+    "reports/portfolio-risk-study-2026-09-09/develop-constant-btc-targets.json": "2116bff4811aaa7233bf2b0383f8dbfbc9bec30a7a1452a37f0662e8fd582de9",
+    "reports/portfolio-risk-study-2026-09-09/develop-governed-constant-btc-base-source-plus-hour.json": "5a994cbf90288879c2e8daff9e8d06b2de6eb770caa799388e977e2d2f147559",
+    "reports/portfolio-risk-study-2026-09-09/develop-governed-constant-btc-base-source-as-end.json": "90eac9ad4ead372adbfd34e186e8f49dd493c9a6a1ff9a3cd7ecc3db4dabbf53",
+    "reports/portfolio-risk-study-2026-09-09/develop-governed-constant-btc-stress-source-plus-hour.json": "455afe24adabe74bbaf38986439e885488fc24a09e97fe0101d28b36e321e5ae",
+    "reports/portfolio-risk-study-2026-09-09/develop-governed-constant-btc-stress-source-as-end.json": "a54c87135b9c22c8fbbef53c33d75b249d290bc6ecec2f66f7acc8a8f0220e83",
+    "reports/portfolio-risk-study-2026-09-09/develop-constant-eth-targets.json": "19e4f3887543c0e5c69c72cb36d45e31566c59187eede36eccfbb91bc16e1321",
+    "reports/portfolio-risk-study-2026-09-09/develop-governed-constant-eth-base-source-plus-hour.json": "0ce18355f88a83fb7e028fb182625017321ba2e0ba51e35c0501f2a8e0a1b7df",
+    "reports/portfolio-risk-study-2026-09-09/develop-governed-constant-eth-base-source-as-end.json": "6e166af2e162ce176075c23fd4179e9ae760d6c49f74ed5a0204f22289679e45",
+    "reports/portfolio-risk-study-2026-09-09/develop-governed-constant-eth-stress-source-plus-hour.json": "dc5149a2b94eadc2c8084afd3f682ce62c45554f93c90f3a41f47e8946c4b626",
+    "reports/portfolio-risk-study-2026-09-09/develop-governed-constant-eth-stress-source-as-end.json": "fa7541de3553364b3f57f9d775d758c27f8967df839f67d761d7720a8d321392",
+    "reports/portfolio-risk-study-2026-09-09/develop-flat-targets.json": "f932329c37170b9ab741b20ffa14813f4c85e3bc115b0a393b3efc1530687d54",
+    "reports/portfolio-risk-study-2026-09-09/develop-governed-flat-base-source-plus-hour.json": "634d722c81e4bb2d338bd67656382dff218c992352f11b73e08a6edae710fd35",
+    "reports/portfolio-risk-study-2026-09-09/develop-governed-flat-base-source-as-end.json": "e10a754110fcf7cc5ff17e16bad3f7259b2688785e95c674fb4d21a352dbef06",
+    "reports/portfolio-risk-study-2026-09-09/develop-governed-flat-stress-source-plus-hour.json": "54be527959bb80ce14c590d9a1675930c4641504391176c41e013fe2154edd53",
+    "reports/portfolio-risk-study-2026-09-09/develop-governed-flat-stress-source-as-end.json": "1e12df39ed188e2eb4db7ba1e563d491c9558fa053afeb0bd55e834d8e2ddc04",
+    "reports/portfolio-risk-study-2026-09-09/develop-summary.json": "a57957726bd5616da485c3d4c1e564d4fc24485bf39b837c9b44fab3b68a1cad",
+    "reports/portfolio-risk-study-2026-09-09/develop-integrity.json": "a67d1598d29508e2622f2d54b1348f40da7deefe103e259ed065a56c6e1c32f3",
+    "reports/portfolio-risk-study-2026-09-09/protocol.json": "41aa24e5bc8059b99e7cbbbba6cc5cfe3bdde712d93d648dd65fb71291866613",
+    "reports/portfolio-risk-study-2026-09-09/selection.json": "820e6702685835778026ef520b9493d4909014c78b4c7a1584fc8b196be3a1ce",
+    "reports/portfolio-rebuild-2026-09-09/develop-multiscale-trend-base-source-plus-hour.json": "57ae14f45a4f4684ce2c7fa3069643912b089a72fb070e71c7cf31e53b4b9bc3",
+    "reports/portfolio-rebuild-2026-09-09/develop-multiscale-trend-base-source-as-end.json": "81915559e082b500c28ea0f655c81a4aa483ed1d5e781b458b2bc8f9ebb79fbb",
+    "reports/portfolio-rebuild-2026-09-09/develop-multiscale-trend-stress-source-plus-hour.json": "dd9c6d0c0acb87d789866384d875bf1e8ca29da6733035fcfce59840a499efae",
+    "reports/portfolio-rebuild-2026-09-09/develop-multiscale-trend-stress-source-as-end.json": "4d54ad992aff7b556b79ed80dc03079a61fec557b677bdf99e561126ecc902ff",
+    "reports/portfolio-rebuild-2026-09-09/develop-sign-trend-90d-base-source-plus-hour.json": "876bdd5913fd67a87b78fac25446c5a1685bd70451fd508e31128a6fa82c1459",
+    "reports/portfolio-rebuild-2026-09-09/develop-sign-trend-90d-base-source-as-end.json": "c34e7b15a323dde08f4adcaa982e644782efac6c376bd28f7e2a8ca3b7d45e76",
+    "reports/portfolio-rebuild-2026-09-09/develop-sign-trend-90d-stress-source-plus-hour.json": "e60f07b73864d5d691601c5611efa067eb16dbe2b33ffc6d5e49418187a96d3b",
+    "reports/portfolio-rebuild-2026-09-09/develop-sign-trend-90d-stress-source-as-end.json": "ddb034da15bc28072d06800033a78bf40c2a980cb99e7f38994976019f4742e2"
+  },
+  "allSavedArtifactHashesVerified": true,
+  "sourceHashesFromRegistration": {
+    "src/portfolio/types.ts": "932cedcff32633cd3317106ba185d34e879a94fd426b36b196ff45a2c584a3da",
+    "src/portfolio/signals.ts": "66907f0868be89af33445d7041454ff960d018eb469af886b43224624f1f6293",
+    "src/portfolio/kernel.ts": "3c78b6202330409b9bd84bfb6d9938fd383162069a70c29eaee4f3115decf756",
+    "src/portfolio/replay.ts": "f2427846d07113ca44fcb58152ba4476009b0e55f5a44bf142cd07504eef6120",
+    "src/portfolio/protocol.ts": "f585d18b3a423a4bd6ca4380a355f5e7006dbec3649fd6ad43a7fea9125f951c",
+    "src/portfolio/study-main.ts": "4aa4260d397c091445464fcc5609f8f6264fe1027ef4bf76ba88ff7d590a7d4e",
+    "src/portfolio/shadow.ts": "b14fc376b6678424187232745d5b92dc867aac48f46af04b24046ce0a776e827",
+    "src/portfolio/live-main.ts": "365730955686861db5946bdca7680ffc7ae1615c8e577591e60182265467e155",
+    "src/research/hourly-data.ts": "0786552d6f700f8ad906a6f6db80b423560eef6f79dbb7403250ce1eeb260a91",
+    "src/research/hourly-study-statistics.ts": "0a9b6437903c26845958748d18f4b43f3ad35749f616da924cd61252442c7a36",
+    "src/core/order-book.ts": "030a9979f2f6a1f4d736e4b927202ffeb446fb1a5a25a18f0a427dc61624db63",
+    "src/core/market.ts": "8bbdd7973b1ba9ee15f30177273cc9b16df4c3c00bbad9547b25bfa20e512837",
+    "src/kraken/market-stream.ts": "42b3005e966c09c0b1fe12012569ac27062a16436a05c373fac28ad514df7d89",
+    "src/kraken/paper-broker.ts": "9c6f240965a31cb7121e11e757856a11ad967a727e2415390b31ff66d7199857",
+    "src/execution/planner.ts": "5954f3b7796fd7ba907e251de7f933e52680b8ab9abb69ba332ab961e87f3604",
+    "src/venue/client.ts": "14c9a6fad0580f43d21926983558f097e0255b33e5b56a2b297517bf2884be2e",
+    "package-lock.json": "2315bada829d31ccb4d3970392ba56d73458d3219dda1ec98d8dda0d41893594",
+    "reports/distribution-instrument-rules-2026-09-07.json": "a89ee77c1a871c63266cde004776e7484ccdc81d544b7d32a81f56cb07d89cdf",
+    "src/portfolio-v2/risk.ts": "3572b4138796ba6aff057e65a3618d672b4d8eb3e21040a2733a01a38b60d0f0",
+    "src/portfolio-v2/kernel.ts": "9ddb8eb82819faa8e2d8e6cb572d6368f8b2229f78118e701d1a4157e96beaf3",
+    "src/portfolio-v2/replay.ts": "311e7648296a5575d71344312d6ddb8fff4f399de9f5583f70901298bc0da63d",
+    "src/portfolio-v2/protocol.ts": "5537afcf9703509db1ac9afa4c4506eee412da6aaa83637c64ac26dbd0c5fac9",
+    "src/portfolio-v2/study-main.ts": "3bdbbe70a5d06c8d981158617a1ba289766ebc2cfb1653deb66468e4c599f4dd"
+  },
+  "ungovernedV1Reproduction": [
+    {
+      "v2": "develop-ungoverned-multiscale-trend-base-source-plus-hour.json",
+      "v1": "develop-multiscale-trend-base-source-plus-hour.json",
+      "sha256": "57ae14f45a4f4684ce2c7fa3069643912b089a72fb070e71c7cf31e53b4b9bc3",
+      "byteIdentical": true,
+      "scope": "Entire saved run, including scenario and bars/funding/targets/rules input receipt hashes."
+    },
+    {
+      "v2": "develop-ungoverned-multiscale-trend-base-source-as-end.json",
+      "v1": "develop-multiscale-trend-base-source-as-end.json",
+      "sha256": "81915559e082b500c28ea0f655c81a4aa483ed1d5e781b458b2bc8f9ebb79fbb",
+      "byteIdentical": true,
+      "scope": "Entire saved run, including scenario and bars/funding/targets/rules input receipt hashes."
+    },
+    {
+      "v2": "develop-ungoverned-multiscale-trend-stress-source-plus-hour.json",
+      "v1": "develop-multiscale-trend-stress-source-plus-hour.json",
+      "sha256": "dd9c6d0c0acb87d789866384d875bf1e8ca29da6733035fcfce59840a499efae",
+      "byteIdentical": true,
+      "scope": "Entire saved run, including scenario and bars/funding/targets/rules input receipt hashes."
+    },
+    {
+      "v2": "develop-ungoverned-multiscale-trend-stress-source-as-end.json",
+      "v1": "develop-multiscale-trend-stress-source-as-end.json",
+      "sha256": "4d54ad992aff7b556b79ed80dc03079a61fec557b677bdf99e561126ecc902ff",
+      "byteIdentical": true,
+      "scope": "Entire saved run, including scenario and bars/funding/targets/rules input receipt hashes."
+    },
+    {
+      "v2": "develop-ungoverned-sign-trend-90d-base-source-plus-hour.json",
+      "v1": "develop-sign-trend-90d-base-source-plus-hour.json",
+      "sha256": "876bdd5913fd67a87b78fac25446c5a1685bd70451fd508e31128a6fa82c1459",
+      "byteIdentical": true,
+      "scope": "Entire saved run, including scenario and bars/funding/targets/rules input receipt hashes."
+    },
+    {
+      "v2": "develop-ungoverned-sign-trend-90d-base-source-as-end.json",
+      "v1": "develop-sign-trend-90d-base-source-as-end.json",
+      "sha256": "c34e7b15a323dde08f4adcaa982e644782efac6c376bd28f7e2a8ca3b7d45e76",
+      "byteIdentical": true,
+      "scope": "Entire saved run, including scenario and bars/funding/targets/rules input receipt hashes."
+    },
+    {
+      "v2": "develop-ungoverned-sign-trend-90d-stress-source-plus-hour.json",
+      "v1": "develop-sign-trend-90d-stress-source-plus-hour.json",
+      "sha256": "e60f07b73864d5d691601c5611efa067eb16dbe2b33ffc6d5e49418187a96d3b",
+      "byteIdentical": true,
+      "scope": "Entire saved run, including scenario and bars/funding/targets/rules input receipt hashes."
+    },
+    {
+      "v2": "develop-ungoverned-sign-trend-90d-stress-source-as-end.json",
+      "v1": "develop-sign-trend-90d-stress-source-as-end.json",
+      "sha256": "ddb034da15bc28072d06800033a78bf40c2a980cb99e7f38994976019f4742e2",
+      "byteIdentical": true,
+      "scope": "Entire saved run, including scenario and bars/funding/targets/rules input receipt hashes."
+    }
+  ],
+  "runs": [
+    {
+      "policy": "multiscale-trend",
+      "variant": "governed",
+      "scenario": "base-source-plus-hour",
+      "artifact": "develop-governed-multiscale-trend-base-source-plus-hour.json",
+      "netPnlUsd": 1.564147291574045,
+      "pricePnlAfterExecutionPricesBeforeFeesFundingUsd": 2.281499999999997,
+      "maximumLiquidationDrawdownUsd": 1.6527609964978183,
+      "maximumCalendarDayNetLossUsd": 0.4711696515150834,
+      "maximumObservedDailyLiquidationLossUsd": 0.5657023076346377,
+      "fills": 53,
+      "turnoverUsd": 193.4831,
+      "feesUsd": 0.09674155000000001,
+      "fundingCostUsd": 0.6206111583216358,
+      "fundingDebitUsd": 0.621780885186095,
+      "fundingCreditUsd": 0.001169726864459066,
+      "extraFundingStressCostUsd": 0,
+      "slippageUsd": 0.03169999999999974,
+      "meanGrossExposureUsd": 2.108331272768662,
+      "maximumMarkedGrossExposureUsd": 11.8565,
+      "exposedHours": 3936,
+      "flatHours": 4848,
+      "longestFlatSpan": {
+        "hours": 2192,
+        "startUtc": "2024-08-08T17:00:00+00:00",
+        "endExclusiveUtc": "2024-11-08T01:00:00+00:00"
+      },
+      "planStatuses": {
+        "HOLD": 8732,
+        "INCREASE": 25,
+        "REDUCE": 27
+      },
+      "planReasons": {
+        "CONFIRM_REDUCTIONS_BEFORE_INCREASES": 27,
+        "JOINT_LOT_ALLOCATION": 25,
+        "TARGET_WITHIN_BAND_OR_LOT_COST_OPTIMUM": 8732
+      },
+      "flatDespiteNonzeroScaledDesireHoldHours": 4787,
+      "flatDesireAllDesiredAssetsMinimumLotAboveCapHours": 0,
+      "flatDesireRemainingLotCostOptimumHours": 4787,
+      "perAsset": {
+        "BTC/USD": {
+          "netPnlUsd": 1.2140146272706844,
+          "realizedPricePnlUsd": 1.462099999999999,
+          "feesUsd": 0.038508850000000004,
+          "totalFundingCostUsd": 0.2095765227293146,
+          "turnoverUsd": 77.01770000000002,
+          "filledOrders": 14,
+          "exposedHours": 1146,
+          "terminalQty": 0
+        },
+        "ETH/USD": {
+          "netPnlUsd": 0.35013266440767676,
+          "realizedPricePnlUsd": 0.819399999999998,
+          "feesUsd": 0.0582327,
+          "totalFundingCostUsd": 0.41103463559232123,
+          "turnoverUsd": 116.46540000000002,
+          "filledOrders": 39,
+          "exposedHours": 3930,
+          "terminalQty": 0
+        }
+      },
+      "bothAssetsPositive": true,
+      "unknowns": 0,
+      "zeroVolumeNoFills": 0,
+      "risk": {
+        "minimumCapUsd": 5.388956014008727,
+        "meanPretradeCapUsd": 7.181994998041197,
+        "reasonHourCounts": {
+          "DAILY_LOSS_BUDGET_SCALING": 1893,
+          "DRAWDOWN_BUDGET_SCALING": 8728,
+          "RISK_BUDGET_AVAILABLE": 56
+        },
+        "drawdownHaltHours": 0,
+        "dailyHaltHours": 0,
+        "unknownHaltHours": 0,
+        "remainingIncreaseCancellations": 0,
+        "cancellationReasons": {},
+        "finalCapUsd": 6.148256782325917
+      }
+    },
+    {
+      "policy": "multiscale-trend",
+      "variant": "governed",
+      "scenario": "base-source-as-end",
+      "artifact": "develop-governed-multiscale-trend-base-source-as-end.json",
+      "netPnlUsd": 1.5474453583883587,
+      "pricePnlAfterExecutionPricesBeforeFeesFundingUsd": 2.2676999999999983,
+      "maximumLiquidationDrawdownUsd": 1.6527263903262792,
+      "maximumCalendarDayNetLossUsd": 0.4709173391602235,
+      "maximumObservedDailyLiquidationLossUsd": 0.5659875601850217,
+      "fills": 55,
+      "turnoverUsd": 198.00150000000002,
+      "feesUsd": 0.09900075000000001,
+      "fundingCostUsd": 0.6212538914991755,
+      "fundingDebitUsd": 0.6224324008811332,
+      "fundingCreditUsd": 0.0011785093819579144,
+      "extraFundingStressCostUsd": 0,
+      "slippageUsd": 0.03249999999999947,
+      "meanGrossExposureUsd": 2.108847222222214,
+      "maximumMarkedGrossExposureUsd": 11.8565,
+      "exposedHours": 3936,
+      "flatHours": 4848,
+      "longestFlatSpan": {
+        "hours": 2192,
+        "startUtc": "2024-08-08T17:00:00+00:00",
+        "endExclusiveUtc": "2024-11-08T01:00:00+00:00"
+      },
+      "planStatuses": {
+        "HOLD": 8730,
+        "INCREASE": 26,
+        "REDUCE": 28
+      },
+      "planReasons": {
+        "CONFIRM_REDUCTIONS_BEFORE_INCREASES": 28,
+        "JOINT_LOT_ALLOCATION": 26,
+        "TARGET_WITHIN_BAND_OR_LOT_COST_OPTIMUM": 8730
+      },
+      "flatDespiteNonzeroScaledDesireHoldHours": 4787,
+      "flatDesireAllDesiredAssetsMinimumLotAboveCapHours": 0,
+      "flatDesireRemainingLotCostOptimumHours": 4787,
+      "perAsset": {
+        "BTC/USD": {
+          "netPnlUsd": 1.2131049787240418,
+          "realizedPricePnlUsd": 1.4620999999999993,
+          "feesUsd": 0.038508850000000004,
+          "totalFundingCostUsd": 0.2104861712759576,
+          "turnoverUsd": 77.01770000000002,
+          "filledOrders": 14,
+          "exposedHours": 1146,
+          "terminalQty": 0
+        },
+        "ETH/USD": {
+          "netPnlUsd": 0.3343403797767811,
+          "realizedPricePnlUsd": 0.805599999999999,
+          "feesUsd": 0.0604919,
+          "totalFundingCostUsd": 0.41076772022321784,
+          "turnoverUsd": 120.98380000000003,
+          "filledOrders": 41,
+          "exposedHours": 3930,
+          "terminalQty": 0
+        }
+      },
+      "bothAssetsPositive": true,
+      "unknowns": 0,
+      "zeroVolumeNoFills": 0,
+      "risk": {
+        "minimumCapUsd": 5.389094438694883,
+        "meanPretradeCapUsd": 7.181826468285441,
+        "reasonHourCounts": {
+          "DAILY_LOSS_BUDGET_SCALING": 1893,
+          "DRAWDOWN_BUDGET_SCALING": 8730,
+          "RISK_BUDGET_AVAILABLE": 54
+        },
+        "drawdownHaltHours": 0,
+        "dailyHaltHours": 0,
+        "unknownHaltHours": 0,
+        "remainingIncreaseCancellations": 0,
+        "cancellationReasons": {},
+        "finalCapUsd": 6.1484223157167435
+      }
+    },
+    {
+      "policy": "multiscale-trend",
+      "variant": "governed",
+      "scenario": "stress-source-plus-hour",
+      "artifact": "develop-governed-multiscale-trend-stress-source-plus-hour.json",
+      "netPnlUsd": 1.6480147343536373,
+      "pricePnlAfterExecutionPricesBeforeFeesFundingUsd": 2.4704999999999986,
+      "maximumLiquidationDrawdownUsd": 1.6259655516623752,
+      "maximumCalendarDayNetLossUsd": 0.47282854244986083,
+      "maximumObservedDailyLiquidationLossUsd": 0.5663515376509167,
+      "fills": 47,
+      "turnoverUsd": 171.90590000000006,
+      "feesUsd": 0.128929425,
+      "fundingCostUsd": 0.6935558407691181,
+      "fundingDebitUsd": 0.6184595213671673,
+      "fundingCreditUsd": 0.0012118889313797604,
+      "extraFundingStressCostUsd": 0.07630820833333342,
+      "slippageUsd": 0.053799999999998564,
+      "meanGrossExposureUsd": 2.0846228483606453,
+      "maximumMarkedGrossExposureUsd": 11.8565,
+      "exposedHours": 3896,
+      "flatHours": 4888,
+      "longestFlatSpan": {
+        "hours": 2195,
+        "startUtc": "2024-08-08T15:00:00+00:00",
+        "endExclusiveUtc": "2024-11-08T02:00:00+00:00"
+      },
+      "planStatuses": {
+        "HOLD": 8738,
+        "INCREASE": 22,
+        "REDUCE": 24
+      },
+      "planReasons": {
+        "CONFIRM_REDUCTIONS_BEFORE_INCREASES": 24,
+        "JOINT_LOT_ALLOCATION": 22,
+        "TARGET_WITHIN_BAND_OR_LOT_COST_OPTIMUM": 8738
+      },
+      "flatDespiteNonzeroScaledDesireHoldHours": 4827,
+      "flatDesireAllDesiredAssetsMinimumLotAboveCapHours": 0,
+      "flatDesireRemainingLotCostOptimumHours": 4827,
+      "perAsset": {
+        "BTC/USD": {
+          "netPnlUsd": 1.1602307560699292,
+          "realizedPricePnlUsd": 1.446199999999999,
+          "feesUsd": 0.054061200000000004,
+          "totalFundingCostUsd": 0.23190804393006983,
+          "turnoverUsd": 72.0816,
+          "filledOrders": 14,
+          "exposedHours": 1145,
+          "terminalQty": 0
+        },
+        "ETH/USD": {
+          "netPnlUsd": 0.4877839781609491,
+          "realizedPricePnlUsd": 1.0242999999999993,
+          "feesUsd": 0.07486822499999998,
+          "totalFundingCostUsd": 0.4616477968390502,
+          "turnoverUsd": 99.82430000000001,
+          "filledOrders": 33,
+          "exposedHours": 3872,
+          "terminalQty": 0
+        }
+      },
+      "bothAssetsPositive": true,
+      "unknowns": 0,
+      "zeroVolumeNoFills": 0,
+      "risk": {
+        "minimumCapUsd": 5.496137793350499,
+        "meanPretradeCapUsd": 7.13650998634744,
+        "reasonHourCounts": {
+          "DAILY_LOSS_BUDGET_SCALING": 1881,
+          "DRAWDOWN_BUDGET_SCALING": 8733,
+          "RISK_BUDGET_AVAILABLE": 51
+        },
+        "drawdownHaltHours": 0,
+        "dailyHaltHours": 0,
+        "unknownHaltHours": 0,
+        "remainingIncreaseCancellations": 0,
+        "cancellationReasons": {},
+        "finalCapUsd": 7.1446772358031
+      }
+    },
+    {
+      "policy": "multiscale-trend",
+      "variant": "governed",
+      "scenario": "stress-source-as-end",
+      "artifact": "develop-governed-multiscale-trend-stress-source-as-end.json",
+      "netPnlUsd": 1.6477950857661199,
+      "pricePnlAfterExecutionPricesBeforeFeesFundingUsd": 2.4704999999999986,
+      "maximumLiquidationDrawdownUsd": 1.625709137544618,
+      "maximumCalendarDayNetLossUsd": 0.4725762300513452,
+      "maximumObservedDailyLiquidationLossUsd": 0.5666367902304046,
+      "fills": 47,
+      "turnoverUsd": 171.90590000000006,
+      "feesUsd": 0.128929425,
+      "fundingCostUsd": 0.6937754890275517,
+      "fundingDebitUsd": 0.6187259267646589,
+      "fundingCreditUsd": 0.0012586460704402459,
+      "extraFundingStressCostUsd": 0.07630820833333342,
+      "slippageUsd": 0.053799999999998564,
+      "meanGrossExposureUsd": 2.0846228483606453,
+      "maximumMarkedGrossExposureUsd": 11.8565,
+      "exposedHours": 3896,
+      "flatHours": 4888,
+      "longestFlatSpan": {
+        "hours": 2195,
+        "startUtc": "2024-08-08T15:00:00+00:00",
+        "endExclusiveUtc": "2024-11-08T02:00:00+00:00"
+      },
+      "planStatuses": {
+        "HOLD": 8738,
+        "INCREASE": 22,
+        "REDUCE": 24
+      },
+      "planReasons": {
+        "CONFIRM_REDUCTIONS_BEFORE_INCREASES": 24,
+        "JOINT_LOT_ALLOCATION": 22,
+        "TARGET_WITHIN_BAND_OR_LOT_COST_OPTIMUM": 8738
+      },
+      "flatDespiteNonzeroScaledDesireHoldHours": 4827,
+      "flatDesireAllDesiredAssetsMinimumLotAboveCapHours": 0,
+      "flatDesireRemainingLotCostOptimumHours": 4827,
+      "perAsset": {
+        "BTC/USD": {
+          "netPnlUsd": 1.1594868409952888,
+          "realizedPricePnlUsd": 1.446199999999999,
+          "feesUsd": 0.054061200000000004,
+          "totalFundingCostUsd": 0.23265195900471017,
+          "turnoverUsd": 72.0816,
+          "filledOrders": 14,
+          "exposedHours": 1145,
+          "terminalQty": 0
+        },
+        "ETH/USD": {
+          "netPnlUsd": 0.48830824497715797,
+          "realizedPricePnlUsd": 1.0242999999999993,
+          "feesUsd": 0.07486822499999998,
+          "totalFundingCostUsd": 0.46112353002284134,
+          "turnoverUsd": 99.82430000000001,
+          "filledOrders": 33,
+          "exposedHours": 3872,
+          "terminalQty": 0
+        }
+      },
+      "bothAssetsPositive": true,
+      "unknowns": 0,
+      "zeroVolumeNoFills": 0,
+      "risk": {
+        "minimumCapUsd": 5.497163449821528,
+        "meanPretradeCapUsd": 7.137281282883954,
+        "reasonHourCounts": {
+          "DAILY_LOSS_BUDGET_SCALING": 1881,
+          "DRAWDOWN_BUDGET_SCALING": 8733,
+          "RISK_BUDGET_AVAILABLE": 51
+        },
+        "drawdownHaltHours": 0,
+        "dailyHaltHours": 0,
+        "unknownHaltHours": 0,
+        "remainingIncreaseCancellations": 0,
+        "cancellationReasons": {},
+        "finalCapUsd": 7.145817644777709
+      }
+    },
+    {
+      "policy": "multiscale-trend",
+      "variant": "ungoverned",
+      "scenario": "base-source-plus-hour",
+      "artifact": "develop-ungoverned-multiscale-trend-base-source-plus-hour.json",
+      "netPnlUsd": 3.2477435726614203,
+      "pricePnlAfterExecutionPricesBeforeFeesFundingUsd": 4.931600000000001,
+      "maximumLiquidationDrawdownUsd": 4.537417839295813,
+      "maximumCalendarDayNetLossUsd": 0.9458087460807292,
+      "maximumObservedDailyLiquidationLossUsd": null,
+      "fills": 125,
+      "turnoverUsd": 545.0333999999997,
+      "feesUsd": 0.27251669999999995,
+      "fundingCostUsd": 1.4113397268039622,
+      "fundingDebitUsd": 1.428052970763485,
+      "fundingCreditUsd": 0.01671324395952379,
+      "extraFundingStressCostUsd": 0,
+      "slippageUsd": 0.08760000000000176,
+      "meanGrossExposureUsd": 6.452164879326042,
+      "maximumMarkedGrossExposureUsd": 12.189800000000002,
+      "exposedHours": 7384,
+      "flatHours": 1400,
+      "longestFlatSpan": {
+        "hours": 432,
+        "startUtc": "2024-06-20T01:00:00+00:00",
+        "endExclusiveUtc": "2024-07-08T01:00:00+00:00"
+      },
+      "planStatuses": {
+        "HOLD": 8669,
+        "INCREASE": 57,
+        "REDUCE": 58
+      },
+      "planReasons": {
+        "CONFIRM_REDUCTIONS_BEFORE_INCREASES": 58,
+        "JOINT_LOT_ALLOCATION": 57,
+        "TARGET_WITHIN_BAND_OR_LOT_COST_OPTIMUM": 8669
+      },
+      "flatDespiteNonzeroScaledDesireHoldHours": 1324,
+      "flatDesireAllDesiredAssetsMinimumLotAboveCapHours": 0,
+      "flatDesireRemainingLotCostOptimumHours": 1324,
+      "perAsset": {
+        "BTC/USD": {
+          "netPnlUsd": 2.395475651943148,
+          "realizedPricePnlUsd": 3.5623000000000005,
+          "feesUsd": 0.16315155,
+          "totalFundingCostUsd": 1.0036727980568525,
+          "turnoverUsd": 326.30310000000003,
+          "filledOrders": 50,
+          "exposedHours": 5754,
+          "terminalQty": 0
+        },
+        "ETH/USD": {
+          "netPnlUsd": 0.852267921252888,
+          "realizedPricePnlUsd": 1.369300000000001,
+          "feesUsd": 0.10936515000000001,
+          "totalFundingCostUsd": 0.4076669287471132,
+          "turnoverUsd": 218.73029999999997,
+          "filledOrders": 75,
+          "exposedHours": 5288,
+          "terminalQty": 0
+        }
+      },
+      "bothAssetsPositive": true,
+      "unknowns": 0,
+      "zeroVolumeNoFills": 0
+    },
+    {
+      "policy": "multiscale-trend",
+      "variant": "ungoverned",
+      "scenario": "base-source-as-end",
+      "artifact": "develop-ungoverned-multiscale-trend-base-source-as-end.json",
+      "netPnlUsd": 3.247079075561487,
+      "pricePnlAfterExecutionPricesBeforeFeesFundingUsd": 4.931600000000001,
+      "maximumLiquidationDrawdownUsd": 4.537272156710969,
+      "maximumCalendarDayNetLossUsd": 0.9454564341431251,
+      "maximumObservedDailyLiquidationLossUsd": null,
+      "fills": 125,
+      "turnoverUsd": 545.0333999999997,
+      "feesUsd": 0.27251669999999995,
+      "fundingCostUsd": 1.412004223795444,
+      "fundingDebitUsd": 1.4280000654276295,
+      "fundingCreditUsd": 0.015995841632186418,
+      "extraFundingStressCostUsd": 0,
+      "slippageUsd": 0.08760000000000176,
+      "meanGrossExposureUsd": 6.452164879326042,
+      "maximumMarkedGrossExposureUsd": 12.189800000000002,
+      "exposedHours": 7384,
+      "flatHours": 1400,
+      "longestFlatSpan": {
+        "hours": 432,
+        "startUtc": "2024-06-20T01:00:00+00:00",
+        "endExclusiveUtc": "2024-07-08T01:00:00+00:00"
+      },
+      "planStatuses": {
+        "HOLD": 8669,
+        "INCREASE": 57,
+        "REDUCE": 58
+      },
+      "planReasons": {
+        "CONFIRM_REDUCTIONS_BEFORE_INCREASES": 58,
+        "JOINT_LOT_ALLOCATION": 57,
+        "TARGET_WITHIN_BAND_OR_LOT_COST_OPTIMUM": 8669
+      },
+      "flatDespiteNonzeroScaledDesireHoldHours": 1324,
+      "flatDesireAllDesiredAssetsMinimumLotAboveCapHours": 0,
+      "flatDesireRemainingLotCostOptimumHours": 1324,
+      "perAsset": {
+        "BTC/USD": {
+          "netPnlUsd": 2.3947557413194978,
+          "realizedPricePnlUsd": 3.5623000000000005,
+          "feesUsd": 0.16315155,
+          "totalFundingCostUsd": 1.004392708680503,
+          "turnoverUsd": 326.30310000000003,
+          "filledOrders": 50,
+          "exposedHours": 5754,
+          "terminalQty": 0
+        },
+        "ETH/USD": {
+          "netPnlUsd": 0.8523233348850573,
+          "realizedPricePnlUsd": 1.369300000000001,
+          "feesUsd": 0.10936515000000001,
+          "totalFundingCostUsd": 0.40761151511494387,
+          "turnoverUsd": 218.73029999999997,
+          "filledOrders": 75,
+          "exposedHours": 5288,
+          "terminalQty": 0
+        }
+      },
+      "bothAssetsPositive": true,
+      "unknowns": 0,
+      "zeroVolumeNoFills": 0
+    },
+    {
+      "policy": "multiscale-trend",
+      "variant": "ungoverned",
+      "scenario": "stress-source-plus-hour",
+      "artifact": "develop-ungoverned-multiscale-trend-stress-source-plus-hour.json",
+      "netPnlUsd": 3.138670924847247,
+      "pricePnlAfterExecutionPricesBeforeFeesFundingUsd": 5.1854000000000005,
+      "maximumLiquidationDrawdownUsd": 4.658478952944279,
+      "maximumCalendarDayNetLossUsd": 0.9467842418380314,
+      "maximumObservedDailyLiquidationLossUsd": null,
+      "fills": 119,
+      "turnoverUsd": 530.8457999999999,
+      "feesUsd": 0.3981343499999999,
+      "fundingCostUsd": 1.6485947261697387,
+      "fundingDebitUsd": 1.4286763985924282,
+      "fundingCreditUsd": 0.016503350339368106,
+      "extraFundingStressCostUsd": 0.23642167791666704,
+      "slippageUsd": 0.16540000000000046,
+      "meanGrossExposureUsd": 6.458824806466299,
+      "maximumMarkedGrossExposureUsd": 12.189800000000002,
+      "exposedHours": 7381,
+      "flatHours": 1403,
+      "longestFlatSpan": {
+        "hours": 432,
+        "startUtc": "2024-06-20T02:00:00+00:00",
+        "endExclusiveUtc": "2024-07-08T02:00:00+00:00"
+      },
+      "planStatuses": {
+        "HOLD": 8674,
+        "INCREASE": 55,
+        "REDUCE": 55
+      },
+      "planReasons": {
+        "CONFIRM_REDUCTIONS_BEFORE_INCREASES": 55,
+        "JOINT_LOT_ALLOCATION": 55,
+        "TARGET_WITHIN_BAND_OR_LOT_COST_OPTIMUM": 8674
+      },
+      "flatDespiteNonzeroScaledDesireHoldHours": 1325,
+      "flatDesireAllDesiredAssetsMinimumLotAboveCapHours": 0,
+      "flatDesireRemainingLotCostOptimumHours": 1325,
+      "perAsset": {
+        "BTC/USD": {
+          "netPnlUsd": 2.6661938266613814,
+          "realizedPricePnlUsd": 4.0733999999999995,
+          "feesUsd": 0.24115469999999997,
+          "totalFundingCostUsd": 1.166051473338618,
+          "turnoverUsd": 321.53960000000006,
+          "filledOrders": 48,
+          "exposedHours": 5765,
+          "terminalQty": 0
+        },
+        "ETH/USD": {
+          "netPnlUsd": 0.472477097168887,
+          "realizedPricePnlUsd": 1.1120000000000008,
+          "feesUsd": 0.15697965,
+          "totalFundingCostUsd": 0.48254325283111377,
+          "turnoverUsd": 209.30619999999996,
+          "filledOrders": 71,
+          "exposedHours": 5271,
+          "terminalQty": 0
+        }
+      },
+      "bothAssetsPositive": true,
+      "unknowns": 0,
+      "zeroVolumeNoFills": 0
+    },
+    {
+      "policy": "multiscale-trend",
+      "variant": "ungoverned",
+      "scenario": "stress-source-as-end",
+      "artifact": "develop-ungoverned-multiscale-trend-stress-source-as-end.json",
+      "netPnlUsd": 3.1378846501756925,
+      "pricePnlAfterExecutionPricesBeforeFeesFundingUsd": 5.1854000000000005,
+      "maximumLiquidationDrawdownUsd": 4.658266110011027,
+      "maximumCalendarDayNetLossUsd": 0.9464319299877388,
+      "maximumObservedDailyLiquidationLossUsd": null,
+      "fills": 119,
+      "turnoverUsd": 530.8457999999999,
+      "feesUsd": 0.3981343499999999,
+      "fundingCostUsd": 1.6493809991875221,
+      "fundingDebitUsd": 1.4288322470467552,
+      "fundingCreditUsd": 0.015872925775903466,
+      "extraFundingStressCostUsd": 0.23642167791666704,
+      "slippageUsd": 0.16540000000000046,
+      "meanGrossExposureUsd": 6.458824806466299,
+      "maximumMarkedGrossExposureUsd": 12.189800000000002,
+      "exposedHours": 7381,
+      "flatHours": 1403,
+      "longestFlatSpan": {
+        "hours": 432,
+        "startUtc": "2024-06-20T02:00:00+00:00",
+        "endExclusiveUtc": "2024-07-08T02:00:00+00:00"
+      },
+      "planStatuses": {
+        "HOLD": 8674,
+        "INCREASE": 55,
+        "REDUCE": 55
+      },
+      "planReasons": {
+        "CONFIRM_REDUCTIONS_BEFORE_INCREASES": 55,
+        "JOINT_LOT_ALLOCATION": 55,
+        "TARGET_WITHIN_BAND_OR_LOT_COST_OPTIMUM": 8674
+      },
+      "flatDespiteNonzeroScaledDesireHoldHours": 1325,
+      "flatDesireAllDesiredAssetsMinimumLotAboveCapHours": 0,
+      "flatDesireRemainingLotCostOptimumHours": 1325,
+      "perAsset": {
+        "BTC/USD": {
+          "netPnlUsd": 2.665095425664194,
+          "realizedPricePnlUsd": 4.0733999999999995,
+          "feesUsd": 0.24115469999999997,
+          "totalFundingCostUsd": 1.1671498743358055,
+          "turnoverUsd": 321.53960000000006,
+          "filledOrders": 48,
+          "exposedHours": 5765,
+          "terminalQty": 0
+        },
+        "ETH/USD": {
+          "netPnlUsd": 0.4727892251482835,
+          "realizedPricePnlUsd": 1.1120000000000008,
+          "feesUsd": 0.15697965,
+          "totalFundingCostUsd": 0.48223112485171726,
+          "turnoverUsd": 209.30619999999996,
+          "filledOrders": 71,
+          "exposedHours": 5271,
+          "terminalQty": 0
+        }
+      },
+      "bothAssetsPositive": true,
+      "unknowns": 0,
+      "zeroVolumeNoFills": 0
+    },
+    {
+      "policy": "sign-trend-90d",
+      "variant": "governed",
+      "scenario": "base-source-plus-hour",
+      "artifact": "develop-governed-sign-trend-90d-base-source-plus-hour.json",
+      "netPnlUsd": 3.72990902652964,
+      "pricePnlAfterExecutionPricesBeforeFeesFundingUsd": 4.6351,
+      "maximumLiquidationDrawdownUsd": 2.1631225350138266,
+      "maximumCalendarDayNetLossUsd": 0.4711696515150834,
+      "maximumObservedDailyLiquidationLossUsd": 0.5657023076346377,
+      "fills": 119,
+      "turnoverUsd": 453.95549999999986,
+      "feesUsd": 0.22697775000000006,
+      "fundingCostUsd": 0.6782132230499814,
+      "fundingDebitUsd": 0.766175940087781,
+      "fundingCreditUsd": 0.08796271703780181,
+      "extraFundingStressCostUsd": 0,
+      "slippageUsd": 0.07409999999999892,
+      "meanGrossExposureUsd": 4.446026605191269,
+      "maximumMarkedGrossExposureUsd": 11.9403,
+      "exposedHours": 8714,
+      "flatHours": 70,
+      "longestFlatSpan": {
+        "hours": 48,
+        "startUtc": "2024-12-30T00:00:00+00:00",
+        "endExclusiveUtc": "2025-01-01T00:00:00+00:00"
+      },
+      "planStatuses": {
+        "HOLD": 8666,
+        "INCREASE": 58,
+        "REDUCE": 60
+      },
+      "planReasons": {
+        "CONFIRM_REDUCTIONS_BEFORE_INCREASES": 60,
+        "JOINT_LOT_ALLOCATION": 58,
+        "TARGET_WITHIN_BAND_OR_LOT_COST_OPTIMUM": 8666
+      },
+      "flatDespiteNonzeroScaledDesireHoldHours": 0,
+      "flatDesireAllDesiredAssetsMinimumLotAboveCapHours": 0,
+      "flatDesireRemainingLotCostOptimumHours": 0,
+      "perAsset": {
+        "BTC/USD": {
+          "netPnlUsd": 1.9114254612933743,
+          "realizedPricePnlUsd": 2.2275000000000005,
+          "feesUsd": 0.09558015000000004,
+          "totalFundingCostUsd": 0.2204943887066262,
+          "turnoverUsd": 191.16029999999998,
+          "filledOrders": 30,
+          "exposedHours": 2540,
+          "terminalQty": 0
+        },
+        "ETH/USD": {
+          "netPnlUsd": 1.8184835656566463,
+          "realizedPricePnlUsd": 2.4076,
+          "feesUsd": 0.1313976,
+          "totalFundingCostUsd": 0.4577188343433536,
+          "turnoverUsd": 262.7952,
+          "filledOrders": 89,
+          "exposedHours": 7991,
+          "terminalQty": 0
+        }
+      },
+      "bothAssetsPositive": true,
+      "unknowns": 0,
+      "zeroVolumeNoFills": 0,
+      "risk": {
+        "minimumCapUsd": 3.3475098599446937,
+        "meanPretradeCapUsd": 7.561038307606205,
+        "reasonHourCounts": {
+          "DAILY_LOSS_BUDGET_SCALING": 4041,
+          "DRAWDOWN_BUDGET_SCALING": 8701,
+          "RISK_BUDGET_AVAILABLE": 83
+        },
+        "drawdownHaltHours": 0,
+        "dailyHaltHours": 0,
+        "unknownHaltHours": 0,
+        "remainingIncreaseCancellations": 0,
+        "cancellationReasons": {},
+        "finalCapUsd": 7.746221826411783
+      }
+    },
+    {
+      "policy": "sign-trend-90d",
+      "variant": "governed",
+      "scenario": "base-source-as-end",
+      "artifact": "develop-governed-sign-trend-90d-base-source-as-end.json",
+      "netPnlUsd": 3.730410823089187,
+      "pricePnlAfterExecutionPricesBeforeFeesFundingUsd": 4.6397,
+      "maximumLiquidationDrawdownUsd": 2.1629168136569206,
+      "maximumCalendarDayNetLossUsd": 0.4709173391602235,
+      "maximumObservedDailyLiquidationLossUsd": 0.5659875601850217,
+      "fills": 121,
+      "turnoverUsd": 460.84629999999987,
+      "feesUsd": 0.23042315000000005,
+      "fundingCostUsd": 0.6788660263929244,
+      "fundingDebitUsd": 0.7668560537958012,
+      "fundingCreditUsd": 0.08799002740287944,
+      "extraFundingStressCostUsd": 0,
+      "slippageUsd": 0.07529999999999919,
+      "meanGrossExposureUsd": 4.446418510928974,
+      "maximumMarkedGrossExposureUsd": 11.9403,
+      "exposedHours": 8714,
+      "flatHours": 70,
+      "longestFlatSpan": {
+        "hours": 48,
+        "startUtc": "2024-12-30T00:00:00+00:00",
+        "endExclusiveUtc": "2025-01-01T00:00:00+00:00"
+      },
+      "planStatuses": {
+        "HOLD": 8664,
+        "INCREASE": 59,
+        "REDUCE": 61
+      },
+      "planReasons": {
+        "CONFIRM_REDUCTIONS_BEFORE_INCREASES": 61,
+        "JOINT_LOT_ALLOCATION": 59,
+        "TARGET_WITHIN_BAND_OR_LOT_COST_OPTIMUM": 8664
+      },
+      "flatDespiteNonzeroScaledDesireHoldHours": 0,
+      "flatDesireAllDesiredAssetsMinimumLotAboveCapHours": 0,
+      "flatDesireRemainingLotCostOptimumHours": 0,
+      "perAsset": {
+        "BTC/USD": {
+          "netPnlUsd": 1.9102761690406993,
+          "realizedPricePnlUsd": 2.2275000000000005,
+          "feesUsd": 0.09558015000000004,
+          "totalFundingCostUsd": 0.22164368095930112,
+          "turnoverUsd": 191.16029999999998,
+          "filledOrders": 30,
+          "exposedHours": 2540,
+          "terminalQty": 0
+        },
+        "ETH/USD": {
+          "netPnlUsd": 1.8201346545663792,
+          "realizedPricePnlUsd": 2.4122,
+          "feesUsd": 0.134843,
+          "totalFundingCostUsd": 0.45722234543362067,
+          "turnoverUsd": 269.68600000000004,
+          "filledOrders": 91,
+          "exposedHours": 7992,
+          "terminalQty": 0
+        }
+      },
+      "bothAssetsPositive": true,
+      "unknowns": 0,
+      "zeroVolumeNoFills": 0,
+      "risk": {
+        "minimumCapUsd": 3.3483327453723173,
+        "meanPretradeCapUsd": 7.561390412389626,
+        "reasonHourCounts": {
+          "DAILY_LOSS_BUDGET_SCALING": 4042,
+          "DRAWDOWN_BUDGET_SCALING": 8702,
+          "RISK_BUDGET_AVAILABLE": 82
+        },
+        "drawdownHaltHours": 0,
+        "dailyHaltHours": 0,
+        "unknownHaltHours": 0,
+        "remainingIncreaseCancellations": 0,
+        "cancellationReasons": {},
+        "finalCapUsd": 7.7468731618719175
+      }
+    },
+    {
+      "policy": "sign-trend-90d",
+      "variant": "governed",
+      "scenario": "stress-source-plus-hour",
+      "artifact": "develop-governed-sign-trend-90d-stress-source-plus-hour.json",
+      "netPnlUsd": 3.2531095397571335,
+      "pricePnlAfterExecutionPricesBeforeFeesFundingUsd": 4.395400000000002,
+      "maximumLiquidationDrawdownUsd": 2.2108611949224724,
+      "maximumCalendarDayNetLossUsd": 0.47282854244986083,
+      "maximumObservedDailyLiquidationLossUsd": 0.5663515376363648,
+      "fills": 109,
+      "turnoverUsd": 411.0349999999999,
+      "feesUsd": 0.3082762499999999,
+      "fundingCostUsd": 0.8340142099154233,
+      "fundingDebitUsd": 0.7594830160453512,
+      "fundingCreditUsd": 0.08735046446326494,
+      "extraFundingStressCostUsd": 0.16188165833333346,
+      "slippageUsd": 0.12839999999999846,
+      "meanGrossExposureUsd": 4.422634244080156,
+      "maximumMarkedGrossExposureUsd": 11.8565,
+      "exposedHours": 8705,
+      "flatHours": 79,
+      "longestFlatSpan": {
+        "hours": 48,
+        "startUtc": "2024-12-30T00:00:00+00:00",
+        "endExclusiveUtc": "2025-01-01T00:00:00+00:00"
+      },
+      "planStatuses": {
+        "HOLD": 8676,
+        "INCREASE": 53,
+        "REDUCE": 55
+      },
+      "planReasons": {
+        "CONFIRM_REDUCTIONS_BEFORE_INCREASES": 55,
+        "JOINT_LOT_ALLOCATION": 53,
+        "TARGET_WITHIN_BAND_OR_LOT_COST_OPTIMUM": 8676
+      },
+      "flatDespiteNonzeroScaledDesireHoldHours": 9,
+      "flatDesireAllDesiredAssetsMinimumLotAboveCapHours": 0,
+      "flatDesireRemainingLotCostOptimumHours": 9,
+      "perAsset": {
+        "BTC/USD": {
+          "netPnlUsd": 2.0307867544866998,
+          "realizedPricePnlUsd": 2.4311999999999996,
+          "feesUsd": 0.12521265,
+          "totalFundingCostUsd": 0.27520059551329995,
+          "turnoverUsd": 166.95019999999997,
+          "filledOrders": 26,
+          "exposedHours": 2528,
+          "terminalQty": 0
+        },
+        "ETH/USD": {
+          "netPnlUsd": 1.2223227855978822,
+          "realizedPricePnlUsd": 1.9642000000000026,
+          "feesUsd": 0.1830636,
+          "totalFundingCostUsd": 0.5588136144021203,
+          "turnoverUsd": 244.08479999999994,
+          "filledOrders": 83,
+          "exposedHours": 7985,
+          "terminalQty": 0
+        }
+      },
+      "bothAssetsPositive": true,
+      "unknowns": 0,
+      "zeroVolumeNoFills": 0,
+      "risk": {
+        "minimumCapUsd": 3.181366420292761,
+        "meanPretradeCapUsd": 7.43511196522899,
+        "reasonHourCounts": {
+          "DAILY_LOSS_BUDGET_SCALING": 4094,
+          "DRAWDOWN_BUDGET_SCALING": 8709,
+          "RISK_BUDGET_AVAILABLE": 75
+        },
+        "drawdownHaltHours": 0,
+        "dailyHaltHours": 0,
+        "unknownHaltHours": 0,
+        "remainingIncreaseCancellations": 0,
+        "cancellationReasons": {},
+        "finalCapUsd": 7.14110480376985
+      }
+    },
+    {
+      "policy": "sign-trend-90d",
+      "variant": "governed",
+      "scenario": "stress-source-as-end",
+      "artifact": "develop-governed-sign-trend-90d-stress-source-as-end.json",
+      "netPnlUsd": 3.253070947524975,
+      "pricePnlAfterExecutionPricesBeforeFeesFundingUsd": 4.395400000000002,
+      "maximumLiquidationDrawdownUsd": 2.2106499746150803,
+      "maximumCalendarDayNetLossUsd": 0.4725762300513452,
+      "maximumObservedDailyLiquidationLossUsd": 0.5666367902158527,
+      "fills": 109,
+      "turnoverUsd": 411.0349999999999,
+      "feesUsd": 0.3082762499999999,
+      "fundingCostUsd": 0.834052802010184,
+      "fundingDebitUsd": 0.759644135475947,
+      "fundingCreditUsd": 0.08747299179909909,
+      "extraFundingStressCostUsd": 0.16188165833333346,
+      "slippageUsd": 0.12839999999999846,
+      "meanGrossExposureUsd": 4.422634244080156,
+      "maximumMarkedGrossExposureUsd": 11.8565,
+      "exposedHours": 8705,
+      "flatHours": 79,
+      "longestFlatSpan": {
+        "hours": 48,
+        "startUtc": "2024-12-30T00:00:00+00:00",
+        "endExclusiveUtc": "2025-01-01T00:00:00+00:00"
+      },
+      "planStatuses": {
+        "HOLD": 8676,
+        "INCREASE": 53,
+        "REDUCE": 55
+      },
+      "planReasons": {
+        "CONFIRM_REDUCTIONS_BEFORE_INCREASES": 55,
+        "JOINT_LOT_ALLOCATION": 53,
+        "TARGET_WITHIN_BAND_OR_LOT_COST_OPTIMUM": 8676
+      },
+      "flatDespiteNonzeroScaledDesireHoldHours": 9,
+      "flatDesireAllDesiredAssetsMinimumLotAboveCapHours": 0,
+      "flatDesireRemainingLotCostOptimumHours": 9,
+      "perAsset": {
+        "BTC/USD": {
+          "netPnlUsd": 2.0300011781986247,
+          "realizedPricePnlUsd": 2.4311999999999996,
+          "feesUsd": 0.12521265,
+          "totalFundingCostUsd": 0.27598617180137497,
+          "turnoverUsd": 166.95019999999997,
+          "filledOrders": 26,
+          "exposedHours": 2528,
+          "terminalQty": 0
+        },
+        "ETH/USD": {
+          "netPnlUsd": 1.2230697697911956,
+          "realizedPricePnlUsd": 1.9642000000000026,
+          "feesUsd": 0.1830636,
+          "totalFundingCostUsd": 0.5580666302088069,
+          "turnoverUsd": 244.08479999999994,
+          "filledOrders": 83,
+          "exposedHours": 7985,
+          "terminalQty": 0
+        }
+      },
+      "bothAssetsPositive": true,
+      "unknowns": 0,
+      "zeroVolumeNoFills": 0,
+      "risk": {
+        "minimumCapUsd": 3.18221130152233,
+        "meanPretradeCapUsd": 7.435801866879606,
+        "reasonHourCounts": {
+          "DAILY_LOSS_BUDGET_SCALING": 4093,
+          "DRAWDOWN_BUDGET_SCALING": 8709,
+          "RISK_BUDGET_AVAILABLE": 75
+        },
+        "drawdownHaltHours": 0,
+        "dailyHaltHours": 0,
+        "unknownHaltHours": 0,
+        "remainingIncreaseCancellations": 0,
+        "cancellationReasons": {},
+        "finalCapUsd": 7.142292124277447
+      }
+    },
+    {
+      "policy": "sign-trend-90d",
+      "variant": "ungoverned",
+      "scenario": "base-source-plus-hour",
+      "artifact": "develop-ungoverned-sign-trend-90d-base-source-plus-hour.json",
+      "netPnlUsd": 6.490823499581893,
+      "pricePnlAfterExecutionPricesBeforeFeesFundingUsd": 8.162700000000001,
+      "maximumLiquidationDrawdownUsd": 3.2271438539755763,
+      "maximumCalendarDayNetLossUsd": 1.3365517268684926,
+      "maximumObservedDailyLiquidationLossUsd": null,
+      "fills": 170,
+      "turnoverUsd": 648.9046999999997,
+      "feesUsd": 0.32445234999999994,
+      "fundingCostUsd": 1.347424150162574,
+      "fundingDebitUsd": 1.5369319107013633,
+      "fundingCreditUsd": 0.18950776053880136,
+      "extraFundingStressCostUsd": 0,
+      "slippageUsd": 0.10470000000000027,
+      "meanGrossExposureUsd": 10.29644545765027,
+      "maximumMarkedGrossExposureUsd": 12.189800000000002,
+      "exposedHours": 8733,
+      "flatHours": 51,
+      "longestFlatSpan": {
+        "hours": 48,
+        "startUtc": "2024-12-30T00:00:00+00:00",
+        "endExclusiveUtc": "2025-01-01T00:00:00+00:00"
+      },
+      "planStatuses": {
+        "HOLD": 8619,
+        "INCREASE": 82,
+        "REDUCE": 83
+      },
+      "planReasons": {
+        "CONFIRM_REDUCTIONS_BEFORE_INCREASES": 83,
+        "JOINT_LOT_ALLOCATION": 82,
+        "TARGET_WITHIN_BAND_OR_LOT_COST_OPTIMUM": 8619
+      },
+      "flatDespiteNonzeroScaledDesireHoldHours": 0,
+      "flatDesireAllDesiredAssetsMinimumLotAboveCapHours": 0,
+      "flatDesireRemainingLotCostOptimumHours": 0,
+      "perAsset": {
+        "BTC/USD": {
+          "netPnlUsd": 3.258247463746718,
+          "realizedPricePnlUsd": 4.3635,
+          "feesUsd": 0.12413325,
+          "totalFundingCostUsd": 0.9811192862532824,
+          "turnoverUsd": 248.26650000000004,
+          "filledOrders": 38,
+          "exposedHours": 8717,
+          "terminalQty": 0
+        },
+        "ETH/USD": {
+          "netPnlUsd": 3.232576036090718,
+          "realizedPricePnlUsd": 3.7992000000000004,
+          "feesUsd": 0.20031909999999997,
+          "totalFundingCostUsd": 0.3663048639092823,
+          "turnoverUsd": 400.63819999999987,
+          "filledOrders": 132,
+          "exposedHours": 7602,
+          "terminalQty": 0
+        }
+      },
+      "bothAssetsPositive": true,
+      "unknowns": 0,
+      "zeroVolumeNoFills": 0
+    },
+    {
+      "policy": "sign-trend-90d",
+      "variant": "ungoverned",
+      "scenario": "base-source-as-end",
+      "artifact": "develop-ungoverned-sign-trend-90d-base-source-as-end.json",
+      "netPnlUsd": 6.490531095347251,
+      "pricePnlAfterExecutionPricesBeforeFeesFundingUsd": 8.162700000000001,
+      "maximumLiquidationDrawdownUsd": 3.2263823430694174,
+      "maximumCalendarDayNetLossUsd": 1.336450663744472,
+      "maximumObservedDailyLiquidationLossUsd": null,
+      "fills": 170,
+      "turnoverUsd": 648.9046999999997,
+      "feesUsd": 0.32445234999999994,
+      "fundingCostUsd": 1.3477165543177658,
+      "fundingDebitUsd": 1.5370201101248977,
+      "fundingCreditUsd": 0.18930355580714298,
+      "extraFundingStressCostUsd": 0,
+      "slippageUsd": 0.10470000000000027,
+      "meanGrossExposureUsd": 10.29644545765027,
+      "maximumMarkedGrossExposureUsd": 12.189800000000002,
+      "exposedHours": 8733,
+      "flatHours": 51,
+      "longestFlatSpan": {
+        "hours": 48,
+        "startUtc": "2024-12-30T00:00:00+00:00",
+        "endExclusiveUtc": "2025-01-01T00:00:00+00:00"
+      },
+      "planStatuses": {
+        "HOLD": 8619,
+        "INCREASE": 82,
+        "REDUCE": 83
+      },
+      "planReasons": {
+        "CONFIRM_REDUCTIONS_BEFORE_INCREASES": 83,
+        "JOINT_LOT_ALLOCATION": 82,
+        "TARGET_WITHIN_BAND_OR_LOT_COST_OPTIMUM": 8619
+      },
+      "flatDespiteNonzeroScaledDesireHoldHours": 0,
+      "flatDesireAllDesiredAssetsMinimumLotAboveCapHours": 0,
+      "flatDesireRemainingLotCostOptimumHours": 0,
+      "perAsset": {
+        "BTC/USD": {
+          "netPnlUsd": 3.2580899911211487,
+          "realizedPricePnlUsd": 4.3635,
+          "feesUsd": 0.12413325,
+          "totalFundingCostUsd": 0.9812767588788516,
+          "turnoverUsd": 248.26650000000004,
+          "filledOrders": 38,
+          "exposedHours": 8717,
+          "terminalQty": 0
+        },
+        "ETH/USD": {
+          "netPnlUsd": 3.232441104561094,
+          "realizedPricePnlUsd": 3.7992000000000004,
+          "feesUsd": 0.20031909999999997,
+          "totalFundingCostUsd": 0.36643979543890587,
+          "turnoverUsd": 400.63819999999987,
+          "filledOrders": 132,
+          "exposedHours": 7602,
+          "terminalQty": 0
+        }
+      },
+      "bothAssetsPositive": true,
+      "unknowns": 0,
+      "zeroVolumeNoFills": 0
+    },
+    {
+      "policy": "sign-trend-90d",
+      "variant": "ungoverned",
+      "scenario": "stress-source-plus-hour",
+      "artifact": "develop-ungoverned-sign-trend-90d-stress-source-plus-hour.json",
+      "netPnlUsd": 5.7886766730225645,
+      "pricePnlAfterExecutionPricesBeforeFeesFundingUsd": 8.011900000000002,
+      "maximumLiquidationDrawdownUsd": 3.2870856872177683,
+      "maximumCalendarDayNetLossUsd": 1.337635170610156,
+      "maximumObservedDailyLiquidationLossUsd": null,
+      "fills": 177,
+      "turnoverUsd": 665.5018999999995,
+      "feesUsd": 0.49912642500000004,
+      "fundingCostUsd": 1.7240969030956725,
+      "fundingDebitUsd": 1.5365689081739522,
+      "fundingCreditUsd": 0.18923902549496072,
+      "extraFundingStressCostUsd": 0.3767670204166661,
+      "slippageUsd": 0.2076000000000005,
+      "meanGrossExposureUsd": 10.293303620218575,
+      "maximumMarkedGrossExposureUsd": 12.189800000000002,
+      "exposedHours": 8732,
+      "flatHours": 52,
+      "longestFlatSpan": {
+        "hours": 48,
+        "startUtc": "2024-12-30T00:00:00+00:00",
+        "endExclusiveUtc": "2025-01-01T00:00:00+00:00"
+      },
+      "planStatuses": {
+        "HOLD": 8612,
+        "INCREASE": 85,
+        "REDUCE": 87
+      },
+      "planReasons": {
+        "CONFIRM_REDUCTIONS_BEFORE_INCREASES": 87,
+        "JOINT_LOT_ALLOCATION": 85,
+        "TARGET_WITHIN_BAND_OR_LOT_COST_OPTIMUM": 8612
+      },
+      "flatDespiteNonzeroScaledDesireHoldHours": 0,
+      "flatDesireAllDesiredAssetsMinimumLotAboveCapHours": 0,
+      "flatDesireRemainingLotCostOptimumHours": 0,
+      "perAsset": {
+        "BTC/USD": {
+          "netPnlUsd": 3.079542900755815,
+          "realizedPricePnlUsd": 4.485900000000003,
+          "feesUsd": 0.18627892499999996,
+          "totalFundingCostUsd": 1.220078174244188,
+          "turnoverUsd": 248.37190000000007,
+          "filledOrders": 38,
+          "exposedHours": 8716,
+          "terminalQty": 0
+        },
+        "ETH/USD": {
+          "netPnlUsd": 2.709133771148527,
+          "realizedPricePnlUsd": 3.5260000000000002,
+          "feesUsd": 0.3128475,
+          "totalFundingCostUsd": 0.5040187288514729,
+          "turnoverUsd": 417.13,
+          "filledOrders": 139,
+          "exposedHours": 7601,
+          "terminalQty": 0
+        }
+      },
+      "bothAssetsPositive": true,
+      "unknowns": 0,
+      "zeroVolumeNoFills": 0
+    },
+    {
+      "policy": "sign-trend-90d",
+      "variant": "ungoverned",
+      "scenario": "stress-source-as-end",
+      "artifact": "develop-ungoverned-sign-trend-90d-stress-source-as-end.json",
+      "netPnlUsd": 5.7885842649120605,
+      "pricePnlAfterExecutionPricesBeforeFeesFundingUsd": 8.011900000000002,
+      "maximumLiquidationDrawdownUsd": 3.2863241765007842,
+      "maximumCalendarDayNetLossUsd": 1.3375341074715834,
+      "maximumObservedDailyLiquidationLossUsd": null,
+      "fills": 177,
+      "turnoverUsd": 665.5018999999995,
+      "feesUsd": 0.49912642500000004,
+      "fundingCostUsd": 1.7241893096363419,
+      "fundingDebitUsd": 1.5366478681162645,
+      "fundingCreditUsd": 0.18922557889658798,
+      "extraFundingStressCostUsd": 0.3767670204166661,
+      "slippageUsd": 0.2076000000000005,
+      "meanGrossExposureUsd": 10.293303620218575,
+      "maximumMarkedGrossExposureUsd": 12.189800000000002,
+      "exposedHours": 8732,
+      "flatHours": 52,
+      "longestFlatSpan": {
+        "hours": 48,
+        "startUtc": "2024-12-30T00:00:00+00:00",
+        "endExclusiveUtc": "2025-01-01T00:00:00+00:00"
+      },
+      "planStatuses": {
+        "HOLD": 8612,
+        "INCREASE": 85,
+        "REDUCE": 87
+      },
+      "planReasons": {
+        "CONFIRM_REDUCTIONS_BEFORE_INCREASES": 87,
+        "JOINT_LOT_ALLOCATION": 85,
+        "TARGET_WITHIN_BAND_OR_LOT_COST_OPTIMUM": 8612
+      },
+      "flatDespiteNonzeroScaledDesireHoldHours": 0,
+      "flatDesireAllDesiredAssetsMinimumLotAboveCapHours": 0,
+      "flatDesireRemainingLotCostOptimumHours": 0,
+      "perAsset": {
+        "BTC/USD": {
+          "netPnlUsd": 3.0793669839603894,
+          "realizedPricePnlUsd": 4.485900000000003,
+          "feesUsd": 0.18627892499999996,
+          "totalFundingCostUsd": 1.2202540910396134,
+          "turnoverUsd": 248.37190000000007,
+          "filledOrders": 38,
+          "exposedHours": 8716,
+          "terminalQty": 0
+        },
+        "ETH/USD": {
+          "netPnlUsd": 2.7092172814032676,
+          "realizedPricePnlUsd": 3.5260000000000002,
+          "feesUsd": 0.3128475,
+          "totalFundingCostUsd": 0.5039352185967325,
+          "turnoverUsd": 417.13,
+          "filledOrders": 139,
+          "exposedHours": 7601,
+          "terminalQty": 0
+        }
+      },
+      "bothAssetsPositive": true,
+      "unknowns": 0,
+      "zeroVolumeNoFills": 0
+    },
+    {
+      "policy": "constant-eth",
+      "variant": "governed",
+      "scenario": "base-source-plus-hour",
+      "artifact": "develop-governed-constant-eth-base-source-plus-hour.json",
+      "netPnlUsd": 1.2604518326115794,
+      "pricePnlAfterExecutionPricesBeforeFeesFundingUsd": 2.0540000000000043,
+      "maximumLiquidationDrawdownUsd": 2.4856652445014333,
+      "maximumCalendarDayNetLossUsd": 0.5796113912656438,
+      "maximumObservedDailyLiquidationLossUsd": 0.5988047410501167,
+      "fills": 86,
+      "turnoverUsd": 271.9850000000001,
+      "feesUsd": 0.13599250000000002,
+      "fundingCostUsd": 0.6575556670708836,
+      "fundingDebitUsd": 0.6635553368344793,
+      "fundingCreditUsd": 0.005999669763595081,
+      "extraFundingStressCostUsd": 0,
+      "slippageUsd": 0.046100000000000335,
+      "meanGrossExposureUsd": 2.8525610997267794,
+      "maximumMarkedGrossExposureUsd": 11.966,
+      "exposedHours": 5208,
+      "flatHours": 3576,
+      "longestFlatSpan": {
+        "hours": 2787,
+        "startUtc": "2024-09-06T21:00:00+00:00",
+        "endExclusiveUtc": "2025-01-01T00:00:00+00:00"
+      },
+      "planStatuses": {
+        "HOLD": 8698,
+        "INCREASE": 41,
+        "REDUCE": 45
+      },
+      "planReasons": {
+        "CONFIRM_REDUCTIONS_BEFORE_INCREASES": 45,
+        "JOINT_LOT_ALLOCATION": 41,
+        "TARGET_WITHIN_BAND_OR_LOT_COST_OPTIMUM": 8698
+      },
+      "flatDespiteNonzeroScaledDesireHoldHours": 3524,
+      "flatDesireAllDesiredAssetsMinimumLotAboveCapHours": 3524,
+      "flatDesireRemainingLotCostOptimumHours": 0,
+      "perAsset": {
+        "BTC/USD": {
+          "netPnlUsd": 0,
+          "realizedPricePnlUsd": 0,
+          "feesUsd": 0,
+          "totalFundingCostUsd": 0,
+          "turnoverUsd": 0,
+          "filledOrders": 0,
+          "exposedHours": 0,
+          "terminalQty": 0
+        },
+        "ETH/USD": {
+          "netPnlUsd": 1.2604518329291206,
+          "realizedPricePnlUsd": 2.0540000000000043,
+          "feesUsd": 0.13599250000000002,
+          "totalFundingCostUsd": 0.6575556670708836,
+          "turnoverUsd": 271.9850000000001,
+          "filledOrders": 86,
+          "exposedHours": 5208,
+          "terminalQty": 0
+        }
+      },
+      "bothAssetsPositive": false,
+      "unknowns": 0,
+      "zeroVolumeNoFills": 0,
+      "risk": {
+        "minimumCapUsd": 2.057339021994267,
+        "meanPretradeCapUsd": 4.887285553512713,
+        "reasonHourCounts": {
+          "DAILY_LOSS_BUDGET_SCALING": 2377,
+          "DRAWDOWN_BUDGET_SCALING": 8717,
+          "RISK_BUDGET_AVAILABLE": 67
+        },
+        "drawdownHaltHours": 0,
+        "dailyHaltHours": 0,
+        "unknownHaltHours": 0,
+        "remainingIncreaseCancellations": 0,
+        "cancellationReasons": {},
+        "finalCapUsd": 2.057339021994267
+      }
+    },
+    {
+      "policy": "constant-eth",
+      "variant": "governed",
+      "scenario": "base-source-as-end",
+      "artifact": "develop-governed-constant-eth-base-source-as-end.json",
+      "netPnlUsd": 1.2603459087113151,
+      "pricePnlAfterExecutionPricesBeforeFeesFundingUsd": 2.0540000000000043,
+      "maximumLiquidationDrawdownUsd": 2.485385348671116,
+      "maximumCalendarDayNetLossUsd": 0.5793703235685825,
+      "maximumObservedDailyLiquidationLossUsd": 0.5985416868788889,
+      "fills": 86,
+      "turnoverUsd": 271.9850000000001,
+      "feesUsd": 0.13599250000000002,
+      "fundingCostUsd": 0.657661591029158,
+      "fundingDebitUsd": 0.6634782871852287,
+      "fundingCreditUsd": 0.0058166961560704175,
+      "extraFundingStressCostUsd": 0,
+      "slippageUsd": 0.046100000000000335,
+      "meanGrossExposureUsd": 2.8525610997267794,
+      "maximumMarkedGrossExposureUsd": 11.966,
+      "exposedHours": 5208,
+      "flatHours": 3576,
+      "longestFlatSpan": {
+        "hours": 2787,
+        "startUtc": "2024-09-06T21:00:00+00:00",
+        "endExclusiveUtc": "2025-01-01T00:00:00+00:00"
+      },
+      "planStatuses": {
+        "HOLD": 8698,
+        "INCREASE": 41,
+        "REDUCE": 45
+      },
+      "planReasons": {
+        "CONFIRM_REDUCTIONS_BEFORE_INCREASES": 45,
+        "JOINT_LOT_ALLOCATION": 41,
+        "TARGET_WITHIN_BAND_OR_LOT_COST_OPTIMUM": 8698
+      },
+      "flatDespiteNonzeroScaledDesireHoldHours": 3524,
+      "flatDesireAllDesiredAssetsMinimumLotAboveCapHours": 3524,
+      "flatDesireRemainingLotCostOptimumHours": 0,
+      "perAsset": {
+        "BTC/USD": {
+          "netPnlUsd": 0,
+          "realizedPricePnlUsd": 0,
+          "feesUsd": 0,
+          "totalFundingCostUsd": 0,
+          "turnoverUsd": 0,
+          "filledOrders": 0,
+          "exposedHours": 0,
+          "terminalQty": 0
+        },
+        "ETH/USD": {
+          "netPnlUsd": 1.2603459089708462,
+          "realizedPricePnlUsd": 2.0540000000000043,
+          "feesUsd": 0.13599250000000002,
+          "totalFundingCostUsd": 0.657661591029158,
+          "turnoverUsd": 271.9850000000001,
+          "filledOrders": 86,
+          "exposedHours": 5208,
+          "terminalQty": 0
+        }
+      },
+      "bothAssetsPositive": false,
+      "unknowns": 0,
+      "zeroVolumeNoFills": 0,
+      "risk": {
+        "minimumCapUsd": 2.0584586053155363,
+        "meanPretradeCapUsd": 4.888755593826409,
+        "reasonHourCounts": {
+          "DAILY_LOSS_BUDGET_SCALING": 2377,
+          "DRAWDOWN_BUDGET_SCALING": 8717,
+          "RISK_BUDGET_AVAILABLE": 67
+        },
+        "drawdownHaltHours": 0,
+        "dailyHaltHours": 0,
+        "unknownHaltHours": 0,
+        "remainingIncreaseCancellations": 0,
+        "cancellationReasons": {},
+        "finalCapUsd": 2.0584586053155363
+      }
+    },
+    {
+      "policy": "constant-eth",
+      "variant": "governed",
+      "scenario": "stress-source-plus-hour",
+      "artifact": "develop-governed-constant-eth-stress-source-plus-hour.json",
+      "netPnlUsd": 1.9377635853597894,
+      "pricePnlAfterExecutionPricesBeforeFeesFundingUsd": 3.1623000000000068,
+      "maximumLiquidationDrawdownUsd": 2.4526737229170976,
+      "maximumCalendarDayNetLossUsd": 0.5837836045539007,
+      "maximumObservedDailyLiquidationLossUsd": 0.6006284685136052,
+      "fills": 112,
+      "turnoverUsd": 362.7625,
+      "feesUsd": 0.2720718750000001,
+      "fundingCostUsd": 0.9524645399418988,
+      "fundingDebitUsd": 0.8213726132511355,
+      "fundingCreditUsd": 0.007982073725903881,
+      "extraFundingStressCostUsd": 0.13907400041666715,
+      "slippageUsd": 0.1136999999999978,
+      "meanGrossExposureUsd": 3.799463126138426,
+      "maximumMarkedGrossExposureUsd": 11.966,
+      "exposedHours": 7944,
+      "flatHours": 840,
+      "longestFlatSpan": {
+        "hours": 782,
+        "startUtc": "2024-08-05T07:00:00+00:00",
+        "endExclusiveUtc": "2024-09-06T21:00:00+00:00"
+      },
+      "planStatuses": {
+        "HOLD": 8672,
+        "INCREASE": 54,
+        "REDUCE": 58
+      },
+      "planReasons": {
+        "CONFIRM_REDUCTIONS_BEFORE_INCREASES": 58,
+        "JOINT_LOT_ALLOCATION": 54,
+        "TARGET_WITHIN_BAND_OR_LOT_COST_OPTIMUM": 8672
+      },
+      "flatDespiteNonzeroScaledDesireHoldHours": 788,
+      "flatDesireAllDesiredAssetsMinimumLotAboveCapHours": 788,
+      "flatDesireRemainingLotCostOptimumHours": 0,
+      "perAsset": {
+        "BTC/USD": {
+          "netPnlUsd": 0,
+          "realizedPricePnlUsd": 0,
+          "feesUsd": 0,
+          "totalFundingCostUsd": 0,
+          "turnoverUsd": 0,
+          "filledOrders": 0,
+          "exposedHours": 0,
+          "terminalQty": 0
+        },
+        "ETH/USD": {
+          "netPnlUsd": 1.9377635850581085,
+          "realizedPricePnlUsd": 3.1623000000000068,
+          "feesUsd": 0.2720718750000001,
+          "totalFundingCostUsd": 0.9524645399418985,
+          "turnoverUsd": 362.7625,
+          "filledOrders": 112,
+          "exposedHours": 7944,
+          "terminalQty": 0
+        }
+      },
+      "bothAssetsPositive": false,
+      "unknowns": 0,
+      "zeroVolumeNoFills": 0,
+      "risk": {
+        "minimumCapUsd": 2.2079185083857733,
+        "meanPretradeCapUsd": 5.7630042319345645,
+        "reasonHourCounts": {
+          "DAILY_LOSS_BUDGET_SCALING": 3614,
+          "DRAWDOWN_BUDGET_SCALING": 8719,
+          "RISK_BUDGET_AVAILABLE": 65
+        },
+        "drawdownHaltHours": 0,
+        "dailyHaltHours": 0,
+        "unknownHaltHours": 0,
+        "remainingIncreaseCancellations": 0,
+        "cancellationReasons": {},
+        "finalCapUsd": 5.1345800964627415
+      }
+    },
+    {
+      "policy": "constant-eth",
+      "variant": "governed",
+      "scenario": "stress-source-as-end",
+      "artifact": "develop-governed-constant-eth-stress-source-as-end.json",
+      "netPnlUsd": 1.1627952430571895,
+      "pricePnlAfterExecutionPricesBeforeFeesFundingUsd": 2.127400000000002,
+      "maximumLiquidationDrawdownUsd": 2.4918017349846195,
+      "maximumCalendarDayNetLossUsd": 0.5835425368277356,
+      "maximumObservedDailyLiquidationLossUsd": 0.6003654143132735,
+      "fills": 88,
+      "turnoverUsd": 272.00480000000005,
+      "feesUsd": 0.2040036,
+      "fundingCostUsd": 0.7606011569560478,
+      "fundingDebitUsd": 0.6621446745280735,
+      "fundingCreditUsd": 0.005817266738691377,
+      "extraFundingStressCostUsd": 0.1042737491666669,
+      "slippageUsd": 0.08529999999999915,
+      "meanGrossExposureUsd": 2.848757638888891,
+      "maximumMarkedGrossExposureUsd": 11.966,
+      "exposedHours": 5207,
+      "flatHours": 3577,
+      "longestFlatSpan": {
+        "hours": 2787,
+        "startUtc": "2024-09-06T21:00:00+00:00",
+        "endExclusiveUtc": "2025-01-01T00:00:00+00:00"
+      },
+      "planStatuses": {
+        "HOLD": 8696,
+        "INCREASE": 42,
+        "REDUCE": 46
+      },
+      "planReasons": {
+        "CONFIRM_REDUCTIONS_BEFORE_INCREASES": 46,
+        "JOINT_LOT_ALLOCATION": 42,
+        "TARGET_WITHIN_BAND_OR_LOT_COST_OPTIMUM": 8696
+      },
+      "flatDespiteNonzeroScaledDesireHoldHours": 3524,
+      "flatDesireAllDesiredAssetsMinimumLotAboveCapHours": 3524,
+      "flatDesireRemainingLotCostOptimumHours": 0,
+      "perAsset": {
+        "BTC/USD": {
+          "netPnlUsd": 0,
+          "realizedPricePnlUsd": 0,
+          "feesUsd": 0,
+          "totalFundingCostUsd": 0,
+          "turnoverUsd": 0,
+          "filledOrders": 0,
+          "exposedHours": 0,
+          "terminalQty": 0
+        },
+        "ETH/USD": {
+          "netPnlUsd": 1.1627952430439532,
+          "realizedPricePnlUsd": 2.127400000000002,
+          "feesUsd": 0.2040036,
+          "totalFundingCostUsd": 0.7606011569560486,
+          "turnoverUsd": 272.00480000000005,
+          "filledOrders": 88,
+          "exposedHours": 5207,
+          "terminalQty": 0
+        }
+      },
+      "bothAssetsPositive": false,
+      "unknowns": 0,
+      "zeroVolumeNoFills": 0,
+      "risk": {
+        "minimumCapUsd": 2.0327930600615214,
+        "meanPretradeCapUsd": 4.884767597836452,
+        "reasonHourCounts": {
+          "DAILY_LOSS_BUDGET_SCALING": 2383,
+          "DRAWDOWN_BUDGET_SCALING": 8719,
+          "RISK_BUDGET_AVAILABLE": 65
+        },
+        "drawdownHaltHours": 0,
+        "dailyHaltHours": 0,
+        "unknownHaltHours": 0,
+        "remainingIncreaseCancellations": 0,
+        "cancellationReasons": {},
+        "finalCapUsd": 2.0327930600615214
+      }
+    }
+  ],
+  "governorComparisons": [
+    {
+      "policy": "sign-trend-90d",
+      "scenario": "base-source-plus-hour",
+      "governedMinusUngoverned": {
+        "netPnlUsd": -2.760914473052253,
+        "pricePnlAfterExecutionPricesBeforeFeesFundingUsd": -3.5276000000000005,
+        "maximumLiquidationDrawdownUsd": -1.0640213189617498,
+        "maximumCalendarDayNetLossUsd": -0.8653820753534092,
+        "fills": -51,
+        "turnoverUsd": -194.94919999999985,
+        "feesUsd": -0.09747459999999988,
+        "fundingCostUsd": -0.6692109271125927,
+        "meanGrossExposureUsd": -5.850418852459001,
+        "exposedHours": -19
+      },
+      "netReductionFraction": 0.42535657813374494,
+      "liquidationDrawdownReductionFraction": 0.3297099128850308,
+      "meanExposureReductionFraction": 0.5681979161179486,
+      "interpretation": "Lower exposure cuts price earnings more than the accompanying fee/funding savings; targets and baseline inputs are unchanged."
+    },
+    {
+      "policy": "sign-trend-90d",
+      "scenario": "base-source-as-end",
+      "governedMinusUngoverned": {
+        "netPnlUsd": -2.760120272258064,
+        "pricePnlAfterExecutionPricesBeforeFeesFundingUsd": -3.5230000000000006,
+        "maximumLiquidationDrawdownUsd": -1.0634655294124968,
+        "maximumCalendarDayNetLossUsd": -0.8655333245842485,
+        "fills": -49,
+        "turnoverUsd": -188.05839999999984,
+        "feesUsd": -0.0940291999999999,
+        "fundingCostUsd": -0.6688505279248415,
+        "meanGrossExposureUsd": -5.850026946721296,
+        "exposedHours": -19
+      },
+      "netReductionFraction": 0.4252533778378569,
+      "liquidationDrawdownReductionFraction": 0.32961546907077643,
+      "meanExposureReductionFraction": 0.5681598538818773,
+      "interpretation": "Lower exposure cuts price earnings more than the accompanying fee/funding savings; targets and baseline inputs are unchanged."
+    },
+    {
+      "policy": "sign-trend-90d",
+      "scenario": "stress-source-plus-hour",
+      "governedMinusUngoverned": {
+        "netPnlUsd": -2.535567133265431,
+        "pricePnlAfterExecutionPricesBeforeFeesFundingUsd": -3.6165000000000003,
+        "maximumLiquidationDrawdownUsd": -1.076224492295296,
+        "maximumCalendarDayNetLossUsd": -0.8648066281602951,
+        "fills": -68,
+        "turnoverUsd": -254.4668999999996,
+        "feesUsd": -0.19085017500000012,
+        "fundingCostUsd": -0.8900826931802492,
+        "meanGrossExposureUsd": -5.870669376138419,
+        "exposedHours": -27
+      },
+      "netReductionFraction": 0.4380218962793584,
+      "liquidationDrawdownReductionFraction": 0.3274099292514112,
+      "meanExposureReductionFraction": 0.5703386971513191,
+      "interpretation": "Lower exposure cuts price earnings more than the accompanying fee/funding savings; targets and baseline inputs are unchanged."
+    },
+    {
+      "policy": "sign-trend-90d",
+      "scenario": "stress-source-as-end",
+      "governedMinusUngoverned": {
+        "netPnlUsd": -2.5355133173870854,
+        "pricePnlAfterExecutionPricesBeforeFeesFundingUsd": -3.6165000000000003,
+        "maximumLiquidationDrawdownUsd": -1.075674201885704,
+        "maximumCalendarDayNetLossUsd": -0.8649578774202382,
+        "fills": -68,
+        "turnoverUsd": -254.4668999999996,
+        "feesUsd": -0.19085017500000012,
+        "fundingCostUsd": -0.8901365076261579,
+        "meanGrossExposureUsd": -5.870669376138419,
+        "exposedHours": -27
+      },
+      "netReductionFraction": 0.438019591898539,
+      "liquidationDrawdownReductionFraction": 0.32731834843848595,
+      "meanExposureReductionFraction": 0.5703386971513191,
+      "interpretation": "Lower exposure cuts price earnings more than the accompanying fee/funding savings; targets and baseline inputs are unchanged."
+    },
+    {
+      "policy": "multiscale-trend",
+      "scenario": "base-source-plus-hour",
+      "governedMinusUngoverned": {
+        "netPnlUsd": -1.6835962810873752,
+        "pricePnlAfterExecutionPricesBeforeFeesFundingUsd": -2.650100000000004,
+        "maximumLiquidationDrawdownUsd": -2.8846568427979946,
+        "maximumCalendarDayNetLossUsd": -0.4746390945656458,
+        "fills": -72,
+        "turnoverUsd": -351.55029999999965,
+        "feesUsd": -0.17577514999999994,
+        "fundingCostUsd": -0.7907285684823264,
+        "meanGrossExposureUsd": -4.34383360655738,
+        "exposedHours": -3448
+      },
+      "netReductionFraction": 0.5183895352020427,
+      "liquidationDrawdownReductionFraction": 0.6357485567707117,
+      "meanExposureReductionFraction": 0.6732366093860753,
+      "interpretation": "Lower exposure cuts price earnings more than the accompanying fee/funding savings; targets and baseline inputs are unchanged."
+    },
+    {
+      "policy": "multiscale-trend",
+      "scenario": "base-source-as-end",
+      "governedMinusUngoverned": {
+        "netPnlUsd": -1.6996337171731284,
+        "pricePnlAfterExecutionPricesBeforeFeesFundingUsd": -2.663900000000003,
+        "maximumLiquidationDrawdownUsd": -2.88454576638469,
+        "maximumCalendarDayNetLossUsd": -0.4745390949829016,
+        "fills": -70,
+        "turnoverUsd": -347.03189999999967,
+        "feesUsd": -0.17351594999999992,
+        "fundingCostUsd": -0.7907503322962685,
+        "meanGrossExposureUsd": -4.343317657103828,
+        "exposedHours": -3448
+      },
+      "netReductionFraction": 0.5234346554616094,
+      "liquidationDrawdownReductionFraction": 0.6357444884848329,
+      "meanExposureReductionFraction": 0.6731566440623116,
+      "interpretation": "Lower exposure cuts price earnings more than the accompanying fee/funding savings; targets and baseline inputs are unchanged."
+    },
+    {
+      "policy": "multiscale-trend",
+      "scenario": "stress-source-plus-hour",
+      "governedMinusUngoverned": {
+        "netPnlUsd": -1.4906561904936098,
+        "pricePnlAfterExecutionPricesBeforeFeesFundingUsd": -2.714900000000002,
+        "maximumLiquidationDrawdownUsd": -3.0325134012819035,
+        "maximumCalendarDayNetLossUsd": -0.4739556993881706,
+        "fills": -72,
+        "turnoverUsd": -358.93989999999985,
+        "feesUsd": -0.26920492499999993,
+        "fundingCostUsd": -0.9550388854006205,
+        "meanGrossExposureUsd": -4.374201958105654,
+        "exposedHours": -3485
+      },
+      "netReductionFraction": 0.47493229656312475,
+      "liquidationDrawdownReductionFraction": 0.6509664274355639,
+      "meanExposureReductionFraction": 0.6772442494068565,
+      "interpretation": "Lower exposure cuts price earnings more than the accompanying fee/funding savings; targets and baseline inputs are unchanged."
+    },
+    {
+      "policy": "multiscale-trend",
+      "scenario": "stress-source-as-end",
+      "governedMinusUngoverned": {
+        "netPnlUsd": -1.4900895644095726,
+        "pricePnlAfterExecutionPricesBeforeFeesFundingUsd": -2.714900000000002,
+        "maximumLiquidationDrawdownUsd": -3.032556972466409,
+        "maximumCalendarDayNetLossUsd": -0.47385569993639365,
+        "fills": -72,
+        "turnoverUsd": -358.93989999999985,
+        "feesUsd": -0.26920492499999993,
+        "fundingCostUsd": -0.9556055101599704,
+        "meanGrossExposureUsd": -4.374201958105654,
+        "exposedHours": -3485
+      },
+      "netReductionFraction": 0.4748707267891895,
+      "liquidationDrawdownReductionFraction": 0.651005524555408,
+      "meanExposureReductionFraction": 0.6772442494068565,
+      "interpretation": "Lower exposure cuts price earnings more than the accompanying fee/funding savings; targets and baseline inputs are unchanged."
+    }
+  ],
+  "fundingTimingSensitivity": [
+    {
+      "policy": "sign-trend-90d",
+      "costScenario": "base",
+      "plusHourMinusAsEndNetPnlUsd": -0.0005017965595470741,
+      "positionDivergenceHours": 1,
+      "flatVersusExposedDivergenceHours": 0,
+      "firstPositionDivergenceUtc": "2024-07-02T10:00:00+00:00",
+      "firstDivergencePlans": {
+        "plusHour": {
+          "atMs": 1719914400000,
+          "targetDecisionMs": 1719878400000,
+          "status": "HOLD",
+          "reason": "TARGET_WITHIN_BAND_OR_LOT_COST_OPTIMUM",
+          "executableQty": {
+            "BTC/USD": -0.0001,
+            "ETH/USD": 0
+          },
+          "desiredUsd": {
+            "BTC/USD": -5.554792987949066,
+            "ETH/USD": 4.147226264923494
+          },
+          "riskPrices": {
+            "BTC/USD": 62590,
+            "ETH/USD": 3443.1
+          },
+          "rules": {
+            "BTC/USD": {
+              "symbol": "BTC/USD",
+              "minOrderSize": 0.0001,
+              "minTradeIncrement": 0.0001,
+              "priceIncrement": 1,
+              "maximumOrderQty": 1200,
+              "shortable": true
+            },
+            "ETH/USD": {
+              "symbol": "ETH/USD",
+              "minOrderSize": 0.001,
+              "minTradeIncrement": 0.001,
+              "priceIncrement": 0.1,
+              "maximumOrderQty": 21000,
+              "shortable": true
+            }
+          },
+          "grossNotionalUsd": 6.259,
+          "maximumGrossNotionalUsd": 9.70201925287256,
+          "unusedCapacityUsd": 3.44301925287256,
+          "estimatedAdjustmentCostUsd": 0,
+          "orders": []
+        },
+        "asEnd": {
+          "atMs": 1719914400000,
+          "targetDecisionMs": 1719878400000,
+          "status": "INCREASE",
+          "reason": "JOINT_LOT_ALLOCATION",
+          "executableQty": {
+            "BTC/USD": -0.0001,
+            "ETH/USD": 0.001
+          },
+          "desiredUsd": {
+            "BTC/USD": -5.554976378802911,
+            "ETH/USD": 4.147363185123305
+          },
+          "riskPrices": {
+            "BTC/USD": 62590,
+            "ETH/USD": 3443.1
+          },
+          "rules": {
+            "BTC/USD": {
+              "symbol": "BTC/USD",
+              "minOrderSize": 0.0001,
+              "minTradeIncrement": 0.0001,
+              "priceIncrement": 1,
+              "maximumOrderQty": 1200,
+              "shortable": true
+            },
+            "ETH/USD": {
+              "symbol": "ETH/USD",
+              "minOrderSize": 0.001,
+              "minTradeIncrement": 0.001,
+              "priceIncrement": 0.1,
+              "maximumOrderQty": 21000,
+              "shortable": true
+            }
+          },
+          "grossNotionalUsd": 9.7021,
+          "maximumGrossNotionalUsd": 9.702339563926216,
+          "unusedCapacityUsd": 0.00023956392621649059,
+          "estimatedAdjustmentCostUsd": 0.002321549999999909,
+          "orders": [
+            {
+              "id": "btc-eth-persistent-target-portfolio-v1:68:1719878400000:ETH/USD",
+              "symbol": "ETH/USD",
+              "signedQty": 0.001,
+              "remainingQty": 0.001,
+              "reduceOnly": false,
+              "limitPrice": 3443.1,
+              "createdAtMs": 1719914400000,
+              "targetDecisionMs": 1719878400000
+            }
+          ]
+        }
+      },
+      "lastFillUtc": {
+        "plusHour": "2024-12-30T00:00:00+00:00",
+        "asEnd": "2024-12-30T00:00:00+00:00"
+      },
+      "flatHours": {
+        "plusHour": 70,
+        "asEnd": 70
+      },
+      "minimumLotBlockedFlatHours": {
+        "plusHour": 0,
+        "asEnd": 0
+      }
+    },
+    {
+      "policy": "sign-trend-90d",
+      "costScenario": "stress",
+      "plusHourMinusAsEndNetPnlUsd": 3.859223215840757e-05,
+      "positionDivergenceHours": 0,
+      "flatVersusExposedDivergenceHours": 0,
+      "firstPositionDivergenceUtc": null,
+      "firstDivergencePlans": null,
+      "lastFillUtc": {
+        "plusHour": "2024-12-30T00:00:00+00:00",
+        "asEnd": "2024-12-30T00:00:00+00:00"
+      },
+      "flatHours": {
+        "plusHour": 79,
+        "asEnd": 79
+      },
+      "minimumLotBlockedFlatHours": {
+        "plusHour": 0,
+        "asEnd": 0
+      }
+    },
+    {
+      "policy": "multiscale-trend",
+      "costScenario": "base",
+      "plusHourMinusAsEndNetPnlUsd": 0.016701933185686357,
+      "positionDivergenceHours": 2,
+      "flatVersusExposedDivergenceHours": 0,
+      "firstPositionDivergenceUtc": "2024-01-09T16:00:00+00:00",
+      "firstDivergencePlans": {
+        "plusHour": {
+          "atMs": 1704816000000,
+          "targetDecisionMs": 1704758400000,
+          "status": "HOLD",
+          "reason": "TARGET_WITHIN_BAND_OR_LOT_COST_OPTIMUM",
+          "executableQty": {
+            "BTC/USD": 0.0001,
+            "ETH/USD": 0.001
+          },
+          "desiredUsd": {
+            "BTC/USD": 4.611719076391726,
+            "ETH/USD": 3.3923292788808963
+          },
+          "riskPrices": {
+            "BTC/USD": 46938,
+            "ETH/USD": 2259.4
+          },
+          "rules": {
+            "BTC/USD": {
+              "symbol": "BTC/USD",
+              "minOrderSize": 0.0001,
+              "minTradeIncrement": 0.0001,
+              "priceIncrement": 1,
+              "maximumOrderQty": 1200,
+              "shortable": true
+            },
+            "ETH/USD": {
+              "symbol": "ETH/USD",
+              "minOrderSize": 0.001,
+              "minTradeIncrement": 0.001,
+              "priceIncrement": 0.1,
+              "maximumOrderQty": 21000,
+              "shortable": true
+            }
+          },
+          "grossNotionalUsd": 6.953200000000001,
+          "maximumGrossNotionalUsd": 10.862824170559179,
+          "unusedCapacityUsd": 3.9096241705591783,
+          "estimatedAdjustmentCostUsd": 0,
+          "orders": []
+        },
+        "asEnd": {
+          "atMs": 1704816000000,
+          "targetDecisionMs": 1704758400000,
+          "status": "INCREASE",
+          "reason": "JOINT_LOT_ALLOCATION",
+          "executableQty": {
+            "BTC/USD": 0.0001,
+            "ETH/USD": 0.002
+          },
+          "desiredUsd": {
+            "BTC/USD": 4.6126331781676955,
+            "ETH/USD": 3.3930016819841935
+          },
+          "riskPrices": {
+            "BTC/USD": 46938,
+            "ETH/USD": 2259.4
+          },
+          "rules": {
+            "BTC/USD": {
+              "symbol": "BTC/USD",
+              "minOrderSize": 0.0001,
+              "minTradeIncrement": 0.0001,
+              "priceIncrement": 1,
+              "maximumOrderQty": 1200,
+              "shortable": true
+            },
+            "ETH/USD": {
+              "symbol": "ETH/USD",
+              "minOrderSize": 0.001,
+              "minTradeIncrement": 0.001,
+              "priceIncrement": 0.1,
+              "maximumOrderQty": 21000,
+              "shortable": true
+            }
+          },
+          "grossNotionalUsd": 9.212600000000002,
+          "maximumGrossNotionalUsd": 10.86497732141288,
+          "unusedCapacityUsd": 1.652377321412878,
+          "estimatedAdjustmentCostUsd": 0.0015297000000000912,
+          "orders": [
+            {
+              "id": "btc-eth-persistent-target-portfolio-v1:5:1704758400000:ETH/USD",
+              "symbol": "ETH/USD",
+              "signedQty": 0.001,
+              "remainingQty": 0.001,
+              "reduceOnly": false,
+              "limitPrice": 2259.4,
+              "createdAtMs": 1704816000000,
+              "targetDecisionMs": 1704758400000
+            }
+          ]
+        }
+      },
+      "lastFillUtc": {
+        "plusHour": "2024-12-22T01:00:00+00:00",
+        "asEnd": "2024-12-22T01:00:00+00:00"
+      },
+      "flatHours": {
+        "plusHour": 4848,
+        "asEnd": 4848
+      },
+      "minimumLotBlockedFlatHours": {
+        "plusHour": 0,
+        "asEnd": 0
+      }
+    },
+    {
+      "policy": "multiscale-trend",
+      "costScenario": "stress",
+      "plusHourMinusAsEndNetPnlUsd": 0.00021964858751744032,
+      "positionDivergenceHours": 0,
+      "flatVersusExposedDivergenceHours": 0,
+      "firstPositionDivergenceUtc": null,
+      "firstDivergencePlans": null,
+      "lastFillUtc": {
+        "plusHour": "2024-12-22T02:00:00+00:00",
+        "asEnd": "2024-12-22T02:00:00+00:00"
+      },
+      "flatHours": {
+        "plusHour": 4888,
+        "asEnd": 4888
+      },
+      "minimumLotBlockedFlatHours": {
+        "plusHour": 0,
+        "asEnd": 0
+      }
+    },
+    {
+      "policy": "constant-eth",
+      "costScenario": "base",
+      "plusHourMinusAsEndNetPnlUsd": 0.00010592390026431531,
+      "positionDivergenceHours": 0,
+      "flatVersusExposedDivergenceHours": 0,
+      "firstPositionDivergenceUtc": null,
+      "firstDivergencePlans": null,
+      "lastFillUtc": {
+        "plusHour": "2024-09-06T21:00:00+00:00",
+        "asEnd": "2024-09-06T21:00:00+00:00"
+      },
+      "flatHours": {
+        "plusHour": 3576,
+        "asEnd": 3576
+      },
+      "minimumLotBlockedFlatHours": {
+        "plusHour": 3524,
+        "asEnd": 3524
+      }
+    },
+    {
+      "policy": "constant-eth",
+      "costScenario": "stress",
+      "plusHourMinusAsEndNetPnlUsd": 0.7749683423025999,
+      "positionDivergenceHours": 2743,
+      "flatVersusExposedDivergenceHours": 2741,
+      "firstPositionDivergenceUtc": "2024-02-06T20:00:00+00:00",
+      "firstDivergencePlans": {
+        "plusHour": {
+          "atMs": 1707249600000,
+          "targetDecisionMs": 1707177600000,
+          "status": "HOLD",
+          "reason": "TARGET_WITHIN_BAND_OR_LOT_COST_OPTIMUM",
+          "executableQty": {
+            "BTC/USD": 0,
+            "ETH/USD": 0.002
+          },
+          "desiredUsd": {
+            "BTC/USD": 0,
+            "ETH/USD": 7.139156797376926
+          },
+          "riskPrices": {
+            "BTC/USD": 43292,
+            "ETH/USD": 2379.8
+          },
+          "rules": {
+            "BTC/USD": {
+              "symbol": "BTC/USD",
+              "minOrderSize": 0.0001,
+              "minTradeIncrement": 0.0001,
+              "priceIncrement": 1,
+              "maximumOrderQty": 1200,
+              "shortable": true
+            },
+            "ETH/USD": {
+              "symbol": "ETH/USD",
+              "minOrderSize": 0.001,
+              "minTradeIncrement": 0.001,
+              "priceIncrement": 0.1,
+              "maximumOrderQty": 21000,
+              "shortable": true
+            }
+          },
+          "grossNotionalUsd": 4.759600000000001,
+          "maximumGrossNotionalUsd": 7.139156797376926,
+          "unusedCapacityUsd": 2.3795567973769254,
+          "estimatedAdjustmentCostUsd": 0,
+          "orders": []
+        },
+        "asEnd": {
+          "atMs": 1707249600000,
+          "targetDecisionMs": 1707177600000,
+          "status": "INCREASE",
+          "reason": "JOINT_LOT_ALLOCATION",
+          "executableQty": {
+            "BTC/USD": 0,
+            "ETH/USD": 0.003
+          },
+          "desiredUsd": {
+            "BTC/USD": 0,
+            "ETH/USD": 7.140685458434746
+          },
+          "riskPrices": {
+            "BTC/USD": 43292,
+            "ETH/USD": 2379.8
+          },
+          "rules": {
+            "BTC/USD": {
+              "symbol": "BTC/USD",
+              "minOrderSize": 0.0001,
+              "minTradeIncrement": 0.0001,
+              "priceIncrement": 1,
+              "maximumOrderQty": 1200,
+              "shortable": true
+            },
+            "ETH/USD": {
+              "symbol": "ETH/USD",
+              "minOrderSize": 0.001,
+              "minTradeIncrement": 0.001,
+              "priceIncrement": 0.1,
+              "maximumOrderQty": 21000,
+              "shortable": true
+            }
+          },
+          "grossNotionalUsd": 7.139400000000001,
+          "maximumGrossNotionalUsd": 7.140685458434746,
+          "unusedCapacityUsd": 0.0012854584347445908,
+          "estimatedAdjustmentCostUsd": 0.0025848500000001827,
+          "orders": [
+            {
+              "id": "btc-eth-persistent-target-portfolio-v1:24:1707177600000:ETH/USD",
+              "symbol": "ETH/USD",
+              "signedQty": 0.001,
+              "remainingQty": 0.001,
+              "reduceOnly": false,
+              "limitPrice": 2379.8,
+              "createdAtMs": 1707249600000,
+              "targetDecisionMs": 1707177600000
+            }
+          ]
+        }
+      },
+      "lastFillUtc": {
+        "plusHour": "2024-12-30T00:00:00+00:00",
+        "asEnd": "2024-09-06T21:00:00+00:00"
+      },
+      "flatHours": {
+        "plusHour": 840,
+        "asEnd": 3577
+      },
+      "minimumLotBlockedFlatHours": {
+        "plusHour": 788,
+        "asEnd": 3524
+      }
+    }
+  ],
+  "conclusions": [
+    "The fixed governor improves observed liquidation drawdown and daily losses through reduced inventory; it does not improve the input signal or forecast.",
+    "Governed sign-trend-90d beats governed multiscale in net P&L in every 2024 scenario; both assets remain positive in all four governed candidate scenarios.",
+    "The governor reduces fees and funding through less exposure and turnover, but the reduction in price earnings is larger, so net P&L is lower than its ungoverned counterpart.",
+    "No candidate accounting, daily-loss, or permanent drawdown latch fired in this development window. Most reductions reflect continuous risk scaling.",
+    "The joint lot/cost optimizer can hold cash with a positive target. When all minimum lots exceed the remaining cap, flat inventory cannot recover the drawdown buffer through price gains.",
+    "Funding timestamp interpretation materially changes the governed constant-ETH stress path: small cash differences affect lot feasibility and subsequent exposure. This is a robustness limitation, not a data timing resolution.",
+    "All eight ungoverned v2 saved runs are byte-identical to the corresponding saved v1 runs, including their input receipts.",
+    "These are 2024 development outcomes under hourly execution proxies and unresolved funding timestamps; they do not establish live profitability."
+  ],
+  "definitions": {
+    "flatDespiteNonzeroScaledDesireHoldHours": "Hourly plans that return HOLD with zero gross inventory and at least one nonzero desired asset target.",
+    "minimumLotBlocked": "For each desired asset, its minimum order notional at the plan risk price exceeds the entire current cap; this is a sufficient infeasibility condition.",
+    "dailyLoss": "Calendar-day net loss is reported for both variants. Intraday liquidation loss from the governor is reported only for governed runs; no ungoverned value was fabricated.",
+    "pricePnl": "Realized plus terminal unrealized price P&L at simulated execution prices, already incorporating slippage; fees and funding are deducted separately.",
+    "riskReasonCounts": "PRE_TRADE observations before endMs; multiple reasons may apply within one hour.",
+    "maximumMarkedGrossExposureUsd": "Includes pre-adjustment mark movement. Dynamic caps constrain planned/reserved exposure and can be exceeded by price gaps between checks."
+  },
+  "reproducibleAuditScript": {
+    "path": "/tmp/portfolio-v2-development-economic-audit.py",
+    "sha256": "bd80113887b9a946c79b6663567adb0feb1ed03de9096c727708857571ede1dc"
+  }
+}

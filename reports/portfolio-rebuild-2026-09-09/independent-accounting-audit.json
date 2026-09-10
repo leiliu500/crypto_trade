@@ -1,0 +1,1086 @@
+{
+  "version": "portfolio-independent-2024-accounting-audit-v1",
+  "status": "PASS_ALL_20_ACCOUNTS_RECONSTRUCTED",
+  "completedAtUtc": "2026-09-09T02:18:51.637Z",
+  "scope": {
+    "period": {
+      "startMs": 1704067200000,
+      "endMsExclusive": 1735689600000
+    },
+    "policies": [
+      "multiscale-trend",
+      "sign-trend-90d",
+      "constant-btc",
+      "constant-eth",
+      "flat"
+    ],
+    "scenarios": [
+      "base-source-plus-hour",
+      "base-source-as-end",
+      "stress-source-plus-hour",
+      "stress-source-as-end"
+    ],
+    "real2024PerformanceAudited": true,
+    "performance2025Or2026Evaluated": false,
+    "sealedSourcesModified": false,
+    "strategyRerun": false,
+    "implementationImports": false
+  },
+  "reproduction": {
+    "scriptPath": "/tmp/portfolio-independent-accounting-audit-20260909.mjs",
+    "scriptSha256": "9f6e7b70dc3fdee843280feecab1dbf818547999f8fdaa2cc7d37b25e6847b86",
+    "command": "node /tmp/portfolio-independent-accounting-audit-20260909.mjs"
+  },
+  "method": "Independent signed trade-cashflow ledger plus integer-lot inventory market value. Funding rebuilt against original normalized archived absolute rates; every hourly equity, pre-trade value, liquidation value, cash balance, plan/order/cap, per-asset total, daily bucket and fixed economic gate checked. No strategy/kernel/replay implementation imported or rerun.",
+  "verification": {
+    "sourceHashes": {
+      "src/portfolio/types.ts": "932cedcff32633cd3317106ba185d34e879a94fd426b36b196ff45a2c584a3da",
+      "src/portfolio/signals.ts": "66907f0868be89af33445d7041454ff960d018eb469af886b43224624f1f6293",
+      "src/portfolio/kernel.ts": "3c78b6202330409b9bd84bfb6d9938fd383162069a70c29eaee4f3115decf756",
+      "src/portfolio/replay.ts": "f2427846d07113ca44fcb58152ba4476009b0e55f5a44bf142cd07504eef6120",
+      "src/portfolio/protocol.ts": "f585d18b3a423a4bd6ca4380a355f5e7006dbec3649fd6ad43a7fea9125f951c",
+      "src/portfolio/study-main.ts": "4aa4260d397c091445464fcc5609f8f6264fe1027ef4bf76ba88ff7d590a7d4e",
+      "src/portfolio/shadow.ts": "b14fc376b6678424187232745d5b92dc867aac48f46af04b24046ce0a776e827",
+      "src/portfolio/live-main.ts": "365730955686861db5946bdca7680ffc7ae1615c8e577591e60182265467e155",
+      "src/research/hourly-data.ts": "0786552d6f700f8ad906a6f6db80b423560eef6f79dbb7403250ce1eeb260a91",
+      "src/research/hourly-study-statistics.ts": "0a9b6437903c26845958748d18f4b43f3ad35749f616da924cd61252442c7a36",
+      "src/core/order-book.ts": "030a9979f2f6a1f4d736e4b927202ffeb446fb1a5a25a18f0a427dc61624db63",
+      "src/core/market.ts": "8bbdd7973b1ba9ee15f30177273cc9b16df4c3c00bbad9547b25bfa20e512837",
+      "src/kraken/market-stream.ts": "42b3005e966c09c0b1fe12012569ac27062a16436a05c373fac28ad514df7d89",
+      "src/kraken/paper-broker.ts": "9c6f240965a31cb7121e11e757856a11ad967a727e2415390b31ff66d7199857",
+      "src/execution/planner.ts": "5954f3b7796fd7ba907e251de7f933e52680b8ab9abb69ba332ab961e87f3604",
+      "src/venue/client.ts": "14c9a6fad0580f43d21926983558f097e0255b33e5b56a2b297517bf2884be2e",
+      "package-lock.json": "2315bada829d31ccb4d3970392ba56d73458d3219dda1ec98d8dda0d41893594",
+      "reports/distribution-instrument-rules-2026-09-07.json": "a89ee77c1a871c63266cde004776e7484ccdc81d544b7d32a81f56cb07d89cdf"
+    },
+    "dataSeals": [
+      {
+        "directory": "/home/ec2-user/crypto_trade/reports/hourly-adaptive-study-2026-09-08/data-older-restored",
+        "datasetSha256": "6995137d4366500628885518de3908f663ab7584caba0a4fe9845f700ac3f36f",
+        "manifestSha256": "b49fc0c9fe648aec3a049605f1e5c79d6d0a917bcf93c40bd151f47b992e941b"
+      },
+      {
+        "directory": "/home/ec2-user/crypto_trade/reports/hourly-adaptive-study-2026-09-08/data-recent",
+        "datasetSha256": "802694ae936dd864681dee2278f027ea1732a91fd6b635f1b08371673abcb227",
+        "manifestSha256": "5a57cfcc6dc6cc352f708f3101d0e2026580c5faf7b6661509016feb6483ecb4"
+      }
+    ],
+    "protocolSha256": "807be0de5acd8d381bd3527ea781fefae744cf92a1df98c08271545cbbf0a66a",
+    "summarySha256": "f141a178421398ad8da1f4f54e321cbc6142edbb82ec33a85610fd57bf9082e1",
+    "integritySha256": "4550b7fad3151ab6432067b38ec3185060ce894da55c1b3e70c6938d99058524",
+    "startReceiptSha256": "ea67b202c09eeb9c738e54abff462ae968075e6eded6a7be3ed6d16ff6b760d4",
+    "artifactHashes": {
+      "develop-multiscale-trend-targets.json": "c423885b1dd89381376f3a4356176f1aa3368a84513c4fd184fa95a786e5dc7f",
+      "develop-sign-trend-90d-targets.json": "d35ea219bf62326dbb6eb69ddf8ed1507d5ea78676410949a4fbad61cee630b4",
+      "develop-constant-btc-targets.json": "2116bff4811aaa7233bf2b0383f8dbfbc9bec30a7a1452a37f0662e8fd582de9",
+      "develop-constant-eth-targets.json": "19e4f3887543c0e5c69c72cb36d45e31566c59187eede36eccfbb91bc16e1321",
+      "develop-flat-targets.json": "f932329c37170b9ab741b20ffa14813f4c85e3bc115b0a393b3efc1530687d54",
+      "develop-multiscale-trend-base-source-plus-hour.json": "57ae14f45a4f4684ce2c7fa3069643912b089a72fb070e71c7cf31e53b4b9bc3",
+      "develop-multiscale-trend-base-source-as-end.json": "81915559e082b500c28ea0f655c81a4aa483ed1d5e781b458b2bc8f9ebb79fbb",
+      "develop-multiscale-trend-stress-source-plus-hour.json": "dd9c6d0c0acb87d789866384d875bf1e8ca29da6733035fcfce59840a499efae",
+      "develop-multiscale-trend-stress-source-as-end.json": "4d54ad992aff7b556b79ed80dc03079a61fec557b677bdf99e561126ecc902ff",
+      "develop-sign-trend-90d-base-source-plus-hour.json": "876bdd5913fd67a87b78fac25446c5a1685bd70451fd508e31128a6fa82c1459",
+      "develop-sign-trend-90d-base-source-as-end.json": "c34e7b15a323dde08f4adcaa982e644782efac6c376bd28f7e2a8ca3b7d45e76",
+      "develop-sign-trend-90d-stress-source-plus-hour.json": "e60f07b73864d5d691601c5611efa067eb16dbe2b33ffc6d5e49418187a96d3b",
+      "develop-sign-trend-90d-stress-source-as-end.json": "ddb034da15bc28072d06800033a78bf40c2a980cb99e7f38994976019f4742e2",
+      "develop-constant-btc-base-source-plus-hour.json": "0a18fef3760dbb0f20ca1aea2ac9f8f5d28f8b6cbc6d475b8f65e5767dc1475f",
+      "develop-constant-btc-base-source-as-end.json": "b0b1d6274380b800b18498b2cc61028ff81c6d73831e635947de614acda988d4",
+      "develop-constant-btc-stress-source-plus-hour.json": "0c49bf02ce049c861b44087bcf5c468e326075eb08e337035c344ebe684a3b77",
+      "develop-constant-btc-stress-source-as-end.json": "66c6cf3d5a56d63220d66b2fc4ab5040f25f16180fb3cef35b36c0f8f6117257",
+      "develop-constant-eth-base-source-plus-hour.json": "7a795c9e1eb1a4abecc1e2540890b061691bc8abfba56156840905e8a7e65823",
+      "develop-constant-eth-base-source-as-end.json": "a65d9ec244dcce3a937e551eeb7eeb01eb8bb94f07650c3d7ced7379e1985dac",
+      "develop-constant-eth-stress-source-plus-hour.json": "6f32e474a2ff6ce20befb6e8fc1264802488ac42d45da3e95249720a572be143",
+      "develop-constant-eth-stress-source-as-end.json": "c5f261158d7c223d90c94532e77ad83bcf52dd5cf4510437097b420d93b6770b",
+      "develop-flat-base-source-plus-hour.json": "95ac50ffa2bf6f72a0ebfcd40445ae812fb22b26c4faefef085ea4726c050c0c",
+      "develop-flat-base-source-as-end.json": "68533b9de2e3139f9dcfc7179f0e0f3eb295cfb4dcb3ef797ce88fa1595abfcc",
+      "develop-flat-stress-source-plus-hour.json": "a6bcfffe506b025281fed60c903520c88da8b9819fc901a6e6bbcd6f9c74b06c",
+      "develop-flat-stress-source-as-end.json": "ce563a568b848e5c54c091f145c796932addae8136ff694f33be256aa3e1b1d1"
+    },
+    "sourceDataArtifactsUnchangedOnCompletion": true,
+    "inputReceipts": {
+      "bars": {
+        "sha256": "bc5eb94b1b580ecd820639e2bfa42e6dfcaf1158c88204ea2af4ef810b61fdf6",
+        "records": 35328
+      },
+      "funding": {
+        "sha256": "edfbf4427f8bbed9924a2654ca55a69261b1f2d613ca25db51a06249bff837f6",
+        "records": 17572
+      },
+      "rules": {
+        "sha256": "1c3e22a34c769a1bf45987efb90668718a4e289bac5023ec79ba06b4c8b7da8c",
+        "records": 2
+      }
+    },
+    "latestPriceBarOpenMsEconomicallyUsed": 1735686000000,
+    "latestNormalizedFundingTimestampEconomicallyUsed": 1735520400000,
+    "fundingBoundaryRowsPast2024UsedOnlyForInputHash": true
+  },
+  "tolerances": {
+    "cashEquityDailyDrawdownUsd": 1e-7,
+    "priceAndMostAggregates": 1e-10,
+    "fillLotAndIndividualFundingUsd": 1e-12
+  },
+  "maximumAbsoluteDifferences": {
+    "mark": 0,
+    "preTradeEquity": 1.4115357771515846e-9,
+    "preTradeGross": 0,
+    "planQty": 5.421010862427522e-20,
+    "planGross": 3.552713678800501e-15,
+    "unusedCapacity": 3.552713678800501e-15,
+    "planCost": 9.094287822808411e-16,
+    "hourlyEquity": 1.4115357771515846e-9,
+    "indicativeEquity": 1.4115357771515846e-9,
+    "cashBalance": 1.1641532182693481e-10,
+    "liquidationEquity": 1.4115357771515846e-9,
+    "indicativeLiquidationEquity": 1.4115357771515846e-9,
+    "actualQty": 0,
+    "grossExposure": 0,
+    "orderLot": 0,
+    "adverseTickPrice": 0,
+    "fee": 0,
+    "fundingQty": 0,
+    "fundingMark": 0,
+    "actualFunding": 0,
+    "extraFunding": 0,
+    "fundingReceipt": 0,
+    "finalNet": 1.1929923715570112e-9,
+    "indicativeNet": 1.1929923715570112e-9,
+    "maximumDrawdown": 9.604264050722122e-10,
+    "liquidationDrawdown": 9.604264050722122e-10,
+    "totalFees": 1.1102230246251565e-16,
+    "totalTurnover": 5.684341886080801e-13,
+    "totalFunding": 9.325873406851315e-15,
+    "knownFunding": 9.325873406851315e-15,
+    "fundingDebit": 0,
+    "fundingCredit": 0,
+    "totalSlippage": 0,
+    "maximumGross": 0,
+    "meanGross": 0,
+    "perAssetNet": 5.417888360170764e-14,
+    "perAssetRealized": 2.220446049250313e-15,
+    "perAssetPricePnl": 2.220446049250313e-15,
+    "perAssetUnrealized": 0,
+    "perAssetFees": 0,
+    "perAssetTurnover": 0,
+    "perAssetSlippage": 0,
+    "perAssetActualFunding": 0,
+    "perAssetExtraFunding": 0,
+    "perAssetTotalFunding": 4.440892098500626e-15,
+    "maximumAssetExposure": 0,
+    "dailyPnl": 1.1641532182693481e-10,
+    "dailyIndicativePnl": 1.1641532182693481e-10,
+    "dailySumToNet": 6.802558516483259e-12,
+    "finalStateCash": 1.1641532182693481e-10,
+    "finalCashToNet": 1.2512000324704786e-9,
+    "summaryNet": 1.1929923715570112e-9,
+    "summaryDrawdown": 9.604264050722122e-10,
+    "summaryOneDayLoss": 7.275957614183426e-11,
+    "summaryUtility": 1.6222738707938333e-9
+  },
+  "counts": {
+    "accounts": 20,
+    "sealedSourceFiles": 18,
+    "datasets": 2,
+    "sealedDevelopmentArtifacts": 25,
+    "hourlyEquities": 175700,
+    "plans": 175680,
+    "fills": 2162,
+    "fundingSettlements": 179304,
+    "dailyRows": 7320
+  },
+  "runs": [
+    {
+      "policy": "multiscale-trend",
+      "scenario": "base-source-plus-hour",
+      "file": "develop-multiscale-trend-base-source-plus-hour.json",
+      "sha256": "57ae14f45a4f4684ce2c7fa3069643912b089a72fb070e71c7cf31e53b4b9bc3",
+      "accountingKnown": true,
+      "plans": 8784,
+      "fills": 125,
+      "fundingSettlements": 11042,
+      "hourlyEquities": 8785,
+      "dailyRows": 366,
+      "zeroVolumeNoFills": 0,
+      "maximumHourlyEquityDifferenceUsd": 5.529727786779404e-10,
+      "maximumDailyPnlDifferenceUsd": 7.275957614183426e-11,
+      "independentlyComputed": {
+        "netPnlUsd": 3.247743573196005,
+        "maximumDrawdownUsd": 4.54058023939433,
+        "maximumLiquidationDrawdownUsd": 4.537417839397676,
+        "maximumOneDayLossUsd": 0.9458087460807292,
+        "utility": 0.9774534534988399,
+        "exposureHours": 7384,
+        "targetCoverageFraction": 1,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 2.395475651943112,
+            "exposureHours": 5754
+          },
+          "ETH/USD": {
+            "netPnlUsd": 0.852267921252893,
+            "exposureHours": 5288
+          }
+        }
+      }
+    },
+    {
+      "policy": "multiscale-trend",
+      "scenario": "base-source-as-end",
+      "file": "develop-multiscale-trend-base-source-as-end.json",
+      "sha256": "81915559e082b500c28ea0f655c81a4aa483ed1d5e781b458b2bc8f9ebb79fbb",
+      "accountingKnown": true,
+      "plans": 8784,
+      "fills": 125,
+      "fundingSettlements": 11042,
+      "hourlyEquities": 8785,
+      "dailyRows": 366,
+      "zeroVolumeNoFills": 0,
+      "maximumHourlyEquityDifferenceUsd": 6.548361852765083e-10,
+      "maximumDailyPnlDifferenceUsd": 8.731149137020111e-11,
+      "independentlyComputed": {
+        "netPnlUsd": 3.247079076204522,
+        "maximumDrawdownUsd": 4.540434556794935,
+        "maximumLiquidationDrawdownUsd": 4.537272156798281,
+        "maximumOneDayLossUsd": 0.9454564341431251,
+        "utility": 0.9768617978070546,
+        "exposureHours": 7384,
+        "targetCoverageFraction": 1,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 2.394755741319461,
+            "exposureHours": 5754
+          },
+          "ETH/USD": {
+            "netPnlUsd": 0.8523233348850612,
+            "exposureHours": 5288
+          }
+        }
+      }
+    },
+    {
+      "policy": "multiscale-trend",
+      "scenario": "stress-source-plus-hour",
+      "file": "develop-multiscale-trend-stress-source-plus-hour.json",
+      "sha256": "dd9c6d0c0acb87d789866384d875bf1e8ca29da6733035fcfce59840a499efae",
+      "accountingKnown": true,
+      "plans": 8784,
+      "fills": 119,
+      "fundingSettlements": 11036,
+      "hourlyEquities": 8785,
+      "dailyRows": 366,
+      "zeroVolumeNoFills": 0,
+      "maximumHourlyEquityDifferenceUsd": 1.2223608791828156e-9,
+      "maximumDailyPnlDifferenceUsd": 7.275957614183426e-11,
+      "independentlyComputed": {
+        "netPnlUsd": 3.138670923830229,
+        "maximumDrawdownUsd": 4.663522028917214,
+        "maximumLiquidationDrawdownUsd": 4.658478953904705,
+        "maximumOneDayLossUsd": 0.946784241910791,
+        "utility": 0.8069099093716221,
+        "exposureHours": 7381,
+        "targetCoverageFraction": 1,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 2.666193826661347,
+            "exposureHours": 5765
+          },
+          "ETH/USD": {
+            "netPnlUsd": 0.47247709716888187,
+            "exposureHours": 5271
+          }
+        }
+      }
+    },
+    {
+      "policy": "multiscale-trend",
+      "scenario": "stress-source-as-end",
+      "file": "develop-multiscale-trend-stress-source-as-end.json",
+      "sha256": "4d54ad992aff7b556b79ed80dc03079a61fec557b677bdf99e561126ecc902ff",
+      "accountingKnown": true,
+      "plans": 8784,
+      "fills": 119,
+      "fundingSettlements": 11036,
+      "hourlyEquities": 8785,
+      "dailyRows": 366,
+      "zeroVolumeNoFills": 0,
+      "maximumHourlyEquityDifferenceUsd": 6.984919309616089e-10,
+      "maximumDailyPnlDifferenceUsd": 7.275957614183426e-11,
+      "independentlyComputed": {
+        "netPnlUsd": 3.1378846508125013,
+        "maximumDrawdownUsd": 4.663309184732498,
+        "maximumLiquidationDrawdownUsd": 4.658266109719989,
+        "maximumOneDayLossUsd": 0.9464319299877388,
+        "utility": 0.8062300584462525,
+        "exposureHours": 7381,
+        "targetCoverageFraction": 1,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 2.665095425664214,
+            "exposureHours": 5765
+          },
+          "ETH/USD": {
+            "netPnlUsd": 0.47278922514828725,
+            "exposureHours": 5271
+          }
+        }
+      }
+    },
+    {
+      "policy": "sign-trend-90d",
+      "scenario": "base-source-plus-hour",
+      "file": "develop-sign-trend-90d-base-source-plus-hour.json",
+      "sha256": "876bdd5913fd67a87b78fac25446c5a1685bd70451fd508e31128a6fa82c1459",
+      "accountingKnown": true,
+      "plans": 8784,
+      "fills": 170,
+      "fundingSettlements": 16319,
+      "hourlyEquities": 8785,
+      "dailyRows": 366,
+      "zeroVolumeNoFills": 0,
+      "maximumHourlyEquityDifferenceUsd": 4.220055416226387e-10,
+      "maximumDailyPnlDifferenceUsd": 1.0186340659856796e-10,
+      "independentlyComputed": {
+        "netPnlUsd": 6.49082349983739,
+        "maximumDrawdownUsd": 3.2271486541139893,
+        "maximumLiquidationDrawdownUsd": 3.2271438541065436,
+        "maximumOneDayLossUsd": 1.3365517268684926,
+        "utility": 4.877249172780395,
+        "exposureHours": 8733,
+        "targetCoverageFraction": 1,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 3.258247463746688,
+            "exposureHours": 8717
+          },
+          "ETH/USD": {
+            "netPnlUsd": 3.2325760360907023,
+            "exposureHours": 7602
+          }
+        }
+      }
+    },
+    {
+      "policy": "sign-trend-90d",
+      "scenario": "base-source-as-end",
+      "file": "develop-sign-trend-90d-base-source-as-end.json",
+      "sha256": "c34e7b15a323dde08f4adcaa982e644782efac6c376bd28f7e2a8ca3b7d45e76",
+      "accountingKnown": true,
+      "plans": 8784,
+      "fills": 170,
+      "fundingSettlements": 16319,
+      "hourlyEquities": 8785,
+      "dailyRows": 366,
+      "zeroVolumeNoFills": 0,
+      "maximumHourlyEquityDifferenceUsd": 4.511093720793724e-10,
+      "maximumDailyPnlDifferenceUsd": 1.0186340659856796e-10,
+      "independentlyComputed": {
+        "netPnlUsd": 6.4905310956822015,
+        "maximumDrawdownUsd": 3.226387143236934,
+        "maximumLiquidationDrawdownUsd": 3.2263823432294885,
+        "maximumOneDayLossUsd": 1.336450663744472,
+        "utility": 4.877337524063734,
+        "exposureHours": 8733,
+        "targetCoverageFraction": 1,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 3.2580899911211247,
+            "exposureHours": 8717
+          },
+          "ETH/USD": {
+            "netPnlUsd": 3.232441104561077,
+            "exposureHours": 7602
+          }
+        }
+      }
+    },
+    {
+      "policy": "sign-trend-90d",
+      "scenario": "stress-source-plus-hour",
+      "file": "develop-sign-trend-90d-stress-source-plus-hour.json",
+      "sha256": "e60f07b73864d5d691601c5611efa067eb16dbe2b33ffc6d5e49418187a96d3b",
+      "accountingKnown": true,
+      "plans": 8784,
+      "fills": 177,
+      "fundingSettlements": 16317,
+      "hourlyEquities": 8785,
+      "dailyRows": 366,
+      "zeroVolumeNoFills": 0,
+      "maximumHourlyEquityDifferenceUsd": 1.2951204553246498e-9,
+      "maximumDailyPnlDifferenceUsd": 7.275957614183426e-11,
+      "independentlyComputed": {
+        "netPnlUsd": 5.7886766719043194,
+        "maximumDrawdownUsd": 3.2870928874617675,
+        "maximumLiquidationDrawdownUsd": 3.287085687450599,
+        "maximumOneDayLossUsd": 1.3376351706247078,
+        "utility": 4.145130228173436,
+        "exposureHours": 8732,
+        "targetCoverageFraction": 1,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 3.07954290075579,
+            "exposureHours": 8716
+          },
+          "ETH/USD": {
+            "netPnlUsd": 2.709133771148529,
+            "exposureHours": 7601
+          }
+        }
+      }
+    },
+    {
+      "policy": "sign-trend-90d",
+      "scenario": "stress-source-as-end",
+      "file": "develop-sign-trend-90d-stress-source-as-end.json",
+      "sha256": "ddb034da15bc28072d06800033a78bf40c2a980cb99e7f38994976019f4742e2",
+      "accountingKnown": true,
+      "plans": 8784,
+      "fills": 177,
+      "fundingSettlements": 16317,
+      "hourlyEquities": 8785,
+      "dailyRows": 366,
+      "zeroVolumeNoFills": 0,
+      "maximumHourlyEquityDifferenceUsd": 5.093170329928398e-10,
+      "maximumDailyPnlDifferenceUsd": 1.1641532182693481e-10,
+      "independentlyComputed": {
+        "netPnlUsd": 5.788584265363677,
+        "maximumDrawdownUsd": 3.2863313765701605,
+        "maximumLiquidationDrawdownUsd": 3.286324176558992,
+        "maximumOneDayLossUsd": 1.3375341074861353,
+        "utility": 4.145418577078597,
+        "exposureHours": 8732,
+        "targetCoverageFraction": 1,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 3.079366983960395,
+            "exposureHours": 8716
+          },
+          "ETH/USD": {
+            "netPnlUsd": 2.7092172814032818,
+            "exposureHours": 7601
+          }
+        }
+      }
+    },
+    {
+      "policy": "constant-btc",
+      "scenario": "base-source-plus-hour",
+      "file": "develop-constant-btc-base-source-plus-hour.json",
+      "sha256": "0a18fef3760dbb0f20ca1aea2ac9f8f5d28f8b6cbc6d475b8f65e5767dc1475f",
+      "accountingKnown": true,
+      "plans": 8784,
+      "fills": 87,
+      "fundingSettlements": 8735,
+      "hourlyEquities": 8785,
+      "dailyRows": 366,
+      "zeroVolumeNoFills": 0,
+      "maximumHourlyEquityDifferenceUsd": 6.548361852765083e-10,
+      "maximumDailyPnlDifferenceUsd": 5.820766091346741e-11,
+      "independentlyComputed": {
+        "netPnlUsd": 7.419363188893621,
+        "maximumDrawdownUsd": 3.226837635957054,
+        "maximumLiquidationDrawdownUsd": 3.2285301859519677,
+        "maximumOneDayLossUsd": 0.8223462025780464,
+        "utility": 5.805944370915094,
+        "exposureHours": 8735,
+        "targetCoverageFraction": 1,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 7.419363188893621,
+            "exposureHours": 8735
+          },
+          "ETH/USD": {
+            "netPnlUsd": 0,
+            "exposureHours": 0
+          }
+        }
+      }
+    },
+    {
+      "policy": "constant-btc",
+      "scenario": "base-source-as-end",
+      "file": "develop-constant-btc-base-source-as-end.json",
+      "sha256": "b0b1d6274380b800b18498b2cc61028ff81c6d73831e635947de614acda988d4",
+      "accountingKnown": true,
+      "plans": 8784,
+      "fills": 87,
+      "fundingSettlements": 8735,
+      "hourlyEquities": 8785,
+      "dailyRows": 366,
+      "zeroVolumeNoFills": 0,
+      "maximumHourlyEquityDifferenceUsd": 6.83940015733242e-10,
+      "maximumDailyPnlDifferenceUsd": 5.820766091346741e-11,
+      "independentlyComputed": {
+        "netPnlUsd": 7.418107777414439,
+        "maximumDrawdownUsd": 3.2262275989778573,
+        "maximumLiquidationDrawdownUsd": 3.227920148972771,
+        "maximumOneDayLossUsd": 0.822345425200183,
+        "utility": 5.80499397792551,
+        "exposureHours": 8735,
+        "targetCoverageFraction": 1,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 7.418107777414439,
+            "exposureHours": 8735
+          },
+          "ETH/USD": {
+            "netPnlUsd": 0,
+            "exposureHours": 0
+          }
+        }
+      }
+    },
+    {
+      "policy": "constant-btc",
+      "scenario": "stress-source-plus-hour",
+      "file": "develop-constant-btc-stress-source-plus-hour.json",
+      "sha256": "0c49bf02ce049c861b44087bcf5c468e326075eb08e337035c344ebe684a3b77",
+      "accountingKnown": true,
+      "plans": 8784,
+      "fills": 87,
+      "fundingSettlements": 8734,
+      "hourlyEquities": 8785,
+      "dailyRows": 366,
+      "zeroVolumeNoFills": 0,
+      "maximumHourlyEquityDifferenceUsd": 1.4115357771515846e-9,
+      "maximumDailyPnlDifferenceUsd": 5.820766091346741e-11,
+      "independentlyComputed": {
+        "netPnlUsd": 6.96196033674668,
+        "maximumDrawdownUsd": 3.3317816614726325,
+        "maximumLiquidationDrawdownUsd": 3.33442026146804,
+        "maximumOneDayLossUsd": 0.8234139559062896,
+        "utility": 5.2960695060103635,
+        "exposureHours": 8734,
+        "targetCoverageFraction": 1,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 6.96196033674668,
+            "exposureHours": 8734
+          },
+          "ETH/USD": {
+            "netPnlUsd": 0,
+            "exposureHours": 0
+          }
+        }
+      }
+    },
+    {
+      "policy": "constant-btc",
+      "scenario": "stress-source-as-end",
+      "file": "develop-constant-btc-stress-source-as-end.json",
+      "sha256": "66c6cf3d5a56d63220d66b2fc4ab5040f25f16180fb3cef35b36c0f8f6117257",
+      "accountingKnown": true,
+      "plans": 8784,
+      "fills": 87,
+      "fundingSettlements": 8734,
+      "hourlyEquities": 8785,
+      "dailyRows": 366,
+      "zeroVolumeNoFills": 0,
+      "maximumHourlyEquityDifferenceUsd": 3.346940502524376e-10,
+      "maximumDailyPnlDifferenceUsd": 7.275957614183426e-11,
+      "independentlyComputed": {
+        "netPnlUsd": 6.960826988101234,
+        "maximumDrawdownUsd": 3.331198426662013,
+        "maximumLiquidationDrawdownUsd": 3.33383702665742,
+        "maximumOneDayLossUsd": 0.8234131785138743,
+        "utility": 5.295227774770227,
+        "exposureHours": 8734,
+        "targetCoverageFraction": 1,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 6.960826988101234,
+            "exposureHours": 8734
+          },
+          "ETH/USD": {
+            "netPnlUsd": 0,
+            "exposureHours": 0
+          }
+        }
+      }
+    },
+    {
+      "policy": "constant-eth",
+      "scenario": "base-source-plus-hour",
+      "file": "develop-constant-eth-base-source-plus-hour.json",
+      "sha256": "7a795c9e1eb1a4abecc1e2540890b061691bc8abfba56156840905e8a7e65823",
+      "accountingKnown": true,
+      "plans": 8784,
+      "fills": 158,
+      "fundingSettlements": 8735,
+      "hourlyEquities": 8785,
+      "dailyRows": 366,
+      "zeroVolumeNoFills": 0,
+      "maximumHourlyEquityDifferenceUsd": 5.384208634495735e-10,
+      "maximumDailyPnlDifferenceUsd": 8.731149137020111e-11,
+      "independentlyComputed": {
+        "netPnlUsd": 4.3597304575659885,
+        "maximumDrawdownUsd": 6.143677492422285,
+        "maximumLiquidationDrawdownUsd": 6.143353942432441,
+        "maximumOneDayLossUsd": 1.1011594031733694,
+        "utility": 1.2878917113548463,
+        "exposureHours": 8735,
+        "targetCoverageFraction": 1,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 0,
+            "exposureHours": 0
+          },
+          "ETH/USD": {
+            "netPnlUsd": 4.3597304575659885,
+            "exposureHours": 8735
+          }
+        }
+      }
+    },
+    {
+      "policy": "constant-eth",
+      "scenario": "base-source-as-end",
+      "file": "develop-constant-eth-base-source-as-end.json",
+      "sha256": "a65d9ec244dcce3a937e551eeb7eeb01eb8bb94f07650c3d7ced7379e1985dac",
+      "accountingKnown": true,
+      "plans": 8784,
+      "fills": 158,
+      "fundingSettlements": 8735,
+      "hourlyEquities": 8785,
+      "dailyRows": 366,
+      "zeroVolumeNoFills": 0,
+      "maximumHourlyEquityDifferenceUsd": 5.238689482212067e-10,
+      "maximumDailyPnlDifferenceUsd": 7.275957614183426e-11,
+      "independentlyComputed": {
+        "netPnlUsd": 4.358172969338923,
+        "maximumDrawdownUsd": 6.143609487407957,
+        "maximumLiquidationDrawdownUsd": 6.1432859374181135,
+        "maximumOneDayLossUsd": 1.1007658290182007,
+        "utility": 1.286368225634944,
+        "exposureHours": 8735,
+        "targetCoverageFraction": 1,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 0,
+            "exposureHours": 0
+          },
+          "ETH/USD": {
+            "netPnlUsd": 4.358172969338923,
+            "exposureHours": 8735
+          }
+        }
+      }
+    },
+    {
+      "policy": "constant-eth",
+      "scenario": "stress-source-plus-hour",
+      "file": "develop-constant-eth-stress-source-plus-hour.json",
+      "sha256": "6f32e474a2ff6ce20befb6e8fc1264802488ac42d45da3e95249720a572be143",
+      "accountingKnown": true,
+      "plans": 8784,
+      "fills": 158,
+      "fundingSettlements": 8734,
+      "hourlyEquities": 8785,
+      "dailyRows": 366,
+      "zeroVolumeNoFills": 0,
+      "maximumHourlyEquityDifferenceUsd": 8.585629984736443e-10,
+      "maximumDailyPnlDifferenceUsd": 5.820766091346741e-11,
+      "independentlyComputed": {
+        "netPnlUsd": 3.7433248872180043,
+        "maximumDrawdownUsd": 6.427971769546275,
+        "maximumLiquidationDrawdownUsd": 6.430896319550811,
+        "maximumOneDayLossUsd": 1.102154914435232,
+        "utility": 0.5293390024448668,
+        "exposureHours": 8734,
+        "targetCoverageFraction": 1,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 0,
+            "exposureHours": 0
+          },
+          "ETH/USD": {
+            "netPnlUsd": 3.7433248872180043,
+            "exposureHours": 8734
+          }
+        }
+      }
+    },
+    {
+      "policy": "constant-eth",
+      "scenario": "stress-source-as-end",
+      "file": "develop-constant-eth-stress-source-as-end.json",
+      "sha256": "c5f261158d7c223d90c94532e77ad83bcf52dd5cf4510437097b420d93b6770b",
+      "accountingKnown": true,
+      "plans": 8784,
+      "fills": 158,
+      "fundingSettlements": 8734,
+      "hourlyEquities": 8785,
+      "dailyRows": 366,
+      "zeroVolumeNoFills": 0,
+      "maximumHourlyEquityDifferenceUsd": 2.9103830456733704e-10,
+      "maximumDailyPnlDifferenceUsd": 7.275957614183426e-11,
+      "independentlyComputed": {
+        "netPnlUsd": 3.741810043299399,
+        "maximumDrawdownUsd": 6.427950466706534,
+        "maximumLiquidationDrawdownUsd": 6.43087501671107,
+        "maximumOneDayLossUsd": 1.1017613402655115,
+        "utility": 0.5278348099461319,
+        "exposureHours": 8734,
+        "targetCoverageFraction": 1,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 0,
+            "exposureHours": 0
+          },
+          "ETH/USD": {
+            "netPnlUsd": 3.741810043299399,
+            "exposureHours": 8734
+          }
+        }
+      }
+    },
+    {
+      "policy": "flat",
+      "scenario": "base-source-plus-hour",
+      "file": "develop-flat-base-source-plus-hour.json",
+      "sha256": "95ac50ffa2bf6f72a0ebfcd40445ae812fb22b26c4faefef085ea4726c050c0c",
+      "accountingKnown": true,
+      "plans": 8784,
+      "fills": 0,
+      "fundingSettlements": 0,
+      "hourlyEquities": 8785,
+      "dailyRows": 366,
+      "zeroVolumeNoFills": 0,
+      "maximumHourlyEquityDifferenceUsd": 0,
+      "maximumDailyPnlDifferenceUsd": 0,
+      "independentlyComputed": {
+        "netPnlUsd": 0,
+        "maximumDrawdownUsd": 0,
+        "maximumLiquidationDrawdownUsd": 0,
+        "maximumOneDayLossUsd": 0,
+        "utility": 0,
+        "exposureHours": 0,
+        "targetCoverageFraction": 1,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 0,
+            "exposureHours": 0
+          },
+          "ETH/USD": {
+            "netPnlUsd": 0,
+            "exposureHours": 0
+          }
+        }
+      }
+    },
+    {
+      "policy": "flat",
+      "scenario": "base-source-as-end",
+      "file": "develop-flat-base-source-as-end.json",
+      "sha256": "68533b9de2e3139f9dcfc7179f0e0f3eb295cfb4dcb3ef797ce88fa1595abfcc",
+      "accountingKnown": true,
+      "plans": 8784,
+      "fills": 0,
+      "fundingSettlements": 0,
+      "hourlyEquities": 8785,
+      "dailyRows": 366,
+      "zeroVolumeNoFills": 0,
+      "maximumHourlyEquityDifferenceUsd": 0,
+      "maximumDailyPnlDifferenceUsd": 0,
+      "independentlyComputed": {
+        "netPnlUsd": 0,
+        "maximumDrawdownUsd": 0,
+        "maximumLiquidationDrawdownUsd": 0,
+        "maximumOneDayLossUsd": 0,
+        "utility": 0,
+        "exposureHours": 0,
+        "targetCoverageFraction": 1,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 0,
+            "exposureHours": 0
+          },
+          "ETH/USD": {
+            "netPnlUsd": 0,
+            "exposureHours": 0
+          }
+        }
+      }
+    },
+    {
+      "policy": "flat",
+      "scenario": "stress-source-plus-hour",
+      "file": "develop-flat-stress-source-plus-hour.json",
+      "sha256": "a6bcfffe506b025281fed60c903520c88da8b9819fc901a6e6bbcd6f9c74b06c",
+      "accountingKnown": true,
+      "plans": 8784,
+      "fills": 0,
+      "fundingSettlements": 0,
+      "hourlyEquities": 8785,
+      "dailyRows": 366,
+      "zeroVolumeNoFills": 0,
+      "maximumHourlyEquityDifferenceUsd": 0,
+      "maximumDailyPnlDifferenceUsd": 0,
+      "independentlyComputed": {
+        "netPnlUsd": 0,
+        "maximumDrawdownUsd": 0,
+        "maximumLiquidationDrawdownUsd": 0,
+        "maximumOneDayLossUsd": 0,
+        "utility": 0,
+        "exposureHours": 0,
+        "targetCoverageFraction": 1,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 0,
+            "exposureHours": 0
+          },
+          "ETH/USD": {
+            "netPnlUsd": 0,
+            "exposureHours": 0
+          }
+        }
+      }
+    },
+    {
+      "policy": "flat",
+      "scenario": "stress-source-as-end",
+      "file": "develop-flat-stress-source-as-end.json",
+      "sha256": "ce563a568b848e5c54c091f145c796932addae8136ff694f33be256aa3e1b1d1",
+      "accountingKnown": true,
+      "plans": 8784,
+      "fills": 0,
+      "fundingSettlements": 0,
+      "hourlyEquities": 8785,
+      "dailyRows": 366,
+      "zeroVolumeNoFills": 0,
+      "maximumHourlyEquityDifferenceUsd": 0,
+      "maximumDailyPnlDifferenceUsd": 0,
+      "independentlyComputed": {
+        "netPnlUsd": 0,
+        "maximumDrawdownUsd": 0,
+        "maximumLiquidationDrawdownUsd": 0,
+        "maximumOneDayLossUsd": 0,
+        "utility": 0,
+        "exposureHours": 0,
+        "targetCoverageFraction": 1,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 0,
+            "exposureHours": 0
+          },
+          "ETH/USD": {
+            "netPnlUsd": 0,
+            "exposureHours": 0
+          }
+        }
+      }
+    }
+  ],
+  "independentlyRecomputedGateComparisons": [
+    {
+      "scenario": "base-source-plus-hour",
+      "gates": {
+        "completeAccounting": true,
+        "targetCoverage": true,
+        "meaningfulExposure": true,
+        "riskWithinLimits": false,
+        "positiveNetBothAssetsAndPortfolio": true,
+        "utilityAboveFlatAndSimpleRule": false
+      },
+      "candidate": {
+        "netPnlUsd": 3.247743573196005,
+        "maximumDrawdownUsd": 4.54058023939433,
+        "maximumLiquidationDrawdownUsd": 4.537417839397676,
+        "maximumOneDayLossUsd": 0.9458087460807292,
+        "utility": 0.9774534534988399,
+        "exposureHours": 7384,
+        "targetCoverageFraction": 1,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 2.395475651943112,
+            "exposureHours": 5754
+          },
+          "ETH/USD": {
+            "netPnlUsd": 0.852267921252893,
+            "exposureHours": 5288
+          }
+        }
+      },
+      "reference": {
+        "netPnlUsd": 6.49082349983739,
+        "maximumDrawdownUsd": 3.2271486541139893,
+        "maximumLiquidationDrawdownUsd": 3.2271438541065436,
+        "maximumOneDayLossUsd": 1.3365517268684926,
+        "utility": 4.877249172780395,
+        "exposureHours": 8733,
+        "targetCoverageFraction": 1,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 3.258247463746688,
+            "exposureHours": 8717
+          },
+          "ETH/USD": {
+            "netPnlUsd": 3.2325760360907023,
+            "exposureHours": 7602
+          }
+        }
+      }
+    },
+    {
+      "scenario": "base-source-as-end",
+      "gates": {
+        "completeAccounting": true,
+        "targetCoverage": true,
+        "meaningfulExposure": true,
+        "riskWithinLimits": false,
+        "positiveNetBothAssetsAndPortfolio": true,
+        "utilityAboveFlatAndSimpleRule": false
+      },
+      "candidate": {
+        "netPnlUsd": 3.247079076204522,
+        "maximumDrawdownUsd": 4.540434556794935,
+        "maximumLiquidationDrawdownUsd": 4.537272156798281,
+        "maximumOneDayLossUsd": 0.9454564341431251,
+        "utility": 0.9768617978070546,
+        "exposureHours": 7384,
+        "targetCoverageFraction": 1,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 2.394755741319461,
+            "exposureHours": 5754
+          },
+          "ETH/USD": {
+            "netPnlUsd": 0.8523233348850612,
+            "exposureHours": 5288
+          }
+        }
+      },
+      "reference": {
+        "netPnlUsd": 6.4905310956822015,
+        "maximumDrawdownUsd": 3.226387143236934,
+        "maximumLiquidationDrawdownUsd": 3.2263823432294885,
+        "maximumOneDayLossUsd": 1.336450663744472,
+        "utility": 4.877337524063734,
+        "exposureHours": 8733,
+        "targetCoverageFraction": 1,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 3.2580899911211247,
+            "exposureHours": 8717
+          },
+          "ETH/USD": {
+            "netPnlUsd": 3.232441104561077,
+            "exposureHours": 7602
+          }
+        }
+      }
+    },
+    {
+      "scenario": "stress-source-plus-hour",
+      "gates": {
+        "completeAccounting": true,
+        "targetCoverage": true,
+        "meaningfulExposure": true,
+        "riskWithinLimits": false,
+        "positiveNetBothAssetsAndPortfolio": true,
+        "utilityAboveFlatAndSimpleRule": false
+      },
+      "candidate": {
+        "netPnlUsd": 3.138670923830229,
+        "maximumDrawdownUsd": 4.663522028917214,
+        "maximumLiquidationDrawdownUsd": 4.658478953904705,
+        "maximumOneDayLossUsd": 0.946784241910791,
+        "utility": 0.8069099093716221,
+        "exposureHours": 7381,
+        "targetCoverageFraction": 1,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 2.666193826661347,
+            "exposureHours": 5765
+          },
+          "ETH/USD": {
+            "netPnlUsd": 0.47247709716888187,
+            "exposureHours": 5271
+          }
+        }
+      },
+      "reference": {
+        "netPnlUsd": 5.7886766719043194,
+        "maximumDrawdownUsd": 3.2870928874617675,
+        "maximumLiquidationDrawdownUsd": 3.287085687450599,
+        "maximumOneDayLossUsd": 1.3376351706247078,
+        "utility": 4.145130228173436,
+        "exposureHours": 8732,
+        "targetCoverageFraction": 1,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 3.07954290075579,
+            "exposureHours": 8716
+          },
+          "ETH/USD": {
+            "netPnlUsd": 2.709133771148529,
+            "exposureHours": 7601
+          }
+        }
+      }
+    },
+    {
+      "scenario": "stress-source-as-end",
+      "gates": {
+        "completeAccounting": true,
+        "targetCoverage": true,
+        "meaningfulExposure": true,
+        "riskWithinLimits": false,
+        "positiveNetBothAssetsAndPortfolio": true,
+        "utilityAboveFlatAndSimpleRule": false
+      },
+      "candidate": {
+        "netPnlUsd": 3.1378846508125013,
+        "maximumDrawdownUsd": 4.663309184732498,
+        "maximumLiquidationDrawdownUsd": 4.658266109719989,
+        "maximumOneDayLossUsd": 0.9464319299877388,
+        "utility": 0.8062300584462525,
+        "exposureHours": 7381,
+        "targetCoverageFraction": 1,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 2.665095425664214,
+            "exposureHours": 5765
+          },
+          "ETH/USD": {
+            "netPnlUsd": 0.47278922514828725,
+            "exposureHours": 5271
+          }
+        }
+      },
+      "reference": {
+        "netPnlUsd": 5.788584265363677,
+        "maximumDrawdownUsd": 3.2863313765701605,
+        "maximumLiquidationDrawdownUsd": 3.286324176558992,
+        "maximumOneDayLossUsd": 1.3375341074861353,
+        "utility": 4.145418577078597,
+        "exposureHours": 8732,
+        "targetCoverageFraction": 1,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 3.079366983960395,
+            "exposureHours": 8716
+          },
+          "ETH/USD": {
+            "netPnlUsd": 2.7092172814032818,
+            "exposureHours": 7601
+          }
+        }
+      }
+    }
+  ],
+  "stageConclusion": {
+    "recorded": "STAGE_FAILED",
+    "independentlyPassed": false,
+    "finalHoldoutUnopened": true,
+    "failureReasons": [
+      "MAXIMUM_DRAWDOWN_EXCEEDS_FIXED_3_USD_LIMIT",
+      "UTILITY_BELOW_FIXED_SIGN_TREND_90D_REFERENCE"
+    ]
+  },
+  "limitations": [
+    "This verifies the recorded2024 candle-execution scenario accounting, not actual live fillability or profitability.",
+    "Archived funding timestamp conventions remain explicitly unverified; the four scenario mappings were checked as declared.",
+    "2024 and2025 were previously exposed development data; no later strategy performance was read or computed.",
+    "The registered nominal weekly bootstrap was reviewed before performance; this accounting audit does not assert new statistical guarantees."
+  ]
+}

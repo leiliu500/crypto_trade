@@ -1,0 +1,99 @@
+{
+  "sealedAtUtc": "2026-09-10T05:28:42.157Z",
+  "strategy": {
+    "version": "btc-spot-funded-weekly-trend-v1",
+    "symbol": "BTC/USD",
+    "movingAverageWeeks": 40,
+    "entryBufferFraction": 0.0166,
+    "exitBufferFraction": 0,
+    "initialCashUsd": 100000,
+    "maximumEntryPrincipalUsd": 1000,
+    "entryPrincipalEquityFraction": 0.001,
+    "maximumMarkedNotionalUsd": 1000,
+    "maximumMarkedEquityFraction": 0.01,
+    "maximumAccountDrawdownFraction": 0.05,
+    "historicalLotSize": 1e-8,
+    "historicalMinimumQuantity": 0.00005,
+    "historicalMinimumNotionalUsd": 0.5,
+    "historicalTickSize": 0.1,
+    "scenarios": {
+      "base": {
+        "feeBps": 80,
+        "adverseSlippageBps": 3,
+        "additionalDelayWeeks": 0
+      },
+      "stress": {
+        "feeBps": 100,
+        "adverseSlippageBps": 10,
+        "additionalDelayWeeks": 1
+      }
+    },
+    "rules": {
+      "signal": "LATEST_40_COMPLETED_NATIVE_WEEKS;ENTER_CLOSE_ABOVE_SMA_TIMES_1.0166;EXIT_CLOSE_BELOW_OR_EQUAL_SMA;HOLD_IN_BAND;BUFFER_REDUCES_TURNOVER_AND_IS_NOT_EXPECTED_PROFIT",
+      "execution": "FIRST_NATIVE_WEEK_OPEN_STRICTLY_AFTER_SIGNAL_AVAILABILITY;STRESS_ONE_ADDITIONAL_WEEK;LATEST_DELAY_ELIGIBLE_STATE_REPLACES_PRIOR_INTENT_EACH_OPEN;TERMINAL_FLATTEN_AT_LAST_OPEN",
+      "inventory": "CASH_FUNDED_LONG_OR_CASH;NO_SHORTS_BORROWING_FUNDING_PYRAMIDING_OR_ROUTINE_REBALANCING",
+      "risk": "ENTIRE_PURCHASE_INCLUDING_FEE_IS_ENTRY_PRINCIPAL_AT_RISK;GAINS_CAN_INCREASE_MARKED_EXPOSURE;WEEKLY_MARK_CAP_REDUCTIONS_AND_5_PERCENT_ACCOUNT_DRAWDOWN_HALT;GAPS_CAN_OVERRUN_LIMITS_BETWEEN_CHECKS",
+      "missingData": "REJECT_GAPS_DUPLICATES_AND_NONFINITE_BARS;NEVER_SYNTHESIZE_PRICES",
+      "liquidity": "HISTORICAL_WEEKLY_VOLUME_IS_NOT_EXECUTABLE_DEPTH;REPLAY_FILLS_ARE_COSTED_PROXIES;FORWARD_PAPER_REQUIRES_FRESH_SPOT_BOOKS",
+      "costs": "CURRENT_PUBLIC_TIER_1_FEES_APPLIED_TO_ALL_HISTORY_AS_FORWARD_COST_STRESS;NOT_HISTORICALLY_VERIFIED_ACCOUNT_FEES",
+      "accounting": "BUY_DEBITS_PRINCIPAL_AND_FEES;SELL_CREDITS_NET_PROCEEDS;EXIT_COSTS_INCLUDED_IN_LIQUIDATION_MARKS;IDLE_CASH_ZERO_YIELD"
+    }
+  },
+  "study": {
+    "version": "btc-spot-funded-weekly-trend-study-v1",
+    "startMs": 1483228800000,
+    "endMsExclusive": 1788998400000,
+    "periods": [
+      {
+        "id": "2017-2019",
+        "startMs": 1483228800000,
+        "endMs": 1577836800000
+      },
+      {
+        "id": "2020-2022",
+        "startMs": 1577836800000,
+        "endMs": 1672531200000
+      },
+      {
+        "id": "2023-2026-september",
+        "startMs": 1672531200000,
+        "endMs": 1788998400000
+      }
+    ],
+    "policies": [
+      "trend",
+      "buy-hold",
+      "cash"
+    ],
+    "benchmark": "COSTED_BTC_BUY_HOLD_WITH_IDENTICAL_INITIAL_PRINCIPAL_BUDGET_STARTS_FIRST_AVAILABLE_OPEN_NOT_FIRST_BULL_SIGNAL;FIXED_UNITS_NO_MARK_CAP_REDUCTIONS_NOT_RISK_MATCHED;CASH_ZERO;5_PERCENT_ANNUAL_ON_INITIAL_ENTRY_BUDGET_OVER_FULL_WINDOW_IS_OPPORTUNITY_COST_ONLY",
+    "minimumClosedEpisodes": 8,
+    "bootstrap": {
+      "blockWeeks": 13,
+      "repetitions": 2000,
+      "lowerQuantile": 0.05,
+      "seed": 1226406867
+    },
+    "researchPaperScreen": "BASE_AND_STRESS_PRIMARY_NET_ABOVE_ZERO_AND_FULL_WINDOW_5_PERCENT_ALLOCATED_CAPITAL_HURDLE;AT_LEAST_8_CLOSED_EPISODES_PER_SCENARIO;LESS_STRESS_DRAWDOWN_THAN_BUY_HOLD;NO_ACCOUNT_DRAWDOWN_HALT;ALL_RUNS_TERMINAL_FLAT;NO_PROFIT_GUARANTEE",
+    "profitValidation": "HISTORICAL_SCREEN_IS_NOT_INDEPENDENT_PROFIT_VALIDATION;PROSPECTIVE_EVIDENCE_REQUIRED;RECENT_HISTORY_PREVIOUSLY_USED_BY_OTHER_CANDIDATES",
+    "gridSearchAllowed": false,
+    "liveTradingAllowed": false
+  },
+  "sourceHashes": {
+    "src/spot-trend/spec.ts": "a93cbc06c54668cb915f5011d7f6ffd04c3062261732f0c62b0f2d13ea98e25a",
+    "src/spot-trend/data.ts": "33692c162453e016837459911b54949c08da87070759c674ab52b4f9e8719020",
+    "src/spot-trend/account.ts": "12a33739b685eb68506ebe0a76d21ee53804213dd7bd73706425a7f5470cdd2f",
+    "src/spot-trend/signal.ts": "f9ef8b0a81f81a75c9186a00e58226de2d39464d16e6b8ea78227f26e61ddc03",
+    "src/spot-trend/replay.ts": "f2d942844a8c973ae3d8bd6189ca529e250f77e693b4786973e44f815cccda57",
+    "src/spot-trend/study-main.ts": "5b673f53bc406178273d1283f91fd50aea3424ba79c6e26808e1a726ac87e9b9",
+    "package-lock.json": "2315bada829d31ccb4d3970392ba56d73458d3219dda1ec98d8dda0d41893594",
+    "tsconfig.json": "f67c2b8d0029850632819cc5da43e2c89468c9217e0dd8f93b3e1887afedaca3"
+  },
+  "inputDirectory": "/home/ec2-user/crypto_trade/reports/new-spot-system-2026-09-10/market-data",
+  "inputManifestSha256": "a37206b53dd1f90c514f4527634e137098fd6e2a069149af253c92473746802e",
+  "datasetSha256": "ab3518310bfd0e4b40f539ef69a864ea5fa56908708003711d61b9d835b90df6",
+  "historicalStrategyOutcomesComputedBeforeSeal": false,
+  "independentHoldoutClaimed": false,
+  "recentHistoryPreviouslyUsedByOtherCandidates": true,
+  "parameterGrid": false,
+  "primary": "ONE_CONTINUOUS_2017_TO_2026_RUN_PER_SCENARIO;RESET_SUBPERIODS_ARE_DIAGNOSTICS_NOT_POOLED_TRADE_EVIDENCE"
+}

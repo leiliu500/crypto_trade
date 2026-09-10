@@ -1,0 +1,62 @@
+{
+  "registeredAtUtc": "2026-09-10T21:56:44.748708+00:00",
+  "registeredBeforeNewLifecyclePnl": true,
+  "candidateSourceSha256": "6fb61b78c346f19b5e3cd9296e3783af7f2e803a585911cadc1309161e51d643",
+  "specs": {
+    "BTC/USD": [
+      {
+        "id": "btc_thesis_only",
+        "atrLookback": 20,
+        "stopAtrMultiple": null,
+        "trailingAtrMultiple": null,
+        "profitAtrMultiple": null
+      },
+      {
+        "id": "btc_volatility_trailing",
+        "atrLookback": 20,
+        "stopAtrMultiple": 3.0,
+        "trailingAtrMultiple": 4.0,
+        "profitAtrMultiple": null
+      },
+      {
+        "id": "btc_asymmetric_bracket",
+        "atrLookback": 20,
+        "stopAtrMultiple": 2.0,
+        "trailingAtrMultiple": null,
+        "profitAtrMultiple": 4.0
+      }
+    ],
+    "ETH/USD": [
+      {
+        "id": "eth_thesis_only",
+        "atrLookback": 20,
+        "stopAtrMultiple": null,
+        "trailingAtrMultiple": null,
+        "profitAtrMultiple": null
+      },
+      {
+        "id": "eth_volatility_trailing",
+        "atrLookback": 20,
+        "stopAtrMultiple": 3.0,
+        "trailingAtrMultiple": 4.0,
+        "profitAtrMultiple": null
+      },
+      {
+        "id": "eth_asymmetric_bracket",
+        "atrLookback": 20,
+        "stopAtrMultiple": 2.0,
+        "trailingAtrMultiple": null,
+        "profitAtrMultiple": 4.0
+      }
+    ]
+  },
+  "parameterPolicy": "Fixed coarse dimensionless hypotheses, identical priors across assets, separately selected by asset in the joint lifecycle study; no historical return inspection by exit author before registration.",
+  "signalContract": "Use mean true range over 20 completed bars through entry fill index minus 2, frozen at entry. Check post-entry finalized closes only; fill at signal bar index plus 2 or 3 under declared scenario. Stop then trailing then profit, followed by holding policy. No intrabar stop fill assumption.",
+  "sourceFilesReviewed": [
+    "src/spot-trend/paper.ts",
+    "src/eth40/spec.ts",
+    "src/eth40/engine.ts",
+    "reports/trade-lifecycle-search-2026-09-10/simulator.py"
+  ],
+  "productionChanged": false
+}

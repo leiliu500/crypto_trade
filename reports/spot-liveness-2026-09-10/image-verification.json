@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "beforeImage": "sha256:8f70e03fc0bd16222b2ab993fbcb49f335e8c0d103acb436ff824b8e9697216f",
+  "afterImage": "sha256:c9eb00619c56e06b0e68c8e9b11c676c622b88a0dd69089ca459b8d20dca274f",
+  "onlyFinalStaticAssetLayerChanged": true,
+  "containerConfigurationUnchanged": true,
+  "unchangedLayers": 16
+}

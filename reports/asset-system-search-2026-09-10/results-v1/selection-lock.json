@@ -1,0 +1,58 @@
+{
+  "lockedAt": "2026-09-10T21:38:24.606454+00:00",
+  "selectedNewCandidate": {
+    "btc": "btc_rank_sen_trend_v1",
+    "eth": "eth_drawdown_recovery_v1"
+  },
+  "rankingIncludingControls": {
+    "btc": [
+      "btc_rank_sen_trend_v1",
+      "cash",
+      "btc_weekly_signal_control",
+      "buy_hold_btc",
+      "btc_kalman_velocity_v1",
+      "btc_nonlinear_gp_v1",
+      "btc_directional_change_v1"
+    ],
+    "eth": [
+      "eth40_control",
+      "eth_drawdown_recovery_v1",
+      "eth_kalman_drift_v1",
+      "cash",
+      "eth_volume_pressure_v1",
+      "eth_crossasset_mature_ridge_v1",
+      "buy_hold_eth"
+    ]
+  },
+  "worstScenarioDevelopmentUtility": {
+    "btc_weekly_signal_control": -80.92772864642029,
+    "eth40_control": 286.78792339044594,
+    "buy_hold_btc": -80.92772864642029,
+    "buy_hold_eth": -626.3610662706087,
+    "cash": 0.0,
+    "btc_kalman_velocity_v1": -139.40417715002968,
+    "btc_nonlinear_gp_v1": -309.1651260100243,
+    "btc_rank_sen_trend_v1": 68.93630785930873,
+    "btc_directional_change_v1": -346.9290374531429,
+    "eth_kalman_drift_v1": 40.92235290184908,
+    "eth_crossasset_mature_ridge_v1": -396.4084785271225,
+    "eth_volume_pressure_v1": -351.09092771994074,
+    "eth_drawdown_recovery_v1": 170.97321825563995
+  },
+  "rule": "max min_scenario(net - 0.5 * close drawdown); lexical ties",
+  "laterPeriodsEvaluatedByThisRun": false,
+  "hashes": {
+    "reports/asset-system-search-2026-09-10/study.py": "b033b17d1730bf1e45f44af9b777b8b1a1dc0352dc9e45b92b2691d3743874d4",
+    "reports/parallel-strategy-study-2026-09-10/common.py": "423315441fe6b87ae1dd122a38321e75f2d1811cf2cb99ad4d7d91043e5a0b18",
+    "reports/parallel-strategy-study-2026-09-10/protocol.json": "9b20481a6a0e56324c1612f24b1e9dc9ef6eec5aef2b31eb4f228785c1badc02",
+    "reports/parallel-strategy-study-2026-09-10/data/dataset.json": "951499efbfe353842f55b78b94e7d0fe1ba642afa2867f077810835f2303a45e",
+    "reports/parallel-strategy-study-2026-09-10/data/rules.json": "b4fe02b4819f39b3f37d441dd60895e479d217cfdf340752dd8b25d52aed9e31",
+    "reports/new-spot-system-2026-09-10/market-data/dataset.json": "ab3518310bfd0e4b40f539ef69a864ea5fa56908708003711d61b9d835b90df6",
+    "tools/profit-search.py": "51bd81e6b416a06fa2516992f05e7e893f4a7a7ecc573d9f191da99eef56c2d5",
+    "reports/asset-system-search-2026-09-10/protocol.json": "200b213d887f8329e6873ce14a26cc00d38b01697d41c0e8d5a14b43f77d60e8",
+    "reports/asset-system-search-2026-09-10/btc/candidates.py": "1d7a84d44221b44a4b25622b5afa1d3e7eb78a1f261f0906b95a9e6611a21af4",
+    "reports/asset-system-search-2026-09-10/eth/candidates.py": "f80033e952cdcd5bc51cc733e6ddd0ed0fb5d55b69ac7e0ffed7fc20ffccc742"
+  },
+  "historicalDataPreviouslyReused": true,
+  "activationAllowed": false
+}

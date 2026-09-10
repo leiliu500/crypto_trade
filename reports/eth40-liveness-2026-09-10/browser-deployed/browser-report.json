@@ -1,0 +1,3254 @@
+{
+  "generatedAt": "2026-09-10T21:11:19.495Z",
+  "mode": "DEPLOYED_READ_ONLY",
+  "url": "http://127.0.0.1:3001/",
+  "observationIntervalMs": 5500,
+  "results": [
+    {
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 1100
+      },
+      "scenario": "direct-eth40",
+      "automaticObservationDurationMs": 5766,
+      "visibility": {
+        "url": "http://127.0.0.1:3001/?view=eth40",
+        "view": "eth40",
+        "links": [
+          {
+            "id": "spot-view-link",
+            "text": "BTC spot strategy",
+            "href": "http://127.0.0.1:3001/?view=spot",
+            "visible": true,
+            "current": null
+          },
+          {
+            "id": "eth40-view-link",
+            "text": "ETH40 paper",
+            "href": "http://127.0.0.1:3001/?view=eth40",
+            "visible": true,
+            "current": "page"
+          },
+          {
+            "id": "futures-view-link",
+            "text": "Futures monitoring",
+            "href": "http://127.0.0.1:3001/?view=futures",
+            "visible": true,
+            "current": null
+          }
+        ],
+        "panels": {
+          "spot": false,
+          "eth40": true,
+          "futures": false
+        },
+        "bodyWidth": 1425,
+        "viewportWidth": 1440,
+        "header": "ETH40 recording",
+        "mode": "ETH40 · PAPER"
+      },
+      "networkRequests": [
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/?view=eth40",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/styles.css?v=20260910-spot-position-events-1-eth40-liveness-1",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/app.js?v=20260910-spot-position-events-1-eth40-tab-1",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/spot.js?v=20260910-spot-position-events-1-eth40-tab-1",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/eth40.js?v=20260910-eth40-liveness-1",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/api/eth40/status",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/api/eth40/receipts",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/favicon.ico",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/api/eth40/status",
+          "method": "GET"
+        }
+      ],
+      "javascriptErrors": [],
+      "consoleErrors": [],
+      "source": {
+        "status": {
+          "service": "ETH40 isolated spot paper observation",
+          "liveTradingEnabled": false,
+          "historicalScreenPassed": false,
+          "validatedProfitable": false,
+          "automaticPromotionAllowed": false,
+          "collectorHealthy": true,
+          "fatalError": null,
+          "processStartedAtMs": 1789073378669,
+          "startedAtMs": 1789071221861,
+          "recordedAtMs": 1789074672014,
+          "heartbeatAgeMs": 13177,
+          "sequence": 117,
+          "lastHash": "a752f6d695d7b9facab4b4472ce9cd0b495d1184bc13402f5666d57b85b96daa",
+          "firstExecutionDayMs": 1789171200000,
+          "nextExecutionWindowMs": 1789171200000,
+          "reviewAtMs": 1804709621861,
+          "reviewStatus": "COLLECTING",
+          "cashBenchmark": {
+            "initialCashUsd": 10000,
+            "equityUsd": 10000,
+            "netPnlUsd": 0,
+            "interestAssumed": 0
+          },
+          "benchmarkSizing": "Start with cash. The launch UTC candle is the first prospective signal candle; the first execution opportunity is its day i+2. Passive ETH/BTC each buy once with the same $1,000/10% cap, retain remaining cash, and never rebalance.",
+          "accounts": [
+            {
+              "accountId": "eth40",
+              "cashUsd": 10000,
+              "quantity": 0,
+              "liquidationEquityUsd": 10000,
+              "netPnlUsd": 0,
+              "realizedNetUsd": 0,
+              "feesUsd": 0,
+              "quoteAgeMs": 1202,
+              "fresh": true,
+              "symbol": "ETH/USD",
+              "initialCashUsd": 10000,
+              "returnOnAccountPct": 0,
+              "fills": 0,
+              "completedEpisodes": 0,
+              "sampledMaxDrawdownUsd": 0,
+              "sampledMaxDrawdownPctInitial": 0,
+              "firstFillAtMs": null
+            },
+            {
+              "accountId": "passiveEth",
+              "cashUsd": 10000,
+              "quantity": 0,
+              "liquidationEquityUsd": 10000,
+              "netPnlUsd": 0,
+              "realizedNetUsd": 0,
+              "feesUsd": 0,
+              "quoteAgeMs": 1202,
+              "fresh": true,
+              "symbol": "ETH/USD",
+              "initialCashUsd": 10000,
+              "returnOnAccountPct": 0,
+              "fills": 0,
+              "completedEpisodes": 0,
+              "sampledMaxDrawdownUsd": 0,
+              "sampledMaxDrawdownPctInitial": 0,
+              "firstFillAtMs": null
+            },
+            {
+              "accountId": "passiveBtc",
+              "cashUsd": 10000,
+              "quantity": 0,
+              "liquidationEquityUsd": 10000,
+              "netPnlUsd": 0,
+              "realizedNetUsd": 0,
+              "feesUsd": 0,
+              "quoteAgeMs": 139,
+              "fresh": true,
+              "symbol": "BTC/USD",
+              "initialCashUsd": 10000,
+              "returnOnAccountPct": 0,
+              "fills": 0,
+              "completedEpisodes": 0,
+              "sampledMaxDrawdownUsd": 0,
+              "sampledMaxDrawdownPctInitial": 0,
+              "firstFillAtMs": null
+            }
+          ],
+          "excessVsCashUsd": 0,
+          "excessVsPassiveEthUsd": 0,
+          "excessVsPassiveBtcUsd": 0,
+          "lastDecisions": [
+            {
+              "accountId": "eth40",
+              "symbol": "ETH/USD",
+              "action": "blocked",
+              "reason": "WAITING_FOR_FIRST_PROSPECTIVE_EXECUTION_DAY",
+              "target": null,
+              "signalDayMs": null,
+              "sma40": null,
+              "close": null,
+              "orderId": null,
+              "fill": null,
+              "budgetUsd": null
+            },
+            {
+              "accountId": "passiveEth",
+              "symbol": "ETH/USD",
+              "action": "blocked",
+              "reason": "WAITING_FOR_FIRST_PROSPECTIVE_EXECUTION_DAY",
+              "target": null,
+              "signalDayMs": null,
+              "sma40": null,
+              "close": null,
+              "orderId": null,
+              "fill": null,
+              "budgetUsd": null
+            },
+            {
+              "accountId": "passiveBtc",
+              "symbol": "BTC/USD",
+              "action": "blocked",
+              "reason": "WAITING_FOR_FIRST_PROSPECTIVE_EXECUTION_DAY",
+              "target": null,
+              "signalDayMs": null,
+              "sma40": null,
+              "close": null,
+              "orderId": null,
+              "fill": null,
+              "budgetUsd": null
+            }
+          ],
+          "capturedMarkets": {
+            "observedAtMs": 1789074672014,
+            "errors": [],
+            "rulesFetchedAtMs": 1789073378938,
+            "rulesFetchedAtMsByAsset": {
+              "ETH/USD": 1789073378938,
+              "BTC/USD": 1789073379131
+            },
+            "rules": {
+              "ETH/USD": {
+                "lotSize": 1e-8,
+                "minimumQuantity": 0.001,
+                "minimumNotionalUsd": 0.5,
+                "tickSize": 0.01
+              },
+              "BTC/USD": {
+                "lotSize": 1e-8,
+                "minimumQuantity": 0.00005,
+                "minimumNotionalUsd": 0.5,
+                "tickSize": 0.1
+              }
+            },
+            "quotes": [
+              {
+                "symbol": "ETH/USD",
+                "bid": 2461.61,
+                "ask": 2461.62,
+                "receivedAtMs": 1789074670886,
+                "exchangeUpdateAtMs": 1789074670812,
+                "ageAtCaptureMs": 1128,
+                "checksumValid": true,
+                "checksum": "1909384862",
+                "connectionId": "66aa347c-02c1-4e82-9452-ad8b1b4a9235"
+              },
+              {
+                "symbol": "BTC/USD",
+                "bid": 77276.5,
+                "ask": 77276.6,
+                "receivedAtMs": 1789074671949,
+                "exchangeUpdateAtMs": 1789074671875,
+                "ageAtCaptureMs": 65,
+                "checksumValid": true,
+                "checksum": "1203304652",
+                "connectionId": "66aa347c-02c1-4e82-9452-ad8b1b4a9235"
+              }
+            ],
+            "completedHistory": {
+              "ETH/USD": {
+                "bars": 720,
+                "firstOpenTimeMs": 1726790400000,
+                "lastOpenTimeMs": 1788912000000
+              },
+              "BTC/USD": {
+                "bars": 720,
+                "firstOpenTimeMs": 1726790400000,
+                "lastOpenTimeMs": 1788912000000
+              }
+            }
+          },
+          "valuationConvention": "Values are as of recordedAtMs. Inventory is marked to fresh verified bid less assumed exit fee; stale or unavailable inventory quotes produce null P&L. Drawdown is sampled, not a complete intraday maximum.",
+          "spec": {
+            "version": "eth40-forward-v1",
+            "candidateId": "sma_eth-040",
+            "liveTradingEnabled": false,
+            "automaticPromotionAllowed": false,
+            "historicalScreenPassed": false,
+            "validatedProfitable": false,
+            "initialCashUsd": 10000,
+            "warmupBars": 90,
+            "movingAverageDays": 40,
+            "entryBandFraction": 0.016738892635532743,
+            "finalizationDelayMs": 60000,
+            "signalToExecutionDays": 2,
+            "executionWindowMs": 60000,
+            "maximumQuoteAgeMs": 5000,
+            "maximumExchangeClockLeadMs": 1000,
+            "maximumRulesAgeMs": 86400000,
+            "entryFeeBps": 80,
+            "exitFeeBps": 80,
+            "maximumEntryUsd": 1000,
+            "maximumEntryEquityFraction": 0.1,
+            "completedDayVolumeParticipation": 0.001,
+            "displayedDepthParticipation": 0.05,
+            "bookPriceCollarBps": 10,
+            "minimumCompletedEpisodes": 10,
+            "reviewCalendarMonths": 6,
+            "feeSource": "https://www.kraken.com/features/fee-schedule",
+            "feeVerifiedDate": "2026-09-10",
+            "feeAssumption": "Public entry-tier spot taker fee; no private account fee tier assumed.",
+            "executionContract": "Signal candle i trades in the first 60 seconds of UTC day i+2 using a fresh checksum-verified book. Missed windows are recorded, never backfilled. At most one fill per account per day; partial residual exits wait for a subsequent eligible daily cash signal. No additions to open positions.",
+            "forwardDifference": "Daily signal and sizing are frozen. Executable book walking, 5% displayed-depth participation and missed fills replace historical OHLC prices plus 3bp assumed slippage. These are prospective paper execution assumptions, not guaranteed exchange fills.",
+            "launchContract": "Start with cash. The launch UTC candle is the first prospective signal candle; the first execution opportunity is its day i+2. Passive ETH/BTC each buy once with the same $1,000/10% cap, retain remaining cash, and never rebalance."
+          },
+          "available": true,
+          "dashboardFetchedAtMs": 1789074685192
+        },
+        "receipts": {
+          "eth40": {
+            "symbol": "ETH/USD",
+            "account": {
+              "cashUsd": 10000,
+              "entryCostUsd": 0,
+              "feesUsd": 0,
+              "initialCashUsd": 10000,
+              "quantity": 0,
+              "realizedNetUsd": 0,
+              "receipts": []
+            }
+          },
+          "passiveBtc": {
+            "symbol": "BTC/USD",
+            "account": {
+              "cashUsd": 10000,
+              "entryCostUsd": 0,
+              "feesUsd": 0,
+              "initialCashUsd": 10000,
+              "quantity": 0,
+              "realizedNetUsd": 0,
+              "receipts": []
+            }
+          },
+          "passiveEth": {
+            "symbol": "ETH/USD",
+            "account": {
+              "cashUsd": 10000,
+              "entryCostUsd": 0,
+              "feesUsd": 0,
+              "initialCashUsd": 10000,
+              "quantity": 0,
+              "realizedNetUsd": 0,
+              "receipts": []
+            }
+          }
+        },
+        "capturedAtMs": 1789074685842
+      },
+      "beforeFirstFill": true,
+      "display": {
+        "content": "LATEST RECORDED ETH40 DECISION\nWaiting for the first prospective execution day\n\nNEXT DAILY ELIGIBLE WINDOW\n2026-09-12 00:00:00 UTC\n\nFirst 60 seconds of the UTC day. A qualifying target and valid market data are required.\n\nForward net P&L\n+$0.00\nFrom actual paper fills and the recorded net bid mark\nNet liquidation value\n$10,000.00\nOpen inventory includes estimated exit fees\nCash\n$10,000.00\nETH quantity\n0.00000000\nFees paid\n$0.00\nAssumed paper fees: 0.80% per side\nRealized net P&L\n+$0.00\nCompleted ETH40 episodes\n0\nA complete sale must flatten the inventory\nSampled maximum drawdown\n$0.00\nFull account; observations may miss intraday lows\nRECORDED OBSERVATIONS\n116\nEach committed observation counts once. Dashboard polling adds none.\nACCOUNT CAPTURE\n2026-09-10 21:11:12 UTC\n13s ago · dashboard response 0s ago\nSIX-MONTH REVIEW\n2027-03-10 20:13:41 UTC\nCollecting forward evidence. At least ten completed ETH40 episodes are required.\nSeparate funded account comparisons\n\nEach account starts at $10,000. Passive ETH and BTC buy once with the same $1,000 / 10% entry cap and retain unused cash. Their results are separate allocations.\n\nAccount\tNet liquidation\tNet P&L\tFirst paper fill (UTC)\nETH40\t$10,000.00\t+$0.00\tNo recorded fill\nPassive ETH\t$10,000.00\t+$0.00\tNo recorded fill\nPassive BTC\t$10,000.00\t+$0.00\tNo recorded fill\nCash\t$10,000.00\t+$0.00\tNo trading\n\nETH40 excess vs cash: +$0.00 · vs passive ETH: +$0.00 · vs passive BTC: +$0.00",
+        "receipts": "No ETH40 paper fills recorded yet.\n\nSeparate passive benchmark fills",
+        "service": "Collector recording · Paper observation only. Captured data checks are shown below.",
+        "metrics": [
+          {
+            "label": "Forward net P&L",
+            "value": "+$0.00"
+          },
+          {
+            "label": "Net liquidation value",
+            "value": "$10,000.00"
+          },
+          {
+            "label": "Cash",
+            "value": "$10,000.00"
+          },
+          {
+            "label": "ETH quantity",
+            "value": "0.00000000"
+          },
+          {
+            "label": "Fees paid",
+            "value": "$0.00"
+          },
+          {
+            "label": "Realized net P&L",
+            "value": "+$0.00"
+          },
+          {
+            "label": "Completed ETH40 episodes",
+            "value": "0"
+          },
+          {
+            "label": "Sampled maximum drawdown",
+            "value": "$0.00"
+          }
+        ],
+        "comparisons": [
+          [
+            "ETH40",
+            "$10,000.00",
+            "+$0.00",
+            "No recorded fill"
+          ],
+          [
+            "Passive ETH",
+            "$10,000.00",
+            "+$0.00",
+            "No recorded fill"
+          ],
+          [
+            "Passive BTC",
+            "$10,000.00",
+            "+$0.00",
+            "No recorded fill"
+          ],
+          [
+            "Cash",
+            "$10,000.00",
+            "+$0.00",
+            "No trading"
+          ]
+        ]
+      },
+      "liveness": {
+        "cards": [
+          {
+            "id": "eth40-live-api",
+            "tone": "spot-liveness-card good",
+            "value": "Responded 0s ago",
+            "detail": "Last dashboard fetch: 2026-09-10 21:11:25 UTC. Process started 21m 46s ago."
+          },
+          {
+            "id": "eth40-live-observations",
+            "tone": "spot-liveness-card good",
+            "value": "116 recorded",
+            "detail": "Last record: 13s ago. Collector recording. Trial elapsed: 57m 43s."
+          },
+          {
+            "id": "eth40-live-eth-book",
+            "tone": "spot-liveness-card good",
+            "value": "Verified at capture",
+            "detail": "Local age at capture: 1,128 ms; exchange age at capture: 1,202 ms. Observation: 13s ago. This is a recorded quote check, not a live connection."
+          },
+          {
+            "id": "eth40-live-btc-book",
+            "tone": "spot-liveness-card good",
+            "value": "Verified at capture",
+            "detail": "Local age at capture: 65 ms; exchange age at capture: 139 ms. Observation: 13s ago. This is a recorded quote check, not a live connection."
+          },
+          {
+            "id": "eth40-live-history",
+            "tone": "spot-liveness-card good",
+            "value": "720 daily candles",
+            "detail": "720 candles recorded; Last daily open: 2026-09-09 00:00:00 UTC. Eligible signal history present at capture; coverage is the collector's recorded summary."
+          },
+          {
+            "id": "eth40-live-rules",
+            "tone": "spot-liveness-card good",
+            "value": "Present at capture",
+            "detail": "ETH metadata fetched: 2026-09-10 20:49:38 UTC. Age at capture: 21m 33s. BTC benchmark metadata is separate."
+          },
+          {
+            "id": "eth40-live-execution",
+            "tone": "spot-liveness-card ",
+            "value": "First window in 1d 2h 48m 34s",
+            "detail": "2026-09-12 00:00:00 UTC. A scheduled opening is not a promised fill. Signal, history, rules and quote checks still apply."
+          },
+          {
+            "id": "eth40-live-decision",
+            "tone": "spot-liveness-card ",
+            "value": "Waiting for the first prospective execution day",
+            "detail": "Waiting for a scheduled opportunity is normal. It does not confirm current execution readiness."
+          }
+        ],
+        "note": "The dashboard checks every five seconds. The collector normally records about every 30 seconds, and more often during the daily opening minute. Quote checks describe each recorded capture, not live prices or a live connection.",
+        "observations": "Observation 116\n2026-09-10 21:11:12 UTC\nWaiting for the first prospective execution day · 13s ago"
+      },
+      "liveProgress": {
+        "initial": {
+          "clock": "21:11:25",
+          "execution": "First window in 1d 2h 48m 34s",
+          "api": "spot-liveness-card good",
+          "collector": "spot-liveness-card good",
+          "records": [
+            {
+              "sequence": 117,
+              "atMs": 1789074672014
+            }
+          ]
+        },
+        "timer": {
+          "clock": "21:11:27",
+          "execution": "First window in 1d 2h 48m 32s",
+          "api": "spot-liveness-card good",
+          "collector": "spot-liveness-card good",
+          "records": [
+            {
+              "sequence": 117,
+              "atMs": 1789074672014
+            }
+          ]
+        },
+        "progressed": {
+          "clock": "21:11:50",
+          "execution": "First window in 1d 2h 48m 9s",
+          "api": "spot-liveness-card good",
+          "collector": "spot-liveness-card good",
+          "records": [
+            {
+              "sequence": 118,
+              "atMs": 1789074702049
+            },
+            {
+              "sequence": 117,
+              "atMs": 1789074672014
+            }
+          ]
+        }
+      },
+      "screenshot": "/home/ec2-user/crypto_trade/reports/eth40-liveness-2026-09-10/browser-deployed/desktop-eth40.png",
+      "passed": true
+    },
+    {
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 1100
+      },
+      "scenario": "navigate-1-spot",
+      "automaticObservationDurationMs": 5663,
+      "visibility": {
+        "url": "http://127.0.0.1:3001/?view=spot",
+        "view": "spot",
+        "links": [
+          {
+            "id": "spot-view-link",
+            "text": "BTC spot strategy",
+            "href": "http://127.0.0.1:3001/?view=spot",
+            "visible": true,
+            "current": "page"
+          },
+          {
+            "id": "eth40-view-link",
+            "text": "ETH40 paper",
+            "href": "http://127.0.0.1:3001/?view=eth40",
+            "visible": true,
+            "current": null
+          },
+          {
+            "id": "futures-view-link",
+            "text": "Futures monitoring",
+            "href": "http://127.0.0.1:3001/?view=futures",
+            "visible": true,
+            "current": null
+          }
+        ],
+        "panels": {
+          "spot": true,
+          "eth40": false,
+          "futures": false
+        },
+        "bodyWidth": 1425,
+        "viewportWidth": 1440,
+        "header": "Spot connected",
+        "mode": "SPOT · PAPER"
+      },
+      "networkRequests": [
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/?view=spot",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/styles.css?v=20260910-spot-position-events-1-eth40-liveness-1",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/app.js?v=20260910-spot-position-events-1-eth40-tab-1",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/spot.js?v=20260910-spot-position-events-1-eth40-tab-1",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/eth40.js?v=20260910-eth40-liveness-1",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/api/spot-dashboard",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/api/spot-dashboard",
+          "method": "GET"
+        }
+      ],
+      "javascriptErrors": [],
+      "consoleErrors": [],
+      "passed": true
+    },
+    {
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 1100
+      },
+      "scenario": "navigate-2-eth40",
+      "automaticObservationDurationMs": 5692,
+      "visibility": {
+        "url": "http://127.0.0.1:3001/?view=eth40",
+        "view": "eth40",
+        "links": [
+          {
+            "id": "spot-view-link",
+            "text": "BTC spot strategy",
+            "href": "http://127.0.0.1:3001/?view=spot",
+            "visible": true,
+            "current": null
+          },
+          {
+            "id": "eth40-view-link",
+            "text": "ETH40 paper",
+            "href": "http://127.0.0.1:3001/?view=eth40",
+            "visible": true,
+            "current": "page"
+          },
+          {
+            "id": "futures-view-link",
+            "text": "Futures monitoring",
+            "href": "http://127.0.0.1:3001/?view=futures",
+            "visible": true,
+            "current": null
+          }
+        ],
+        "panels": {
+          "spot": false,
+          "eth40": true,
+          "futures": false
+        },
+        "bodyWidth": 1425,
+        "viewportWidth": 1440,
+        "header": "ETH40 recording",
+        "mode": "ETH40 · PAPER"
+      },
+      "networkRequests": [
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/?view=eth40",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/styles.css?v=20260910-spot-position-events-1-eth40-liveness-1",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/app.js?v=20260910-spot-position-events-1-eth40-tab-1",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/spot.js?v=20260910-spot-position-events-1-eth40-tab-1",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/eth40.js?v=20260910-eth40-liveness-1",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/api/eth40/status",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/api/eth40/receipts",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/api/eth40/status",
+          "method": "GET"
+        }
+      ],
+      "javascriptErrors": [],
+      "consoleErrors": [],
+      "source": {
+        "status": {
+          "service": "ETH40 isolated spot paper observation",
+          "liveTradingEnabled": false,
+          "historicalScreenPassed": false,
+          "validatedProfitable": false,
+          "automaticPromotionAllowed": false,
+          "collectorHealthy": true,
+          "fatalError": null,
+          "processStartedAtMs": 1789073378669,
+          "startedAtMs": 1789071221861,
+          "recordedAtMs": 1789074702049,
+          "heartbeatAgeMs": 19521,
+          "sequence": 118,
+          "lastHash": "d580c4e5bb7d023ba056574f5efef21a7043818475b2e107260e52108b7120eb",
+          "firstExecutionDayMs": 1789171200000,
+          "nextExecutionWindowMs": 1789171200000,
+          "reviewAtMs": 1804709621861,
+          "reviewStatus": "COLLECTING",
+          "cashBenchmark": {
+            "initialCashUsd": 10000,
+            "equityUsd": 10000,
+            "netPnlUsd": 0,
+            "interestAssumed": 0
+          },
+          "benchmarkSizing": "Start with cash. The launch UTC candle is the first prospective signal candle; the first execution opportunity is its day i+2. Passive ETH/BTC each buy once with the same $1,000/10% cap, retain remaining cash, and never rebalance.",
+          "accounts": [
+            {
+              "accountId": "eth40",
+              "cashUsd": 10000,
+              "quantity": 0,
+              "liquidationEquityUsd": 10000,
+              "netPnlUsd": 0,
+              "realizedNetUsd": 0,
+              "feesUsd": 0,
+              "quoteAgeMs": 462,
+              "fresh": true,
+              "symbol": "ETH/USD",
+              "initialCashUsd": 10000,
+              "returnOnAccountPct": 0,
+              "fills": 0,
+              "completedEpisodes": 0,
+              "sampledMaxDrawdownUsd": 0,
+              "sampledMaxDrawdownPctInitial": 0,
+              "firstFillAtMs": null
+            },
+            {
+              "accountId": "passiveEth",
+              "cashUsd": 10000,
+              "quantity": 0,
+              "liquidationEquityUsd": 10000,
+              "netPnlUsd": 0,
+              "realizedNetUsd": 0,
+              "feesUsd": 0,
+              "quoteAgeMs": 462,
+              "fresh": true,
+              "symbol": "ETH/USD",
+              "initialCashUsd": 10000,
+              "returnOnAccountPct": 0,
+              "fills": 0,
+              "completedEpisodes": 0,
+              "sampledMaxDrawdownUsd": 0,
+              "sampledMaxDrawdownPctInitial": 0,
+              "firstFillAtMs": null
+            },
+            {
+              "accountId": "passiveBtc",
+              "cashUsd": 10000,
+              "quantity": 0,
+              "liquidationEquityUsd": 10000,
+              "netPnlUsd": 0,
+              "realizedNetUsd": 0,
+              "feesUsd": 0,
+              "quoteAgeMs": 88,
+              "fresh": true,
+              "symbol": "BTC/USD",
+              "initialCashUsd": 10000,
+              "returnOnAccountPct": 0,
+              "fills": 0,
+              "completedEpisodes": 0,
+              "sampledMaxDrawdownUsd": 0,
+              "sampledMaxDrawdownPctInitial": 0,
+              "firstFillAtMs": null
+            }
+          ],
+          "excessVsCashUsd": 0,
+          "excessVsPassiveEthUsd": 0,
+          "excessVsPassiveBtcUsd": 0,
+          "lastDecisions": [
+            {
+              "accountId": "eth40",
+              "symbol": "ETH/USD",
+              "action": "blocked",
+              "reason": "WAITING_FOR_FIRST_PROSPECTIVE_EXECUTION_DAY",
+              "target": null,
+              "signalDayMs": null,
+              "sma40": null,
+              "close": null,
+              "orderId": null,
+              "fill": null,
+              "budgetUsd": null
+            },
+            {
+              "accountId": "passiveEth",
+              "symbol": "ETH/USD",
+              "action": "blocked",
+              "reason": "WAITING_FOR_FIRST_PROSPECTIVE_EXECUTION_DAY",
+              "target": null,
+              "signalDayMs": null,
+              "sma40": null,
+              "close": null,
+              "orderId": null,
+              "fill": null,
+              "budgetUsd": null
+            },
+            {
+              "accountId": "passiveBtc",
+              "symbol": "BTC/USD",
+              "action": "blocked",
+              "reason": "WAITING_FOR_FIRST_PROSPECTIVE_EXECUTION_DAY",
+              "target": null,
+              "signalDayMs": null,
+              "sma40": null,
+              "close": null,
+              "orderId": null,
+              "fill": null,
+              "budgetUsd": null
+            }
+          ],
+          "capturedMarkets": {
+            "observedAtMs": 1789074702049,
+            "errors": [],
+            "rulesFetchedAtMs": 1789073378938,
+            "rulesFetchedAtMsByAsset": {
+              "ETH/USD": 1789073378938,
+              "BTC/USD": 1789073379131
+            },
+            "rules": {
+              "ETH/USD": {
+                "lotSize": 1e-8,
+                "minimumQuantity": 0.001,
+                "minimumNotionalUsd": 0.5,
+                "tickSize": 0.01
+              },
+              "BTC/USD": {
+                "lotSize": 1e-8,
+                "minimumQuantity": 0.00005,
+                "minimumNotionalUsd": 0.5,
+                "tickSize": 0.1
+              }
+            },
+            "quotes": [
+              {
+                "symbol": "ETH/USD",
+                "bid": 2461.33,
+                "ask": 2461.34,
+                "receivedAtMs": 1789074701661,
+                "exchangeUpdateAtMs": 1789074701587,
+                "ageAtCaptureMs": 388,
+                "checksumValid": true,
+                "checksum": "2880806780",
+                "connectionId": "66aa347c-02c1-4e82-9452-ad8b1b4a9235"
+              },
+              {
+                "symbol": "BTC/USD",
+                "bid": 77276.5,
+                "ask": 77276.6,
+                "receivedAtMs": 1789074702036,
+                "exchangeUpdateAtMs": 1789074701961,
+                "ageAtCaptureMs": 13,
+                "checksumValid": true,
+                "checksum": "3525261257",
+                "connectionId": "66aa347c-02c1-4e82-9452-ad8b1b4a9235"
+              }
+            ],
+            "completedHistory": {
+              "ETH/USD": {
+                "bars": 720,
+                "firstOpenTimeMs": 1726790400000,
+                "lastOpenTimeMs": 1788912000000
+              },
+              "BTC/USD": {
+                "bars": 720,
+                "firstOpenTimeMs": 1726790400000,
+                "lastOpenTimeMs": 1788912000000
+              }
+            }
+          },
+          "valuationConvention": "Values are as of recordedAtMs. Inventory is marked to fresh verified bid less assumed exit fee; stale or unavailable inventory quotes produce null P&L. Drawdown is sampled, not a complete intraday maximum.",
+          "spec": {
+            "version": "eth40-forward-v1",
+            "candidateId": "sma_eth-040",
+            "liveTradingEnabled": false,
+            "automaticPromotionAllowed": false,
+            "historicalScreenPassed": false,
+            "validatedProfitable": false,
+            "initialCashUsd": 10000,
+            "warmupBars": 90,
+            "movingAverageDays": 40,
+            "entryBandFraction": 0.016738892635532743,
+            "finalizationDelayMs": 60000,
+            "signalToExecutionDays": 2,
+            "executionWindowMs": 60000,
+            "maximumQuoteAgeMs": 5000,
+            "maximumExchangeClockLeadMs": 1000,
+            "maximumRulesAgeMs": 86400000,
+            "entryFeeBps": 80,
+            "exitFeeBps": 80,
+            "maximumEntryUsd": 1000,
+            "maximumEntryEquityFraction": 0.1,
+            "completedDayVolumeParticipation": 0.001,
+            "displayedDepthParticipation": 0.05,
+            "bookPriceCollarBps": 10,
+            "minimumCompletedEpisodes": 10,
+            "reviewCalendarMonths": 6,
+            "feeSource": "https://www.kraken.com/features/fee-schedule",
+            "feeVerifiedDate": "2026-09-10",
+            "feeAssumption": "Public entry-tier spot taker fee; no private account fee tier assumed.",
+            "executionContract": "Signal candle i trades in the first 60 seconds of UTC day i+2 using a fresh checksum-verified book. Missed windows are recorded, never backfilled. At most one fill per account per day; partial residual exits wait for a subsequent eligible daily cash signal. No additions to open positions.",
+            "forwardDifference": "Daily signal and sizing are frozen. Executable book walking, 5% displayed-depth participation and missed fills replace historical OHLC prices plus 3bp assumed slippage. These are prospective paper execution assumptions, not guaranteed exchange fills.",
+            "launchContract": "Start with cash. The launch UTC candle is the first prospective signal candle; the first execution opportunity is its day i+2. Passive ETH/BTC each buy once with the same $1,000/10% cap, retain remaining cash, and never rebalance."
+          },
+          "available": true,
+          "dashboardFetchedAtMs": 1789074721571
+        },
+        "receipts": {
+          "eth40": {
+            "symbol": "ETH/USD",
+            "account": {
+              "cashUsd": 10000,
+              "entryCostUsd": 0,
+              "feesUsd": 0,
+              "initialCashUsd": 10000,
+              "quantity": 0,
+              "realizedNetUsd": 0,
+              "receipts": []
+            }
+          },
+          "passiveBtc": {
+            "symbol": "BTC/USD",
+            "account": {
+              "cashUsd": 10000,
+              "entryCostUsd": 0,
+              "feesUsd": 0,
+              "initialCashUsd": 10000,
+              "quantity": 0,
+              "realizedNetUsd": 0,
+              "receipts": []
+            }
+          },
+          "passiveEth": {
+            "symbol": "ETH/USD",
+            "account": {
+              "cashUsd": 10000,
+              "entryCostUsd": 0,
+              "feesUsd": 0,
+              "initialCashUsd": 10000,
+              "quantity": 0,
+              "realizedNetUsd": 0,
+              "receipts": []
+            }
+          }
+        },
+        "capturedAtMs": 1789074722660
+      },
+      "beforeFirstFill": true,
+      "display": {
+        "content": "LATEST RECORDED ETH40 DECISION\nWaiting for the first prospective execution day\n\nNEXT DAILY ELIGIBLE WINDOW\n2026-09-12 00:00:00 UTC\n\nFirst 60 seconds of the UTC day. A qualifying target and valid market data are required.\n\nForward net P&L\n+$0.00\nFrom actual paper fills and the recorded net bid mark\nNet liquidation value\n$10,000.00\nOpen inventory includes estimated exit fees\nCash\n$10,000.00\nETH quantity\n0.00000000\nFees paid\n$0.00\nAssumed paper fees: 0.80% per side\nRealized net P&L\n+$0.00\nCompleted ETH40 episodes\n0\nA complete sale must flatten the inventory\nSampled maximum drawdown\n$0.00\nFull account; observations may miss intraday lows\nRECORDED OBSERVATIONS\n117\nEach committed observation counts once. Dashboard polling adds none.\nACCOUNT CAPTURE\n2026-09-10 21:11:42 UTC\n19s ago · dashboard response 0s ago\nSIX-MONTH REVIEW\n2027-03-10 20:13:41 UTC\nCollecting forward evidence. At least ten completed ETH40 episodes are required.\nSeparate funded account comparisons\n\nEach account starts at $10,000. Passive ETH and BTC buy once with the same $1,000 / 10% entry cap and retain unused cash. Their results are separate allocations.\n\nAccount\tNet liquidation\tNet P&L\tFirst paper fill (UTC)\nETH40\t$10,000.00\t+$0.00\tNo recorded fill\nPassive ETH\t$10,000.00\t+$0.00\tNo recorded fill\nPassive BTC\t$10,000.00\t+$0.00\tNo recorded fill\nCash\t$10,000.00\t+$0.00\tNo trading\n\nETH40 excess vs cash: +$0.00 · vs passive ETH: +$0.00 · vs passive BTC: +$0.00",
+        "receipts": "No ETH40 paper fills recorded yet.\n\nSeparate passive benchmark fills",
+        "service": "Collector recording · Paper observation only. Captured data checks are shown below.",
+        "metrics": [
+          {
+            "label": "Forward net P&L",
+            "value": "+$0.00"
+          },
+          {
+            "label": "Net liquidation value",
+            "value": "$10,000.00"
+          },
+          {
+            "label": "Cash",
+            "value": "$10,000.00"
+          },
+          {
+            "label": "ETH quantity",
+            "value": "0.00000000"
+          },
+          {
+            "label": "Fees paid",
+            "value": "$0.00"
+          },
+          {
+            "label": "Realized net P&L",
+            "value": "+$0.00"
+          },
+          {
+            "label": "Completed ETH40 episodes",
+            "value": "0"
+          },
+          {
+            "label": "Sampled maximum drawdown",
+            "value": "$0.00"
+          }
+        ],
+        "comparisons": [
+          [
+            "ETH40",
+            "$10,000.00",
+            "+$0.00",
+            "No recorded fill"
+          ],
+          [
+            "Passive ETH",
+            "$10,000.00",
+            "+$0.00",
+            "No recorded fill"
+          ],
+          [
+            "Passive BTC",
+            "$10,000.00",
+            "+$0.00",
+            "No recorded fill"
+          ],
+          [
+            "Cash",
+            "$10,000.00",
+            "+$0.00",
+            "No trading"
+          ]
+        ]
+      },
+      "liveness": {
+        "cards": [
+          {
+            "id": "eth40-live-api",
+            "tone": "spot-liveness-card good",
+            "value": "Responded 0s ago",
+            "detail": "Last dashboard fetch: 2026-09-10 21:12:01 UTC. Process started 22m 22s ago."
+          },
+          {
+            "id": "eth40-live-observations",
+            "tone": "spot-liveness-card good",
+            "value": "117 recorded",
+            "detail": "Last record: 19s ago. Collector recording. Trial elapsed: 58m 19s."
+          },
+          {
+            "id": "eth40-live-eth-book",
+            "tone": "spot-liveness-card good",
+            "value": "Verified at capture",
+            "detail": "Local age at capture: 388 ms; exchange age at capture: 462 ms. Observation: 19s ago. This is a recorded quote check, not a live connection."
+          },
+          {
+            "id": "eth40-live-btc-book",
+            "tone": "spot-liveness-card good",
+            "value": "Verified at capture",
+            "detail": "Local age at capture: 13 ms; exchange age at capture: 88 ms. Observation: 19s ago. This is a recorded quote check, not a live connection."
+          },
+          {
+            "id": "eth40-live-history",
+            "tone": "spot-liveness-card good",
+            "value": "720 daily candles",
+            "detail": "720 candles recorded; Last daily open: 2026-09-09 00:00:00 UTC. Eligible signal history present at capture; coverage is the collector's recorded summary."
+          },
+          {
+            "id": "eth40-live-rules",
+            "tone": "spot-liveness-card good",
+            "value": "Present at capture",
+            "detail": "ETH metadata fetched: 2026-09-10 20:49:38 UTC. Age at capture: 22m 3s. BTC benchmark metadata is separate."
+          },
+          {
+            "id": "eth40-live-execution",
+            "tone": "spot-liveness-card ",
+            "value": "First window in 1d 2h 47m 58s",
+            "detail": "2026-09-12 00:00:00 UTC. A scheduled opening is not a promised fill. Signal, history, rules and quote checks still apply."
+          },
+          {
+            "id": "eth40-live-decision",
+            "tone": "spot-liveness-card ",
+            "value": "Waiting for the first prospective execution day",
+            "detail": "Waiting for a scheduled opportunity is normal. It does not confirm current execution readiness."
+          }
+        ],
+        "note": "The dashboard checks every five seconds. The collector normally records about every 30 seconds, and more often during the daily opening minute. Quote checks describe each recorded capture, not live prices or a live connection.",
+        "observations": "Observation 117\n2026-09-10 21:11:42 UTC\nWaiting for the first prospective execution day · 19s ago"
+      },
+      "passed": true
+    },
+    {
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 1100
+      },
+      "scenario": "navigate-3-futures",
+      "automaticObservationDurationMs": 5796,
+      "visibility": {
+        "url": "http://127.0.0.1:3001/?view=futures",
+        "view": "futures",
+        "links": [
+          {
+            "id": "spot-view-link",
+            "text": "BTC spot strategy",
+            "href": "http://127.0.0.1:3001/?view=spot",
+            "visible": true,
+            "current": null
+          },
+          {
+            "id": "eth40-view-link",
+            "text": "ETH40 paper",
+            "href": "http://127.0.0.1:3001/?view=eth40",
+            "visible": true,
+            "current": null
+          },
+          {
+            "id": "futures-view-link",
+            "text": "Futures monitoring",
+            "href": "http://127.0.0.1:3001/?view=futures",
+            "visible": true,
+            "current": "page"
+          }
+        ],
+        "panels": {
+          "spot": false,
+          "eth40": false,
+          "futures": true
+        },
+        "bodyWidth": 1425,
+        "viewportWidth": 1440,
+        "header": "Live stream",
+        "mode": "PAPER"
+      },
+      "networkRequests": [
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/?view=futures",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/styles.css?v=20260910-spot-position-events-1-eth40-liveness-1",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/app.js?v=20260910-spot-position-events-1-eth40-tab-1",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/spot.js?v=20260910-spot-position-events-1-eth40-tab-1",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/eth40.js?v=20260910-eth40-liveness-1",
+          "method": "GET"
+        },
+        {
+          "kind": "websocket",
+          "url": "ws://127.0.0.1:3001/ws"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/api/dashboard",
+          "method": "GET"
+        }
+      ],
+      "javascriptErrors": [],
+      "consoleErrors": [],
+      "passed": true
+    },
+    {
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 1100
+      },
+      "scenario": "browser-back-eth40",
+      "automaticObservationDurationMs": 5654,
+      "visibility": {
+        "url": "http://127.0.0.1:3001/?view=eth40",
+        "view": "eth40",
+        "links": [
+          {
+            "id": "spot-view-link",
+            "text": "BTC spot strategy",
+            "href": "http://127.0.0.1:3001/?view=spot",
+            "visible": true,
+            "current": null
+          },
+          {
+            "id": "eth40-view-link",
+            "text": "ETH40 paper",
+            "href": "http://127.0.0.1:3001/?view=eth40",
+            "visible": true,
+            "current": "page"
+          },
+          {
+            "id": "futures-view-link",
+            "text": "Futures monitoring",
+            "href": "http://127.0.0.1:3001/?view=futures",
+            "visible": true,
+            "current": null
+          }
+        ],
+        "panels": {
+          "spot": false,
+          "eth40": true,
+          "futures": false
+        },
+        "bodyWidth": 1425,
+        "viewportWidth": 1440,
+        "header": "ETH40 recording",
+        "mode": "ETH40 · PAPER"
+      },
+      "networkRequests": [
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/?view=eth40",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/styles.css?v=20260910-spot-position-events-1-eth40-liveness-1",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/app.js?v=20260910-spot-position-events-1-eth40-tab-1",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/spot.js?v=20260910-spot-position-events-1-eth40-tab-1",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/eth40.js?v=20260910-eth40-liveness-1",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/api/eth40/status",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/api/eth40/receipts",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/api/eth40/status",
+          "method": "GET"
+        }
+      ],
+      "javascriptErrors": [],
+      "consoleErrors": [],
+      "source": {
+        "status": {
+          "service": "ETH40 isolated spot paper observation",
+          "liveTradingEnabled": false,
+          "historicalScreenPassed": false,
+          "validatedProfitable": false,
+          "automaticPromotionAllowed": false,
+          "collectorHealthy": true,
+          "fatalError": null,
+          "processStartedAtMs": 1789073378669,
+          "startedAtMs": 1789071221861,
+          "recordedAtMs": 1789074702049,
+          "heartbeatAgeMs": 29611,
+          "sequence": 118,
+          "lastHash": "d580c4e5bb7d023ba056574f5efef21a7043818475b2e107260e52108b7120eb",
+          "firstExecutionDayMs": 1789171200000,
+          "nextExecutionWindowMs": 1789171200000,
+          "reviewAtMs": 1804709621861,
+          "reviewStatus": "COLLECTING",
+          "cashBenchmark": {
+            "initialCashUsd": 10000,
+            "equityUsd": 10000,
+            "netPnlUsd": 0,
+            "interestAssumed": 0
+          },
+          "benchmarkSizing": "Start with cash. The launch UTC candle is the first prospective signal candle; the first execution opportunity is its day i+2. Passive ETH/BTC each buy once with the same $1,000/10% cap, retain remaining cash, and never rebalance.",
+          "accounts": [
+            {
+              "accountId": "eth40",
+              "cashUsd": 10000,
+              "quantity": 0,
+              "liquidationEquityUsd": 10000,
+              "netPnlUsd": 0,
+              "realizedNetUsd": 0,
+              "feesUsd": 0,
+              "quoteAgeMs": 462,
+              "fresh": true,
+              "symbol": "ETH/USD",
+              "initialCashUsd": 10000,
+              "returnOnAccountPct": 0,
+              "fills": 0,
+              "completedEpisodes": 0,
+              "sampledMaxDrawdownUsd": 0,
+              "sampledMaxDrawdownPctInitial": 0,
+              "firstFillAtMs": null
+            },
+            {
+              "accountId": "passiveEth",
+              "cashUsd": 10000,
+              "quantity": 0,
+              "liquidationEquityUsd": 10000,
+              "netPnlUsd": 0,
+              "realizedNetUsd": 0,
+              "feesUsd": 0,
+              "quoteAgeMs": 462,
+              "fresh": true,
+              "symbol": "ETH/USD",
+              "initialCashUsd": 10000,
+              "returnOnAccountPct": 0,
+              "fills": 0,
+              "completedEpisodes": 0,
+              "sampledMaxDrawdownUsd": 0,
+              "sampledMaxDrawdownPctInitial": 0,
+              "firstFillAtMs": null
+            },
+            {
+              "accountId": "passiveBtc",
+              "cashUsd": 10000,
+              "quantity": 0,
+              "liquidationEquityUsd": 10000,
+              "netPnlUsd": 0,
+              "realizedNetUsd": 0,
+              "feesUsd": 0,
+              "quoteAgeMs": 88,
+              "fresh": true,
+              "symbol": "BTC/USD",
+              "initialCashUsd": 10000,
+              "returnOnAccountPct": 0,
+              "fills": 0,
+              "completedEpisodes": 0,
+              "sampledMaxDrawdownUsd": 0,
+              "sampledMaxDrawdownPctInitial": 0,
+              "firstFillAtMs": null
+            }
+          ],
+          "excessVsCashUsd": 0,
+          "excessVsPassiveEthUsd": 0,
+          "excessVsPassiveBtcUsd": 0,
+          "lastDecisions": [
+            {
+              "accountId": "eth40",
+              "symbol": "ETH/USD",
+              "action": "blocked",
+              "reason": "WAITING_FOR_FIRST_PROSPECTIVE_EXECUTION_DAY",
+              "target": null,
+              "signalDayMs": null,
+              "sma40": null,
+              "close": null,
+              "orderId": null,
+              "fill": null,
+              "budgetUsd": null
+            },
+            {
+              "accountId": "passiveEth",
+              "symbol": "ETH/USD",
+              "action": "blocked",
+              "reason": "WAITING_FOR_FIRST_PROSPECTIVE_EXECUTION_DAY",
+              "target": null,
+              "signalDayMs": null,
+              "sma40": null,
+              "close": null,
+              "orderId": null,
+              "fill": null,
+              "budgetUsd": null
+            },
+            {
+              "accountId": "passiveBtc",
+              "symbol": "BTC/USD",
+              "action": "blocked",
+              "reason": "WAITING_FOR_FIRST_PROSPECTIVE_EXECUTION_DAY",
+              "target": null,
+              "signalDayMs": null,
+              "sma40": null,
+              "close": null,
+              "orderId": null,
+              "fill": null,
+              "budgetUsd": null
+            }
+          ],
+          "capturedMarkets": {
+            "observedAtMs": 1789074702049,
+            "errors": [],
+            "rulesFetchedAtMs": 1789073378938,
+            "rulesFetchedAtMsByAsset": {
+              "ETH/USD": 1789073378938,
+              "BTC/USD": 1789073379131
+            },
+            "rules": {
+              "ETH/USD": {
+                "lotSize": 1e-8,
+                "minimumQuantity": 0.001,
+                "minimumNotionalUsd": 0.5,
+                "tickSize": 0.01
+              },
+              "BTC/USD": {
+                "lotSize": 1e-8,
+                "minimumQuantity": 0.00005,
+                "minimumNotionalUsd": 0.5,
+                "tickSize": 0.1
+              }
+            },
+            "quotes": [
+              {
+                "symbol": "ETH/USD",
+                "bid": 2461.33,
+                "ask": 2461.34,
+                "receivedAtMs": 1789074701661,
+                "exchangeUpdateAtMs": 1789074701587,
+                "ageAtCaptureMs": 388,
+                "checksumValid": true,
+                "checksum": "2880806780",
+                "connectionId": "66aa347c-02c1-4e82-9452-ad8b1b4a9235"
+              },
+              {
+                "symbol": "BTC/USD",
+                "bid": 77276.5,
+                "ask": 77276.6,
+                "receivedAtMs": 1789074702036,
+                "exchangeUpdateAtMs": 1789074701961,
+                "ageAtCaptureMs": 13,
+                "checksumValid": true,
+                "checksum": "3525261257",
+                "connectionId": "66aa347c-02c1-4e82-9452-ad8b1b4a9235"
+              }
+            ],
+            "completedHistory": {
+              "ETH/USD": {
+                "bars": 720,
+                "firstOpenTimeMs": 1726790400000,
+                "lastOpenTimeMs": 1788912000000
+              },
+              "BTC/USD": {
+                "bars": 720,
+                "firstOpenTimeMs": 1726790400000,
+                "lastOpenTimeMs": 1788912000000
+              }
+            }
+          },
+          "valuationConvention": "Values are as of recordedAtMs. Inventory is marked to fresh verified bid less assumed exit fee; stale or unavailable inventory quotes produce null P&L. Drawdown is sampled, not a complete intraday maximum.",
+          "spec": {
+            "version": "eth40-forward-v1",
+            "candidateId": "sma_eth-040",
+            "liveTradingEnabled": false,
+            "automaticPromotionAllowed": false,
+            "historicalScreenPassed": false,
+            "validatedProfitable": false,
+            "initialCashUsd": 10000,
+            "warmupBars": 90,
+            "movingAverageDays": 40,
+            "entryBandFraction": 0.016738892635532743,
+            "finalizationDelayMs": 60000,
+            "signalToExecutionDays": 2,
+            "executionWindowMs": 60000,
+            "maximumQuoteAgeMs": 5000,
+            "maximumExchangeClockLeadMs": 1000,
+            "maximumRulesAgeMs": 86400000,
+            "entryFeeBps": 80,
+            "exitFeeBps": 80,
+            "maximumEntryUsd": 1000,
+            "maximumEntryEquityFraction": 0.1,
+            "completedDayVolumeParticipation": 0.001,
+            "displayedDepthParticipation": 0.05,
+            "bookPriceCollarBps": 10,
+            "minimumCompletedEpisodes": 10,
+            "reviewCalendarMonths": 6,
+            "feeSource": "https://www.kraken.com/features/fee-schedule",
+            "feeVerifiedDate": "2026-09-10",
+            "feeAssumption": "Public entry-tier spot taker fee; no private account fee tier assumed.",
+            "executionContract": "Signal candle i trades in the first 60 seconds of UTC day i+2 using a fresh checksum-verified book. Missed windows are recorded, never backfilled. At most one fill per account per day; partial residual exits wait for a subsequent eligible daily cash signal. No additions to open positions.",
+            "forwardDifference": "Daily signal and sizing are frozen. Executable book walking, 5% displayed-depth participation and missed fills replace historical OHLC prices plus 3bp assumed slippage. These are prospective paper execution assumptions, not guaranteed exchange fills.",
+            "launchContract": "Start with cash. The launch UTC candle is the first prospective signal candle; the first execution opportunity is its day i+2. Passive ETH/BTC each buy once with the same $1,000/10% cap, retain remaining cash, and never rebalance."
+          },
+          "available": true,
+          "dashboardFetchedAtMs": 1789074731661
+        },
+        "receipts": {
+          "eth40": {
+            "symbol": "ETH/USD",
+            "account": {
+              "cashUsd": 10000,
+              "entryCostUsd": 0,
+              "feesUsd": 0,
+              "initialCashUsd": 10000,
+              "quantity": 0,
+              "realizedNetUsd": 0,
+              "receipts": []
+            }
+          },
+          "passiveBtc": {
+            "symbol": "BTC/USD",
+            "account": {
+              "cashUsd": 10000,
+              "entryCostUsd": 0,
+              "feesUsd": 0,
+              "initialCashUsd": 10000,
+              "quantity": 0,
+              "realizedNetUsd": 0,
+              "receipts": []
+            }
+          },
+          "passiveEth": {
+            "symbol": "ETH/USD",
+            "account": {
+              "cashUsd": 10000,
+              "entryCostUsd": 0,
+              "feesUsd": 0,
+              "initialCashUsd": 10000,
+              "quantity": 0,
+              "realizedNetUsd": 0,
+              "receipts": []
+            }
+          }
+        },
+        "capturedAtMs": 1789074734129
+      },
+      "beforeFirstFill": true,
+      "display": {
+        "content": "LATEST RECORDED ETH40 DECISION\nWaiting for the first prospective execution day\n\nNEXT DAILY ELIGIBLE WINDOW\n2026-09-12 00:00:00 UTC\n\nFirst 60 seconds of the UTC day. A qualifying target and valid market data are required.\n\nForward net P&L\n+$0.00\nFrom actual paper fills and the recorded net bid mark\nNet liquidation value\n$10,000.00\nOpen inventory includes estimated exit fees\nCash\n$10,000.00\nETH quantity\n0.00000000\nFees paid\n$0.00\nAssumed paper fees: 0.80% per side\nRealized net P&L\n+$0.00\nCompleted ETH40 episodes\n0\nA complete sale must flatten the inventory\nSampled maximum drawdown\n$0.00\nFull account; observations may miss intraday lows\nRECORDED OBSERVATIONS\n117\nEach committed observation counts once. Dashboard polling adds none.\nACCOUNT CAPTURE\n2026-09-10 21:11:42 UTC\n31s ago · dashboard response 1s ago\nSIX-MONTH REVIEW\n2027-03-10 20:13:41 UTC\nCollecting forward evidence. At least ten completed ETH40 episodes are required.\nSeparate funded account comparisons\n\nEach account starts at $10,000. Passive ETH and BTC buy once with the same $1,000 / 10% entry cap and retain unused cash. Their results are separate allocations.\n\nAccount\tNet liquidation\tNet P&L\tFirst paper fill (UTC)\nETH40\t$10,000.00\t+$0.00\tNo recorded fill\nPassive ETH\t$10,000.00\t+$0.00\tNo recorded fill\nPassive BTC\t$10,000.00\t+$0.00\tNo recorded fill\nCash\t$10,000.00\t+$0.00\tNo trading\n\nETH40 excess vs cash: +$0.00 · vs passive ETH: +$0.00 · vs passive BTC: +$0.00",
+        "receipts": "No ETH40 paper fills recorded yet.\n\nSeparate passive benchmark fills",
+        "service": "Collector recording · Paper observation only. Captured data checks are shown below.",
+        "metrics": [
+          {
+            "label": "Forward net P&L",
+            "value": "+$0.00"
+          },
+          {
+            "label": "Net liquidation value",
+            "value": "$10,000.00"
+          },
+          {
+            "label": "Cash",
+            "value": "$10,000.00"
+          },
+          {
+            "label": "ETH quantity",
+            "value": "0.00000000"
+          },
+          {
+            "label": "Fees paid",
+            "value": "$0.00"
+          },
+          {
+            "label": "Realized net P&L",
+            "value": "+$0.00"
+          },
+          {
+            "label": "Completed ETH40 episodes",
+            "value": "0"
+          },
+          {
+            "label": "Sampled maximum drawdown",
+            "value": "$0.00"
+          }
+        ],
+        "comparisons": [
+          [
+            "ETH40",
+            "$10,000.00",
+            "+$0.00",
+            "No recorded fill"
+          ],
+          [
+            "Passive ETH",
+            "$10,000.00",
+            "+$0.00",
+            "No recorded fill"
+          ],
+          [
+            "Passive BTC",
+            "$10,000.00",
+            "+$0.00",
+            "No recorded fill"
+          ],
+          [
+            "Cash",
+            "$10,000.00",
+            "+$0.00",
+            "No trading"
+          ]
+        ]
+      },
+      "liveness": {
+        "cards": [
+          {
+            "id": "eth40-live-api",
+            "tone": "spot-liveness-card good",
+            "value": "Responded 1s ago",
+            "detail": "Last dashboard fetch: 2026-09-10 21:12:11 UTC. Process started 22m 34s ago."
+          },
+          {
+            "id": "eth40-live-observations",
+            "tone": "spot-liveness-card good",
+            "value": "117 recorded",
+            "detail": "Last record: 31s ago. Collector recording. Trial elapsed: 58m 31s."
+          },
+          {
+            "id": "eth40-live-eth-book",
+            "tone": "spot-liveness-card good",
+            "value": "Verified at capture",
+            "detail": "Local age at capture: 388 ms; exchange age at capture: 462 ms. Observation: 31s ago. This is a recorded quote check, not a live connection."
+          },
+          {
+            "id": "eth40-live-btc-book",
+            "tone": "spot-liveness-card good",
+            "value": "Verified at capture",
+            "detail": "Local age at capture: 13 ms; exchange age at capture: 88 ms. Observation: 31s ago. This is a recorded quote check, not a live connection."
+          },
+          {
+            "id": "eth40-live-history",
+            "tone": "spot-liveness-card good",
+            "value": "720 daily candles",
+            "detail": "720 candles recorded; Last daily open: 2026-09-09 00:00:00 UTC. Eligible signal history present at capture; coverage is the collector's recorded summary."
+          },
+          {
+            "id": "eth40-live-rules",
+            "tone": "spot-liveness-card good",
+            "value": "Present at capture",
+            "detail": "ETH metadata fetched: 2026-09-10 20:49:38 UTC. Age at capture: 22m 3s. BTC benchmark metadata is separate."
+          },
+          {
+            "id": "eth40-live-execution",
+            "tone": "spot-liveness-card ",
+            "value": "First window in 1d 2h 47m 46s",
+            "detail": "2026-09-12 00:00:00 UTC. A scheduled opening is not a promised fill. Signal, history, rules and quote checks still apply."
+          },
+          {
+            "id": "eth40-live-decision",
+            "tone": "spot-liveness-card ",
+            "value": "Waiting for the first prospective execution day",
+            "detail": "Waiting for a scheduled opportunity is normal. It does not confirm current execution readiness."
+          }
+        ],
+        "note": "The dashboard checks every five seconds. The collector normally records about every 30 seconds, and more often during the daily opening minute. Quote checks describe each recorded capture, not live prices or a live connection.",
+        "observations": "Observation 117\n2026-09-10 21:11:42 UTC\nWaiting for the first prospective execution day · 31s ago"
+      },
+      "passed": true
+    },
+    {
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "scenario": "direct-eth40",
+      "automaticObservationDurationMs": 5869,
+      "visibility": {
+        "url": "http://127.0.0.1:3001/?view=eth40",
+        "view": "eth40",
+        "links": [
+          {
+            "id": "spot-view-link",
+            "text": "BTC spot strategy",
+            "href": "http://127.0.0.1:3001/?view=spot",
+            "visible": true,
+            "current": null
+          },
+          {
+            "id": "eth40-view-link",
+            "text": "ETH40 paper",
+            "href": "http://127.0.0.1:3001/?view=eth40",
+            "visible": true,
+            "current": "page"
+          },
+          {
+            "id": "futures-view-link",
+            "text": "Futures monitoring",
+            "href": "http://127.0.0.1:3001/?view=futures",
+            "visible": true,
+            "current": null
+          }
+        ],
+        "panels": {
+          "spot": false,
+          "eth40": true,
+          "futures": false
+        },
+        "bodyWidth": 390,
+        "viewportWidth": 390,
+        "header": "ETH40 recording",
+        "mode": "ETH40 · PAPER"
+      },
+      "networkRequests": [
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/?view=eth40",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/styles.css?v=20260910-spot-position-events-1-eth40-liveness-1",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/app.js?v=20260910-spot-position-events-1-eth40-tab-1",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/spot.js?v=20260910-spot-position-events-1-eth40-tab-1",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/eth40.js?v=20260910-eth40-liveness-1",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/api/eth40/status",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/api/eth40/receipts",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/api/eth40/status",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/api/eth40/receipts",
+          "method": "GET"
+        }
+      ],
+      "javascriptErrors": [],
+      "consoleErrors": [],
+      "source": {
+        "status": {
+          "service": "ETH40 isolated spot paper observation",
+          "liveTradingEnabled": false,
+          "historicalScreenPassed": false,
+          "validatedProfitable": false,
+          "automaticPromotionAllowed": false,
+          "collectorHealthy": true,
+          "fatalError": null,
+          "processStartedAtMs": 1789073378669,
+          "startedAtMs": 1789071221861,
+          "recordedAtMs": 1789074732109,
+          "heartbeatAgeMs": 7236,
+          "sequence": 119,
+          "lastHash": "f5a1ca23fed6100353322d6a0e128829c518138ce560a984f881ec8b6f35e411",
+          "firstExecutionDayMs": 1789171200000,
+          "nextExecutionWindowMs": 1789171200000,
+          "reviewAtMs": 1804709621861,
+          "reviewStatus": "COLLECTING",
+          "cashBenchmark": {
+            "initialCashUsd": 10000,
+            "equityUsd": 10000,
+            "netPnlUsd": 0,
+            "interestAssumed": 0
+          },
+          "benchmarkSizing": "Start with cash. The launch UTC candle is the first prospective signal candle; the first execution opportunity is its day i+2. Passive ETH/BTC each buy once with the same $1,000/10% cap, retain remaining cash, and never rebalance.",
+          "accounts": [
+            {
+              "accountId": "eth40",
+              "cashUsd": 10000,
+              "quantity": 0,
+              "liquidationEquityUsd": 10000,
+              "netPnlUsd": 0,
+              "realizedNetUsd": 0,
+              "feesUsd": 0,
+              "quoteAgeMs": 82,
+              "fresh": true,
+              "symbol": "ETH/USD",
+              "initialCashUsd": 10000,
+              "returnOnAccountPct": 0,
+              "fills": 0,
+              "completedEpisodes": 0,
+              "sampledMaxDrawdownUsd": 0,
+              "sampledMaxDrawdownPctInitial": 0,
+              "firstFillAtMs": null
+            },
+            {
+              "accountId": "passiveEth",
+              "cashUsd": 10000,
+              "quantity": 0,
+              "liquidationEquityUsd": 10000,
+              "netPnlUsd": 0,
+              "realizedNetUsd": 0,
+              "feesUsd": 0,
+              "quoteAgeMs": 82,
+              "fresh": true,
+              "symbol": "ETH/USD",
+              "initialCashUsd": 10000,
+              "returnOnAccountPct": 0,
+              "fills": 0,
+              "completedEpisodes": 0,
+              "sampledMaxDrawdownUsd": 0,
+              "sampledMaxDrawdownPctInitial": 0,
+              "firstFillAtMs": null
+            },
+            {
+              "accountId": "passiveBtc",
+              "cashUsd": 10000,
+              "quantity": 0,
+              "liquidationEquityUsd": 10000,
+              "netPnlUsd": 0,
+              "realizedNetUsd": 0,
+              "feesUsd": 0,
+              "quoteAgeMs": 91,
+              "fresh": true,
+              "symbol": "BTC/USD",
+              "initialCashUsd": 10000,
+              "returnOnAccountPct": 0,
+              "fills": 0,
+              "completedEpisodes": 0,
+              "sampledMaxDrawdownUsd": 0,
+              "sampledMaxDrawdownPctInitial": 0,
+              "firstFillAtMs": null
+            }
+          ],
+          "excessVsCashUsd": 0,
+          "excessVsPassiveEthUsd": 0,
+          "excessVsPassiveBtcUsd": 0,
+          "lastDecisions": [
+            {
+              "accountId": "eth40",
+              "symbol": "ETH/USD",
+              "action": "blocked",
+              "reason": "WAITING_FOR_FIRST_PROSPECTIVE_EXECUTION_DAY",
+              "target": null,
+              "signalDayMs": null,
+              "sma40": null,
+              "close": null,
+              "orderId": null,
+              "fill": null,
+              "budgetUsd": null
+            },
+            {
+              "accountId": "passiveEth",
+              "symbol": "ETH/USD",
+              "action": "blocked",
+              "reason": "WAITING_FOR_FIRST_PROSPECTIVE_EXECUTION_DAY",
+              "target": null,
+              "signalDayMs": null,
+              "sma40": null,
+              "close": null,
+              "orderId": null,
+              "fill": null,
+              "budgetUsd": null
+            },
+            {
+              "accountId": "passiveBtc",
+              "symbol": "BTC/USD",
+              "action": "blocked",
+              "reason": "WAITING_FOR_FIRST_PROSPECTIVE_EXECUTION_DAY",
+              "target": null,
+              "signalDayMs": null,
+              "sma40": null,
+              "close": null,
+              "orderId": null,
+              "fill": null,
+              "budgetUsd": null
+            }
+          ],
+          "capturedMarkets": {
+            "observedAtMs": 1789074732109,
+            "errors": [],
+            "rulesFetchedAtMs": 1789073378938,
+            "rulesFetchedAtMsByAsset": {
+              "ETH/USD": 1789073378938,
+              "BTC/USD": 1789073379131
+            },
+            "rules": {
+              "ETH/USD": {
+                "lotSize": 1e-8,
+                "minimumQuantity": 0.001,
+                "minimumNotionalUsd": 0.5,
+                "tickSize": 0.01
+              },
+              "BTC/USD": {
+                "lotSize": 1e-8,
+                "minimumQuantity": 0.00005,
+                "minimumNotionalUsd": 0.5,
+                "tickSize": 0.1
+              }
+            },
+            "quotes": [
+              {
+                "symbol": "ETH/USD",
+                "bid": 2461.13,
+                "ask": 2461.14,
+                "receivedAtMs": 1789074732100,
+                "exchangeUpdateAtMs": 1789074732027,
+                "ageAtCaptureMs": 9,
+                "checksumValid": true,
+                "checksum": "743551469",
+                "connectionId": "66aa347c-02c1-4e82-9452-ad8b1b4a9235"
+              },
+              {
+                "symbol": "BTC/USD",
+                "bid": 77276.5,
+                "ask": 77276.6,
+                "receivedAtMs": 1789074732091,
+                "exchangeUpdateAtMs": 1789074732018,
+                "ageAtCaptureMs": 18,
+                "checksumValid": true,
+                "checksum": "4194676577",
+                "connectionId": "66aa347c-02c1-4e82-9452-ad8b1b4a9235"
+              }
+            ],
+            "completedHistory": {
+              "ETH/USD": {
+                "bars": 720,
+                "firstOpenTimeMs": 1726790400000,
+                "lastOpenTimeMs": 1788912000000
+              },
+              "BTC/USD": {
+                "bars": 720,
+                "firstOpenTimeMs": 1726790400000,
+                "lastOpenTimeMs": 1788912000000
+              }
+            }
+          },
+          "valuationConvention": "Values are as of recordedAtMs. Inventory is marked to fresh verified bid less assumed exit fee; stale or unavailable inventory quotes produce null P&L. Drawdown is sampled, not a complete intraday maximum.",
+          "spec": {
+            "version": "eth40-forward-v1",
+            "candidateId": "sma_eth-040",
+            "liveTradingEnabled": false,
+            "automaticPromotionAllowed": false,
+            "historicalScreenPassed": false,
+            "validatedProfitable": false,
+            "initialCashUsd": 10000,
+            "warmupBars": 90,
+            "movingAverageDays": 40,
+            "entryBandFraction": 0.016738892635532743,
+            "finalizationDelayMs": 60000,
+            "signalToExecutionDays": 2,
+            "executionWindowMs": 60000,
+            "maximumQuoteAgeMs": 5000,
+            "maximumExchangeClockLeadMs": 1000,
+            "maximumRulesAgeMs": 86400000,
+            "entryFeeBps": 80,
+            "exitFeeBps": 80,
+            "maximumEntryUsd": 1000,
+            "maximumEntryEquityFraction": 0.1,
+            "completedDayVolumeParticipation": 0.001,
+            "displayedDepthParticipation": 0.05,
+            "bookPriceCollarBps": 10,
+            "minimumCompletedEpisodes": 10,
+            "reviewCalendarMonths": 6,
+            "feeSource": "https://www.kraken.com/features/fee-schedule",
+            "feeVerifiedDate": "2026-09-10",
+            "feeAssumption": "Public entry-tier spot taker fee; no private account fee tier assumed.",
+            "executionContract": "Signal candle i trades in the first 60 seconds of UTC day i+2 using a fresh checksum-verified book. Missed windows are recorded, never backfilled. At most one fill per account per day; partial residual exits wait for a subsequent eligible daily cash signal. No additions to open positions.",
+            "forwardDifference": "Daily signal and sizing are frozen. Executable book walking, 5% displayed-depth participation and missed fills replace historical OHLC prices plus 3bp assumed slippage. These are prospective paper execution assumptions, not guaranteed exchange fills.",
+            "launchContract": "Start with cash. The launch UTC candle is the first prospective signal candle; the first execution opportunity is its day i+2. Passive ETH/BTC each buy once with the same $1,000/10% cap, retain remaining cash, and never rebalance."
+          },
+          "available": true,
+          "dashboardFetchedAtMs": 1789074739347
+        },
+        "receipts": {
+          "eth40": {
+            "symbol": "ETH/USD",
+            "account": {
+              "cashUsd": 10000,
+              "entryCostUsd": 0,
+              "feesUsd": 0,
+              "initialCashUsd": 10000,
+              "quantity": 0,
+              "realizedNetUsd": 0,
+              "receipts": []
+            }
+          },
+          "passiveBtc": {
+            "symbol": "BTC/USD",
+            "account": {
+              "cashUsd": 10000,
+              "entryCostUsd": 0,
+              "feesUsd": 0,
+              "initialCashUsd": 10000,
+              "quantity": 0,
+              "realizedNetUsd": 0,
+              "receipts": []
+            }
+          },
+          "passiveEth": {
+            "symbol": "ETH/USD",
+            "account": {
+              "cashUsd": 10000,
+              "entryCostUsd": 0,
+              "feesUsd": 0,
+              "initialCashUsd": 10000,
+              "quantity": 0,
+              "realizedNetUsd": 0,
+              "receipts": []
+            }
+          }
+        },
+        "capturedAtMs": 1789074740102
+      },
+      "beforeFirstFill": true,
+      "display": {
+        "content": "LATEST RECORDED ETH40 DECISION\nWaiting for the first prospective execution day\n\nNEXT DAILY ELIGIBLE WINDOW\n2026-09-12 00:00:00 UTC\n\nFirst 60 seconds of the UTC day. A qualifying target and valid market data are required.\n\nForward net P&L\n+$0.00\nFrom actual paper fills and the recorded net bid mark\nNet liquidation value\n$10,000.00\nOpen inventory includes estimated exit fees\nCash\n$10,000.00\nETH quantity\n0.00000000\nFees paid\n$0.00\nAssumed paper fees: 0.80% per side\nRealized net P&L\n+$0.00\nCompleted ETH40 episodes\n0\nA complete sale must flatten the inventory\nSampled maximum drawdown\n$0.00\nFull account; observations may miss intraday lows\nRECORDED OBSERVATIONS\n118\nEach committed observation counts once. Dashboard polling adds none.\nACCOUNT CAPTURE\n2026-09-10 21:12:12 UTC\n7s ago · dashboard response 0s ago\nSIX-MONTH REVIEW\n2027-03-10 20:13:41 UTC\nCollecting forward evidence. At least ten completed ETH40 episodes are required.\nSeparate funded account comparisons\n\nEach account starts at $10,000. Passive ETH and BTC buy once with the same $1,000 / 10% entry cap and retain unused cash. Their results are separate allocations.\n\nAccount\tNet liquidation\tNet P&L\tFirst paper fill (UTC)\nETH40\t$10,000.00\t+$0.00\tNo recorded fill\nPassive ETH\t$10,000.00\t+$0.00\tNo recorded fill\nPassive BTC\t$10,000.00\t+$0.00\tNo recorded fill\nCash\t$10,000.00\t+$0.00\tNo trading\n\nETH40 excess vs cash: +$0.00 · vs passive ETH: +$0.00 · vs passive BTC: +$0.00",
+        "receipts": "No ETH40 paper fills recorded yet.\n\nSeparate passive benchmark fills",
+        "service": "Collector recording · Paper observation only. Captured data checks are shown below.",
+        "metrics": [
+          {
+            "label": "Forward net P&L",
+            "value": "+$0.00"
+          },
+          {
+            "label": "Net liquidation value",
+            "value": "$10,000.00"
+          },
+          {
+            "label": "Cash",
+            "value": "$10,000.00"
+          },
+          {
+            "label": "ETH quantity",
+            "value": "0.00000000"
+          },
+          {
+            "label": "Fees paid",
+            "value": "$0.00"
+          },
+          {
+            "label": "Realized net P&L",
+            "value": "+$0.00"
+          },
+          {
+            "label": "Completed ETH40 episodes",
+            "value": "0"
+          },
+          {
+            "label": "Sampled maximum drawdown",
+            "value": "$0.00"
+          }
+        ],
+        "comparisons": [
+          [
+            "ETH40",
+            "$10,000.00",
+            "+$0.00",
+            "No recorded fill"
+          ],
+          [
+            "Passive ETH",
+            "$10,000.00",
+            "+$0.00",
+            "No recorded fill"
+          ],
+          [
+            "Passive BTC",
+            "$10,000.00",
+            "+$0.00",
+            "No recorded fill"
+          ],
+          [
+            "Cash",
+            "$10,000.00",
+            "+$0.00",
+            "No trading"
+          ]
+        ]
+      },
+      "liveness": {
+        "cards": [
+          {
+            "id": "eth40-live-api",
+            "tone": "spot-liveness-card good",
+            "value": "Responded 0s ago",
+            "detail": "Last dashboard fetch: 2026-09-10 21:12:19 UTC. Process started 22m 40s ago."
+          },
+          {
+            "id": "eth40-live-observations",
+            "tone": "spot-liveness-card good",
+            "value": "118 recorded",
+            "detail": "Last record: 7s ago. Collector recording. Trial elapsed: 58m 37s."
+          },
+          {
+            "id": "eth40-live-eth-book",
+            "tone": "spot-liveness-card good",
+            "value": "Verified at capture",
+            "detail": "Local age at capture: 9 ms; exchange age at capture: 82 ms. Observation: 7s ago. This is a recorded quote check, not a live connection."
+          },
+          {
+            "id": "eth40-live-btc-book",
+            "tone": "spot-liveness-card good",
+            "value": "Verified at capture",
+            "detail": "Local age at capture: 18 ms; exchange age at capture: 91 ms. Observation: 7s ago. This is a recorded quote check, not a live connection."
+          },
+          {
+            "id": "eth40-live-history",
+            "tone": "spot-liveness-card good",
+            "value": "720 daily candles",
+            "detail": "720 candles recorded; Last daily open: 2026-09-09 00:00:00 UTC. Eligible signal history present at capture; coverage is the collector's recorded summary."
+          },
+          {
+            "id": "eth40-live-rules",
+            "tone": "spot-liveness-card good",
+            "value": "Present at capture",
+            "detail": "ETH metadata fetched: 2026-09-10 20:49:38 UTC. Age at capture: 22m 33s. BTC benchmark metadata is separate."
+          },
+          {
+            "id": "eth40-live-execution",
+            "tone": "spot-liveness-card ",
+            "value": "First window in 1d 2h 47m 40s",
+            "detail": "2026-09-12 00:00:00 UTC. A scheduled opening is not a promised fill. Signal, history, rules and quote checks still apply."
+          },
+          {
+            "id": "eth40-live-decision",
+            "tone": "spot-liveness-card ",
+            "value": "Waiting for the first prospective execution day",
+            "detail": "Waiting for a scheduled opportunity is normal. It does not confirm current execution readiness."
+          }
+        ],
+        "note": "The dashboard checks every five seconds. The collector normally records about every 30 seconds, and more often during the daily opening minute. Quote checks describe each recorded capture, not live prices or a live connection.",
+        "observations": "Observation 118\n2026-09-10 21:12:12 UTC\nWaiting for the first prospective execution day · 7s ago\nObservation 117\n2026-09-10 21:11:42 UTC\nWaiting for the first prospective execution day · 37s ago"
+      },
+      "screenshot": "/home/ec2-user/crypto_trade/reports/eth40-liveness-2026-09-10/browser-deployed/mobile-eth40.png",
+      "passed": true
+    },
+    {
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "scenario": "navigate-1-spot",
+      "automaticObservationDurationMs": 5686,
+      "visibility": {
+        "url": "http://127.0.0.1:3001/?view=spot",
+        "view": "spot",
+        "links": [
+          {
+            "id": "spot-view-link",
+            "text": "BTC spot strategy",
+            "href": "http://127.0.0.1:3001/?view=spot",
+            "visible": true,
+            "current": "page"
+          },
+          {
+            "id": "eth40-view-link",
+            "text": "ETH40 paper",
+            "href": "http://127.0.0.1:3001/?view=eth40",
+            "visible": true,
+            "current": null
+          },
+          {
+            "id": "futures-view-link",
+            "text": "Futures monitoring",
+            "href": "http://127.0.0.1:3001/?view=futures",
+            "visible": true,
+            "current": null
+          }
+        ],
+        "panels": {
+          "spot": true,
+          "eth40": false,
+          "futures": false
+        },
+        "bodyWidth": 390,
+        "viewportWidth": 390,
+        "header": "Spot connected",
+        "mode": "SPOT · PAPER"
+      },
+      "networkRequests": [
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/?view=spot",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/styles.css?v=20260910-spot-position-events-1-eth40-liveness-1",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/app.js?v=20260910-spot-position-events-1-eth40-tab-1",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/spot.js?v=20260910-spot-position-events-1-eth40-tab-1",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/eth40.js?v=20260910-eth40-liveness-1",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/api/spot-dashboard",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/api/spot-dashboard",
+          "method": "GET"
+        }
+      ],
+      "javascriptErrors": [],
+      "consoleErrors": [],
+      "passed": true
+    },
+    {
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "scenario": "navigate-2-eth40",
+      "automaticObservationDurationMs": 5652,
+      "visibility": {
+        "url": "http://127.0.0.1:3001/?view=eth40",
+        "view": "eth40",
+        "links": [
+          {
+            "id": "spot-view-link",
+            "text": "BTC spot strategy",
+            "href": "http://127.0.0.1:3001/?view=spot",
+            "visible": true,
+            "current": null
+          },
+          {
+            "id": "eth40-view-link",
+            "text": "ETH40 paper",
+            "href": "http://127.0.0.1:3001/?view=eth40",
+            "visible": true,
+            "current": "page"
+          },
+          {
+            "id": "futures-view-link",
+            "text": "Futures monitoring",
+            "href": "http://127.0.0.1:3001/?view=futures",
+            "visible": true,
+            "current": null
+          }
+        ],
+        "panels": {
+          "spot": false,
+          "eth40": true,
+          "futures": false
+        },
+        "bodyWidth": 390,
+        "viewportWidth": 390,
+        "header": "ETH40 recording",
+        "mode": "ETH40 · PAPER"
+      },
+      "networkRequests": [
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/?view=eth40",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/styles.css?v=20260910-spot-position-events-1-eth40-liveness-1",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/app.js?v=20260910-spot-position-events-1-eth40-tab-1",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/spot.js?v=20260910-spot-position-events-1-eth40-tab-1",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/eth40.js?v=20260910-eth40-liveness-1",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/api/eth40/status",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/api/eth40/receipts",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/api/eth40/status",
+          "method": "GET"
+        }
+      ],
+      "javascriptErrors": [],
+      "consoleErrors": [],
+      "source": {
+        "status": {
+          "service": "ETH40 isolated spot paper observation",
+          "liveTradingEnabled": false,
+          "historicalScreenPassed": false,
+          "validatedProfitable": false,
+          "automaticPromotionAllowed": false,
+          "collectorHealthy": true,
+          "fatalError": null,
+          "processStartedAtMs": 1789073378669,
+          "startedAtMs": 1789071221861,
+          "recordedAtMs": 1789074732109,
+          "heartbeatAgeMs": 19136,
+          "sequence": 119,
+          "lastHash": "f5a1ca23fed6100353322d6a0e128829c518138ce560a984f881ec8b6f35e411",
+          "firstExecutionDayMs": 1789171200000,
+          "nextExecutionWindowMs": 1789171200000,
+          "reviewAtMs": 1804709621861,
+          "reviewStatus": "COLLECTING",
+          "cashBenchmark": {
+            "initialCashUsd": 10000,
+            "equityUsd": 10000,
+            "netPnlUsd": 0,
+            "interestAssumed": 0
+          },
+          "benchmarkSizing": "Start with cash. The launch UTC candle is the first prospective signal candle; the first execution opportunity is its day i+2. Passive ETH/BTC each buy once with the same $1,000/10% cap, retain remaining cash, and never rebalance.",
+          "accounts": [
+            {
+              "accountId": "eth40",
+              "cashUsd": 10000,
+              "quantity": 0,
+              "liquidationEquityUsd": 10000,
+              "netPnlUsd": 0,
+              "realizedNetUsd": 0,
+              "feesUsd": 0,
+              "quoteAgeMs": 82,
+              "fresh": true,
+              "symbol": "ETH/USD",
+              "initialCashUsd": 10000,
+              "returnOnAccountPct": 0,
+              "fills": 0,
+              "completedEpisodes": 0,
+              "sampledMaxDrawdownUsd": 0,
+              "sampledMaxDrawdownPctInitial": 0,
+              "firstFillAtMs": null
+            },
+            {
+              "accountId": "passiveEth",
+              "cashUsd": 10000,
+              "quantity": 0,
+              "liquidationEquityUsd": 10000,
+              "netPnlUsd": 0,
+              "realizedNetUsd": 0,
+              "feesUsd": 0,
+              "quoteAgeMs": 82,
+              "fresh": true,
+              "symbol": "ETH/USD",
+              "initialCashUsd": 10000,
+              "returnOnAccountPct": 0,
+              "fills": 0,
+              "completedEpisodes": 0,
+              "sampledMaxDrawdownUsd": 0,
+              "sampledMaxDrawdownPctInitial": 0,
+              "firstFillAtMs": null
+            },
+            {
+              "accountId": "passiveBtc",
+              "cashUsd": 10000,
+              "quantity": 0,
+              "liquidationEquityUsd": 10000,
+              "netPnlUsd": 0,
+              "realizedNetUsd": 0,
+              "feesUsd": 0,
+              "quoteAgeMs": 91,
+              "fresh": true,
+              "symbol": "BTC/USD",
+              "initialCashUsd": 10000,
+              "returnOnAccountPct": 0,
+              "fills": 0,
+              "completedEpisodes": 0,
+              "sampledMaxDrawdownUsd": 0,
+              "sampledMaxDrawdownPctInitial": 0,
+              "firstFillAtMs": null
+            }
+          ],
+          "excessVsCashUsd": 0,
+          "excessVsPassiveEthUsd": 0,
+          "excessVsPassiveBtcUsd": 0,
+          "lastDecisions": [
+            {
+              "accountId": "eth40",
+              "symbol": "ETH/USD",
+              "action": "blocked",
+              "reason": "WAITING_FOR_FIRST_PROSPECTIVE_EXECUTION_DAY",
+              "target": null,
+              "signalDayMs": null,
+              "sma40": null,
+              "close": null,
+              "orderId": null,
+              "fill": null,
+              "budgetUsd": null
+            },
+            {
+              "accountId": "passiveEth",
+              "symbol": "ETH/USD",
+              "action": "blocked",
+              "reason": "WAITING_FOR_FIRST_PROSPECTIVE_EXECUTION_DAY",
+              "target": null,
+              "signalDayMs": null,
+              "sma40": null,
+              "close": null,
+              "orderId": null,
+              "fill": null,
+              "budgetUsd": null
+            },
+            {
+              "accountId": "passiveBtc",
+              "symbol": "BTC/USD",
+              "action": "blocked",
+              "reason": "WAITING_FOR_FIRST_PROSPECTIVE_EXECUTION_DAY",
+              "target": null,
+              "signalDayMs": null,
+              "sma40": null,
+              "close": null,
+              "orderId": null,
+              "fill": null,
+              "budgetUsd": null
+            }
+          ],
+          "capturedMarkets": {
+            "observedAtMs": 1789074732109,
+            "errors": [],
+            "rulesFetchedAtMs": 1789073378938,
+            "rulesFetchedAtMsByAsset": {
+              "ETH/USD": 1789073378938,
+              "BTC/USD": 1789073379131
+            },
+            "rules": {
+              "ETH/USD": {
+                "lotSize": 1e-8,
+                "minimumQuantity": 0.001,
+                "minimumNotionalUsd": 0.5,
+                "tickSize": 0.01
+              },
+              "BTC/USD": {
+                "lotSize": 1e-8,
+                "minimumQuantity": 0.00005,
+                "minimumNotionalUsd": 0.5,
+                "tickSize": 0.1
+              }
+            },
+            "quotes": [
+              {
+                "symbol": "ETH/USD",
+                "bid": 2461.13,
+                "ask": 2461.14,
+                "receivedAtMs": 1789074732100,
+                "exchangeUpdateAtMs": 1789074732027,
+                "ageAtCaptureMs": 9,
+                "checksumValid": true,
+                "checksum": "743551469",
+                "connectionId": "66aa347c-02c1-4e82-9452-ad8b1b4a9235"
+              },
+              {
+                "symbol": "BTC/USD",
+                "bid": 77276.5,
+                "ask": 77276.6,
+                "receivedAtMs": 1789074732091,
+                "exchangeUpdateAtMs": 1789074732018,
+                "ageAtCaptureMs": 18,
+                "checksumValid": true,
+                "checksum": "4194676577",
+                "connectionId": "66aa347c-02c1-4e82-9452-ad8b1b4a9235"
+              }
+            ],
+            "completedHistory": {
+              "ETH/USD": {
+                "bars": 720,
+                "firstOpenTimeMs": 1726790400000,
+                "lastOpenTimeMs": 1788912000000
+              },
+              "BTC/USD": {
+                "bars": 720,
+                "firstOpenTimeMs": 1726790400000,
+                "lastOpenTimeMs": 1788912000000
+              }
+            }
+          },
+          "valuationConvention": "Values are as of recordedAtMs. Inventory is marked to fresh verified bid less assumed exit fee; stale or unavailable inventory quotes produce null P&L. Drawdown is sampled, not a complete intraday maximum.",
+          "spec": {
+            "version": "eth40-forward-v1",
+            "candidateId": "sma_eth-040",
+            "liveTradingEnabled": false,
+            "automaticPromotionAllowed": false,
+            "historicalScreenPassed": false,
+            "validatedProfitable": false,
+            "initialCashUsd": 10000,
+            "warmupBars": 90,
+            "movingAverageDays": 40,
+            "entryBandFraction": 0.016738892635532743,
+            "finalizationDelayMs": 60000,
+            "signalToExecutionDays": 2,
+            "executionWindowMs": 60000,
+            "maximumQuoteAgeMs": 5000,
+            "maximumExchangeClockLeadMs": 1000,
+            "maximumRulesAgeMs": 86400000,
+            "entryFeeBps": 80,
+            "exitFeeBps": 80,
+            "maximumEntryUsd": 1000,
+            "maximumEntryEquityFraction": 0.1,
+            "completedDayVolumeParticipation": 0.001,
+            "displayedDepthParticipation": 0.05,
+            "bookPriceCollarBps": 10,
+            "minimumCompletedEpisodes": 10,
+            "reviewCalendarMonths": 6,
+            "feeSource": "https://www.kraken.com/features/fee-schedule",
+            "feeVerifiedDate": "2026-09-10",
+            "feeAssumption": "Public entry-tier spot taker fee; no private account fee tier assumed.",
+            "executionContract": "Signal candle i trades in the first 60 seconds of UTC day i+2 using a fresh checksum-verified book. Missed windows are recorded, never backfilled. At most one fill per account per day; partial residual exits wait for a subsequent eligible daily cash signal. No additions to open positions.",
+            "forwardDifference": "Daily signal and sizing are frozen. Executable book walking, 5% displayed-depth participation and missed fills replace historical OHLC prices plus 3bp assumed slippage. These are prospective paper execution assumptions, not guaranteed exchange fills.",
+            "launchContract": "Start with cash. The launch UTC candle is the first prospective signal candle; the first execution opportunity is its day i+2. Passive ETH/BTC each buy once with the same $1,000/10% cap, retain remaining cash, and never rebalance."
+          },
+          "available": true,
+          "dashboardFetchedAtMs": 1789074751246
+        },
+        "receipts": {
+          "eth40": {
+            "symbol": "ETH/USD",
+            "account": {
+              "cashUsd": 10000,
+              "entryCostUsd": 0,
+              "feesUsd": 0,
+              "initialCashUsd": 10000,
+              "quantity": 0,
+              "realizedNetUsd": 0,
+              "receipts": []
+            }
+          },
+          "passiveBtc": {
+            "symbol": "BTC/USD",
+            "account": {
+              "cashUsd": 10000,
+              "entryCostUsd": 0,
+              "feesUsd": 0,
+              "initialCashUsd": 10000,
+              "quantity": 0,
+              "realizedNetUsd": 0,
+              "receipts": []
+            }
+          },
+          "passiveEth": {
+            "symbol": "ETH/USD",
+            "account": {
+              "cashUsd": 10000,
+              "entryCostUsd": 0,
+              "feesUsd": 0,
+              "initialCashUsd": 10000,
+              "quantity": 0,
+              "realizedNetUsd": 0,
+              "receipts": []
+            }
+          }
+        },
+        "capturedAtMs": 1789074751846
+      },
+      "beforeFirstFill": true,
+      "display": {
+        "content": "LATEST RECORDED ETH40 DECISION\nWaiting for the first prospective execution day\n\nNEXT DAILY ELIGIBLE WINDOW\n2026-09-12 00:00:00 UTC\n\nFirst 60 seconds of the UTC day. A qualifying target and valid market data are required.\n\nForward net P&L\n+$0.00\nFrom actual paper fills and the recorded net bid mark\nNet liquidation value\n$10,000.00\nOpen inventory includes estimated exit fees\nCash\n$10,000.00\nETH quantity\n0.00000000\nFees paid\n$0.00\nAssumed paper fees: 0.80% per side\nRealized net P&L\n+$0.00\nCompleted ETH40 episodes\n0\nA complete sale must flatten the inventory\nSampled maximum drawdown\n$0.00\nFull account; observations may miss intraday lows\nRECORDED OBSERVATIONS\n118\nEach committed observation counts once. Dashboard polling adds none.\nACCOUNT CAPTURE\n2026-09-10 21:12:12 UTC\n19s ago · dashboard response 0s ago\nSIX-MONTH REVIEW\n2027-03-10 20:13:41 UTC\nCollecting forward evidence. At least ten completed ETH40 episodes are required.\nSeparate funded account comparisons\n\nEach account starts at $10,000. Passive ETH and BTC buy once with the same $1,000 / 10% entry cap and retain unused cash. Their results are separate allocations.\n\nAccount\tNet liquidation\tNet P&L\tFirst paper fill (UTC)\nETH40\t$10,000.00\t+$0.00\tNo recorded fill\nPassive ETH\t$10,000.00\t+$0.00\tNo recorded fill\nPassive BTC\t$10,000.00\t+$0.00\tNo recorded fill\nCash\t$10,000.00\t+$0.00\tNo trading\n\nETH40 excess vs cash: +$0.00 · vs passive ETH: +$0.00 · vs passive BTC: +$0.00",
+        "receipts": "No ETH40 paper fills recorded yet.\n\nSeparate passive benchmark fills",
+        "service": "Collector recording · Paper observation only. Captured data checks are shown below.",
+        "metrics": [
+          {
+            "label": "Forward net P&L",
+            "value": "+$0.00"
+          },
+          {
+            "label": "Net liquidation value",
+            "value": "$10,000.00"
+          },
+          {
+            "label": "Cash",
+            "value": "$10,000.00"
+          },
+          {
+            "label": "ETH quantity",
+            "value": "0.00000000"
+          },
+          {
+            "label": "Fees paid",
+            "value": "$0.00"
+          },
+          {
+            "label": "Realized net P&L",
+            "value": "+$0.00"
+          },
+          {
+            "label": "Completed ETH40 episodes",
+            "value": "0"
+          },
+          {
+            "label": "Sampled maximum drawdown",
+            "value": "$0.00"
+          }
+        ],
+        "comparisons": [
+          [
+            "ETH40",
+            "$10,000.00",
+            "+$0.00",
+            "No recorded fill"
+          ],
+          [
+            "Passive ETH",
+            "$10,000.00",
+            "+$0.00",
+            "No recorded fill"
+          ],
+          [
+            "Passive BTC",
+            "$10,000.00",
+            "+$0.00",
+            "No recorded fill"
+          ],
+          [
+            "Cash",
+            "$10,000.00",
+            "+$0.00",
+            "No trading"
+          ]
+        ]
+      },
+      "liveness": {
+        "cards": [
+          {
+            "id": "eth40-live-api",
+            "tone": "spot-liveness-card good",
+            "value": "Responded 0s ago",
+            "detail": "Last dashboard fetch: 2026-09-10 21:12:31 UTC. Process started 22m 52s ago."
+          },
+          {
+            "id": "eth40-live-observations",
+            "tone": "spot-liveness-card good",
+            "value": "118 recorded",
+            "detail": "Last record: 19s ago. Collector recording. Trial elapsed: 58m 49s."
+          },
+          {
+            "id": "eth40-live-eth-book",
+            "tone": "spot-liveness-card good",
+            "value": "Verified at capture",
+            "detail": "Local age at capture: 9 ms; exchange age at capture: 82 ms. Observation: 19s ago. This is a recorded quote check, not a live connection."
+          },
+          {
+            "id": "eth40-live-btc-book",
+            "tone": "spot-liveness-card good",
+            "value": "Verified at capture",
+            "detail": "Local age at capture: 18 ms; exchange age at capture: 91 ms. Observation: 19s ago. This is a recorded quote check, not a live connection."
+          },
+          {
+            "id": "eth40-live-history",
+            "tone": "spot-liveness-card good",
+            "value": "720 daily candles",
+            "detail": "720 candles recorded; Last daily open: 2026-09-09 00:00:00 UTC. Eligible signal history present at capture; coverage is the collector's recorded summary."
+          },
+          {
+            "id": "eth40-live-rules",
+            "tone": "spot-liveness-card good",
+            "value": "Present at capture",
+            "detail": "ETH metadata fetched: 2026-09-10 20:49:38 UTC. Age at capture: 22m 33s. BTC benchmark metadata is separate."
+          },
+          {
+            "id": "eth40-live-execution",
+            "tone": "spot-liveness-card ",
+            "value": "First window in 1d 2h 47m 28s",
+            "detail": "2026-09-12 00:00:00 UTC. A scheduled opening is not a promised fill. Signal, history, rules and quote checks still apply."
+          },
+          {
+            "id": "eth40-live-decision",
+            "tone": "spot-liveness-card ",
+            "value": "Waiting for the first prospective execution day",
+            "detail": "Waiting for a scheduled opportunity is normal. It does not confirm current execution readiness."
+          }
+        ],
+        "note": "The dashboard checks every five seconds. The collector normally records about every 30 seconds, and more often during the daily opening minute. Quote checks describe each recorded capture, not live prices or a live connection.",
+        "observations": "Observation 118\n2026-09-10 21:12:12 UTC\nWaiting for the first prospective execution day · 19s ago"
+      },
+      "passed": true
+    },
+    {
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "scenario": "navigate-3-futures",
+      "automaticObservationDurationMs": 5695,
+      "visibility": {
+        "url": "http://127.0.0.1:3001/?view=futures",
+        "view": "futures",
+        "links": [
+          {
+            "id": "spot-view-link",
+            "text": "BTC spot strategy",
+            "href": "http://127.0.0.1:3001/?view=spot",
+            "visible": true,
+            "current": null
+          },
+          {
+            "id": "eth40-view-link",
+            "text": "ETH40 paper",
+            "href": "http://127.0.0.1:3001/?view=eth40",
+            "visible": true,
+            "current": null
+          },
+          {
+            "id": "futures-view-link",
+            "text": "Futures monitoring",
+            "href": "http://127.0.0.1:3001/?view=futures",
+            "visible": true,
+            "current": "page"
+          }
+        ],
+        "panels": {
+          "spot": false,
+          "eth40": false,
+          "futures": true
+        },
+        "bodyWidth": 390,
+        "viewportWidth": 390,
+        "header": "Live stream",
+        "mode": "PAPER"
+      },
+      "networkRequests": [
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/?view=futures",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/styles.css?v=20260910-spot-position-events-1-eth40-liveness-1",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/app.js?v=20260910-spot-position-events-1-eth40-tab-1",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/spot.js?v=20260910-spot-position-events-1-eth40-tab-1",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/eth40.js?v=20260910-eth40-liveness-1",
+          "method": "GET"
+        },
+        {
+          "kind": "websocket",
+          "url": "ws://127.0.0.1:3001/ws"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/api/dashboard",
+          "method": "GET"
+        }
+      ],
+      "javascriptErrors": [],
+      "consoleErrors": [],
+      "passed": true
+    },
+    {
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "scenario": "browser-back-eth40",
+      "automaticObservationDurationMs": 5645,
+      "visibility": {
+        "url": "http://127.0.0.1:3001/?view=eth40",
+        "view": "eth40",
+        "links": [
+          {
+            "id": "spot-view-link",
+            "text": "BTC spot strategy",
+            "href": "http://127.0.0.1:3001/?view=spot",
+            "visible": true,
+            "current": null
+          },
+          {
+            "id": "eth40-view-link",
+            "text": "ETH40 paper",
+            "href": "http://127.0.0.1:3001/?view=eth40",
+            "visible": true,
+            "current": "page"
+          },
+          {
+            "id": "futures-view-link",
+            "text": "Futures monitoring",
+            "href": "http://127.0.0.1:3001/?view=futures",
+            "visible": true,
+            "current": null
+          }
+        ],
+        "panels": {
+          "spot": false,
+          "eth40": true,
+          "futures": false
+        },
+        "bodyWidth": 390,
+        "viewportWidth": 390,
+        "header": "ETH40 recording",
+        "mode": "ETH40 · PAPER"
+      },
+      "networkRequests": [
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/?view=eth40",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/styles.css?v=20260910-spot-position-events-1-eth40-liveness-1",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/app.js?v=20260910-spot-position-events-1-eth40-tab-1",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/spot.js?v=20260910-spot-position-events-1-eth40-tab-1",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/eth40.js?v=20260910-eth40-liveness-1",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/api/eth40/status",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/api/eth40/receipts",
+          "method": "GET"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/api/eth40/status",
+          "method": "GET"
+        }
+      ],
+      "javascriptErrors": [],
+      "consoleErrors": [],
+      "source": {
+        "status": {
+          "service": "ETH40 isolated spot paper observation",
+          "liveTradingEnabled": false,
+          "historicalScreenPassed": false,
+          "validatedProfitable": false,
+          "automaticPromotionAllowed": false,
+          "collectorHealthy": true,
+          "fatalError": null,
+          "processStartedAtMs": 1789073378669,
+          "startedAtMs": 1789071221861,
+          "recordedAtMs": 1789074732109,
+          "heartbeatAgeMs": 29469,
+          "sequence": 119,
+          "lastHash": "f5a1ca23fed6100353322d6a0e128829c518138ce560a984f881ec8b6f35e411",
+          "firstExecutionDayMs": 1789171200000,
+          "nextExecutionWindowMs": 1789171200000,
+          "reviewAtMs": 1804709621861,
+          "reviewStatus": "COLLECTING",
+          "cashBenchmark": {
+            "initialCashUsd": 10000,
+            "equityUsd": 10000,
+            "netPnlUsd": 0,
+            "interestAssumed": 0
+          },
+          "benchmarkSizing": "Start with cash. The launch UTC candle is the first prospective signal candle; the first execution opportunity is its day i+2. Passive ETH/BTC each buy once with the same $1,000/10% cap, retain remaining cash, and never rebalance.",
+          "accounts": [
+            {
+              "accountId": "eth40",
+              "cashUsd": 10000,
+              "quantity": 0,
+              "liquidationEquityUsd": 10000,
+              "netPnlUsd": 0,
+              "realizedNetUsd": 0,
+              "feesUsd": 0,
+              "quoteAgeMs": 82,
+              "fresh": true,
+              "symbol": "ETH/USD",
+              "initialCashUsd": 10000,
+              "returnOnAccountPct": 0,
+              "fills": 0,
+              "completedEpisodes": 0,
+              "sampledMaxDrawdownUsd": 0,
+              "sampledMaxDrawdownPctInitial": 0,
+              "firstFillAtMs": null
+            },
+            {
+              "accountId": "passiveEth",
+              "cashUsd": 10000,
+              "quantity": 0,
+              "liquidationEquityUsd": 10000,
+              "netPnlUsd": 0,
+              "realizedNetUsd": 0,
+              "feesUsd": 0,
+              "quoteAgeMs": 82,
+              "fresh": true,
+              "symbol": "ETH/USD",
+              "initialCashUsd": 10000,
+              "returnOnAccountPct": 0,
+              "fills": 0,
+              "completedEpisodes": 0,
+              "sampledMaxDrawdownUsd": 0,
+              "sampledMaxDrawdownPctInitial": 0,
+              "firstFillAtMs": null
+            },
+            {
+              "accountId": "passiveBtc",
+              "cashUsd": 10000,
+              "quantity": 0,
+              "liquidationEquityUsd": 10000,
+              "netPnlUsd": 0,
+              "realizedNetUsd": 0,
+              "feesUsd": 0,
+              "quoteAgeMs": 91,
+              "fresh": true,
+              "symbol": "BTC/USD",
+              "initialCashUsd": 10000,
+              "returnOnAccountPct": 0,
+              "fills": 0,
+              "completedEpisodes": 0,
+              "sampledMaxDrawdownUsd": 0,
+              "sampledMaxDrawdownPctInitial": 0,
+              "firstFillAtMs": null
+            }
+          ],
+          "excessVsCashUsd": 0,
+          "excessVsPassiveEthUsd": 0,
+          "excessVsPassiveBtcUsd": 0,
+          "lastDecisions": [
+            {
+              "accountId": "eth40",
+              "symbol": "ETH/USD",
+              "action": "blocked",
+              "reason": "WAITING_FOR_FIRST_PROSPECTIVE_EXECUTION_DAY",
+              "target": null,
+              "signalDayMs": null,
+              "sma40": null,
+              "close": null,
+              "orderId": null,
+              "fill": null,
+              "budgetUsd": null
+            },
+            {
+              "accountId": "passiveEth",
+              "symbol": "ETH/USD",
+              "action": "blocked",
+              "reason": "WAITING_FOR_FIRST_PROSPECTIVE_EXECUTION_DAY",
+              "target": null,
+              "signalDayMs": null,
+              "sma40": null,
+              "close": null,
+              "orderId": null,
+              "fill": null,
+              "budgetUsd": null
+            },
+            {
+              "accountId": "passiveBtc",
+              "symbol": "BTC/USD",
+              "action": "blocked",
+              "reason": "WAITING_FOR_FIRST_PROSPECTIVE_EXECUTION_DAY",
+              "target": null,
+              "signalDayMs": null,
+              "sma40": null,
+              "close": null,
+              "orderId": null,
+              "fill": null,
+              "budgetUsd": null
+            }
+          ],
+          "capturedMarkets": {
+            "observedAtMs": 1789074732109,
+            "errors": [],
+            "rulesFetchedAtMs": 1789073378938,
+            "rulesFetchedAtMsByAsset": {
+              "ETH/USD": 1789073378938,
+              "BTC/USD": 1789073379131
+            },
+            "rules": {
+              "ETH/USD": {
+                "lotSize": 1e-8,
+                "minimumQuantity": 0.001,
+                "minimumNotionalUsd": 0.5,
+                "tickSize": 0.01
+              },
+              "BTC/USD": {
+                "lotSize": 1e-8,
+                "minimumQuantity": 0.00005,
+                "minimumNotionalUsd": 0.5,
+                "tickSize": 0.1
+              }
+            },
+            "quotes": [
+              {
+                "symbol": "ETH/USD",
+                "bid": 2461.13,
+                "ask": 2461.14,
+                "receivedAtMs": 1789074732100,
+                "exchangeUpdateAtMs": 1789074732027,
+                "ageAtCaptureMs": 9,
+                "checksumValid": true,
+                "checksum": "743551469",
+                "connectionId": "66aa347c-02c1-4e82-9452-ad8b1b4a9235"
+              },
+              {
+                "symbol": "BTC/USD",
+                "bid": 77276.5,
+                "ask": 77276.6,
+                "receivedAtMs": 1789074732091,
+                "exchangeUpdateAtMs": 1789074732018,
+                "ageAtCaptureMs": 18,
+                "checksumValid": true,
+                "checksum": "4194676577",
+                "connectionId": "66aa347c-02c1-4e82-9452-ad8b1b4a9235"
+              }
+            ],
+            "completedHistory": {
+              "ETH/USD": {
+                "bars": 720,
+                "firstOpenTimeMs": 1726790400000,
+                "lastOpenTimeMs": 1788912000000
+              },
+              "BTC/USD": {
+                "bars": 720,
+                "firstOpenTimeMs": 1726790400000,
+                "lastOpenTimeMs": 1788912000000
+              }
+            }
+          },
+          "valuationConvention": "Values are as of recordedAtMs. Inventory is marked to fresh verified bid less assumed exit fee; stale or unavailable inventory quotes produce null P&L. Drawdown is sampled, not a complete intraday maximum.",
+          "spec": {
+            "version": "eth40-forward-v1",
+            "candidateId": "sma_eth-040",
+            "liveTradingEnabled": false,
+            "automaticPromotionAllowed": false,
+            "historicalScreenPassed": false,
+            "validatedProfitable": false,
+            "initialCashUsd": 10000,
+            "warmupBars": 90,
+            "movingAverageDays": 40,
+            "entryBandFraction": 0.016738892635532743,
+            "finalizationDelayMs": 60000,
+            "signalToExecutionDays": 2,
+            "executionWindowMs": 60000,
+            "maximumQuoteAgeMs": 5000,
+            "maximumExchangeClockLeadMs": 1000,
+            "maximumRulesAgeMs": 86400000,
+            "entryFeeBps": 80,
+            "exitFeeBps": 80,
+            "maximumEntryUsd": 1000,
+            "maximumEntryEquityFraction": 0.1,
+            "completedDayVolumeParticipation": 0.001,
+            "displayedDepthParticipation": 0.05,
+            "bookPriceCollarBps": 10,
+            "minimumCompletedEpisodes": 10,
+            "reviewCalendarMonths": 6,
+            "feeSource": "https://www.kraken.com/features/fee-schedule",
+            "feeVerifiedDate": "2026-09-10",
+            "feeAssumption": "Public entry-tier spot taker fee; no private account fee tier assumed.",
+            "executionContract": "Signal candle i trades in the first 60 seconds of UTC day i+2 using a fresh checksum-verified book. Missed windows are recorded, never backfilled. At most one fill per account per day; partial residual exits wait for a subsequent eligible daily cash signal. No additions to open positions.",
+            "forwardDifference": "Daily signal and sizing are frozen. Executable book walking, 5% displayed-depth participation and missed fills replace historical OHLC prices plus 3bp assumed slippage. These are prospective paper execution assumptions, not guaranteed exchange fills.",
+            "launchContract": "Start with cash. The launch UTC candle is the first prospective signal candle; the first execution opportunity is its day i+2. Passive ETH/BTC each buy once with the same $1,000/10% cap, retain remaining cash, and never rebalance."
+          },
+          "available": true,
+          "dashboardFetchedAtMs": 1789074761579
+        },
+        "receipts": {
+          "eth40": {
+            "symbol": "ETH/USD",
+            "account": {
+              "cashUsd": 10000,
+              "entryCostUsd": 0,
+              "feesUsd": 0,
+              "initialCashUsd": 10000,
+              "quantity": 0,
+              "realizedNetUsd": 0,
+              "receipts": []
+            }
+          },
+          "passiveBtc": {
+            "symbol": "BTC/USD",
+            "account": {
+              "cashUsd": 10000,
+              "entryCostUsd": 0,
+              "feesUsd": 0,
+              "initialCashUsd": 10000,
+              "quantity": 0,
+              "realizedNetUsd": 0,
+              "receipts": []
+            }
+          },
+          "passiveEth": {
+            "symbol": "ETH/USD",
+            "account": {
+              "cashUsd": 10000,
+              "entryCostUsd": 0,
+              "feesUsd": 0,
+              "initialCashUsd": 10000,
+              "quantity": 0,
+              "realizedNetUsd": 0,
+              "receipts": []
+            }
+          }
+        },
+        "capturedAtMs": 1789074763221
+      },
+      "beforeFirstFill": true,
+      "display": {
+        "content": "LATEST RECORDED ETH40 DECISION\nWaiting for the first prospective execution day\n\nNEXT DAILY ELIGIBLE WINDOW\n2026-09-12 00:00:00 UTC\n\nFirst 60 seconds of the UTC day. A qualifying target and valid market data are required.\n\nForward net P&L\n+$0.00\nFrom actual paper fills and the recorded net bid mark\nNet liquidation value\n$10,000.00\nOpen inventory includes estimated exit fees\nCash\n$10,000.00\nETH quantity\n0.00000000\nFees paid\n$0.00\nAssumed paper fees: 0.80% per side\nRealized net P&L\n+$0.00\nCompleted ETH40 episodes\n0\nA complete sale must flatten the inventory\nSampled maximum drawdown\n$0.00\nFull account; observations may miss intraday lows\nRECORDED OBSERVATIONS\n118\nEach committed observation counts once. Dashboard polling adds none.\nACCOUNT CAPTURE\n2026-09-10 21:12:12 UTC\n29s ago · dashboard response 0s ago\nSIX-MONTH REVIEW\n2027-03-10 20:13:41 UTC\nCollecting forward evidence. At least ten completed ETH40 episodes are required.\nSeparate funded account comparisons\n\nEach account starts at $10,000. Passive ETH and BTC buy once with the same $1,000 / 10% entry cap and retain unused cash. Their results are separate allocations.\n\nAccount\tNet liquidation\tNet P&L\tFirst paper fill (UTC)\nETH40\t$10,000.00\t+$0.00\tNo recorded fill\nPassive ETH\t$10,000.00\t+$0.00\tNo recorded fill\nPassive BTC\t$10,000.00\t+$0.00\tNo recorded fill\nCash\t$10,000.00\t+$0.00\tNo trading\n\nETH40 excess vs cash: +$0.00 · vs passive ETH: +$0.00 · vs passive BTC: +$0.00",
+        "receipts": "No ETH40 paper fills recorded yet.\n\nSeparate passive benchmark fills",
+        "service": "Collector recording · Paper observation only. Captured data checks are shown below.",
+        "metrics": [
+          {
+            "label": "Forward net P&L",
+            "value": "+$0.00"
+          },
+          {
+            "label": "Net liquidation value",
+            "value": "$10,000.00"
+          },
+          {
+            "label": "Cash",
+            "value": "$10,000.00"
+          },
+          {
+            "label": "ETH quantity",
+            "value": "0.00000000"
+          },
+          {
+            "label": "Fees paid",
+            "value": "$0.00"
+          },
+          {
+            "label": "Realized net P&L",
+            "value": "+$0.00"
+          },
+          {
+            "label": "Completed ETH40 episodes",
+            "value": "0"
+          },
+          {
+            "label": "Sampled maximum drawdown",
+            "value": "$0.00"
+          }
+        ],
+        "comparisons": [
+          [
+            "ETH40",
+            "$10,000.00",
+            "+$0.00",
+            "No recorded fill"
+          ],
+          [
+            "Passive ETH",
+            "$10,000.00",
+            "+$0.00",
+            "No recorded fill"
+          ],
+          [
+            "Passive BTC",
+            "$10,000.00",
+            "+$0.00",
+            "No recorded fill"
+          ],
+          [
+            "Cash",
+            "$10,000.00",
+            "+$0.00",
+            "No trading"
+          ]
+        ]
+      },
+      "liveness": {
+        "cards": [
+          {
+            "id": "eth40-live-api",
+            "tone": "spot-liveness-card good",
+            "value": "Responded 0s ago",
+            "detail": "Last dashboard fetch: 2026-09-10 21:12:41 UTC. Process started 23m 2s ago."
+          },
+          {
+            "id": "eth40-live-observations",
+            "tone": "spot-liveness-card good",
+            "value": "118 recorded",
+            "detail": "Last record: 29s ago. Collector recording. Trial elapsed: 58m 59s."
+          },
+          {
+            "id": "eth40-live-eth-book",
+            "tone": "spot-liveness-card good",
+            "value": "Verified at capture",
+            "detail": "Local age at capture: 9 ms; exchange age at capture: 82 ms. Observation: 29s ago. This is a recorded quote check, not a live connection."
+          },
+          {
+            "id": "eth40-live-btc-book",
+            "tone": "spot-liveness-card good",
+            "value": "Verified at capture",
+            "detail": "Local age at capture: 18 ms; exchange age at capture: 91 ms. Observation: 29s ago. This is a recorded quote check, not a live connection."
+          },
+          {
+            "id": "eth40-live-history",
+            "tone": "spot-liveness-card good",
+            "value": "720 daily candles",
+            "detail": "720 candles recorded; Last daily open: 2026-09-09 00:00:00 UTC. Eligible signal history present at capture; coverage is the collector's recorded summary."
+          },
+          {
+            "id": "eth40-live-rules",
+            "tone": "spot-liveness-card good",
+            "value": "Present at capture",
+            "detail": "ETH metadata fetched: 2026-09-10 20:49:38 UTC. Age at capture: 22m 33s. BTC benchmark metadata is separate."
+          },
+          {
+            "id": "eth40-live-execution",
+            "tone": "spot-liveness-card ",
+            "value": "First window in 1d 2h 47m 18s",
+            "detail": "2026-09-12 00:00:00 UTC. A scheduled opening is not a promised fill. Signal, history, rules and quote checks still apply."
+          },
+          {
+            "id": "eth40-live-decision",
+            "tone": "spot-liveness-card ",
+            "value": "Waiting for the first prospective execution day",
+            "detail": "Waiting for a scheduled opportunity is normal. It does not confirm current execution readiness."
+          }
+        ],
+        "note": "The dashboard checks every five seconds. The collector normally records about every 30 seconds, and more often during the daily opening minute. Quote checks describe each recorded capture, not live prices or a live connection.",
+        "observations": "Observation 118\n2026-09-10 21:12:12 UTC\nWaiting for the first prospective execution day · 29s ago"
+      },
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "cleanup": {
+    "temporaryProfileRemoved": true
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "development-targets.json": "a76fc3a427266390e2fbc4d5f7d8b0d0af058225c1e9e5858ddd8915f7860439",
+  "development.json": "116345b7f8c2d4a6d3c840abc6a742d7ac7cc42b4e25ea1ef5ecc549098a0444",
+  "full-ledgers.json.gz": "6f8d1a9325c9538796b4e7997efea197176f07b6ee6755b274fb3c899a019cdc",
+  "registration.json": "51b9315c87d80cd4e0c9588437055981f1b49aed84d8d6631110a8df4f863f87",
+  "selection-lock.json": "138d60ecad8a0135b0d7e0cced20087ab1486423d9fb4d5e542ea1f071c27418",
+  "summary.json": "03f9eb76047a5c5947ed5e6905421d8dc8271a8df400b54e5fdf397401872386",
+  "targets.json": "f6d372748bc11f9f7ef1a971df03fff02ffdc4450d44483d3172204e9fab07ad"
+}

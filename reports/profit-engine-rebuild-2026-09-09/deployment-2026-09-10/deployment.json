@@ -1,0 +1,39 @@
+{
+  "recordedAtUtc": "2026-09-10T00:11:44.913881+00:00",
+  "deployed": true,
+  "mode": "paper",
+  "container": "crypto-trade-engine",
+  "image": "sha256:4e5d6e8ecd4e816fdcb550caa11c20ff9172d0aa580ed99deaf4bccf8bca0c1a",
+  "previousImage": "sha256:9d102b68d4631df5be09e0892b19d265621d7d006193338a9247154384dd85b0",
+  "containerStartedAtUtc": "2026-09-10T00:04:15.852578298Z",
+  "containerInspectHealth": "healthy",
+  "sourceCodeSha256": "c57475ab04ce281cbd83f86f95f0099d56d24ef5edcee758e293be197f8d036b",
+  "sizingPolicyId": "827a3c64f88eb32848104dc94f37b416f185a057441576e12cc16a4144ba7c02",
+  "startupAddedLabels": 5763,
+  "startupRetainedLabels": 6148,
+  "trainingDates": [
+    "2026-09-04",
+    "2026-09-05",
+    "2026-09-06",
+    "2026-09-07",
+    "2026-09-08",
+    "2026-09-09"
+  ],
+  "paperCashBeforeUsd": 99998.28269740003,
+  "paperCashAfterUsd": 99998.28269740003,
+  "accountContinuityVerified": true,
+  "fundingEpochPreserved": true,
+  "newOrdersAtAccountAudit": 0,
+  "newFillsAtAccountAudit": 0,
+  "historyCompatibilityRepairDeployed": true,
+  "profitableTradingEstablished": false,
+  "newChannelStrategyActivated": false,
+  "currentEconomicEntryBlocker": "SCORE_BELOW_MINIMUM",
+  "evidenceSha256": {
+    "import-preflight.json": "7a32ea42a4a71e2aef280cb5a2152652c8ba520a31d2fa64b8482ca69af10410",
+    "staging.json": "fc1614659ae5da3bd95266153110ae55171685c406594a6a9982e81c0b68c476",
+    "env-change.json": "48babe3eb63f3e7dfb953a9f32951cee4d8bd6fb226ac31797a164628e38c030",
+    "post-deployment.json": "3981968d63a9c788f3abc6f6ac3675a51e4dcbfe62f2e36321d0b2d5c7270d4e"
+  },
+  "observationSummary": "sampled-observation.json"
+}

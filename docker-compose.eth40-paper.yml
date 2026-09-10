@@ -1,0 +1,37 @@
+name: crypto-eth40-paper
+services:
+  eth40-paper:
+    build:
+      context: .
+      dockerfile: docker/eth40-paper.Dockerfile
+    image: crypto-eth40-paper:v1
+    container_name: crypto-eth40-paper
+    restart: unless-stopped
+    init: true
+    networks:
+      - default
+      - trading_dashboard
+    volumes:
+      - eth40_observation:/app/data
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3003/healthz').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 90s
+    security_opt:
+      - no-new-privileges:true
+    cap_drop: [ALL]
+    stop_grace_period: 60s
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "3"
+volumes:
+  eth40_observation:
+    name: crypto_trade_eth40_observation_v1
+networks:
+  trading_dashboard:
+    external: true
+    name: crypto-trade_default

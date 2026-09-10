@@ -1,0 +1,1013 @@
+{
+  "version": "portfolio-v2-independent-confirmation-audit-v1",
+  "createdAtUtc": "2026-09-09T02:55:59.309Z",
+  "passed": true,
+  "scope": "2025 financial values only; no 2026 performance or prices inspected; mixed source files filtered by timestamp before candle JSON decoding; prior 2024 development metadata only",
+  "checks": 1307338,
+  "maximumNumericDifference": 4.0850245408563524e-10,
+  "failures": [],
+  "auditor": {
+    "file": "tools/portfolio-risk-audit.mjs",
+    "sha256": "6440ef879dfe7e1878c4d1b478979df90db28c625b45f05ba88bee509f528d04",
+    "modified": false
+  },
+  "wrapper": {
+    "path": "/tmp/run-portfolio-v2-confirmation-audit.mjs",
+    "sha256": "73d2f5ec46138e106edef383a05a494ec38653dca151d2414f1e1ca8a1d3adbe"
+  },
+  "protocolSha256": "41aa24e5bc8059b99e7cbbbba6cc5cfe3bdde712d93d648dd65fb71291866613",
+  "selectionSha256": "820e6702685835778026ef520b9493d4909014c78b4c7a1584fc8b196be3a1ce",
+  "registrationBeforePerformance": true,
+  "sourceHashes": {
+    "src/portfolio/types.ts": "932cedcff32633cd3317106ba185d34e879a94fd426b36b196ff45a2c584a3da",
+    "src/portfolio/signals.ts": "66907f0868be89af33445d7041454ff960d018eb469af886b43224624f1f6293",
+    "src/portfolio/kernel.ts": "3c78b6202330409b9bd84bfb6d9938fd383162069a70c29eaee4f3115decf756",
+    "src/portfolio/replay.ts": "f2427846d07113ca44fcb58152ba4476009b0e55f5a44bf142cd07504eef6120",
+    "src/portfolio/protocol.ts": "f585d18b3a423a4bd6ca4380a355f5e7006dbec3649fd6ad43a7fea9125f951c",
+    "src/portfolio/study-main.ts": "4aa4260d397c091445464fcc5609f8f6264fe1027ef4bf76ba88ff7d590a7d4e",
+    "src/portfolio/shadow.ts": "b14fc376b6678424187232745d5b92dc867aac48f46af04b24046ce0a776e827",
+    "src/portfolio/live-main.ts": "365730955686861db5946bdca7680ffc7ae1615c8e577591e60182265467e155",
+    "src/research/hourly-data.ts": "0786552d6f700f8ad906a6f6db80b423560eef6f79dbb7403250ce1eeb260a91",
+    "src/research/hourly-study-statistics.ts": "0a9b6437903c26845958748d18f4b43f3ad35749f616da924cd61252442c7a36",
+    "src/core/order-book.ts": "030a9979f2f6a1f4d736e4b927202ffeb446fb1a5a25a18f0a427dc61624db63",
+    "src/core/market.ts": "8bbdd7973b1ba9ee15f30177273cc9b16df4c3c00bbad9547b25bfa20e512837",
+    "src/kraken/market-stream.ts": "42b3005e966c09c0b1fe12012569ac27062a16436a05c373fac28ad514df7d89",
+    "src/kraken/paper-broker.ts": "9c6f240965a31cb7121e11e757856a11ad967a727e2415390b31ff66d7199857",
+    "src/execution/planner.ts": "5954f3b7796fd7ba907e251de7f933e52680b8ab9abb69ba332ab961e87f3604",
+    "src/venue/client.ts": "14c9a6fad0580f43d21926983558f097e0255b33e5b56a2b297517bf2884be2e",
+    "package-lock.json": "2315bada829d31ccb4d3970392ba56d73458d3219dda1ec98d8dda0d41893594",
+    "reports/distribution-instrument-rules-2026-09-07.json": "a89ee77c1a871c63266cde004776e7484ccdc81d544b7d32a81f56cb07d89cdf",
+    "src/portfolio-v2/risk.ts": "3572b4138796ba6aff057e65a3618d672b4d8eb3e21040a2733a01a38b60d0f0",
+    "src/portfolio-v2/kernel.ts": "9ddb8eb82819faa8e2d8e6cb572d6368f8b2229f78118e701d1a4157e96beaf3",
+    "src/portfolio-v2/replay.ts": "311e7648296a5575d71344312d6ddb8fff4f399de9f5583f70901298bc0da63d",
+    "src/portfolio-v2/protocol.ts": "5537afcf9703509db1ac9afa4c4506eee412da6aaa83637c64ac26dbd0c5fac9",
+    "src/portfolio-v2/study-main.ts": "3bdbbe70a5d06c8d981158617a1ba289766ebc2cfb1653deb66468e4c599f4dd"
+  },
+  "dataSeals": [
+    {
+      "file": "/home/ec2-user/crypto_trade/reports/hourly-adaptive-study-2026-09-08/data-older-restored/dataset.json",
+      "sha256": "6995137d4366500628885518de3908f663ab7584caba0a4fe9845f700ac3f36f"
+    },
+    {
+      "file": "/home/ec2-user/crypto_trade/reports/hourly-adaptive-study-2026-09-08/data-older-restored/manifest.json",
+      "sha256": "b49fc0c9fe648aec3a049605f1e5c79d6d0a917bcf93c40bd151f47b992e941b"
+    },
+    {
+      "file": "/home/ec2-user/crypto_trade/reports/hourly-adaptive-study-2026-09-08/data-recent/dataset.json",
+      "sha256": "802694ae936dd864681dee2278f027ea1732a91fd6b635f1b08371673abcb227"
+    },
+    {
+      "file": "/home/ec2-user/crypto_trade/reports/hourly-adaptive-study-2026-09-08/data-recent/manifest.json",
+      "sha256": "5a57cfcc6dc6cc352f708f3101d0e2026580c5faf7b6661509016feb6483ecb4"
+    }
+  ],
+  "artifactHashes": {
+    "confirm-multiscale-trend-targets.json": "fbc313a2c17f8eeac624ed4503b6c4c9baa0dc337db8656369257cad796a8b40",
+    "confirm-governed-multiscale-trend-base-source-plus-hour.json": "d6892d09ed4a1382ff3ee2627b40ccf603eab0952272bf0aae69894b74ee31ae",
+    "confirm-governed-multiscale-trend-base-source-as-end.json": "0190658bd1109d928dd80bfe2316272b460fde5bce6c39c093f3d0d927f1e749",
+    "confirm-governed-multiscale-trend-stress-source-plus-hour.json": "d0ea2ed1d54a82abe509756375ae2f978745b914b91100c50a441ee8c9fc9e25",
+    "confirm-governed-multiscale-trend-stress-source-as-end.json": "7340b09ca7a261fddc92d54de6df7d5c9a7d40e475230475cf6328edc99cb33c",
+    "confirm-ungoverned-multiscale-trend-base-source-plus-hour.json": "a6751a2efe0f64afd4dc219b81c82ea25b630bce28268a044dca47fe13307233",
+    "confirm-ungoverned-multiscale-trend-base-source-as-end.json": "10acb8cb10df01c081180380f2135eb628c34d68d2f1a1da8876952967459712",
+    "confirm-ungoverned-multiscale-trend-stress-source-plus-hour.json": "22e1ac2a7159c7fd72cf7552d07afbe6736b97622ddbc596d2c7ce4bb924e0f3",
+    "confirm-ungoverned-multiscale-trend-stress-source-as-end.json": "bccc74b878fa94c6c9986e628399bd7994ddf6999ab4138618c4754bc21f7316",
+    "confirm-sign-trend-90d-targets.json": "43d59fa44d58d559fd317a034fbc3b346bf2a8b94fe3b9439c0260bc9727f5b1",
+    "confirm-governed-sign-trend-90d-base-source-plus-hour.json": "a623b0d05193f4627ed036a55a7a5d24103369fabb1261a1c8815a30645a6bb9",
+    "confirm-governed-sign-trend-90d-base-source-as-end.json": "bdd04cf3a4406b03331a3ef77071db80afb6243a5d4f47ddfee67fe391f46c49",
+    "confirm-governed-sign-trend-90d-stress-source-plus-hour.json": "54840151753c684fcf6a28faab16a2130ac5717b0cf975969c52c835ac654afc",
+    "confirm-governed-sign-trend-90d-stress-source-as-end.json": "225d1d6d83e8d9d803a144f7b97b7970f70c44a0d33264bdf9f8aed01d1e43ea",
+    "confirm-ungoverned-sign-trend-90d-base-source-plus-hour.json": "e2dffca4016435a378d787a1b1b568011d3e292637a366b39e5af23d0b8bf0da",
+    "confirm-ungoverned-sign-trend-90d-base-source-as-end.json": "3d5a00bf36d138d7967b68890aef427ae64337658c1c5f5dbe57ac7389e5cf38",
+    "confirm-ungoverned-sign-trend-90d-stress-source-plus-hour.json": "cb46f8973f021badfb19cc285d77fbbb11f3f5924611a4728b4301cfed79a594",
+    "confirm-ungoverned-sign-trend-90d-stress-source-as-end.json": "e36ccc14b2a2bde9b6afa0811ab1b8726957fc599207168a3133029ebed0208e",
+    "confirm-constant-btc-targets.json": "4bdded88a62e160d043f11c90963d987083c810f85899e3743f84b7e44ae528e",
+    "confirm-governed-constant-btc-base-source-plus-hour.json": "2094a6e003f1863c85d86cc6964a2ed92d2cfac60894846e08c3b300216b000d",
+    "confirm-governed-constant-btc-base-source-as-end.json": "300070ae3e527ea5519308e116ddcc38f3b6249a89076b79ea404ad7eb914519",
+    "confirm-governed-constant-btc-stress-source-plus-hour.json": "102465c0c1121fe59e4d2123b2c8993216f60eefb9d9dbada2e237029869a085",
+    "confirm-governed-constant-btc-stress-source-as-end.json": "3ccceb65c9cfb7f4f20a4a57ecbe1f4b1d6b1a52aef38d1033a7e205b8555023",
+    "confirm-constant-eth-targets.json": "7036e400c2ac7c1405e28be828e7104c7a78988b75ef2fe9f788abc791b866ac",
+    "confirm-governed-constant-eth-base-source-plus-hour.json": "a61baeaf699eac66bd07ad8929946418957af4ad1fae38262351e00548f9c78a",
+    "confirm-governed-constant-eth-base-source-as-end.json": "615b89247d7443921050715cde1aab4537e96b8bea6f223d6cf15a2f916b5b98",
+    "confirm-governed-constant-eth-stress-source-plus-hour.json": "1eca66790b9def7e87ee4a4e5fad1694eb2c35c3bbf18987aaf32c0bbcb8bd59",
+    "confirm-governed-constant-eth-stress-source-as-end.json": "bb24fc681039bb3a550623732a449236020cf9f65bd323f3daba33b2d2fffb8b",
+    "confirm-flat-targets.json": "15cb41513383e2456786f1ed2f16457cc0939049509052f83dad26f1eee4a2dc",
+    "confirm-governed-flat-base-source-plus-hour.json": "9950ff2ee294adf966e73353044e928e1c15ff0777da4ad20bf340753cdabbbe",
+    "confirm-governed-flat-base-source-as-end.json": "7334d988339fcf3fe6b920ba14211f69858465f9654e62190fd1e5d3381178a6",
+    "confirm-governed-flat-stress-source-plus-hour.json": "345a352f6f393aad8f965e5bfa4a1b6ea456402cb10a4dad67fa29622317acbe",
+    "confirm-governed-flat-stress-source-as-end.json": "94f896cd47a0e3ede0d85a5d99adeb5f155730bdd2eec13e2db848b9c0466051"
+  },
+  "rawSources": [
+    {
+      "path": "/home/ec2-user/crypto_trade/reports/hourly-adaptive-study-2026-09-08/data-older-restored/raw/PF_XBTUSD-funding.csv",
+      "sha256": "8abfb9f959d9989fab6ddbcf587f31d24ae39684974cc2147c283ef2455bc7ef",
+      "kind": "funding"
+    },
+    {
+      "path": "/home/ec2-user/crypto_trade/reports/hourly-adaptive-study-2026-09-08/data-older-restored/raw/PF_ETHUSD-funding.csv",
+      "sha256": "814bc79243578ff0b3846d409db421b346a35116334b8b709c181942c52615a8",
+      "kind": "funding"
+    },
+    {
+      "path": "/home/ec2-user/crypto_trade/reports/hourly-adaptive-study-2026-09-08/data-recent/raw/PF_XBTUSD-candles-1.json",
+      "sha256": "072f60c4b4a8397e7a4a321bdeae07e32f2ef7cf6ba8db224309bf071a946e3b",
+      "kind": "candles"
+    },
+    {
+      "path": "/home/ec2-user/crypto_trade/reports/hourly-adaptive-study-2026-09-08/data-recent/raw/PF_XBTUSD-candles-2.json",
+      "sha256": "b973367da3c24be28bd4794a9f001ab95c0b89e13336de28feee3f0c15901061",
+      "kind": "candles"
+    },
+    {
+      "path": "/home/ec2-user/crypto_trade/reports/hourly-adaptive-study-2026-09-08/data-recent/raw/PF_XBTUSD-candles-3.json",
+      "sha256": "a7920658a850abeb1ceebb6da53d5760651cb0ee03f3b7e61d7041390f94ad1f",
+      "kind": "candles"
+    },
+    {
+      "path": "/home/ec2-user/crypto_trade/reports/hourly-adaptive-study-2026-09-08/data-recent/raw/PF_ETHUSD-candles-1.json",
+      "sha256": "60481a913a8320f5be095f92101ff5bc6e8cf5ec49900214f53a5569b91cbc08",
+      "kind": "candles"
+    },
+    {
+      "path": "/home/ec2-user/crypto_trade/reports/hourly-adaptive-study-2026-09-08/data-recent/raw/PF_ETHUSD-candles-2.json",
+      "sha256": "c49021e3a801070a70f4f5a28b9b82017e1053d4bc17839765ab0de6c1397e1f",
+      "kind": "candles"
+    },
+    {
+      "path": "/home/ec2-user/crypto_trade/reports/hourly-adaptive-study-2026-09-08/data-recent/raw/PF_ETHUSD-candles-3.json",
+      "sha256": "42fd4d5923c740f4f0e070baab978319f8d2a8870f19b8ecd8f6b1f57d011530",
+      "kind": "candles"
+    },
+    {
+      "path": "/home/ec2-user/crypto_trade/reports/hourly-adaptive-study-2026-09-08/data-recent/raw/PF_XBTUSD-funding.csv",
+      "sha256": "8abfb9f959d9989fab6ddbcf587f31d24ae39684974cc2147c283ef2455bc7ef",
+      "kind": "funding"
+    },
+    {
+      "path": "/home/ec2-user/crypto_trade/reports/hourly-adaptive-study-2026-09-08/data-recent/raw/PF_ETHUSD-funding.csv",
+      "sha256": "814bc79243578ff0b3846d409db421b346a35116334b8b709c181942c52615a8",
+      "kind": "funding"
+    }
+  ],
+  "governedRunCount": 20,
+  "totalFills": 868,
+  "totalFundingReceipts": 37863,
+  "totalRiskObservations": 351314,
+  "auditorRows": [
+    {
+      "name": "confirm-governed-multiscale-trend-base-source-plus-hour.json",
+      "passed": true,
+      "checks": 317393,
+      "maximumNumericDifference": 7.275957614183426e-12,
+      "failures": [],
+      "fills": 82,
+      "fundingReceipts": 3430,
+      "riskObservations": 17605,
+      "unknowns": 1,
+      "cancellations": 0,
+      "finalDrawdownHalted": false,
+      "finalAccountingHalted": true
+    },
+    {
+      "name": "confirm-governed-multiscale-trend-base-source-as-end.json",
+      "passed": true,
+      "checks": 317388,
+      "maximumNumericDifference": 7.275957614183426e-12,
+      "failures": [],
+      "fills": 82,
+      "fundingReceipts": 3429,
+      "riskObservations": 17605,
+      "unknowns": 1,
+      "cancellations": 0,
+      "finalDrawdownHalted": false,
+      "finalAccountingHalted": true
+    },
+    {
+      "name": "confirm-governed-multiscale-trend-stress-source-plus-hour.json",
+      "passed": true,
+      "checks": 317186,
+      "maximumNumericDifference": 7.275957614183426e-12,
+      "failures": [],
+      "fills": 74,
+      "fundingReceipts": 3427,
+      "riskObservations": 17597,
+      "unknowns": 1,
+      "cancellations": 0,
+      "finalDrawdownHalted": false,
+      "finalAccountingHalted": true
+    },
+    {
+      "name": "confirm-governed-multiscale-trend-stress-source-as-end.json",
+      "passed": true,
+      "checks": 317181,
+      "maximumNumericDifference": 7.275957614183426e-12,
+      "failures": [],
+      "fills": 74,
+      "fundingReceipts": 3426,
+      "riskObservations": 17597,
+      "unknowns": 1,
+      "cancellations": 0,
+      "finalDrawdownHalted": false,
+      "finalAccountingHalted": true
+    },
+    {
+      "name": "confirm-governed-sign-trend-90d-base-source-plus-hour.json",
+      "passed": true,
+      "checks": 315829,
+      "maximumNumericDifference": 3.637978807091713e-12,
+      "failures": [],
+      "fills": 79,
+      "fundingReceipts": 3134,
+      "riskObservations": 17601,
+      "unknowns": 0,
+      "cancellations": 0,
+      "finalDrawdownHalted": false,
+      "finalAccountingHalted": false
+    },
+    {
+      "name": "confirm-governed-sign-trend-90d-base-source-as-end.json",
+      "passed": true,
+      "checks": 315829,
+      "maximumNumericDifference": 3.637978807091713e-12,
+      "failures": [],
+      "fills": 79,
+      "fundingReceipts": 3134,
+      "riskObservations": 17601,
+      "unknowns": 0,
+      "cancellations": 0,
+      "finalDrawdownHalted": false,
+      "finalAccountingHalted": false
+    },
+    {
+      "name": "confirm-governed-sign-trend-90d-stress-source-plus-hour.json",
+      "passed": true,
+      "checks": 315751,
+      "maximumNumericDifference": 3.637978807091713e-12,
+      "failures": [],
+      "fills": 77,
+      "fundingReceipts": 3128,
+      "riskObservations": 17599,
+      "unknowns": 0,
+      "cancellations": 0,
+      "finalDrawdownHalted": false,
+      "finalAccountingHalted": false
+    },
+    {
+      "name": "confirm-governed-sign-trend-90d-stress-source-as-end.json",
+      "passed": true,
+      "checks": 315751,
+      "maximumNumericDifference": 3.637978807091713e-12,
+      "failures": [],
+      "fills": 77,
+      "fundingReceipts": 3128,
+      "riskObservations": 17599,
+      "unknowns": 0,
+      "cancellations": 0,
+      "finalDrawdownHalted": false,
+      "finalAccountingHalted": false
+    },
+    {
+      "name": "confirm-governed-constant-btc-base-source-plus-hour.json",
+      "passed": true,
+      "checks": 305373,
+      "maximumNumericDifference": 0,
+      "failures": [],
+      "fills": 40,
+      "fundingReceipts": 1230,
+      "riskObservations": 17562,
+      "unknowns": 0,
+      "cancellations": 0,
+      "finalDrawdownHalted": false,
+      "finalAccountingHalted": false
+    },
+    {
+      "name": "confirm-governed-constant-btc-base-source-as-end.json",
+      "passed": true,
+      "checks": 305373,
+      "maximumNumericDifference": 0,
+      "failures": [],
+      "fills": 40,
+      "fundingReceipts": 1230,
+      "riskObservations": 17562,
+      "unknowns": 0,
+      "cancellations": 0,
+      "finalDrawdownHalted": false,
+      "finalAccountingHalted": false
+    },
+    {
+      "name": "confirm-governed-constant-btc-stress-source-plus-hour.json",
+      "passed": true,
+      "checks": 305909,
+      "maximumNumericDifference": 5.551115123125783e-17,
+      "failures": [],
+      "fills": 56,
+      "fundingReceipts": 1258,
+      "riskObservations": 17579,
+      "unknowns": 1,
+      "cancellations": 0,
+      "finalDrawdownHalted": false,
+      "finalAccountingHalted": true
+    },
+    {
+      "name": "confirm-governed-constant-btc-stress-source-as-end.json",
+      "passed": true,
+      "checks": 305904,
+      "maximumNumericDifference": 8.326672684688674e-17,
+      "failures": [],
+      "fills": 56,
+      "fundingReceipts": 1257,
+      "riskObservations": 17579,
+      "unknowns": 1,
+      "cancellations": 0,
+      "finalDrawdownHalted": false,
+      "finalAccountingHalted": true
+    },
+    {
+      "name": "confirm-governed-constant-eth-base-source-plus-hour.json",
+      "passed": true,
+      "checks": 306801,
+      "maximumNumericDifference": 3.637978807091713e-12,
+      "failures": [],
+      "fills": 12,
+      "fundingReceipts": 1650,
+      "riskObservations": 17534,
+      "unknowns": 0,
+      "cancellations": 0,
+      "finalDrawdownHalted": false,
+      "finalAccountingHalted": false
+    },
+    {
+      "name": "confirm-governed-constant-eth-base-source-as-end.json",
+      "passed": true,
+      "checks": 306801,
+      "maximumNumericDifference": 3.637978807091713e-12,
+      "failures": [],
+      "fills": 12,
+      "fundingReceipts": 1650,
+      "riskObservations": 17534,
+      "unknowns": 0,
+      "cancellations": 0,
+      "finalDrawdownHalted": false,
+      "finalAccountingHalted": false
+    },
+    {
+      "name": "confirm-governed-constant-eth-stress-source-plus-hour.json",
+      "passed": true,
+      "checks": 306979,
+      "maximumNumericDifference": 7.275957614183426e-12,
+      "failures": [],
+      "fills": 14,
+      "fundingReceipts": 1676,
+      "riskObservations": 17536,
+      "unknowns": 0,
+      "cancellations": 0,
+      "finalDrawdownHalted": false,
+      "finalAccountingHalted": false
+    },
+    {
+      "name": "confirm-governed-constant-eth-stress-source-as-end.json",
+      "passed": true,
+      "checks": 306979,
+      "maximumNumericDifference": 7.275957614183426e-12,
+      "failures": [],
+      "fills": 14,
+      "fundingReceipts": 1676,
+      "riskObservations": 17536,
+      "unknowns": 0,
+      "cancellations": 0,
+      "finalDrawdownHalted": false,
+      "finalAccountingHalted": false
+    },
+    {
+      "name": "confirm-governed-flat-base-source-plus-hour.json",
+      "passed": true,
+      "checks": 298263,
+      "maximumNumericDifference": 0,
+      "failures": [],
+      "fills": 0,
+      "fundingReceipts": 0,
+      "riskObservations": 17522,
+      "unknowns": 0,
+      "cancellations": 0,
+      "finalDrawdownHalted": false,
+      "finalAccountingHalted": false
+    },
+    {
+      "name": "confirm-governed-flat-base-source-as-end.json",
+      "passed": true,
+      "checks": 298263,
+      "maximumNumericDifference": 0,
+      "failures": [],
+      "fills": 0,
+      "fundingReceipts": 0,
+      "riskObservations": 17522,
+      "unknowns": 0,
+      "cancellations": 0,
+      "finalDrawdownHalted": false,
+      "finalAccountingHalted": false
+    },
+    {
+      "name": "confirm-governed-flat-stress-source-plus-hour.json",
+      "passed": true,
+      "checks": 298263,
+      "maximumNumericDifference": 0,
+      "failures": [],
+      "fills": 0,
+      "fundingReceipts": 0,
+      "riskObservations": 17522,
+      "unknowns": 0,
+      "cancellations": 0,
+      "finalDrawdownHalted": false,
+      "finalAccountingHalted": false
+    },
+    {
+      "name": "confirm-governed-flat-stress-source-as-end.json",
+      "passed": true,
+      "checks": 298263,
+      "maximumNumericDifference": 0,
+      "failures": [],
+      "fills": 0,
+      "fundingReceipts": 0,
+      "riskObservations": 17522,
+      "unknowns": 0,
+      "cancellations": 0,
+      "finalDrawdownHalted": false,
+      "finalAccountingHalted": false
+    }
+  ],
+  "metrics": [
+    {
+      "policy": "multiscale-trend",
+      "scenario": "base-source-plus-hour",
+      "netPnlUsd": null,
+      "utility": null,
+      "drawdownUsd": null,
+      "liquidationDrawdownUsd": null,
+      "maximumIntradayLiquidationLossUsd": null,
+      "maximumClosingDayLossUsd": null,
+      "exposureHours": 3430,
+      "perAssetNetPnlUsd": {
+        "BTC/USD": -0.27071444552679313,
+        "ETH/USD": null
+      },
+      "perAssetExposureHours": {
+        "BTC/USD": 6,
+        "ETH/USD": 3424
+      },
+      "unknownReasons": [
+        {
+          "reason": "MISSING_FUNDING_RATE",
+          "symbol": "ETH/USD",
+          "atMs": 1763532000000
+        }
+      ],
+      "fills": 82,
+      "unknowns": 1,
+      "governorCancellations": 0
+    },
+    {
+      "policy": "multiscale-trend",
+      "scenario": "base-source-as-end",
+      "netPnlUsd": null,
+      "utility": null,
+      "drawdownUsd": null,
+      "liquidationDrawdownUsd": null,
+      "maximumIntradayLiquidationLossUsd": null,
+      "maximumClosingDayLossUsd": null,
+      "exposureHours": 3429,
+      "perAssetNetPnlUsd": {
+        "BTC/USD": -0.27070684857295785,
+        "ETH/USD": null
+      },
+      "perAssetExposureHours": {
+        "BTC/USD": 6,
+        "ETH/USD": 3423
+      },
+      "unknownReasons": [
+        {
+          "reason": "MISSING_FUNDING_RATE",
+          "symbol": "ETH/USD",
+          "atMs": 1763528400000
+        }
+      ],
+      "fills": 82,
+      "unknowns": 1,
+      "governorCancellations": 0
+    },
+    {
+      "policy": "multiscale-trend",
+      "scenario": "stress-source-plus-hour",
+      "netPnlUsd": null,
+      "utility": null,
+      "drawdownUsd": null,
+      "liquidationDrawdownUsd": null,
+      "maximumIntradayLiquidationLossUsd": null,
+      "maximumClosingDayLossUsd": null,
+      "exposureHours": 3427,
+      "perAssetNetPnlUsd": {
+        "BTC/USD": -0.4189300024968539,
+        "ETH/USD": null
+      },
+      "perAssetExposureHours": {
+        "BTC/USD": 26,
+        "ETH/USD": 3401
+      },
+      "unknownReasons": [
+        {
+          "reason": "MISSING_FUNDING_RATE",
+          "symbol": "ETH/USD",
+          "atMs": 1763532000000
+        }
+      ],
+      "fills": 74,
+      "unknowns": 1,
+      "governorCancellations": 0
+    },
+    {
+      "policy": "multiscale-trend",
+      "scenario": "stress-source-as-end",
+      "netPnlUsd": null,
+      "utility": null,
+      "drawdownUsd": null,
+      "liquidationDrawdownUsd": null,
+      "maximumIntradayLiquidationLossUsd": null,
+      "maximumClosingDayLossUsd": null,
+      "exposureHours": 3426,
+      "perAssetNetPnlUsd": {
+        "BTC/USD": -0.4190949780224883,
+        "ETH/USD": null
+      },
+      "perAssetExposureHours": {
+        "BTC/USD": 26,
+        "ETH/USD": 3400
+      },
+      "unknownReasons": [
+        {
+          "reason": "MISSING_FUNDING_RATE",
+          "symbol": "ETH/USD",
+          "atMs": 1763528400000
+        }
+      ],
+      "fills": 74,
+      "unknowns": 1,
+      "governorCancellations": 0
+    },
+    {
+      "policy": "sign-trend-90d",
+      "scenario": "base-source-plus-hour",
+      "netPnlUsd": -0.9416471914155409,
+      "utility": -2.038460936266347,
+      "drawdownUsd": 2.193627489701612,
+      "liquidationDrawdownUsd": 2.187023239705013,
+      "maximumIntradayLiquidationLossUsd": 0.41921743407147005,
+      "maximumClosingDayLossUsd": 0.4049113506771391,
+      "exposureHours": 3097,
+      "perAssetNetPnlUsd": {
+        "BTC/USD": -0.06738137222777661,
+        "ETH/USD": -0.8742658191905281
+      },
+      "perAssetExposureHours": {
+        "BTC/USD": 309,
+        "ETH/USD": 2825
+      },
+      "unknownReasons": [],
+      "fills": 79,
+      "unknowns": 0,
+      "governorCancellations": 0
+    },
+    {
+      "policy": "sign-trend-90d",
+      "scenario": "base-source-as-end",
+      "netPnlUsd": -0.9414083120354917,
+      "utility": -2.0382598828873597,
+      "drawdownUsd": 2.193703141703736,
+      "liquidationDrawdownUsd": 2.1870988917071372,
+      "maximumIntradayLiquidationLossUsd": 0.41918755556980614,
+      "maximumClosingDayLossUsd": 0.40487060903979,
+      "exposureHours": 3097,
+      "perAssetNetPnlUsd": {
+        "BTC/USD": -0.06733001224921975,
+        "ETH/USD": -0.874078299773034
+      },
+      "perAssetExposureHours": {
+        "BTC/USD": 309,
+        "ETH/USD": 2825
+      },
+      "unknownReasons": [],
+      "fills": 79,
+      "unknowns": 0,
+      "governorCancellations": 0
+    },
+    {
+      "policy": "sign-trend-90d",
+      "scenario": "stress-source-plus-hour",
+      "netPnlUsd": -0.847162567806663,
+      "utility": -1.9389012396059115,
+      "drawdownUsd": 2.183477343598497,
+      "liquidationDrawdownUsd": 2.17286984360544,
+      "maximumIntradayLiquidationLossUsd": 0.4225691269530216,
+      "maximumClosingDayLossUsd": 0.4110067331494065,
+      "exposureHours": 3090,
+      "perAssetNetPnlUsd": {
+        "BTC/USD": 0.07053729259875854,
+        "ETH/USD": -0.9176998601246115
+      },
+      "perAssetExposureHours": {
+        "BTC/USD": 302,
+        "ETH/USD": 2826
+      },
+      "unknownReasons": [],
+      "fills": 77,
+      "unknowns": 0,
+      "governorCancellations": 0
+    },
+    {
+      "policy": "sign-trend-90d",
+      "scenario": "stress-source-as-end",
+      "netPnlUsd": -0.8468515867134556,
+      "utility": -1.9385678854741855,
+      "drawdownUsd": 2.1834325975214597,
+      "liquidationDrawdownUsd": 2.1728250975284027,
+      "maximumIntradayLiquidationLossUsd": 0.4225392484513577,
+      "maximumClosingDayLossUsd": 0.41096599151205737,
+      "exposureHours": 3090,
+      "perAssetNetPnlUsd": {
+        "BTC/USD": 0.07066531411020283,
+        "ETH/USD": -0.917516900415156
+      },
+      "perAssetExposureHours": {
+        "BTC/USD": 302,
+        "ETH/USD": 2826
+      },
+      "unknownReasons": [],
+      "fills": 77,
+      "unknowns": 0,
+      "governorCancellations": 0
+    },
+    {
+      "policy": "constant-btc",
+      "scenario": "base-source-plus-hour",
+      "netPnlUsd": 2.0937698165653273,
+      "utility": 1.5243671321950387,
+      "drawdownUsd": 1.1388053687405773,
+      "liquidationDrawdownUsd": 1.1370269187464146,
+      "maximumIntradayLiquidationLossUsd": 0.38817477512930054,
+      "maximumClosingDayLossUsd": 0.30709834981826134,
+      "exposureHours": 1230,
+      "perAssetNetPnlUsd": {
+        "BTC/USD": 2.0937698166145173,
+        "ETH/USD": 0
+      },
+      "perAssetExposureHours": {
+        "BTC/USD": 1230,
+        "ETH/USD": 0
+      },
+      "unknownReasons": [],
+      "fills": 40,
+      "unknowns": 0,
+      "governorCancellations": 0
+    },
+    {
+      "policy": "constant-btc",
+      "scenario": "base-source-as-end",
+      "netPnlUsd": 2.0938996139448136,
+      "utility": 1.5244598097269773,
+      "drawdownUsd": 1.1388796084356727,
+      "liquidationDrawdownUsd": 1.13710115844151,
+      "maximumIntradayLiquidationLossUsd": 0.3882123237272026,
+      "maximumClosingDayLossUsd": 0.307126552099362,
+      "exposureHours": 1230,
+      "perAssetNetPnlUsd": {
+        "BTC/USD": 2.093899613999343,
+        "ETH/USD": 0
+      },
+      "perAssetExposureHours": {
+        "BTC/USD": 1230,
+        "ETH/USD": 0
+      },
+      "unknownReasons": [],
+      "fills": 40,
+      "unknowns": 0,
+      "governorCancellations": 0
+    },
+    {
+      "policy": "constant-btc",
+      "scenario": "stress-source-plus-hour",
+      "netPnlUsd": null,
+      "utility": null,
+      "drawdownUsd": null,
+      "liquidationDrawdownUsd": null,
+      "maximumIntradayLiquidationLossUsd": null,
+      "maximumClosingDayLossUsd": null,
+      "exposureHours": 1258,
+      "perAssetNetPnlUsd": {
+        "BTC/USD": null,
+        "ETH/USD": 0
+      },
+      "perAssetExposureHours": {
+        "BTC/USD": 1258,
+        "ETH/USD": 0
+      },
+      "unknownReasons": [
+        {
+          "reason": "MISSING_FUNDING_RATE",
+          "symbol": "BTC/USD",
+          "atMs": 1763532000000
+        }
+      ],
+      "fills": 56,
+      "unknowns": 1,
+      "governorCancellations": 0
+    },
+    {
+      "policy": "constant-btc",
+      "scenario": "stress-source-as-end",
+      "netPnlUsd": null,
+      "utility": null,
+      "drawdownUsd": null,
+      "liquidationDrawdownUsd": null,
+      "maximumIntradayLiquidationLossUsd": null,
+      "maximumClosingDayLossUsd": null,
+      "exposureHours": 1257,
+      "perAssetNetPnlUsd": {
+        "BTC/USD": null,
+        "ETH/USD": 0
+      },
+      "perAssetExposureHours": {
+        "BTC/USD": 1257,
+        "ETH/USD": 0
+      },
+      "unknownReasons": [
+        {
+          "reason": "MISSING_FUNDING_RATE",
+          "symbol": "BTC/USD",
+          "atMs": 1763528400000
+        }
+      ],
+      "fills": 56,
+      "unknowns": 1,
+      "governorCancellations": 0
+    },
+    {
+      "policy": "constant-eth",
+      "scenario": "base-source-plus-hour",
+      "netPnlUsd": -1.6393467451125616,
+      "utility": -2.966101846868696,
+      "drawdownUsd": 2.653510203512269,
+      "liquidationDrawdownUsd": 2.646138753509149,
+      "maximumIntradayLiquidationLossUsd": 0.6068631012167316,
+      "maximumClosingDayLossUsd": 0.5931774178316118,
+      "exposureHours": 1650,
+      "perAssetNetPnlUsd": {
+        "BTC/USD": 0,
+        "ETH/USD": -1.6393467452339225
+      },
+      "perAssetExposureHours": {
+        "BTC/USD": 0,
+        "ETH/USD": 1650
+      },
+      "unknownReasons": [],
+      "fills": 12,
+      "unknowns": 0,
+      "governorCancellations": 0
+    },
+    {
+      "policy": "constant-eth",
+      "scenario": "base-source-as-end",
+      "netPnlUsd": -1.6391530174441868,
+      "utility": -2.965910022809112,
+      "drawdownUsd": 2.6535140107298503,
+      "liquidationDrawdownUsd": 2.64614256072673,
+      "maximumIntradayLiquidationLossUsd": 0.6068529665499227,
+      "maximumClosingDayLossUsd": 0.5931564200291177,
+      "exposureHours": 1650,
+      "perAssetNetPnlUsd": {
+        "BTC/USD": 0,
+        "ETH/USD": -1.6391530175885582
+      },
+      "perAssetExposureHours": {
+        "BTC/USD": 0,
+        "ETH/USD": 1650
+      },
+      "unknownReasons": [],
+      "fills": 12,
+      "unknowns": 0,
+      "governorCancellations": 0
+    },
+    {
+      "policy": "constant-eth",
+      "scenario": "stress-source-plus-hour",
+      "netPnlUsd": -1.5797000551392557,
+      "utility": -2.908430545787269,
+      "drawdownUsd": 2.657460981296026,
+      "liquidationDrawdownUsd": 2.6455051562952576,
+      "maximumIntradayLiquidationLossUsd": 0.6071669832745101,
+      "maximumClosingDayLossUsd": 0.596734964492498,
+      "exposureHours": 1676,
+      "perAssetNetPnlUsd": {
+        "BTC/USD": 0,
+        "ETH/USD": -1.5797000551094134
+      },
+      "perAssetExposureHours": {
+        "BTC/USD": 0,
+        "ETH/USD": 1676
+      },
+      "unknownReasons": [],
+      "fills": 14,
+      "unknowns": 0,
+      "governorCancellations": 0
+    },
+    {
+      "policy": "constant-eth",
+      "scenario": "stress-source-as-end",
+      "netPnlUsd": -1.5795640946889762,
+      "utility": -2.908288995284238,
+      "drawdownUsd": 2.6574498011905234,
+      "liquidationDrawdownUsd": 2.645493976189755,
+      "maximumIntradayLiquidationLossUsd": 0.6071568486222532,
+      "maximumClosingDayLossUsd": 0.5967139667045558,
+      "exposureHours": 1676,
+      "perAssetNetPnlUsd": {
+        "BTC/USD": 0,
+        "ETH/USD": -1.5795640946319232
+      },
+      "perAssetExposureHours": {
+        "BTC/USD": 0,
+        "ETH/USD": 1676
+      },
+      "unknownReasons": [],
+      "fills": 14,
+      "unknowns": 0,
+      "governorCancellations": 0
+    },
+    {
+      "policy": "flat",
+      "scenario": "base-source-plus-hour",
+      "netPnlUsd": 0,
+      "utility": 0,
+      "drawdownUsd": 0,
+      "liquidationDrawdownUsd": 0,
+      "maximumIntradayLiquidationLossUsd": 0,
+      "maximumClosingDayLossUsd": 0,
+      "exposureHours": 0,
+      "perAssetNetPnlUsd": {
+        "BTC/USD": 0,
+        "ETH/USD": 0
+      },
+      "perAssetExposureHours": {
+        "BTC/USD": 0,
+        "ETH/USD": 0
+      },
+      "unknownReasons": [],
+      "fills": 0,
+      "unknowns": 0,
+      "governorCancellations": 0
+    },
+    {
+      "policy": "flat",
+      "scenario": "base-source-as-end",
+      "netPnlUsd": 0,
+      "utility": 0,
+      "drawdownUsd": 0,
+      "liquidationDrawdownUsd": 0,
+      "maximumIntradayLiquidationLossUsd": 0,
+      "maximumClosingDayLossUsd": 0,
+      "exposureHours": 0,
+      "perAssetNetPnlUsd": {
+        "BTC/USD": 0,
+        "ETH/USD": 0
+      },
+      "perAssetExposureHours": {
+        "BTC/USD": 0,
+        "ETH/USD": 0
+      },
+      "unknownReasons": [],
+      "fills": 0,
+      "unknowns": 0,
+      "governorCancellations": 0
+    },
+    {
+      "policy": "flat",
+      "scenario": "stress-source-plus-hour",
+      "netPnlUsd": 0,
+      "utility": 0,
+      "drawdownUsd": 0,
+      "liquidationDrawdownUsd": 0,
+      "maximumIntradayLiquidationLossUsd": 0,
+      "maximumClosingDayLossUsd": 0,
+      "exposureHours": 0,
+      "perAssetNetPnlUsd": {
+        "BTC/USD": 0,
+        "ETH/USD": 0
+      },
+      "perAssetExposureHours": {
+        "BTC/USD": 0,
+        "ETH/USD": 0
+      },
+      "unknownReasons": [],
+      "fills": 0,
+      "unknowns": 0,
+      "governorCancellations": 0
+    },
+    {
+      "policy": "flat",
+      "scenario": "stress-source-as-end",
+      "netPnlUsd": 0,
+      "utility": 0,
+      "drawdownUsd": 0,
+      "liquidationDrawdownUsd": 0,
+      "maximumIntradayLiquidationLossUsd": 0,
+      "maximumClosingDayLossUsd": 0,
+      "exposureHours": 0,
+      "perAssetNetPnlUsd": {
+        "BTC/USD": 0,
+        "ETH/USD": 0
+      },
+      "perAssetExposureHours": {
+        "BTC/USD": 0,
+        "ETH/USD": 0
+      },
+      "unknownReasons": [],
+      "fills": 0,
+      "unknowns": 0,
+      "governorCancellations": 0
+    }
+  ],
+  "independentlyRecomputedConfirmationGates": [
+    {
+      "scenario": "base-source-plus-hour",
+      "gates": {
+        "completeAccounting": true,
+        "targetCoverage": true,
+        "meaningfulExposure": false,
+        "riskWithinLimits": true,
+        "positiveNetBothAssetsAndPortfolio": false,
+        "positiveUtility": false,
+        "comparisonSatisfied": true
+      },
+      "utility": -2.038460936266347
+    },
+    {
+      "scenario": "base-source-as-end",
+      "gates": {
+        "completeAccounting": true,
+        "targetCoverage": true,
+        "meaningfulExposure": false,
+        "riskWithinLimits": true,
+        "positiveNetBothAssetsAndPortfolio": false,
+        "positiveUtility": false,
+        "comparisonSatisfied": true
+      },
+      "utility": -2.0382598828873597
+    },
+    {
+      "scenario": "stress-source-plus-hour",
+      "gates": {
+        "completeAccounting": true,
+        "targetCoverage": true,
+        "meaningfulExposure": false,
+        "riskWithinLimits": true,
+        "positiveNetBothAssetsAndPortfolio": false,
+        "positiveUtility": false,
+        "comparisonSatisfied": true
+      },
+      "utility": -1.9389012396059115
+    },
+    {
+      "scenario": "stress-source-as-end",
+      "gates": {
+        "completeAccounting": true,
+        "targetCoverage": true,
+        "meaningfulExposure": false,
+        "riskWithinLimits": true,
+        "positiveNetBothAssetsAndPortfolio": false,
+        "positiveUtility": false,
+        "comparisonSatisfied": true
+      },
+      "utility": -1.9385678854741855
+    }
+  ],
+  "selectedPolicy": "sign-trend-90d",
+  "confidencePassed": false,
+  "conclusion": "CONFIRMATION_FAILED_FOR_FROZEN_90_DAY_RULE;ALL_FOUR_SELECTED_RESULTS_KNOWN_NEGATIVE;NO_RESELECTION_OR_FINAL_TEST",
+  "raw2025Availability": {
+    "BTC/USD": {
+      "bars": 8760,
+      "fundingRows": 8753,
+      "missingFundingHours": 7
+    },
+    "ETH/USD": {
+      "bars": 8760,
+      "fundingRows": 8753,
+      "missingFundingHours": 7
+    }
+  },
+  "knownGovernedRuns": 14,
+  "unknownGovernedRuns": 6,
+  "limits": [
+    "Twenty governed runs fully reconstructed. Eight ungoverned ablation artifacts were hash-verified; v1 independent audit already covered their economics.",
+    "Original warmup bars/funding input receipts are mutually consistent and source data byte seals verified; execution prices/funding were independently matched to raw 2025 values.",
+    "Funding mappings may now alter fills through risk-cap feedback. No identical-fill requirement was imposed.",
+    "Signed archived funding under unresolved timestamp assumptions is scenario evidence, not guaranteed actual venue profit. Prior adverse-reserve Student runs are not directly comparable.",
+    "Nominal weekly bootstrap was independently recomputed; its confirmation failure is preserved. No 2026 period has been opened by this audit."
+  ]
+}

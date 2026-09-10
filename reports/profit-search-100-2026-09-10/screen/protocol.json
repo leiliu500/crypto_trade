@@ -1,0 +1,574 @@
+{
+  "version": "exploratory-100-spot-configurations-v1",
+  "registeredAt": "2026-09-10T19:21:14.029993+00:00",
+  "actualAgents": 4,
+  "configurations": 100,
+  "distinctFamilies": 10,
+  "researchOnly": true,
+  "historicalDataAlreadyReused": true,
+  "activationAllowed": false,
+  "validatedProfitable": false,
+  "initialCashUsd": 10000,
+  "entryBudgetUsd": 1000,
+  "entryEquityFraction": 0.1,
+  "periods": {
+    "development": [
+      "2025-01-01",
+      "2025-07-01"
+    ],
+    "later_2025": [
+      "2025-07-01",
+      "2026-01-01"
+    ],
+    "recent_2026": [
+      "2026-01-01",
+      "2026-09-10"
+    ]
+  },
+  "scenarios": {
+    "base": {
+      "feeBps": 80,
+      "slippageBps": 3,
+      "signalToOpenBars": 2
+    },
+    "cost": {
+      "feeBps": 100,
+      "slippageBps": 10,
+      "signalToOpenBars": 2
+    },
+    "delay": {
+      "feeBps": 80,
+      "slippageBps": 3,
+      "signalToOpenBars": 3
+    },
+    "combined": {
+      "feeBps": 100,
+      "slippageBps": 10,
+      "signalToOpenBars": 3
+    }
+  },
+  "bandFraction": 0.016738892635532743,
+  "candidates": [
+    {
+      "id": "sma_btc-010",
+      "family": "sma_btc",
+      "lookbackDays": 10
+    },
+    {
+      "id": "sma_btc-015",
+      "family": "sma_btc",
+      "lookbackDays": 15
+    },
+    {
+      "id": "sma_btc-020",
+      "family": "sma_btc",
+      "lookbackDays": 20
+    },
+    {
+      "id": "sma_btc-030",
+      "family": "sma_btc",
+      "lookbackDays": 30
+    },
+    {
+      "id": "sma_btc-040",
+      "family": "sma_btc",
+      "lookbackDays": 40
+    },
+    {
+      "id": "sma_btc-050",
+      "family": "sma_btc",
+      "lookbackDays": 50
+    },
+    {
+      "id": "sma_btc-060",
+      "family": "sma_btc",
+      "lookbackDays": 60
+    },
+    {
+      "id": "sma_btc-070",
+      "family": "sma_btc",
+      "lookbackDays": 70
+    },
+    {
+      "id": "sma_btc-080",
+      "family": "sma_btc",
+      "lookbackDays": 80
+    },
+    {
+      "id": "sma_btc-090",
+      "family": "sma_btc",
+      "lookbackDays": 90
+    },
+    {
+      "id": "sma_eth-010",
+      "family": "sma_eth",
+      "lookbackDays": 10
+    },
+    {
+      "id": "sma_eth-015",
+      "family": "sma_eth",
+      "lookbackDays": 15
+    },
+    {
+      "id": "sma_eth-020",
+      "family": "sma_eth",
+      "lookbackDays": 20
+    },
+    {
+      "id": "sma_eth-030",
+      "family": "sma_eth",
+      "lookbackDays": 30
+    },
+    {
+      "id": "sma_eth-040",
+      "family": "sma_eth",
+      "lookbackDays": 40
+    },
+    {
+      "id": "sma_eth-050",
+      "family": "sma_eth",
+      "lookbackDays": 50
+    },
+    {
+      "id": "sma_eth-060",
+      "family": "sma_eth",
+      "lookbackDays": 60
+    },
+    {
+      "id": "sma_eth-070",
+      "family": "sma_eth",
+      "lookbackDays": 70
+    },
+    {
+      "id": "sma_eth-080",
+      "family": "sma_eth",
+      "lookbackDays": 80
+    },
+    {
+      "id": "sma_eth-090",
+      "family": "sma_eth",
+      "lookbackDays": 90
+    },
+    {
+      "id": "momentum_btc-010",
+      "family": "momentum_btc",
+      "lookbackDays": 10
+    },
+    {
+      "id": "momentum_btc-015",
+      "family": "momentum_btc",
+      "lookbackDays": 15
+    },
+    {
+      "id": "momentum_btc-020",
+      "family": "momentum_btc",
+      "lookbackDays": 20
+    },
+    {
+      "id": "momentum_btc-030",
+      "family": "momentum_btc",
+      "lookbackDays": 30
+    },
+    {
+      "id": "momentum_btc-040",
+      "family": "momentum_btc",
+      "lookbackDays": 40
+    },
+    {
+      "id": "momentum_btc-050",
+      "family": "momentum_btc",
+      "lookbackDays": 50
+    },
+    {
+      "id": "momentum_btc-060",
+      "family": "momentum_btc",
+      "lookbackDays": 60
+    },
+    {
+      "id": "momentum_btc-070",
+      "family": "momentum_btc",
+      "lookbackDays": 70
+    },
+    {
+      "id": "momentum_btc-080",
+      "family": "momentum_btc",
+      "lookbackDays": 80
+    },
+    {
+      "id": "momentum_btc-090",
+      "family": "momentum_btc",
+      "lookbackDays": 90
+    },
+    {
+      "id": "momentum_eth-010",
+      "family": "momentum_eth",
+      "lookbackDays": 10
+    },
+    {
+      "id": "momentum_eth-015",
+      "family": "momentum_eth",
+      "lookbackDays": 15
+    },
+    {
+      "id": "momentum_eth-020",
+      "family": "momentum_eth",
+      "lookbackDays": 20
+    },
+    {
+      "id": "momentum_eth-030",
+      "family": "momentum_eth",
+      "lookbackDays": 30
+    },
+    {
+      "id": "momentum_eth-040",
+      "family": "momentum_eth",
+      "lookbackDays": 40
+    },
+    {
+      "id": "momentum_eth-050",
+      "family": "momentum_eth",
+      "lookbackDays": 50
+    },
+    {
+      "id": "momentum_eth-060",
+      "family": "momentum_eth",
+      "lookbackDays": 60
+    },
+    {
+      "id": "momentum_eth-070",
+      "family": "momentum_eth",
+      "lookbackDays": 70
+    },
+    {
+      "id": "momentum_eth-080",
+      "family": "momentum_eth",
+      "lookbackDays": 80
+    },
+    {
+      "id": "momentum_eth-090",
+      "family": "momentum_eth",
+      "lookbackDays": 90
+    },
+    {
+      "id": "channel_btc-010",
+      "family": "channel_btc",
+      "lookbackDays": 10
+    },
+    {
+      "id": "channel_btc-015",
+      "family": "channel_btc",
+      "lookbackDays": 15
+    },
+    {
+      "id": "channel_btc-020",
+      "family": "channel_btc",
+      "lookbackDays": 20
+    },
+    {
+      "id": "channel_btc-030",
+      "family": "channel_btc",
+      "lookbackDays": 30
+    },
+    {
+      "id": "channel_btc-040",
+      "family": "channel_btc",
+      "lookbackDays": 40
+    },
+    {
+      "id": "channel_btc-050",
+      "family": "channel_btc",
+      "lookbackDays": 50
+    },
+    {
+      "id": "channel_btc-060",
+      "family": "channel_btc",
+      "lookbackDays": 60
+    },
+    {
+      "id": "channel_btc-070",
+      "family": "channel_btc",
+      "lookbackDays": 70
+    },
+    {
+      "id": "channel_btc-080",
+      "family": "channel_btc",
+      "lookbackDays": 80
+    },
+    {
+      "id": "channel_btc-090",
+      "family": "channel_btc",
+      "lookbackDays": 90
+    },
+    {
+      "id": "channel_eth-010",
+      "family": "channel_eth",
+      "lookbackDays": 10
+    },
+    {
+      "id": "channel_eth-015",
+      "family": "channel_eth",
+      "lookbackDays": 15
+    },
+    {
+      "id": "channel_eth-020",
+      "family": "channel_eth",
+      "lookbackDays": 20
+    },
+    {
+      "id": "channel_eth-030",
+      "family": "channel_eth",
+      "lookbackDays": 30
+    },
+    {
+      "id": "channel_eth-040",
+      "family": "channel_eth",
+      "lookbackDays": 40
+    },
+    {
+      "id": "channel_eth-050",
+      "family": "channel_eth",
+      "lookbackDays": 50
+    },
+    {
+      "id": "channel_eth-060",
+      "family": "channel_eth",
+      "lookbackDays": 60
+    },
+    {
+      "id": "channel_eth-070",
+      "family": "channel_eth",
+      "lookbackDays": 70
+    },
+    {
+      "id": "channel_eth-080",
+      "family": "channel_eth",
+      "lookbackDays": 80
+    },
+    {
+      "id": "channel_eth-090",
+      "family": "channel_eth",
+      "lookbackDays": 90
+    },
+    {
+      "id": "pullback_btc-010",
+      "family": "pullback_btc",
+      "lookbackDays": 10
+    },
+    {
+      "id": "pullback_btc-015",
+      "family": "pullback_btc",
+      "lookbackDays": 15
+    },
+    {
+      "id": "pullback_btc-020",
+      "family": "pullback_btc",
+      "lookbackDays": 20
+    },
+    {
+      "id": "pullback_btc-030",
+      "family": "pullback_btc",
+      "lookbackDays": 30
+    },
+    {
+      "id": "pullback_btc-040",
+      "family": "pullback_btc",
+      "lookbackDays": 40
+    },
+    {
+      "id": "pullback_btc-050",
+      "family": "pullback_btc",
+      "lookbackDays": 50
+    },
+    {
+      "id": "pullback_btc-060",
+      "family": "pullback_btc",
+      "lookbackDays": 60
+    },
+    {
+      "id": "pullback_btc-070",
+      "family": "pullback_btc",
+      "lookbackDays": 70
+    },
+    {
+      "id": "pullback_btc-080",
+      "family": "pullback_btc",
+      "lookbackDays": 80
+    },
+    {
+      "id": "pullback_btc-090",
+      "family": "pullback_btc",
+      "lookbackDays": 90
+    },
+    {
+      "id": "pullback_eth-010",
+      "family": "pullback_eth",
+      "lookbackDays": 10
+    },
+    {
+      "id": "pullback_eth-015",
+      "family": "pullback_eth",
+      "lookbackDays": 15
+    },
+    {
+      "id": "pullback_eth-020",
+      "family": "pullback_eth",
+      "lookbackDays": 20
+    },
+    {
+      "id": "pullback_eth-030",
+      "family": "pullback_eth",
+      "lookbackDays": 30
+    },
+    {
+      "id": "pullback_eth-040",
+      "family": "pullback_eth",
+      "lookbackDays": 40
+    },
+    {
+      "id": "pullback_eth-050",
+      "family": "pullback_eth",
+      "lookbackDays": 50
+    },
+    {
+      "id": "pullback_eth-060",
+      "family": "pullback_eth",
+      "lookbackDays": 60
+    },
+    {
+      "id": "pullback_eth-070",
+      "family": "pullback_eth",
+      "lookbackDays": 70
+    },
+    {
+      "id": "pullback_eth-080",
+      "family": "pullback_eth",
+      "lookbackDays": 80
+    },
+    {
+      "id": "pullback_eth-090",
+      "family": "pullback_eth",
+      "lookbackDays": 90
+    },
+    {
+      "id": "rotation-010",
+      "family": "rotation",
+      "lookbackDays": 10
+    },
+    {
+      "id": "rotation-015",
+      "family": "rotation",
+      "lookbackDays": 15
+    },
+    {
+      "id": "rotation-020",
+      "family": "rotation",
+      "lookbackDays": 20
+    },
+    {
+      "id": "rotation-030",
+      "family": "rotation",
+      "lookbackDays": 30
+    },
+    {
+      "id": "rotation-040",
+      "family": "rotation",
+      "lookbackDays": 40
+    },
+    {
+      "id": "rotation-050",
+      "family": "rotation",
+      "lookbackDays": 50
+    },
+    {
+      "id": "rotation-060",
+      "family": "rotation",
+      "lookbackDays": 60
+    },
+    {
+      "id": "rotation-070",
+      "family": "rotation",
+      "lookbackDays": 70
+    },
+    {
+      "id": "rotation-080",
+      "family": "rotation",
+      "lookbackDays": 80
+    },
+    {
+      "id": "rotation-090",
+      "family": "rotation",
+      "lookbackDays": 90
+    },
+    {
+      "id": "consensus_btc-010",
+      "family": "consensus_btc",
+      "lookbackDays": 10
+    },
+    {
+      "id": "consensus_btc-015",
+      "family": "consensus_btc",
+      "lookbackDays": 15
+    },
+    {
+      "id": "consensus_btc-020",
+      "family": "consensus_btc",
+      "lookbackDays": 20
+    },
+    {
+      "id": "consensus_btc-030",
+      "family": "consensus_btc",
+      "lookbackDays": 30
+    },
+    {
+      "id": "consensus_btc-040",
+      "family": "consensus_btc",
+      "lookbackDays": 40
+    },
+    {
+      "id": "consensus_btc-050",
+      "family": "consensus_btc",
+      "lookbackDays": 50
+    },
+    {
+      "id": "consensus_btc-060",
+      "family": "consensus_btc",
+      "lookbackDays": 60
+    },
+    {
+      "id": "consensus_btc-070",
+      "family": "consensus_btc",
+      "lookbackDays": 70
+    },
+    {
+      "id": "consensus_btc-080",
+      "family": "consensus_btc",
+      "lookbackDays": 80
+    },
+    {
+      "id": "consensus_btc-090",
+      "family": "consensus_btc",
+      "lookbackDays": 90
+    }
+  ],
+  "selection": "Lock maximum minimum-scenario development (net minus 0.5 close drawdown); ties by ID. Do not reselect on later windows.",
+  "nomination": "All 12 window/scenario nets positive, >=10 combined later closed episodes in EACH scenario, all later intraday-low drawdowns <=$500. Nomination is exploratory, never validation.",
+  "accounting": "One funded long asset or cash, no additions/shorts. Entry cash includes fees. 10% equity entry limit; marked exposure may grow. No runtime mark-cap/halt parity.",
+  "timing": "Signals from completed bar i, fill at i+2 or i+3 open. Liquidity cap from i-2 volume. Period accounts reset; end flattened at final close with costs.",
+  "limitations": [
+    "Daily OHLC fills do not prove executable depth, spread, fills or stop paths.",
+    "Current public fee assumptions applied to all dates; real account tier unverified.",
+    "All dates previously studied. No untouched holdout, no prospective evidence.",
+    "100 related variants are not 100 independent strategies or independent agents.",
+    "Profit excludes taxes and computing/infrastructure costs; idle cash earns zero.",
+    "Current weekly runtime is not a matched daily-data benchmark; 40-week warmup unavailable at development start.",
+    "Reset-period net dollars are not a continuous compounded portfolio.",
+    "Ten episodes is only a screening floor, not a statistical proof."
+  ],
+  "sources": {
+    "tools/profit-search.py": "51bd81e6b416a06fa2516992f05e7e893f4a7a7ecc573d9f191da99eef56c2d5",
+    "reports/parallel-strategy-study-2026-09-10/common.py": "423315441fe6b87ae1dd122a38321e75f2d1811cf2cb99ad4d7d91043e5a0b18",
+    "reports/parallel-strategy-study-2026-09-10/protocol.json": "9b20481a6a0e56324c1612f24b1e9dc9ef6eec5aef2b31eb4f228785c1badc02",
+    "reports/parallel-strategy-study-2026-09-10/data/dataset.json": "951499efbfe353842f55b78b94e7d0fe1ba642afa2867f077810835f2303a45e",
+    "reports/parallel-strategy-study-2026-09-10/data/rules.json": "b4fe02b4819f39b3f37d441dd60895e479d217cfdf340752dd8b25d52aed9e31"
+  }
+}

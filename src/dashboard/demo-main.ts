@@ -49,7 +49,7 @@ function demoSnapshot(nowMs: number, sequence: number): EngineOperationalSnapsho
     generatedAtMs: nowMs, started: true, startedAtMs, uptimeMs: nowMs - startedAtMs,
     mode: "paper", paper: true, paperEntryExercise: false, strategyVersion: "2.4.1", modelVersion: "micro-alpha-2026.08",
     symbols: ["BTC/USD", "ETH/USD", "SOL/USD"], equity: 102_483.76, equityHighWater: 102_511.04, realizedSessionPnl: 184.62,
-    risk: { health: { publicStream: true, privateStream: true, accountReconciled: true, bookValid: true, clockValid: true, riskRecomputed: true }, reasons: [], equity: 102_483.76, equityHighWater: 102_511.04 },
+    risk: { health: { publicStream: true, privateStream: true, accountReconciled: true, bookValid: true, clockValid: true, riskRecomputed: true, persistenceReady: true }, reasons: [], equity: 102_483.76, equityHighWater: 102_511.04 },
     orders,
     positions: [{ symbol: "BTC/USD", side: 1, qty: .0824, entryPx: 67_912.2, openedMs: positionOpenedAtMs, initialRiskPx: 410,
       roundTripCostPx: 34.1, mfePx: 442 + Math.sin(sequence / 6) * 14, maePx: 96, floorPx: -61.2 + Math.min(180, sequence * 2.5), breakEvenArmed: true, phase: "TREND_HOLD" }],

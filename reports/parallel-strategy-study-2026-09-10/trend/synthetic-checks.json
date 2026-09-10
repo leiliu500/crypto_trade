@@ -1,0 +1,34 @@
+{
+  "passed": true,
+  "purpose": "Causality and synthetic entry/exit behavior; not profitability evidence",
+  "checks": [
+    {
+      "variant": "cusum_l14_h4",
+      "all240PrefixesMatch": true,
+      "warmupCash": true,
+      "entersRisingPath": true,
+      "exitsFallingPath": true
+    },
+    {
+      "variant": "cusum_l14_h6",
+      "all240PrefixesMatch": true,
+      "warmupCash": true,
+      "entersRisingPath": true,
+      "exitsFallingPath": true
+    },
+    {
+      "variant": "cusum_l28_h4",
+      "all240PrefixesMatch": true,
+      "warmupCash": true,
+      "entersRisingPath": true,
+      "exitsFallingPath": true
+    },
+    {
+      "variant": "cusum_l28_h6",
+      "all240PrefixesMatch": true,
+      "warmupCash": true,
+      "entersRisingPath": true,
+      "exitsFallingPath": true
+    }
+  ]
+}

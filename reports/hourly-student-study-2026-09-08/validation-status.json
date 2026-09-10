@@ -1,0 +1,141 @@
+{
+  "createdAtUtc": "2026-09-08T23:47:13.238356+00:00",
+  "status": "STUDENT_DEVELOP_FAILED_FINAL_UNOPENED",
+  "selectionSha256": "69cb31eb62c1a0cd8168915b16795d51db13b4a7ef8017f976b5802c6ef61609",
+  "protocolSha256": "998bba4aeada806fe8ff98a96a3970dcbbb07945d1498bfca53f3352c3fadd80",
+  "sourceHashes": {
+    "src/research/hourly-data.ts": "0786552d6f700f8ad906a6f6db80b423560eef6f79dbb7403250ce1eeb260a91",
+    "src/research/hourly-volume-features.ts": "ca773fc49553949cc15736ddede96c4c2721cbc75be51d07a72774573a1c8059",
+    "src/research/hourly-net-labels.ts": "f19fcca8cef7d3648ead5abbd24434d24dde574c0faf622766719afab77bb371",
+    "src/research/hourly-student-model.ts": "79754c03b1abe2218f40c5873091c024cbee2c521e9d6363158aa0036c30f203",
+    "src/research/hourly-net-calibration.ts": "b6ba46abdcda565b2d57082c474480e60e2916e25fd1657756f77b1263273452",
+    "src/research/hourly-student-study-main.ts": "d2a4902a2e4a1d1e5ed4eae6ac01f59895f89214f69bd91d4967f7ff645f5d67",
+    "src/research/hourly-retry-simulator.ts": "239759778a583c623ca55636a9b53140aa9f9690eb1bbbac2d304117265f08aa",
+    "src/research/hourly-adaptive-study-gates.ts": "e27cbedcca1d8cc18fbc9a0ad764d7116fd3fbf813f9a2abf2914b419abc5ba1",
+    "src/research/hourly-study-statistics.ts": "0a9b6437903c26845958748d18f4b43f3ad35749f616da924cd61252442c7a36",
+    "reports/distribution-instrument-rules-2026-09-07.json": "a89ee77c1a871c63266cde004776e7484ccdc81d544b7d32a81f56cb07d89cdf",
+    "package.json": "57b37eee487870483842e7af18ed1444bb9645a7d74abdd456c337c916ee2517",
+    "package-lock.json": "2315bada829d31ccb4d3970392ba56d73458d3219dda1ec98d8dda0d41893594"
+  },
+  "productionBuildPassed": true,
+  "regressionSuite": {
+    "command": "npm test",
+    "passed": 827,
+    "failed": 0
+  },
+  "finalScopeFixTests": {
+    "command": "npx tsx --test test/hourly-student-study.test.ts",
+    "passed": 16,
+    "failed": 0,
+    "newTestsBeyondRegressionSuite": 1
+  },
+  "totalDistinctPassingTests": 828,
+  "typecheckPassed": true,
+  "allDevelopmentArtifactHashesVerified": true,
+  "previousStudies": [
+    {
+      "selection": "reports/hourly-model-study-2026-09-08/selection.json",
+      "sourceSealsUnchanged": true
+    },
+    {
+      "selection": "reports/hourly-adaptive-study-2026-09-08/selection.json",
+      "sourceSealsUnchanged": true
+    }
+  ],
+  "syntheticBenchmark": {
+    "syntheticOnly": true,
+    "seed": 20260909,
+    "samples": 8192,
+    "dimension": 12,
+    "boostFitMs": 744.2862499999999,
+    "linearFitMs": 118.00737300000014,
+    "predict8192Ms": 43.50850199999991,
+    "acceptedRounds": 48,
+    "attemptedRounds": 48,
+    "backtrackingSteps": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "finalNll": 5.841832492220849,
+    "initialNll": 6.059294084416498,
+    "checksum": 536369.1150430024,
+    "rssBytes": 117743616,
+    "nodeVersion": "v22.20.0",
+    "linearScale": 80.45022378488778
+  },
+  "confirmationAttempt": {
+    "denied": true,
+    "error": "STUDENT_STAGE_DENIED_DEVELOPMENT_FAILED",
+    "startMarkerCreated": false
+  },
+  "finalAttempt": {
+    "denied": true,
+    "error": "STUDENT_STAGE_DENIED_DEVELOPMENT_FAILED",
+    "startMarkerCreated": false
+  },
+  "candidateAssetEvaluations": 4,
+  "eligibleCandidateAssetEvaluations": 0,
+  "candidateActivated": false,
+  "productionRuntimeChanged": false,
+  "finalTestOpened": false,
+  "profitabilityEstablished": false,
+  "independentAudits": [
+    {
+      "file": "independent-execution-audit.json",
+      "status": "PASS",
+      "sha256": "8a774e6494dd6436f45bb24ccfb07ba118c67223ae8e16135819023557a23b55"
+    },
+    {
+      "file": "independent-prediction-audit.json",
+      "status": "PASS_EXACT_PREDICTIONS_AND_CALIBRATION_RECONSTRUCTED",
+      "sha256": "c4c428e00f07d9822b90330eb3547ccf8a486d49bbb5a4fe21e2d1d1ae09fa39"
+    }
+  ],
+  "finalVerificationAtUtc": "2026-09-08T23:53:43.888318+00:00"
+}

@@ -1,0 +1,76 @@
+TAP version 13
+# Subtest: main dashboard includes the spot module and clearly separates futures capital
+ok 1 - main dashboard includes the spot module and clearly separates futures capital
+  ---
+  duration_ms: 5.236303
+  type: 'test'
+  ...
+# Subtest: spot dashboard shows current account P&L and never imports historical gains
+ok 2 - spot dashboard shows current account P&L and never imports historical gains
+  ---
+  duration_ms: 38.20831
+  type: 'test'
+  ...
+# Subtest: missing marks and metrics remain unknown instead of displaying fabricated zero profit
+ok 3 - missing marks and metrics remain unknown instead of displaying fabricated zero profit
+  ---
+  duration_ms: 1.916322
+  type: 'test'
+  ...
+# Subtest: a failed request retains the last account snapshot but removes order readiness
+ok 4 - a failed request retains the last account snapshot but removes order readiness
+  ---
+  duration_ms: 4.531211
+  type: 'test'
+  ...
+# Subtest: staleness uses server cycle time and monotonic elapsed time despite browser clock changes
+ok 5 - staleness uses server cycle time and monotonic elapsed time despite browser clock changes
+  ---
+  duration_ms: 5.998597
+  type: 'test'
+  ...
+# Subtest: startup failure, malformed status, halted and unexpected execution modes are explicit
+ok 6 - startup failure, malformed status, halted and unexpected execution modes are explicit
+  ---
+  duration_ms: 4.186988
+  type: 'test'
+  ...
+# Subtest: IOC partial fills show booked quantity, canceled remainder and escaped lifecycle details
+ok 7 - IOC partial fills show booked quantity, canceled remainder and escaped lifecycle details
+  ---
+  duration_ms: 3.239774
+  type: 'test'
+  ...
+# Subtest: rejected orders show their reason without fabricating fills or fill prices
+ok 8 - rejected orders show their reason without fabricating fills or fill prices
+  ---
+  duration_ms: 5.009163
+  type: 'test'
+  ...
+# Subtest: entry window observes Thursday UTC boundaries and never announces a guaranteed entry
+ok 9 - entry window observes Thursday UTC boundaries and never announces a guaranteed entry
+  ---
+  duration_ms: 1.939444
+  type: 'test'
+  ...
+# Subtest: spot polling runs every five seconds, permits one request at a time, and times out for retry
+ok 10 - spot polling runs every five seconds, permits one request at a time, and times out for retry
+  ---
+  duration_ms: 8.63124
+  type: 'test'
+  ...
+# Subtest: missing enablement and order ledger fields are not reported as disabled or zero submissions
+ok 11 - missing enablement and order ledger fields are not reported as disabled or zero submissions
+  ---
+  duration_ms: 2.138172
+  type: 'test'
+  ...
+1..11
+# tests 11
+# suites 0
+# pass 11
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 89.013279

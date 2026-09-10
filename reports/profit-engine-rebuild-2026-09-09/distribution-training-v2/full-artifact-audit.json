@@ -1,0 +1,234 @@
+{
+  "artifactPath": "/tmp/distribution-risk-v2-full-20260909/out/full-training.json",
+  "artifactBytes": 18242784,
+  "artifactSha256": "357d2802753bfecd18eabdd6fefe6fd7cec9649fadaed06d3a47fbe5436fd9c8",
+  "sourceCodeSha256": "c57475ab04ce281cbd83f86f95f0099d56d24ef5edcee758e293be197f8d036b",
+  "fullFrozenSourceVerified": true,
+  "inputFiles": 34,
+  "compressedInputBytes": 7114338384,
+  "quality": {
+    "events": 15920395,
+    "books": 15050198,
+    "trades": 870129,
+    "acceptedBooks": 15050198,
+    "duplicates": 0,
+    "invalidBooks": 0,
+    "timestampReversals": 0,
+    "crossStreamReceiveRegressions": 2078692,
+    "invalidTimestamps": 0,
+    "disconnects": 68,
+    "recorderGaps": 0,
+    "recorderDroppedEvents": 0,
+    "firstMs": 1788560159790,
+    "lastMs": 1788984996489,
+    "maximumEventGapMs": 35035,
+    "invalidBookReasons": {},
+    "symbols": {
+      "ETH/USD": {
+        "acceptedBooks": 6585316,
+        "resets": 6585316,
+        "staleBooks": 23,
+        "quoteGaps": 90,
+        "maximumQuoteGapMs": 35182,
+        "firstMs": 1788560159790,
+        "lastMs": 1788984996344
+      },
+      "BTC/USD": {
+        "acceptedBooks": 8464882,
+        "resets": 8464882,
+        "staleBooks": 25,
+        "quoteGaps": 90,
+        "maximumQuoteGapMs": 35430,
+        "firstMs": 1788560160069,
+        "lastMs": 1788984996310
+      }
+    }
+  },
+  "retainedLabels": 6001,
+  "retainedOrigins": 3038,
+  "retainedDays": [
+    "2026-09-04",
+    "2026-09-05",
+    "2026-09-06",
+    "2026-09-07",
+    "2026-09-08",
+    "2026-09-09"
+  ],
+  "originEncoding": "risk-training-origins-json-gzip-base64-v1",
+  "originDecodedBytes": 51907549,
+  "originNotionalUsd": {
+    "minimum": 2.4504,
+    "maximum": 998.354,
+    "mean": 27.404719387755097
+  },
+  "isolatedImport": {
+    "addedSamples": 6001,
+    "repeatedAddedSamples": 0,
+    "brokerOrdersSubmitted": 0,
+    "validation": {
+      "selections": 0,
+      "observedDays": 0,
+      "lowerNetBps": null,
+      "ready": false
+    }
+  },
+  "diagnosticsOnly": {
+    "ETH/USD:long-5m": {
+      "count": 985,
+      "dates": [
+        "2026-09-04",
+        "2026-09-05",
+        "2026-09-06",
+        "2026-09-07",
+        "2026-09-08",
+        "2026-09-09"
+      ],
+      "meanWorstScenarioNetBps": -16.810306698439362,
+      "positiveWorstScenarioFraction": 0.030456852791878174
+    },
+    "ETH/USD:short-5m": {
+      "count": 982,
+      "dates": [
+        "2026-09-04",
+        "2026-09-05",
+        "2026-09-06",
+        "2026-09-07",
+        "2026-09-08",
+        "2026-09-09"
+      ],
+      "meanWorstScenarioNetBps": -17.20563957732855,
+      "positiveWorstScenarioFraction": 0.024439918533604887
+    },
+    "BTC/USD:long-15m": {
+      "count": 349,
+      "dates": [
+        "2026-09-04",
+        "2026-09-05",
+        "2026-09-06",
+        "2026-09-07",
+        "2026-09-08",
+        "2026-09-09"
+      ],
+      "meanWorstScenarioNetBps": -17.80440791189433,
+      "positiveWorstScenarioFraction": 0.06017191977077364
+    },
+    "BTC/USD:short-15m": {
+      "count": 351,
+      "dates": [
+        "2026-09-04",
+        "2026-09-05",
+        "2026-09-06",
+        "2026-09-07",
+        "2026-09-08",
+        "2026-09-09"
+      ],
+      "meanWorstScenarioNetBps": -17.314949668646,
+      "positiveWorstScenarioFraction": 0.05128205128205128
+    },
+    "ETH/USD:long-15m": {
+      "count": 344,
+      "dates": [
+        "2026-09-04",
+        "2026-09-05",
+        "2026-09-06",
+        "2026-09-07",
+        "2026-09-08",
+        "2026-09-09"
+      ],
+      "meanWorstScenarioNetBps": -16.492935514803026,
+      "positiveWorstScenarioFraction": 0.06976744186046512
+    },
+    "ETH/USD:short-15m": {
+      "count": 340,
+      "dates": [
+        "2026-09-04",
+        "2026-09-05",
+        "2026-09-06",
+        "2026-09-07",
+        "2026-09-08",
+        "2026-09-09"
+      ],
+      "meanWorstScenarioNetBps": -17.211016317438578,
+      "positiveWorstScenarioFraction": 0.09411764705882353
+    },
+    "BTC/USD:long-30m": {
+      "count": 154,
+      "dates": [
+        "2026-09-05",
+        "2026-09-06",
+        "2026-09-07",
+        "2026-09-08",
+        "2026-09-09"
+      ],
+      "meanWorstScenarioNetBps": -19.932749129734585,
+      "positiveWorstScenarioFraction": 0.07792207792207792
+    },
+    "BTC/USD:short-30m": {
+      "count": 155,
+      "dates": [
+        "2026-09-05",
+        "2026-09-06",
+        "2026-09-07",
+        "2026-09-08",
+        "2026-09-09"
+      ],
+      "meanWorstScenarioNetBps": -15.597757914293918,
+      "positiveWorstScenarioFraction": 0.1032258064516129
+    },
+    "ETH/USD:long-30m": {
+      "count": 146,
+      "dates": [
+        "2026-09-05",
+        "2026-09-06",
+        "2026-09-07",
+        "2026-09-08",
+        "2026-09-09"
+      ],
+      "meanWorstScenarioNetBps": -16.27496629374237,
+      "positiveWorstScenarioFraction": 0.1506849315068493
+    },
+    "ETH/USD:short-30m": {
+      "count": 147,
+      "dates": [
+        "2026-09-05",
+        "2026-09-06",
+        "2026-09-07",
+        "2026-09-08",
+        "2026-09-09"
+      ],
+      "meanWorstScenarioNetBps": -16.133013425976433,
+      "positiveWorstScenarioFraction": 0.1564625850340136
+    },
+    "BTC/USD:short-5m": {
+      "count": 1024,
+      "dates": [
+        "2026-09-05",
+        "2026-09-06",
+        "2026-09-07",
+        "2026-09-08",
+        "2026-09-09"
+      ],
+      "meanWorstScenarioNetBps": -17.157627338563852,
+      "positiveWorstScenarioFraction": 0.015625
+    },
+    "BTC/USD:long-5m": {
+      "count": 1024,
+      "dates": [
+        "2026-09-05",
+        "2026-09-06",
+        "2026-09-07",
+        "2026-09-08",
+        "2026-09-09"
+      ],
+      "meanWorstScenarioNetBps": -17.63557671810164,
+      "positiveWorstScenarioFraction": 0.0087890625
+    }
+  },
+  "endedAt": "2026-09-09T23:59:44.944Z",
+  "elapsedSeconds": 8042.40944921875,
+  "productionStateReadOrMutated": false,
+  "currentConditionalEntryGateAssessed": false,
+  "observedFundingCashIncluded": false,
+  "profitabilityEstablished": false,
+  "limitation": "Counterfactual public-book labels after configured fees/reserve. Raw action means are dependent diagnostics; production merge and current conditional entry checks remain separate."
+}

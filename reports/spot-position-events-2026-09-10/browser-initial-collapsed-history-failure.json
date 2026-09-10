@@ -1,0 +1,154 @@
+{
+  "generatedAt": "2026-09-10T17:43:17.676Z",
+  "mode": "DEPLOYED_READ_ONLY",
+  "url": "http://127.0.0.1:3001",
+  "ordersSubmitted": false,
+  "accountWrites": false,
+  "results": [],
+  "passed": false,
+  "tickDiagnostics": [
+    {
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 1100
+      },
+      "firstTick": {
+        "heading": "Spot system liveness",
+        "cards": [
+          {
+            "id": "spot-live-service",
+            "label": "Spot API response",
+            "value": "Responding",
+            "detail": "Last upstream response 1s ago. Dashboard checks every 5s.",
+            "tone": "spot-liveness-card good"
+          },
+          {
+            "id": "spot-live-evaluations",
+            "label": "Recorded evaluations",
+            "value": "145 recorded",
+            "detail": "Last evaluation 2m 47s ago.",
+            "tone": "spot-liveness-card good"
+          },
+          {
+            "id": "spot-live-next",
+            "label": "Next evaluation · approximate",
+            "value": "About 2m 12s",
+            "detail": "Approximate 5m 0s cadence. The timer waits after work completes.",
+            "tone": "spot-liveness-card neutral"
+          },
+          {
+            "id": "spot-live-market",
+            "label": "Last successful market check",
+            "value": "2m 47s ago",
+            "detail": "Last market cycle with valid valuation and no error; not a live quote heartbeat.",
+            "tone": "spot-liveness-card good"
+          },
+          {
+            "id": "spot-live-broker",
+            "label": "Paper order broker",
+            "value": "0 pending · 1 terminal",
+            "detail": "Paper submissions enabled. Terminal includes fills, cancels and rejections.",
+            "tone": "spot-liveness-card neutral"
+          },
+          {
+            "id": "spot-live-gate",
+            "label": "Entry / risk gate",
+            "value": "Holding BTC",
+            "detail": "Holding the existing BTC position; no additional buys.",
+            "tone": "spot-liveness-card neutral"
+          }
+        ],
+        "observations": [
+          {
+            "label": "Evaluation 145 · HOLD",
+            "time": "2026-09-10 17:40:35 UTC",
+            "detail": "Holding the existing BTC position; no additional buys."
+          }
+        ],
+        "panelTop": 350.890625,
+        "panelBottom": 780.765625,
+        "strategyTop": 803.765625,
+        "bodyWidth": 1425,
+        "viewportWidth": 1440
+      },
+      "secondTick": {
+        "heading": "Spot system liveness",
+        "cards": [
+          {
+            "id": "spot-live-service",
+            "label": "Spot API response",
+            "value": "Responding",
+            "detail": "Last upstream response 3s ago. Dashboard checks every 5s.",
+            "tone": "spot-liveness-card good"
+          },
+          {
+            "id": "spot-live-evaluations",
+            "label": "Recorded evaluations",
+            "value": "145 recorded",
+            "detail": "Last evaluation 2m 49s ago.",
+            "tone": "spot-liveness-card good"
+          },
+          {
+            "id": "spot-live-next",
+            "label": "Next evaluation · approximate",
+            "value": "About 2m 10s",
+            "detail": "Approximate 5m 0s cadence. The timer waits after work completes.",
+            "tone": "spot-liveness-card neutral"
+          },
+          {
+            "id": "spot-live-market",
+            "label": "Last successful market check",
+            "value": "2m 49s ago",
+            "detail": "Last market cycle with valid valuation and no error; not a live quote heartbeat.",
+            "tone": "spot-liveness-card good"
+          },
+          {
+            "id": "spot-live-broker",
+            "label": "Paper order broker",
+            "value": "0 pending · 1 terminal",
+            "detail": "Paper submissions enabled. Terminal includes fills, cancels and rejections.",
+            "tone": "spot-liveness-card neutral"
+          },
+          {
+            "id": "spot-live-gate",
+            "label": "Entry / risk gate",
+            "value": "Holding BTC",
+            "detail": "Holding the existing BTC position; no additional buys.",
+            "tone": "spot-liveness-card neutral"
+          }
+        ],
+        "observations": [
+          {
+            "label": "Evaluation 145 · HOLD",
+            "time": "2026-09-10 17:40:35 UTC",
+            "detail": "Holding the existing BTC position; no additional buys."
+          }
+        ],
+        "panelTop": 350.890625,
+        "panelBottom": 780.765625,
+        "strategyTop": 803.765625,
+        "bodyWidth": 1425,
+        "viewportWidth": 1440
+      },
+      "pollingBeforeTick": 2,
+      "pollingAfterTick": 2,
+      "responseTimes": [
+        {
+          "receivedAt": 1789062198336,
+          "generatedAtMs": 1789062198247,
+          "upstreamFetchedAtMs": 1789062196273
+        },
+        {
+          "receivedAt": 1789062203265,
+          "generatedAtMs": 1789062203248,
+          "upstreamFetchedAtMs": 1789062201298
+        }
+      ]
+    }
+  ],
+  "error": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert.ok(position.events.some(e=>e.text.includes('Holding the existing BTC position')))\n\n    at file:///home/ec2-user/crypto_trade/reports/spot-position-events-2026-09-10/browser-smoke.mjs:222:14",
+  "cleanup": {
+    "temporaryProfileRemoved": true
+  }
+}

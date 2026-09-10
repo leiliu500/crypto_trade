@@ -1,0 +1,958 @@
+{
+  "summary": {
+    "version": "btc-spot-weekly-research-paper-runner-v2",
+    "cycles": 134,
+    "orders": 0,
+    "filledOrders": 0,
+    "closedEpisodes": 0,
+    "cashUsd": 100000,
+    "quantity": 0,
+    "feesUsd": 0,
+    "realizedNetUsd": 0,
+    "liquidationNetUsd": 0,
+    "reasons": {
+      "NEXT_WEEK_ENTRY_WINDOW": 134
+    },
+    "receipts": []
+  },
+  "observations": [
+    {
+      "atMs": 1789019349499,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789019435421,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789019735825,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789020036158,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789020336518,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789020636759,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789020936977,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789021184958,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789021246037,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789021546414,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789021846658,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789022146879,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789022447100,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789022747414,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789023047671,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789023348059,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789023648429,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789023948652,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789024249021,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789024549391,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789024849754,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789025150111,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789025450320,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789025750537,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789026050764,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789026351158,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789026651393,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789026951790,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789027252118,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789027552354,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789027852639,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789028152917,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789028453167,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789028753537,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789029053889,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789029354168,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789029654390,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789029954620,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789030254885,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789030555131,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789030855826,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789031156106,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789031456493,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789031756727,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789032057105,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789032357441,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789032657672,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789032957938,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789033258303,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789033558547,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789033858913,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789034159293,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789034459532,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789034759900,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789035060130,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789035360508,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789035660749,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789035961120,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789036261369,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789036561595,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789036861833,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789037162063,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789037462321,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789037762541,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789038062911,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789038363300,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789038663537,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789038963771,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789039264013,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789039564408,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789039864773,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789040165003,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789040465355,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789040765713,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789041065931,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789041366178,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789041666545,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789041966762,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789042267124,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789042567346,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789042867567,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789043167797,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789043468028,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789043768419,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789044068814,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789044369121,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789044669339,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789044969579,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789045269797,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789045570009,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789045870231,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789046170461,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789046470821,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789046771197,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789047071444,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789047371713,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789047672102,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789047972322,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789048272571,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789048572940,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789048873210,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789049173429,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789049473785,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789049774165,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789050074392,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789050374771,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789050675154,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789050975571,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789051275822,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789051576051,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789051876448,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789052176859,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789052477230,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789052777799,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789053078325,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789053378893,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789053679331,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789053979563,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789054280019,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789054580544,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789054880783,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789055181153,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789055481390,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789055781613,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789056081915,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789056382145,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789056682392,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789056982641,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789057282893,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789057583255,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789057883540,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789058183821,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789058484048,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    },
+    {
+      "atMs": 1789058784271,
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "action": "hold",
+      "fill": null,
+      "netPnlUsd": 0
+    }
+  ]
+}

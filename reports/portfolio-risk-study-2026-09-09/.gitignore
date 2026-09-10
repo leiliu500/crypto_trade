@@ -1,0 +1,8 @@
+*.json
+!protocol.json
+!selection.json
+!*-summary.json
+!*-integrity.json
+!*-start.json
+!*-audit.json
+!validation-status.json

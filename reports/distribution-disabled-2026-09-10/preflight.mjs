@@ -1,0 +1,34 @@
+import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
+import {mkdirSync,writeFileSync} from 'node:fs';
+const out='reports/distribution-disabled-2026-09-10';mkdirSync(out,{recursive:true});
+const run=(cmd,args)=>execFileSync(cmd,args,{encoding:'utf8',maxBuffer:16*1024*1024});
+const hash=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
+const config=JSON.parse(run('docker-compose',['-f','docker-compose.yml','-f','docker-compose.dashboard-spot.yml','config','--format','json']));
+const containers=JSON.parse(run('docker',['inspect','crypto-trade-engine','crypto-spot-trend-paper','crypto-eth40-paper']));
+const actual=Object.fromEntries(containers[0].Config.Env.map(x=>{const i=x.indexOf('=');return[x.slice(0,i),x.slice(i+1)]}));
+const differentEnvironmentKeys=Object.entries(config.services.engine.environment).filter(([k,v])=>String(v)!==actual[k]).map(([k])=>k);
+const desiredFlags={DISTRIBUTIONAL_ENGINE_ENABLED:'false',DISTRIBUTIONAL_PAPER_ENTRIES_ENABLED:'false',DISTRIBUTIONAL_PAPER_TRIAL_ENABLED:'false',DISTRIBUTIONAL_EFFICIENT_TRAINING_ENABLED:'false',DISTRIBUTIONAL_REGIME_MODEL_ENABLED:'false',DISTRIBUTIONAL_TRAINING_FILE:'',POLICY_ENGINE_ENABLED:'false',CROSS_ASSET_PAPER_ENTRIES_ENABLED:'false',CROSS_ASSET_PAPER_EVALUATION_ENABLED:'false',MODEL_ONLY_ENTRIES:'true',PAPER_ENTRY_EXERCISE:'false'};
+for(const key of differentEnvironmentKeys)assert.ok(Object.hasOwn(desiredFlags,key),'Unexpected environment change: '+key);
+for(const [key,value] of Object.entries(desiredFlags))assert.equal(String(config.services.engine.environment[key]),value,key);
+const desiredEnvironment={...actual,...Object.fromEntries(Object.entries(config.services.engine.environment).map(([k,v])=>[k,String(v)]))};
+const desiredEngineEnvironmentSha256=hash(Object.entries(desiredEnvironment).map(([k,v])=>k+'='+v).sort());
+const base=JSON.parse(run('docker',['image','inspect','crypto-trade-engine:spot-dashboard-v7']))[0];
+assert.equal(base.Id,containers[0].Image,'Layer from the actual running image');
+assert.equal(base.Id,'sha256:e7e2f35eb9586863054ce67c1b2d57cc4bfddee34d6f20a4d01e0513779187f9');
+assert.equal(containers[2].Image,'sha256:39dbd1a51ea727fc50db700a2e2df36b53806050f5cd5a7dcfa8b60566644cc7');
+for(const [target,name,readOnly] of [['/app/data','crypto_trade_event_data',false],['/app/spot-paper-data','crypto_trade_spot_trend_research',true]]){
+ const mount=config.services.engine.volumes.find(v=>v.target===target);assert.ok(mount);assert.equal(config.volumes[mount.source].name,name);assert.equal(!!mount.read_only,readOnly);
+}
+const ethConfig=JSON.parse(run('docker-compose',['-f','docker-compose.eth40-paper.yml','config','--format','json']));
+assert.equal((ethConfig.services['eth40-paper'].ports??[]).length,0);
+assert.equal(ethConfig.networks.trading_dashboard.name,'crypto-trade_default');
+assert.equal(ethConfig.volumes.eth40_observation.name,'crypto_trade_eth40_observation_v1');
+const urls={futures:'http://127.0.0.1:3001/api/dashboard',spot:'http://127.0.0.1:3001/api/spot-dashboard',eth40:'http://127.0.0.1:3001/api/eth40/status',eth40Receipts:'http://127.0.0.1:3001/api/eth40/receipts',eth40Manifest:'http://127.0.0.1:3001/api/eth40/manifest'};
+const snapshots=Object.fromEntries(await Promise.all(Object.entries(urls).map(async([key,url])=>{const r=await fetch(url);assert.ok(r.ok,url);return[key,await r.json()]})));
+assert.equal(snapshots.eth40.liveTradingEnabled,false);assert.equal(snapshots.eth40.collectorHealthy,true);
+for(const [key,value] of Object.entries(snapshots))writeFileSync(`${out}/before-${key}.json`,JSON.stringify(value,null,2)+'\n');
+const result={passed:true,at:new Date().toISOString(),differentEnvironmentKeys,desiredFlags,desiredEngineEnvironmentSha256,containers:containers.map(x=>({name:x.Name,id:x.Id,image:x.Image,startedAt:x.State.StartedAt,health:x.State.Health?.Status,environmentSha256:hash([...x.Config.Env].sort()),mounts:x.Mounts.map(m=>({name:m.Name,destination:m.Destination,readWrite:m.RW})),networks:Object.keys(x.NetworkSettings.Networks),publishedPorts:x.HostConfig.PortBindings})),frozenEth40ManifestSha256:hash(snapshots.eth40Manifest),eth40StartedAtMs:snapshots.eth40.startedAtMs,eth40Sequence:snapshots.eth40.sequence};
+writeFileSync(out+'/preflight.json',JSON.stringify(result,null,2)+'\n');
+console.log(JSON.stringify({passed:true,onlyAuthorizedDisableFlagsChanged:true,baseImage:base.Id,eth40Sequence:result.eth40Sequence,willPublishEth40Port:false}));

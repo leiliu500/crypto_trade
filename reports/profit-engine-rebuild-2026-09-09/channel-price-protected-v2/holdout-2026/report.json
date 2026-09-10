@@ -1,0 +1,282 @@
+{
+  "generatedAtUtc": "2026-09-09T21:27:11.911Z",
+  "strategyVersion": "btc-eth-daily-55-20-channel-price-protected-v2",
+  "dataSha256": "ace97292b3baedaa2c8772b22066c1fc95750d7a21cd58908a88725bf6b9c78f",
+  "reviewedDesignSha256": "de8d9005a5f4c8a8ba8c14ec2904d942e1815c637b43b62b78086baeaef1f9ee",
+  "validation": {
+    "historicalHoldoutPassed": false,
+    "checks": {
+      "exactTwoScenarios": true,
+      "knownFundedAccounting": false,
+      "positiveBaseAndStress": false,
+      "atLeastSixBaseEpisodes": false,
+      "holdoutBootstrapLowerMeanPositive": false,
+      "noAccountRiskBreaches": true
+    },
+    "bootstrap": {
+      "weeks": [],
+      "completeWeeks": 0,
+      "validBlocks": 0,
+      "lowerMeanWeeklyNetUsd": null
+    },
+    "fundedBootstrapStatus": "UNAVAILABLE_MISSING_FUNDED_EVIDENCE",
+    "originalDevelopmentBootstrapFailurePreserved": true,
+    "originalPlannerHistoricalGateChanged": false,
+    "paperPilotEligible": false,
+    "pendingIndependentCashVerification": true,
+    "pendingCurrentFeeRulesAndBookEvidence": true,
+    "realOrdersAllowed": false,
+    "futureProfitGuaranteed": false
+  },
+  "coverage": [
+    {
+      "symbol": "BTC/USD",
+      "missingWarmupOrTestBars": [],
+      "missingTestFunding": [
+        {
+          "fromMs": 1770206400000,
+          "toMsExclusive": 1770210000000,
+          "hours": 1
+        },
+        {
+          "fromMs": 1771005600000,
+          "toMsExclusive": 1771009200000,
+          "hours": 1
+        },
+        {
+          "fromMs": 1778306400000,
+          "toMsExclusive": 1778310000000,
+          "hours": 1
+        }
+      ]
+    },
+    {
+      "symbol": "ETH/USD",
+      "missingWarmupOrTestBars": [],
+      "missingTestFunding": [
+        {
+          "fromMs": 1770206400000,
+          "toMsExclusive": 1770210000000,
+          "hours": 1
+        },
+        {
+          "fromMs": 1771005600000,
+          "toMsExclusive": 1771009200000,
+          "hours": 1
+        },
+        {
+          "fromMs": 1778306400000,
+          "toMsExclusive": 1778310000000,
+          "hours": 1
+        }
+      ]
+    }
+  ],
+  "runs": [
+    {
+      "version": "btc-eth-daily-55-20-channel-price-protected-v2",
+      "startMs": 1767225600000,
+      "endMs": 1785542400000,
+      "scenario": "base",
+      "policy": "channel",
+      "accountingKnown": false,
+      "netPnlUsd": null,
+      "grossPnlUsd": 121.98510000000003,
+      "feeUsd": 1.77447315,
+      "fundingCashUsd": null,
+      "maxDrawdownUsd": null,
+      "conservativeDrawdownEnvelopeUsd": null,
+      "drawdownBasis": "HOURLY_LIQUIDATION_CLOSE_DRAWDOWN;ENVELOPE_USES_PRIOR_CLOSE_PEAK_NOT_FULL_INTRAHOUR_HIGHWATER",
+      "maximumGrossUsd": 958.5083999999999,
+      "maximumEntryRiskUsd": 99.58770564205733,
+      "closedEpisodes": 3,
+      "orderCount": 6,
+      "unresolved": [],
+      "missingFunding": [
+        "ETH/USD:1770206400000",
+        "BTC/USD:1770206400000",
+        "ETH/USD:1771005600000"
+      ],
+      "missingBars": [],
+      "haltReasons": {
+        "PERMANENT_ACCOUNT_UNKNOWN_OR_DRAWDOWN": 4259
+      },
+      "runtimeActivated": false,
+      "evidence": "HOURLY_CANDLE_ECONOMIC_PROXY_WITH_CONSERVATIVE_STOP_FUNDING",
+      "holdoutScopeVersion": "channel-v2-one-reserved-2026-validation-v1",
+      "warmupStartMs": 1756684800000
+    },
+    {
+      "version": "btc-eth-daily-55-20-channel-price-protected-v2",
+      "startMs": 1767225600000,
+      "endMs": 1785542400000,
+      "scenario": "stress",
+      "policy": "channel",
+      "accountingKnown": false,
+      "netPnlUsd": null,
+      "grossPnlUsd": 110.75250000000004,
+      "feeUsd": 2.560809525,
+      "fundingCashUsd": null,
+      "maxDrawdownUsd": null,
+      "conservativeDrawdownEnvelopeUsd": null,
+      "drawdownBasis": "HOURLY_LIQUIDATION_CLOSE_DRAWDOWN;ENVELOPE_USES_PRIOR_CLOSE_PEAK_NOT_FULL_INTRAHOUR_HIGHWATER",
+      "maximumGrossUsd": 909.845,
+      "maximumEntryRiskUsd": 99.61858455752895,
+      "closedEpisodes": 3,
+      "orderCount": 6,
+      "unresolved": [],
+      "missingFunding": [
+        "ETH/USD:1770206400000",
+        "BTC/USD:1770206400000",
+        "ETH/USD:1771005600000"
+      ],
+      "missingBars": [],
+      "haltReasons": {
+        "PERMANENT_ACCOUNT_UNKNOWN_OR_DRAWDOWN": 4259
+      },
+      "runtimeActivated": false,
+      "evidence": "HOURLY_CANDLE_ECONOMIC_PROXY_WITH_CONSERVATIVE_STOP_FUNDING",
+      "holdoutScopeVersion": "channel-v2-one-reserved-2026-validation-v1",
+      "warmupStartMs": 1756684800000
+    }
+  ],
+  "benchmarks": [
+    {
+      "version": "btc-eth-daily-55-20-channel-price-protected-v2",
+      "startMs": 1767225600000,
+      "endMs": 1785542400000,
+      "scenario": "base",
+      "policy": "buy-hold-btc",
+      "accountingKnown": false,
+      "netPnlUsd": null,
+      "grossPnlUsd": -260.1599,
+      "feeUsd": 0.8613707500000001,
+      "fundingCashUsd": null,
+      "maxDrawdownUsd": null,
+      "conservativeDrawdownEnvelopeUsd": null,
+      "drawdownBasis": "HOURLY_LIQUIDATION_CLOSE_DRAWDOWN;ENVELOPE_USES_PRIOR_CLOSE_PEAK_NOT_FULL_INTRAHOUR_HIGHWATER",
+      "maximumGrossUsd": 1103.5806,
+      "maximumEntryRiskUsd": 1.4106309799999999,
+      "closedEpisodes": 1,
+      "orderCount": 2,
+      "unresolved": [],
+      "missingFunding": [
+        "BTC/USD:1770206400000",
+        "BTC/USD:1771005600000",
+        "BTC/USD:1778306400000"
+      ],
+      "missingBars": [],
+      "haltReasons": {
+        "PERMANENT_ACCOUNT_UNKNOWN_OR_DRAWDOWN": 4259
+      },
+      "runtimeActivated": false,
+      "evidence": "HOURLY_CANDLE_ECONOMIC_PROXY_WITH_CONSERVATIVE_STOP_FUNDING",
+      "holdoutScopeVersion": "channel-v2-one-reserved-2026-validation-v1",
+      "warmupStartMs": 1756684800000
+    },
+    {
+      "version": "btc-eth-daily-55-20-channel-price-protected-v2",
+      "startMs": 1767225600000,
+      "endMs": 1785542400000,
+      "scenario": "base",
+      "policy": "buy-hold-eth",
+      "accountingKnown": false,
+      "netPnlUsd": null,
+      "grossPnlUsd": -355.50199999999995,
+      "feeUsd": 0.819611,
+      "fundingCashUsd": null,
+      "maxDrawdownUsd": null,
+      "conservativeDrawdownEnvelopeUsd": null,
+      "drawdownBasis": "HOURLY_LIQUIDATION_CLOSE_DRAWDOWN;ENVELOPE_USES_PRIOR_CLOSE_PEAK_NOT_FULL_INTRAHOUR_HIGHWATER",
+      "maximumGrossUsd": 1133.707,
+      "maximumEntryRiskUsd": 2.0663068,
+      "closedEpisodes": 1,
+      "orderCount": 2,
+      "unresolved": [],
+      "missingFunding": [
+        "ETH/USD:1770206400000",
+        "ETH/USD:1771005600000",
+        "ETH/USD:1778306400000"
+      ],
+      "missingBars": [],
+      "haltReasons": {
+        "PERMANENT_ACCOUNT_UNKNOWN_OR_DRAWDOWN": 4259
+      },
+      "runtimeActivated": false,
+      "evidence": "HOURLY_CANDLE_ECONOMIC_PROXY_WITH_CONSERVATIVE_STOP_FUNDING",
+      "holdoutScopeVersion": "channel-v2-one-reserved-2026-validation-v1",
+      "warmupStartMs": 1756684800000
+    },
+    {
+      "version": "btc-eth-daily-55-20-channel-price-protected-v2",
+      "startMs": 1767225600000,
+      "endMs": 1785542400000,
+      "scenario": "stress",
+      "policy": "buy-hold-btc",
+      "accountingKnown": false,
+      "netPnlUsd": null,
+      "grossPnlUsd": -262.2956,
+      "feeUsd": 1.2933189,
+      "fundingCashUsd": null,
+      "maxDrawdownUsd": null,
+      "conservativeDrawdownEnvelopeUsd": null,
+      "drawdownBasis": "HOURLY_LIQUIDATION_CLOSE_DRAWDOWN;ENVELOPE_USES_PRIOR_CLOSE_PEAK_NOT_FULL_INTRAHOUR_HIGHWATER",
+      "maximumGrossUsd": 1103.5806,
+      "maximumEntryRiskUsd": 2.506001,
+      "closedEpisodes": 1,
+      "orderCount": 2,
+      "unresolved": [],
+      "missingFunding": [
+        "BTC/USD:1770206400000",
+        "BTC/USD:1771005600000",
+        "BTC/USD:1778306400000"
+      ],
+      "missingBars": [],
+      "haltReasons": {
+        "PERMANENT_ACCOUNT_UNKNOWN_OR_DRAWDOWN": 4259
+      },
+      "runtimeActivated": false,
+      "evidence": "HOURLY_CANDLE_ECONOMIC_PROXY_WITH_CONSERVATIVE_STOP_FUNDING",
+      "holdoutScopeVersion": "channel-v2-one-reserved-2026-validation-v1",
+      "warmupStartMs": 1756684800000
+    },
+    {
+      "version": "btc-eth-daily-55-20-channel-price-protected-v2",
+      "startMs": 1767225600000,
+      "endMs": 1785542400000,
+      "scenario": "stress",
+      "policy": "buy-hold-eth",
+      "accountingKnown": false,
+      "netPnlUsd": null,
+      "grossPnlUsd": -357.244,
+      "feeUsd": 1.2304215000000003,
+      "fundingCashUsd": null,
+      "maxDrawdownUsd": null,
+      "conservativeDrawdownEnvelopeUsd": null,
+      "drawdownBasis": "HOURLY_LIQUIDATION_CLOSE_DRAWDOWN;ENVELOPE_USES_PRIOR_CLOSE_PEAK_NOT_FULL_INTRAHOUR_HIGHWATER",
+      "maximumGrossUsd": 1133.707,
+      "maximumEntryRiskUsd": 3.1672575,
+      "closedEpisodes": 1,
+      "orderCount": 2,
+      "unresolved": [],
+      "missingFunding": [
+        "ETH/USD:1770206400000",
+        "ETH/USD:1771005600000",
+        "ETH/USD:1778306400000"
+      ],
+      "missingBars": [],
+      "haltReasons": {
+        "PERMANENT_ACCOUNT_UNKNOWN_OR_DRAWDOWN": 4259
+      },
+      "runtimeActivated": false,
+      "evidence": "HOURLY_CANDLE_ECONOMIC_PROXY_WITH_CONSERVATIVE_STOP_FUNDING",
+      "holdoutScopeVersion": "channel-v2-one-reserved-2026-validation-v1",
+      "warmupStartMs": 1756684800000
+    }
+  ],
+  "cashBenchmarkNetUsd": 0,
+  "originalDevelopmentResultChanged": false,
+  "noFurtherStrategySearch": true,
+  "runtimeActivated": false,
+  "evidence": "ONE_PREVIOUSLY_RESERVED_WINDOW;CANDLE_EXECUTION_PROXY;MISSING_HELD_FUNDING_INVALIDATES_FULL_RESULT"
+}

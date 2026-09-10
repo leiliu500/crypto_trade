@@ -1,0 +1,12 @@
+# Keep compact research evidence; detailed signals and account traces stay local.
+/*.json
+!/protocol.json
+!/selection.json
+!/confirmation.json
+!/summary.json
+!/*-start.json
+!/*-integrity.json
+!/*-audit.json
+!/validation-status.json
+/data-*/dataset.json
+/data-*/raw/

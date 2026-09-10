@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "checks": [
+    "cash is exactly flat",
+    "base and stress delayed open timing",
+    "unchanged target never adds",
+    "flat-price fees lose money",
+    "independent order-ledger cash reconstruction",
+    "terminal inventory zero and daily equity reconciled",
+    "rotation liquidates before funding new position and charges both legs",
+    "unfinalized previous-bar volume cannot alter first fill",
+    "minimum size rejects non-executable tiny orders",
+    "96 real-data prefix-invariance checks across all 12 variants"
+  ]
+}

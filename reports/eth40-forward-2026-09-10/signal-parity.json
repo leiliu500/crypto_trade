@@ -1,0 +1,4331 @@
+{
+  "candidateId": "sma_eth-040",
+  "generatedAt": "2026-09-10T20:07:28.754Z",
+  "source": "tools/profit-search.py targets()",
+  "datasetSha256": "951499efbfe353842f55b78b94e7d0fe1ba642afa2867f077810835f2303a45e",
+  "comparedDays": 720,
+  "mismatches": 0,
+  "failures": [],
+  "results": [
+    {
+      "day": 1726790400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1726876800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1726963200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1727049600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1727136000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1727222400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1727308800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1727395200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1727481600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1727568000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1727654400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1727740800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1727827200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1727913600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1728000000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1728086400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1728172800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1728259200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1728345600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1728432000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1728518400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1728604800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1728691200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1728777600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1728864000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1728950400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1729036800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1729123200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1729209600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1729296000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1729382400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1729468800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1729555200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1729641600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1729728000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1729814400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1729900800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1729987200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1730073600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1730160000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1730246400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1730332800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1730419200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1730505600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1730592000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1730678400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1730764800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1730851200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1730937600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1731024000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1731110400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1731196800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1731283200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1731369600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1731456000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1731542400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1731628800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1731715200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1731801600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1731888000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1731974400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1732060800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1732147200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1732233600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1732320000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1732406400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1732492800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1732579200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1732665600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1732752000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1732838400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1732924800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1733011200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1733097600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1733184000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1733270400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1733356800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1733443200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1733529600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1733616000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1733702400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1733788800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1733875200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1733961600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1734048000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1734134400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1734220800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1734307200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1734393600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1734480000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": null
+    },
+    {
+      "day": 1734566400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3545.50125
+    },
+    {
+      "day": 1734652800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3552.65
+    },
+    {
+      "day": 1734739200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3551.6902500000006
+    },
+    {
+      "day": 1734825600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3552.40475
+    },
+    {
+      "day": 1734912000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3558.0769999999998
+    },
+    {
+      "day": 1734998400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3568.86675
+    },
+    {
+      "day": 1735084800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3578.95525
+    },
+    {
+      "day": 1735171200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3583.8959999999997
+    },
+    {
+      "day": 1735257600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3590.2055
+    },
+    {
+      "day": 1735344000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3594.90725
+    },
+    {
+      "day": 1735430400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3600.87175
+    },
+    {
+      "day": 1735516800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3607.95925
+    },
+    {
+      "day": 1735603200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3607.26925
+    },
+    {
+      "day": 1735689600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3607.83075
+    },
+    {
+      "day": 1735776000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3609.19725
+    },
+    {
+      "day": 1735862400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3615.2655
+    },
+    {
+      "day": 1735948800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3621.3637499999995
+    },
+    {
+      "day": 1736035200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3629.1667500000003
+    },
+    {
+      "day": 1736121600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3629.94225
+    },
+    {
+      "day": 1736208000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3625.001
+    },
+    {
+      "day": 1736294400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3618.31275
+    },
+    {
+      "day": 1736380800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3606.1362500000005
+    },
+    {
+      "day": 1736467200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3594.9725
+    },
+    {
+      "day": 1736553600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3585.9114999999997
+    },
+    {
+      "day": 1736640000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3577.0910000000003
+    },
+    {
+      "day": 1736726400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3559.387
+    },
+    {
+      "day": 1736812800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3545.17275
+    },
+    {
+      "day": 1736899200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3531.32725
+    },
+    {
+      "day": 1736985600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3513.99625
+    },
+    {
+      "day": 1737072000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3500.6684999999998
+    },
+    {
+      "day": 1737158400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3490.397
+    },
+    {
+      "day": 1737244800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3479.90275
+    },
+    {
+      "day": 1737331200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3466.0055
+    },
+    {
+      "day": 1737417600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3452.1172500000002
+    },
+    {
+      "day": 1737504000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3435.40725
+    },
+    {
+      "day": 1737590400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3422.111
+    },
+    {
+      "day": 1737676800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3405.9965
+    },
+    {
+      "day": 1737763200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3389.2160000000003
+    },
+    {
+      "day": 1737849600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3372.71475
+    },
+    {
+      "day": 1737936000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3361.5932500000004
+    },
+    {
+      "day": 1738022400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3353.1425000000004
+    },
+    {
+      "day": 1738108800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3344.1730000000002
+    },
+    {
+      "day": 1738195200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3341.9325
+    },
+    {
+      "day": 1738281600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3342.5215
+    },
+    {
+      "day": 1738368000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3334.987
+    },
+    {
+      "day": 1738454400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3319.45075
+    },
+    {
+      "day": 1738540800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3304.182
+    },
+    {
+      "day": 1738627200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3289.2864999999997
+    },
+    {
+      "day": 1738713600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3275.81575
+    },
+    {
+      "day": 1738800000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3258.0330000000004
+    },
+    {
+      "day": 1738886400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3239.88025
+    },
+    {
+      "day": 1738972800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3221.81025
+    },
+    {
+      "day": 1739059200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3204.19675
+    },
+    {
+      "day": 1739145600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3186.87775
+    },
+    {
+      "day": 1739232000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3165.6552500000003
+    },
+    {
+      "day": 1739318400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3143.9122500000003
+    },
+    {
+      "day": 1739404800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3119.37725
+    },
+    {
+      "day": 1739491200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3096.6365
+    },
+    {
+      "day": 1739577600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3071.74725
+    },
+    {
+      "day": 1739664000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3053.805
+    },
+    {
+      "day": 1739750400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3039.22125
+    },
+    {
+      "day": 1739836800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3025.489
+    },
+    {
+      "day": 1739923200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3011.713
+    },
+    {
+      "day": 1740009600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2998.13825
+    },
+    {
+      "day": 1740096000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2982.9885
+    },
+    {
+      "day": 1740182400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2973.668
+    },
+    {
+      "day": 1740268800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2963.587
+    },
+    {
+      "day": 1740355200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2940.1565
+    },
+    {
+      "day": 1740441600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2919.76875
+    },
+    {
+      "day": 1740528000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2891.2375
+    },
+    {
+      "day": 1740614400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2866.20525
+    },
+    {
+      "day": 1740700800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2841.846
+    },
+    {
+      "day": 1740787200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2815.28325
+    },
+    {
+      "day": 1740873600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2795.09875
+    },
+    {
+      "day": 1740960000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2767.797
+    },
+    {
+      "day": 1741046400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2738.62275
+    },
+    {
+      "day": 1741132800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2711.90525
+    },
+    {
+      "day": 1741219200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2684.0525
+    },
+    {
+      "day": 1741305600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2656.703
+    },
+    {
+      "day": 1741392000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2632.27875
+    },
+    {
+      "day": 1741478400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2605.8514999999998
+    },
+    {
+      "day": 1741564800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2574.6087500000003
+    },
+    {
+      "day": 1741651200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2541.46725
+    },
+    {
+      "day": 1741737600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2506.66025
+    },
+    {
+      "day": 1741824000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2475.3235
+    },
+    {
+      "day": 1741910400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2451.33725
+    },
+    {
+      "day": 1741996800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2427.67575
+    },
+    {
+      "day": 1742083200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2406.47275
+    },
+    {
+      "day": 1742169600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2384.91025
+    },
+    {
+      "day": 1742256000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2366.02475
+    },
+    {
+      "day": 1742342400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2351.86525
+    },
+    {
+      "day": 1742428800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2335.58425
+    },
+    {
+      "day": 1742515200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2318.9725
+    },
+    {
+      "day": 1742601600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2301.9452499999998
+    },
+    {
+      "day": 1742688000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2286.9975
+    },
+    {
+      "day": 1742774400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2270.59775
+    },
+    {
+      "day": 1742860800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2255.352
+    },
+    {
+      "day": 1742947200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2237.43725
+    },
+    {
+      "day": 1743033600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2220.16425
+    },
+    {
+      "day": 1743120000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2200.97925
+    },
+    {
+      "day": 1743206400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2178.0950000000003
+    },
+    {
+      "day": 1743292800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2156.5065
+    },
+    {
+      "day": 1743379200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2134.20125
+    },
+    {
+      "day": 1743465600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2113.35
+    },
+    {
+      "day": 1743552000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2091.6994999999997
+    },
+    {
+      "day": 1743638400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2068.007
+    },
+    {
+      "day": 1743724800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2042.9
+    },
+    {
+      "day": 1743811200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2025.1842499999998
+    },
+    {
+      "day": 1743897600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2002.36525
+    },
+    {
+      "day": 1743984000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 1982.8455
+    },
+    {
+      "day": 1744070400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 1962.0240000000001
+    },
+    {
+      "day": 1744156800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 1947.8365000000001
+    },
+    {
+      "day": 1744243200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 1930.4779999999998
+    },
+    {
+      "day": 1744329600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 1906.639
+    },
+    {
+      "day": 1744416000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 1894.0404999999998
+    },
+    {
+      "day": 1744502400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 1879.682
+    },
+    {
+      "day": 1744588800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 1864.2262500000002
+    },
+    {
+      "day": 1744675200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 1848.8957500000001
+    },
+    {
+      "day": 1744761600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 1834.8349999999998
+    },
+    {
+      "day": 1744848000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 1819.3182499999998
+    },
+    {
+      "day": 1744934400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 1808.5404999999998
+    },
+    {
+      "day": 1745020800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 1802.28125
+    },
+    {
+      "day": 1745107200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 1793.9157500000001
+    },
+    {
+      "day": 1745193600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 1785.71825
+    },
+    {
+      "day": 1745280000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 1783.0832500000001
+    },
+    {
+      "day": 1745366400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 1780.23425
+    },
+    {
+      "day": 1745452800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 1776.0642500000001
+    },
+    {
+      "day": 1745539200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 1773.5520000000001
+    },
+    {
+      "day": 1745625600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1770.9167499999999
+    },
+    {
+      "day": 1745712000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1767.42075
+    },
+    {
+      "day": 1745798400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1760.9845
+    },
+    {
+      "day": 1745884800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1756.4205000000002
+    },
+    {
+      "day": 1745971200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1752.1612499999999
+    },
+    {
+      "day": 1746057600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1748.6285
+    },
+    {
+      "day": 1746144000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1744.5755000000001
+    },
+    {
+      "day": 1746230400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1738.3752499999998
+    },
+    {
+      "day": 1746316800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1731.94375
+    },
+    {
+      "day": 1746403200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1727.2107499999997
+    },
+    {
+      "day": 1746489600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1722.57225
+    },
+    {
+      "day": 1746576000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1720.4677500000003
+    },
+    {
+      "day": 1746662400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1729.98625
+    },
+    {
+      "day": 1746748800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1743.47575
+    },
+    {
+      "day": 1746835200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1762.53075
+    },
+    {
+      "day": 1746921600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1777.78825
+    },
+    {
+      "day": 1747008000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1795.3490000000002
+    },
+    {
+      "day": 1747094400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1816.96325
+    },
+    {
+      "day": 1747180800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1836.84175
+    },
+    {
+      "day": 1747267200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1855.3990000000001
+    },
+    {
+      "day": 1747353600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1879.3602500000002
+    },
+    {
+      "day": 1747440000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1902.4625
+    },
+    {
+      "day": 1747526400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1928.105
+    },
+    {
+      "day": 1747612800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1949.5977500000001
+    },
+    {
+      "day": 1747699200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1974.6864999999998
+    },
+    {
+      "day": 1747785600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1999.3337500000002
+    },
+    {
+      "day": 1747872000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2024.8627499999998
+    },
+    {
+      "day": 1747958400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2048.1169999999997
+    },
+    {
+      "day": 1748044800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2070.83425
+    },
+    {
+      "day": 1748131200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2094.8954999999996
+    },
+    {
+      "day": 1748217600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2119.56
+    },
+    {
+      "day": 1748304000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2146.5775000000003
+    },
+    {
+      "day": 1748390400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2173.92775
+    },
+    {
+      "day": 1748476800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2199.38075
+    },
+    {
+      "day": 1748563200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2222.98
+    },
+    {
+      "day": 1748649600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2246.706
+    },
+    {
+      "day": 1748736000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2266.22325
+    },
+    {
+      "day": 1748822400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2286.5252499999997
+    },
+    {
+      "day": 1748908800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2307.1412499999997
+    },
+    {
+      "day": 1748995200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2327.6805
+    },
+    {
+      "day": 1749081600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2342.575
+    },
+    {
+      "day": 1749168000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2359.73025
+    },
+    {
+      "day": 1749254400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2377.88325
+    },
+    {
+      "day": 1749340800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2395.6865
+    },
+    {
+      "day": 1749427200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2417.87775
+    },
+    {
+      "day": 1749513600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2442.31475
+    },
+    {
+      "day": 1749600000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2465.5389999999998
+    },
+    {
+      "day": 1749686400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2485.79
+    },
+    {
+      "day": 1749772800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2505.05375
+    },
+    {
+      "day": 1749859200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2522.88575
+    },
+    {
+      "day": 1749945600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2541.1462500000002
+    },
+    {
+      "day": 1750032000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2559.38825
+    },
+    {
+      "day": 1750118400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2566.932
+    },
+    {
+      "day": 1750204800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2571.432
+    },
+    {
+      "day": 1750291200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2569.84275
+    },
+    {
+      "day": 1750377600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2567.10425
+    },
+    {
+      "day": 1750464000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2562.1265
+    },
+    {
+      "day": 1750550400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2550.80675
+    },
+    {
+      "day": 1750636800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2545.8912499999997
+    },
+    {
+      "day": 1750723200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2543.4005
+    },
+    {
+      "day": 1750809600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2540.4427499999997
+    },
+    {
+      "day": 1750896000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2538.9545
+    },
+    {
+      "day": 1750982400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2537.11675
+    },
+    {
+      "day": 1751068800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2534.84275
+    },
+    {
+      "day": 1751155200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2534.2525
+    },
+    {
+      "day": 1751241600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2532.6025
+    },
+    {
+      "day": 1751328000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2526.134
+    },
+    {
+      "day": 1751414400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2527.22575
+    },
+    {
+      "day": 1751500800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2528.712
+    },
+    {
+      "day": 1751587200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2527.6262500000003
+    },
+    {
+      "day": 1751673600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2526.46
+    },
+    {
+      "day": 1751760000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2524.18825
+    },
+    {
+      "day": 1751846400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2520.691
+    },
+    {
+      "day": 1751932800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2520.303
+    },
+    {
+      "day": 1752019200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2526.27475
+    },
+    {
+      "day": 1752105600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2536.83975
+    },
+    {
+      "day": 1752192000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2547.3329999999996
+    },
+    {
+      "day": 1752278400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2555.69575
+    },
+    {
+      "day": 1752364800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2565.16075
+    },
+    {
+      "day": 1752451200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2575.321
+    },
+    {
+      "day": 1752537600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2593.4055
+    },
+    {
+      "day": 1752624000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2615.7715
+    },
+    {
+      "day": 1752710400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2639.61275
+    },
+    {
+      "day": 1752796800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2665.561
+    },
+    {
+      "day": 1752883200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2688.42625
+    },
+    {
+      "day": 1752969600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2712.02
+    },
+    {
+      "day": 1753056000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2736.82475
+    },
+    {
+      "day": 1753142400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2764.4535
+    },
+    {
+      "day": 1753228800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2790.6875
+    },
+    {
+      "day": 1753315200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2820.0102500000003
+    },
+    {
+      "day": 1753401600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2849.47425
+    },
+    {
+      "day": 1753488000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2879.5015
+    },
+    {
+      "day": 1753574400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2913.6237499999997
+    },
+    {
+      "day": 1753660800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2945.406
+    },
+    {
+      "day": 1753747200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2977.192
+    },
+    {
+      "day": 1753833600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3012.21225
+    },
+    {
+      "day": 1753920000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3047.257
+    },
+    {
+      "day": 1754006400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3078.72075
+    },
+    {
+      "day": 1754092800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3103.2017499999997
+    },
+    {
+      "day": 1754179200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3129.41575
+    },
+    {
+      "day": 1754265600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3161.9375
+    },
+    {
+      "day": 1754352000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3191.81675
+    },
+    {
+      "day": 1754438400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3223.30125
+    },
+    {
+      "day": 1754524800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3260.18075
+    },
+    {
+      "day": 1754611200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3297.8599999999997
+    },
+    {
+      "day": 1754697600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3342.28025
+    },
+    {
+      "day": 1754784000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3388.4265
+    },
+    {
+      "day": 1754870400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3429.7892500000003
+    },
+    {
+      "day": 1754956800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3479.761
+    },
+    {
+      "day": 1755043200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3535.83175
+    },
+    {
+      "day": 1755129600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3586.63925
+    },
+    {
+      "day": 1755216000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3633.415
+    },
+    {
+      "day": 1755302400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3680.4572500000004
+    },
+    {
+      "day": 1755388800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3726.8885
+    },
+    {
+      "day": 1755475200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3765.4442499999996
+    },
+    {
+      "day": 1755561600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3793.518
+    },
+    {
+      "day": 1755648000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3827.9425
+    },
+    {
+      "day": 1755734400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3859.96975
+    },
+    {
+      "day": 1755820800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3906.3887499999996
+    },
+    {
+      "day": 1755907200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3950.44125
+    },
+    {
+      "day": 1755993600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3991.4205
+    },
+    {
+      "day": 1756080000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 4016.546
+    },
+    {
+      "day": 1756166400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 4044.5834999999997
+    },
+    {
+      "day": 1756252800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 4068.50825
+    },
+    {
+      "day": 1756339200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 4091.4082499999995
+    },
+    {
+      "day": 1756425600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 4106.401
+    },
+    {
+      "day": 1756512000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 4121.6565
+    },
+    {
+      "day": 1756598400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 4137.72875
+    },
+    {
+      "day": 1756684800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 4154.86325
+    },
+    {
+      "day": 1756771200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 4170.3505
+    },
+    {
+      "day": 1756857600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 4188.4625
+    },
+    {
+      "day": 1756944000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 4202.3862500000005
+    },
+    {
+      "day": 1757030400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 4213.18675
+    },
+    {
+      "day": 1757116800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 4225.13375
+    },
+    {
+      "day": 1757203200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 4237.94175
+    },
+    {
+      "day": 1757289600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 4250.4580000000005
+    },
+    {
+      "day": 1757376000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 4265.71175
+    },
+    {
+      "day": 1757462400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 4287.308
+    },
+    {
+      "day": 1757548800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 4314.055
+    },
+    {
+      "day": 1757635200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 4344.55825
+    },
+    {
+      "day": 1757721600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 4368.212750000001
+    },
+    {
+      "day": 1757808000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 4393.14725
+    },
+    {
+      "day": 1757894400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 4414.23375
+    },
+    {
+      "day": 1757980800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 4429.03025
+    },
+    {
+      "day": 1758067200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 4443.6295
+    },
+    {
+      "day": 1758153600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 4451.79475
+    },
+    {
+      "day": 1758240000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 4457.28225
+    },
+    {
+      "day": 1758326400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 4463.697
+    },
+    {
+      "day": 1758412800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 4460.122
+    },
+    {
+      "day": 1758499200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 4446.428
+    },
+    {
+      "day": 1758585600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 4436.821
+    },
+    {
+      "day": 1758672000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 4429.6065
+    },
+    {
+      "day": 1758758400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 4415.817
+    },
+    {
+      "day": 1758844800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 4404.8769999999995
+    },
+    {
+      "day": 1758931200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 4397.54075
+    },
+    {
+      "day": 1759017600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 4399.3075
+    },
+    {
+      "day": 1759104000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 4396.383
+    },
+    {
+      "day": 1759190400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 4394.464
+    },
+    {
+      "day": 1759276800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 4382.46475
+    },
+    {
+      "day": 1759363200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 4375.2342499999995
+    },
+    {
+      "day": 1759449600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 4368.627
+    },
+    {
+      "day": 1759536000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 4371.409750000001
+    },
+    {
+      "day": 1759622400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 4369.306
+    },
+    {
+      "day": 1759708800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 4373.879
+    },
+    {
+      "day": 1759795200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 4372.32475
+    },
+    {
+      "day": 1759881600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 4376.4945
+    },
+    {
+      "day": 1759968000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 4376.391750000001
+    },
+    {
+      "day": 1760054400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 4362.523999999999
+    },
+    {
+      "day": 1760140800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 4348.40125
+    },
+    {
+      "day": 1760227200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 4344.180249999999
+    },
+    {
+      "day": 1760313600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 4339.03925
+    },
+    {
+      "day": 1760400000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 4334.71025
+    },
+    {
+      "day": 1760486400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 4326.72925
+    },
+    {
+      "day": 1760572800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 4317.23625
+    },
+    {
+      "day": 1760659200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 4305.43425
+    },
+    {
+      "day": 1760745600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 4294.981
+    },
+    {
+      "day": 1760832000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 4286.892
+    },
+    {
+      "day": 1760918400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 4277.67975
+    },
+    {
+      "day": 1761004800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 4262.9755
+    },
+    {
+      "day": 1761091200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 4240.195
+    },
+    {
+      "day": 1761177600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 4219.999
+    },
+    {
+      "day": 1761264000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 4203.1720000000005
+    },
+    {
+      "day": 1761350400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 4188.85375
+    },
+    {
+      "day": 1761436800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 4180.207
+    },
+    {
+      "day": 1761523200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 4168.365
+    },
+    {
+      "day": 1761609600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 4153.13325
+    },
+    {
+      "day": 1761696000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 4138.919
+    },
+    {
+      "day": 1761782400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 4121.946
+    },
+    {
+      "day": 1761868800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 4106.93925
+    },
+    {
+      "day": 1761955200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 4098.6717499999995
+    },
+    {
+      "day": 1762041600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 4092.2324999999996
+    },
+    {
+      "day": 1762128000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 4078.4167500000003
+    },
+    {
+      "day": 1762214400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 4063.8230000000003
+    },
+    {
+      "day": 1762300800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 4048.5385
+    },
+    {
+      "day": 1762387200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 4030.89925
+    },
+    {
+      "day": 1762473600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 4013.1135000000004
+    },
+    {
+      "day": 1762560000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3992.6684999999998
+    },
+    {
+      "day": 1762646400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3978.59925
+    },
+    {
+      "day": 1762732800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3958.9894999999997
+    },
+    {
+      "day": 1762819200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3932.16325
+    },
+    {
+      "day": 1762905600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3904.62875
+    },
+    {
+      "day": 1762992000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3873.16225
+    },
+    {
+      "day": 1763078400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3837.976
+    },
+    {
+      "day": 1763164800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3799.93625
+    },
+    {
+      "day": 1763251200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3766.0237500000003
+    },
+    {
+      "day": 1763337600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3728.4970000000003
+    },
+    {
+      "day": 1763424000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3697.29
+    },
+    {
+      "day": 1763510400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3676.9195
+    },
+    {
+      "day": 1763596800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3653.93275
+    },
+    {
+      "day": 1763683200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3619.149
+    },
+    {
+      "day": 1763769600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3582.21725
+    },
+    {
+      "day": 1763856000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3549.0925
+    },
+    {
+      "day": 1763942400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3523.1949999999997
+    },
+    {
+      "day": 1764028800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3499.79
+    },
+    {
+      "day": 1764115200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3479.636
+    },
+    {
+      "day": 1764201600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3457.773
+    },
+    {
+      "day": 1764288000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3433.96425
+    },
+    {
+      "day": 1764374400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3409.1815
+    },
+    {
+      "day": 1764460800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3387.11325
+    },
+    {
+      "day": 1764547200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3361.9652499999997
+    },
+    {
+      "day": 1764633600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3340.45625
+    },
+    {
+      "day": 1764720000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3321.799
+    },
+    {
+      "day": 1764806400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3301.2902499999996
+    },
+    {
+      "day": 1764892800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3272.917
+    },
+    {
+      "day": 1764979200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3245.966
+    },
+    {
+      "day": 1765065600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3222.9685
+    },
+    {
+      "day": 1765152000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3203.51375
+    },
+    {
+      "day": 1765238400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3191.40625
+    },
+    {
+      "day": 1765324800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3178.3540000000003
+    },
+    {
+      "day": 1765411200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3162.466
+    },
+    {
+      "day": 1765497600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3141.9072499999997
+    },
+    {
+      "day": 1765584000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3129.73625
+    },
+    {
+      "day": 1765670400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3124.0834999999997
+    },
+    {
+      "day": 1765756800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3112.596
+    },
+    {
+      "day": 1765843200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3103.805
+    },
+    {
+      "day": 1765929600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3088.78275
+    },
+    {
+      "day": 1766016000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3074.44375
+    },
+    {
+      "day": 1766102400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3059.2872500000003
+    },
+    {
+      "day": 1766188800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3044.5732500000004
+    },
+    {
+      "day": 1766275200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3034.2465
+    },
+    {
+      "day": 1766361600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3024.0845
+    },
+    {
+      "day": 1766448000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3017.412
+    },
+    {
+      "day": 1766534400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3013.3185000000003
+    },
+    {
+      "day": 1766620800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3006.7065
+    },
+    {
+      "day": 1766707200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3002.5115
+    },
+    {
+      "day": 1766793600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3000.5515
+    },
+    {
+      "day": 1766880000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2996.21625
+    },
+    {
+      "day": 1766966400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2994.02725
+    },
+    {
+      "day": 1767052800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2997.5395
+    },
+    {
+      "day": 1767139200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3002.583
+    },
+    {
+      "day": 1767225600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3008.40075
+    },
+    {
+      "day": 1767312000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3016.4767500000003
+    },
+    {
+      "day": 1767398400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3020.81725
+    },
+    {
+      "day": 1767484800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3025.42675
+    },
+    {
+      "day": 1767571200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3030.36975
+    },
+    {
+      "day": 1767657600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3037.38075
+    },
+    {
+      "day": 1767744000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3040.732
+    },
+    {
+      "day": 1767830400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3043.576
+    },
+    {
+      "day": 1767916800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3045.8869999999997
+    },
+    {
+      "day": 1768003200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3052.9272499999997
+    },
+    {
+      "day": 1768089600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3055.92875
+    },
+    {
+      "day": 1768176000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3053.4922500000002
+    },
+    {
+      "day": 1768262400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3058.2345
+    },
+    {
+      "day": 1768348800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3066.504
+    },
+    {
+      "day": 1768435200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3073.429
+    },
+    {
+      "day": 1768521600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3079.2955
+    },
+    {
+      "day": 1768608000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3083.91
+    },
+    {
+      "day": 1768694400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3083.0162499999997
+    },
+    {
+      "day": 1768780800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 3079.583
+    },
+    {
+      "day": 1768867200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3072.069
+    },
+    {
+      "day": 1768953600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3069.4392500000004
+    },
+    {
+      "day": 1769040000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3065.28175
+    },
+    {
+      "day": 1769126400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3062.53775
+    },
+    {
+      "day": 1769212800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3062.1442500000003
+    },
+    {
+      "day": 1769299200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3058.4657500000003
+    },
+    {
+      "day": 1769385600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3060.80625
+    },
+    {
+      "day": 1769472000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3065.693
+    },
+    {
+      "day": 1769558400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3066.39925
+    },
+    {
+      "day": 1769644800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3062.4205
+    },
+    {
+      "day": 1769731200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3054.94725
+    },
+    {
+      "day": 1769817600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3040.9865
+    },
+    {
+      "day": 1769904000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3023.58325
+    },
+    {
+      "day": 1769990400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 3008.57075
+    },
+    {
+      "day": 1770076800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2991.76375
+    },
+    {
+      "day": 1770163200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2972.192
+    },
+    {
+      "day": 1770249600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2944.11075
+    },
+    {
+      "day": 1770336000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2921.9505
+    },
+    {
+      "day": 1770422400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2900.736
+    },
+    {
+      "day": 1770508800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2878.6892500000004
+    },
+    {
+      "day": 1770595200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2857.1035
+    },
+    {
+      "day": 1770681600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2832.648
+    },
+    {
+      "day": 1770768000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2803.06
+    },
+    {
+      "day": 1770854400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2773.5744999999997
+    },
+    {
+      "day": 1770940800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2746.1855
+    },
+    {
+      "day": 1771027200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2717.70775
+    },
+    {
+      "day": 1771113600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2684.462
+    },
+    {
+      "day": 1771200000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2655.2512500000003
+    },
+    {
+      "day": 1771286400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2627.453
+    },
+    {
+      "day": 1771372800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2599.2259999999997
+    },
+    {
+      "day": 1771459200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2570.89925
+    },
+    {
+      "day": 1771545600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2542.1662499999998
+    },
+    {
+      "day": 1771632000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2514.20775
+    },
+    {
+      "day": 1771718400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2480.052
+    },
+    {
+      "day": 1771804800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2442.5877499999997
+    },
+    {
+      "day": 1771891200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2405.9425
+    },
+    {
+      "day": 1771977600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2374.987
+    },
+    {
+      "day": 1772064000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2342.95325
+    },
+    {
+      "day": 1772150400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2309.116
+    },
+    {
+      "day": 1772236800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2278.55825
+    },
+    {
+      "day": 1772323200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2253.6335
+    },
+    {
+      "day": 1772409600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2229.81525
+    },
+    {
+      "day": 1772496000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2205.67375
+    },
+    {
+      "day": 1772582400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2185.08225
+    },
+    {
+      "day": 1772668800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2163.194
+    },
+    {
+      "day": 1772755200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2142.298
+    },
+    {
+      "day": 1772841600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2118.36675
+    },
+    {
+      "day": 1772928000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2091.24475
+    },
+    {
+      "day": 1773014400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2065.95425
+    },
+    {
+      "day": 1773100800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2046.435
+    },
+    {
+      "day": 1773187200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2030.179
+    },
+    {
+      "day": 1773273600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2020.80975
+    },
+    {
+      "day": 1773360000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2016.4582500000001
+    },
+    {
+      "day": 1773446400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2010.2465
+    },
+    {
+      "day": 1773532800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2008.9555
+    },
+    {
+      "day": 1773619200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2014.20075
+    },
+    {
+      "day": 1773705600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2026.55525
+    },
+    {
+      "day": 1773792000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2030.0927499999998
+    },
+    {
+      "day": 1773878400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2031.3805
+    },
+    {
+      "day": 1773964800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2032.8215
+    },
+    {
+      "day": 1774051200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2032.3654999999999
+    },
+    {
+      "day": 1774137600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2033.16875
+    },
+    {
+      "day": 1774224000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2038.43975
+    },
+    {
+      "day": 1774310400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2043.681
+    },
+    {
+      "day": 1774396800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2046.69775
+    },
+    {
+      "day": 1774483200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2046.038
+    },
+    {
+      "day": 1774569600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2046.693
+    },
+    {
+      "day": 1774656000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2046.58725
+    },
+    {
+      "day": 1774742400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2046.368
+    },
+    {
+      "day": 1774828800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2048.102
+    },
+    {
+      "day": 1774915200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2051.993
+    },
+    {
+      "day": 1775001600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2056.27775
+    },
+    {
+      "day": 1775088000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2058.36125
+    },
+    {
+      "day": 1775174400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2060.76475
+    },
+    {
+      "day": 1775260800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2065.99025
+    },
+    {
+      "day": 1775347200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2072.40125
+    },
+    {
+      "day": 1775433600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2073.6625
+    },
+    {
+      "day": 1775520000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2078.9785
+    },
+    {
+      "day": 1775606400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2085.50975
+    },
+    {
+      "day": 1775692800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2091.1237499999997
+    },
+    {
+      "day": 1775779200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2098.7884999999997
+    },
+    {
+      "day": 1775865600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2105.24975
+    },
+    {
+      "day": 1775952000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2110.46425
+    },
+    {
+      "day": 1776038400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2116.46525
+    },
+    {
+      "day": 1776124800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2122.7145
+    },
+    {
+      "day": 1776211200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2132.2495
+    },
+    {
+      "day": 1776297600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2141.73725
+    },
+    {
+      "day": 1776384000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2153.81875
+    },
+    {
+      "day": 1776470400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2162.73725
+    },
+    {
+      "day": 1776556800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2168.4
+    },
+    {
+      "day": 1776643200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2174.9705000000004
+    },
+    {
+      "day": 1776729600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2181.3275000000003
+    },
+    {
+      "day": 1776816000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2188.37
+    },
+    {
+      "day": 1776902400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2194.22725
+    },
+    {
+      "day": 1776988800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2197.6459999999997
+    },
+    {
+      "day": 1777075200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2196.82525
+    },
+    {
+      "day": 1777161600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2198.112
+    },
+    {
+      "day": 1777248000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2200.6075
+    },
+    {
+      "day": 1777334400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2204.3895
+    },
+    {
+      "day": 1777420800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2207.03575
+    },
+    {
+      "day": 1777507200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2211.312
+    },
+    {
+      "day": 1777593600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2217.35425
+    },
+    {
+      "day": 1777680000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2221.48575
+    },
+    {
+      "day": 1777766400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2225.65425
+    },
+    {
+      "day": 1777852800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2230.0865000000003
+    },
+    {
+      "day": 1777939200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2237.623
+    },
+    {
+      "day": 1778025600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2246.6065
+    },
+    {
+      "day": 1778112000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2254.033
+    },
+    {
+      "day": 1778198400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2262.13425
+    },
+    {
+      "day": 1778284800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2269.67175
+    },
+    {
+      "day": 1778371200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2276.3365000000003
+    },
+    {
+      "day": 1778457600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2281.319
+    },
+    {
+      "day": 1778544000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2286.7615
+    },
+    {
+      "day": 1778630400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2291.8677500000003
+    },
+    {
+      "day": 1778716800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2297.31
+    },
+    {
+      "day": 1778803200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2300.19375
+    },
+    {
+      "day": 1778889600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2302.0125
+    },
+    {
+      "day": 1778976000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2299.2505
+    },
+    {
+      "day": 1779062400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2297.7067500000003
+    },
+    {
+      "day": 1779148800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2295.71425
+    },
+    {
+      "day": 1779235200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2292.7495
+    },
+    {
+      "day": 1779321600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2288.9085
+    },
+    {
+      "day": 1779408000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2285.7037499999997
+    },
+    {
+      "day": 1779494400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2279.3509999999997
+    },
+    {
+      "day": 1779580800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2273.70725
+    },
+    {
+      "day": 1779667200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2267.4755
+    },
+    {
+      "day": 1779753600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2260.52325
+    },
+    {
+      "day": 1779840000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2250.556
+    },
+    {
+      "day": 1779926400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2241.94725
+    },
+    {
+      "day": 1780012800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2235.64575
+    },
+    {
+      "day": 1780099200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2228.2487499999997
+    },
+    {
+      "day": 1780185600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2220.1482499999997
+    },
+    {
+      "day": 1780272000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2210.87425
+    },
+    {
+      "day": 1780358400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2199.0345
+    },
+    {
+      "day": 1780444800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2186.406
+    },
+    {
+      "day": 1780531200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2172.6330000000003
+    },
+    {
+      "day": 1780617600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2152.9745
+    },
+    {
+      "day": 1780704000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2134.61175
+    },
+    {
+      "day": 1780790400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2119.641
+    },
+    {
+      "day": 1780876800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2105.5860000000002
+    },
+    {
+      "day": 1780963200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2090.1310000000003
+    },
+    {
+      "day": 1781049600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2073.25525
+    },
+    {
+      "day": 1781136000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2057.1279999999997
+    },
+    {
+      "day": 1781222400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2040.6965
+    },
+    {
+      "day": 1781308800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2024.063
+    },
+    {
+      "day": 1781395200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 2008.17425
+    },
+    {
+      "day": 1781481600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 1994.28325
+    },
+    {
+      "day": 1781568000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 1981.79625
+    },
+    {
+      "day": 1781654400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 1967.843
+    },
+    {
+      "day": 1781740800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 1952.416
+    },
+    {
+      "day": 1781827200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 1935.89375
+    },
+    {
+      "day": 1781913600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 1920.8837500000002
+    },
+    {
+      "day": 1782000000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 1906.6425
+    },
+    {
+      "day": 1782086400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 1893.36375
+    },
+    {
+      "day": 1782172800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 1877.92375
+    },
+    {
+      "day": 1782259200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 1862.83
+    },
+    {
+      "day": 1782345600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 1847.4564999999998
+    },
+    {
+      "day": 1782432000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 1833.62425
+    },
+    {
+      "day": 1782518400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 1819.69875
+    },
+    {
+      "day": 1782604800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 1806.1895
+    },
+    {
+      "day": 1782691200000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 1793.268
+    },
+    {
+      "day": 1782777600000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 1779.21625
+    },
+    {
+      "day": 1782864000000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 1767.8242500000001
+    },
+    {
+      "day": 1782950400000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 1757.4095000000002
+    },
+    {
+      "day": 1783036800000,
+      "expected": "cash",
+      "actual": "cash",
+      "sma40": 1748.8990000000001
+    },
+    {
+      "day": 1783123200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1740.59075
+    },
+    {
+      "day": 1783209600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1733.43275
+    },
+    {
+      "day": 1783296000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1727.8512500000002
+    },
+    {
+      "day": 1783382400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1721.9195
+    },
+    {
+      "day": 1783468800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1715.1799999999998
+    },
+    {
+      "day": 1783555200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1708.3002499999998
+    },
+    {
+      "day": 1783641600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1703.0865000000001
+    },
+    {
+      "day": 1783728000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1697.64975
+    },
+    {
+      "day": 1783814400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1696.3575
+    },
+    {
+      "day": 1783900800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1695.4592499999999
+    },
+    {
+      "day": 1783987200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1698.4882499999999
+    },
+    {
+      "day": 1784073600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1706.8245
+    },
+    {
+      "day": 1784160000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1714.1830000000002
+    },
+    {
+      "day": 1784246400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1717.9415000000001
+    },
+    {
+      "day": 1784332800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1722.2322499999998
+    },
+    {
+      "day": 1784419200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1728.05775
+    },
+    {
+      "day": 1784505600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1735.1375
+    },
+    {
+      "day": 1784592000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1741.5595
+    },
+    {
+      "day": 1784678400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1748.2634999999998
+    },
+    {
+      "day": 1784764800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1753.17725
+    },
+    {
+      "day": 1784851200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1756.5572499999998
+    },
+    {
+      "day": 1784937600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1758.5075000000002
+    },
+    {
+      "day": 1785024000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1762.562
+    },
+    {
+      "day": 1785110400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1766.11475
+    },
+    {
+      "day": 1785196800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1771.3845000000001
+    },
+    {
+      "day": 1785283200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1776.348
+    },
+    {
+      "day": 1785369600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1780.7895
+    },
+    {
+      "day": 1785456000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1784.67725
+    },
+    {
+      "day": 1785542400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1787.5990000000002
+    },
+    {
+      "day": 1785628800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1793.0430000000001
+    },
+    {
+      "day": 1785715200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1799.016
+    },
+    {
+      "day": 1785801600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1806.6009999999999
+    },
+    {
+      "day": 1785888000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1814.8650000000002
+    },
+    {
+      "day": 1785974400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1823.13125
+    },
+    {
+      "day": 1786060800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1831.7189999999998
+    },
+    {
+      "day": 1786147200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1839.33675
+    },
+    {
+      "day": 1786233600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1847.80475
+    },
+    {
+      "day": 1786320000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1854.386
+    },
+    {
+      "day": 1786406400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1858.944
+    },
+    {
+      "day": 1786492800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1861.9759999999999
+    },
+    {
+      "day": 1786579200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1864.622
+    },
+    {
+      "day": 1786665600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1867.01525
+    },
+    {
+      "day": 1786752000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1869.08125
+    },
+    {
+      "day": 1786838400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1871.68625
+    },
+    {
+      "day": 1786924800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1875.9470000000001
+    },
+    {
+      "day": 1787011200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1880.2497500000002
+    },
+    {
+      "day": 1787097600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1891.65875
+    },
+    {
+      "day": 1787184000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1905.154
+    },
+    {
+      "day": 1787270400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1922.90875
+    },
+    {
+      "day": 1787356800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1939.116
+    },
+    {
+      "day": 1787443200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1953.4244999999999
+    },
+    {
+      "day": 1787529600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1967.5765
+    },
+    {
+      "day": 1787616000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1982.057
+    },
+    {
+      "day": 1787702400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 1998.72
+    },
+    {
+      "day": 1787788800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2014.9645
+    },
+    {
+      "day": 1787875200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2029.2495
+    },
+    {
+      "day": 1787961600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2043.095
+    },
+    {
+      "day": 1788048000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2055.3085
+    },
+    {
+      "day": 1788134400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2068.65225
+    },
+    {
+      "day": 1788220800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2082.1580000000004
+    },
+    {
+      "day": 1788307200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2095.4255000000003
+    },
+    {
+      "day": 1788393600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2111.27675
+    },
+    {
+      "day": 1788480000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2123.8467499999997
+    },
+    {
+      "day": 1788566400000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2138.58475
+    },
+    {
+      "day": 1788652800000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2153.4465
+    },
+    {
+      "day": 1788739200000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2167.983
+    },
+    {
+      "day": 1788825600000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2182.1895
+    },
+    {
+      "day": 1788912000000,
+      "expected": "long",
+      "actual": "long",
+      "sma40": 2197.37775
+    }
+  ]
+}

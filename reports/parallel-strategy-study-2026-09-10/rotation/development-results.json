@@ -1,0 +1,348 @@
+{
+  "registration": {
+    "registeredAt": "2026-09-10T18:02:29.760130+00:00",
+    "specSha256": "3928546ae038b145c9eabb7bb330be7561896315e40e649ce706bddd4de6e64e",
+    "candidateSha256": "36539a5769e5f9b6f2bc81278d437b366ef2fecff9cc37636a53ac5b0a9d0ba2",
+    "commonSha256": "423315441fe6b87ae1dd122a38321e75f2d1811cf2cb99ad4d7d91043e5a0b18",
+    "variants": [
+      {
+        "id": "rotation_m60_t60",
+        "momentum_days": 60,
+        "trend_days": 60
+      },
+      {
+        "id": "rotation_m60_t90",
+        "momentum_days": 60,
+        "trend_days": 90
+      },
+      {
+        "id": "rotation_m90_t60",
+        "momentum_days": 90,
+        "trend_days": 60
+      },
+      {
+        "id": "rotation_m90_t90",
+        "momentum_days": 90,
+        "trend_days": 90
+      }
+    ],
+    "selectionRule": "Maximum development stress netPnlUsd minus 0.5*maxDrawdownUsd; ties use registered variant order",
+    "developmentStart": "2025-01-01",
+    "developmentEndExclusive": "2025-07-01",
+    "developmentOnly": true
+  },
+  "variants": [
+    {
+      "id": "rotation_m60_t60",
+      "params": {
+        "id": "rotation_m60_t60",
+        "momentum_days": 60,
+        "trend_days": 60
+      },
+      "results": {
+        "base": {
+          "start": "2025-01-01",
+          "end": "2025-07-01",
+          "scenario": "base",
+          "initialCapitalUsd": 10000.0,
+          "entryBudgetUsd": 1000.0,
+          "netPnlUsd": -188.72451562324022,
+          "returnOnAccountPct": -1.8872451562323977,
+          "netPctOfEntryBudget": -18.872451562324024,
+          "maxDrawdownUsd": 257.7110962674451,
+          "maxDrawdownPctInitialCapital": 2.577110962674451,
+          "maxIntradayLowDrawdownUsd": 272.7685794241406,
+          "closedTrades": 7,
+          "entries": 7,
+          "feesUsd": 109.47501079644162,
+          "adversePriceCostUsd": 4.119476295900267,
+          "turnoverUsd": 13684.376349555203,
+          "profitFactor": 0.323309714453774,
+          "winningTrades": 1,
+          "meanHoldingDays": 12.428571428571429,
+          "exposedDays": 87,
+          "totalDays": 181,
+          "positiveMonths": 1,
+          "monthlyPnlUsd": {
+            "2025-01": -139.9415929035349,
+            "2025-02": -9.507592594176458,
+            "2025-03": 0.0,
+            "2025-04": -12.207263217151194,
+            "2025-05": 91.44624306623518,
+            "2025-06": -118.51430997461284
+          },
+          "rejectedEntries": 0,
+          "selectionUtility": -317.5800637569628
+        },
+        "stress": {
+          "start": "2025-01-01",
+          "end": "2025-07-01",
+          "scenario": "stress",
+          "initialCapitalUsd": 10000.0,
+          "entryBudgetUsd": 1000.0,
+          "netPnlUsd": -193.34843171950524,
+          "returnOnAccountPct": -1.9334843171950555,
+          "netPctOfEntryBudget": -19.334843171950524,
+          "maxDrawdownUsd": 289.61441470690625,
+          "maxDrawdownPctInitialCapital": 2.8961441470690623,
+          "maxIntradayLowDrawdownUsd": 333.1840508764599,
+          "closedTrades": 7,
+          "entries": 7,
+          "feesUsd": 136.5219233491,
+          "adversePriceCostUsd": 13.66310079689964,
+          "turnoverUsd": 13652.19233491,
+          "profitFactor": 0.29803427200781285,
+          "winningTrades": 3,
+          "meanHoldingDays": 12.285714285714286,
+          "exposedDays": 86,
+          "totalDays": 181,
+          "positiveMonths": 1,
+          "monthlyPnlUsd": {
+            "2025-01": -160.93516237175209,
+            "2025-02": -42.115930292700796,
+            "2025-03": 0.0,
+            "2025-04": -29.316579199739863,
+            "2025-05": 78.53157938206641,
+            "2025-06": -39.51233923737891
+          },
+          "rejectedEntries": 0,
+          "selectionUtility": -338.15563907295837
+        }
+      }
+    },
+    {
+      "id": "rotation_m60_t90",
+      "params": {
+        "id": "rotation_m60_t90",
+        "momentum_days": 60,
+        "trend_days": 90
+      },
+      "results": {
+        "base": {
+          "start": "2025-01-01",
+          "end": "2025-07-01",
+          "scenario": "base",
+          "initialCapitalUsd": 10000.0,
+          "entryBudgetUsd": 1000.0,
+          "netPnlUsd": 5.465580530131774,
+          "returnOnAccountPct": 0.05465580530130687,
+          "netPctOfEntryBudget": 0.5465580530131774,
+          "maxDrawdownUsd": 230.29122078470755,
+          "maxDrawdownPctInitialCapital": 2.302912207847075,
+          "maxIntradayLowDrawdownUsd": 274.3951990828682,
+          "closedTrades": 5,
+          "entries": 5,
+          "feesUsd": 79.8162925807688,
+          "adversePriceCostUsd": 3.0039293619002994,
+          "turnoverUsd": 9977.0365725961,
+          "profitFactor": 1.0477700270054024,
+          "winningTrades": 2,
+          "meanHoldingDays": 19.2,
+          "exposedDays": 96,
+          "totalDays": 181,
+          "positiveMonths": 1,
+          "monthlyPnlUsd": {
+            "2025-01": -47.861156125838534,
+            "2025-02": -9.866587900736704,
+            "2025-03": 0.0,
+            "2025-04": -12.320939053599432,
+            "2025-05": 92.33440610982507,
+            "2025-06": -16.820142499518624
+          },
+          "rejectedEntries": 0,
+          "selectionUtility": -109.680029862222
+        },
+        "stress": {
+          "start": "2025-01-01",
+          "end": "2025-07-01",
+          "scenario": "stress",
+          "initialCapitalUsd": 10000.0,
+          "entryBudgetUsd": 1000.0,
+          "netPnlUsd": -58.55051652297516,
+          "returnOnAccountPct": -0.5855051652297494,
+          "netPctOfEntryBudget": -5.855051652297516,
+          "maxDrawdownUsd": 230.09408077708758,
+          "maxDrawdownPctInitialCapital": 2.3009408077708757,
+          "maxIntradayLowDrawdownUsd": 274.15972546221565,
+          "closedTrades": 5,
+          "entries": 5,
+          "feesUsd": 98.97184634197201,
+          "adversePriceCostUsd": 9.905147524399702,
+          "turnoverUsd": 9897.184634197201,
+          "profitFactor": 0.5909665488592638,
+          "winningTrades": 3,
+          "meanHoldingDays": 19.0,
+          "exposedDays": 95,
+          "totalDays": 181,
+          "positiveMonths": 1,
+          "monthlyPnlUsd": {
+            "2025-01": -45.28583481224268,
+            "2025-02": -46.23426505170028,
+            "2025-03": 0.0,
+            "2025-04": -29.65034169720093,
+            "2025-05": 79.42564752081671,
+            "2025-06": -16.80572248264798
+          },
+          "rejectedEntries": 0,
+          "selectionUtility": -173.59755691151895
+        }
+      }
+    },
+    {
+      "id": "rotation_m90_t60",
+      "params": {
+        "id": "rotation_m90_t60",
+        "momentum_days": 90,
+        "trend_days": 60
+      },
+      "results": {
+        "base": {
+          "start": "2025-01-01",
+          "end": "2025-07-01",
+          "scenario": "base",
+          "initialCapitalUsd": 10000.0,
+          "entryBudgetUsd": 1000.0,
+          "netPnlUsd": -279.6326557721368,
+          "returnOnAccountPct": -2.7963265577213625,
+          "netPctOfEntryBudget": -27.96326557721368,
+          "maxDrawdownUsd": 319.78197554256803,
+          "maxDrawdownPctInitialCapital": 3.19781975542568,
+          "maxIntradayLowDrawdownUsd": 351.145492027832,
+          "closedTrades": 6,
+          "entries": 6,
+          "feesUsd": 92.8701458845376,
+          "adversePriceCostUsd": 3.491282212699857,
+          "turnoverUsd": 11608.7682355672,
+          "profitFactor": 0.0868090772243688,
+          "winningTrades": 1,
+          "meanHoldingDays": 12.333333333333334,
+          "exposedDays": 74,
+          "totalDays": 181,
+          "positiveMonths": 0,
+          "monthlyPnlUsd": {
+            "2025-01": -52.57723983404867,
+            "2025-02": -38.48715093651117,
+            "2025-03": 0.0,
+            "2025-04": 0.0,
+            "2025-05": -11.23138804403061,
+            "2025-06": -177.33687695754634
+          },
+          "rejectedEntries": 0,
+          "selectionUtility": -439.5236435434208
+        },
+        "stress": {
+          "start": "2025-01-01",
+          "end": "2025-07-01",
+          "scenario": "stress",
+          "initialCapitalUsd": 10000.0,
+          "entryBudgetUsd": 1000.0,
+          "netPnlUsd": -280.3004096648601,
+          "returnOnAccountPct": -2.803004096648598,
+          "netPctOfEntryBudget": -28.030040966486013,
+          "maxDrawdownUsd": 343.93952655630346,
+          "maxDrawdownPctInitialCapital": 3.439395265563035,
+          "maxIntradayLowDrawdownUsd": 385.0367987887603,
+          "closedTrades": 6,
+          "entries": 6,
+          "feesUsd": 115.665645631058,
+          "adversePriceCostUsd": 11.575880341399909,
+          "turnoverUsd": 11566.564563105801,
+          "profitFactor": 0.021175392385958083,
+          "winningTrades": 1,
+          "meanHoldingDays": 12.166666666666666,
+          "exposedDays": 73,
+          "totalDays": 181,
+          "positiveMonths": 0,
+          "monthlyPnlUsd": {
+            "2025-01": -93.15947282914931,
+            "2025-02": -64.42104716070207,
+            "2025-03": 0.0,
+            "2025-04": 0.0,
+            "2025-05": -4.218384415749824,
+            "2025-06": -118.50150525925892
+          },
+          "rejectedEntries": 0,
+          "selectionUtility": -452.27017294301186
+        }
+      }
+    },
+    {
+      "id": "rotation_m90_t90",
+      "params": {
+        "id": "rotation_m90_t90",
+        "momentum_days": 90,
+        "trend_days": 90
+      },
+      "results": {
+        "base": {
+          "start": "2025-01-01",
+          "end": "2025-07-01",
+          "scenario": "base",
+          "initialCapitalUsd": 10000.0,
+          "entryBudgetUsd": 1000.0,
+          "netPnlUsd": -136.1603318212583,
+          "returnOnAccountPct": -1.3616033182125786,
+          "netPctOfEntryBudget": -13.61603318212583,
+          "maxDrawdownUsd": 280.49048585655146,
+          "maxDrawdownPctInitialCapital": 2.8049048585655147,
+          "maxIntradayLowDrawdownUsd": 320.50762212071277,
+          "closedTrades": 4,
+          "entries": 4,
+          "feesUsd": 62.6581488386576,
+          "adversePriceCostUsd": 2.3586076823999256,
+          "turnoverUsd": 7832.2686048322,
+          "profitFactor": 0.16433223114385365,
+          "winningTrades": 1,
+          "meanHoldingDays": 21.25,
+          "exposedDays": 85,
+          "totalDays": 181,
+          "positiveMonths": 1,
+          "monthlyPnlUsd": {
+            "2025-01": 40.438040356608326,
+            "2025-02": -59.40973499193751,
+            "2025-03": 0.0,
+            "2025-04": 0.0,
+            "2025-05": -11.313101718254984,
+            "2025-06": -105.87553546767413
+          },
+          "rejectedEntries": 0,
+          "selectionUtility": -276.405574749534
+        },
+        "stress": {
+          "start": "2025-01-01",
+          "end": "2025-07-01",
+          "scenario": "stress",
+          "initialCapitalUsd": 10000.0,
+          "entryBudgetUsd": 1000.0,
+          "netPnlUsd": -137.27334767228422,
+          "returnOnAccountPct": -1.3727334767228427,
+          "netPctOfEntryBudget": -13.727334767228422,
+          "maxDrawdownUsd": 265.04560081641466,
+          "maxDrawdownPctInitialCapital": 2.650456008164147,
+          "maxIntradayLowDrawdownUsd": 306.64489040201624,
+          "closedTrades": 4,
+          "entries": 4,
+          "feesUsd": 78.23404749078101,
+          "adversePriceCostUsd": 7.829546413999848,
+          "turnoverUsd": 7823.4047490780995,
+          "profitFactor": 0.04279960852292185,
+          "winningTrades": 1,
+          "meanHoldingDays": 21.0,
+          "exposedDays": 84,
+          "totalDays": 181,
+          "positiveMonths": 1,
+          "monthlyPnlUsd": {
+            "2025-01": 21.061000258720014,
+            "2025-02": -58.41301497174027,
+            "2025-03": 0.0,
+            "2025-04": 0.0,
+            "2025-05": -4.269912620200557,
+            "2025-06": -95.6514203390634
+          },
+          "rejectedEntries": 0,
+          "selectionUtility": -269.79614808049155
+        }
+      }
+    }
+  ]
+}

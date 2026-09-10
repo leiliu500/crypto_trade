@@ -1,0 +1,13 @@
+{
+  "lockedAt": "2026-09-10T19:41:39.836765+00:00",
+  "selectedId": "bocpd",
+  "developmentUtilities": {
+    "bocpd": 0.0,
+    "hmm": -626.3610662706087
+  },
+  "historyAlreadyReused": true,
+  "selectionUniverse": [
+    "bocpd",
+    "hmm"
+  ]
+}

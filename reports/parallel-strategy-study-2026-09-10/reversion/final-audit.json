@@ -1,0 +1,169 @@
+{
+  "family": "reversion",
+  "selectedVariant": "patient",
+  "auditPassed": true,
+  "scope": "Post-selection independent ledger and execution/size sensitivity audit. No model edits or new strategy variants.",
+  "inputsSha256": {
+    "final-detail.json": "9eb691b8fa5a41c3e16561321df02b3ab65b111208f54f2031d073b123a3c688",
+    "sensitivity.json": "b0c0b39d7dfbb339ae2d360a1183386a902ff23809030c66a73f9b1f5eab47d0",
+    "comparison.json": "23ac94a3c35a08c7dcda8ef261094b4470980404cecd3e09ccbe2daca1cf7d94",
+    "common.py": "423315441fe6b87ae1dd122a38321e75f2d1811cf2cb99ad4d7d91043e5a0b18"
+  },
+  "checks": {
+    "orderCashFlowTradePnlFeesAndDailyEquityReconcile": {
+      "base": true,
+      "stress": true
+    },
+    "currentPaperExposureReplayMatches": true
+  },
+  "ledger": {
+    "base": {
+      "reconstructedFinalCashUsd": 9813.60578469147,
+      "closedTrades": 3,
+      "grossFillPnlUsd": -140.30865351799974,
+      "feesUsd": 46.08556179052961,
+      "netPnlUsd": -186.39421530852997,
+      "grossMarketReferencePnlAtRecordedQuantitiesUsd": -138.57250658870038,
+      "allTradesNegativeBeforeFees": true,
+      "trades": [
+        {
+          "symbol": "ETH/USD",
+          "grossFillPnlUsd": -90.64193121899989,
+          "feesUsd": 15.1478801593056,
+          "netPnlUsd": -105.78981137830549
+        },
+        {
+          "symbol": "BTC/USD",
+          "grossFillPnlUsd": -31.900988538999837,
+          "feesUsd": 15.449878445624002,
+          "netPnlUsd": -47.350866984623835
+        },
+        {
+          "symbol": "BTC/USD",
+          "grossFillPnlUsd": -17.765733760000025,
+          "feesUsd": 15.487803185600002,
+          "netPnlUsd": -33.253536945600025
+        }
+      ]
+    },
+    "stress": {
+      "reconstructedFinalCashUsd": 9781.17760844265,
+      "closedTrades": 3,
+      "grossFillPnlUsd": -161.70091652240015,
+      "feesUsd": 57.121475034952,
+      "netPnlUsd": -218.82239155735078,
+      "grossMarketReferencePnlAtRecordedQuantitiesUsd": -155.9815451669986,
+      "allTradesNegativeBeforeFees": false,
+      "trades": [
+        {
+          "symbol": "ETH/USD",
+          "grossFillPnlUsd": -110.99900681739994,
+          "feesUsd": 18.691989776902,
+          "netPnlUsd": -129.69099659430194
+        },
+        {
+          "symbol": "BTC/USD",
+          "grossFillPnlUsd": -58.72501407500016,
+          "feesUsd": 18.95791547975,
+          "netPnlUsd": -77.68292955475016
+        },
+        {
+          "symbol": "BTC/USD",
+          "grossFillPnlUsd": 8.023104369999977,
+          "feesUsd": 19.4715697783,
+          "netPnlUsd": -11.448465408300024
+        }
+      ]
+    }
+  },
+  "feeFindings": {
+    "baseNetPnlUsd": -186.39421530852997,
+    "zeroFeeSameSlippageAndLagNetPnlUsd": -141.53177622399926,
+    "feeRemovalImprovementUsd": 44.862439084530706,
+    "recordedBaseFeesAsFractionOfNetLoss": 0.2472478113886005,
+    "sameLagHigherCostNetPnlUsd": -201.34394621806678,
+    "sameLagHigherCostIncrementalLossUsd": 14.949730909536811,
+    "additionalDayDelayIncrementalLossUsd": 17.478445339284008,
+    "feesAloneExplainLoss": false,
+    "qualification": "Zero-fee replay retains adverse price adjustment and tick rounding. Recorded fixed-quantity market-reference PnL also remains negative after adding back fees and measured price costs."
+  },
+  "sizingAtSame100000Capital": {
+    "12": {
+      "base": {
+        "initialCapitalUsd": 100000,
+        "entryBudgetUsd": 12,
+        "netPnlUsd": -2.2489655111858156,
+        "returnOnAccountPct": -0.0022489655111868068,
+        "netPctOfEntryBudget": -18.741379259881796,
+        "maxDrawdownUsd": 2.7279636604653206,
+        "closedTrades": 3,
+        "feesUsd": 0.5578818182,
+        "rejectedEntries": 0
+      },
+      "stress": {
+        "initialCapitalUsd": 100000,
+        "entryBudgetUsd": 12,
+        "netPnlUsd": -2.6409844889421947,
+        "returnOnAccountPct": -0.0026409844889441203,
+        "netPctOfEntryBudget": -22.00820407451829,
+        "maxDrawdownUsd": 3.210511680037598,
+        "closedTrades": 3,
+        "feesUsd": 0.693381956358,
+        "rejectedEntries": 0
+      }
+    },
+    "100": {
+      "base": {
+        "initialCapitalUsd": 100000,
+        "entryBudgetUsd": 100,
+        "netPnlUsd": -18.741747524400125,
+        "returnOnAccountPct": -0.018741747524397834,
+        "netPctOfEntryBudget": -18.741747524400125,
+        "maxDrawdownUsd": 22.733498206493095,
+        "closedTrades": 3,
+        "feesUsd": 4.6491556014,
+        "rejectedEntries": 0
+      },
+      "stress": {
+        "initialCapitalUsd": 100000,
+        "entryBudgetUsd": 100,
+        "netPnlUsd": -22.00853934517363,
+        "returnOnAccountPct": -0.022008539345175215,
+        "netPctOfEntryBudget": -22.00853934517363,
+        "maxDrawdownUsd": 26.754657674988266,
+        "closedTrades": 3,
+        "feesUsd": 5.778283494578,
+        "rejectedEntries": 0
+      }
+    },
+    "1000": {
+      "base": {
+        "initialCapitalUsd": 100000,
+        "entryBudgetUsd": 1000,
+        "netPnlUsd": -187.41767851986515,
+        "returnOnAccountPct": -0.18741767851986335,
+        "netPctOfEntryBudget": -18.741767851986516,
+        "maxDrawdownUsd": 227.3352291121264,
+        "closedTrades": 3,
+        "feesUsd": 46.49162970685761,
+        "rejectedEntries": 0
+      },
+      "stress": {
+        "initialCapitalUsd": 100000,
+        "entryBudgetUsd": 1000,
+        "netPnlUsd": -220.08552998250525,
+        "returnOnAccountPct": -0.22008552998250552,
+        "netPctOfEntryBudget": -22.008552998250526,
+        "maxDrawdownUsd": 267.5468008866883,
+        "closedTrades": 3,
+        "feesUsd": 57.782899394092,
+        "rejectedEntries": 0
+      }
+    }
+  },
+  "sizingConclusion": "Changing the cap from $12 to $100 or $1000 leaves 3 completed trades and negative results in both scenarios. Dollar PnL and drawdown scale approximately with exposure; minimum-order rejection does not occur for any tested cap. This does not establish a general guarantee of linear scaling at larger sizes or different liquidity.",
+  "currentPaperSizingCaveat": "This is fixed $100 cap at $100000 starting capital under the common 10% equity ceiling. Actual runtime uses min($1000,0.1% equity), so the sensitivity approximates initial paper exposure and is not an exact replay of the current runtime sizing or weekly strategy.",
+  "qualificationPassed": false,
+  "productionChanged": false,
+  "realOrdersSubmitted": false
+}

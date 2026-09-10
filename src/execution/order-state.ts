@@ -15,6 +15,8 @@ export type OrderCancelRequestReason =
   | "NON_FINITE_FEATURES"
   | "PUBLIC_STREAM_DOWN"
   | "PRIVATE_STREAM_DOWN"
+  | "PERSISTENCE_UNAVAILABLE"
+  | "AUDIT_DATA_LOSS"
   | "PROCESS_STALL";
 export type OrderCancellationReason = OrderCancelRequestReason
   | "IOC_NO_FILL"
@@ -70,6 +72,18 @@ export class OrderStateReconciler {
       order.status = "CANCEL_PENDING";
       order.lastUpdateMs = Math.max(order.lastUpdateMs, nowMs);
     }
+  }
+  /** Caller must invoke this before starting the gateway request. In-flight
+   * orders instead retain their cancel intent until venue acknowledgment. */
+  public cancelBeforeSend(clientOrderId: string, reason: OrderCancelRequestReason, nowMs: number): void {
+    const order = this.must(clientOrderId);
+    if (order.venueOrderId || order.filledQty !== 0 || !["RESERVED", "SENDING"].includes(order.status)) {
+      throw new Error("Cannot locally cancel an order already sent to the venue");
+    }
+    order.cancelRequestReason ??= reason;
+    order.status = "CANCELED";
+    order.cancellationReason = order.cancelRequestReason;
+    order.lastUpdateMs = Math.max(order.lastUpdateMs, nowMs);
   }
   public apply(event: PrivateOrderEvent): FillDelta | null {
     if (this.privateEventIds.has(event.id)) return null;

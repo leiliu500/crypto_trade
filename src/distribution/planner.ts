@@ -6,13 +6,15 @@ import type { AssetRules, ExecutionPlan } from "../execution/planner.js";
 import { estimateSweep } from "../execution/book-walk.js";
 import { CostModel } from "../strategy/cost.js";
 import { RiskSizer } from "../risk/sizing.js";
+import { distributionSizingId, distributionNotionalLimit, LEGACY_SIZING_ID, sizeDistributionContext,
+  type DistributionSizingPolicy } from "./sizing.js";
 import { policyReserveBps } from "../research/policy-planner.js";
 import { POLICY_VERSION } from "../research/trading-policy.js";
 import { DISTRIBUTION_SPEC as S, DISTRIBUTION_ACTIONS, distributionEntryProfile, isDistributionEntryProfile,
   type DistributionDecision, type DistributionEntryProfile } from "./spec.js";
 
 export function executableDistributionDecision(d: DistributionDecision | null | undefined, book: BookState, nowMs: number,
-  profile: Readonly<DistributionEntryProfile> = distributionEntryProfile()) {
+  profile: Readonly<DistributionEntryProfile> = distributionEntryProfile(), sizingPolicy?: DistributionSizingPolicy) {
   if (!isDistributionEntryProfile(profile) || !d || d.version !== S.version || d.selectionPolicyVersion !== profile.selectionPolicyVersion
     || (d.entryMode ?? "VALIDATED") !== profile.entryMode
     || !S.symbols.some(s => s === d.symbol) || book.symbol !== d.symbol
@@ -20,7 +22,9 @@ export function executableDistributionDecision(d: DistributionDecision | null | 
     || d.quoteSequence !== String(book.sequence) || !Number.isFinite(nowMs) || nowMs < d.atMs
     || nowMs - d.atMs > S.maximumQuoteAgeMs || d.referenceBid !== book.bids[0].px || d.referenceAsk !== book.asks[0].px
     || ![d.referenceBid, d.referenceAsk, d.requestedQty].every(x => Number.isFinite(x) && x > 0)
-    || d.referenceAsk <= d.referenceBid || d.requestedQty * d.referenceAsk > S.maximumNotional + 1e-8
+    || (d.sizingPolicyId ?? LEGACY_SIZING_ID) !== distributionSizingId(sizingPolicy)
+    || d.referenceAsk <= d.referenceBid
+    || d.requestedQty * d.referenceAsk > distributionNotionalLimit(sizingPolicy, d.symbol) + 1e-8
     || !Array.isArray(d.features) || d.features.length !== S.featureDimension || !d.features.every(x => Number.isFinite(x) && Math.abs(x) <= 1)
     || !Array.isArray(d.estimates) || d.estimates.length !== DISTRIBUTION_ACTIONS.length
     || new Set(d.estimates.map(e => e.actionId)).size !== DISTRIBUTION_ACTIONS.length
@@ -49,10 +53,10 @@ export function executableDistributionDecision(d: DistributionDecision | null | 
 
 export function buildDistributionPlan(input: { config: SymbolConfig; book: BookState; features: DeterministicFeatures;
   asset: AssetRules; decision: DistributionDecision; paperAllowed: boolean; equity: number; equityHighWater: number; nowMs: number;
-  profile?: Readonly<DistributionEntryProfile> }):
+  profile?: Readonly<DistributionEntryProfile>; sizingPolicy?: DistributionSizingPolicy | undefined }):
   { plan: ExecutionPlan | null; reason: string } {
   const { config: cfg, book, features: f, asset, decision: d, nowMs } = input;
-  const selected = executableDistributionDecision(d, book, nowMs, input.profile);
+  const selected = executableDistributionDecision(d, book, nowMs, input.profile, input.sizingPolicy);
   if (!input.paperAllowed || !selected) return { plan: null, reason: "DISTRIBUTION_NOT_VALIDATED" };
   const { action, estimate } = selected;
   if (f.stale || f.symbol !== book.symbol || f.receiveTsMs !== book.receiveTsMs || asset.symbol !== book.symbol
@@ -61,6 +65,17 @@ export function buildDistributionPlan(input: { config: SymbolConfig; book: BookS
     || action.side === -1 && !asset.shortable) return { plan: null, reason: "DISTRIBUTION_QUOTE_INVALID" };
   if (d.feeBps !== cfg.cost.takerFeeBps || d.reserveBps !== policyReserveBps(cfg)) {
     return { plan: null, reason: "DISTRIBUTION_COST_CONFIGURATION_CHANGED" };
+  }
+  const maximumNotional = distributionNotionalLimit(input.sizingPolicy, book.symbol, input.equity);
+  if (input.sizingPolicy) {
+    const limits = input.sizingPolicy.symbols[book.symbol];
+    if (!limits || limits.maximumNotional > cfg.maximumNotional || limits.jumpSigma !== cfg.jumpSigma
+      || JSON.stringify(limits.risk) !== JSON.stringify(cfg.sizing)
+      || JSON.stringify(limits.cost) !== JSON.stringify(cfg.cost)) return { plan: null, reason: "DISTRIBUTION_SIZING_CONFIGURATION_CHANGED" };
+    const size = sizeDistributionContext(input.sizingPolicy, book, asset,
+      { equity: input.equity, equityHighWater: input.equityHighWater, features: f }, Math.max(...DISTRIBUTION_ACTIONS.map(a => a.stopLossBps)));
+    if (!(size.qty > 0) || Math.abs(size.qty - d.requestedQty) > 1e-12)
+      return { plan: null, reason: "DISTRIBUTION_RESEARCH_SIZE_UNAVAILABLE" };
   }
   const levels = action.side === 1 ? book.asks : book.bids, price = levels[0]!.px;
   const cost = new CostModel(cfg.cost).estimate(f, book, action.side, d.requestedQty, false);
@@ -71,15 +86,22 @@ export function buildDistributionPlan(input: { config: SymbolConfig; book: BookS
     initialStopDistance: price * action.stopLossBps / 10_000,
     estimatedExitCostBps: cost.roundTripBps + (cfg.cost.positiveCostErrorP95Bps ?? 0),
     jumpBuffer: price * f.sigmaHBps / 10_000 * cfg.jumpSigma,
-    visibleLiquidityQty: levels[0]!.qty, maximumNotional: Math.min(S.maximumNotional, cfg.maximumNotional),
+    visibleLiquidityQty: levels[0]!.qty, maximumNotional: Math.min(maximumNotional, cfg.maximumNotional),
     maximumExchangeQty: Math.min(d.requestedQty, asset.maximumOrderQty), lotSize: asset.minTradeIncrement,
     sigmaHBps: f.sigmaHBps, regimeScale: 1, exposureCapacityQty: d.requestedQty,
-  }, S.maximumNotional);
+  }, maximumNotional);
   // The fitted target includes partial fills at this exact requested size. A
   // risk reduction cannot silently change its fill-fraction denominator.
   if (!risk || risk.qty < asset.minOrderSize || Math.abs(risk.qty - d.requestedQty) > 1e-10) {
     return { plan: null, reason: "DISTRIBUTION_RESEARCH_SIZE_UNAVAILABLE" };
   }
+  // Canonical decimal lots and multiplication in RiskSizer may differ by one
+  // floating-point bit. Preserve the original label denominator and exact
+  // dispatch quantity, after checking the numerical approval above.
+  risk.qty = d.requestedQty;
+  risk.modeledMaximumLoss = risk.qty * risk.maximumLossPerUnit;
+  if (risk.modeledMaximumLoss > risk.riskBudget + Math.max(1e-8, risk.riskBudget * 1e-9))
+    return { plan: null, reason: "DISTRIBUTION_RESEARCH_SIZE_UNAVAILABLE" };
   const sweep = estimateSweep(levels, risk.qty);
   if (!sweep || action.side * (sweep.worstPx - price) > 1e-9) return { plan: null, reason: "DISTRIBUTION_ENTRY_DEPTH" };
   const rewardRiskRatio = estimate.scoreBps! / (risk.maximumLossPerUnit / price * 10_000);

@@ -6,16 +6,24 @@ import { fileURLToPath } from "node:url";
 import WebSocket, { WebSocketServer } from "ws";
 import type { OperationsMonitor } from "./operations-monitor.js";
 import type { DashboardSnapshot } from "./types.js";
+import { SpotPaperStatusProxy } from "./spot-proxy.js";
+import { SpotPaperActivityReader } from "./spot-activity-reader.js";
+import { Eth40PaperProxy, type Eth40Endpoint } from "./eth40-proxy.js";
 
 export interface DashboardServerOptions {
   host: string;
   port: number;
   publicDirectory?: string;
+  spotPaperStatusUrl?: string;
+  spotPaperJournalDirectory?: string;
+  eth40PaperBaseUrl?: string;
 }
 
 const MIME = new Map([
   ["index.html", "text/html; charset=utf-8"],
   ["app.js", "text/javascript; charset=utf-8"],
+  ["spot.js", "text/javascript; charset=utf-8"],
+  ["eth40.js", "text/javascript; charset=utf-8"],
   ["styles.css", "text/css; charset=utf-8"],
 ]);
 const MAXIMUM_WEBSOCKET_BUFFERED_BYTES = 1024 * 1024;
@@ -25,8 +33,18 @@ export class DashboardServer {
   private sockets?: WebSocketServer;
   private snapshotListener?: (snapshot: DashboardSnapshot) => void;
   private urlValue: string | null = null;
+  private readonly spotPaperProxy: SpotPaperStatusProxy;
+  private readonly spotPaperActivityReader: SpotPaperActivityReader;
+  private readonly eth40PaperProxy: Eth40PaperProxy;
 
-  public constructor(private readonly monitor: OperationsMonitor, private readonly options: DashboardServerOptions) {}
+  public constructor(private readonly monitor: OperationsMonitor, private readonly options: DashboardServerOptions) {
+    this.spotPaperProxy = new SpotPaperStatusProxy(options.spotPaperStatusUrl === undefined ? {}
+      : { statusUrl: options.spotPaperStatusUrl });
+    this.spotPaperActivityReader = new SpotPaperActivityReader(options.spotPaperJournalDirectory === undefined ? {}
+      : { root: options.spotPaperJournalDirectory });
+    this.eth40PaperProxy = new Eth40PaperProxy(options.eth40PaperBaseUrl === undefined ? {}
+      : { baseUrl: options.eth40PaperBaseUrl });
+  }
 
   public get url(): string | null { return this.urlValue; }
 
@@ -91,6 +109,14 @@ export class DashboardServer {
   private async route(request: IncomingMessage, response: ServerResponse, publicDirectory: string): Promise<void> {
     this.headers(response);
     const url = new URL(request.url ?? "/", "http://dashboard.local");
+    const eth40Endpoint = new Map<string, Eth40Endpoint>([
+      ["/api/eth40/status", "status"], ["/api/eth40/receipts", "receipts"], ["/api/eth40/manifest", "manifest"],
+    ]).get(url.pathname);
+    if (eth40Endpoint) {
+      if (request.method !== "GET" && request.method !== "HEAD") { this.json(response, 405, { error: "method_not_allowed" }); return; }
+      const result = await this.eth40PaperProxy.read(eth40Endpoint);
+      this.json(response, result.statusCode, result.body); return;
+    }
     if (request.method !== "GET") { this.json(response, 405, { error: "method_not_allowed" }); return; }
     if (url.pathname === "/healthz") {
       const snapshot = this.monitor.snapshot();
@@ -101,10 +127,26 @@ export class DashboardServer {
       return;
     }
     if (url.pathname === "/api/dashboard") { this.json(response, 200, this.monitor.snapshot()); return; }
+    if (url.pathname === "/api/spot-dashboard") {
+      const snapshot = await this.spotPaperProxy.snapshot();
+      const body = snapshot.statusCode === 200 ? { ...snapshot.body,
+        orderActivity: await this.spotPaperActivityReader.snapshot(snapshot.body.state) } : snapshot.body;
+      this.json(response, snapshot.statusCode, body); return;
+    }
+    if (url.pathname === "/api/spot-order-activity") {
+      const orderId = url.searchParams.get("orderId"), before = url.searchParams.get("before");
+      if (!orderId || orderId.length > 240 || before !== null && before.length > 512) {
+        this.json(response, 400, { available: false, error: "INVALID_SPOT_ACTIVITY_QUERY" }); return;
+      }
+      const result = await this.spotPaperActivityReader.page(orderId, before);
+      this.json(response, result.available ? 200 : 503, result); return;
+    }
     const dashboardPaths = new Set(["/", "/index.html", "/dashboard", "/dashboard/"]);
     const acceptsHtml = (request.headers.accept ?? "").includes("text/html");
     const isBrowserNavigation = acceptsHtml && !url.pathname.startsWith("/api/") && !url.pathname.split("/").at(-1)?.includes(".");
-    const file = dashboardPaths.has(url.pathname) || isBrowserNavigation ? "index.html" : url.pathname === "/app.js" ? "app.js" : url.pathname === "/styles.css" ? "styles.css" : null;
+    const file = dashboardPaths.has(url.pathname) || isBrowserNavigation ? "index.html" : url.pathname === "/app.js" ? "app.js"
+      : url.pathname === "/spot.js" ? "spot.js" : url.pathname === "/eth40.js" ? "eth40.js"
+        : url.pathname === "/styles.css" ? "styles.css" : null;
     if (!file) { this.json(response, 404, { error: "not_found" }); return; }
     const path = join(publicDirectory, file);
     try { await access(path); }

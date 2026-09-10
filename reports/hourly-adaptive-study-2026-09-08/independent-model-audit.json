@@ -1,0 +1,755 @@
+{
+  "version": "independent-adaptive-model-audit-v1",
+  "completedAtUtc": "2026-09-08T23:16:51.356Z",
+  "status": "PASS_EXACT_RECONSTRUCTION_AND_FIXED_GATE_FAILURE_CONFIRMED",
+  "scope": {
+    "models": [
+      "adaptive-trend-24h",
+      "adaptive-recovery-24h"
+    ],
+    "trainingAndEvaluationDecisionStartMs": 1672531200000,
+    "evaluationStartMs": 1704067200000,
+    "evaluationEndExclusiveMs": 1735689600000,
+    "decisionEndExclusiveMs": 1735506000000,
+    "featureWarmupStartMs": 1671922800000,
+    "featureWarmupInterpretation": "169 preceding completed candles in December 2022 only initialize January 2023 features; no 2022 training labels.",
+    "futureDataHandling": "Full archive bytes were hashed and parsed to extract the bounded interval; all bars at or after 2025-01-01 were excluded before any feature, label, model or return computation.",
+    "new2025StrategyResultsOpened": false,
+    "new2026ResultsOpened": false,
+    "parameterChanges": false,
+    "sourceEdits": false
+  },
+  "method": {
+    "featureAndLabelBuilders": "INDEPENDENT_TIMESTAMP_MAP_IMPLEMENTATION_OF_REGISTERED_FORMULAS",
+    "exactRefit": "SEALED_ADAPTIVE_MODEL_RECONSTRUCTED_FROM_INDEPENDENT_ROWS_AND_COMPARED_BYTE_FOR_BYTE",
+    "independentCoefficientCheck": "FULL_WEIGHTED_NORMAL_EQUATIONS_WITH_UNPENALIZED_INTERCEPT_AND_PARTIAL_PIVOT_GAUSSIAN_ELIMINATION; PRODUCTION_USES_CENTERED_TARGET_CHOLESKY",
+    "errorCheck": "DIRECT_SUM_OF_SQUARED_ERRORS_ON_EVERY_KNOWN_PREDECLARED_ORIGIN",
+    "gateCheck": "INDEPENDENT_ARITHMETIC_FROM_ORIGINAL_TWELVE_ASSET_SCENARIO_REPORTS; NO_EXECUTION_RESIMULATION"
+  },
+  "inputIntegrity": {
+    "sourceChecks": [
+      {
+        "path": "src/research/hourly-data.ts",
+        "sha256": "0786552d6f700f8ad906a6f6db80b423560eef6f79dbb7403250ce1eeb260a91"
+      },
+      {
+        "path": "src/research/hourly-model.ts",
+        "sha256": "69ac3085efe1377801d0d056224f5f6a3155764dc3faf71b00d315facc1c8c3f"
+      },
+      {
+        "path": "src/research/hourly-adaptive-model.ts",
+        "sha256": "65bf37e08f3598f8dcedba944be81ca2223a832b0c0832aa40afb27aac48e648"
+      },
+      {
+        "path": "src/research/hourly-price-setups.ts",
+        "sha256": "14c0a0c35d6b12a9b99e25d5a80d611960e6f48457e6097cff54f84583321f43"
+      },
+      {
+        "path": "src/research/hourly-retry-simulator.ts",
+        "sha256": "239759778a583c623ca55636a9b53140aa9f9690eb1bbbac2d304117265f08aa"
+      },
+      {
+        "path": "src/research/hourly-adaptive-study-main.ts",
+        "sha256": "9cdf86f64cbe96da82d615852cdf61e46ffe8892d602857605702c13308c36c4"
+      },
+      {
+        "path": "src/research/hourly-adaptive-study-gates.ts",
+        "sha256": "e27cbedcca1d8cc18fbc9a0ad764d7116fd3fbf813f9a2abf2914b419abc5ba1"
+      },
+      {
+        "path": "src/research/hourly-study-statistics.ts",
+        "sha256": "0a9b6437903c26845958748d18f4b43f3ad35749f616da924cd61252442c7a36"
+      },
+      {
+        "path": "reports/distribution-instrument-rules-2026-09-07.json",
+        "sha256": "a89ee77c1a871c63266cde004776e7484ccdc81d544b7d32a81f56cb07d89cdf"
+      },
+      {
+        "path": "package.json",
+        "sha256": "57b37eee487870483842e7af18ed1444bb9645a7d74abdd456c337c916ee2517"
+      },
+      {
+        "path": "package-lock.json",
+        "sha256": "2315bada829d31ccb4d3970392ba56d73458d3219dda1ec98d8dda0d41893594"
+      }
+    ],
+    "archiveChecks": [
+      {
+        "directory": "/home/ec2-user/crypto_trade/reports/hourly-adaptive-study-2026-09-08/data-older-restored",
+        "datasetSha256": "6995137d4366500628885518de3908f663ab7584caba0a4fe9845f700ac3f36f",
+        "manifestSha256": "b49fc0c9fe648aec3a049605f1e5c79d6d0a917bcf93c40bd151f47b992e941b"
+      },
+      {
+        "directory": "/home/ec2-user/crypto_trade/reports/hourly-adaptive-study-2026-09-08/data-recent",
+        "datasetSha256": "802694ae936dd864681dee2278f027ea1732a91fd6b635f1b08371673abcb227",
+        "manifestSha256": "5a57cfcc6dc6cc352f708f3101d0e2026580c5faf7b6661509016feb6483ecb4"
+      }
+    ],
+    "protocolSha256": "70a866fe364f2de0145115c3d68bdd4b7cd34c3b2407a51967d0bd7b56427eb3",
+    "developmentReceiptSha256": "5dcf7224b4744db45c0a15363ca8cb1c6cc3721c1955a7679176f4d344d5889b",
+    "artifactChecks": [
+      {
+        "name": "develop-adaptive-recovery-24h-BTC.json",
+        "sha256": "e7941824ec17ed935462c704d529e79335927a538c0ace6f5190f183891a3621"
+      },
+      {
+        "name": "develop-adaptive-recovery-24h-ETH.json",
+        "sha256": "1f670d2c45a5eca57085b34b4cc91bea3d2638a68df10207e57d1c9abc750bc0"
+      },
+      {
+        "name": "develop-adaptive-recovery-4h-BTC.json",
+        "sha256": "67cea7893453d032bdc442d79452827c027e9861cb91285faf7f0e49109c92e4"
+      },
+      {
+        "name": "develop-adaptive-recovery-4h-ETH.json",
+        "sha256": "d785d12c117292ddac7cd5fc6d3e72e8a01dd434691609e74598d36bff20ee58"
+      },
+      {
+        "name": "develop-adaptive-trend-24h-BTC.json",
+        "sha256": "584c77da79e856d697dc7a10f955e6bf4db6f3a108589a5d0d73842688c37c8e"
+      },
+      {
+        "name": "develop-adaptive-trend-24h-ETH.json",
+        "sha256": "15e14ca863a06458cf77c4e104c513187189d176e7e8577ccf0e6eb3391c40d6"
+      },
+      {
+        "name": "develop-adaptive-trend-4h-BTC.json",
+        "sha256": "a0c904854a00f17fdfda432a9c8a5d05e0bad59e6745a6dd8d96bdba36a79b2e"
+      },
+      {
+        "name": "develop-adaptive-trend-4h-ETH.json",
+        "sha256": "fd4c1c34b7b4f169ccdd5ac9acc986b83cab37ea4bf770661a4e97fdc08e75ca"
+      },
+      {
+        "name": "develop-baselines.json",
+        "sha256": "0fae5a217a380598663b3f9d411ff694161ad263e097ca0934948cd39a337228"
+      },
+      {
+        "name": "develop-channel-breakout-24h-BTC.json",
+        "sha256": "ee139c019e8634dc0e9b8ab40abcc9471372e69b4a56ba776ec08e483d815055"
+      },
+      {
+        "name": "develop-channel-breakout-24h-ETH.json",
+        "sha256": "1a81c95b71c67b406e53f680e8f90a48605b7637556a0d9b994eaee4e7b15fc8"
+      },
+      {
+        "name": "develop-portfolio.json",
+        "sha256": "d981b26a664c51da98c10b66048a3e7a622e69968c181a8e07319a066ccb7593"
+      },
+      {
+        "name": "develop-signals-adaptive-recovery-24h.json",
+        "sha256": "6679bef063a3c0fd6ae3910bb9e59f8a85b3fefbc3c25d6bea0c8a398a4cff5a"
+      },
+      {
+        "name": "develop-signals-adaptive-recovery-4h.json",
+        "sha256": "b740980d6e89b24efc8d67b1052df01b7020d96e3460ae6cfec6a8b90c8de724"
+      },
+      {
+        "name": "develop-signals-adaptive-trend-24h.json",
+        "sha256": "fbdc0a090c802b6f51c31ad3bb7de7e90629ec67fd85a8e26f89407d2dc8921d"
+      },
+      {
+        "name": "develop-signals-adaptive-trend-4h.json",
+        "sha256": "57b43336db27ce43991246cefa085b259cb3661ee5fb4202c61bd3f7fe474b2d"
+      },
+      {
+        "name": "develop-signals-channel-breakout-24h.json",
+        "sha256": "236ef91a62d6a9ed0b829dbd77304c645bd8e1cf01650c976257c462295b44e2"
+      },
+      {
+        "name": "develop-signals-trend-recovery-24h.json",
+        "sha256": "324b3df6b19b8186a9876b6e5fba5692bcbcfad632098426f9c99b562200a72e"
+      },
+      {
+        "name": "develop-start.json",
+        "sha256": "1c886cf8fa1aa78792f7fe97e4e3441d045ba419cc6a1210ff4695f89f63facd"
+      },
+      {
+        "name": "develop-trend-recovery-24h-BTC.json",
+        "sha256": "4901407020cbe9e27d84f7cb78575cc0a4fd5aa71136a4d01ad6dbf9d25d4d05"
+      },
+      {
+        "name": "develop-trend-recovery-24h-ETH.json",
+        "sha256": "d2b1cb13959c7336ca85127a8f17f4003b289a68606e645bcd0330f6b8fd0dbe"
+      },
+      {
+        "name": "selection.json",
+        "sha256": "6d9877f9c7cd8b9f772e803de4c6d3d1b518effaf0cdcd6991bcbb6b191dc3e5"
+      }
+    ],
+    "restrictedBarsSha256": "b90e36b6da3c3eb84261fb8c996112f857e1bc22e384922761c150d50e001704",
+    "restrictedBarCount": 35426,
+    "featuresSha256": "928949d31afd123af8b93711bed44d7ff9f6e4a0fb9e1070ba1784f4390207ad",
+    "trainingAndDevelopment24hLabelsSha256": "59159b63d8db526f5f9fa5d689318ca3f0fb2c4088080a1a1193712b9b8f359d",
+    "allVerified": true
+  },
+  "fundingChecks": [
+    {
+      "symbol": "BTC/USD",
+      "samples": 8760,
+      "startInclusiveMs": 1672531200000,
+      "endExclusiveMs": 1704067200000,
+      "p95AbsHourlyBps": 0.38286901388889
+    },
+    {
+      "symbol": "ETH/USD",
+      "samples": 8760,
+      "startInclusiveMs": 1672531200000,
+      "endExclusiveMs": 1704067200000,
+      "p95AbsHourlyBps": 0.39154677777777996
+    }
+  ],
+  "monthlyLabels": [
+    {
+      "month": "2024-01",
+      "symbol": "BTC/USD",
+      "samples": 8734,
+      "weightedESS": 5519.755768844407,
+      "firstDecisionMs": 1672531200000,
+      "lastDecisionMs": 1703970000000,
+      "latestCompletedMs": 1704063600000,
+      "trainingRowsSha256": "b1af672324f4f1f0304d0c44417c48b2cf96650ecba56c4df46572350c254ad0",
+      "weightedRowsSha256": "fc2e425fa2f377f2a5190af2c341d4f3a31ab8e6cd2fd07a0476c7428c676cc3"
+    },
+    {
+      "month": "2024-01",
+      "symbol": "ETH/USD",
+      "samples": 8734,
+      "weightedESS": 5519.755768844407,
+      "firstDecisionMs": 1672531200000,
+      "lastDecisionMs": 1703970000000,
+      "latestCompletedMs": 1704063600000,
+      "trainingRowsSha256": "707e69f851481b19d2779155b4fe21d57c676ec7efccc1d5eeb8c1aa93907461",
+      "weightedRowsSha256": "88e08092a0701f33131f0d7809699e1fc3d5693628a73f08414a4687093634c8"
+    },
+    {
+      "month": "2024-02",
+      "symbol": "BTC/USD",
+      "samples": 8734,
+      "weightedESS": 5519.755768844407,
+      "firstDecisionMs": 1675209600000,
+      "lastDecisionMs": 1706648400000,
+      "latestCompletedMs": 1706742000000,
+      "trainingRowsSha256": "6e2bfadeef7ad65a7ec32740b0e26aef0a4071e85e78f68df0a641aaef289d69",
+      "weightedRowsSha256": "4c13d6c5dcf21044280c5372c545d1918f8a85616855c37d32fde197329bde95"
+    },
+    {
+      "month": "2024-02",
+      "symbol": "ETH/USD",
+      "samples": 8734,
+      "weightedESS": 5519.755768844407,
+      "firstDecisionMs": 1675209600000,
+      "lastDecisionMs": 1706648400000,
+      "latestCompletedMs": 1706742000000,
+      "trainingRowsSha256": "a006be1e1d9eb44992a2817059f5d8896c01153d90e19102885ba85237065609",
+      "weightedRowsSha256": "dcbca50936da4bb837dd6158ae3561e7d83994057c4f8150193aaaba3f4332dd"
+    },
+    {
+      "month": "2024-03",
+      "symbol": "BTC/USD",
+      "samples": 8734,
+      "weightedESS": 5519.755768844407,
+      "firstDecisionMs": 1677715200000,
+      "lastDecisionMs": 1709154000000,
+      "latestCompletedMs": 1709247600000,
+      "trainingRowsSha256": "28e9088794695c76e23a91fb9f9794adadcbf28b418259b93e9b7d2c5add779e",
+      "weightedRowsSha256": "976c77c385d488d0c90520c6126314068091395fe85aafa24b0e2576fdcdd718"
+    },
+    {
+      "month": "2024-03",
+      "symbol": "ETH/USD",
+      "samples": 8734,
+      "weightedESS": 5519.755768844407,
+      "firstDecisionMs": 1677715200000,
+      "lastDecisionMs": 1709154000000,
+      "latestCompletedMs": 1709247600000,
+      "trainingRowsSha256": "ec4af7a577f99f1216dfc5e181a4d49b6523646b093fab05afc3e484fe972a4e",
+      "weightedRowsSha256": "f88a703dd1d1c97a178cb6cc19ac58169c551986a03963866e73a59d7562bac8"
+    },
+    {
+      "month": "2024-04",
+      "symbol": "BTC/USD",
+      "samples": 8734,
+      "weightedESS": 5519.755768844407,
+      "firstDecisionMs": 1680393600000,
+      "lastDecisionMs": 1711832400000,
+      "latestCompletedMs": 1711926000000,
+      "trainingRowsSha256": "e535e43c4b256f244dd56a9bb6c7c4deef90f5fb3d3f796b4960731118280795",
+      "weightedRowsSha256": "e8dd362aa3d18949f4720dd56f8ec46624a10ac63a3b7d477db57d0f670cbd03"
+    },
+    {
+      "month": "2024-04",
+      "symbol": "ETH/USD",
+      "samples": 8734,
+      "weightedESS": 5519.755768844407,
+      "firstDecisionMs": 1680393600000,
+      "lastDecisionMs": 1711832400000,
+      "latestCompletedMs": 1711926000000,
+      "trainingRowsSha256": "2345361eab12038894066dd8f13b4ca00f06b28a87f917a3de3edfc976bd742a",
+      "weightedRowsSha256": "5e6a4370ad1f1220f504e469c9048d34641360025958a8baf6b9365eb526253f"
+    },
+    {
+      "month": "2024-05",
+      "symbol": "BTC/USD",
+      "samples": 8734,
+      "weightedESS": 5519.755768844407,
+      "firstDecisionMs": 1682985600000,
+      "lastDecisionMs": 1714424400000,
+      "latestCompletedMs": 1714518000000,
+      "trainingRowsSha256": "fe5490eff7928ec716b8e590dc690c6f802c4d7b46509d9f6ae11562c5586e07",
+      "weightedRowsSha256": "c99771b627beefb5a12a05fc3c4e5bc0baeaab1d741b73aa4c9bce0d1996a168"
+    },
+    {
+      "month": "2024-05",
+      "symbol": "ETH/USD",
+      "samples": 8734,
+      "weightedESS": 5519.755768844407,
+      "firstDecisionMs": 1682985600000,
+      "lastDecisionMs": 1714424400000,
+      "latestCompletedMs": 1714518000000,
+      "trainingRowsSha256": "c58c5b14fe4af931a5244dfa56b68b9b183a7f17d8c97b9fe46bd54ba7a99085",
+      "weightedRowsSha256": "4f1385d28b52f7c209ecce8bffb3c1a288249508a045e8e1e615452fea87866e"
+    },
+    {
+      "month": "2024-06",
+      "symbol": "BTC/USD",
+      "samples": 8734,
+      "weightedESS": 5519.755768844407,
+      "firstDecisionMs": 1685664000000,
+      "lastDecisionMs": 1717102800000,
+      "latestCompletedMs": 1717196400000,
+      "trainingRowsSha256": "8c04d3f521677dfa714ffe1776a2609e521164d7d336d607901a62568d7e5a91",
+      "weightedRowsSha256": "bd7ef047abd50ce2698a89dfdb6c01fa040d3d3063a5b3b04b3ad2c873506e49"
+    },
+    {
+      "month": "2024-06",
+      "symbol": "ETH/USD",
+      "samples": 8734,
+      "weightedESS": 5519.755768844407,
+      "firstDecisionMs": 1685664000000,
+      "lastDecisionMs": 1717102800000,
+      "latestCompletedMs": 1717196400000,
+      "trainingRowsSha256": "0baf3dc31edb72adb56c226c91bf65b8abed5c5ae63442ed78ff2c7497be865f",
+      "weightedRowsSha256": "6674081b8871180f814663049d45433dbeed846fa56a2d3fbf00cc62b3047902"
+    },
+    {
+      "month": "2024-07",
+      "symbol": "BTC/USD",
+      "samples": 8734,
+      "weightedESS": 5519.755768844407,
+      "firstDecisionMs": 1688256000000,
+      "lastDecisionMs": 1719694800000,
+      "latestCompletedMs": 1719788400000,
+      "trainingRowsSha256": "51962a5d957188c2d993fc8de5555887e8ae00f41264cfbf99bc0d6889922422",
+      "weightedRowsSha256": "76dff428c32ae54a1ecbcab304d5fc613d2162f07495cb6ccc1dd144eedf045c"
+    },
+    {
+      "month": "2024-07",
+      "symbol": "ETH/USD",
+      "samples": 8734,
+      "weightedESS": 5519.755768844407,
+      "firstDecisionMs": 1688256000000,
+      "lastDecisionMs": 1719694800000,
+      "latestCompletedMs": 1719788400000,
+      "trainingRowsSha256": "07e6fc044ba51838ed9b2e7c145fa6f0fb61d21fb7465653aa3e9c4a2191f9eb",
+      "weightedRowsSha256": "19e6ce5862728014e33fc53604b3ec191d36ce62277ed9f61559575acd5b83b0"
+    },
+    {
+      "month": "2024-08",
+      "symbol": "BTC/USD",
+      "samples": 8734,
+      "weightedESS": 5519.755768844407,
+      "firstDecisionMs": 1690934400000,
+      "lastDecisionMs": 1722373200000,
+      "latestCompletedMs": 1722466800000,
+      "trainingRowsSha256": "51d172b0a1dbce0ec80e144f3d301d7989d2e2bc8a22a641d8704cdf803c368a",
+      "weightedRowsSha256": "c0b948a9f5904bfa23548221785b9c84e875c31d3e8e5a31c7a586a9339f11f4"
+    },
+    {
+      "month": "2024-08",
+      "symbol": "ETH/USD",
+      "samples": 8734,
+      "weightedESS": 5519.755768844407,
+      "firstDecisionMs": 1690934400000,
+      "lastDecisionMs": 1722373200000,
+      "latestCompletedMs": 1722466800000,
+      "trainingRowsSha256": "6df99e212200f88854fd2beda53c1cb3f4fa7685c0dcaa76574f1367d8519ff9",
+      "weightedRowsSha256": "f8f303c5b5e27f4206e8fab1edc3e49b36b9a986e18e12470fc0819c503867b7"
+    },
+    {
+      "month": "2024-09",
+      "symbol": "BTC/USD",
+      "samples": 8734,
+      "weightedESS": 5519.755768844407,
+      "firstDecisionMs": 1693612800000,
+      "lastDecisionMs": 1725051600000,
+      "latestCompletedMs": 1725145200000,
+      "trainingRowsSha256": "55bd30c528eb849dff83b565ffad2aa72616508e822780e008b4e5204a26ca1b",
+      "weightedRowsSha256": "5d21a0ba3f872445c04a5aa00ecead4d81f551e4516c9ad0b1363a8d736e3c02"
+    },
+    {
+      "month": "2024-09",
+      "symbol": "ETH/USD",
+      "samples": 8734,
+      "weightedESS": 5519.755768844407,
+      "firstDecisionMs": 1693612800000,
+      "lastDecisionMs": 1725051600000,
+      "latestCompletedMs": 1725145200000,
+      "trainingRowsSha256": "43bb289312f77b2c6baccc4f49c4d21d7f2b6a59ffdac1a563ba227b262d1317",
+      "weightedRowsSha256": "94cd528474d6d4f0be7fd0dfce9af3592584d08e3c109e7913bc14a8ab2088a1"
+    },
+    {
+      "month": "2024-10",
+      "symbol": "BTC/USD",
+      "samples": 8734,
+      "weightedESS": 5519.755768844407,
+      "firstDecisionMs": 1696204800000,
+      "lastDecisionMs": 1727643600000,
+      "latestCompletedMs": 1727737200000,
+      "trainingRowsSha256": "19bb128161afb19dcc1f61dc9619c1ce570778432ff1225f6fc665389c3fa4d7",
+      "weightedRowsSha256": "7613ea36d2d9531252d48da917ed97909b892670729cf082b5779159f246d8c7"
+    },
+    {
+      "month": "2024-10",
+      "symbol": "ETH/USD",
+      "samples": 8734,
+      "weightedESS": 5519.755768844407,
+      "firstDecisionMs": 1696204800000,
+      "lastDecisionMs": 1727643600000,
+      "latestCompletedMs": 1727737200000,
+      "trainingRowsSha256": "406dca74ab5bb03c2c7babaa137d91edef263d7314eab5af570dadd83efde201",
+      "weightedRowsSha256": "6149bd648351ed6039b14c449fe943707bf6cd601e87423e434184297f1cbf34"
+    },
+    {
+      "month": "2024-11",
+      "symbol": "BTC/USD",
+      "samples": 8734,
+      "weightedESS": 5519.755768844407,
+      "firstDecisionMs": 1698883200000,
+      "lastDecisionMs": 1730322000000,
+      "latestCompletedMs": 1730415600000,
+      "trainingRowsSha256": "1d18f3a36fe962b6e6613eea7475ca2308419d03dc6d416137bee6eda78b0912",
+      "weightedRowsSha256": "81faa6923acb37d0abf2de2b1b011c4da186ce3332a6d731a9f466a218409164"
+    },
+    {
+      "month": "2024-11",
+      "symbol": "ETH/USD",
+      "samples": 8734,
+      "weightedESS": 5519.755768844407,
+      "firstDecisionMs": 1698883200000,
+      "lastDecisionMs": 1730322000000,
+      "latestCompletedMs": 1730415600000,
+      "trainingRowsSha256": "507a49b76343aa5890328549a3ea280080b7a4ea118d7e64f4bee2287465c7c0",
+      "weightedRowsSha256": "f907a43f2d04d7486883ebe9a22685882e04df6dbbaefab80aebfff0e8f09099"
+    },
+    {
+      "month": "2024-12",
+      "symbol": "BTC/USD",
+      "samples": 8734,
+      "weightedESS": 5519.755768844407,
+      "firstDecisionMs": 1701475200000,
+      "lastDecisionMs": 1732914000000,
+      "latestCompletedMs": 1733007600000,
+      "trainingRowsSha256": "7c68c204626f78b41490a95f0cf3504fbfa42ae1dd2efa69abb16fbd00e2cb11",
+      "weightedRowsSha256": "e902d0244acdb3f7709e349dba54ce30308cd3b2dc48fd3b81ceb2e79bb92fe1"
+    },
+    {
+      "month": "2024-12",
+      "symbol": "ETH/USD",
+      "samples": 8734,
+      "weightedESS": 5519.755768844407,
+      "firstDecisionMs": 1701475200000,
+      "lastDecisionMs": 1732914000000,
+      "latestCompletedMs": 1733007600000,
+      "trainingRowsSha256": "9bb6dbb69ad3c46711730bfa635a7a498c22a4b89b439a2fd0a731fea87d116c",
+      "weightedRowsSha256": "d7761ada246ac45627269c654d25582b3eaed6d8b24e9c801dd5866a61569d1a"
+    }
+  ],
+  "candidates": [
+    {
+      "id": "adaptive-trend-24h",
+      "monthlyFitCount": 12,
+      "diagnosticsSha256": "03e390c1511f81b7ab406938a193796d5b811e3f618f4003526c1a27679e36f1",
+      "diagnosticsExactMatch": true,
+      "forecastCount": 6412,
+      "forecastsSha256": "5f8a0a5a563edf3a648e4d5517b41b30592c8ab1f32697cf76e782ba13a0bac9",
+      "forecastsExactMatch": true,
+      "origins": {
+        "BTC/USD": 8733,
+        "ETH/USD": 8733
+      },
+      "unavailable": {
+        "BTC/USD": 0,
+        "ETH/USD": 0
+      },
+      "qualifiedByAsset": {
+        "BTC/USD": 3781,
+        "ETH/USD": 2631
+      },
+      "errorCoverageAndMseExactMatch": true,
+      "predictionErrors": {
+        "BTC/USD": {
+          "count": 8733,
+          "modelMseBps2": 74993.57629219694,
+          "zeroMseBps2": 74405.17266329618,
+          "unconditionalMseBps2": 74312.26606561936,
+          "modelBeatsZero": false,
+          "modelBeatsUnconditional": false
+        },
+        "ETH/USD": {
+          "count": 8733,
+          "modelMseBps2": 114761.47957750747,
+          "zeroMseBps2": 113325.53960825695,
+          "unconditionalMseBps2": 113902.93754243646,
+          "modelBeatsZero": false,
+          "modelBeatsUnconditional": false
+        }
+      },
+      "maximumIndependentCoefficientError": 7.815970093361102e-14,
+      "maximumIndependentForecastErrorBps": 3.055333763768431e-13,
+      "independentQualifyingDisagreements": 0
+    },
+    {
+      "id": "adaptive-recovery-24h",
+      "monthlyFitCount": 12,
+      "diagnosticsSha256": "ae6359c260eed2b8acaec315a36e94a461993144d74bf142f9cef5f99950f117",
+      "diagnosticsExactMatch": true,
+      "forecastCount": 6765,
+      "forecastsSha256": "b5c5d62d673a0376e33bbb9bef0b07dfb610208ceedc35dbfb1a4a78fdf8852f",
+      "forecastsExactMatch": true,
+      "origins": {
+        "BTC/USD": 8733,
+        "ETH/USD": 8733
+      },
+      "unavailable": {
+        "BTC/USD": 0,
+        "ETH/USD": 0
+      },
+      "qualifiedByAsset": {
+        "BTC/USD": 3937,
+        "ETH/USD": 2828
+      },
+      "errorCoverageAndMseExactMatch": true,
+      "predictionErrors": {
+        "BTC/USD": {
+          "count": 8733,
+          "modelMseBps2": 75231.38156872902,
+          "zeroMseBps2": 74405.17266329618,
+          "unconditionalMseBps2": 74312.26606561936,
+          "modelBeatsZero": false,
+          "modelBeatsUnconditional": false
+        },
+        "ETH/USD": {
+          "count": 8733,
+          "modelMseBps2": 115041.85448415237,
+          "zeroMseBps2": 113325.53960825695,
+          "unconditionalMseBps2": 113902.93754243646,
+          "modelBeatsZero": false,
+          "modelBeatsUnconditional": false
+        }
+      },
+      "maximumIndependentCoefficientError": 3.7836400679225335e-13,
+      "maximumIndependentForecastErrorBps": 9.912071163853398e-13,
+      "independentQualifyingDisagreements": 0
+    }
+  ],
+  "selectionAudit": {
+    "candidateGateAudits": [
+      {
+        "id": "adaptive-trend-4h",
+        "symbol": "BTC/USD",
+        "eligible": false,
+        "failedCriteria": [
+          "base:NONPOSITIVE_NET",
+          "base:FEWER_THAN_20_COMPLETED_TRADES",
+          "stress:FEWER_THAN_20_COMPLETED_TRADES"
+        ],
+        "baseCompleted": 18,
+        "stressCompleted": 15,
+        "baseNetPnlUsd": -0.37827053426008206,
+        "stressNetPnlUsd": 0.1204293295450043
+      },
+      {
+        "id": "adaptive-trend-4h",
+        "symbol": "ETH/USD",
+        "eligible": false,
+        "failedCriteria": [
+          "base:NONPOSITIVE_NET",
+          "base:FEWER_THAN_20_COMPLETED_TRADES",
+          "stress:FEWER_THAN_20_COMPLETED_TRADES"
+        ],
+        "baseCompleted": 16,
+        "stressCompleted": 15,
+        "baseNetPnlUsd": -0.07881759501469787,
+        "stressNetPnlUsd": 0.22662895746179856
+      },
+      {
+        "id": "adaptive-recovery-4h",
+        "symbol": "BTC/USD",
+        "eligible": false,
+        "failedCriteria": [
+          "base:NONPOSITIVE_NET",
+          "stress:NONPOSITIVE_NET"
+        ],
+        "baseCompleted": 104,
+        "stressCompleted": 97,
+        "baseNetPnlUsd": -1.4371820903907064,
+        "stressNetPnlUsd": -2.1753881578624714
+      },
+      {
+        "id": "adaptive-recovery-4h",
+        "symbol": "ETH/USD",
+        "eligible": false,
+        "failedCriteria": [
+          "base:NONPOSITIVE_NET",
+          "stress:NONPOSITIVE_NET"
+        ],
+        "baseCompleted": 76,
+        "stressCompleted": 74,
+        "baseNetPnlUsd": -2.1393105507595465,
+        "stressNetPnlUsd": -1.890501088302699
+      },
+      {
+        "id": "adaptive-trend-24h",
+        "symbol": "BTC/USD",
+        "eligible": false,
+        "failedCriteria": [
+          "base:NONPOSITIVE_NET",
+          "stress:NONPOSITIVE_NET"
+        ],
+        "baseCompleted": 224,
+        "stressCompleted": 219,
+        "baseNetPnlUsd": -0.33893396439088974,
+        "stressNetPnlUsd": -3.1478308687801473
+      },
+      {
+        "id": "adaptive-trend-24h",
+        "symbol": "ETH/USD",
+        "eligible": false,
+        "failedCriteria": [
+          "base:NONPOSITIVE_NET",
+          "stress:NONPOSITIVE_NET"
+        ],
+        "baseCompleted": 167,
+        "stressCompleted": 159,
+        "baseNetPnlUsd": -2.2405187226249836,
+        "stressNetPnlUsd": -4.408634657782386
+      },
+      {
+        "id": "adaptive-recovery-24h",
+        "symbol": "BTC/USD",
+        "eligible": false,
+        "failedCriteria": [
+          "base:NONPOSITIVE_NET",
+          "stress:NONPOSITIVE_NET"
+        ],
+        "baseCompleted": 251,
+        "stressCompleted": 245,
+        "baseNetPnlUsd": -0.6400774766370887,
+        "stressNetPnlUsd": -2.836955301638227
+      },
+      {
+        "id": "adaptive-recovery-24h",
+        "symbol": "ETH/USD",
+        "eligible": false,
+        "failedCriteria": [
+          "base:NONPOSITIVE_NET",
+          "stress:NONPOSITIVE_NET"
+        ],
+        "baseCompleted": 206,
+        "stressCompleted": 199,
+        "baseNetPnlUsd": -6.44843487360049,
+        "stressNetPnlUsd": -8.91944696882274
+      },
+      {
+        "id": "channel-breakout-24h",
+        "symbol": "BTC/USD",
+        "eligible": false,
+        "failedCriteria": [
+          "base:NONPOSITIVE_NET",
+          "stress:NONPOSITIVE_NET"
+        ],
+        "baseCompleted": 210,
+        "stressCompleted": 203,
+        "baseNetPnlUsd": -8.891842763172463,
+        "stressNetPnlUsd": -9.982558857169352
+      },
+      {
+        "id": "channel-breakout-24h",
+        "symbol": "ETH/USD",
+        "eligible": false,
+        "failedCriteria": [
+          "base:NONPOSITIVE_NET",
+          "stress:NONPOSITIVE_NET"
+        ],
+        "baseCompleted": 218,
+        "stressCompleted": 210,
+        "baseNetPnlUsd": -4.554887756850803,
+        "stressNetPnlUsd": -6.602126690384466
+      },
+      {
+        "id": "trend-recovery-24h",
+        "symbol": "BTC/USD",
+        "eligible": false,
+        "failedCriteria": [
+          "stress:NONPOSITIVE_NET"
+        ],
+        "baseCompleted": 184,
+        "stressCompleted": 181,
+        "baseNetPnlUsd": 0.6006364604108967,
+        "stressNetPnlUsd": -1.5696512381837238
+      },
+      {
+        "id": "trend-recovery-24h",
+        "symbol": "ETH/USD",
+        "eligible": false,
+        "failedCriteria": [
+          "base:NONPOSITIVE_NET",
+          "stress:NONPOSITIVE_NET"
+        ],
+        "baseCompleted": 185,
+        "stressCompleted": 180,
+        "baseNetPnlUsd": -5.811109307585866,
+        "stressNetPnlUsd": -5.904100327723427
+      }
+    ],
+    "baselineRanking": [
+      {
+        "id": "buy-hold-btc",
+        "utility": -1.466058675556269
+      },
+      {
+        "id": "buy-hold-eth",
+        "utility": -9.939535437049926
+      },
+      {
+        "id": "fixed-trend-168h-held-24h",
+        "utility": -14.566025660889864
+      }
+    ],
+    "selectedBaseline": "buy-hold-btc",
+    "selectedByAsset": {
+      "BTC/USD": null,
+      "ETH/USD": null
+    },
+    "recomputedGates": {
+      "bothAssetsHaveEligibleSelection": false,
+      "fullPeriodKnownAndRiskWithinLimits": true,
+      "sufficientTrades": false,
+      "positiveBaseAndStressForBothAssets": false,
+      "beatsSelectedBaseline": false
+    },
+    "developmentGatePassed": false,
+    "finalTestOpened": false,
+    "conclusion": "NO_CANDIDATE_PASSES_THE_FIXED_PER_ASSET_RULES; EMPTY_PORTFOLIO_AND_DENIAL_OF_LATER_STAGES_ARE_CORRECT"
+  },
+  "limitations": [
+    "This audit confirms implementation, chronology, provenance and rule application; it does not establish live fillability or profitability.",
+    "Reported weighted ESS measures recency-weight concentration, not independent information in overlapping hourly labels.",
+    "After-cost returns remain declared adverse-funding and candle-execution scenarios, not verified actual historical funding returns."
+  ],
+  "auditScript": {
+    "path": "/tmp/audit-hourly-adaptive-model.mts",
+    "sha256": "dc86173551a79c1cfe130c1d9378748132cbe850dfdcd5c4ee58d4612e3afd3e"
+  }
+}

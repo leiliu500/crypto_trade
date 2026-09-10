@@ -1,0 +1,3730 @@
+{
+  "passed": true,
+  "beforeImage": "sha256:5833b804a7196affb7ebf5d3679b7a8d0672322ec05379c5f89d68e207bca9fa",
+  "afterImage": "sha256:e7e2f35eb9586863054ce67c1b2d57cc4bfddee34d6f20a4d01e0513779187f9",
+  "inheritedLayers": 25,
+  "imageConfigUnchanged": true,
+  "nonStaticFilesCompared": 930,
+  "nonStaticFingerprints": [
+    {
+      "file": "/app/config/ada_usd.json",
+      "sha256": "17c36c37815cea2fdbe643a014a7b16a586060a05b3b3e81aaf8d6b14d31898b"
+    },
+    {
+      "file": "/app/config/avax_usd.json",
+      "sha256": "0ac86f86dd1bed5044ad26061d10c18f1ab4b13715419f168eac6f21f7bde476"
+    },
+    {
+      "file": "/app/config/base.json",
+      "sha256": "749c7f3bb2dca8bc02332d92c21ace33cad4e9a23ba7c658132cf47ca0a0a20e"
+    },
+    {
+      "file": "/app/config/btc_usd.json",
+      "sha256": "d335dbac0082a727da1922972be50c93ccce73fafc47724a193906f64f0b3eba"
+    },
+    {
+      "file": "/app/config/carry-research.json",
+      "sha256": "8331c1d03d90c4ea99f035abb32b55b9a53192224b488a8733274c068f93b304"
+    },
+    {
+      "file": "/app/config/doge_usd.json",
+      "sha256": "b3ce6a6a8273d096ba899ebadb47adb1e7978b07b3c1af3b21c9c614aca53523"
+    },
+    {
+      "file": "/app/config/eth_usd.json",
+      "sha256": "abf52f5f067e78d393ccba280ebf61fa6098f09d8673876c661d0af1ec49f133"
+    },
+    {
+      "file": "/app/config/hype_usd.json",
+      "sha256": "3782783bd409a50a492c1bd1008a9582404270131654c5c00527d4219d8fbb3a"
+    },
+    {
+      "file": "/app/config/link_usd.json",
+      "sha256": "07c06f31809d69781e12ecb86b3e86cf7abbc9097d599949148ad274fb3d94ce"
+    },
+    {
+      "file": "/app/config/ltc_usd.json",
+      "sha256": "bc19516dc1ac4c415ec87ad8e459a1c71439a8f05df0ce227266250208849f48"
+    },
+    {
+      "file": "/app/config/pepe_usd.json",
+      "sha256": "1f458024f8d39b716676d60feb8f26f587db8fe44cf4bc45275ee773a2bab454"
+    },
+    {
+      "file": "/app/config/sol_usd.json",
+      "sha256": "f6286f506a805d67048144bc7bd2f86595a219336a04f834a7cf3ea8d7c1fef2"
+    },
+    {
+      "file": "/app/config/xrp_usd.json",
+      "sha256": "bee5a22f277215239ddb7f3f8d2fc1f108a640dff2433df17683377de91187e4"
+    },
+    {
+      "file": "/app/dist/src/analysis/distribution-trial-report.d.ts",
+      "sha256": "94de702b349778a9f6ebcc7ef8a04745b49afedeeb0439a2fcb7977845125e44"
+    },
+    {
+      "file": "/app/dist/src/analysis/distribution-trial-report.js",
+      "sha256": "e163501dffbbeb6a9c1a59fa99a7d38446e19210c65390ab77f8f5fe4f3b4beb"
+    },
+    {
+      "file": "/app/dist/src/analysis/distribution-trial-report.js.map",
+      "sha256": "a50522e44c0e44b929dd52bf3478155578f1a5103e2130e96f6f8fb71d97a0ee"
+    },
+    {
+      "file": "/app/dist/src/analysis/model-trade-audit-main.d.ts",
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+    },
+    {
+      "file": "/app/dist/src/analysis/model-trade-audit-main.js",
+      "sha256": "ac8c75fa0581071bc4d9ea9f8f690526dbbdd8d0c563f9ad978ca237bdf7a579"
+    },
+    {
+      "file": "/app/dist/src/analysis/model-trade-audit-main.js.map",
+      "sha256": "5fdee26aa3d23b774af8ab097828240c8327fe4ff38b4f4befaf7675fb770698"
+    },
+    {
+      "file": "/app/dist/src/analysis/model-trade-audit.d.ts",
+      "sha256": "03bd9531b4fd3866603077ff4baaa0d916dd634f61927228fe749dbca52b06ce"
+    },
+    {
+      "file": "/app/dist/src/analysis/model-trade-audit.js",
+      "sha256": "afa32aef2118cf131720a80917fde99ce782f2a57a297a28707abaac1e0425c8"
+    },
+    {
+      "file": "/app/dist/src/analysis/model-trade-audit.js.map",
+      "sha256": "08f624fce94b7e27b1e8817a333af03f201f27e4b4d743bdd101487b582f209e"
+    },
+    {
+      "file": "/app/dist/src/analysis/optimization-main.d.ts",
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+    },
+    {
+      "file": "/app/dist/src/analysis/optimization-main.js",
+      "sha256": "d493e73caaf99b59fddae186540efbfce5ea6deacd794ded1f26c9834ee6fb1b"
+    },
+    {
+      "file": "/app/dist/src/analysis/optimization-main.js.map",
+      "sha256": "6b3ea0ab2ab6a7ff3a95d59240cf029a106096cd5f571bd29ce5de7ef3be6d38"
+    },
+    {
+      "file": "/app/dist/src/analysis/rejected-entry-main.d.ts",
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+    },
+    {
+      "file": "/app/dist/src/analysis/rejected-entry-main.js",
+      "sha256": "265ca2306f810439050131b7d06a378e589bb92d1c53795d0c6c50f2b17cde62"
+    },
+    {
+      "file": "/app/dist/src/analysis/rejected-entry-main.js.map",
+      "sha256": "3fb1695f790f1f03018c8b5c816da6872a342c698d672b38d9ebbc10508db835"
+    },
+    {
+      "file": "/app/dist/src/analysis/rejected-entry-report.d.ts",
+      "sha256": "2892a8bda4c9011834957af3191596a53dd899a600dff45898a497a95a8eefec"
+    },
+    {
+      "file": "/app/dist/src/analysis/rejected-entry-report.js",
+      "sha256": "e166b53f10ba13b6fea855fde6958f9f6353be015862ddd47ae617ed9c8a4d6b"
+    },
+    {
+      "file": "/app/dist/src/analysis/rejected-entry-report.js.map",
+      "sha256": "98a3aaa3cb7f6d2a211a81481d729a1aa7db7da0a26b1d33bddcda0d2111ef93"
+    },
+    {
+      "file": "/app/dist/src/analysis/trade-optimization.d.ts",
+      "sha256": "af1b389b6c65cc77a75daf7bc7a6ee40abd5edeabfb25dcbb1b09e9de194215e"
+    },
+    {
+      "file": "/app/dist/src/analysis/trade-optimization.js",
+      "sha256": "df32c2867164488792ddeb04a1b64a64e22b0363e13651981c64a9a5c7a373f9"
+    },
+    {
+      "file": "/app/dist/src/analysis/trade-optimization.js.map",
+      "sha256": "0ce2a6d01a728ab9957b290d2c8698e85d81ae37afe07b636448fe92f4c97bda"
+    },
+    {
+      "file": "/app/dist/src/backtest/metrics.d.ts",
+      "sha256": "8769a3d20bae647a21f944b1cbad49ace1eb1b5dc0a43d91c7b19b9a2c2008de"
+    },
+    {
+      "file": "/app/dist/src/backtest/metrics.js",
+      "sha256": "84c49fcb05eca9fe3a62bd7ac3e023fb6bc44b680ef1390957ffbba9640339e8"
+    },
+    {
+      "file": "/app/dist/src/backtest/metrics.js.map",
+      "sha256": "af222a4afd4becb8d9e914bb2bf1008690b69afab71e42dc4d04dbacb99238e7"
+    },
+    {
+      "file": "/app/dist/src/backtest/opportunity-recall-main.d.ts",
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+    },
+    {
+      "file": "/app/dist/src/backtest/opportunity-recall-main.js",
+      "sha256": "1cc0f5aacac87f15e54715781a3f5b108eab47e7ab109cdd2cbac9f1053dbd3d"
+    },
+    {
+      "file": "/app/dist/src/backtest/opportunity-recall-main.js.map",
+      "sha256": "0c5ed396c8060a76dce44f8e5f818f678d8766e41c3d2e03425d9fdcfdf0de86"
+    },
+    {
+      "file": "/app/dist/src/backtest/opportunity-recall.d.ts",
+      "sha256": "87913d949eea54e7823e65528ab4aec415f4829269cac0b32ac7c9db3c44ab28"
+    },
+    {
+      "file": "/app/dist/src/backtest/opportunity-recall.js",
+      "sha256": "77be9b9664e128c46dfc472ae586b6e8ba63b8768fbaefc762e2256e68ec5398"
+    },
+    {
+      "file": "/app/dist/src/backtest/opportunity-recall.js.map",
+      "sha256": "2eb84e88d8ea04846e1575d6587fc93845867267eb1f194860bf3f55519b7d13"
+    },
+    {
+      "file": "/app/dist/src/backtest/replay.d.ts",
+      "sha256": "d1e02f606e24879a9469b2379c6f78c8095be738cc695fe0d1696657b5e8a57c"
+    },
+    {
+      "file": "/app/dist/src/backtest/replay.js",
+      "sha256": "3918d27f8eba799ada8819bee16effc497889e50918126a984b4a96e063a6ec0"
+    },
+    {
+      "file": "/app/dist/src/backtest/replay.js.map",
+      "sha256": "672e4c73b3cfa33f6611ff3e055776a19f379d876e2d277a0d986da8939e387a"
+    },
+    {
+      "file": "/app/dist/src/calibration/calibrated-edge-table.d.ts",
+      "sha256": "1d655a2d893a90da42f64b9034dab0e8198de1adbf2fd6bd1074f646aae95e42"
+    },
+    {
+      "file": "/app/dist/src/calibration/calibrated-edge-table.js",
+      "sha256": "b4fb25d084264b48f6377865ce8c340d804c1743b45b1641021471be8969adea"
+    },
+    {
+      "file": "/app/dist/src/calibration/calibrated-edge-table.js.map",
+      "sha256": "7f78c14dbdcc9045659c3a5f022b6251ad61a5ad1ee0ba6b6c1f9e5127737a94"
+    },
+    {
+      "file": "/app/dist/src/calibration/effective-sample-count.d.ts",
+      "sha256": "e0780236b6e237297f09be26f93dadc022f8f2dd29692ba85fd4a9aaadd97229"
+    },
+    {
+      "file": "/app/dist/src/calibration/effective-sample-count.js",
+      "sha256": "8f383afd36ea2d89328812ea62aaeb630c67656b11e013c9a6dede6278e0de97"
+    },
+    {
+      "file": "/app/dist/src/calibration/effective-sample-count.js.map",
+      "sha256": "5897846bedfce8db64c6f5ea25d720d359dedc43ade72dce3b9080e2d47ed04b"
+    },
+    {
+      "file": "/app/dist/src/carry/config.d.ts",
+      "sha256": "f3f5629a2e37f6b3adc1910042dee70474d872b2d1cada3b00730152c0493b56"
+    },
+    {
+      "file": "/app/dist/src/carry/config.js",
+      "sha256": "dfee595727e0c502cfc5e9636d337e3c146a6e54da299a0298d5b501019950b2"
+    },
+    {
+      "file": "/app/dist/src/carry/config.js.map",
+      "sha256": "07f2bd6d02d5a4401ca4f6cb15e51989efb0f00fb870491427f3bafd89e56c69"
+    },
+    {
+      "file": "/app/dist/src/carry/economics.d.ts",
+      "sha256": "089cbcbef3d03e7b944d5c6b3b0d89e2aa6126883ecdfba2b8925c73320ada2c"
+    },
+    {
+      "file": "/app/dist/src/carry/economics.js",
+      "sha256": "a5673d9ff9a21e00eccde1e86f4c37ca02eccb693b74681edba782a84a711787"
+    },
+    {
+      "file": "/app/dist/src/carry/economics.js.map",
+      "sha256": "5de1852ef466ca489d41d2c25edc7dc2304f4e98e0478c98dcee41802cfd4ffa"
+    },
+    {
+      "file": "/app/dist/src/carry/execution.d.ts",
+      "sha256": "108cca57e2d6c4ecbc71e8af934305d4036efad454be4862dae040c20468d1bb"
+    },
+    {
+      "file": "/app/dist/src/carry/execution.js",
+      "sha256": "76768556e578fe62fb97b56377449381851183eda8da13c50bb06aa59cf4494a"
+    },
+    {
+      "file": "/app/dist/src/carry/execution.js.map",
+      "sha256": "8a91df23625dd4a4a9d3146baffb420c616aea73b40b13d7a33c0cc1db65f0c5"
+    },
+    {
+      "file": "/app/dist/src/carry/fee-frontier-main.d.ts",
+      "sha256": "d44554e0bae8bdb5d3acde97c6fb717dabdd3a013308159f1d626263ca1805f7"
+    },
+    {
+      "file": "/app/dist/src/carry/fee-frontier-main.js",
+      "sha256": "a4713ff33edf0bac6f6495bddd3d58acb1cc282ecb71463c7be6667973c969b1"
+    },
+    {
+      "file": "/app/dist/src/carry/fee-frontier-main.js.map",
+      "sha256": "f55eb15582221b5408a6966a2b4b82f45e9b3bc2a9c275ae9b08b60e8345f672"
+    },
+    {
+      "file": "/app/dist/src/carry/funding-accrual.d.ts",
+      "sha256": "4288e25b3fcc23164f24cbb4c7f9b42c9ff98beb3646316f9815005f4d49577a"
+    },
+    {
+      "file": "/app/dist/src/carry/funding-accrual.js",
+      "sha256": "d7910c2ddc829c48620b8da6cf39b37b41d8d585c57897fd16a667b85dea6f3c"
+    },
+    {
+      "file": "/app/dist/src/carry/funding-accrual.js.map",
+      "sha256": "1586d020bf56e747951facbff77f291a9753343f9f053970bfde1c4a7852a6bd"
+    },
+    {
+      "file": "/app/dist/src/carry/funding-model.d.ts",
+      "sha256": "391d59dd1ed2f426c224165a48e3d813e2b3ed3685ca02c0bcb9b7cd73896177"
+    },
+    {
+      "file": "/app/dist/src/carry/funding-model.js",
+      "sha256": "cd1f9c7a6d7732416241e4730200dc33a93202351bc7e3e348eb777ba80f3c21"
+    },
+    {
+      "file": "/app/dist/src/carry/funding-model.js.map",
+      "sha256": "691c40b500ae10cd57961617fe2ec3ba55d6776b1b29f86584a506cc04a2c513"
+    },
+    {
+      "file": "/app/dist/src/carry/funding-study-main.d.ts",
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+    },
+    {
+      "file": "/app/dist/src/carry/funding-study-main.js",
+      "sha256": "4280aa4164ab653629cc6445c9ccd20937e32583477130f6a7a48edca2282e9b"
+    },
+    {
+      "file": "/app/dist/src/carry/funding-study-main.js.map",
+      "sha256": "bd02af6f17f4115c1e5cac3fd9067c35016628eb67d719571bcca2816003a4db"
+    },
+    {
+      "file": "/app/dist/src/carry/horizon-replay.d.ts",
+      "sha256": "70247657abe0a575bb364a0662d5cc581b17c296df13ec5f3ac437f39990b14f"
+    },
+    {
+      "file": "/app/dist/src/carry/horizon-replay.js",
+      "sha256": "30e248338658c8d3a1578b4e8495593baae1045b6bb8c09723f70f1453c9f303"
+    },
+    {
+      "file": "/app/dist/src/carry/horizon-replay.js.map",
+      "sha256": "19f1313afe8ccb03a042e3294f8da790935f477ec9c96823f671f24e4f89dd74"
+    },
+    {
+      "file": "/app/dist/src/carry/horizon-signal.d.ts",
+      "sha256": "85525e5e6c6b515a37e81cb9c633edcad7c5798d46eea691b9b52b78b86c5c3e"
+    },
+    {
+      "file": "/app/dist/src/carry/horizon-signal.js",
+      "sha256": "62c6935de04ffa992f5e2af5548b76c21f1e80329ae778c22cc7f5c26bb3e6a8"
+    },
+    {
+      "file": "/app/dist/src/carry/horizon-signal.js.map",
+      "sha256": "7487b92d5b5dc395fb04e2c5dd35f0c8dc104f489eb67cd2887ce81d02e2466b"
+    },
+    {
+      "file": "/app/dist/src/carry/horizon-spec.d.ts",
+      "sha256": "de01c835251f59a9a3697427cc784e2c4aca1c62f7f2b6e0d55a2fbfb238b990"
+    },
+    {
+      "file": "/app/dist/src/carry/horizon-spec.js",
+      "sha256": "b983883a5f7b966865a15cd2e2cf2c813f6545c5bc2862a2263a56892e0e5753"
+    },
+    {
+      "file": "/app/dist/src/carry/horizon-spec.js.map",
+      "sha256": "4a575eef0628afae2c8e3a45e1b78866f2bd3697bf1d87bad5399a850319d105"
+    },
+    {
+      "file": "/app/dist/src/carry/horizon-study-main.d.ts",
+      "sha256": "b7a789e0c8c804f7fc72cb1ced5d286c774424e04c866ad27576df9d8ec81ee9"
+    },
+    {
+      "file": "/app/dist/src/carry/horizon-study-main.js",
+      "sha256": "56603672471f59ec8530d928a19cbab0f71ead4678d813079de099288958a5bb"
+    },
+    {
+      "file": "/app/dist/src/carry/horizon-study-main.js.map",
+      "sha256": "5e90d38293c4b1c3aaee0c01c459c1043a2179be37b7b6e94e021381af63d70d"
+    },
+    {
+      "file": "/app/dist/src/carry/inventory.d.ts",
+      "sha256": "3aadcab8bfd16128d3b3fb0722711aacf68c3536ecf106058939cc78f896cc29"
+    },
+    {
+      "file": "/app/dist/src/carry/inventory.js",
+      "sha256": "edb590db19beda9ebdd94c2990d8e0652b45568f26bbfa3f248cea8bb9bd30f4"
+    },
+    {
+      "file": "/app/dist/src/carry/inventory.js.map",
+      "sha256": "b0196f4efe3e8cc8e33d946afff401a9086b5cd318995646f206a69d4a978b6f"
+    },
+    {
+      "file": "/app/dist/src/carry/monitor-main.d.ts",
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+    },
+    {
+      "file": "/app/dist/src/carry/monitor-main.js",
+      "sha256": "9594b69e67841c2e641d6f22135e673a8209836b310cf334dfe8f1017da57317"
+    },
+    {
+      "file": "/app/dist/src/carry/monitor-main.js.map",
+      "sha256": "f1b479fb8e01b70fd39a259e74c4154f697f6417ed95ce60ed055917fdcb53b8"
+    },
+    {
+      "file": "/app/dist/src/carry/monitor.d.ts",
+      "sha256": "b7cb46941e5ae5973c9a31d99c260c38cdbf9f5b591dd365a25bcca838ed5bc3"
+    },
+    {
+      "file": "/app/dist/src/carry/monitor.js",
+      "sha256": "0e2e4ddbf46ec63e3852588510f1a392bb612fd5218960891d35de83afc5060a"
+    },
+    {
+      "file": "/app/dist/src/carry/monitor.js.map",
+      "sha256": "6e347f8f18bcf609cf58f2608f63b8a7a0bb8e2b30df473f189a36d3c76a8ea8"
+    },
+    {
+      "file": "/app/dist/src/channel/holdout-main.d.ts",
+      "sha256": "3bf34905e4ddd150e68f54caa40ebbd82eb020280e3edfc32b80a61a795abe4e"
+    },
+    {
+      "file": "/app/dist/src/channel/holdout-main.js",
+      "sha256": "bc47e61746a7cd54a49d5af40004e26918c9f38dc6c8765bb3dec70f3c891786"
+    },
+    {
+      "file": "/app/dist/src/channel/holdout-main.js.map",
+      "sha256": "6d3cff63444f5333302128cd13a89383b6b3edcca720e4f5a24ff82c3f8c6d41"
+    },
+    {
+      "file": "/app/dist/src/channel/holdout-spec.d.ts",
+      "sha256": "7708015cc5cda1d7675d2e3a7f841bc7deb9e11fe25573a4f43a17fe66ec387c"
+    },
+    {
+      "file": "/app/dist/src/channel/holdout-spec.js",
+      "sha256": "af59e84534a47ccf88d2b42101259ecb0127fde1ef5c8ff2e4162093958b3a07"
+    },
+    {
+      "file": "/app/dist/src/channel/holdout-spec.js.map",
+      "sha256": "d0c471e607fd3f0eff714208eb112a158d3b20b76b90f9acde91b5fa769cff68"
+    },
+    {
+      "file": "/app/dist/src/channel/planner.d.ts",
+      "sha256": "66cc32ad5d65556e2bb4df08d549e8fed520405afae69395712a7fef68de2391"
+    },
+    {
+      "file": "/app/dist/src/channel/planner.js",
+      "sha256": "f291dcbf039db04143dd1cca0c41358edf35b9ed17a56f9f9b1c4761f11c744a"
+    },
+    {
+      "file": "/app/dist/src/channel/planner.js.map",
+      "sha256": "c96c40f4dc3a7a7fb66e7a127f81c2fdec541e16599b1c5f06839a5b1a822327"
+    },
+    {
+      "file": "/app/dist/src/channel/replay.d.ts",
+      "sha256": "65551d550c483b4ebaccc291a7c3ab516ca73d860a8703adca5e0706d2aa7ad8"
+    },
+    {
+      "file": "/app/dist/src/channel/replay.js",
+      "sha256": "4d3a8a74bbd88e21b6ce59e5daaa8b947d783d43f87ff657f509101af7559596"
+    },
+    {
+      "file": "/app/dist/src/channel/replay.js.map",
+      "sha256": "57efe18d062c3ac50b3e1e6e1a4f62ba64ccd0c2995437d871d65d092ac1477c"
+    },
+    {
+      "file": "/app/dist/src/channel/spec.d.ts",
+      "sha256": "963171c3a1b3f3e7a5b70f868f7a247462d0e59375f6c5e207b33b26b77d4697"
+    },
+    {
+      "file": "/app/dist/src/channel/spec.js",
+      "sha256": "4f5071a893e8ae5b04f36a5b0b250d4ef25d468588ca1763825917861bd47b9d"
+    },
+    {
+      "file": "/app/dist/src/channel/spec.js.map",
+      "sha256": "5a76931dfa72a1f4ebb506940a31c3f8b64816aa96a77a1f8a1fc63c07f31c23"
+    },
+    {
+      "file": "/app/dist/src/channel/study-main.d.ts",
+      "sha256": "11fb7be1d40b58cde2dc47400a5263eb7f17feed5972566a517e22e3fbf0171d"
+    },
+    {
+      "file": "/app/dist/src/channel/study-main.js",
+      "sha256": "08881b985b09060c0dc2d5c2e3b16e27f8fa69f06da2be3a9973a33f460b1855"
+    },
+    {
+      "file": "/app/dist/src/channel/study-main.js.map",
+      "sha256": "36d35cf11292c5d6cb0aed1610c387aa8b4ca23da261e5a7471e85f008ddcb76"
+    },
+    {
+      "file": "/app/dist/src/channel/verify-v1-parity-main.d.ts",
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+    },
+    {
+      "file": "/app/dist/src/channel/verify-v1-parity-main.js",
+      "sha256": "9006523ead2a64706ce04ef10b5b12afcebb36602781e6874984ae18dabb81eb"
+    },
+    {
+      "file": "/app/dist/src/channel/verify-v1-parity-main.js.map",
+      "sha256": "18f8435b312cfdbc140f1713b7899bd20d56b6118c951266e0b24cbc987606c7"
+    },
+    {
+      "file": "/app/dist/src/config.d.ts",
+      "sha256": "fef91bf2f6c1b6387a00e3247bc972e2a1f1788df3d50caec2bf9f096f73b27c"
+    },
+    {
+      "file": "/app/dist/src/config.js",
+      "sha256": "82abba2b0ad5c270aa85482c3d68e8c978af504c88c458e793feea164ff2ed9d"
+    },
+    {
+      "file": "/app/dist/src/config.js.map",
+      "sha256": "093f0c9d000e88f43930d7595b589bd80b78306b969813b92a527eaaea8c5709"
+    },
+    {
+      "file": "/app/dist/src/config/audit-main.d.ts",
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+    },
+    {
+      "file": "/app/dist/src/config/audit-main.js",
+      "sha256": "1ad20d2454e9d7567571e570492490d9bcf6ab42b4635086fbe647a39e6c7209"
+    },
+    {
+      "file": "/app/dist/src/config/audit-main.js.map",
+      "sha256": "63787911befdd8567e1c959b2f818683288a6027f32322f0e9dc3942b761a984"
+    },
+    {
+      "file": "/app/dist/src/config/audit.d.ts",
+      "sha256": "14c2b00597d8e955c1b93db24d8baa284e0e0e994440691ffe8aaa549e61aa73"
+    },
+    {
+      "file": "/app/dist/src/config/audit.js",
+      "sha256": "5790ee4b85bc7544d464b0979f4c5bfe02600555d5f71cfc255c010164f1d24f"
+    },
+    {
+      "file": "/app/dist/src/config/audit.js.map",
+      "sha256": "642189d5b523e29efedcc796b8db5aa237d2f950b30879693ed2fd9868558ebe"
+    },
+    {
+      "file": "/app/dist/src/config/deterministic-defaults.d.ts",
+      "sha256": "ac99c73a8a70e7157227372f1be2c444cb840b0f8032f2aaaabe2916996abad2"
+    },
+    {
+      "file": "/app/dist/src/config/deterministic-defaults.js",
+      "sha256": "5cb4a30a77c3ee98ff82457dd72742fdfa4de091e3b399919956171814afb7f0"
+    },
+    {
+      "file": "/app/dist/src/config/deterministic-defaults.js.map",
+      "sha256": "db4b1a4f73db809573e460035fb8f3c90a3c923f4d7365397ab8d7948dafc16f"
+    },
+    {
+      "file": "/app/dist/src/core/decimal.d.ts",
+      "sha256": "9afd6d4ab43b11c58d529da548efac170e3a0bf8d41316635267b5677f9e2395"
+    },
+    {
+      "file": "/app/dist/src/core/decimal.js",
+      "sha256": "af2a4b76fc91ec6f82d227b74489f81e7c46a220d5f7c819a5ad2aa266b295b2"
+    },
+    {
+      "file": "/app/dist/src/core/decimal.js.map",
+      "sha256": "80526595e677898fdf7404a67cf2d913da491c05a7585158200907a758470165"
+    },
+    {
+      "file": "/app/dist/src/core/features.d.ts",
+      "sha256": "8d0091e8b5bd31780fc6a3f8642d6aaa1c0a3e7cbf9050913e31e0a3edea3d71"
+    },
+    {
+      "file": "/app/dist/src/core/features.js",
+      "sha256": "de2365c79f9d36250d661a3be699a0d42083cbfaef1bc3b19e4fa085b8f7b3f2"
+    },
+    {
+      "file": "/app/dist/src/core/features.js.map",
+      "sha256": "6ef591b9861f3090e93e09390f3349eb0439583de81d73563eb5585f04637e16"
+    },
+    {
+      "file": "/app/dist/src/core/latency.d.ts",
+      "sha256": "0d8d1dd600381e622b73df69c734ae2115445371026aba7c9a6df716d433a1f6"
+    },
+    {
+      "file": "/app/dist/src/core/latency.js",
+      "sha256": "de26c8a9b91a3619391f2b266d3947011a71cdc84d77ee96b556198a4acf445e"
+    },
+    {
+      "file": "/app/dist/src/core/latency.js.map",
+      "sha256": "e2573ab8a623e7b64a0a1db9a872c1fab2afbbc9903d3044fc9098d961532640"
+    },
+    {
+      "file": "/app/dist/src/core/market.d.ts",
+      "sha256": "e8632b8c10003897f1629ec1786238868d3a9f9a96de77140e04e3d081624c15"
+    },
+    {
+      "file": "/app/dist/src/core/market.js",
+      "sha256": "70947f1a081eb04b1ddfe1cb4f158e8284f45b15e2e04070b6744a49fb440f09"
+    },
+    {
+      "file": "/app/dist/src/core/market.js.map",
+      "sha256": "05d43a1e7ac89663c5ad4ccb76fe2ae383fc5e8df13a59ef37f3afc5277c2b1c"
+    },
+    {
+      "file": "/app/dist/src/core/order-book.d.ts",
+      "sha256": "ebe7189fb59d0273ad7206f7cff5b6f389c2326e94890facb787416ff311f1a2"
+    },
+    {
+      "file": "/app/dist/src/core/order-book.js",
+      "sha256": "4e4eb2c71d35e2140eea262c4e0b06fccdcee12a4f8157dacf516653732bf91a"
+    },
+    {
+      "file": "/app/dist/src/core/order-book.js.map",
+      "sha256": "0f7f3d9e4f74922ec6ecb0b4c067febfa2ea54ad717eced6540468ae751bc9f7"
+    },
+    {
+      "file": "/app/dist/src/core/statistics.d.ts",
+      "sha256": "8df54b290bc2b2fc66aced3c9dccf590e2024942d3061a859404e6a53d7e1452"
+    },
+    {
+      "file": "/app/dist/src/core/statistics.js",
+      "sha256": "6b9d2d3bb2bdb41e124f398a2eff5b3270b051647bb295ee69a55b50b9a5c0a8"
+    },
+    {
+      "file": "/app/dist/src/core/statistics.js.map",
+      "sha256": "3c29b9cd8a2aaf725ebf2c7fd83404e042ffe3fd7c007345958bc4456bbfc504"
+    },
+    {
+      "file": "/app/dist/src/dashboard/demo-main.d.ts",
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+    },
+    {
+      "file": "/app/dist/src/dashboard/demo-main.js",
+      "sha256": "49372cd3c90fba314815f22a7370f265f96c272a5e1931308d43b56999e572dc"
+    },
+    {
+      "file": "/app/dist/src/dashboard/demo-main.js.map",
+      "sha256": "33cd43563e46854f239a98f984360381ac5a4dd09df6abf94457242a18a206b7"
+    },
+    {
+      "file": "/app/dist/src/dashboard/eth40-proxy.js",
+      "sha256": "8c49398eb6ebde3d371d2ba1f8850e85a5c91d3a805107ed04353dab28f15814"
+    },
+    {
+      "file": "/app/dist/src/dashboard/eth40-proxy.js.map",
+      "sha256": "aada7746e943d0ba211b1d00827eba082a885d72bf0323ee27c6df7e38ad4c27"
+    },
+    {
+      "file": "/app/dist/src/dashboard/operations-monitor.d.ts",
+      "sha256": "f9829f5ae5cbcdf55a4fa32587dc2070038adf6081ce797c779c262c0013e71b"
+    },
+    {
+      "file": "/app/dist/src/dashboard/operations-monitor.js",
+      "sha256": "a1cbca50a71bc96d0117428fdd4d450eb7a1cc0ec8e16cb61061e114f128d47a"
+    },
+    {
+      "file": "/app/dist/src/dashboard/operations-monitor.js.map",
+      "sha256": "8acf18045caceb457e4335f16f6edbd318ab71ad1367c38ca5ee6cc348ffc709"
+    },
+    {
+      "file": "/app/dist/src/dashboard/server.d.ts",
+      "sha256": "8a904b4fea49bf04327f7d3a337ae22667f777edc421bc7c30f58cc7774efe61"
+    },
+    {
+      "file": "/app/dist/src/dashboard/server.js",
+      "sha256": "f5491f88fa802df1ce65cc18440a335018d82abd017329c387d7b7feee240114"
+    },
+    {
+      "file": "/app/dist/src/dashboard/server.js.map",
+      "sha256": "39c390fdaad337f38699e33aeacbec90fe91824af3ce03d0c3cc28c8177ca96a"
+    },
+    {
+      "file": "/app/dist/src/dashboard/spot-activity-reader.js",
+      "sha256": "0d27b185a5917ff32980bad4abdc3a9ef78b55836327c23c0aaffea66f5d48c5"
+    },
+    {
+      "file": "/app/dist/src/dashboard/spot-activity-reader.js.map",
+      "sha256": "f7c77e251bbfa19f1c813b9e6158723a62ec4bd671320c8a89fd440794332538"
+    },
+    {
+      "file": "/app/dist/src/dashboard/spot-position-activity.js",
+      "sha256": "4e51fb4dbbb58d4762cf6f5572accc1894acdd08a11d4d3de93345bc070896d5"
+    },
+    {
+      "file": "/app/dist/src/dashboard/spot-position-activity.js.map",
+      "sha256": "05187b7d8d79a94d56901475eaf01cfabd23a07f002067f8fc89f249bc863247"
+    },
+    {
+      "file": "/app/dist/src/dashboard/spot-proxy.js",
+      "sha256": "78aa0798a8554ddec2759057d0b1b85ceb44cbb6dd60945da2e8bd9d671f8504"
+    },
+    {
+      "file": "/app/dist/src/dashboard/spot-proxy.js.map",
+      "sha256": "b7c8e2a723b3c069398bea750f708bcc40d026f52d6860f9ad831f35f187c704"
+    },
+    {
+      "file": "/app/dist/src/dashboard/types.d.ts",
+      "sha256": "a68956103ddf91637c5e3099fb553ba4f83463a2995cd0daf0e13f0f8e39c03c"
+    },
+    {
+      "file": "/app/dist/src/dashboard/types.js",
+      "sha256": "15f7f58f297e1dd82e100a9a856e1e8b1145412509b2ca6aafe8232fd1b05bf7"
+    },
+    {
+      "file": "/app/dist/src/dashboard/types.js.map",
+      "sha256": "ed8d70d42007573f885e472bfad31bff3f000a85287193d7a7e9535dfbc14911"
+    },
+    {
+      "file": "/app/dist/src/database/migrate-main.d.ts",
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+    },
+    {
+      "file": "/app/dist/src/database/migrate-main.js",
+      "sha256": "80893ebb59304fa8ccccfa80255b8a32adb3d8bb63065c61a358ab06598ed2ed"
+    },
+    {
+      "file": "/app/dist/src/database/migrate-main.js.map",
+      "sha256": "8b2000d3ad1acc4c821bfad787e6f0b3f6137a9f532c7155cc129bf3bf52c463"
+    },
+    {
+      "file": "/app/dist/src/database/migrations.d.ts",
+      "sha256": "5feb8a260cf25229a76fa44bbb1133d2470e5da5a3fb918917760effef773279"
+    },
+    {
+      "file": "/app/dist/src/database/migrations.js",
+      "sha256": "49fdc4acce373e23f30ff1d1f895fc6ac35552a7b264252ace0b7874e63f03d9"
+    },
+    {
+      "file": "/app/dist/src/database/migrations.js.map",
+      "sha256": "2a18b7128bfd4445d77206bf8ada20b655c9e25fc05a92dba597f6a8f63cafc7"
+    },
+    {
+      "file": "/app/dist/src/database/persistence-watch.d.ts",
+      "sha256": "f139dd2e9155ab8c3d92e2dde90819ab7f3dceec6d7a145b7caa2bded12a562b"
+    },
+    {
+      "file": "/app/dist/src/database/persistence-watch.js",
+      "sha256": "60daf3e7a80b77358bd41d4b454fbea7c44b4973521996644c37f6f5424a5e46"
+    },
+    {
+      "file": "/app/dist/src/database/persistence-watch.js.map",
+      "sha256": "2de130f68f52d0170b92e7830c6a9ce21ecda71310d8cabbbdd52b76af329748"
+    },
+    {
+      "file": "/app/dist/src/database/postgres-store.d.ts",
+      "sha256": "d21bd427b284091e88de15c65749183c24b9a1aefef282f1e2afc9e154deabda"
+    },
+    {
+      "file": "/app/dist/src/database/postgres-store.js",
+      "sha256": "aca120e7a7f92a710ebc532663215cc275cf725a75eb9da568c401f34c92745c"
+    },
+    {
+      "file": "/app/dist/src/database/postgres-store.js.map",
+      "sha256": "755e463d421efcd85d7389b70259d90910d9dd4afae7cc9ad71b25896e9bcd22"
+    },
+    {
+      "file": "/app/dist/src/database/smoke-main.d.ts",
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+    },
+    {
+      "file": "/app/dist/src/database/smoke-main.js",
+      "sha256": "4c8d23a6fe891329c07af6e193f70503537b22e3115f13c5fcbf25c65dd08d98"
+    },
+    {
+      "file": "/app/dist/src/database/smoke-main.js.map",
+      "sha256": "9551e5ea1c123fe07f564cd0a965fb4d5e46805cef9eeb2a4b8c0416f0af6d68"
+    },
+    {
+      "file": "/app/dist/src/database/verify-main.d.ts",
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+    },
+    {
+      "file": "/app/dist/src/database/verify-main.js",
+      "sha256": "4081b31d60357b95f528503faff66ab377d8a0e6843ddbc154f07319c27da08e"
+    },
+    {
+      "file": "/app/dist/src/database/verify-main.js.map",
+      "sha256": "c80729c7077c62ef9248814d705e9572d9b08f7692abbb05913f1d558c5b862e"
+    },
+    {
+      "file": "/app/dist/src/distribution/checkpoint.d.ts",
+      "sha256": "ec8252627426c72b1c54e32531ccd961e7d41d611ec01ae18b470688a4cd5790"
+    },
+    {
+      "file": "/app/dist/src/distribution/checkpoint.js",
+      "sha256": "1d7bccc29188f3b2fee0ed105ff6cbf39d51d0c0d075fabcc07973b3104869d1"
+    },
+    {
+      "file": "/app/dist/src/distribution/checkpoint.js.map",
+      "sha256": "d58c3462f52a13a5046c8588beb15a9d9d2ff81c58a5987cb0a023009d157c8a"
+    },
+    {
+      "file": "/app/dist/src/distribution/controller.d.ts",
+      "sha256": "dc7738b943c29368774886eb1318c5626856be0498ffa6ccf7262b9d13b813ce"
+    },
+    {
+      "file": "/app/dist/src/distribution/controller.js",
+      "sha256": "322da82a74674f66b4517363b4ad48bfaabe277706189dc0ec4f082abf4d8c32"
+    },
+    {
+      "file": "/app/dist/src/distribution/controller.js.map",
+      "sha256": "c30fb269258c97b19312c679686f1364f5c4b98c226b5858a189d9dcd4fb1193"
+    },
+    {
+      "file": "/app/dist/src/distribution/cost-aware-model.d.ts",
+      "sha256": "efe8f9d155c79c05b2517f8db3f9733bcd8fcb3ce3f85f71be715a18656ddf24"
+    },
+    {
+      "file": "/app/dist/src/distribution/cost-aware-model.js",
+      "sha256": "7051e7e6b49452ba293e180562c7deea1d505f25a701ea2e4df73967104d58d6"
+    },
+    {
+      "file": "/app/dist/src/distribution/cost-aware-model.js.map",
+      "sha256": "cc2ff72da16b57c43d8813d56099baec82977769d881553085011af6fcd4861a"
+    },
+    {
+      "file": "/app/dist/src/distribution/efficient-trainer.d.ts",
+      "sha256": "9a9bc9bcaca1be3d59ab062ab835726109c2b3f386ce0113ca8c5d179d44192b"
+    },
+    {
+      "file": "/app/dist/src/distribution/efficient-trainer.js",
+      "sha256": "0c8ea0176ab8337c1e8a0c465ffc6895e25174ed45122858f9402b3d71693639"
+    },
+    {
+      "file": "/app/dist/src/distribution/efficient-trainer.js.map",
+      "sha256": "a321b238ed106f72811aff6f0795cb6b1ac59ecb359414dd9977f6b2ae005d5d"
+    },
+    {
+      "file": "/app/dist/src/distribution/execution.d.ts",
+      "sha256": "ba9454901da112690e918b09c47411d5bec8ae22e74cb65a70b373f8ea1282f6"
+    },
+    {
+      "file": "/app/dist/src/distribution/execution.js",
+      "sha256": "0f335eacbafe19e41fdbcb0d9c4abe905718c7f52e583a2a39c6c9e08a655e89"
+    },
+    {
+      "file": "/app/dist/src/distribution/execution.js.map",
+      "sha256": "4979f32e2ea573863cd6dc9abf1c8f6a29c2f70ff7b436088c2e4ad13c0c88b1"
+    },
+    {
+      "file": "/app/dist/src/distribution/history-checkpoint.d.ts",
+      "sha256": "d0015869dc1996f07a450552bc85b23f470caaf7e97eefc4568f6351ccd9aa04"
+    },
+    {
+      "file": "/app/dist/src/distribution/history-checkpoint.js",
+      "sha256": "f860e4a52030c78ae472f6bc4f23e7c18424c1ef730d5edfc26641df21349780"
+    },
+    {
+      "file": "/app/dist/src/distribution/history-checkpoint.js.map",
+      "sha256": "3c9e93b4013f57fa65cfa00667b738347ad6504474026ef6c6fc1334f346a870"
+    },
+    {
+      "file": "/app/dist/src/distribution/history-main.d.ts",
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+    },
+    {
+      "file": "/app/dist/src/distribution/history-main.js",
+      "sha256": "85e8ae733b6490dfa9964afc3427ce8f77994cdb84ec142dab7c53e8cd0d88e7"
+    },
+    {
+      "file": "/app/dist/src/distribution/history-main.js.map",
+      "sha256": "ac1db93ed56035c44d725498812d8f51c784c29ac34d12608a6d05815e4c0dc2"
+    },
+    {
+      "file": "/app/dist/src/distribution/history-replay.d.ts",
+      "sha256": "b4ddcf45a969d3601eedfa3715bcffc3bb4808fe46dae19832e911699df52b37"
+    },
+    {
+      "file": "/app/dist/src/distribution/history-replay.js",
+      "sha256": "8b0c80b409c9e8aa20195319a2c82a167259e207c5ba1c028bbadc106e915429"
+    },
+    {
+      "file": "/app/dist/src/distribution/history-replay.js.map",
+      "sha256": "5b593bc972e580afc795bbee21e7f96ee2bfb33bfec5a128871b1ca126da0b9d"
+    },
+    {
+      "file": "/app/dist/src/distribution/horizon-assessment.d.ts",
+      "sha256": "ae217232fc538943407256d9262e2ec750f784b20daf325efc872b9b36eb506b"
+    },
+    {
+      "file": "/app/dist/src/distribution/horizon-assessment.js",
+      "sha256": "f2f52249e05d634549e5ccd1d19063b0cc17c7879daac1d0239bd2505413890c"
+    },
+    {
+      "file": "/app/dist/src/distribution/horizon-assessment.js.map",
+      "sha256": "5611b2f07f1101b4f43f2d243025c2e11267a9f9122e151e33cf719aa17d4c08"
+    },
+    {
+      "file": "/app/dist/src/distribution/horizon-main.d.ts",
+      "sha256": "18fa9f54a49b7ed3b0f898d3608550960e6e4fe6f6b9caf2eba30ebf3e05af88"
+    },
+    {
+      "file": "/app/dist/src/distribution/horizon-main.js",
+      "sha256": "1586d930fc57be006863b7371d0d00223cfedc0aab364ca8b1773ef001b79dda"
+    },
+    {
+      "file": "/app/dist/src/distribution/horizon-main.js.map",
+      "sha256": "44833dc8bccd7b5753234e3516b4fc4ee0418e79a86982d5112c35ff92adab6c"
+    },
+    {
+      "file": "/app/dist/src/distribution/horizon-replay.d.ts",
+      "sha256": "a38d05b4fadc329d10ed0918f7ff9a2b236da3a76861a3afc9ead6f22361b766"
+    },
+    {
+      "file": "/app/dist/src/distribution/horizon-replay.js",
+      "sha256": "dcb2faaf83dbeaba83363cfe6c2238a95cf4dfd258e6b56987350e40f389ed15"
+    },
+    {
+      "file": "/app/dist/src/distribution/horizon-replay.js.map",
+      "sha256": "4412fcea86805e48f35c7a4b04473d54f4534501b2ab8a60d251faa2c045fc7e"
+    },
+    {
+      "file": "/app/dist/src/distribution/horizon-spec.d.ts",
+      "sha256": "0f8369495b0a1655b2cc3df5b612957a822c8c9c130d0271e7465213439fdfe4"
+    },
+    {
+      "file": "/app/dist/src/distribution/horizon-spec.js",
+      "sha256": "bff7bfc2fa85152751b340f5462040f76aa366f5da996d527c84a5d1a2307fdd"
+    },
+    {
+      "file": "/app/dist/src/distribution/horizon-spec.js.map",
+      "sha256": "627271044cdbf63b4ca7c676a27f3767b7db451065b1fa7340d466a68745f265"
+    },
+    {
+      "file": "/app/dist/src/distribution/market.d.ts",
+      "sha256": "15617294d1cf2dcb8fb9d422aff32037f44f5accc99733588ca81ed7574853a8"
+    },
+    {
+      "file": "/app/dist/src/distribution/market.js",
+      "sha256": "e60e26569c65600985a05d7a45d3af4b1abc374b8a38ef4f0c8ef0fa77f363c4"
+    },
+    {
+      "file": "/app/dist/src/distribution/market.js.map",
+      "sha256": "b52b808979fa4341a072d2e39284d7b31bb8c5785e708c7b0bb336b48ed3715e"
+    },
+    {
+      "file": "/app/dist/src/distribution/model.d.ts",
+      "sha256": "fed96e615dcca5ff3d8dc258e0647b31569b6ac1af3aba5b6f848636dd5586bd"
+    },
+    {
+      "file": "/app/dist/src/distribution/model.js",
+      "sha256": "11e9e5b66e99288d2f9a01084bcad3bb7e087ceb5bcb5136c878ef3482ee65e9"
+    },
+    {
+      "file": "/app/dist/src/distribution/model.js.map",
+      "sha256": "48991ae76c6f6b810fa77fa654847ed37dac15f8496b44462201779fa21f0bac"
+    },
+    {
+      "file": "/app/dist/src/distribution/planner.d.ts",
+      "sha256": "e480e9e0396aa89ee4c68f397ac68e688d020abaa60b602277d65634175d49d6"
+    },
+    {
+      "file": "/app/dist/src/distribution/planner.js",
+      "sha256": "c9883b9f2546f53eb9339ca41b6771621483d63a63989fec403436f8eb11c5a8"
+    },
+    {
+      "file": "/app/dist/src/distribution/planner.js.map",
+      "sha256": "3d8bcd1aa3e52e8877176dbfe5271fe64a19037b7f6104525e46cb9a26374ff6"
+    },
+    {
+      "file": "/app/dist/src/distribution/predictive-audit-data.d.ts",
+      "sha256": "fe4b6810906e44b21032a5cae93ee9df8cb4e89e2e0b50b8ae64620a0f84f050"
+    },
+    {
+      "file": "/app/dist/src/distribution/predictive-audit-data.js",
+      "sha256": "72745b0fa308a59936c9fa6af169dd470fdb3971ac8e9d48816c4fc1998666d8"
+    },
+    {
+      "file": "/app/dist/src/distribution/predictive-audit-data.js.map",
+      "sha256": "7ddab8caae62b7e5071403966258bae5eb0c18bd44639fc9ad2eb9ba1d0a0849"
+    },
+    {
+      "file": "/app/dist/src/distribution/predictive-study-main.d.ts",
+      "sha256": "5e539712bbb054742bedcb92e3f4b264a4d14b79cea19102f80690c4979db9ef"
+    },
+    {
+      "file": "/app/dist/src/distribution/predictive-study-main.js",
+      "sha256": "44135ac532ad14071ee38b4f9e82bde0b1852f86d209b745dc011308c6b14fd9"
+    },
+    {
+      "file": "/app/dist/src/distribution/predictive-study-main.js.map",
+      "sha256": "43a2de618bd9147212d35ba004e141fd082c7181452f0084fa3081fe7b04d2db"
+    },
+    {
+      "file": "/app/dist/src/distribution/predictive-study.d.ts",
+      "sha256": "e352ad2cd7d5f0b86fda5d9eb9aaa6113f8a71adf5d9c7e6da62117bd97bb08d"
+    },
+    {
+      "file": "/app/dist/src/distribution/predictive-study.js",
+      "sha256": "e5ae8136da8b7f112f7d10201cf7a1764ac1819265ebd2942e5a11d3d1429554"
+    },
+    {
+      "file": "/app/dist/src/distribution/predictive-study.js.map",
+      "sha256": "bc92bb8bddaef693553cd6753fa81d63cb0a1bbb41b1b4b1e98ca6b94ea85055"
+    },
+    {
+      "file": "/app/dist/src/distribution/regime-model.d.ts",
+      "sha256": "56f38a2223126661d020c137d84aba57ce7bb46ae377f6e26031a715bbd07000"
+    },
+    {
+      "file": "/app/dist/src/distribution/regime-model.js",
+      "sha256": "5acaed65e617b60e468716736d772f98d70bb24754f0233e91eec8f72ccdef18"
+    },
+    {
+      "file": "/app/dist/src/distribution/regime-model.js.map",
+      "sha256": "525d02d209533921611c5eebf798b741e2a5e03b31f1ad8506e69ac09e0682e2"
+    },
+    {
+      "file": "/app/dist/src/distribution/regime-study-main.d.ts",
+      "sha256": "32401760bd64185ff3b30ee9d5ff84867be67541d497c179e6c0a657cb9082a0"
+    },
+    {
+      "file": "/app/dist/src/distribution/regime-study-main.js",
+      "sha256": "28d48079266de37e3705e8fef4ef9b45d4cd0f0e375bee342779ba44f56f3414"
+    },
+    {
+      "file": "/app/dist/src/distribution/regime-study-main.js.map",
+      "sha256": "6debb4af313e113f5545aa1946a410111183fb503cbd0d71a331de7ff82721bc"
+    },
+    {
+      "file": "/app/dist/src/distribution/regime-study.d.ts",
+      "sha256": "70d49f2bc35df5e79e6f552712d7c4cbd121e80ded2bbb433256f3fad6544fd7"
+    },
+    {
+      "file": "/app/dist/src/distribution/regime-study.js",
+      "sha256": "1a33f6dbd7825a065adc98d69b83b8340bd9d1cab87c0804a79f85c1901251f2"
+    },
+    {
+      "file": "/app/dist/src/distribution/regime-study.js.map",
+      "sha256": "166e21afbea8375b82571011e72a9a0ab85509c5278fb8f6e1312002510204b7"
+    },
+    {
+      "file": "/app/dist/src/distribution/replay-main.d.ts",
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+    },
+    {
+      "file": "/app/dist/src/distribution/replay-main.js",
+      "sha256": "59396d7e3b3379532661bbbe51db7a3f2348e11a30a74b8abc4c4e8bedbb4e79"
+    },
+    {
+      "file": "/app/dist/src/distribution/replay-main.js.map",
+      "sha256": "3855ae48dc5962fcd6772a0b81f06ec95ec26d5f6d0a12ca54617aaa1b86b7fd"
+    },
+    {
+      "file": "/app/dist/src/distribution/replay.d.ts",
+      "sha256": "d5b0fc6713944fe9b422e2e37be712475bf8b384abf5e479f9cad831fcaed787"
+    },
+    {
+      "file": "/app/dist/src/distribution/replay.js",
+      "sha256": "62e3a8366b7615685f396a9456fb28e24d6d036dc85bcc3c9dc7a03133323430"
+    },
+    {
+      "file": "/app/dist/src/distribution/replay.js.map",
+      "sha256": "54f85b8fa3975e243403ea14253cca5f3a0663216e0bc439dd830f91fa9edbca"
+    },
+    {
+      "file": "/app/dist/src/distribution/risk-training-context.d.ts",
+      "sha256": "e46020c1cbe667ac6d0658cde53e3b0daf887198c8ffb98622e9e4d6593a4646"
+    },
+    {
+      "file": "/app/dist/src/distribution/risk-training-context.js",
+      "sha256": "a1ba886f7a451881f3a6c513c657349176f3328f45292be8aa79bbdd981637c6"
+    },
+    {
+      "file": "/app/dist/src/distribution/risk-training-context.js.map",
+      "sha256": "e082387854e5078382e317ad6ff38b7187f484ffa66dd1624866429df1227630"
+    },
+    {
+      "file": "/app/dist/src/distribution/risk-training-origins.d.ts",
+      "sha256": "9ff7a44f956589d6f97e61588452b4a3a66c2d37d10beef0d397e93bdfc7d4b8"
+    },
+    {
+      "file": "/app/dist/src/distribution/risk-training-origins.js",
+      "sha256": "3ef85d655dc30934036cdc801c809e39b2c6c7d2cba34f811f02d0f9e3733897"
+    },
+    {
+      "file": "/app/dist/src/distribution/risk-training-origins.js.map",
+      "sha256": "3c2ccfeb1037d7b72f6a2a0925c5310933a1e68eefebc839b04eca7f8146908e"
+    },
+    {
+      "file": "/app/dist/src/distribution/risk-training-source.d.ts",
+      "sha256": "ed502c1d22c8b70b3caefbf3671ebeda8b049c98972b70ab0825b908aaebcc94"
+    },
+    {
+      "file": "/app/dist/src/distribution/risk-training-source.js",
+      "sha256": "c415e68fa7cf5b546189bc739326fd398dc6f8e2e5cc5fa538348d7806bddf41"
+    },
+    {
+      "file": "/app/dist/src/distribution/risk-training-source.js.map",
+      "sha256": "86263d963cdbe7acc76ae45d46f49b3297e4c672a2380dd7df746244cbd2b6e0"
+    },
+    {
+      "file": "/app/dist/src/distribution/sizing.d.ts",
+      "sha256": "36b5bba113cb6bf81921ec31d0aa8ee060ce42194a9dbf496b4f291bc8c06c5c"
+    },
+    {
+      "file": "/app/dist/src/distribution/sizing.js",
+      "sha256": "ce039b631026f6ced66e70f85788aa87fde409090de62d0dba8808bb9ab82255"
+    },
+    {
+      "file": "/app/dist/src/distribution/sizing.js.map",
+      "sha256": "99730266d6521ec67d571d5725025073f385d3b613d421d7a4ce894b82c419af"
+    },
+    {
+      "file": "/app/dist/src/distribution/spec.d.ts",
+      "sha256": "0d7a822863351eb740011148482acd5367460566c5cec97b80cfc503e6d58f70"
+    },
+    {
+      "file": "/app/dist/src/distribution/spec.js",
+      "sha256": "dc4deef701f0552338c797821e36fab915dd4d71b177b1f222fb6d6216567655"
+    },
+    {
+      "file": "/app/dist/src/distribution/spec.js.map",
+      "sha256": "81855b5b9753f927af61aed4476576ed7b4e373804b01110efc7b95aaac6231e"
+    },
+    {
+      "file": "/app/dist/src/distribution/study-main.d.ts",
+      "sha256": "a5b36c7fb1e8d7f784044f01789364a82acedd362d9ea8b3c7e66d85a301188a"
+    },
+    {
+      "file": "/app/dist/src/distribution/study-main.js",
+      "sha256": "7d2948629aa9545d1c3c74fb082a183eabb9db69152c118ec61a9027dd017403"
+    },
+    {
+      "file": "/app/dist/src/distribution/study-main.js.map",
+      "sha256": "5116e698fae9c5ff8c071a5f24da7b465864cdfb668d5ae8a053f7b37074c2e4"
+    },
+    {
+      "file": "/app/dist/src/distribution/study.d.ts",
+      "sha256": "6340b12c3b1085d2a6e0dd42a11c807e32d5af60cac3790301827e66e9b06746"
+    },
+    {
+      "file": "/app/dist/src/distribution/study.js",
+      "sha256": "39e85a08016ee4f69648ffde671d78553ccfbbe9f46b42f3e60233f87e1dfed5"
+    },
+    {
+      "file": "/app/dist/src/distribution/study.js.map",
+      "sha256": "0d3dcdffa65f6eeb9997f2f2decdb003966adc5b3928c063774e376f26fd6340"
+    },
+    {
+      "file": "/app/dist/src/distribution/training-backfill.d.ts",
+      "sha256": "c91653877a6f56c4da8a2936f0436ff9ed1f1a83f0b72e404975e444da5207a0"
+    },
+    {
+      "file": "/app/dist/src/distribution/training-backfill.js",
+      "sha256": "d0d4b1f3f9fd33136cb89a6440aa6649c082f2e8f3ac1965878bd4eb97f00cff"
+    },
+    {
+      "file": "/app/dist/src/distribution/training-backfill.js.map",
+      "sha256": "9c7437e93afee5e92c1f194d755154c0fe29b5bb9a12a1a3add35b769f28b36c"
+    },
+    {
+      "file": "/app/dist/src/distribution/training-import.d.ts",
+      "sha256": "09e779f3b36fcfbb93ca85f5dcada875784e9338d6024ed909cf1473090d4693"
+    },
+    {
+      "file": "/app/dist/src/distribution/training-import.js",
+      "sha256": "9633baa93fe2b07045f70b14dc1380c0f9951b589fbe04fd1e4019b7c1eb8a06"
+    },
+    {
+      "file": "/app/dist/src/distribution/training-import.js.map",
+      "sha256": "2cc6152137d62394aed13c9a8470b0092fdb99d7e413d14793ace084926414bb"
+    },
+    {
+      "file": "/app/dist/src/distribution/training-main.d.ts",
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+    },
+    {
+      "file": "/app/dist/src/distribution/training-main.js",
+      "sha256": "d25cca05975cd2bf951f8e433b1cc0434d525b8dffd9f851633f7f24ca183d60"
+    },
+    {
+      "file": "/app/dist/src/distribution/training-main.js.map",
+      "sha256": "dd5ab9be94e7904a3b50e26b8346e650dcec16211e943abc43001fe38abf72c6"
+    },
+    {
+      "file": "/app/dist/src/economics/analytic-edge.d.ts",
+      "sha256": "1354e79ff42d23f7efd8c655b20f5b92b397b6a16246a032843969175ef60774"
+    },
+    {
+      "file": "/app/dist/src/economics/analytic-edge.js",
+      "sha256": "231b49374f5788253813d0565e6b3c25fcea6f410953054acaf4e2fed5bf1636"
+    },
+    {
+      "file": "/app/dist/src/economics/analytic-edge.js.map",
+      "sha256": "f0161bff046060477f672d8ca11e1e08aa430246640b9e495c4d585961eb5ff3"
+    },
+    {
+      "file": "/app/dist/src/economics/economic-edge-resolver.d.ts",
+      "sha256": "a2bbef74a77d5a711204bd08239bb275aae5d7c1ab8ae2ed5100513acc7079df"
+    },
+    {
+      "file": "/app/dist/src/economics/economic-edge-resolver.js",
+      "sha256": "fb97247fecc6355b0aac0f503e439a6b56cc9ef5cc5479ab4b13e2804c80124f"
+    },
+    {
+      "file": "/app/dist/src/economics/economic-edge-resolver.js.map",
+      "sha256": "b60bbcee9669f7ebd89afb902003164b86dce0efa9aa700da150475cc9d7d2d3"
+    },
+    {
+      "file": "/app/dist/src/economics/feasibility-audit.d.ts",
+      "sha256": "346f778381fc8389251cf5ba02388d913b5210c289a6e3dc366f424c82f6623d"
+    },
+    {
+      "file": "/app/dist/src/economics/feasibility-audit.js",
+      "sha256": "4b197ea2a0df50bc6206f54479e73a6338560511e7b1a52bcca27622c55d04a6"
+    },
+    {
+      "file": "/app/dist/src/economics/feasibility-audit.js.map",
+      "sha256": "ce07a6af0b30484c00f791c44fba50dfc89a5d81351916e2d462b3d3f44b5241"
+    },
+    {
+      "file": "/app/dist/src/economics/fee-validation.d.ts",
+      "sha256": "b015b65bf738ba91c78540ebaa0f4102c92d6ed7bada9def2eea17de765c1dc9"
+    },
+    {
+      "file": "/app/dist/src/economics/fee-validation.js",
+      "sha256": "4227a8d53d83dd13bdfe1c910d34f03d34ade87320d45a27bede97a86a58ce0e"
+    },
+    {
+      "file": "/app/dist/src/economics/fee-validation.js.map",
+      "sha256": "636df960efbe2835294bbaf12a3b2a6f672db6c23014c2b950d9e098d8e8cf04"
+    },
+    {
+      "file": "/app/dist/src/economics/multi-horizon-cost-gate.d.ts",
+      "sha256": "9f959ca6d0be43be401797be93e5734ef84a17880d8cdeb3f08e60fa33443dec"
+    },
+    {
+      "file": "/app/dist/src/economics/multi-horizon-cost-gate.js",
+      "sha256": "359480d60e260b9dbe7f8096985c1120392911374f6aa83145bc391d1bd460b3"
+    },
+    {
+      "file": "/app/dist/src/economics/multi-horizon-cost-gate.js.map",
+      "sha256": "c22dbb37c0b2583542202c3ad1ec004fa8ddf67503e057cd2fc0ed45b5054152"
+    },
+    {
+      "file": "/app/dist/src/economics/net-liquidation.d.ts",
+      "sha256": "2ad69ffae1fd7c1f884a1a6ebfe18bd879f83ebf03eeacc0e4e3150b3a4d64c6"
+    },
+    {
+      "file": "/app/dist/src/economics/net-liquidation.js",
+      "sha256": "afd3fbe2e80a2d5c406cef6ee87172e2da0c458e14a743b0e333f4c1e2cd311b"
+    },
+    {
+      "file": "/app/dist/src/economics/net-liquidation.js.map",
+      "sha256": "26c78e2768b11103f7dce2d03a8f33717765ce262658074e226740f1ac55963c"
+    },
+    {
+      "file": "/app/dist/src/economics/types.d.ts",
+      "sha256": "ab3154a262f2bdb02ee7140a934de8021871c03aeb04f3dea3c198c01bb9cf3c"
+    },
+    {
+      "file": "/app/dist/src/economics/types.js",
+      "sha256": "01ae2a5b120382f9a648ced7ee8507493a134f216d100fc61600c6c9738235d2"
+    },
+    {
+      "file": "/app/dist/src/economics/types.js.map",
+      "sha256": "dd22e6199229d830f812d0cd516723de09adfbb88521a358fec26bddf2fa7def"
+    },
+    {
+      "file": "/app/dist/src/engine/entry-pipeline-audit.d.ts",
+      "sha256": "5707b586cc15955af7ba4098959f0629f3732402ea50ffd827b10b49e4fa0ed9"
+    },
+    {
+      "file": "/app/dist/src/engine/entry-pipeline-audit.js",
+      "sha256": "2b14cf9e32d5779d9d5569245fbd70d1b1d57143da3d7c5c88b54669bba1acf8"
+    },
+    {
+      "file": "/app/dist/src/engine/entry-pipeline-audit.js.map",
+      "sha256": "203bc585ad7a11aae7a2fee7a05eec884130568fe607e4e6ca5e122b959fef7a"
+    },
+    {
+      "file": "/app/dist/src/engine/trading-engine.d.ts",
+      "sha256": "4d273f431b8c906546cb123b3dcb788c566e4544fb8f605c291ca2381a9ce995"
+    },
+    {
+      "file": "/app/dist/src/engine/trading-engine.js",
+      "sha256": "1edcf053155bc08cc449f8d51a07378d986b30bc09a96a42d76c4c5b5de26243"
+    },
+    {
+      "file": "/app/dist/src/engine/trading-engine.js.map",
+      "sha256": "4f4bcf796cc9c479c9ac651934aae913cbe51e3b0f4131a5e1deaa1198ddd18c"
+    },
+    {
+      "file": "/app/dist/src/engine/watchdog.d.ts",
+      "sha256": "3797af2380f5f9c5d4e4f0a830ea6621120648fbf1754799f594a92b66674cb4"
+    },
+    {
+      "file": "/app/dist/src/engine/watchdog.js",
+      "sha256": "fcafa34fb091abc2c53c075b7fe59448f05500f1806e957536bd4c93f538818a"
+    },
+    {
+      "file": "/app/dist/src/engine/watchdog.js.map",
+      "sha256": "19384dadb4bcf8a6a84b5211b747515bb8b8a9fbb90868cf401b7555e8e86a08"
+    },
+    {
+      "file": "/app/dist/src/env.d.ts",
+      "sha256": "59f379e62c9c21b9dbfc3799aa89e42f27292ed5a1be9643f7aaeb3b527ac248"
+    },
+    {
+      "file": "/app/dist/src/env.js",
+      "sha256": "fe7ac8d6447d3fb736a15cc4dad1ae886ec860241af00f40d0d3061fa746ff4f"
+    },
+    {
+      "file": "/app/dist/src/env.js.map",
+      "sha256": "4b31d75aac5ae97aa5e37db406e37625162b78b634fabb5554ada4000d4582e3"
+    },
+    {
+      "file": "/app/dist/src/execution/book-walk.d.ts",
+      "sha256": "7bbb8f4e783106f886f08fb504eb0d2d20d8c0e7eefe5c6d495528eeb7036912"
+    },
+    {
+      "file": "/app/dist/src/execution/book-walk.js",
+      "sha256": "39920adb62d97825d0a2365e4d8073c7709f4c36aca34bd2e5fd39d36a7e0a50"
+    },
+    {
+      "file": "/app/dist/src/execution/book-walk.js.map",
+      "sha256": "52b035dd0f75fc39b9ae371b107bb055ac45586eaa842cae8bd5ffdddc187b1a"
+    },
+    {
+      "file": "/app/dist/src/execution/entry-route-shadow.d.ts",
+      "sha256": "eac5b2b87e1a3b6e0286f2cc38f887c08905d397c013510adcae1ee3c316ef9b"
+    },
+    {
+      "file": "/app/dist/src/execution/entry-route-shadow.js",
+      "sha256": "d0e4c469c5418b835c6ae88d87b7199d3b435d8b9131039dbcb06bd4b3bcb763"
+    },
+    {
+      "file": "/app/dist/src/execution/entry-route-shadow.js.map",
+      "sha256": "4965dc2763b2bd6a4aef5099644a8cf501092fe193387ce230610613788451a0"
+    },
+    {
+      "file": "/app/dist/src/execution/hybrid-entry-router.d.ts",
+      "sha256": "00a8d12675e576f97e2cc4839b95241b0157ce667cfdc05111315afd5740f78d"
+    },
+    {
+      "file": "/app/dist/src/execution/hybrid-entry-router.js",
+      "sha256": "8d7f1a72bdab1310be0be3e275ade383a12006ebd7f0ae88b4d7220d1a317baf"
+    },
+    {
+      "file": "/app/dist/src/execution/hybrid-entry-router.js.map",
+      "sha256": "6afd973aa7f64ef5522969192fdd970abc3f09143092e89ca8130f850cdaf611"
+    },
+    {
+      "file": "/app/dist/src/execution/order-state.d.ts",
+      "sha256": "937ec95474e3e4e5233d3fd1af2e1e816cabe5fc1f64f8f11c7b41f78dd13797"
+    },
+    {
+      "file": "/app/dist/src/execution/order-state.js",
+      "sha256": "7e98e089d18993f7f75bc792416597e2438d6900fdebe5b745d076cce69275c1"
+    },
+    {
+      "file": "/app/dist/src/execution/order-state.js.map",
+      "sha256": "ce63d706da43ad59ee44861283e079b5559224ec6acca51cab5f1419ae5ee9e6"
+    },
+    {
+      "file": "/app/dist/src/execution/planner.d.ts",
+      "sha256": "a17be257f4ab686d5acdafca016664907ca3839c36b6e2a974022b37079c2780"
+    },
+    {
+      "file": "/app/dist/src/execution/planner.js",
+      "sha256": "0686ff7b7e2380a70add58a20badca0782ed3f0a90474680077703f65c2cdaa6"
+    },
+    {
+      "file": "/app/dist/src/execution/planner.js.map",
+      "sha256": "0a94801eedd44d7fc202ba61f9fde3abfe86f4deebf828dc3b3afee4b13bc1f9"
+    },
+    {
+      "file": "/app/dist/src/index.d.ts",
+      "sha256": "88bac69fe29cc516cda7177c27ec4a4e12373e34ed08453fc3f1569c64d4682d"
+    },
+    {
+      "file": "/app/dist/src/index.js",
+      "sha256": "6c746f76392d7a6d1644c98f9a3ce4dc1d3b04a1e4a5a341bf2ef084c3825719"
+    },
+    {
+      "file": "/app/dist/src/index.js.map",
+      "sha256": "790d58f9450dd02ab25bd0027e27414c5808bde83882c714397900130110789c"
+    },
+    {
+      "file": "/app/dist/src/kraken/account-fees-main.d.ts",
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+    },
+    {
+      "file": "/app/dist/src/kraken/account-fees-main.js",
+      "sha256": "0229a57069938f384c0f7e919181815fc94fe5816779051fb3dbf04f3bad75d2"
+    },
+    {
+      "file": "/app/dist/src/kraken/account-fees-main.js.map",
+      "sha256": "1b65d393c252d259388fc78080f0e226354b32d9053b26a0ece982bab3a92de4"
+    },
+    {
+      "file": "/app/dist/src/kraken/account-fees.d.ts",
+      "sha256": "c8a69331ff0ce54d4af3617e17f24cfdf3a606e0a00adbbce98a710ff9f0d8ea"
+    },
+    {
+      "file": "/app/dist/src/kraken/account-fees.js",
+      "sha256": "6ab45383cd25faeb4440b28dff899e23d356cf6d3b50bbb8d5436ffa09746860"
+    },
+    {
+      "file": "/app/dist/src/kraken/account-fees.js.map",
+      "sha256": "550fa220372ffa041df9fdc30999495faf948d34c99d9a68964331073ae8d0af"
+    },
+    {
+      "file": "/app/dist/src/kraken/market-stream.d.ts",
+      "sha256": "54adeb766558633b0ce45d93104536c0135f665d96f3c52e6c04eb3449c57e51"
+    },
+    {
+      "file": "/app/dist/src/kraken/market-stream.js",
+      "sha256": "9fa49eed1bfaf623ebe2ea4634750225cccf383395c335761982db635576ffc2"
+    },
+    {
+      "file": "/app/dist/src/kraken/market-stream.js.map",
+      "sha256": "4737607bb5b9775b9484c41b94cea62290fe3b84eedfd9113a22a607e6b55ddb"
+    },
+    {
+      "file": "/app/dist/src/kraken/paper-broker.d.ts",
+      "sha256": "e59ac6161845658eee8f9c7a0aeb8c103915380251686aed5547feecfb301e81"
+    },
+    {
+      "file": "/app/dist/src/kraken/paper-broker.js",
+      "sha256": "69c9c826388c18c7fd8448e3910107f3a1432eb5135d45f148cd5dfde5ba0296"
+    },
+    {
+      "file": "/app/dist/src/kraken/paper-broker.js.map",
+      "sha256": "b07bd0326f0ed98253f090367dea524c8ef3b50a0f498dea8f4bcd4440b8c151"
+    },
+    {
+      "file": "/app/dist/src/kraken/paper-funding.d.ts",
+      "sha256": "6008d1be00c2ef6b7063178c5989014c93629328d623cd3c1bd79bd479703c81"
+    },
+    {
+      "file": "/app/dist/src/kraken/paper-funding.js",
+      "sha256": "c242e4f7dbbac717a510bf2ab436d5872192607ac908bfa4bb9ba4531980cdb2"
+    },
+    {
+      "file": "/app/dist/src/kraken/paper-funding.js.map",
+      "sha256": "1ee111c5472012933e5e820df55fb34eaf2743f1ed8f9ff3400cdec38bbe0445"
+    },
+    {
+      "file": "/app/dist/src/kraken/paper-history.d.ts",
+      "sha256": "2247070470b2129a51979249bdc239c2607b339f04e6e50c513be050570dddc2"
+    },
+    {
+      "file": "/app/dist/src/kraken/paper-history.js",
+      "sha256": "9e1d02dcfe1206f97317a47d3f098e1f43c460b58dcf82a2b46496be3d3e6432"
+    },
+    {
+      "file": "/app/dist/src/kraken/paper-history.js.map",
+      "sha256": "acee58a93833b31cca4c4ed9d5f580987d8bf71546161860c76551fa88729464"
+    },
+    {
+      "file": "/app/dist/src/main.d.ts",
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+    },
+    {
+      "file": "/app/dist/src/main.js",
+      "sha256": "03ef5a03c5928c61be83f217aaa731b90cfa9d5d95d380ac9736f5c5cd3a7d86"
+    },
+    {
+      "file": "/app/dist/src/main.js.map",
+      "sha256": "15a2d09e4ef9d148178e6d9723fd06f2bb923816bc174287e03ee21cf6292e1a"
+    },
+    {
+      "file": "/app/dist/src/portfolio-v2/kernel.d.ts",
+      "sha256": "b579b29ad75aaad3adf04aa2c2ef159bc0c6f1667e7c4b42b623be317b6c3062"
+    },
+    {
+      "file": "/app/dist/src/portfolio-v2/kernel.js",
+      "sha256": "d22bfe07e2c83fafe2fcb88e0e530c03f5b163c350321308eaf0a6a4b60ee2bf"
+    },
+    {
+      "file": "/app/dist/src/portfolio-v2/kernel.js.map",
+      "sha256": "0d32867e5e8abf4d4c78cbf1a907f482a14147e8f1bb3ef7d652c0d58e33f09d"
+    },
+    {
+      "file": "/app/dist/src/portfolio-v2/protocol.d.ts",
+      "sha256": "4e8279aa912fac02338a8a0bd47d6043bf296dfca9706df91bced9db07a691eb"
+    },
+    {
+      "file": "/app/dist/src/portfolio-v2/protocol.js",
+      "sha256": "414bbedd6d13ef0fd9c9e0ed1af7f10ac3392ce6927ad9ec0c9710cbd7f8f0ae"
+    },
+    {
+      "file": "/app/dist/src/portfolio-v2/protocol.js.map",
+      "sha256": "3f3e963604ee6a0d949b803881d76af3c80130ef5d885506e90a611d56e92673"
+    },
+    {
+      "file": "/app/dist/src/portfolio-v2/replay.d.ts",
+      "sha256": "d02dbb963e8c02a7fad8b352e6e1db9b3fe154df6f7301836d02eaccce58ca82"
+    },
+    {
+      "file": "/app/dist/src/portfolio-v2/replay.js",
+      "sha256": "08e2ff0681d66bb26511106ef9fe0af0700a85c71265440fe1b62cdf11813878"
+    },
+    {
+      "file": "/app/dist/src/portfolio-v2/replay.js.map",
+      "sha256": "5afbdb1a35187e8ca0f3ebb77057bbaa1e1083bda8d60ac70f9d2966f5f7a311"
+    },
+    {
+      "file": "/app/dist/src/portfolio-v2/risk.d.ts",
+      "sha256": "ae25f1a9e6af407fdf6ee71011f3b64972832b25512f685286d686991fccc54a"
+    },
+    {
+      "file": "/app/dist/src/portfolio-v2/risk.js",
+      "sha256": "bf87d9617eb13fcb947d4c37971145ff1283ee9c0b3bff89b03470eadc1095f9"
+    },
+    {
+      "file": "/app/dist/src/portfolio-v2/risk.js.map",
+      "sha256": "cf971f6a46ee47b2ccf768a39f26286e022c2a89dfd90d355891079f8ab37fc9"
+    },
+    {
+      "file": "/app/dist/src/portfolio-v2/study-main.d.ts",
+      "sha256": "3334c49d7d0c915ef967faad9453abbdc35514db6ca937dbade5739bb06639b8"
+    },
+    {
+      "file": "/app/dist/src/portfolio-v2/study-main.js",
+      "sha256": "d689df5d90b850c84d959d141b3ad9659116e649504fb3b91a087d9ce9d366e8"
+    },
+    {
+      "file": "/app/dist/src/portfolio-v2/study-main.js.map",
+      "sha256": "01471b8c91b150043a59b5f7a484c9269951dc1e5ce50f6293ca3871214372d8"
+    },
+    {
+      "file": "/app/dist/src/portfolio/kernel.d.ts",
+      "sha256": "35129bf9915dc798a5e6ed05966430c34a9ca017eefc67deaa4318ef2458ac01"
+    },
+    {
+      "file": "/app/dist/src/portfolio/kernel.js",
+      "sha256": "3fd96abf4753effe2d2d2101b9adf60b9ef76feb43116e57be7fd03d76c326c3"
+    },
+    {
+      "file": "/app/dist/src/portfolio/kernel.js.map",
+      "sha256": "4804b7fff01d3b77fe4e730501bd634548dc274b1c67d3088a1b9e95923a0bac"
+    },
+    {
+      "file": "/app/dist/src/portfolio/live-main.d.ts",
+      "sha256": "615f0dd58bc00922d5fd215c5d1f42b278f874215d8febbc3dc6bfa25aa349c1"
+    },
+    {
+      "file": "/app/dist/src/portfolio/live-main.js",
+      "sha256": "27bcffb66959493443a0fad772ac483e46de60311a9ba75dcf3977eadc5e74ed"
+    },
+    {
+      "file": "/app/dist/src/portfolio/live-main.js.map",
+      "sha256": "4134e9a337020435573ee98a6d7755c1aca4d95f62784a2ec59a55d401182077"
+    },
+    {
+      "file": "/app/dist/src/portfolio/protocol.d.ts",
+      "sha256": "950745513988d664f795bd1666d1ca85e00016e5ca61d1ae83488b52adff1cc7"
+    },
+    {
+      "file": "/app/dist/src/portfolio/protocol.js",
+      "sha256": "7b1783680fe35364d18f8da981a2aee658c66acb850853684cd9fcd1dec0cd1e"
+    },
+    {
+      "file": "/app/dist/src/portfolio/protocol.js.map",
+      "sha256": "6ba113846706de8247add9a9daf0ef3ffb4e0173b6693a6668ffeda078c8152b"
+    },
+    {
+      "file": "/app/dist/src/portfolio/replay.d.ts",
+      "sha256": "f9191cb57b607448efcb8833e731b551635a724b9211c3b3dcb84e817529e5b2"
+    },
+    {
+      "file": "/app/dist/src/portfolio/replay.js",
+      "sha256": "439cc069ff3b60f3c4ea19abc311a193afe25869628e72671e09ef8a1b4d39e9"
+    },
+    {
+      "file": "/app/dist/src/portfolio/replay.js.map",
+      "sha256": "f572f97e502ff8a6fbeb6242622d075f3cdfdc1ae94ab5645efde655db1cb0e9"
+    },
+    {
+      "file": "/app/dist/src/portfolio/shadow.d.ts",
+      "sha256": "bbfb5b224d64de534849a84bbe1ebab737cf0ebe9691afd65bf9542ea2dd2405"
+    },
+    {
+      "file": "/app/dist/src/portfolio/shadow.js",
+      "sha256": "8543bdf73cce5766ade840798e187f131c680eddead91a7c03f52c53f64e5fd0"
+    },
+    {
+      "file": "/app/dist/src/portfolio/shadow.js.map",
+      "sha256": "2955b3a399cfe41c93344db20b10d1bdd47808cb5bec7f063efe9cac3df619c6"
+    },
+    {
+      "file": "/app/dist/src/portfolio/signals.d.ts",
+      "sha256": "744f3a1b7729affea018c25cf968e9ca1842461829b08ecfc936602e0e90c606"
+    },
+    {
+      "file": "/app/dist/src/portfolio/signals.js",
+      "sha256": "df0ae04c72a3d9fc4c0347925e8244ecbe0751112e2f02a28d1afba9f0afd3b0"
+    },
+    {
+      "file": "/app/dist/src/portfolio/signals.js.map",
+      "sha256": "e02348e098bbd4364b446db78d76bae4682bcb1f10f313f78917939614166d7b"
+    },
+    {
+      "file": "/app/dist/src/portfolio/study-main.d.ts",
+      "sha256": "744b7d98eb1a06f752f8edff9eb2a0479e6f7263578225780e17784d1d535ddc"
+    },
+    {
+      "file": "/app/dist/src/portfolio/study-main.js",
+      "sha256": "6ee35ce3e38c57437f934d59527fc00de48261f537bb12893fe7301ff922c14c"
+    },
+    {
+      "file": "/app/dist/src/portfolio/study-main.js.map",
+      "sha256": "226308596825e171f26d2f48afa9d49f44c46eeb685ce9d37cfa8bec5dcac2df"
+    },
+    {
+      "file": "/app/dist/src/portfolio/types.d.ts",
+      "sha256": "19e4d85feafee8800cce7d4bde23bb8ecc61e435d2bcb73f3e64dd888ae72820"
+    },
+    {
+      "file": "/app/dist/src/portfolio/types.js",
+      "sha256": "73c03cb8d4e8af19f493b539258f77712897f42fe2a4d53a37a6ccade320deb3"
+    },
+    {
+      "file": "/app/dist/src/portfolio/types.js.map",
+      "sha256": "8202be523bbb1fc99fbcf1139612ea5abbd1ed7d75bc716e6b808a83647b40c3"
+    },
+    {
+      "file": "/app/dist/src/profit/model.d.ts",
+      "sha256": "e96a5680be5973ea8dce3ebf19492d44a6dc34e85827c0a710eea64ddf3f11f0"
+    },
+    {
+      "file": "/app/dist/src/profit/model.js",
+      "sha256": "0fc40be9887a8bbce782cbab35fab32d667205ca8333abed83691fd97a1adb90"
+    },
+    {
+      "file": "/app/dist/src/profit/model.js.map",
+      "sha256": "06131d3cf5a3c7056afdbb03b9f3aeab8c655c4fbf2451e3fb4d7536a757b989"
+    },
+    {
+      "file": "/app/dist/src/profit/replay.d.ts",
+      "sha256": "470bb79bf4cc0459a2dc77303555f70e857cf887e7ab2b60e11dfa03b3b91f46"
+    },
+    {
+      "file": "/app/dist/src/profit/replay.js",
+      "sha256": "ae294339057883ca0b4e9342c792a99c7a8e014c1ec715b4881bbec3348c8ad1"
+    },
+    {
+      "file": "/app/dist/src/profit/replay.js.map",
+      "sha256": "41fffa201ca7436fb86369616a656d4d05b6ba073c16a107e65946a29978d32e"
+    },
+    {
+      "file": "/app/dist/src/profit/spec.d.ts",
+      "sha256": "baa4e0059ec0e63d69b28bcdf1be67081ff10942adbf4809c3d5041853854544"
+    },
+    {
+      "file": "/app/dist/src/profit/spec.js",
+      "sha256": "05012d77db410df4b4a36c541fcaf622312487e37de3dd1fe258408957f2d5dc"
+    },
+    {
+      "file": "/app/dist/src/profit/spec.js.map",
+      "sha256": "69bf430ac13989c22af8c5fc19382ea2c6d2ab48b969ce7b793ea6bb893d3825"
+    },
+    {
+      "file": "/app/dist/src/profit/study-main.d.ts",
+      "sha256": "1480dc3693ea3dd9adbc55f483bed28599316c103fb97a8677e938bdf77c87ae"
+    },
+    {
+      "file": "/app/dist/src/profit/study-main.js",
+      "sha256": "9627b70a097ecc76e222c9855861a3c239e7af5175fa426cf91634f2347bc28a"
+    },
+    {
+      "file": "/app/dist/src/profit/study-main.js.map",
+      "sha256": "ebbacc920fa08b434be82e7589efc35de3b8e1222f59b13a516cf1ff573b3dba"
+    },
+    {
+      "file": "/app/dist/src/profit/study.d.ts",
+      "sha256": "78cae866f398262cdcb0aec334b345e7325f68832e56e15298603d14d61f9502"
+    },
+    {
+      "file": "/app/dist/src/profit/study.js",
+      "sha256": "26ee73ad3d9c1eb0f09b5950282e7c410cb72d4f648ebc0eb5c140764dcd6f3b"
+    },
+    {
+      "file": "/app/dist/src/profit/study.js.map",
+      "sha256": "20694ada62f251e3ed50606d49f0944bdfc92cb3972486ec72b54d3de8be7b16"
+    },
+    {
+      "file": "/app/dist/src/profit/utility-replay.d.ts",
+      "sha256": "2bf03386efdb21e3af271387fe89dfdc652e8ca2ef09d07353cc77e460cf93b7"
+    },
+    {
+      "file": "/app/dist/src/profit/utility-replay.js",
+      "sha256": "9b9389fa9bb366d8ed73d4be39b4131b1cdc646068b95c717dbdc1ee5c6cb66b"
+    },
+    {
+      "file": "/app/dist/src/profit/utility-replay.js.map",
+      "sha256": "7c0db17742b8f6c7c4e721117b0dd14715cec45521d88da4fc548cd4fbf8427d"
+    },
+    {
+      "file": "/app/dist/src/profit/utility-validation.d.ts",
+      "sha256": "5af42b5f0918091f2f6a89c88602c9a34c796c62aaa9275f1a941ab699d3cd99"
+    },
+    {
+      "file": "/app/dist/src/profit/utility-validation.js",
+      "sha256": "8a414d15d7da737629d074d3f65f0ba01a150135f128191b7cd7fed7b1468ab3"
+    },
+    {
+      "file": "/app/dist/src/profit/utility-validation.js.map",
+      "sha256": "dd690a2be89aab8cc9ea531b0bf698737e3b6a5aa93323d877b31a27ccbd1c8a"
+    },
+    {
+      "file": "/app/dist/src/profit/utility.d.ts",
+      "sha256": "c0845e708479ab5edb4bc5f5ebd0e976519f3dbdac2979ee4336030176bc954c"
+    },
+    {
+      "file": "/app/dist/src/profit/utility.js",
+      "sha256": "7e3416de8df53148c3253e93c35c4cd6fd458e3bef5eb0debe3b61930ea523a0"
+    },
+    {
+      "file": "/app/dist/src/profit/utility.js.map",
+      "sha256": "0f21f44d8508b112233fdd9e4016d4b260ad3ce0f92cff769f5c645e45d4f2bc"
+    },
+    {
+      "file": "/app/dist/src/profit/validation.d.ts",
+      "sha256": "a285d31fc023314458b09c751b74729919e9ae7393cc457d3f312c7b66495865"
+    },
+    {
+      "file": "/app/dist/src/profit/validation.js",
+      "sha256": "a531f0d18cefb3e8394c0d2739a6237cb7515c3e98ec896dcb17bc66f3183557"
+    },
+    {
+      "file": "/app/dist/src/profit/validation.js.map",
+      "sha256": "f2f0b01c0ed61db3874b24c4265e4a4cf9e6fa0cd56ebce03fccbe6467064b0d"
+    },
+    {
+      "file": "/app/dist/src/recorder.d.ts",
+      "sha256": "7392ee96eda4482ba39c8f4d5aa252397d543eae7ef9e1f4d705dc30c1b47e95"
+    },
+    {
+      "file": "/app/dist/src/recorder.js",
+      "sha256": "9b18e7b503f14d11bf264cab89361050a8c0a95450da899ca70c68606567b194"
+    },
+    {
+      "file": "/app/dist/src/recorder.js.map",
+      "sha256": "f448e24151cf5116279e60171944796d890daaa575f04b42e3a4a8f37cb023b4"
+    },
+    {
+      "file": "/app/dist/src/research/alpha-research-main.d.ts",
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+    },
+    {
+      "file": "/app/dist/src/research/alpha-research-main.js",
+      "sha256": "3a766bfb47af2cfe9fcd10d725825a7f4c8ac44648b30a41cc1a723fc2545865"
+    },
+    {
+      "file": "/app/dist/src/research/alpha-research-main.js.map",
+      "sha256": "3feb5cfa94a6986dd9552961f201316268ca30a83f7f223460937b2d0a40117a"
+    },
+    {
+      "file": "/app/dist/src/research/alpha-research-store.d.ts",
+      "sha256": "acd11fdd4f334e9f2fc03c89832682aec5b4a166864cd78c2861289329d306ec"
+    },
+    {
+      "file": "/app/dist/src/research/alpha-research-store.js",
+      "sha256": "a4103d2cb77474c823ebbbd1d7a3987cfe16ed1b4d2da14d3af7d371ea207f52"
+    },
+    {
+      "file": "/app/dist/src/research/alpha-research-store.js.map",
+      "sha256": "f0f5d87032a7e71f158c080f2a3062051216e877a996293923fed165d735f30a"
+    },
+    {
+      "file": "/app/dist/src/research/alpha-research.d.ts",
+      "sha256": "68cb9ea975ce795178bc2d0577d2106f55fafb7c94a07dfd2be2582ea89f1b9c"
+    },
+    {
+      "file": "/app/dist/src/research/alpha-research.js",
+      "sha256": "e2ccbd231d422b9d2580764b5391936ee30cc40166d602e63046a7908c1cde80"
+    },
+    {
+      "file": "/app/dist/src/research/alpha-research.js.map",
+      "sha256": "a2815f6b5866ba73f122a5504c94986496c0014965ca98feca8a12d87684d06e"
+    },
+    {
+      "file": "/app/dist/src/research/block-expectancy.d.ts",
+      "sha256": "8fdd2b487a18fdbf38619f56342a0c68ae970d9f9344119b063c7d73afc86f15"
+    },
+    {
+      "file": "/app/dist/src/research/block-expectancy.js",
+      "sha256": "d29caac2833c1390667441d8d5623d197fc247325eca6c2caff9c8ca55a9aa24"
+    },
+    {
+      "file": "/app/dist/src/research/block-expectancy.js.map",
+      "sha256": "4f465c7b916c03791bb6ef7dcb4ba7f058b989f37a55b21f135df67c05b86480"
+    },
+    {
+      "file": "/app/dist/src/research/conditional-edge-main.d.ts",
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+    },
+    {
+      "file": "/app/dist/src/research/conditional-edge-main.js",
+      "sha256": "859399b59f10d71ef9f8d8d5df13f0d35b3d40b74d2dc9d021292f7f8bb11e0d"
+    },
+    {
+      "file": "/app/dist/src/research/conditional-edge-main.js.map",
+      "sha256": "6e7d77961dadc4c4140142c045f2ffaf7b0d124c666ba0b6040b5bcc832b0cd0"
+    },
+    {
+      "file": "/app/dist/src/research/conditional-edge.d.ts",
+      "sha256": "2e5ad20c8bb9830617403c3be78290f61e4412e48cd6e26e1a083d5132f7f678"
+    },
+    {
+      "file": "/app/dist/src/research/conditional-edge.js",
+      "sha256": "4087ec2dd6fa940245937063fbfd182f3ea22ada67002eebff0da63ce21b0c9e"
+    },
+    {
+      "file": "/app/dist/src/research/conditional-edge.js.map",
+      "sha256": "119e8659802bf3e84364277fd03ac2dcba64001f47b475d0f66a2a5cf6e3d1e6"
+    },
+    {
+      "file": "/app/dist/src/research/cross-asset-export-main.d.ts",
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+    },
+    {
+      "file": "/app/dist/src/research/cross-asset-export-main.js",
+      "sha256": "d150639a603fd1cdb720ea5edca58d26362e22b4340471affe14b4789065b95e"
+    },
+    {
+      "file": "/app/dist/src/research/cross-asset-export-main.js.map",
+      "sha256": "707cfbc5a7d08bbd3459247338e858325683ecbde9b08dd87e5ff9886ca90b37"
+    },
+    {
+      "file": "/app/dist/src/research/cross-asset-history.d.ts",
+      "sha256": "d02bd078bf20e8f41b76644c52d7417c4f794dee759839c5d490f4459438658e"
+    },
+    {
+      "file": "/app/dist/src/research/cross-asset-history.js",
+      "sha256": "bb9dd136711990b2bc495979d8c9c0a6d01278f3f07945be95d709c5e6348c09"
+    },
+    {
+      "file": "/app/dist/src/research/cross-asset-history.js.map",
+      "sha256": "6a525dae71c21163ce8956596b21a5bfc88d18cd65554038f6bd6c80b6ec5223"
+    },
+    {
+      "file": "/app/dist/src/research/cross-asset-main.d.ts",
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+    },
+    {
+      "file": "/app/dist/src/research/cross-asset-main.js",
+      "sha256": "951c6f5ac0bb0a10013d5b62d826613fcd13d2d700aeb56fdf8dc1ccd888ee4c"
+    },
+    {
+      "file": "/app/dist/src/research/cross-asset-main.js.map",
+      "sha256": "561dc2ae0d75cebe37626004a1061ddee3c3ca2109d3d692f85060fb7e38d28b"
+    },
+    {
+      "file": "/app/dist/src/research/cross-asset-model.d.ts",
+      "sha256": "18f558133ef3d534ef0164e23c41abbfe0d9c6597476a189f0dc690e638f8c7d"
+    },
+    {
+      "file": "/app/dist/src/research/cross-asset-model.js",
+      "sha256": "97c16fb560f14d14d1094a94d524f32b448a57783ca13e4236d7ea1b5f45b41b"
+    },
+    {
+      "file": "/app/dist/src/research/cross-asset-model.js.map",
+      "sha256": "8d8b2d91a0b8e90a0b557074c23598d2ec7a6a965039d1eb4c3413d1a627826b"
+    },
+    {
+      "file": "/app/dist/src/research/cross-asset-replay.d.ts",
+      "sha256": "2f9b55341b631969ebd68bf7654864eeceb6ec88c5b0f3a86e3a44154f83924a"
+    },
+    {
+      "file": "/app/dist/src/research/cross-asset-replay.js",
+      "sha256": "d9bf73039021e1f993608539737d310d3c5b417bd0809473da28325474e71bf2"
+    },
+    {
+      "file": "/app/dist/src/research/cross-asset-replay.js.map",
+      "sha256": "d90a9d275658f9d37db500bd5483b224872ed443bcc5427e360b59be618316ff"
+    },
+    {
+      "file": "/app/dist/src/research/cross-asset-warmup-main.d.ts",
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+    },
+    {
+      "file": "/app/dist/src/research/cross-asset-warmup-main.js",
+      "sha256": "5d0410deeca71f0d1283d832b810e80c18cd6d73b9b7d1f91ab4c6ac39f6e7d6"
+    },
+    {
+      "file": "/app/dist/src/research/cross-asset-warmup-main.js.map",
+      "sha256": "95540906ce59551a783070f55651a48a7a746e8876b7c402ca49205f2f875005"
+    },
+    {
+      "file": "/app/dist/src/research/cross-asset-warmup.d.ts",
+      "sha256": "a884754dcd40721674e7bfed2a5f01c637bf5442583b28f55e5570c8807db766"
+    },
+    {
+      "file": "/app/dist/src/research/cross-asset-warmup.js",
+      "sha256": "51b9738b3859a0a15a3486f07bff38f070388c5b436944cf90d583716de44930"
+    },
+    {
+      "file": "/app/dist/src/research/cross-asset-warmup.js.map",
+      "sha256": "f47fdc4fb2cb8038f26ee03e270e42b3d541cc70913b966e4cb9ce160b8ca8ad"
+    },
+    {
+      "file": "/app/dist/src/research/dynamic-bayes.d.ts",
+      "sha256": "128838d399c140ab7a567801da469014935f55c9886d67d432f6137a27b9447e"
+    },
+    {
+      "file": "/app/dist/src/research/dynamic-bayes.js",
+      "sha256": "f3fa8b7dab0721985f120bd4013dc8b565d229764e19f4619c47bf504506438b"
+    },
+    {
+      "file": "/app/dist/src/research/dynamic-bayes.js.map",
+      "sha256": "fa1f71f1a0de07c1802223953af5c0b9414f8d36f375a3854e640d4a9c9fe7f5"
+    },
+    {
+      "file": "/app/dist/src/research/episode-main.d.ts",
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+    },
+    {
+      "file": "/app/dist/src/research/episode-main.js",
+      "sha256": "52bc7914fbbef327cea2a9d63c75639ffb77c8dfb41527cb21234182cbbd6ac6"
+    },
+    {
+      "file": "/app/dist/src/research/episode-main.js.map",
+      "sha256": "4392ee9ce5000c8ea33bf60bdc5c730195f69e1bc7539e98c573bc992d615045"
+    },
+    {
+      "file": "/app/dist/src/research/episode-replay-main.d.ts",
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+    },
+    {
+      "file": "/app/dist/src/research/episode-replay-main.js",
+      "sha256": "c268d28f9665986a66ef6d8615531c0f26a68db5699ac1d5b254f28f1516c18c"
+    },
+    {
+      "file": "/app/dist/src/research/episode-replay-main.js.map",
+      "sha256": "0e7f4c2b634007fc514612f8970e49437cd498466acd39718310a44a54538da4"
+    },
+    {
+      "file": "/app/dist/src/research/episode-replay.d.ts",
+      "sha256": "43d5bfdfcb6261eccf0c851c6550bc3efc11f4a396d4034875108c0cb34d13e2"
+    },
+    {
+      "file": "/app/dist/src/research/episode-replay.js",
+      "sha256": "eed0d503b42f5b96f15098759cc7273d9e8e01f5efb3650ef2a9b53a0506509a"
+    },
+    {
+      "file": "/app/dist/src/research/episode-replay.js.map",
+      "sha256": "2d6c686cdd20fc38b5cd87a69984bcf7a3b1f0057e21ea189645d0fb87735c48"
+    },
+    {
+      "file": "/app/dist/src/research/episode-report.d.ts",
+      "sha256": "32b952ef91864115cbe15d27910a2ee77f925dfbb2e680de0ff248900855b3de"
+    },
+    {
+      "file": "/app/dist/src/research/episode-report.js",
+      "sha256": "0c9c681c43a79891e8fc1712a32ba4a67fa5086058f08ce1245525c27b284eb5"
+    },
+    {
+      "file": "/app/dist/src/research/episode-report.js.map",
+      "sha256": "831d5fe5a33c7a35b4957c181d1a354f85b8ef9589c42804a82f9d9664c9e5af"
+    },
+    {
+      "file": "/app/dist/src/research/episode-store.d.ts",
+      "sha256": "8aca36a499e86a4791a578fd3c8f0ef4e912e5ddd06c7c8b6e3efac6ae721f73"
+    },
+    {
+      "file": "/app/dist/src/research/episode-store.js",
+      "sha256": "67e133f829d02e4d0a0253c86e1eabee22a1c1f78c8a0363267b4a9f507e8a98"
+    },
+    {
+      "file": "/app/dist/src/research/episode-store.js.map",
+      "sha256": "ac43ae320d98ce46f907f963c9fd4baf03a4f6d1b6cf9b5d6cf01076df52f267"
+    },
+    {
+      "file": "/app/dist/src/research/execution-stress.d.ts",
+      "sha256": "b4894fdd8674caec29522122bc8f65f2ef8ecadbcf06a6a825c55aff01661e42"
+    },
+    {
+      "file": "/app/dist/src/research/execution-stress.js",
+      "sha256": "7b123e446cf6122f57b9f0727266c628cfba0a8fc6008152b5182921d894afc5"
+    },
+    {
+      "file": "/app/dist/src/research/execution-stress.js.map",
+      "sha256": "38277da5576fd896f6f3f1947107723dbca0e79a10db19341089715a7b9e855c"
+    },
+    {
+      "file": "/app/dist/src/research/export-alpha-dataset-main.d.ts",
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+    },
+    {
+      "file": "/app/dist/src/research/export-alpha-dataset-main.js",
+      "sha256": "f6fdc9526987874095ba1681c46712717b32fe2e2a86313c9951e689fa0cec0f"
+    },
+    {
+      "file": "/app/dist/src/research/export-alpha-dataset-main.js.map",
+      "sha256": "e52eb1bfd39cd5a7f1c6b6c2316d5c1163a691e6ad722db71a8668ee666f8553"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-adaptive-model.d.ts",
+      "sha256": "c8bdb4d39753c97db193b36fa97dec8edfc51f6a9ff37793316ff4ee6a58f242"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-adaptive-model.js",
+      "sha256": "f0dd833064337ce33c7780e2b17ec347a34d013b12dd957da94705e58268e6a8"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-adaptive-model.js.map",
+      "sha256": "af26606c85ce6d83d7112b2b026c4dc91faecbad06387741893a7191b413c2c4"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-adaptive-study-gates.d.ts",
+      "sha256": "eb20dc1341d26c212e75af632c3b6ac83ec1f6424788fe140e6ef83ef4ca9916"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-adaptive-study-gates.js",
+      "sha256": "95e2c6102ad2b08922f6270e1112e667ec975b6a22bfb15840622f635ab2a606"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-adaptive-study-gates.js.map",
+      "sha256": "80448107ac18ebe8b0e8857ab0507c89d577f6735e1209a11debf7d8d8382c27"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-adaptive-study-main.d.ts",
+      "sha256": "28700e10a307946aebca063b404fc37b95e84702335875371c8982d9f7418f89"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-adaptive-study-main.js",
+      "sha256": "e9768953f3331665270429bf1e267c30bbee77c3d670899887c0c4d8d037e434"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-adaptive-study-main.js.map",
+      "sha256": "12197d0efee2df6c8191dedc2f86be95674c1eef2859a3aff102c26ee2f40b03"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-data-main.d.ts",
+      "sha256": "331597898c699856e5901b6f8883e4026c36d285206f477f6e0c80b33ca2e1e4"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-data-main.js",
+      "sha256": "9387503bc792f6969f0144b7afe4e2259ed282d5cb94674f5d14f421ad2a29b8"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-data-main.js.map",
+      "sha256": "28536d6941d096758265f49e957ffae235670146b13d9c1d6001751c5ffd16d1"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-data.d.ts",
+      "sha256": "8534bccfdcfaeb9027599d27c639b1e65889d21f3cbf6f08ed7cce4fb31b49d9"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-data.js",
+      "sha256": "b566952892654af5519a8eaa249c090cf8213ee5804b0afb43ef0980a276fad1"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-data.js.map",
+      "sha256": "bb0ffd21c5d523f5440965d87434d5241425469b9d0fe0fb91b3f4cc128d30f7"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-model.d.ts",
+      "sha256": "0fdd4fd55f28a1e61767603123f87579bd2f6878b6781a92500aff055d457e04"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-model.js",
+      "sha256": "d8f026bb6f86753b77915aba70007c023e1756371c58f7563b05a5f16ea0ede6"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-model.js.map",
+      "sha256": "14d8b97feb7df5bbebb01d93fe7de1ef5c67c4696e6ed2a4c24370993d160964"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-net-calibration.d.ts",
+      "sha256": "fced08164757ff54f14c02da9172922abe023b85d546efa87f667ae8ff55b532"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-net-calibration.js",
+      "sha256": "e8e808778ebfc7a9538e8fb61a26da3ca6afc79ac87fab3b330e3ceff8ed9d0b"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-net-calibration.js.map",
+      "sha256": "c4ba29dfeeecc3bfd37cb44fed81a70a216ab6723940fad57b4684a5fd0f3cd9"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-net-labels.d.ts",
+      "sha256": "633e06ba175fe4c55d9544311eefe2a8fe24c2e13450b7cb8a76bfbcc29437f1"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-net-labels.js",
+      "sha256": "38f1e6c26010e35d6bf3d07d09a2066aac2472f9919331c3ffac95a93099ac77"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-net-labels.js.map",
+      "sha256": "bcd8b343b0bcbd88181073a78f1e0242c7459f8a1f5168bd04dc86aa6474569a"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-price-setups.d.ts",
+      "sha256": "3db924e01527c5fbe5ee14d50a7df48389214a7a8535de1a7a65c696d58da2d1"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-price-setups.js",
+      "sha256": "3274f27636ad836033885f762ca671b89c84045ec2d221dc2d77847bd59216d6"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-price-setups.js.map",
+      "sha256": "38d863748768514b82ae51f29069caebaf3c6a9c7c9075d7e897f9cfc7169101"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-retry-simulator.d.ts",
+      "sha256": "93bf95b7a95b46bc783162e4e64eac928af454add183f4e169b52e69538934e7"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-retry-simulator.js",
+      "sha256": "e05107dc8eb2f878cce2f89777ce0c1f6539513a8582d008c5ad05f8d78c5377"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-retry-simulator.js.map",
+      "sha256": "e3eb92bc0b1ad7d1cde6a1d9dc50a569c79bb96e005c6d8e0e3c62471c8f412d"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-simulator.d.ts",
+      "sha256": "425db0d00194ff3fc52cc83aa7413801ba947a02efdff8b7c0d93a5459733c8e"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-simulator.js",
+      "sha256": "5976491158c09cd18f055e099173528af3d637cf2cf7d1f079c9dd350c9688a8"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-simulator.js.map",
+      "sha256": "f19486de021531d10b17718ccae1133d2643e5a6025f2ef1f0bdf30454d61043"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-student-model.d.ts",
+      "sha256": "29db3d9f8c40a7fb212e17a920fb4dcd82672539a96be317621cdf28019da5b1"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-student-model.js",
+      "sha256": "aea3430bd5b343d069e056a800d89a78534b53b27b9562f38d2cb86b1e758fb5"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-student-model.js.map",
+      "sha256": "0f75972dd985660aa75fc22cdaa6b55de33e0672b771e2bbb126d9b9a3d87595"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-student-study-main.d.ts",
+      "sha256": "4ddfd098e5869b5b111b0f1c3b55ed50bea85462f41e48524eb47f73dabba1ac"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-student-study-main.js",
+      "sha256": "e144bbeba963acc1e73275c3401f3490b70e7774910bad91aeeeff25f3fda370"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-student-study-main.js.map",
+      "sha256": "6d604eaaa18f503f65b915530a0b271d549781e1b44c6b648454bb3497b3fd0e"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-study-main.d.ts",
+      "sha256": "e6d2897c91894147c3766741da46ec9fb32da4699d27626290c5aadc351c8475"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-study-main.js",
+      "sha256": "2c78de999b55571e84db290c2b3aae50acdf2765478fb035cd321ebad85bea8b"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-study-main.js.map",
+      "sha256": "5d68f8bc106f40f086b86d20f92c2c1673bc2957db4dbca113c793ec1c6576d6"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-study-statistics.d.ts",
+      "sha256": "5de7f96eac72e819f22feead901ba8fb4b0232805c94493eb91749a368ac0370"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-study-statistics.js",
+      "sha256": "9844d61c4cb3aec8e74eab64fba00f4ce9b317ae8ab40ed2d21963dbce7dcdda"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-study-statistics.js.map",
+      "sha256": "fc5d93dc7b3a65fe7c0e042fab54f009892d63d89f22371fd09340b1739f3f23"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-volume-features.d.ts",
+      "sha256": "645a3f3c37fcf3a7e2775bc6e141f184523dd30aeb9becd4a23da19a50a1cd22"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-volume-features.js",
+      "sha256": "397ed61aaa1ca943021df5cd03bdf3bb2b68fed5a6561dbc5015a65f56558140"
+    },
+    {
+      "file": "/app/dist/src/research/hourly-volume-features.js.map",
+      "sha256": "c2a374e09507c7901d274315c2a7e8872a5f68d783b3e98d22cf5b42eceeb66b"
+    },
+    {
+      "file": "/app/dist/src/research/model-experiment-main.d.ts",
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+    },
+    {
+      "file": "/app/dist/src/research/model-experiment-main.js",
+      "sha256": "2470830f8a8b074092a52a41aaad99a1288801931e4e67f7a06dc52df0e175eb"
+    },
+    {
+      "file": "/app/dist/src/research/model-experiment-main.js.map",
+      "sha256": "63a0a2b5a9ce01596c721f9cd717476e259e39d048d33b2ea0b384b6dfb7398f"
+    },
+    {
+      "file": "/app/dist/src/research/model-experiment.d.ts",
+      "sha256": "c96cc91847a3832080790adadecd33d4b89de77c3778998ffb18d2323bf991b1"
+    },
+    {
+      "file": "/app/dist/src/research/model-experiment.js",
+      "sha256": "e5e2a6c4529f088cd54e2c433b3b8a878c733fa80af23245623836a4b14b4730"
+    },
+    {
+      "file": "/app/dist/src/research/model-experiment.js.map",
+      "sha256": "d4885a4b2d5a244e495377e04f53b8af57ce1c41aa181c44770ef0a75395de47"
+    },
+    {
+      "file": "/app/dist/src/research/policy-collector.d.ts",
+      "sha256": "eec5a4e44e5ceac8121783f390d8b7ed1b2f4692528b37ef2e43794b224c3de4"
+    },
+    {
+      "file": "/app/dist/src/research/policy-collector.js",
+      "sha256": "cca3cce86a9cef7c6fedf88ffc8c506a5a11c0cce939131b85fb799d32be0ebd"
+    },
+    {
+      "file": "/app/dist/src/research/policy-collector.js.map",
+      "sha256": "2a414a040c49bb36ebfba625d77aa5598ddb4cc308ff0a12b642241d60909a5a"
+    },
+    {
+      "file": "/app/dist/src/research/policy-comparison-main.d.ts",
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+    },
+    {
+      "file": "/app/dist/src/research/policy-comparison-main.js",
+      "sha256": "5385de4f96b0711c380f488ed52223d51a3affa3282f7a99a203025584af4ec2"
+    },
+    {
+      "file": "/app/dist/src/research/policy-comparison-main.js.map",
+      "sha256": "050f810c0891311d8b4d19754c00d2421960532c8e7cf01a75c21bf5a4e737cc"
+    },
+    {
+      "file": "/app/dist/src/research/policy-comparison.d.ts",
+      "sha256": "3cfadaf7e02c21bbcb8752d0025a4dc58c933e741961d0cbbcef4bacc4724586"
+    },
+    {
+      "file": "/app/dist/src/research/policy-comparison.js",
+      "sha256": "d63ed68b3a917937fa3186af45ec7adaf06bfc24e18bee20cbb56c6a18637c06"
+    },
+    {
+      "file": "/app/dist/src/research/policy-comparison.js.map",
+      "sha256": "81123ddad1c4b5856ad0c148bb96625f561e28b1a95e47d6d967380aff40dcdb"
+    },
+    {
+      "file": "/app/dist/src/research/policy-main.d.ts",
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+    },
+    {
+      "file": "/app/dist/src/research/policy-main.js",
+      "sha256": "8f444159068c7a3bdd4aa6e217538f13e668942de39be576ec5d8ca8e64ce735"
+    },
+    {
+      "file": "/app/dist/src/research/policy-main.js.map",
+      "sha256": "2b3af734850eb49afe22b4a865b11a085248aad808a424ba05c1d5221bc46336"
+    },
+    {
+      "file": "/app/dist/src/research/policy-planner.d.ts",
+      "sha256": "47c5ce36bb1dbf314cd371d005ec9c1b397fab07f54f66a413a135de4eca28dc"
+    },
+    {
+      "file": "/app/dist/src/research/policy-planner.js",
+      "sha256": "9f744f5fd474eea97cd6925c64504bf507e4d36255b38465c810c3c21fa557cb"
+    },
+    {
+      "file": "/app/dist/src/research/policy-planner.js.map",
+      "sha256": "098bde0c035ddfd8c82fbbbf58e19938e835981fd930f2f0983f92995e2a4670"
+    },
+    {
+      "file": "/app/dist/src/research/policy-pulse.d.ts",
+      "sha256": "b5ee17aa1ae3f74f2620096f238dead0a7fb51329b473800d5a555055a817aba"
+    },
+    {
+      "file": "/app/dist/src/research/policy-pulse.js",
+      "sha256": "7e42fad2ff3e692b7747bf36435828d0758659e1af253ccbad8a06f29a9385c6"
+    },
+    {
+      "file": "/app/dist/src/research/policy-pulse.js.map",
+      "sha256": "d4d67ef34dcb66c04b56654353a2b2833bea5cbdbe2635af6fb890c15f20c295"
+    },
+    {
+      "file": "/app/dist/src/research/policy-restore.d.ts",
+      "sha256": "d6e57ca02f10db9e9abe1b662cd66747e584332bccad4ea6996ab74c60c0a0dd"
+    },
+    {
+      "file": "/app/dist/src/research/policy-restore.js",
+      "sha256": "4ae5df7ac185192a19b28dc077ed69aa80bab7e3226f0161f9009b2f1b2f0136"
+    },
+    {
+      "file": "/app/dist/src/research/policy-restore.js.map",
+      "sha256": "0fb07afd30b218e5fec01fd961b3fe891a161d91253e5e4ed443feb577c5b108"
+    },
+    {
+      "file": "/app/dist/src/research/policy-store.d.ts",
+      "sha256": "45aa9407f4e12b643e4e829c0908975cf16ecbf7a1a8303ecb3f9a3042bd9b82"
+    },
+    {
+      "file": "/app/dist/src/research/policy-store.js",
+      "sha256": "8f9834b2cd93c60a35b8502415bf36b7ddd660bac0f84a034a23035d55020f11"
+    },
+    {
+      "file": "/app/dist/src/research/policy-store.js.map",
+      "sha256": "4aa88f5f9ab6adc495cbb709d3a570db8dc5f8d916a52ee78c92c62be04b6cd9"
+    },
+    {
+      "file": "/app/dist/src/research/policy-validation.d.ts",
+      "sha256": "e5a5a26ac381ba0ae4c2461ad721210ffa1cdf7d1c8ab45d6fa73f66d2c76f7e"
+    },
+    {
+      "file": "/app/dist/src/research/policy-validation.js",
+      "sha256": "9390c11d9cab93107c5a156cb46befd8625c566fcf8dacd5c832a6924d8e9509"
+    },
+    {
+      "file": "/app/dist/src/research/policy-validation.js.map",
+      "sha256": "68cbdfab92cbecc668960bdb443bff6e49e0d2482e49829f457f6ea850f974b8"
+    },
+    {
+      "file": "/app/dist/src/research/retest-replay-main.d.ts",
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+    },
+    {
+      "file": "/app/dist/src/research/retest-replay-main.js",
+      "sha256": "7482abbc56fd9e122c87433d8da91ae7bebea3d872168e20cc2da50ebb8d7ab0"
+    },
+    {
+      "file": "/app/dist/src/research/retest-replay-main.js.map",
+      "sha256": "03d03c53930ea132bd25ade3a991313d9608b26687e1f86e367acb38186f24d5"
+    },
+    {
+      "file": "/app/dist/src/research/retest-replay.d.ts",
+      "sha256": "b99eab2d764d749c889cb8092a20870dbf4029ec72f3d518c4edcdb981121da9"
+    },
+    {
+      "file": "/app/dist/src/research/retest-replay.js",
+      "sha256": "2edac90a837ac53e32618f9d7e23b9c65b008e4595b2221bf4ee55e3352b2204"
+    },
+    {
+      "file": "/app/dist/src/research/retest-replay.js.map",
+      "sha256": "84ac4a5b79162e29cc589548fc832f0200531eac0b7bcadb875bacc46ed1a216"
+    },
+    {
+      "file": "/app/dist/src/research/signal-episodes.d.ts",
+      "sha256": "a78c1cf7eebb797332bc838455e2595aacd3accec314d04d4976ab6d11117f1a"
+    },
+    {
+      "file": "/app/dist/src/research/signal-episodes.js",
+      "sha256": "7d79f29b1ccab605dbfa6f5fc5ff44df6cee7f9f2be4df78a8d4f318726c99f9"
+    },
+    {
+      "file": "/app/dist/src/research/signal-episodes.js.map",
+      "sha256": "03fc31bc2e629e239ff0796d7640d2e7b9a62169dc8215fdeaa98f2e0be866f3"
+    },
+    {
+      "file": "/app/dist/src/research/spot-history-data-main.d.ts",
+      "sha256": "c0fbeb251c894d694f8165f31fca2b76bbffd1311681847f7bed4cbe41d68211"
+    },
+    {
+      "file": "/app/dist/src/research/spot-history-data-main.js",
+      "sha256": "1be83dc4943eb1b6feeb056c0411eb67f335a423dbdcd817f88eb3d11b00a966"
+    },
+    {
+      "file": "/app/dist/src/research/spot-history-data-main.js.map",
+      "sha256": "7fee3213f00a6e4f9a7b6dc85f00067cf237e646dea6736e36990ddff4a6822e"
+    },
+    {
+      "file": "/app/dist/src/research/spot-history-data.d.ts",
+      "sha256": "42622101e85cb8bde0c44d8293945a231b3b6c4385efab422b559cc271959265"
+    },
+    {
+      "file": "/app/dist/src/research/spot-history-data.js",
+      "sha256": "73a281bbf5ec58f7a4212a4896e54705c781f63eb3266cd7aeab327391a8a8b2"
+    },
+    {
+      "file": "/app/dist/src/research/spot-history-data.js.map",
+      "sha256": "0842c361856bfb6718d3eb7501667b85bf037165d4d8777679f6eb547ec0922f"
+    },
+    {
+      "file": "/app/dist/src/research/trading-policy.d.ts",
+      "sha256": "ff7ba90137bc6e5d4fdbbdad07990c779f821eff937b5e8a5f4e29670946936d"
+    },
+    {
+      "file": "/app/dist/src/research/trading-policy.js",
+      "sha256": "4f35cc0dc4fa63de10111a830edc669283d79a842a0b95834b408cfcadcc0d3c"
+    },
+    {
+      "file": "/app/dist/src/research/trading-policy.js.map",
+      "sha256": "3dcc513e0acd76cdc87d63c0dce2ad8db986ac371a77c264b53e9a6944e129d9"
+    },
+    {
+      "file": "/app/dist/src/risk/economic-risk-sizer.d.ts",
+      "sha256": "bf561dc3d8917d071d62e4b7039a968c8b05705195111139bc1f2d0400f1a344"
+    },
+    {
+      "file": "/app/dist/src/risk/economic-risk-sizer.js",
+      "sha256": "612a089cdbff7aa0ad8ba844540ef433de05745aaccbaba64cbed8dec3da229b"
+    },
+    {
+      "file": "/app/dist/src/risk/economic-risk-sizer.js.map",
+      "sha256": "767697d42a0c269f49ab3f14839cd107b08dcc5ae71b7e5945d62ea6ec3319ad"
+    },
+    {
+      "file": "/app/dist/src/risk/paper-funding-cash.d.ts",
+      "sha256": "3e468ddc8e8f6a18121c7b69756d2b2e666afee94925610ef76b58eded870236"
+    },
+    {
+      "file": "/app/dist/src/risk/paper-funding-cash.js",
+      "sha256": "99a61c65af7496467d6e1e3d5d34aa09c3ed772fb4ad022b9007f506d14c30b7"
+    },
+    {
+      "file": "/app/dist/src/risk/paper-funding-cash.js.map",
+      "sha256": "97756b5e5145ecb0fe88f0c8d8d484f0b413a1a4440d9dccb9dcbcbc7c6173b2"
+    },
+    {
+      "file": "/app/dist/src/risk/portfolio.d.ts",
+      "sha256": "e5f40eed5cbc43a4633a420034076316f05429179a8cfc7024e18ced3fbc27dd"
+    },
+    {
+      "file": "/app/dist/src/risk/portfolio.js",
+      "sha256": "37c7d5580cbc0ff13255105f2f81e68bdcd3359e99e82a699db11fefb645d24c"
+    },
+    {
+      "file": "/app/dist/src/risk/portfolio.js.map",
+      "sha256": "80988ec66af1db286f866b60d14a3fed3708bff9bace7f1641c5ce9c250c8158"
+    },
+    {
+      "file": "/app/dist/src/risk/risk-state.d.ts",
+      "sha256": "aa98a80d0e0779aa074d13a26a6331348c91b060a952d730c6c5973ff895db2a"
+    },
+    {
+      "file": "/app/dist/src/risk/risk-state.js",
+      "sha256": "78d3a6feb3dd37490fa10d7fece6949bdd1dfef6f31b1fcd25482a8347c5c6f4"
+    },
+    {
+      "file": "/app/dist/src/risk/risk-state.js.map",
+      "sha256": "c7101efd50b8abb2e02603bad8ab848832689c65db61218f32297d7042658050"
+    },
+    {
+      "file": "/app/dist/src/risk/rolling-pnl.d.ts",
+      "sha256": "55fbcc9b196398f2c42d606bb1815e5f2e7160e17a723c3300caee22d72fd00f"
+    },
+    {
+      "file": "/app/dist/src/risk/rolling-pnl.js",
+      "sha256": "4798c1b31bc397b45147271d01aeb92886bc2a5e4b62aa47264ddf7d7fb329c2"
+    },
+    {
+      "file": "/app/dist/src/risk/rolling-pnl.js.map",
+      "sha256": "6767608dac61f1ee0603ef3a63b633f5203c968135ea119a50bb74cd9699f411"
+    },
+    {
+      "file": "/app/dist/src/risk/sizing.d.ts",
+      "sha256": "dc9f46b2eeacd3fe7dbcf303a38424eeeb8e9d9b447ad29ff4612b24630515be"
+    },
+    {
+      "file": "/app/dist/src/risk/sizing.js",
+      "sha256": "1ea52e42fdb94fe1ef867302f7687be1d0782aad333d2cb11ec7f0b7c3180d5b"
+    },
+    {
+      "file": "/app/dist/src/risk/sizing.js.map",
+      "sha256": "1141ea7e9b2a69ef8f6c80d02de005d9ce4e72d50fae3b6e395f38de4b64d2a3"
+    },
+    {
+      "file": "/app/dist/src/spot-trend/account.js",
+      "sha256": "8ed7478ae1b68d68ce19fc1f81e6ed78c2da12b367831ba662a78965eb66b530"
+    },
+    {
+      "file": "/app/dist/src/spot-trend/account.js.map",
+      "sha256": "ac0116661031d3a1a304078092af23682a1bbf9a96d174bd298c3c109c70c26a"
+    },
+    {
+      "file": "/app/dist/src/strategy/breakout-retest.d.ts",
+      "sha256": "41e6b5a9baf211580740c4ddba6b70440dea23bb6f74f37e4f145933b4e4bf91"
+    },
+    {
+      "file": "/app/dist/src/strategy/breakout-retest.js",
+      "sha256": "fa8b1862341890497470e106e0ab68ac7dc41ea9cbee647a5f81dcb2ed07c8f6"
+    },
+    {
+      "file": "/app/dist/src/strategy/breakout-retest.js.map",
+      "sha256": "045120537a35dceb69ee854a27479fcbbcd9ac4a02c503d04a25b6ceb4d6b0e4"
+    },
+    {
+      "file": "/app/dist/src/strategy/continuation-quality.d.ts",
+      "sha256": "7519cba10b0081b309c21b6e80e90485a8f4a36cb60a4cf0b4eb26409fac4d2d"
+    },
+    {
+      "file": "/app/dist/src/strategy/continuation-quality.js",
+      "sha256": "dcef3a12915101bd23e537a258ec573ce37a6e6563d6fbb3c8e71af9688d2146"
+    },
+    {
+      "file": "/app/dist/src/strategy/continuation-quality.js.map",
+      "sha256": "8ed8d6114c5f6df50bbdeb3175a94acda4d861bc29fff22e1d21fad708bf3fbb"
+    },
+    {
+      "file": "/app/dist/src/strategy/cost.d.ts",
+      "sha256": "fb569a53d7a398544b72e408b5efe8cbdfdc373b3c4f34a10b503372e3a2a770"
+    },
+    {
+      "file": "/app/dist/src/strategy/cost.js",
+      "sha256": "dc9964aebedea76010524b1eb722b6f79e6346aae48bbc35aece531c82e38f09"
+    },
+    {
+      "file": "/app/dist/src/strategy/cost.js.map",
+      "sha256": "4e6f5a47aaa12a68904cb0b41f09fc15429ee151630fa0a470d68886c98a2574"
+    },
+    {
+      "file": "/app/dist/src/strategy/deterministic-edge-resolver.d.ts",
+      "sha256": "c7dbc4a124c345ce3c7df2595f20cd634544c5ac984447cb2a72468165b8de94"
+    },
+    {
+      "file": "/app/dist/src/strategy/deterministic-edge-resolver.js",
+      "sha256": "4680320819ac64f854e68bb3559767c2fb574035f277d7c702d54667b016b9d8"
+    },
+    {
+      "file": "/app/dist/src/strategy/deterministic-edge-resolver.js.map",
+      "sha256": "2de9e95a058ff83da67a341e5c635eb4c23c4720bdaa83adebe81a27808a5df6"
+    },
+    {
+      "file": "/app/dist/src/strategy/deterministic-entry.d.ts",
+      "sha256": "7895464cb6d66b6a231eaefde3eee2798bb822e8c590f20a78352e34afca8d93"
+    },
+    {
+      "file": "/app/dist/src/strategy/deterministic-entry.js",
+      "sha256": "e5cc810c553fb62a08aca32bee0551cd39e28bd3d831db596194db6252cae491"
+    },
+    {
+      "file": "/app/dist/src/strategy/deterministic-entry.js.map",
+      "sha256": "f8189d7a99ee80886889b330439ac7cc1774cb958312bd31dbcc0af837bf291d"
+    },
+    {
+      "file": "/app/dist/src/strategy/deterministic-features.d.ts",
+      "sha256": "f704a70bd64c68ab9cdeaff3f28a426589a70675f0c92d1cf1b117de1f501e3b"
+    },
+    {
+      "file": "/app/dist/src/strategy/deterministic-features.js",
+      "sha256": "64aa56e404e45f917be486e8a5b4bc4b47772189245d8ae50c07afbc95e0b16e"
+    },
+    {
+      "file": "/app/dist/src/strategy/deterministic-features.js.map",
+      "sha256": "5ce537420b380d52515bd826a9ee8a4c830f2cf466346a7507d7371e7352b402"
+    },
+    {
+      "file": "/app/dist/src/strategy/deterministic-hold.d.ts",
+      "sha256": "db2856441a6bc09ef7d778e5b4af40d8598e1fca301a2001875967b6b858c2c6"
+    },
+    {
+      "file": "/app/dist/src/strategy/deterministic-hold.js",
+      "sha256": "fdd7dc96f9f494733783e3498d049122cf03c9fc0d5533478570f1914a3df261"
+    },
+    {
+      "file": "/app/dist/src/strategy/deterministic-hold.js.map",
+      "sha256": "e93f1d72c694e594c2fb1b733adc571075c2c1565f7e319080081036dcb6eebd"
+    },
+    {
+      "file": "/app/dist/src/strategy/deterministic-regime.d.ts",
+      "sha256": "4efc6ead01ea78966aed2b24ff423635f7acea80217593752a204e77707f0667"
+    },
+    {
+      "file": "/app/dist/src/strategy/deterministic-regime.js",
+      "sha256": "cf8785279b1e837ecc2fe1898426d94ce2d6d0f804d6cfb82e67582dc0792ab6"
+    },
+    {
+      "file": "/app/dist/src/strategy/deterministic-regime.js.map",
+      "sha256": "1aa61ab9ad09e6ec1d1d6847dc0414f19dcb47e8a14af9de0e2736352ffee2de"
+    },
+    {
+      "file": "/app/dist/src/strategy/dynamic-liquidity.d.ts",
+      "sha256": "fcb8bd6f2277850ff408683c01249c707252621014494ac90a5412a69d6316b2"
+    },
+    {
+      "file": "/app/dist/src/strategy/dynamic-liquidity.js",
+      "sha256": "b5bb94fc9ec4267940a7f9d7fd79f645b4870a867bdbe3a54e1d39a829ba120d"
+    },
+    {
+      "file": "/app/dist/src/strategy/dynamic-liquidity.js.map",
+      "sha256": "43740fae915ec675cdd951bbe1367935b2bbd719f89947487e3aa8388b12c3f9"
+    },
+    {
+      "file": "/app/dist/src/strategy/early-breakout.d.ts",
+      "sha256": "75901a40e3c3677f77cce63d83bc0a90224c7e546c382d20c8e6c377f04872ef"
+    },
+    {
+      "file": "/app/dist/src/strategy/early-breakout.js",
+      "sha256": "6fa7c2c398892c5c16e74773659c4278983e6296badad90ce6da27e551cacbaa"
+    },
+    {
+      "file": "/app/dist/src/strategy/early-breakout.js.map",
+      "sha256": "d99fdb2c541fda7bce35d10b12ecf425ef3557144511a398337fed6bcfff4e48"
+    },
+    {
+      "file": "/app/dist/src/strategy/forecast.d.ts",
+      "sha256": "dcef751e8775de5988998e177d6b1c7cc594045f39ca69be37de1317ad1d4fa2"
+    },
+    {
+      "file": "/app/dist/src/strategy/forecast.js",
+      "sha256": "5e33fabf7275550c2ed8b0fd49f4501d5d2215871c4676bc0f68212021be0d70"
+    },
+    {
+      "file": "/app/dist/src/strategy/forecast.js.map",
+      "sha256": "cb0d5f52bdb675309de7ff9173d9c2f621d9bcbd23598f85d4a3ff53fa9480f5"
+    },
+    {
+      "file": "/app/dist/src/strategy/micro-fraction-types.d.ts",
+      "sha256": "26a18f9ab01a6e3b96b23fbd90bdf0832eeef8832cb58b7f78d0a537acc7edd9"
+    },
+    {
+      "file": "/app/dist/src/strategy/micro-fraction-types.js",
+      "sha256": "e7fc85ad19dec54eca3ee3d86745589e8d5d5004f6df21655083d3ecfaa2a3e0"
+    },
+    {
+      "file": "/app/dist/src/strategy/micro-fraction-types.js.map",
+      "sha256": "f8a9b988b8863cdf9a5681c9b57148f601c9142686f4dfb2615c978fa30f33d5"
+    },
+    {
+      "file": "/app/dist/src/strategy/position-manager.d.ts",
+      "sha256": "dd0a57f28f9f0b012cc13575ee541ec5c1bac4f63797e865bca6eef431ebbfce"
+    },
+    {
+      "file": "/app/dist/src/strategy/position-manager.js",
+      "sha256": "17d160aa70510427da68936a3526bfdefbfc0808166ea14cf0fb766dcd59603a"
+    },
+    {
+      "file": "/app/dist/src/strategy/position-manager.js.map",
+      "sha256": "d4619dc4a1e8913626b12a9b3c436bfa9f05bf1d08928dca8e97f1efcff86a14"
+    },
+    {
+      "file": "/app/dist/src/strategy/pullback-recovery.d.ts",
+      "sha256": "a43241f2a648b5684c56a5bd78fed97db56ab6248e0ce80739a45de3ba5b420b"
+    },
+    {
+      "file": "/app/dist/src/strategy/pullback-recovery.js",
+      "sha256": "4f00ba13326b70568ac4845d3c85cd27d5a7ed634fe4e114b698bc5f6f5c495d"
+    },
+    {
+      "file": "/app/dist/src/strategy/pullback-recovery.js.map",
+      "sha256": "dad4a5323e4f0a27dc59437e2a36d663058d21de97efc2bf26a98781395b39e1"
+    },
+    {
+      "file": "/app/dist/src/strategy/regime.d.ts",
+      "sha256": "b65a24222c005878e2d068e6e2baf81e48e7c078ac46a84bb1514d7cc5b7c8e2"
+    },
+    {
+      "file": "/app/dist/src/strategy/regime.js",
+      "sha256": "7268612f145ec1cf95adbf1b9b9e9dbb175466ea414fb00ede1ed5351b9a8777"
+    },
+    {
+      "file": "/app/dist/src/strategy/regime.js.map",
+      "sha256": "b16d835a448053eba905aa9624a3d47bdccdeb0265652471b01cc67611d84a4d"
+    },
+    {
+      "file": "/app/dist/src/strategy/signal-router.d.ts",
+      "sha256": "4ff5c719a94d9dde9176bb8bc0e8cc4f8baac891fd1b010c1b357b2f2f254e23"
+    },
+    {
+      "file": "/app/dist/src/strategy/signal-router.js",
+      "sha256": "b308af9fd0d89f0bd772165e5e59b21b90e2e35fe1fdb098a91d0a150722df20"
+    },
+    {
+      "file": "/app/dist/src/strategy/signal-router.js.map",
+      "sha256": "28acf543b2ab10b099ff1528fce7b5c5cac10a4d67159b6a093cb38e4c5e41eb"
+    },
+    {
+      "file": "/app/dist/src/strategy/signal.d.ts",
+      "sha256": "c9ef56bbf4342b2210cd2aad47e4939657c0eaf592f2dab80153ad4c628ff50e"
+    },
+    {
+      "file": "/app/dist/src/strategy/signal.js",
+      "sha256": "f5fe23d861118afd0076ee77058f8ebe9c01c730255fff18b74e8044e0011f5a"
+    },
+    {
+      "file": "/app/dist/src/strategy/signal.js.map",
+      "sha256": "621fe924966a249199494f483356a2fb9b06dfefff9e7deca2c02504b56f0067"
+    },
+    {
+      "file": "/app/dist/src/strategy/small-fraction-entry-trigger.d.ts",
+      "sha256": "b44584a4a031fc6e8c6fa791e765e543f03d1456e8461e0048c072bb65ad835e"
+    },
+    {
+      "file": "/app/dist/src/strategy/small-fraction-entry-trigger.js",
+      "sha256": "81f10cda12bcce839348626ad7f43b128bcf2414dfdd6ceca5e8cfe72fdfafca"
+    },
+    {
+      "file": "/app/dist/src/strategy/small-fraction-entry-trigger.js.map",
+      "sha256": "b5587305011f18a2a856910f55f3d677cc3f9a89c20bf1c53c712443c22ca84d"
+    },
+    {
+      "file": "/app/dist/src/strategy/time-ewma-square.d.ts",
+      "sha256": "5b434f8f4d8333516ed1f3dda850fa7dff99d3cb8163d2a5b6556150a3f33382"
+    },
+    {
+      "file": "/app/dist/src/strategy/time-ewma-square.js",
+      "sha256": "7ee8afba9f350ec298cc177aa6a065d8ed9603638f24b7506d36511301dfa800"
+    },
+    {
+      "file": "/app/dist/src/strategy/time-ewma-square.js.map",
+      "sha256": "aa087be352ead9fa6fa0d9a77175a142b13dd1da9f6632371c1b0871ad336b5e"
+    },
+    {
+      "file": "/app/dist/src/systematic/execution-audit-main.d.ts",
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+    },
+    {
+      "file": "/app/dist/src/systematic/execution-audit-main.js",
+      "sha256": "c88fe74392354f54b2511f47c2f45f3f91029331ee009857014d6b32affa5d28"
+    },
+    {
+      "file": "/app/dist/src/systematic/execution-audit-main.js.map",
+      "sha256": "9c11cb59189a706042cfb3ea549e6fcd7c0765a8686558f7e836b8b5e331d31d"
+    },
+    {
+      "file": "/app/dist/src/systematic/history.d.ts",
+      "sha256": "cb43f48ea0581aa6c6449b4a45deefa879c5f921f960a0a687e9cf25f7d7f8af"
+    },
+    {
+      "file": "/app/dist/src/systematic/history.js",
+      "sha256": "673a84cf9329e4d82db1462bd62abbd92229fcfdee4cbf027238a76271305860"
+    },
+    {
+      "file": "/app/dist/src/systematic/history.js.map",
+      "sha256": "38018c79aea6ff1e8fc2c1c42491987788fd4ab384083d7b1ffac9c867515069"
+    },
+    {
+      "file": "/app/dist/src/systematic/planner.d.ts",
+      "sha256": "7e724c0edf909904987008cd6c1b280e7b8bf20f11cfee6d3b66366f763dc711"
+    },
+    {
+      "file": "/app/dist/src/systematic/planner.js",
+      "sha256": "dd9147d3432098fa8e9c6e3420bbcceed7c7cb158fc5539ae1a8c3855693573b"
+    },
+    {
+      "file": "/app/dist/src/systematic/planner.js.map",
+      "sha256": "1eb503a9d82df8401df19fd1445d15b6bd9e9304677419dea2f8035dc115f383"
+    },
+    {
+      "file": "/app/dist/src/systematic/position.d.ts",
+      "sha256": "2e8eb4b781e51d8e9e97b138369809b2fd8b3ceef7385b2e773749de66366f28"
+    },
+    {
+      "file": "/app/dist/src/systematic/position.js",
+      "sha256": "1c03eed1ddb1becc8fafeed000d16817bb7fc5bf22ac2793ffe3758675dde35c"
+    },
+    {
+      "file": "/app/dist/src/systematic/position.js.map",
+      "sha256": "de30abc319926be9583945d4b0b4a1e77898581674bf6fd856d47a885468702e"
+    },
+    {
+      "file": "/app/dist/src/systematic/replay-main.d.ts",
+      "sha256": "c2b50bb45c306f1f2f5c89788eef19825a15cc32b123f4dfeca77b187253ae64"
+    },
+    {
+      "file": "/app/dist/src/systematic/replay-main.js",
+      "sha256": "2a7ef44ebc6824c46bbeaad80a00f7735c4ade8ae4fb1866ae3127ecc0d5a332"
+    },
+    {
+      "file": "/app/dist/src/systematic/replay-main.js.map",
+      "sha256": "23da8feacae5f06853a63c269bbe1fd382f342412f957bc3e73918e6b6375a8f"
+    },
+    {
+      "file": "/app/dist/src/systematic/replay.d.ts",
+      "sha256": "250a471d45450c9212be5cc805eb1d95ac38ecbe5e79c5b64ed3ae0726d340bc"
+    },
+    {
+      "file": "/app/dist/src/systematic/replay.js",
+      "sha256": "28aef2679124a357c54d51971d386eb5c2dddfa7e2dbf00f3e5307fe96631120"
+    },
+    {
+      "file": "/app/dist/src/systematic/replay.js.map",
+      "sha256": "b3151178596c91e2b22e1aa828d046383f9e824ec2134fe07616904cb103e3c7"
+    },
+    {
+      "file": "/app/dist/src/systematic/signal.d.ts",
+      "sha256": "0bb3674563e6690674c3c23d24489037df8c8e9ef145c92a8a8017e3df922f80"
+    },
+    {
+      "file": "/app/dist/src/systematic/signal.js",
+      "sha256": "d12f04e51cc6e8beefd50eb846cd517eb2e52b735d96d8fda384f13422c82449"
+    },
+    {
+      "file": "/app/dist/src/systematic/signal.js.map",
+      "sha256": "2b3bb7ade03ca8434c24e38133bfe439a2b6652fedb758f91168ede105120b74"
+    },
+    {
+      "file": "/app/dist/src/systematic/spec.d.ts",
+      "sha256": "2168967972873f1ca16172c33561528778c4b2c549d3dab1d950448ac81826cd"
+    },
+    {
+      "file": "/app/dist/src/systematic/spec.js",
+      "sha256": "88a5bc44913a6ee851004cf719494633e06936211199503295bf03541b112422"
+    },
+    {
+      "file": "/app/dist/src/systematic/spec.js.map",
+      "sha256": "81e63830bb1ea2a73add7741c1819c65a8ee61fcbb049f3fd46663e8d3ac363d"
+    },
+    {
+      "file": "/app/dist/src/systematic/validation.d.ts",
+      "sha256": "8a8958f9134f93ebec3816c243a16ba1baafcc2ca67e53dab05a6bd7450a7265"
+    },
+    {
+      "file": "/app/dist/src/systematic/validation.js",
+      "sha256": "e5b86953be31c1646241cebcceb864fd6de83be592a4c129405a14c8b7108556"
+    },
+    {
+      "file": "/app/dist/src/systematic/validation.js.map",
+      "sha256": "41addd20beac87baf471e39ccd5aaf564e1c142d7dde7679e940e67544c0d637"
+    },
+    {
+      "file": "/app/dist/src/venue/client.d.ts",
+      "sha256": "92658bba02d8d9a50b621d10fc71c33db8d6b62d59378841125744b5375bdad8"
+    },
+    {
+      "file": "/app/dist/src/venue/client.js",
+      "sha256": "e9813e7ca519208b540d5b88ad8eededf16c6f73f1936ebd48c2d2c969a217a7"
+    },
+    {
+      "file": "/app/dist/src/venue/client.js.map",
+      "sha256": "42f1f5eed8ad06b27163103398ec612cbcad0a3defb80245c8ad130bf1878679"
+    },
+    {
+      "file": "/app/dist/src/venue/market-history.d.ts",
+      "sha256": "5d70c29e120cc932fbcb383da08105a6b66e383e5f0594027ac25cc6dcee0738"
+    },
+    {
+      "file": "/app/dist/src/venue/market-history.js",
+      "sha256": "01ed02e4a291c681cdeee8049b98de165b10ae206ff08c0ab47c5c97d025e217"
+    },
+    {
+      "file": "/app/dist/src/venue/market-history.js.map",
+      "sha256": "18aa2b2205f6cd6cb1d089cf6122f3025eb79aa18da1de7241bbe8b903a4ae54"
+    },
+    {
+      "file": "/app/dist/src/venue/types.d.ts",
+      "sha256": "04d261e05653da85880737ef665cf9c450f2e20e752ba89628053f3b58034f2c"
+    },
+    {
+      "file": "/app/dist/src/venue/types.js",
+      "sha256": "01ae2a5b120382f9a648ced7ee8507493a134f216d100fc61600c6c9738235d2"
+    },
+    {
+      "file": "/app/dist/src/venue/types.js.map",
+      "sha256": "67075878d6988bf5a0ba51b4918f7883fb8dff0912eca024dd0a31c64021dc64"
+    },
+    {
+      "file": "/app/package-lock.json",
+      "sha256": "2315bada829d31ccb4d3970392ba56d73458d3219dda1ec98d8dda0d41893594"
+    },
+    {
+      "file": "/app/package.json",
+      "sha256": "c2c188365dc35a0890ae04d7e6856e414b1de440d6db9a9f54f53e4c62879ef1"
+    },
+    {
+      "file": "/app/src/analysis/distribution-trial-report.ts",
+      "sha256": "246de20b68fd5460371074a6a704bcd5d025ee24fe642c98f5171f33b98b02aa"
+    },
+    {
+      "file": "/app/src/analysis/model-trade-audit-main.ts",
+      "sha256": "aa87ac5136b30b9e5c182eaaf5ca10e27db2bba191c8bd4e3eae9398029b9b1e"
+    },
+    {
+      "file": "/app/src/analysis/model-trade-audit.ts",
+      "sha256": "0163d6a71d3a56930df45a905b6d392a1a87ffd7eba63bbbdbc549c015e82c4a"
+    },
+    {
+      "file": "/app/src/analysis/optimization-main.ts",
+      "sha256": "cffe1762a5b65141da2bc0a1608c52b68d866d17608388cc29284a87226c6521"
+    },
+    {
+      "file": "/app/src/analysis/rejected-entry-main.ts",
+      "sha256": "1429cec967efa5d85b877a7ab23f003d2791ea2f7f8b8fbe840c3e44e733acdc"
+    },
+    {
+      "file": "/app/src/analysis/rejected-entry-report.ts",
+      "sha256": "4a26b000e658e9ada28edefd1b2cc3121f29d5ad9c18d9af26cf687727339bc5"
+    },
+    {
+      "file": "/app/src/analysis/trade-optimization.ts",
+      "sha256": "bf3e2d9f645eb8ea6426e710e76e2c0fb97ba7e48081020656f8247607f2b238"
+    },
+    {
+      "file": "/app/src/backtest/metrics.ts",
+      "sha256": "e2c360cd378d243226d8e3f3640d61186cd62ae14caeb86e1233d483dc292116"
+    },
+    {
+      "file": "/app/src/backtest/opportunity-recall-main.ts",
+      "sha256": "04f77c67aca30d4e15da29157ab3c35c2e02409d68f0ab19f3f867d95758c743"
+    },
+    {
+      "file": "/app/src/backtest/opportunity-recall.ts",
+      "sha256": "8ed40932045194c40ac12b3ca982abc8fd0ac3988593be15389f96db163196ec"
+    },
+    {
+      "file": "/app/src/backtest/replay.ts",
+      "sha256": "1722fa21f72dac116854305ae544f9c23120d443a69d60fb985c6327ab6dc945"
+    },
+    {
+      "file": "/app/src/calibration/calibrated-edge-table.ts",
+      "sha256": "e244fe82487f1ca8ec2aee70b8932e351d44b4b5e1d43083d9124126fcf359f2"
+    },
+    {
+      "file": "/app/src/calibration/effective-sample-count.ts",
+      "sha256": "31a3eff4086b9f585875cea6af066ec4f2799e98cff77a44ec895aacc7bf78b2"
+    },
+    {
+      "file": "/app/src/carry/config.ts",
+      "sha256": "8929daa39e9752416e347178301b24342e26b3594308aeb40941cea8d624ab1b"
+    },
+    {
+      "file": "/app/src/carry/economics.ts",
+      "sha256": "57a37a9788b9030eaaf30f5a499b95223f769a7193223747627814a5f6143ce5"
+    },
+    {
+      "file": "/app/src/carry/execution.ts",
+      "sha256": "59d2e34358928c1b797468fc6f2ba289cfc00639ba878a1227874b5af369a4f1"
+    },
+    {
+      "file": "/app/src/carry/fee-frontier-main.ts",
+      "sha256": "7e8a0de27519f5963ebccbaa7d70b419d564aef991ddca5ee0dc2f0b4ffc810b"
+    },
+    {
+      "file": "/app/src/carry/funding-accrual.ts",
+      "sha256": "900a3299e620a4e84630697e65c06e493617bc70e0fb5d77d5afbe63343e34b6"
+    },
+    {
+      "file": "/app/src/carry/funding-model.ts",
+      "sha256": "82f57b69ce484021b7c17c475f1ad79d8b71e78d83f5868eced9bd5ef90720c3"
+    },
+    {
+      "file": "/app/src/carry/funding-study-main.ts",
+      "sha256": "fcfa09e79f2424ec24c8b1305bd26978d5485fc9c0440e371ba8450d5eba2634"
+    },
+    {
+      "file": "/app/src/carry/horizon-replay.ts",
+      "sha256": "4062b1be28158c99a656af7359d827ff1cd94eeb5b566a52d1414f84fb215172"
+    },
+    {
+      "file": "/app/src/carry/horizon-signal.ts",
+      "sha256": "4e5558bf248efdf5ce9fa764a1be5775f5ceae4afe9e447dd86e0a1046c2cabd"
+    },
+    {
+      "file": "/app/src/carry/horizon-spec.ts",
+      "sha256": "da43c9d8dd95b770c67994007acc8d9e56fd4aae30642660b7a2644ae1cf25ed"
+    },
+    {
+      "file": "/app/src/carry/horizon-study-main.ts",
+      "sha256": "6da0e8dc59fcfce14d4fd410718d60cae67f682d35912a646754db20d1416701"
+    },
+    {
+      "file": "/app/src/carry/inventory.ts",
+      "sha256": "a35bf93c725781736dcf8cb709acc84620d45655fc5a3c4175c5fd0fd9d01edf"
+    },
+    {
+      "file": "/app/src/carry/monitor-main.ts",
+      "sha256": "a4b2e056e29560d9deb3cf5eccd42b0fb6c5d0528bbc784a314d14e718d286cb"
+    },
+    {
+      "file": "/app/src/carry/monitor.ts",
+      "sha256": "6fda02de3b8a9bf6d55f62e45f4aeed6ea172e0c4c03f9ea7e9f2ca4b9bcd641"
+    },
+    {
+      "file": "/app/src/channel/holdout-main.ts",
+      "sha256": "8960bf4b715129eed3e88e1d1406c6ddcab7ba56438789b66b58aaa60c8bdac3"
+    },
+    {
+      "file": "/app/src/channel/holdout-spec.ts",
+      "sha256": "4e0af8a208a10b3d22cf9f09418e3f57b9011e4d75709522e80d4eee7565ce51"
+    },
+    {
+      "file": "/app/src/channel/planner.ts",
+      "sha256": "09db2dae6a7b9c97810c43d54a97605834d4af7d410299a2194ea799587124a2"
+    },
+    {
+      "file": "/app/src/channel/replay.ts",
+      "sha256": "acea7fceb08e01dcb0cb01dad9c80cbf613d78eba9d2711377f55f63e54c0039"
+    },
+    {
+      "file": "/app/src/channel/spec.ts",
+      "sha256": "441313a0bf02b599fc3d0792fcff2143ffeed6fc1229fecf1d93aae5cb189f36"
+    },
+    {
+      "file": "/app/src/channel/study-main.ts",
+      "sha256": "4d7e86f24141faae8407381a365f859714788c8ea21d6297a0682a01f09da489"
+    },
+    {
+      "file": "/app/src/channel/verify-v1-parity-main.ts",
+      "sha256": "85db3419740c9aa373aa61bae19ebffe8ac136156ecd266ce98d5c6c79eccd85"
+    },
+    {
+      "file": "/app/src/config.ts",
+      "sha256": "5d1c4b95fec54dc68de8ee6dc514b026ab53bd65f576c1c90589681c0ddc5469"
+    },
+    {
+      "file": "/app/src/config/audit-main.ts",
+      "sha256": "d887e1d8e59d8d485871f923fa49c56a2291845ef08e9626cf19ee7e5c3560e3"
+    },
+    {
+      "file": "/app/src/config/audit.ts",
+      "sha256": "06cb060024b3a6097f74d0488645b124fa7f8e0b2203dfbf96d74cce5bf981dd"
+    },
+    {
+      "file": "/app/src/config/deterministic-defaults.ts",
+      "sha256": "5c4d6ea179d6422643e87d9c7fbb8cd7fcd5d6522ef3b46b6ebb4a58dadc1351"
+    },
+    {
+      "file": "/app/src/core/decimal.ts",
+      "sha256": "ff4bee043ea9755d92c1b0f0eadf2e46d0a38566ae4933f26a897751532154da"
+    },
+    {
+      "file": "/app/src/core/features.ts",
+      "sha256": "4b837fac12efe9f956d0d2ce482890e6814ba1f071d6c1d8d48c85e1f56e3d5b"
+    },
+    {
+      "file": "/app/src/core/latency.ts",
+      "sha256": "c249ec68265fb2a4b90e89925191924678c1a5b66b2129b3469fad7c8e2a752d"
+    },
+    {
+      "file": "/app/src/core/market.ts",
+      "sha256": "8bbdd7973b1ba9ee15f30177273cc9b16df4c3c00bbad9547b25bfa20e512837"
+    },
+    {
+      "file": "/app/src/core/order-book.ts",
+      "sha256": "030a9979f2f6a1f4d736e4b927202ffeb446fb1a5a25a18f0a427dc61624db63"
+    },
+    {
+      "file": "/app/src/core/statistics.ts",
+      "sha256": "d2030c1b49513ed7eacadbffe7bed2e8a571a65d5a2424112197b5bd72807c5e"
+    },
+    {
+      "file": "/app/src/dashboard/demo-main.ts",
+      "sha256": "665c1b2aabb33e02c5617d84b6473572df4483cff839326013665387940f24c4"
+    },
+    {
+      "file": "/app/src/dashboard/eth40-proxy.ts",
+      "sha256": "78f536db9943d62e95e56fda56d6000e1c813aa63f666e360b68620ebfb4916d"
+    },
+    {
+      "file": "/app/src/dashboard/operations-monitor.ts",
+      "sha256": "eb00ffc4f6f3710f592620a80c116e30a2119826297ffd64db9a1e08480fbd1d"
+    },
+    {
+      "file": "/app/src/dashboard/server.ts",
+      "sha256": "04f9efb15c7ddcb9dfe955ccb7c3d46dffdbbd389d05f5c5484482a0ff257445"
+    },
+    {
+      "file": "/app/src/dashboard/spot-activity-reader.ts",
+      "sha256": "ba8203ff4f4a9777cac3246143f4b66760f85151649c32532f7009f248832c08"
+    },
+    {
+      "file": "/app/src/dashboard/spot-position-activity.ts",
+      "sha256": "44058b3e7708c58dfa55072667fc77e20b9bada4037c7ba9d4c755f6bb05ba17"
+    },
+    {
+      "file": "/app/src/dashboard/spot-proxy.ts",
+      "sha256": "31c97daf34dbdd54dd36cbcc685474e7eac63216e6b172432f507195c9c9b38c"
+    },
+    {
+      "file": "/app/src/dashboard/types.ts",
+      "sha256": "e943623066fdd6cfd10afd7e41822e7c91af9110490c0df662a4e6f9c333a56d"
+    },
+    {
+      "file": "/app/src/database/migrate-main.ts",
+      "sha256": "5dc3840b890e877daa74f375b275b7659d0fe6e10c98be1a6a1690e8e29a8aba"
+    },
+    {
+      "file": "/app/src/database/migrations.ts",
+      "sha256": "9c45dca43d1526b052624812816c43e66b462fe1b2f55659d134c88baea91a1f"
+    },
+    {
+      "file": "/app/src/database/persistence-watch.ts",
+      "sha256": "6a1e93909d3346e4fbf445f20d91f5c980524cd4d378f64305ccbf509544c896"
+    },
+    {
+      "file": "/app/src/database/postgres-store.ts",
+      "sha256": "817e3bbac2f3fe7670dd1c2c63166097efc10bce73e3c4fb73edff300f541564"
+    },
+    {
+      "file": "/app/src/database/smoke-main.ts",
+      "sha256": "db67d9594cf0938c431ff99205b6588287337100b3ea51c3a49785351c3ac5d6"
+    },
+    {
+      "file": "/app/src/database/verify-main.ts",
+      "sha256": "d445a51ddbadb771ac07ecbc078c2186276f32ce3ef7ea8ec5d71e7ba97b7bdd"
+    },
+    {
+      "file": "/app/src/distribution/checkpoint.ts",
+      "sha256": "98bcdca5bcc0e196cc5afa71238b2cc34746560f95864a97b5032f37e4169799"
+    },
+    {
+      "file": "/app/src/distribution/controller.ts",
+      "sha256": "61fda0ce992a4e12d1ef0e03b5c64aeeb6c1c054beca2da5eb521337f432f2c8"
+    },
+    {
+      "file": "/app/src/distribution/cost-aware-model.ts",
+      "sha256": "1bee1b88bac491711eed56217d612d716c6f7fedd57cefc35d3ec21a3b70d29c"
+    },
+    {
+      "file": "/app/src/distribution/efficient-trainer.ts",
+      "sha256": "1ee7a444887db25ddffd29acdf2d9c70f002bbebdf4d9479cd823f71c1f6e8f9"
+    },
+    {
+      "file": "/app/src/distribution/execution.ts",
+      "sha256": "e7ebe161ce78547a3a3ba47fadbfbb02d90fbb39ff0f295a5e8b9e7e2dfe684f"
+    },
+    {
+      "file": "/app/src/distribution/history-checkpoint.ts",
+      "sha256": "dc90e8965745161ac353123d1d7655b2742ce7a63d463792b68f01b473e47d14"
+    },
+    {
+      "file": "/app/src/distribution/history-main.ts",
+      "sha256": "d5c96079d4a1638d1a02f760b8fc34fdac5a6a227feea19211f5c6fc75dab463"
+    },
+    {
+      "file": "/app/src/distribution/history-replay.ts",
+      "sha256": "ea05e984c2f20956a53573c2d231ed4d9b0bd9e8272b12cbf7425b1ef6ba53c2"
+    },
+    {
+      "file": "/app/src/distribution/horizon-assessment.ts",
+      "sha256": "bc34224eb50cf53db7f755b5593bb1bb602859994cf70170b8c4069a86c6ae8d"
+    },
+    {
+      "file": "/app/src/distribution/horizon-main.ts",
+      "sha256": "426060052ef904a0358e553608cf0f6e447bc55c823f1315c9e8bca2eb34a072"
+    },
+    {
+      "file": "/app/src/distribution/horizon-replay.ts",
+      "sha256": "73f4bcbf027341a94dca4564bc216e7d8b924f2b18826168a1162a3d3457ee3f"
+    },
+    {
+      "file": "/app/src/distribution/horizon-spec.ts",
+      "sha256": "52dcfce6878f471e25fe8821841910203d1b4b5a2a667529b60a17bb4fcc4f61"
+    },
+    {
+      "file": "/app/src/distribution/market.ts",
+      "sha256": "0279523eb000862aa43d4af8f203ac6e476c8a01b45c6c4d13703811d49d0b28"
+    },
+    {
+      "file": "/app/src/distribution/model.ts",
+      "sha256": "54dad777f1bbea1f9f24c531ab7600e0da9328c824f90ab3875de5c4606beabf"
+    },
+    {
+      "file": "/app/src/distribution/planner.ts",
+      "sha256": "914b3e1774a43d36b77427e934050e9cf268c46af747a8167bf67baee61fd1ed"
+    },
+    {
+      "file": "/app/src/distribution/predictive-audit-data.ts",
+      "sha256": "5eee97b53becaedbdb7212315db34ae0897f5c73ad729b5c5c74903b4c1f5ecf"
+    },
+    {
+      "file": "/app/src/distribution/predictive-study-main.ts",
+      "sha256": "a43f06755b617673d73903c43527a4fcef80b574183e48d699f9d5299349a6f2"
+    },
+    {
+      "file": "/app/src/distribution/predictive-study.ts",
+      "sha256": "7e34abad8aa2bc043eba7d1f74ebe5c371c6a68577c129cc10a5cac0d48e90c4"
+    },
+    {
+      "file": "/app/src/distribution/regime-model.ts",
+      "sha256": "20f074a4037f619b391f782523780216a3c688885a389021ca6f63fd87237657"
+    },
+    {
+      "file": "/app/src/distribution/regime-study-main.ts",
+      "sha256": "7b856ac1df70275b1fedad1913d4ee939aa4063350ee9fb6aaabfc08e4276682"
+    },
+    {
+      "file": "/app/src/distribution/regime-study.ts",
+      "sha256": "2aef96684689f6727a09db4932d33623bd6bf1f28c609aa8e31b54741f458055"
+    },
+    {
+      "file": "/app/src/distribution/replay-main.ts",
+      "sha256": "3793cabd107f41710aedfe582f4fc80f41d1c301ec92c8b2bf40405c18b7b918"
+    },
+    {
+      "file": "/app/src/distribution/replay.ts",
+      "sha256": "9eed4bffb6aac47ba028ff9a218b6374202ef802b94c6a33e54a371c52d48e52"
+    },
+    {
+      "file": "/app/src/distribution/risk-training-context.ts",
+      "sha256": "bc285b271204508063277d3f8e8e91c05e5837036fd3c630462fc4044bcd6135"
+    },
+    {
+      "file": "/app/src/distribution/risk-training-origins.ts",
+      "sha256": "4ae3e572dee4757998c7355385c767818aebfb4e02b5ece73598a87c929aeb06"
+    },
+    {
+      "file": "/app/src/distribution/risk-training-source.ts",
+      "sha256": "91ffa453f4c1ae391347591f2e007ae5a4f4b95448652033671ba63a4da2ae10"
+    },
+    {
+      "file": "/app/src/distribution/sizing.ts",
+      "sha256": "4bc2ab74d651f94e63c60827e2fadafe7fbec70361d087b9a466da55a32410b9"
+    },
+    {
+      "file": "/app/src/distribution/spec.ts",
+      "sha256": "83891a3ae832678b8f909a158195ecedd30f8bcc3eb40c55b28333ffef59a39e"
+    },
+    {
+      "file": "/app/src/distribution/study-main.ts",
+      "sha256": "1892f8e12316937a5116d10127f69aae8d81919c6d8c6febf9c73a9fb7aa440c"
+    },
+    {
+      "file": "/app/src/distribution/study.ts",
+      "sha256": "bb705aac82a154723d5de805e2d3292b8a42be5bfc1d5a3e61e14dac972c12c0"
+    },
+    {
+      "file": "/app/src/distribution/training-backfill.ts",
+      "sha256": "b8ac76b6e50e441bae48bb490d7c7d24e9dd64ae0583900c40bfe6d35f357900"
+    },
+    {
+      "file": "/app/src/distribution/training-import.ts",
+      "sha256": "3ec2c16c305eea7c50a65dd9a5d9a4d679106ad8f063cb2470039831af6c673b"
+    },
+    {
+      "file": "/app/src/distribution/training-main.ts",
+      "sha256": "109e233228df03f59540f7078071fc86742a18a10ba340fde3e53800f17a2469"
+    },
+    {
+      "file": "/app/src/economics/analytic-edge.ts",
+      "sha256": "3cc99bf104bc0cf634f36d07a1c4f7bce6f16858f289e173d78e82ace579cc30"
+    },
+    {
+      "file": "/app/src/economics/economic-edge-resolver.ts",
+      "sha256": "fe7b953d41e9516987bcb5819dcec7bfcee4337f69c4ce78f075be74561d5631"
+    },
+    {
+      "file": "/app/src/economics/feasibility-audit.ts",
+      "sha256": "7fb3e533cefefbbac3c16c12ef085df0a4237988aa90622e3d0c3363345eee5f"
+    },
+    {
+      "file": "/app/src/economics/fee-validation.ts",
+      "sha256": "49fd1d83461d6786d9c2c391d39c878bea51779b60380e359a6ca3ec8723fce2"
+    },
+    {
+      "file": "/app/src/economics/multi-horizon-cost-gate.ts",
+      "sha256": "002f2f136c5b87cb219ec40689a7f93040094cecc8dbac857645faf39216344b"
+    },
+    {
+      "file": "/app/src/economics/net-liquidation.ts",
+      "sha256": "2a3d21588c1d8a73b93422baef2e8db1b044a071d47e5fb43146ac6471ab0578"
+    },
+    {
+      "file": "/app/src/economics/types.ts",
+      "sha256": "36c0ed80307ce8a7ff0ccbd3e04671582f0ddacd9fc41a932ee8f33e21dd46f8"
+    },
+    {
+      "file": "/app/src/engine/entry-pipeline-audit.ts",
+      "sha256": "f97e9d9a2791f2bb73d01786fe631b8c8486faf51748c0a3e0427125766fee78"
+    },
+    {
+      "file": "/app/src/engine/trading-engine.ts",
+      "sha256": "c4421aedc590a9f392bc7c4b3f4e8125b6c7504813d1255e582ec942d7cd91f1"
+    },
+    {
+      "file": "/app/src/engine/watchdog.ts",
+      "sha256": "f9072da3dd4e5e019b510d674307fb5e6ee145fbd0cb37666091f9786b1b0aa3"
+    },
+    {
+      "file": "/app/src/env.ts",
+      "sha256": "fc48ff6ba17d9a7f370266e9378f6cfff6630c61d7e7a65f983f86ec26289ca5"
+    },
+    {
+      "file": "/app/src/execution/book-walk.ts",
+      "sha256": "a080eb816006402e7886ab9ab4f8b495f391db21a4e69a4b3a5fa125e516f9e5"
+    },
+    {
+      "file": "/app/src/execution/entry-route-shadow.ts",
+      "sha256": "1d4d276a001a23d8475bd487b57dd4e3eaeb363f85d305670fce440b2e67ad89"
+    },
+    {
+      "file": "/app/src/execution/hybrid-entry-router.ts",
+      "sha256": "0f273aed5daa9f0872c83cc0ebaf52be6e5e2555c5d043906814986d24a0235a"
+    },
+    {
+      "file": "/app/src/execution/order-state.ts",
+      "sha256": "3ee981889a7c22e0801db866b14c8dc57619e48a629c8138e97e6d7124fc3ce0"
+    },
+    {
+      "file": "/app/src/execution/planner.ts",
+      "sha256": "0ac29aeee1c1f4608a2fcec4294a724cfaf407a65adc6099ce37f353b5c46cc7"
+    },
+    {
+      "file": "/app/src/index.ts",
+      "sha256": "88bac69fe29cc516cda7177c27ec4a4e12373e34ed08453fc3f1569c64d4682d"
+    },
+    {
+      "file": "/app/src/kraken/account-fees-main.ts",
+      "sha256": "75ba2383780a5b13a4573394c0f0730fec7f92946092012c57df979c1b695799"
+    },
+    {
+      "file": "/app/src/kraken/account-fees.ts",
+      "sha256": "727a71f506f03e6ab93845a9214260e7f6550ba4966f97185044ca5bc191180f"
+    },
+    {
+      "file": "/app/src/kraken/market-stream.ts",
+      "sha256": "42b3005e966c09c0b1fe12012569ac27062a16436a05c373fac28ad514df7d89"
+    },
+    {
+      "file": "/app/src/kraken/paper-broker.ts",
+      "sha256": "b32d8f5bf9b0d675cc1296a28941dfc630fc28f2084f5be4cb39b65dea5ef0e0"
+    },
+    {
+      "file": "/app/src/kraken/paper-funding.ts",
+      "sha256": "3f3b1c13ba639c48a5631085b0f0c873abeee92f7af97be7ac14d31cdfe680e5"
+    },
+    {
+      "file": "/app/src/kraken/paper-history.ts",
+      "sha256": "275ddfecbba7024a3a2796e7cff50a83147630c73568b12b6d873343528f71d2"
+    },
+    {
+      "file": "/app/src/main.ts",
+      "sha256": "3a875424e09782915af4dbfa2a06020604864015d1ab41fe7edceb9416c149ad"
+    },
+    {
+      "file": "/app/src/portfolio-v2/kernel.ts",
+      "sha256": "9ddb8eb82819faa8e2d8e6cb572d6368f8b2229f78118e701d1a4157e96beaf3"
+    },
+    {
+      "file": "/app/src/portfolio-v2/protocol.ts",
+      "sha256": "5537afcf9703509db1ac9afa4c4506eee412da6aaa83637c64ac26dbd0c5fac9"
+    },
+    {
+      "file": "/app/src/portfolio-v2/replay.ts",
+      "sha256": "311e7648296a5575d71344312d6ddb8fff4f399de9f5583f70901298bc0da63d"
+    },
+    {
+      "file": "/app/src/portfolio-v2/risk.ts",
+      "sha256": "3572b4138796ba6aff057e65a3618d672b4d8eb3e21040a2733a01a38b60d0f0"
+    },
+    {
+      "file": "/app/src/portfolio-v2/study-main.ts",
+      "sha256": "3bdbbe70a5d06c8d981158617a1ba289766ebc2cfb1653deb66468e4c599f4dd"
+    },
+    {
+      "file": "/app/src/portfolio/kernel.ts",
+      "sha256": "3c78b6202330409b9bd84bfb6d9938fd383162069a70c29eaee4f3115decf756"
+    },
+    {
+      "file": "/app/src/portfolio/live-main.ts",
+      "sha256": "365730955686861db5946bdca7680ffc7ae1615c8e577591e60182265467e155"
+    },
+    {
+      "file": "/app/src/portfolio/protocol.ts",
+      "sha256": "f585d18b3a423a4bd6ca4380a355f5e7006dbec3649fd6ad43a7fea9125f951c"
+    },
+    {
+      "file": "/app/src/portfolio/replay.ts",
+      "sha256": "f2427846d07113ca44fcb58152ba4476009b0e55f5a44bf142cd07504eef6120"
+    },
+    {
+      "file": "/app/src/portfolio/shadow.ts",
+      "sha256": "b14fc376b6678424187232745d5b92dc867aac48f46af04b24046ce0a776e827"
+    },
+    {
+      "file": "/app/src/portfolio/signals.ts",
+      "sha256": "66907f0868be89af33445d7041454ff960d018eb469af886b43224624f1f6293"
+    },
+    {
+      "file": "/app/src/portfolio/study-main.ts",
+      "sha256": "4aa4260d397c091445464fcc5609f8f6264fe1027ef4bf76ba88ff7d590a7d4e"
+    },
+    {
+      "file": "/app/src/portfolio/types.ts",
+      "sha256": "932cedcff32633cd3317106ba185d34e879a94fd426b36b196ff45a2c584a3da"
+    },
+    {
+      "file": "/app/src/profit/model.ts",
+      "sha256": "cebdf2b12ada5577d04c7d79526210ff7ce1140af9d4ad54a7292cfdfaeda5de"
+    },
+    {
+      "file": "/app/src/profit/replay.ts",
+      "sha256": "56cb3561f5750ba270ffa3d96c75306717f55c4c5e15a25b4a936c28769e643a"
+    },
+    {
+      "file": "/app/src/profit/spec.ts",
+      "sha256": "5643bb2c2f3930ca290b474722cd14db3ebcd85c1d620247b239ebc58c76d396"
+    },
+    {
+      "file": "/app/src/profit/study-main.ts",
+      "sha256": "a332d0c2fe0981e2c759f9fea8f37e2349c18c28d68cba9f5722c18b2f72ae6c"
+    },
+    {
+      "file": "/app/src/profit/study.ts",
+      "sha256": "39c8159f75eb773d6191abe61b637d864c8cfbcd1567cc9f524a9c76af6b62a5"
+    },
+    {
+      "file": "/app/src/profit/utility-replay.ts",
+      "sha256": "c62be07f2c698a8ca77a77330dad3139734bcdc900d1be47152cfdd34f5789d8"
+    },
+    {
+      "file": "/app/src/profit/utility-validation.ts",
+      "sha256": "69f1781732f69532eb6cc3ec3c0c13a9272a0441635795d8e8496f756d471442"
+    },
+    {
+      "file": "/app/src/profit/utility.ts",
+      "sha256": "a89c429438771af34c6c61992488a80bc392ccd78aca8155cc2be30d238d3ec2"
+    },
+    {
+      "file": "/app/src/profit/validation.ts",
+      "sha256": "dcb900846bda6fdb059ad605b2c49eca1b7b1541333d62e7bfd3a24ab8a0b371"
+    },
+    {
+      "file": "/app/src/recorder.ts",
+      "sha256": "3b5c996a5e968b918ce385b4d2546463a9023f53d13a2f0cea798c313ae3548c"
+    },
+    {
+      "file": "/app/src/research/alpha-research-main.ts",
+      "sha256": "4b6fe32e9d4678d7413caeeed3caba53e7ab6c27ab496d6f09ddd8873b90a45b"
+    },
+    {
+      "file": "/app/src/research/alpha-research-store.ts",
+      "sha256": "2759ab3d41a06e43b9ccb5707432a6c87a7aa43f484797717d795779335694a2"
+    },
+    {
+      "file": "/app/src/research/alpha-research.ts",
+      "sha256": "73c768ad8d22635ced94cbc83147e141f73a250a6623c7b41a6821c3ef12c419"
+    },
+    {
+      "file": "/app/src/research/block-expectancy.ts",
+      "sha256": "02ef82c18c540dbbac4eeda18442167ecb9e7114a4148573b2cb19f03376cade"
+    },
+    {
+      "file": "/app/src/research/conditional-edge-main.ts",
+      "sha256": "4d4376209b0ec8d1c305fbce96def720b319d25c1428a7f03230724fd45fa31b"
+    },
+    {
+      "file": "/app/src/research/conditional-edge.ts",
+      "sha256": "799e78de0c5969cfb218e9d4a893666e22ca5abde8124112ea21f377cb797454"
+    },
+    {
+      "file": "/app/src/research/cross-asset-export-main.ts",
+      "sha256": "ca17fadd29088c218a19566185d393a6dc9bcf8e401fa67c3e7996b8cce5d47a"
+    },
+    {
+      "file": "/app/src/research/cross-asset-history.ts",
+      "sha256": "4dc7ae8746a568dc5bb186959f29725194e7b98a8c04b696f0144dec31f149d9"
+    },
+    {
+      "file": "/app/src/research/cross-asset-main.ts",
+      "sha256": "e3bba5df8b844c65575d2f8cd099e5956122d36731cb2515353e85c11483b57d"
+    },
+    {
+      "file": "/app/src/research/cross-asset-model.ts",
+      "sha256": "dbe2034039b0e4c2824a22f0a407aba9aafda3e54c2d74ad28dea26ae0fe9ecf"
+    },
+    {
+      "file": "/app/src/research/cross-asset-replay.ts",
+      "sha256": "5088637dc33d7330835024c04988ea5575d656643606a843964e08e952132694"
+    },
+    {
+      "file": "/app/src/research/cross-asset-warmup-main.ts",
+      "sha256": "2e27c8f6cb86109680b6730e9a8728670fb6a952b52cd6902c5fa9a0b3234537"
+    },
+    {
+      "file": "/app/src/research/cross-asset-warmup.ts",
+      "sha256": "ac10aa0e940cab9cc85f2b78b9b5e745870c62ae32ef4df3bb81e64babb49b03"
+    },
+    {
+      "file": "/app/src/research/dynamic-bayes.ts",
+      "sha256": "c4b765e68588ff5ba2209abe9739ffc4db8218b0d2a19922db64449bda3f2336"
+    },
+    {
+      "file": "/app/src/research/episode-main.ts",
+      "sha256": "35fcb6370d7b07dffb1ec08126e07e2969ffe32c93141226f6d10570772eef97"
+    },
+    {
+      "file": "/app/src/research/episode-replay-main.ts",
+      "sha256": "7ddec70de898aa128bdbb5c0ead0e9f57aac41df47221a1225f3ebe6afbaaa62"
+    },
+    {
+      "file": "/app/src/research/episode-replay.ts",
+      "sha256": "b8f39de8a988014088d573ec3ad44bcfb85872b5e40e1156929d6dbd8389188f"
+    },
+    {
+      "file": "/app/src/research/episode-report.ts",
+      "sha256": "f11fea45dcc67ae021ed187f3d659d0ca9b04117d9b755a87c91b3dca58003c0"
+    },
+    {
+      "file": "/app/src/research/episode-store.ts",
+      "sha256": "ca559748b282458dedfdf5302f0fd9e762833b3a4dc5a190a6d9989f1e970382"
+    },
+    {
+      "file": "/app/src/research/execution-stress.ts",
+      "sha256": "33ed77c77e0af402241a4d6f5048d8d990dac6eb2c6797845001e4f9bef97aa5"
+    },
+    {
+      "file": "/app/src/research/export-alpha-dataset-main.ts",
+      "sha256": "fb81edae63b6b4422f8078177ef1ead2fc5e6a378af9f1c24a3bdeafa9d9f313"
+    },
+    {
+      "file": "/app/src/research/hourly-adaptive-model.ts",
+      "sha256": "65bf37e08f3598f8dcedba944be81ca2223a832b0c0832aa40afb27aac48e648"
+    },
+    {
+      "file": "/app/src/research/hourly-adaptive-study-gates.ts",
+      "sha256": "e27cbedcca1d8cc18fbc9a0ad764d7116fd3fbf813f9a2abf2914b419abc5ba1"
+    },
+    {
+      "file": "/app/src/research/hourly-adaptive-study-main.ts",
+      "sha256": "9cdf86f64cbe96da82d615852cdf61e46ffe8892d602857605702c13308c36c4"
+    },
+    {
+      "file": "/app/src/research/hourly-data-main.ts",
+      "sha256": "c1fc652caa73cfa272375aa5ac99c5eed40f36ec76ca2ca0e52cfa2d9f6852af"
+    },
+    {
+      "file": "/app/src/research/hourly-data.ts",
+      "sha256": "0786552d6f700f8ad906a6f6db80b423560eef6f79dbb7403250ce1eeb260a91"
+    },
+    {
+      "file": "/app/src/research/hourly-model.ts",
+      "sha256": "69ac3085efe1377801d0d056224f5f6a3155764dc3faf71b00d315facc1c8c3f"
+    },
+    {
+      "file": "/app/src/research/hourly-net-calibration.ts",
+      "sha256": "b6ba46abdcda565b2d57082c474480e60e2916e25fd1657756f77b1263273452"
+    },
+    {
+      "file": "/app/src/research/hourly-net-labels.ts",
+      "sha256": "f19fcca8cef7d3648ead5abbd24434d24dde574c0faf622766719afab77bb371"
+    },
+    {
+      "file": "/app/src/research/hourly-price-setups.ts",
+      "sha256": "14c0a0c35d6b12a9b99e25d5a80d611960e6f48457e6097cff54f84583321f43"
+    },
+    {
+      "file": "/app/src/research/hourly-retry-simulator.ts",
+      "sha256": "239759778a583c623ca55636a9b53140aa9f9690eb1bbbac2d304117265f08aa"
+    },
+    {
+      "file": "/app/src/research/hourly-simulator.ts",
+      "sha256": "0421f92bc37af0186d25b7c7710f61dd867945488dc85599072e23dfdf8a5eed"
+    },
+    {
+      "file": "/app/src/research/hourly-student-model.ts",
+      "sha256": "79754c03b1abe2218f40c5873091c024cbee2c521e9d6363158aa0036c30f203"
+    },
+    {
+      "file": "/app/src/research/hourly-student-study-main.ts",
+      "sha256": "d2a4902a2e4a1d1e5ed4eae6ac01f59895f89214f69bd91d4967f7ff645f5d67"
+    },
+    {
+      "file": "/app/src/research/hourly-study-main.ts",
+      "sha256": "cb940afedec62ccf9d10c05d329ef2009a92ea46f4cfd263474b3fe2e4fe3ab0"
+    },
+    {
+      "file": "/app/src/research/hourly-study-statistics.ts",
+      "sha256": "0a9b6437903c26845958748d18f4b43f3ad35749f616da924cd61252442c7a36"
+    },
+    {
+      "file": "/app/src/research/hourly-volume-features.ts",
+      "sha256": "ca773fc49553949cc15736ddede96c4c2721cbc75be51d07a72774573a1c8059"
+    },
+    {
+      "file": "/app/src/research/model-experiment-main.ts",
+      "sha256": "bdf2f6220f601831dd94d3a2c2b7b3ea4084d372ee74e76bb8ac35072b307dbf"
+    },
+    {
+      "file": "/app/src/research/model-experiment.ts",
+      "sha256": "004ce0b515412c8008a739cc1892e86bbcadcee4b4407dea9dfced65960a6233"
+    },
+    {
+      "file": "/app/src/research/policy-collector.ts",
+      "sha256": "8b3411b4e0c7e55cb5d8c340b3ded62ab9e657966791b7cde0da68636c3733d7"
+    },
+    {
+      "file": "/app/src/research/policy-comparison-main.ts",
+      "sha256": "c8e9b98dcbea267fb1e2bf72de3d9e7bb715b8cecd2031c55b5b96ea31b34640"
+    },
+    {
+      "file": "/app/src/research/policy-comparison.ts",
+      "sha256": "028c3b1ba1f86a25e68b5df0a45c8291b98bd3c34cf803d0b0243c7a99d2843a"
+    },
+    {
+      "file": "/app/src/research/policy-main.ts",
+      "sha256": "662f99b0cc07ef20e71b735996e5ae90ed8d1742a2926f3499182c4aecaa585d"
+    },
+    {
+      "file": "/app/src/research/policy-planner.ts",
+      "sha256": "0b1a6d446800a1180e497a1cf98254150027343fcde80fefbddae552e6c62ad8"
+    },
+    {
+      "file": "/app/src/research/policy-pulse.ts",
+      "sha256": "e9a11dc0bcc034bcc81f8c90ae4a70f9631cdff75db2d3cb28b775ad0844f27c"
+    },
+    {
+      "file": "/app/src/research/policy-restore.ts",
+      "sha256": "fb20d336965f67bf5c3ec2e62ee91cc488e479bbc3ad854f1d77f5f8a1decfc7"
+    },
+    {
+      "file": "/app/src/research/policy-store.ts",
+      "sha256": "07758bfdb7d53fd589c847c9803025e881076d6ae9f88cdec8f29c00cd6dc580"
+    },
+    {
+      "file": "/app/src/research/policy-validation.ts",
+      "sha256": "d60c4be46b3da889bd1698a03a5989d2d1c836b91cb3f0e86b9b925e1f3b013a"
+    },
+    {
+      "file": "/app/src/research/retest-replay-main.ts",
+      "sha256": "ca390efd02c67d351ebed870d1ee621b83024c0a4306731284cb2b878e8aba7b"
+    },
+    {
+      "file": "/app/src/research/retest-replay.ts",
+      "sha256": "f9731684a4a179da57abc57e1e13dd3c669a60cca8da6d6300fffd0e72172c41"
+    },
+    {
+      "file": "/app/src/research/signal-episodes.ts",
+      "sha256": "81650f3fb1bb94076d817ddceaca56504ceff440c2fdb640a299a03d41c10d8a"
+    },
+    {
+      "file": "/app/src/research/spot-history-data-main.ts",
+      "sha256": "ec60e36bc5dda6cf93d256fe2b0a7d065de5b15c89197cae360b5c05ad5f56ef"
+    },
+    {
+      "file": "/app/src/research/spot-history-data.ts",
+      "sha256": "1c580263bb1fc7de80d2def842bb75f873d1687d32d653dcb5040607e0caddc2"
+    },
+    {
+      "file": "/app/src/research/trading-policy.ts",
+      "sha256": "73309f308d806f58647bb51b8a489599101674ab8bef9107d065d6bb8dae8746"
+    },
+    {
+      "file": "/app/src/risk/economic-risk-sizer.ts",
+      "sha256": "0f8d9eb0ca297c3fbb2b02cd2ec54132608fa247c9cf814c3587aa563badc74a"
+    },
+    {
+      "file": "/app/src/risk/paper-funding-cash.ts",
+      "sha256": "7486c4c4fe29f3460ce02b492cf9529042e16b01da6162507c5baa82173ffd78"
+    },
+    {
+      "file": "/app/src/risk/portfolio.ts",
+      "sha256": "57ec97ec9aba307100d9baedc123bcf882582203d6d0976842b20650af5afceb"
+    },
+    {
+      "file": "/app/src/risk/risk-state.ts",
+      "sha256": "81683068282d66579354b36969eeb2da50ea81e5b0af049eda683b505d67c7aa"
+    },
+    {
+      "file": "/app/src/risk/rolling-pnl.ts",
+      "sha256": "04e44da24fd4fef6ab270256c1a9db71a19ab628aaca0f13c7d1af355a7fbf58"
+    },
+    {
+      "file": "/app/src/risk/sizing.ts",
+      "sha256": "3d0be830f15c1188d116e6209d6b014a53b28c400467399d5a1b669821dbb920"
+    },
+    {
+      "file": "/app/src/spot-trend/account.ts",
+      "sha256": "12a33739b685eb68506ebe0a76d21ee53804213dd7bd73706425a7f5470cdd2f"
+    },
+    {
+      "file": "/app/src/strategy/breakout-retest.ts",
+      "sha256": "22fec8ee06a1fe3f070ed6e450c512c2672d6731641d6759b633e75bfb35f735"
+    },
+    {
+      "file": "/app/src/strategy/continuation-quality.ts",
+      "sha256": "5c0c6dbab15fb7366851eb7e48104cc1ed48e1cd7b24515d207cfdefc147e463"
+    },
+    {
+      "file": "/app/src/strategy/cost.ts",
+      "sha256": "96387e8f3a6206bf20ddbb9be0e39737e12aecded568737fb060b7794e5bc1cc"
+    },
+    {
+      "file": "/app/src/strategy/deterministic-edge-resolver.ts",
+      "sha256": "71b69dfad5895cd4e15a3f7e49dc12fd9a4d807554e2581aa9e8a16525f8bea2"
+    },
+    {
+      "file": "/app/src/strategy/deterministic-entry.ts",
+      "sha256": "f92040dfa45628c53738c5ca5aa946134255f1853227f0236489dcf8fba99593"
+    },
+    {
+      "file": "/app/src/strategy/deterministic-features.ts",
+      "sha256": "ff6ff7d063d00a90831576769e52a3e7224fbbd81e389503542353ff67109faf"
+    },
+    {
+      "file": "/app/src/strategy/deterministic-hold.ts",
+      "sha256": "a28bd371775681b0d0ff19d07f60248abecfc4c35eeac750915a5895cc62b888"
+    },
+    {
+      "file": "/app/src/strategy/deterministic-regime.ts",
+      "sha256": "56eb5bd467adcaa204a6bb44eec93fc7869e88a638add9fd7af2769496384550"
+    },
+    {
+      "file": "/app/src/strategy/dynamic-liquidity.ts",
+      "sha256": "36cbaf999a0f23dcd45b311a439377a15dab085da241567531c5b9f6fd6baa99"
+    },
+    {
+      "file": "/app/src/strategy/early-breakout.ts",
+      "sha256": "55a0a8a602923e221b90b0f25873119d0247235cdfb8f2410bb7fd14007e49b9"
+    },
+    {
+      "file": "/app/src/strategy/forecast.ts",
+      "sha256": "b48c3f05f129a63f466d8e2a947b10999f0b599c8ded9527226bd78546f4933f"
+    },
+    {
+      "file": "/app/src/strategy/micro-fraction-types.ts",
+      "sha256": "e5b91659460e318279e0abb1c8920b91c1192b3e305960e90fcd0ac3e15f6b70"
+    },
+    {
+      "file": "/app/src/strategy/position-manager.ts",
+      "sha256": "7d541226cae35217fee8f6744064fed98c3f6449fdf5e8f947867fbdff6d64a7"
+    },
+    {
+      "file": "/app/src/strategy/pullback-recovery.ts",
+      "sha256": "528b435f11611bfae8b544c9e4b53fb7264894181f7570b3cb3489a408bc2745"
+    },
+    {
+      "file": "/app/src/strategy/regime.ts",
+      "sha256": "30162ea42165d16d2557439242831fbb897c8a1cf121ed29d9dfcc5bfc274d03"
+    },
+    {
+      "file": "/app/src/strategy/signal-router.ts",
+      "sha256": "24c81a19eb6125fa1c32c7265ae8bccf8ae61520b07d7bf911b3a498a557e651"
+    },
+    {
+      "file": "/app/src/strategy/signal.ts",
+      "sha256": "16abdd19fedae0774ec75cf35988a4cf033d19e6739397c54c4ccc821e45fb97"
+    },
+    {
+      "file": "/app/src/strategy/small-fraction-entry-trigger.ts",
+      "sha256": "6b0d3b9d319e074282c4ea7946a93f2d0a9f3301c7e030e68cb4be7d2c92d703"
+    },
+    {
+      "file": "/app/src/strategy/time-ewma-square.ts",
+      "sha256": "e41c97ffd5914cafa3ac81733cc0edb4c9ffc40e364c0c97980ebdf20176720f"
+    },
+    {
+      "file": "/app/src/systematic/execution-audit-main.ts",
+      "sha256": "1486d105f8871753cb5b8d7bac7492e0864710364641cb91ac377a00808bcd89"
+    },
+    {
+      "file": "/app/src/systematic/history.ts",
+      "sha256": "184f3707160304a6b831afa2c5521a214e59bcf47f9a56eb922ac4ff57c47db5"
+    },
+    {
+      "file": "/app/src/systematic/planner.ts",
+      "sha256": "ad4f475ef3612bb690ca838230555c716aabecdd65c11a5ebd4547aa4b4d0be1"
+    },
+    {
+      "file": "/app/src/systematic/position.ts",
+      "sha256": "16461c15dc7737dfd74668c2c0cbbf70271f0e791903ae1a3bb85462edd8298e"
+    },
+    {
+      "file": "/app/src/systematic/replay-main.ts",
+      "sha256": "3de548affa65635dba5c5cc87933659d90940e74efb236131317604ce70cc964"
+    },
+    {
+      "file": "/app/src/systematic/replay.ts",
+      "sha256": "87f593b1ef430175205c9e363c776b9744ac33059bda0d9cc592d11976e7d7a8"
+    },
+    {
+      "file": "/app/src/systematic/signal.ts",
+      "sha256": "8f4105fa3aede6bea75d02828adc6ceb1fe41f3be4923f7d6017e467f8192cc0"
+    },
+    {
+      "file": "/app/src/systematic/spec.ts",
+      "sha256": "6e0339be53e6318cf112504cc46de587f1d1820418f1487833341aa0ca64bc54"
+    },
+    {
+      "file": "/app/src/systematic/validation.ts",
+      "sha256": "98920638e63869fe8db1e3b33aa7bf7555bbde6454d321eac7e29b7b246590c0"
+    },
+    {
+      "file": "/app/src/venue/client.ts",
+      "sha256": "14c9a6fad0580f43d21926983558f097e0255b33e5b56a2b297517bf2884be2e"
+    },
+    {
+      "file": "/app/src/venue/market-history.ts",
+      "sha256": "f6879a6adebe2877c5fbbc7fcf21661822e6a361d8214827fa264d459501b633"
+    },
+    {
+      "file": "/app/src/venue/types.ts",
+      "sha256": "f73f078412ca22e7c18f4fa8ebccee98b8c152d52455fb76b98b4bf9c16515a3"
+    }
+  ]
+}

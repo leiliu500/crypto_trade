@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "mode": "MONITOR_ONLY",
+  "spotTakerFeeBps": 80,
+  "derivativeTakerFeeBps": 5,
+  "annualCapitalHurdleFraction": 0.05,
+  "slippageBpsPerExecution": 1.5,
+  "settlementBasisReserveBps": 50,
+  "unwindReserveBps": 25,
+  "maximumQuoteAgeMs": 2000,
+  "maximumQuoteSkewMs": 1000,
+  "maximumFundingAgeMs": 2000,
+  "settlementPriceMultipliers": [0.5, 1, 2],
+  "perpetualScenarioHoldingHours": 720,
+  "minimumDatedMaturityDays": 30,
+  "maximumDatedMaturityDays": 90,
+  "derivativeReserveFraction": 1,
+  "budgets": [
+    { "id": "prior-12-usd-research", "availableGrossUsd": 12, "availableCashUsd": 6.12, "availableCollateralUsd": 6 },
+    { "id": "1000-usd-sensitivity", "availableGrossUsd": 1000, "availableCashUsd": 510, "availableCollateralUsd": 500 }
+  ]
+}

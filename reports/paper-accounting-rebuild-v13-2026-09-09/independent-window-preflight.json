@@ -1,0 +1,41 @@
+{
+  "audit": "retained-history-window-local-fee-preflight-v1",
+  "inputPath": "reports/paper-accounting-rebuild-v13-2026-09-09/paper-history-input.json.gz",
+  "inputSha256": "47ee239aaefd68d17aa7e3b90eecbde4eebdf675fb657507c15625f88a7373a4",
+  "capturedAtMs": 1788931430291,
+  "sourceHashes": {
+    "src/risk/rolling-pnl.ts": "0fc656dcc21dacb0c1c2e942e24df53d9143587e7b15775c942d49a0ac739369",
+    "src/engine/trading-engine.ts": "ae53fed1134b4110a61d9a5fa435939d35ae4434c8c7e4a2e0d41762d52b8427",
+    "src/kraken/paper-broker.ts": "9c6f240965a31cb7121e11e757856a11ad967a727e2415390b31ff66d7199857",
+    "test/rolling-pnl.test.ts": "20c7d7993be146466612f2ce423797d6d0ea3e00c2634606ba418d64e19e6a1d",
+    "test/rolling-pnl-legacy-window.test.ts": "9b5c9a36a4e2616ac586ff7c8425d4c8f3372b45fec7e26062e68e70f22047e0"
+  },
+  "retainedOrders": 382,
+  "retainedActivities": 382,
+  "remotePositions": 0,
+  "restored": true,
+  "snapshot": {
+    "status": "KNOWN",
+    "reason": null,
+    "asOfMs": 1788931430291,
+    "windowStartExclusiveMs": 1788845030291,
+    "windowEndInclusiveMs": 1788931430291,
+    "realizedPricePnl24hUsd": 0,
+    "fees24hUsd": 0,
+    "netRealizedPnl24hUsd": 0,
+    "utcSessionNetPnlUsd": 0,
+    "retainedFillEvents": 382,
+    "retainedMissingFeeEvents": 102,
+    "missingFeeEvents24h": 0,
+    "missingFeeEventsUtcSession": 0,
+    "measurement": "REALIZED_PRICE_PNL_MINUS_RECORDED_EXECUTION_FEES",
+    "fundingIncluded": false
+  },
+  "validation": [
+    "Every retained order cumulative quantity agrees with activities",
+    "Every filled order VWAP agrees with retained fill prices",
+    "Reconstructed inventory agrees with remote positions",
+    "Missing fees remain unknown in their own windows; no historical fee estimation"
+  ],
+  "limitation": "Realized price PnL minus recorded execution fees only; funding excluded. Missing older fees are not a complete lifetime PnL."
+}

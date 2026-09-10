@@ -1,0 +1,16 @@
+{
+  "purpose": "Current public snapshot feasibility; not historical performance or activation approval",
+  "inputSha256": "4c2e7e3f7b6291f2be2cdd5897786aca3b85eeb1cf4cd0b5c777790025d00cf7",
+  "sourceHashes": {
+    "src/carry/config.ts": "8929daa39e9752416e347178301b24342e26b3594308aeb40941cea8d624ab1b",
+    "src/carry/economics.ts": "57a37a9788b9030eaaf30f5a499b95223f769a7193223747627814a5f6143ce5",
+    "src/carry/execution.ts": "59d2e34358928c1b797468fc6f2ba289cfc00639ba878a1227874b5af369a4f1",
+    "src/carry/monitor.ts": "6fda02de3b8a9bf6d55f62e45f4aeed6ea172e0c4c03f9ea7e9f2ca4b9bcd641",
+    "src/carry/monitor-main.ts": "a4b2e056e29560d9deb3cf5eccd42b0fb6c5d0528bbc784a314d14e718d286cb",
+    "config/carry-research.json": "8331c1d03d90c4ea99f035abb32b55b9a53192224b488a8733274c068f93b304"
+  },
+  "allScenariosNetNegative": true,
+  "mechanicallyFeasibleRows": 12,
+  "datedPolicyEligibleRows": 0,
+  "earlierProbeSuperseded": "reports/carry-feasibility-2026-09-09/report.json: BTC decimal-adapter error corrected"
+}

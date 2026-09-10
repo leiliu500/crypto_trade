@@ -4,7 +4,11 @@ import { resolve } from "node:path";
 import type { AssetRules } from "../execution/planner.js";
 import { DistributionController, LEGACY_DISTRIBUTION_TRAINING_VERSION, type DistributionCosts } from "./controller.js";
 import { EFFICIENT_TRAINING_SPEC } from "./efficient-trainer.js";
-import { distributionTrainingOnlyState } from "./training-backfill.js";
+import { distributionTrainingOnlyState, riskBoundedTrainingOnlyState, type RiskTrainingOrigin } from "./training-backfill.js";
+import { assertRiskBoundedTrainingContext, RISK_TRAINING_VERSION, trainingContextHash,
+  type RiskBoundedTrainingContext } from "./risk-training-context.js";
+import { distributionSizingId, sizeDistributionContext, type DistributionSizingPolicy } from "./sizing.js";
+import { readRiskTrainingOrigins } from "./risk-training-origins.js";
 import { DISTRIBUTION_ACTIONS, DISTRIBUTION_SPEC, DISTRIBUTION_ENTRY_PROFILES,
   type DistributionEntryProfile, type DistributionSample } from "./spec.js";
 
@@ -35,10 +39,18 @@ export async function readDistributionTrainingArtifact(path: string, protectedPa
  * duplicate/overlapping historical panels. New labels reset live validation. */
 export function mergeDistributionTraining(currentValue: unknown, artifactValue: unknown,
   costs: DistributionCosts, assets: Readonly<Record<string, AssetRules>>, cutoffMs: number,
-  profile: DistributionEntryProfile = DISTRIBUTION_ENTRY_PROFILES.VALIDATED) {
+  profile: DistributionEntryProfile = DISTRIBUTION_ENTRY_PROFILES.VALIDATED,
+  expectedRiskContext?: RiskBoundedTrainingContext,
+  expectedSourceCodeHashes?: ReadonlyArray<{ path: string; sha256: string }>) {
   if (!Number.isSafeInteger(cutoffMs) || cutoffMs < 0) throw new Error("INVALID_TRAINING_IMPORT_CUTOFF");
   const current = structuredClone(currentValue) as State;
   const artifact = artifactValue as State & { trainingBackfill?: Record<string, unknown> };
+  // This importer verifies the original fixed-size backfill protocol only.
+  // Larger, risk-bounded orders require their own observed fill outcomes.
+  if (current?.sizingPolicy && artifact?.sizingPolicy && expectedRiskContext)
+    return mergeRiskBoundedTraining(current, artifact, costs, assets, cutoffMs, profile, expectedRiskContext, expectedSourceCodeHashes);
+  if (current?.sizingPolicy || current?.sizingPolicyId || artifact?.sizingPolicy || artifact?.sizingPolicyId)
+    throw new Error("DISTRIBUTION_FIXED_SIZE_BACKFILL_INCOMPATIBLE_WITH_RISK_SIZING");
   const provenance = artifact?.trainingBackfill;
   const artifactCutoff = provenance?.cutoffMs;
   if (!provenance || provenance.version !== `${DISTRIBUTION_SPEC.version}:training-backfill-v1`
@@ -116,7 +128,8 @@ export function mergeDistributionTraining(currentValue: unknown, artifactValue: 
  * efficient bank. Existing live labels win conflicts in time, and a duplicate
  * id with different content is rejected. Other actions may overlap by design. */
 function mergeEfficientTraining(current: State, historical: readonly DistributionSample[], costs: DistributionCosts,
-  assets: Readonly<Record<string, AssetRules>>, cutoffMs: number, profile: DistributionEntryProfile) {
+  assets: Readonly<Record<string, AssetRules>>, cutoffMs: number, profile: DistributionEntryProfile,
+  sizingPolicy?: DistributionSizingPolicy) {
   if (current.trainingPolicyVersion !== EFFICIENT_TRAINING_SPEC.version || !current.efficientTraining)
     throw new Error("INVALID_EFFICIENT_TRAINING_IMPORT_STATE");
   const key = (sample: DistributionSample) => `${sample.symbol}:${sample.actionId}`;
@@ -153,7 +166,8 @@ function mergeEfficientTraining(current: State, historical: readonly Distributio
       sample.signalAtMs + action.horizonMs + EFFICIENT_TRAINING_SPEC.completionBufferMs, sample.completedAtMs);
   }
   const verifyMerged = new DistributionController(costs, structuredClone(assets), profile, { efficientTraining: true,
-    regimeModel: profile.selectionPolicyVersion === DISTRIBUTION_ENTRY_PROFILES.PAPER_TRIAL_REGIME.selectionPolicyVersion });
+    regimeModel: profile.selectionPolicyVersion === DISTRIBUTION_ENTRY_PROFILES.PAPER_TRIAL_REGIME.selectionPolicyVersion,
+    sizingPolicy });
   verifyMerged.restoreState(merged, cutoffMs);
   const historyPanels = panels(historical);
   const completePanels = (kind: "duplicate" | "overlap" | "capacity" | "added") => historyPanels
@@ -172,6 +186,88 @@ function mergeEfficientTraining(current: State, historical: readonly Distributio
     trainingDates: [...new Set(merged.samples.map(sample => new Date(sample.signalAtMs).toISOString().slice(0, 10)))].sort(),
     prospectiveValidationReset: addedSamples > 0, validation: verifyMerged.stats(cutoffMs).validation, brokerOrdersSubmitted: 0 } };
 }
+
+/** Separate v2 proof contract. No v1 labels can cross into this path. Policy and
+ * causal feature configuration must match the trusted running configuration;
+ * historical reference equity remains an explicit counterfactual assumption. */
+function mergeRiskBoundedTraining(current: State, artifact: State & { trainingBackfill?: Record<string, unknown> },
+  costs: DistributionCosts, assets: Readonly<Record<string, AssetRules>>, cutoffMs: number,
+  profile: DistributionEntryProfile, expected: RiskBoundedTrainingContext,
+  expectedSourceCodeHashes?: ReadonlyArray<{ path: string; sha256: string }>) {
+  assertRiskBoundedTrainingContext(expected);
+  const p = artifact.trainingBackfill, context = p?.riskContext as RiskBoundedTrainingContext;
+  if (!p || p.version !== RISK_TRAINING_VERSION || !context) throw new Error("INVALID_RISK_TRAINING_PROVENANCE");
+  if (!expectedSourceCodeHashes?.length || canonical(p.sourceCodeHashes) !== canonical(expectedSourceCodeHashes)
+    || p.sourceCodeSha256 !== trainingContextHash(expectedSourceCodeHashes))
+    throw new Error("RISK_TRAINING_SOURCE_CODE_MISMATCH");
+  assertRiskBoundedTrainingContext(context);
+  const policy = current.sizingPolicy!, policyId = distributionSizingId(policy), artifactCutoff = p.cutoffMs as number;
+  if (profile.selectionPolicyVersion !== DISTRIBUTION_ENTRY_PROFILES.PAPER_TRIAL_EFFICIENT.selectionPolicyVersion
+    || current.selectionPolicyVersion !== profile.selectionPolicyVersion || artifact.selectionPolicyVersion !== profile.selectionPolicyVersion
+    || artifact.trainingPolicyVersion !== EFFICIENT_TRAINING_SPEC.version || current.trainingPolicyVersion !== EFFICIENT_TRAINING_SPEC.version
+    || expected.sizingPolicyId !== policyId || context.sizingPolicyId !== policyId || artifact.sizingPolicyId !== policyId
+    || current.sizingPolicyId !== policyId || distributionSizingId(artifact.sizingPolicy) !== policyId
+    || p.sizingPolicyId !== policyId || canonical(context.symbols) !== canonical(expected.symbols)
+    || p.riskContextSha256 !== trainingContextHash(context)
+    || canonical(p.spec) !== canonical(DISTRIBUTION_SPEC) || canonical(p.trainingSpec) !== canonical(EFFICIENT_TRAINING_SPEC)
+    || p.trainingOnly !== true || p.prospectiveSelectionsCreated !== 0 || p.brokerOrdersSubmitted !== 0
+    || p.profitabilityEstablished !== false || p.deploymentReady !== false || p.observedFundingCashIncluded !== false
+    || p.accountContext !== "FIXED_DECLARED_COUNTERFACTUAL_REFERENCE_NOT_HISTORICAL_ACCOUNT_EQUITY"
+    || !Number.isSafeInteger(artifactCutoff) || artifactCutoff < 0 || artifactCutoff > cutoffMs
+    || canonical(p.costs) !== canonical(costs) || canonical(artifact.costs) !== canonical(costs)
+    || canonical(p.assets) !== canonical(assets)
+    || p.instrumentRulesSha256 !== createHash("sha256").update(JSON.stringify(p.assets)).digest("hex")
+    || !Array.isArray(artifact.validationSelections) || artifact.validationSelections.length !== 0
+    || !Array.isArray(artifact.pendingSelections) || artifact.pendingSelections.length !== 0
+    || !Array.isArray(p.inputFiles) || p.inputFiles.length === 0
+    || p.inputFiles.some((f: { path?: unknown; bytes?: unknown; sha256?: unknown }) => !f || typeof f.path !== "string" || !f.path
+      || !Number.isSafeInteger(f.bytes) || (f.bytes as number) <= 0 || !sha(f.sha256))
+    || !Array.isArray(p.sourceCodeHashes) || p.sourceCodeHashes.length === 0
+    || p.sourceCodeHashes.some((f: { path?: unknown; sha256?: unknown }) => !f || typeof f.path !== "string" || !f.path || !sha(f.sha256))
+    || p.sourceCodeSha256 !== trainingContextHash(p.sourceCodeHashes)) throw new Error("INVALID_RISK_TRAINING_PROVENANCE");
+  const quality = p.quality as { firstMs?: number; lastMs?: number } | undefined;
+  if (!quality || !Number.isSafeInteger(quality.firstMs) || !Number.isSafeInteger(quality.lastMs)
+    || quality.firstMs! < 0 || quality.lastMs! < quality.firstMs! || quality.lastMs! > artifactCutoff
+    || p.retainedActionLabels !== artifact.samples.length || p.retainedSamples !== artifact.samples.length
+    || artifact.samples.some(s => s.completedAtMs > quality.lastMs!)) throw new Error("INVALID_RISK_TRAINING_COVERAGE");
+  const verifier = () => new DistributionController(costs, structuredClone(assets), profile,
+    { efficientTraining: true, sizingPolicy: policy });
+  verifier().restoreState(current, cutoffMs);
+  const historical = riskBoundedTrainingOnlyState(artifact);
+  verifier().restoreState(historical, artifactCutoff);
+  const origins = readRiskTrainingOrigins(p);
+  if (!Array.isArray(origins) || p.originsSha256 !== trainingContextHash(origins) || p.originCount !== origins.length)
+    throw new Error("INVALID_RISK_TRAINING_ORIGIN_AUDIT");
+  const byOrigin = new Map<string, RiskTrainingOrigin>();
+  for (const origin of origins) {
+    if (!origin || !origin.book || !origin.sizingContext || !Array.isArray(origin.features)) throw new Error("INVALID_RISK_TRAINING_ORIGIN");
+    const { originSha256, ...body } = origin, key = `${origin.symbol}:${origin.signalAtMs}`;
+    if (originSha256 !== trainingContextHash(body) || byOrigin.has(key) || origin.sizingPolicyId !== policyId
+      || origin.sizingContext.equity !== context.equity || origin.sizingContext.equityHighWater !== context.equityHighWater
+      || origin.book.symbol !== origin.symbol || origin.book.receiveTsMs !== origin.signalAtMs
+      || origin.book.sequence !== origin.quoteSequence || !/^\d+$/.test(origin.book.sequence)
+      || origin.referenceAsk !== origin.book.asks?.[0]?.px || origin.referenceBid !== origin.book.bids?.[0]?.px
+      || !Number.isSafeInteger(origin.signalAtMs) || origin.signalAtMs < 0 || origin.signalAtMs > artifactCutoff
+      || !Number.isFinite(origin.requestedQty) || origin.requestedQty <= 0)
+      throw new Error("INVALID_RISK_TRAINING_ORIGIN");
+    const asset = assets[origin.symbol]; if (!asset) throw new Error("INVALID_RISK_TRAINING_ORIGIN_SYMBOL");
+    const size = sizeDistributionContext(policy, { ...origin.book, sequence: BigInt(origin.book.sequence) }, asset,
+      origin.sizingContext, Math.max(...DISTRIBUTION_ACTIONS.map(a => a.stopLossBps)));
+    if (!(size.qty > 0) || Math.abs(size.qty - origin.requestedQty) > 1e-12)
+      throw new Error("RISK_TRAINING_ORIGIN_QUANTITY_MISMATCH");
+    byOrigin.set(key, origin);
+  }
+  const used = new Set<string>();
+  for (const sample of historical.samples) {
+    const key = `${sample.symbol}:${sample.signalAtMs}`, origin = byOrigin.get(key);
+    if (!origin || sample.sizingPolicyId !== policyId || canonical(sample.features) !== canonical(origin.features))
+      throw new Error("RISK_TRAINING_LABEL_ORIGIN_MISMATCH");
+    used.add(key);
+  }
+  if (used.size !== origins.length) throw new Error("RISK_TRAINING_UNUSED_ORIGIN_AUDIT");
+  return mergeEfficientTraining(current, historical.samples, costs, assets, cutoffMs, profile, policy);
+}
+function sha(value: unknown): value is string { return typeof value === "string" && /^[a-f0-9]{64}$/.test(value); }
 
 function sampleOrder(a: DistributionSample, b: DistributionSample) {
   return a.signalAtMs - b.signalAtMs || a.symbol.localeCompare(b.symbol) || a.actionId.localeCompare(b.actionId);

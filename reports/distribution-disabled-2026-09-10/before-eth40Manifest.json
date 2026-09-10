@@ -1,0 +1,238 @@
+{
+  "version": "eth40-frozen-runtime-v1",
+  "spec": {
+    "version": "eth40-forward-v1",
+    "candidateId": "sma_eth-040",
+    "liveTradingEnabled": false,
+    "automaticPromotionAllowed": false,
+    "historicalScreenPassed": false,
+    "validatedProfitable": false,
+    "initialCashUsd": 10000,
+    "warmupBars": 90,
+    "movingAverageDays": 40,
+    "entryBandFraction": 0.016738892635532743,
+    "finalizationDelayMs": 60000,
+    "signalToExecutionDays": 2,
+    "executionWindowMs": 60000,
+    "maximumQuoteAgeMs": 5000,
+    "maximumExchangeClockLeadMs": 1000,
+    "maximumRulesAgeMs": 86400000,
+    "entryFeeBps": 80,
+    "exitFeeBps": 80,
+    "maximumEntryUsd": 1000,
+    "maximumEntryEquityFraction": 0.1,
+    "completedDayVolumeParticipation": 0.001,
+    "displayedDepthParticipation": 0.05,
+    "bookPriceCollarBps": 10,
+    "minimumCompletedEpisodes": 10,
+    "reviewCalendarMonths": 6,
+    "feeSource": "https://www.kraken.com/features/fee-schedule",
+    "feeVerifiedDate": "2026-09-10",
+    "feeAssumption": "Public entry-tier spot taker fee; no private account fee tier assumed.",
+    "executionContract": "Signal candle i trades in the first 60 seconds of UTC day i+2 using a fresh checksum-verified book. Missed windows are recorded, never backfilled. At most one fill per account per day; partial residual exits wait for a subsequent eligible daily cash signal. No additions to open positions.",
+    "forwardDifference": "Daily signal and sizing are frozen. Executable book walking, 5% displayed-depth participation and missed fills replace historical OHLC prices plus 3bp assumed slippage. These are prospective paper execution assumptions, not guaranteed exchange fills.",
+    "launchContract": "Start with cash. The launch UTC candle is the first prospective signal candle; the first execution opportunity is its day i+2. Passive ETH/BTC each buy once with the same $1,000/10% cap, retain remaining cash, and never rebalance."
+  },
+  "runtimePlatform": {
+    "node": "v22.23.2",
+    "versions": {
+      "node": "22.23.2",
+      "acorn": "8.16.0",
+      "ada": "2.9.2",
+      "amaro": "1.1.8",
+      "ares": "1.34.6",
+      "brotli": "1.1.0",
+      "cjs_module_lexer": "2.2.0",
+      "cldr": "48.0",
+      "icu": "78.2",
+      "llhttp": "9.4.3",
+      "modules": "127",
+      "napi": "10",
+      "nbytes": "0.1.3",
+      "ncrypto": "0.0.1",
+      "nghttp2": "1.69.0",
+      "openssl": "3.5.7",
+      "simdjson": "4.5.0",
+      "simdutf": "6.4.2",
+      "sqlite": "3.51.3",
+      "tz": "2026a",
+      "undici": "6.28.0",
+      "unicode": "17.0",
+      "uv": "1.51.0",
+      "uvwasi": "0.0.23",
+      "v8": "12.4.254.21-node.56",
+      "zlib": "1.3.1-e00f703",
+      "zstd": "1.5.7"
+    },
+    "platform": "linux",
+    "arch": "x64"
+  },
+  "fingerprints": [
+    {
+      "file": "package.json",
+      "sha256": "c4f46fa8feda6d281a4be5b19ecb1b90b617918b4363eb2c411e054aba922763"
+    },
+    {
+      "file": "package-lock.json",
+      "sha256": "2315bada829d31ccb4d3970392ba56d73458d3219dda1ec98d8dda0d41893594"
+    },
+    {
+      "file": "node_modules/ws/package.json",
+      "sha256": "a56a3fd55945a3ce177e3ca165dafae6f7eb03b7aefd58c092ac723d5741a6fb"
+    },
+    {
+      "file": "node_modules/ws/index.js",
+      "sha256": "924564d5be26d59b9682c4263f68320e48dde7240bd2d1ad17ec305537429dd2"
+    },
+    {
+      "file": "node_modules/ws/wrapper.mjs",
+      "sha256": "fe154662301fd558f935f9c217fccbe7a7dac02ff39e648a000589403ff27c7f"
+    },
+    {
+      "file": "node_modules/ws/lib/buffer-util.js",
+      "sha256": "8b0a45739132f82e25ea13163780abf547ccfe989267f3eb7abb475beec92da3"
+    },
+    {
+      "file": "node_modules/ws/lib/constants.js",
+      "sha256": "391e823142b8b370e55a2fd32b022deaf03b8415c56000009674ebc86a0b4f86"
+    },
+    {
+      "file": "node_modules/ws/lib/event-target.js",
+      "sha256": "c45d3c6e12d170c860c0c3f1a050aa0f864d9806632b609a1e607d675aba128c"
+    },
+    {
+      "file": "node_modules/ws/lib/extension.js",
+      "sha256": "852564f0f6b460287043803eae732666fb5610f676874354fc89f06aa4e986ed"
+    },
+    {
+      "file": "node_modules/ws/lib/limiter.js",
+      "sha256": "e0469d4b83f6ba764b15f80e1766b75c136fbff68f048f4c050f0b1c7f065f69"
+    },
+    {
+      "file": "node_modules/ws/lib/permessage-deflate.js",
+      "sha256": "16a91536988a53c23047ee5882392068728a839a244178c3b09b8c54982f58b0"
+    },
+    {
+      "file": "node_modules/ws/lib/receiver.js",
+      "sha256": "a6ada33c9a2d54eaf595824b821ea89ca2c6395f89aa06755c52142148274884"
+    },
+    {
+      "file": "node_modules/ws/lib/sender.js",
+      "sha256": "d0791d30c3defd44dcabbddb879a901c757993fea2c00a7ffea01d53b23b4b77"
+    },
+    {
+      "file": "node_modules/ws/lib/stream.js",
+      "sha256": "a56fcb6e2b152097ee820b6f5410b1f71e59819b45d08d9f8bda588fe39070ec"
+    },
+    {
+      "file": "node_modules/ws/lib/subprotocol.js",
+      "sha256": "be3f6323d6f549568577dcba9004c1479d95c65a7abb0fe0c582875b9fac0b7c"
+    },
+    {
+      "file": "node_modules/ws/lib/validation.js",
+      "sha256": "41ce8e83d0d434132e1704895fedb91f6703a701b42d91c80954ab29b2845593"
+    },
+    {
+      "file": "node_modules/ws/lib/websocket-server.js",
+      "sha256": "6d8dd89a841748c80445fd5fcdb5ba8005369b53cc3525135e11304c8b9c55e5"
+    },
+    {
+      "file": "node_modules/ws/lib/websocket.js",
+      "sha256": "de5add831db49e159d3ee0adb1c5e042eba3af13166374c5584f4fc520d1e734"
+    },
+    {
+      "file": "src/eth40/types.ts",
+      "sha256": "7fba992edc01a42264a16e224a30516e83d7178779d1d38b304e33dcf8877783"
+    },
+    {
+      "file": "dist/src/eth40/types.js",
+      "sha256": "01ae2a5b120382f9a648ced7ee8507493a134f216d100fc61600c6c9738235d2"
+    },
+    {
+      "file": "src/eth40/spec.ts",
+      "sha256": "f332f07ebacb136bba1979c144f192af79f374a632542694e108f448da6fc3b6"
+    },
+    {
+      "file": "dist/src/eth40/spec.js",
+      "sha256": "1e2599b20df320815c4c881b17adb10535e50b35440e4c287059aeae15aa75e4"
+    },
+    {
+      "file": "src/eth40/bootstrap.ts",
+      "sha256": "abf8f3d4b98b687576be79f229c587ce8df0f30b2a627cb8ce2533b9d5d41d2d"
+    },
+    {
+      "file": "dist/src/eth40/bootstrap.js",
+      "sha256": "02aefadd7b8111a05efe7cb0fb66fd2083b74b3bec4bb4ced0eb8b09436694b1"
+    },
+    {
+      "file": "src/eth40/engine.ts",
+      "sha256": "cafba852e81c17d4bd4af983185e0161ec396d63f877a91dd8a6dab474f24c34"
+    },
+    {
+      "file": "dist/src/eth40/engine.js",
+      "sha256": "de6275f7eb48600d3a04b6094b0a38dd83da02b327f6db6507ef966bbc12f866"
+    },
+    {
+      "file": "src/eth40/market.ts",
+      "sha256": "a20c15624f89949e091a6c733e8dbd436aa8e7da128e7c618e99d075efdf9eaa"
+    },
+    {
+      "file": "dist/src/eth40/market.js",
+      "sha256": "5de085f68fd81ef4ff5eadb44b7ffefd67d89edeb7b29205ba33025c516ab884"
+    },
+    {
+      "file": "src/eth40/store.ts",
+      "sha256": "1611d5bc3dfa223714c8115632d7438bc9301314617a48ad1d79e4b195b98e5f"
+    },
+    {
+      "file": "dist/src/eth40/store.js",
+      "sha256": "b91ba802fc982c8e81c6e5dd90c270edb3ed22948d9ea087931e3b52de2f0ed0"
+    },
+    {
+      "file": "src/eth40/status.ts",
+      "sha256": "f3ba9351fc53e6fafe627cc04ed75166d6543ad8f7a0ccd95bb8b281fef66b67"
+    },
+    {
+      "file": "dist/src/eth40/status.js",
+      "sha256": "28418213b94137a301c3d0d74a7bc20862d8fd05c78c2b2ed21ed688c10afad7"
+    },
+    {
+      "file": "src/eth40/paper-main.ts",
+      "sha256": "db3472b9ef5175bed224f5e57224d3dca9e926fd10a2e348b3d9a44346ad1763"
+    },
+    {
+      "file": "dist/src/eth40/paper-main.js",
+      "sha256": "6a0a723df030ee5ac7e416fabbc1245d34bf9f7f25768c37bc3735fb24b42c22"
+    },
+    {
+      "file": "src/spot-trend/account.ts",
+      "sha256": "12a33739b685eb68506ebe0a76d21ee53804213dd7bd73706425a7f5470cdd2f"
+    },
+    {
+      "file": "dist/src/spot-trend/account.js",
+      "sha256": "8ed7478ae1b68d68ce19fc1f81e6ed78c2da12b367831ba662a78965eb66b530"
+    },
+    {
+      "file": "src/spot-trend/journal.ts",
+      "sha256": "149cd6448f9dc39046670ee69bf360d0acfdaa288c60c619d301b9224b8acedd"
+    },
+    {
+      "file": "dist/src/spot-trend/journal.js",
+      "sha256": "d1c17d44b16e495b639a01fe6a0fd41f8b554103a8ba7caaaf24582af830a299"
+    },
+    {
+      "file": "reports/profit-search-100-2026-09-10/forward-experiment.json",
+      "sha256": "d5d701038c18a0a1a5c4e2e9ae98d31e36b64eac00f18ee73984d904e7682e06"
+    },
+    {
+      "file": "reports/profit-search-100-2026-09-10/screen/development-lock.json",
+      "sha256": "f44680e3c1e82e75334e48b5f3b2838a36c62c3245ff90ead29afef937d88792"
+    },
+    {
+      "file": "reports/parallel-strategy-study-2026-09-10/data/dataset.json",
+      "sha256": "951499efbfe353842f55b78b94e7d0fe1ba642afa2867f077810835f2303a45e"
+    }
+  ],
+  "runtimeSha256": "ff4ce72fe52926c48e96c9fd7aaf40a618a69c6168b085b01183cc2c90757d11",
+  "researchStatus": "Prospective paper observation; historical qualification failed. No automatic strategy updates or live orders."
+}

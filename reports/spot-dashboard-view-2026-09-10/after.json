@@ -1,0 +1,96 @@
+{
+  "capturedAtUtc": "2026-09-10T06:31:50.715Z",
+  "scope": "COMPACT_ACCOUNT_AND_CONTAINER_CONTINUITY_AFTER_STATIC_UI_DEPLOYMENT",
+  "passed": true,
+  "checks": {
+    "newDashboardImage": true,
+    "dashboardContainerRecreated": true,
+    "spotImageAndStartPreserved": true,
+    "bothHealthy": true,
+    "networksPreserved": true,
+    "volumesPreserved": true,
+    "futuresCashPreserved": true,
+    "futuresOrderAndActivityHistoryPreserved": true,
+    "futuresPositionsPreserved": true,
+    "fundingEpochAndHistoryPreserved": true,
+    "noFuturesCashEvents": true,
+    "spotAccountOrdersAndReceiptsPreserved": true,
+    "spotRuntimeAndLedgerIdentityPreserved": true,
+    "spotClockNotReversed": true
+  },
+  "containers": [
+    {
+      "name": "/crypto-trade-engine",
+      "image": "sha256:8f70e03fc0bd16222b2ab993fbcb49f335e8c0d103acb436ff824b8e9697216f",
+      "startedAtUtc": "2026-09-10T06:30:27.45205105Z",
+      "health": "healthy",
+      "networks": [
+        "crypto-trade_default"
+      ],
+      "volumes": [
+        {
+          "name": "crypto_trade_event_data",
+          "destination": "/app/data",
+          "readWrite": true
+        }
+      ]
+    },
+    {
+      "name": "/crypto-spot-trend-paper",
+      "image": "sha256:6b8b607debf4afa5054d1bac78cdd9086a8354b85494db73ab8b03864e43b8fe",
+      "startedAtUtc": "2026-09-10T06:20:45.441977439Z",
+      "health": "healthy",
+      "networks": [
+        "crypto-spot-paper_default",
+        "crypto-trade_default"
+      ],
+      "volumes": [
+        {
+          "name": "crypto_trade_spot_trend_research",
+          "destination": "/app/data",
+          "readWrite": true
+        }
+      ]
+    }
+  ],
+  "futures": {
+    "savedAtUtc": "2026-09-10T06:30:28.213Z",
+    "cashEquityUsd": 99998.28269740003,
+    "initialEquityUsd": 100000,
+    "orders": 382,
+    "ordersSha256": "22b4aa92a84ed7e0ddd2bac788bb0d15fee0e57317ba09bf83d272b86864fb59",
+    "activities": 382,
+    "activitiesSha256": "85fd8db91debfc9b6a9bd1f04400288b61383b5e80902f215e290cef0ef2173f",
+    "positions": 0,
+    "positionsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "funding": {
+      "epochUtc": "2026-09-09T20:14:26.595Z",
+      "configSha256": "939040b31cc1425a17a11a704112460056f0c5cb35226dffc9a70e91557179a4",
+      "events": 11,
+      "eventsSha256": "2263c89db2990accefabd216617c773811b1ef038864e03b73d9e0c96e338d80",
+      "priorEventsPrefixSha256": "2263c89db2990accefabd216617c773811b1ef038864e03b73d9e0c96e338d80",
+      "newCashEvents": 0
+    }
+  },
+  "spot": {
+    "version": "btc-spot-weekly-research-paper-runner-v2",
+    "runtimeSourceSha256": "7f98cc50ef5158dc075f6a172eeb4343cbce286c5a676debe2a17335dcc229da",
+    "evidenceSha256": "3eed46dd2a5f17dc48e87e190243971754b1c7b0394ebcadb4eb289d30ebb509",
+    "startedAtMs": 1789019349083,
+    "lastCycleMs": 1789021846658,
+    "cycles": 11,
+    "cashUsd": 100000,
+    "btcQuantity": 0,
+    "realizedNetUsd": 0,
+    "feesUsd": 0,
+    "receipts": 0,
+    "receiptsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "accountSha256": "e7d57e0c0296175813a5097f7cb9eb9de5cc5077ea50379f5b7140a6edf5b723",
+    "orders": 0,
+    "ordersSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "migrationEvidence": {
+      "file": "migrations/343a24cefa2879f957583cb7ee7f7ddbdd7daa54afc71b4918f007212beae7a1.json",
+      "sha256": "4cedc642840cd35347c3df96dcc9880be0b1ec02fca25331a6414d94790f30f0"
+    }
+  }
+}

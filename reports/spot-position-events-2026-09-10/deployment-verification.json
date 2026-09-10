@@ -1,0 +1,226 @@
+{
+  "passed": true,
+  "containers": [
+    {
+      "name": "/crypto-trade-engine",
+      "image": "sha256:066bf2b331a199d2918c124e5914c176e55a9daefc458b857a912ed5bd92cb36",
+      "startedAt": "2026-09-10T17:26:40.554735693Z",
+      "health": "healthy",
+      "mounts": [
+        {
+          "name": "crypto_trade_event_data",
+          "destination": "/app/data",
+          "readWrite": true
+        },
+        {
+          "name": "crypto_trade_spot_trend_research",
+          "destination": "/app/spot-paper-data",
+          "readWrite": false
+        }
+      ]
+    },
+    {
+      "name": "/crypto-spot-trend-paper",
+      "image": "sha256:3682285933465fb691269a080586f08421f007c1c087d8d4f208dfcd72038b63",
+      "startedAt": "2026-09-10T16:55:32.13218234Z",
+      "health": "healthy",
+      "mounts": [
+        {
+          "name": "crypto_trade_spot_trend_research",
+          "destination": "/app/data",
+          "readWrite": true
+        }
+      ]
+    }
+  ],
+  "spotRuntimeAndContainerUnchanged": true,
+  "spotAccountAndOrderUnchanged": true,
+  "futuresAccountAndStrategyPreserved": true,
+  "readOnlyJournalMount": true,
+  "manifest": [
+    {
+      "file": "app.js",
+      "sha256": "3c443db4f8f688a3b2dcef5bc09534e46334ad372534a83e29dcb35cba1424d0"
+    },
+    {
+      "file": "spot.js",
+      "sha256": "0f93f189678768b943f2c8d2e09322b0c0b25eda23f0b19d77867a748d22dcb9"
+    },
+    {
+      "file": "styles.css",
+      "sha256": "6ccabedb467de62bb35c789cdb120c5839cd49ed72f861387944cacefd297d20"
+    }
+  ],
+  "activity": {
+    "orderId": "paper-spot-4dd38b8829b96a6dff78b6bdd6bdee31",
+    "entryOrderId": "paper-spot-4dd38b8829b96a6dff78b6bdd6bdee31",
+    "direction": "LONG",
+    "intent": "OPEN_LONG",
+    "positionStatus": "OPEN",
+    "openedAtMs": 1789059332724,
+    "closedAtMs": null,
+    "remainingQuantity": 0.00128587,
+    "remainingEntryCostUsd": 99.90000153503999,
+    "realizedNetUsd": 0,
+    "unrealizedNetUsd": -1.3073820907520002,
+    "totalNetUsd": -1.3073820907520002,
+    "markPrice": 77292.2,
+    "markAtMs": 1789062035377,
+    "events": [
+      {
+        "id": "cycle:1789019349083:145:STRATEGY_EVALUATION:1789062035377",
+        "timestampMs": 1789062035377,
+        "type": "STRATEGY_EVALUATION",
+        "cycle": 145,
+        "reason": "HOLD_SPOT_NO_ADDITIONS",
+        "quantity": 0.00128587,
+        "markPrice": 77292.2,
+        "realizedNetUsd": 0,
+        "unrealizedNetUsd": -1.3073820907520002,
+        "totalNetUsd": -1.3073820907520002
+      },
+      {
+        "id": "cycle:1789019349083:144:STRATEGY_EVALUATION:1789061735100",
+        "timestampMs": 1789061735100,
+        "type": "STRATEGY_EVALUATION",
+        "cycle": 144,
+        "reason": "HOLD_SPOT_NO_ADDITIONS",
+        "quantity": 0.00128587,
+        "markPrice": 77435.8,
+        "realizedNetUsd": 0,
+        "unrealizedNetUsd": -1.124208366207995,
+        "totalNetUsd": -1.124208366207995
+      },
+      {
+        "id": "cycle:1789019349083:143:STRATEGY_EVALUATION:1789061434726",
+        "timestampMs": 1789061434726,
+        "type": "STRATEGY_EVALUATION",
+        "cycle": 143,
+        "reason": "HOLD_SPOT_NO_ADDITIONS",
+        "quantity": 0.00128587,
+        "markPrice": 77317.5,
+        "realizedNetUsd": 0,
+        "unrealizedNetUsd": -1.275109839839999,
+        "totalNetUsd": -1.275109839839999
+      },
+      {
+        "id": "cycle:1789019349083:142:STRATEGY_EVALUATION:1789061134467",
+        "timestampMs": 1789061134467,
+        "type": "STRATEGY_EVALUATION",
+        "cycle": 142,
+        "reason": "HOLD_SPOT_NO_ADDITIONS",
+        "quantity": 0.00128587,
+        "markPrice": 77210,
+        "realizedNetUsd": 0,
+        "unrealizedNetUsd": -1.4122350166399968,
+        "totalNetUsd": -1.4122350166399968
+      },
+      {
+        "id": "cycle:1789019349083:141:STRATEGY_EVALUATION:1789060834215",
+        "timestampMs": 1789060834215,
+        "type": "STRATEGY_EVALUATION",
+        "cycle": 141,
+        "reason": "HOLD_SPOT_NO_ADDITIONS",
+        "quantity": 0.00128587,
+        "markPrice": 77108,
+        "realizedNetUsd": 0,
+        "unrealizedNetUsd": -1.5423444867199976,
+        "totalNetUsd": -1.5423444867199976
+      },
+      {
+        "id": "cycle:1789019349083:140:STRATEGY_EVALUATION:1789060533953",
+        "timestampMs": 1789060533953,
+        "type": "STRATEGY_EVALUATION",
+        "cycle": 140,
+        "reason": "HOLD_SPOT_NO_ADDITIONS",
+        "quantity": 0.00128587,
+        "markPrice": 77118.3,
+        "realizedNetUsd": 0,
+        "unrealizedNetUsd": -1.5292059814079977,
+        "totalNetUsd": -1.5292059814079977
+      },
+      {
+        "id": "cycle:1789019349083:139:STRATEGY_EVALUATION:1789060233716",
+        "timestampMs": 1789060233716,
+        "type": "STRATEGY_EVALUATION",
+        "cycle": 139,
+        "reason": "HOLD_SPOT_NO_ADDITIONS",
+        "quantity": 0.00128587,
+        "markPrice": 77143.2,
+        "realizedNetUsd": 0,
+        "unrealizedNetUsd": -1.4974439637119872,
+        "totalNetUsd": -1.4974439637119872
+      },
+      {
+        "id": "cycle:1789019349083:138:STRATEGY_EVALUATION:1789059933434",
+        "timestampMs": 1789059933434,
+        "type": "STRATEGY_EVALUATION",
+        "cycle": 138,
+        "reason": "HOLD_SPOT_NO_ADDITIONS",
+        "quantity": 0.00128587,
+        "markPrice": 77138,
+        "realizedNetUsd": 0,
+        "unrealizedNetUsd": -1.5040769955199949,
+        "totalNetUsd": -1.5040769955199949
+      },
+      {
+        "id": "cycle:1789019349083:137:STRATEGY_EVALUATION:1789059633161",
+        "timestampMs": 1789059633161,
+        "type": "STRATEGY_EVALUATION",
+        "cycle": 137,
+        "reason": "HOLD_SPOT_NO_ADDITIONS",
+        "quantity": 0.00128587,
+        "markPrice": 77130.5,
+        "realizedNetUsd": 0,
+        "unrealizedNetUsd": -1.5136438683199884,
+        "totalNetUsd": -1.5136438683199884
+      },
+      {
+        "id": "cycle:1789019349083:136:BROKER_SETTLEMENT:1789059332724",
+        "timestampMs": 1789059332724,
+        "type": "BROKER_SETTLEMENT",
+        "orderId": "paper-spot-4dd38b8829b96a6dff78b6bdd6bdee31",
+        "cycle": 136,
+        "reason": "WEEKLY_TREND_ENTER",
+        "quantity": 0.00128587,
+        "markPrice": 77073.9,
+        "realizedNetUsd": 0,
+        "unrealizedNetUsd": -1.5858418683840085,
+        "totalNetUsd": -1.5858418683840085
+      },
+      {
+        "id": "paper-spot-4dd38b8829b96a6dff78b6bdd6bdee31:lifecycle:2:FILLED:1789059332724",
+        "timestampMs": 1789059332724,
+        "type": "FILLED",
+        "orderId": "paper-spot-4dd38b8829b96a6dff78b6bdd6bdee31",
+        "quantity": 0.00128587
+      },
+      {
+        "id": "paper-spot-4dd38b8829b96a6dff78b6bdd6bdee31:lifecycle:1:ACCEPTED:1789059332724",
+        "timestampMs": 1789059332724,
+        "type": "ACCEPTED",
+        "orderId": "paper-spot-4dd38b8829b96a6dff78b6bdd6bdee31"
+      },
+      {
+        "id": "paper-spot-4dd38b8829b96a6dff78b6bdd6bdee31:lifecycle:0:SUBMITTED:1789059332678",
+        "timestampMs": 1789059332678,
+        "type": "SUBMITTED",
+        "orderId": "paper-spot-4dd38b8829b96a6dff78b6bdd6bdee31"
+      }
+    ],
+    "totalEvents": 13,
+    "nextCursor": null
+  },
+  "allHoldingCycles": [
+    137,
+    138,
+    139,
+    140,
+    141,
+    142,
+    143,
+    144,
+    145
+  ],
+  "sourceCycle": 145
+}

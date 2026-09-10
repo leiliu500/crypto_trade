@@ -1,0 +1,224 @@
+{
+  "service": "ETH40 isolated spot paper observation",
+  "liveTradingEnabled": false,
+  "historicalScreenPassed": false,
+  "validatedProfitable": false,
+  "automaticPromotionAllowed": false,
+  "collectorHealthy": true,
+  "fatalError": null,
+  "processStartedAtMs": 1789073378669,
+  "startedAtMs": 1789071221861,
+  "recordedAtMs": 1789074762145,
+  "heartbeatAgeMs": 17100,
+  "sequence": 120,
+  "lastHash": "1299610c22a66cedd681ece4884270fff4b65fbf618c9df0c180751a1a606235",
+  "firstExecutionDayMs": 1789171200000,
+  "nextExecutionWindowMs": 1789171200000,
+  "reviewAtMs": 1804709621861,
+  "reviewStatus": "COLLECTING",
+  "cashBenchmark": {
+    "initialCashUsd": 10000,
+    "equityUsd": 10000,
+    "netPnlUsd": 0,
+    "interestAssumed": 0
+  },
+  "benchmarkSizing": "Start with cash. The launch UTC candle is the first prospective signal candle; the first execution opportunity is its day i+2. Passive ETH/BTC each buy once with the same $1,000/10% cap, retain remaining cash, and never rebalance.",
+  "accounts": [
+    {
+      "accountId": "eth40",
+      "cashUsd": 10000,
+      "quantity": 0,
+      "liquidationEquityUsd": 10000,
+      "netPnlUsd": 0,
+      "realizedNetUsd": 0,
+      "feesUsd": 0,
+      "quoteAgeMs": 566,
+      "fresh": true,
+      "symbol": "ETH/USD",
+      "initialCashUsd": 10000,
+      "returnOnAccountPct": 0,
+      "fills": 0,
+      "completedEpisodes": 0,
+      "sampledMaxDrawdownUsd": 0,
+      "sampledMaxDrawdownPctInitial": 0,
+      "firstFillAtMs": null
+    },
+    {
+      "accountId": "passiveEth",
+      "cashUsd": 10000,
+      "quantity": 0,
+      "liquidationEquityUsd": 10000,
+      "netPnlUsd": 0,
+      "realizedNetUsd": 0,
+      "feesUsd": 0,
+      "quoteAgeMs": 566,
+      "fresh": true,
+      "symbol": "ETH/USD",
+      "initialCashUsd": 10000,
+      "returnOnAccountPct": 0,
+      "fills": 0,
+      "completedEpisodes": 0,
+      "sampledMaxDrawdownUsd": 0,
+      "sampledMaxDrawdownPctInitial": 0,
+      "firstFillAtMs": null
+    },
+    {
+      "accountId": "passiveBtc",
+      "cashUsd": 10000,
+      "quantity": 0,
+      "liquidationEquityUsd": 10000,
+      "netPnlUsd": 0,
+      "realizedNetUsd": 0,
+      "feesUsd": 0,
+      "quoteAgeMs": 96,
+      "fresh": true,
+      "symbol": "BTC/USD",
+      "initialCashUsd": 10000,
+      "returnOnAccountPct": 0,
+      "fills": 0,
+      "completedEpisodes": 0,
+      "sampledMaxDrawdownUsd": 0,
+      "sampledMaxDrawdownPctInitial": 0,
+      "firstFillAtMs": null
+    }
+  ],
+  "excessVsCashUsd": 0,
+  "excessVsPassiveEthUsd": 0,
+  "excessVsPassiveBtcUsd": 0,
+  "lastDecisions": [
+    {
+      "accountId": "eth40",
+      "symbol": "ETH/USD",
+      "action": "blocked",
+      "reason": "WAITING_FOR_FIRST_PROSPECTIVE_EXECUTION_DAY",
+      "target": null,
+      "signalDayMs": null,
+      "sma40": null,
+      "close": null,
+      "orderId": null,
+      "fill": null,
+      "budgetUsd": null
+    },
+    {
+      "accountId": "passiveEth",
+      "symbol": "ETH/USD",
+      "action": "blocked",
+      "reason": "WAITING_FOR_FIRST_PROSPECTIVE_EXECUTION_DAY",
+      "target": null,
+      "signalDayMs": null,
+      "sma40": null,
+      "close": null,
+      "orderId": null,
+      "fill": null,
+      "budgetUsd": null
+    },
+    {
+      "accountId": "passiveBtc",
+      "symbol": "BTC/USD",
+      "action": "blocked",
+      "reason": "WAITING_FOR_FIRST_PROSPECTIVE_EXECUTION_DAY",
+      "target": null,
+      "signalDayMs": null,
+      "sma40": null,
+      "close": null,
+      "orderId": null,
+      "fill": null,
+      "budgetUsd": null
+    }
+  ],
+  "capturedMarkets": {
+    "observedAtMs": 1789074762145,
+    "errors": [],
+    "rulesFetchedAtMs": 1789073378938,
+    "rulesFetchedAtMsByAsset": {
+      "ETH/USD": 1789073378938,
+      "BTC/USD": 1789073379131
+    },
+    "rules": {
+      "ETH/USD": {
+        "lotSize": 1e-8,
+        "minimumQuantity": 0.001,
+        "minimumNotionalUsd": 0.5,
+        "tickSize": 0.01
+      },
+      "BTC/USD": {
+        "lotSize": 1e-8,
+        "minimumQuantity": 0.00005,
+        "minimumNotionalUsd": 0.5,
+        "tickSize": 0.1
+      }
+    },
+    "quotes": [
+      {
+        "symbol": "ETH/USD",
+        "bid": 2461.17,
+        "ask": 2461.18,
+        "receivedAtMs": 1789074761653,
+        "exchangeUpdateAtMs": 1789074761579,
+        "ageAtCaptureMs": 492,
+        "checksumValid": true,
+        "checksum": "248414029",
+        "connectionId": "66aa347c-02c1-4e82-9452-ad8b1b4a9235"
+      },
+      {
+        "symbol": "BTC/USD",
+        "bid": 77276.5,
+        "ask": 77276.6,
+        "receivedAtMs": 1789074762123,
+        "exchangeUpdateAtMs": 1789074762049,
+        "ageAtCaptureMs": 22,
+        "checksumValid": true,
+        "checksum": "1661326368",
+        "connectionId": "66aa347c-02c1-4e82-9452-ad8b1b4a9235"
+      }
+    ],
+    "completedHistory": {
+      "ETH/USD": {
+        "bars": 720,
+        "firstOpenTimeMs": 1726790400000,
+        "lastOpenTimeMs": 1788912000000
+      },
+      "BTC/USD": {
+        "bars": 720,
+        "firstOpenTimeMs": 1726790400000,
+        "lastOpenTimeMs": 1788912000000
+      }
+    }
+  },
+  "valuationConvention": "Values are as of recordedAtMs. Inventory is marked to fresh verified bid less assumed exit fee; stale or unavailable inventory quotes produce null P&L. Drawdown is sampled, not a complete intraday maximum.",
+  "spec": {
+    "version": "eth40-forward-v1",
+    "candidateId": "sma_eth-040",
+    "liveTradingEnabled": false,
+    "automaticPromotionAllowed": false,
+    "historicalScreenPassed": false,
+    "validatedProfitable": false,
+    "initialCashUsd": 10000,
+    "warmupBars": 90,
+    "movingAverageDays": 40,
+    "entryBandFraction": 0.016738892635532743,
+    "finalizationDelayMs": 60000,
+    "signalToExecutionDays": 2,
+    "executionWindowMs": 60000,
+    "maximumQuoteAgeMs": 5000,
+    "maximumExchangeClockLeadMs": 1000,
+    "maximumRulesAgeMs": 86400000,
+    "entryFeeBps": 80,
+    "exitFeeBps": 80,
+    "maximumEntryUsd": 1000,
+    "maximumEntryEquityFraction": 0.1,
+    "completedDayVolumeParticipation": 0.001,
+    "displayedDepthParticipation": 0.05,
+    "bookPriceCollarBps": 10,
+    "minimumCompletedEpisodes": 10,
+    "reviewCalendarMonths": 6,
+    "feeSource": "https://www.kraken.com/features/fee-schedule",
+    "feeVerifiedDate": "2026-09-10",
+    "feeAssumption": "Public entry-tier spot taker fee; no private account fee tier assumed.",
+    "executionContract": "Signal candle i trades in the first 60 seconds of UTC day i+2 using a fresh checksum-verified book. Missed windows are recorded, never backfilled. At most one fill per account per day; partial residual exits wait for a subsequent eligible daily cash signal. No additions to open positions.",
+    "forwardDifference": "Daily signal and sizing are frozen. Executable book walking, 5% displayed-depth participation and missed fills replace historical OHLC prices plus 3bp assumed slippage. These are prospective paper execution assumptions, not guaranteed exchange fills.",
+    "launchContract": "Start with cash. The launch UTC candle is the first prospective signal candle; the first execution opportunity is its day i+2. Passive ETH/BTC each buy once with the same $1,000/10% cap, retain remaining cash, and never rebalance."
+  },
+  "available": true,
+  "dashboardFetchedAtMs": 1789074779246
+}

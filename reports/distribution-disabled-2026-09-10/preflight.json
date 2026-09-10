@@ -1,0 +1,109 @@
+{
+  "passed": true,
+  "at": "2026-09-10T21:15:42.816Z",
+  "differentEnvironmentKeys": [
+    "DISTRIBUTIONAL_EFFICIENT_TRAINING_ENABLED",
+    "DISTRIBUTIONAL_ENGINE_ENABLED",
+    "DISTRIBUTIONAL_PAPER_ENTRIES_ENABLED",
+    "DISTRIBUTIONAL_PAPER_TRIAL_ENABLED",
+    "DISTRIBUTIONAL_TRAINING_FILE",
+    "POLICY_ENGINE_ENABLED"
+  ],
+  "desiredFlags": {
+    "DISTRIBUTIONAL_ENGINE_ENABLED": "false",
+    "DISTRIBUTIONAL_PAPER_ENTRIES_ENABLED": "false",
+    "DISTRIBUTIONAL_PAPER_TRIAL_ENABLED": "false",
+    "DISTRIBUTIONAL_EFFICIENT_TRAINING_ENABLED": "false",
+    "DISTRIBUTIONAL_REGIME_MODEL_ENABLED": "false",
+    "DISTRIBUTIONAL_TRAINING_FILE": "",
+    "POLICY_ENGINE_ENABLED": "false",
+    "CROSS_ASSET_PAPER_ENTRIES_ENABLED": "false",
+    "CROSS_ASSET_PAPER_EVALUATION_ENABLED": "false",
+    "MODEL_ONLY_ENTRIES": "true",
+    "PAPER_ENTRY_EXERCISE": "false"
+  },
+  "desiredEngineEnvironmentSha256": "2a20e4100b0f8fd1a5340cf939339a0312b04fa004e8f71b6d252a97303c3c06",
+  "containers": [
+    {
+      "name": "/crypto-trade-engine",
+      "id": "6f46044cde818fa9bffbf36a7307c753520bbacfed2cf9694eb9cc9c6fd83c8e",
+      "image": "sha256:e7e2f35eb9586863054ce67c1b2d57cc4bfddee34d6f20a4d01e0513779187f9",
+      "startedAt": "2026-09-10T21:10:16.344199468Z",
+      "health": "healthy",
+      "environmentSha256": "54d9f253766784c3d3acd7868a23e86a5324ecfcb781572175c9dd134243ecbc",
+      "mounts": [
+        {
+          "name": "crypto_trade_event_data",
+          "destination": "/app/data",
+          "readWrite": true
+        },
+        {
+          "name": "crypto_trade_spot_trend_research",
+          "destination": "/app/spot-paper-data",
+          "readWrite": false
+        }
+      ],
+      "networks": [
+        "crypto-trade_default"
+      ],
+      "publishedPorts": {
+        "3001/tcp": [
+          {
+            "HostIp": "",
+            "HostPort": "3001"
+          }
+        ]
+      }
+    },
+    {
+      "name": "/crypto-spot-trend-paper",
+      "id": "ee21ed86427c6e76a529bb33b8cec4ba06e2cfd0cc5623b41b4701346446b413",
+      "image": "sha256:3682285933465fb691269a080586f08421f007c1c087d8d4f208dfcd72038b63",
+      "startedAt": "2026-09-10T16:55:32.13218234Z",
+      "health": "healthy",
+      "environmentSha256": "84477a10628d80c10c0139e7fc81bf13a95e64bef5a4b156939b721c713c8e34",
+      "mounts": [
+        {
+          "name": "crypto_trade_spot_trend_research",
+          "destination": "/app/data",
+          "readWrite": true
+        }
+      ],
+      "networks": [
+        "crypto-spot-paper_default",
+        "crypto-trade_default"
+      ],
+      "publishedPorts": {
+        "3002/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "3002"
+          }
+        ]
+      }
+    },
+    {
+      "name": "/crypto-eth40-paper",
+      "id": "fecc7a9f51f2b2528e8a345452605b2923b64f458351f43551f69bf17a98995c",
+      "image": "sha256:39dbd1a51ea727fc50db700a2e2df36b53806050f5cd5a7dcfa8b60566644cc7",
+      "startedAt": "2026-09-10T20:49:38.242143818Z",
+      "health": "healthy",
+      "environmentSha256": "648ae5bdeca3d034bbd78eaaa15a50cc1e12f7ce69c00181844c7bc5c04323d1",
+      "mounts": [
+        {
+          "name": "crypto_trade_eth40_observation_v1",
+          "destination": "/app/data",
+          "readWrite": true
+        }
+      ],
+      "networks": [
+        "crypto-eth40-paper_default",
+        "crypto-trade_default"
+      ],
+      "publishedPorts": {}
+    }
+  ],
+  "frozenEth40ManifestSha256": "785096af0dbc4e832f7938a928ed0a61b03ae93ae2c92ec3f04a4bd161b98b84",
+  "eth40StartedAtMs": 1789071221861,
+  "eth40Sequence": 126
+}

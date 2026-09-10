@@ -1,0 +1,34 @@
+{
+  "sourceHashes": {
+    "src/research/hourly-data.ts": "0786552d6f700f8ad906a6f6db80b423560eef6f79dbb7403250ce1eeb260a91",
+    "src/research/hourly-volume-features.ts": "ca773fc49553949cc15736ddede96c4c2721cbc75be51d07a72774573a1c8059",
+    "src/research/hourly-net-labels.ts": "f19fcca8cef7d3648ead5abbd24434d24dde574c0faf622766719afab77bb371",
+    "src/research/hourly-student-model.ts": "79754c03b1abe2218f40c5873091c024cbee2c521e9d6363158aa0036c30f203",
+    "src/research/hourly-net-calibration.ts": "b6ba46abdcda565b2d57082c474480e60e2916e25fd1657756f77b1263273452",
+    "src/research/hourly-student-study-main.ts": "d2a4902a2e4a1d1e5ed4eae6ac01f59895f89214f69bd91d4967f7ff645f5d67",
+    "src/research/hourly-retry-simulator.ts": "239759778a583c623ca55636a9b53140aa9f9690eb1bbbac2d304117265f08aa",
+    "src/research/hourly-adaptive-study-gates.ts": "e27cbedcca1d8cc18fbc9a0ad764d7116fd3fbf813f9a2abf2914b419abc5ba1",
+    "src/research/hourly-study-statistics.ts": "0a9b6437903c26845958748d18f4b43f3ad35749f616da924cd61252442c7a36",
+    "reports/distribution-instrument-rules-2026-09-07.json": "a89ee77c1a871c63266cde004776e7484ccdc81d544b7d32a81f56cb07d89cdf",
+    "package.json": "57b37eee487870483842e7af18ed1444bb9645a7d74abdd456c337c916ee2517",
+    "package-lock.json": "2315bada829d31ccb4d3970392ba56d73458d3219dda1ec98d8dda0d41893594"
+  },
+  "protocolSha256": "998bba4aeada806fe8ff98a96a3970dcbbb07945d1498bfca53f3352c3fadd80",
+  "dataSeal": {
+    "files": [
+      {
+        "directory": "/home/ec2-user/crypto_trade/reports/hourly-adaptive-study-2026-09-08/data-older-restored",
+        "datasetSha256": "6995137d4366500628885518de3908f663ab7584caba0a4fe9845f700ac3f36f",
+        "manifestSha256": "b49fc0c9fe648aec3a049605f1e5c79d6d0a917bcf93c40bd151f47b992e941b"
+      },
+      {
+        "directory": "/home/ec2-user/crypto_trade/reports/hourly-adaptive-study-2026-09-08/data-recent",
+        "datasetSha256": "802694ae936dd864681dee2278f027ea1732a91fd6b635f1b08371673abcb227",
+        "manifestSha256": "5a57cfcc6dc6cc352f708f3101d0e2026580c5faf7b6661509016feb6483ecb4"
+      }
+    ],
+    "barsSha256": "b7cd4397ffebedec4791ac45a9028bcd38f8d906abfae8dbb3550dac671fcf58",
+    "fundingSha256": "1940ed6bf7cd6ed413c80035440d7df52453e263ffda110a75bbc7448e33a9ba"
+  },
+  "startedAtUtc": "2026-09-08T23:43:13.296Z"
+}

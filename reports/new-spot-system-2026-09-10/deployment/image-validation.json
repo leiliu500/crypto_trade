@@ -1,0 +1,13 @@
+{
+  "evidenceSha256": "3eed46dd2a5f17dc48e87e190243971754b1c7b0394ebcadb4eb289d30ebb509",
+  "summary": {
+    "baseNetUsd": 1175.5967730305565,
+    "stressNetUsd": 1228.512191738846,
+    "baseEpisodes": 11,
+    "stressEpisodes": 11,
+    "lowerMeanWeeklyNetUsd": -0.4781742076421477,
+    "provenProfitable": false
+  },
+  "kernelLockVerified": true,
+  "networkDisabled": true
+}

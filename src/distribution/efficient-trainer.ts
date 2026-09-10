@@ -5,6 +5,8 @@ import { DistributionExecutionCase } from "./execution.js";
 import { distributionBookReason } from "./market.js";
 import { ConditionalDistributionModel } from "./model.js";
 import { RegimeDistributionModel } from "./regime-model.js";
+import { assertDistributionSizingPolicy, distributionSizingId, distributionNotionalLimit, LEGACY_SIZING_ID,
+  type DistributionSizingPolicy } from "./sizing.js";
 import { DISTRIBUTION_ACTIONS, DISTRIBUTION_SCENARIOS, DISTRIBUTION_SPEC as S,
   type DistributionDecision, type DistributionEstimate, type DistributionSample } from "./spec.js";
 
@@ -51,6 +53,8 @@ export class EfficientDistributionTrainer {
   private readonly model: ConditionalDistributionModel | RegimeDistributionModel;
   private readonly costs: DistributionCosts;
   private readonly assets: Record<string, AssetRules>;
+  private readonly sizingPolicy: DistributionSizingPolicy | undefined;
+  private readonly sizingPolicyId: string;
   private readonly pending = new Map<string, PendingAction>();
   private readonly nextOrigins = new Map<string, number>();
   private readonly quotes = new Map<string, QuoteWatermark>();
@@ -62,7 +66,11 @@ export class EfficientDistributionTrainer {
     completedActions: 0, learnedActions: 0, invalidActions: 0, rejectedContexts: 0 };
 
   constructor(costs: DistributionCosts, assets: Record<string, AssetRules>,
-    initialSamples: DistributionSample[] = [], cutoffMs = Date.now(), options: { regimeModel?: boolean } = {}) {
+    initialSamples: DistributionSample[] = [], cutoffMs = Date.now(),
+    options: { regimeModel?: boolean; sizingPolicy?: DistributionSizingPolicy | undefined } = {}) {
+    if (options.sizingPolicy) assertDistributionSizingPolicy(options.sizingPolicy);
+    this.sizingPolicy = options.sizingPolicy ? structuredClone(options.sizingPolicy) : undefined;
+    this.sizingPolicyId = distributionSizingId(this.sizingPolicy);
     if (options.regimeModel !== undefined && typeof options.regimeModel !== "boolean") throw new Error("INVALID_EFFICIENT_TRAINING_MODEL_OPTION");
     this.model = options.regimeModel ? new RegimeDistributionModel() : new ConditionalDistributionModel();
     if (!validTime(cutoffMs) || !Array.isArray(initialSamples)) throw new Error("INVALID_EFFICIENT_TRAINING_SEED");
@@ -82,7 +90,8 @@ export class EfficientDistributionTrainer {
       }
     }
     for (const sample of [...initialSamples].sort((a, b) => a.signalAtMs - b.signalAtMs || a.completedAtMs - b.completedAtMs)) {
-      if (!this.model.observe(sample)) throw new Error("INVALID_EFFICIENT_TRAINING_SEED_LABEL");
+      if ((sample.sizingPolicyId ?? LEGACY_SIZING_ID) !== this.sizingPolicyId || !this.model.observe(sample))
+        throw new Error("INVALID_EFFICIENT_TRAINING_SEED_LABEL");
       this.retain(sample); this.counters.initialSamples++;
       const action = DISTRIBUTION_ACTIONS.find(action => action.id === sample.actionId)!;
       const clock = clockKey(sample.symbol, action.horizonMs);
@@ -254,7 +263,15 @@ export class EfficientDistributionTrainer {
       || !Array.isArray(d.features) || d.features.length !== S.featureDimension
       || !d.features.every(n => Number.isFinite(n) && Math.abs(n) <= 1)
       || !Number.isFinite(d.requestedQty) || d.requestedQty < rules.minOrderSize
-      || d.requestedQty > rules.maximumOrderQty || d.requestedQty * d.referenceAsk > S.maximumNotional + 1e-8) return false;
+      || (d.sizingPolicyId ?? LEGACY_SIZING_ID) !== this.sizingPolicyId
+      || d.requestedQty > rules.maximumOrderQty
+      || d.requestedQty * d.referenceAsk > distributionNotionalLimit(this.sizingPolicy, d.symbol) + 1e-8) return false;
+    if (this.sizingPolicy) {
+      const units = d.requestedQty / rules.minTradeIncrement;
+      return Number.isSafeInteger(Math.round(units)) && Math.abs(units - Math.round(units)) <= 1e-8
+        && d.requestedQty <= Math.min(book.bids[0]!.qty, book.asks[0]!.qty)
+          * this.sizingPolicy.symbols[d.symbol]!.risk.maximumBookParticipation + 1e-12;
+    }
     const expectedQty = Math.floor(S.maximumNotional / d.referenceAsk / rules.minTradeIncrement + 1e-12) * rules.minTradeIncrement;
     return Math.abs(d.requestedQty - expectedQty) <= 1e-10;
   }
@@ -262,6 +279,7 @@ export class EfficientDistributionTrainer {
   private complete(item: PendingAction): DistributionSample {
     const outcomes = item.cases.map(execution => execution.snapshot().outcome!);
     const sample: DistributionSample = { id: `${item.symbol}:${item.actionId}:${item.signalAtMs}`,
+      ...(this.sizingPolicy ? { sizingPolicyId: this.sizingPolicyId } : {}),
       symbol: item.symbol, actionId: item.actionId, signalAtMs: item.signalAtMs,
       completedAtMs: Math.max(...outcomes.map(outcome => outcome.exitAtMs)), features: [...item.features], outcomes };
     this.pending.delete(key(item.symbol, item.actionId));

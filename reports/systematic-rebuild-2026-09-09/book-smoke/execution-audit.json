@@ -1,0 +1,65 @@
+{
+  "version": "btc-eth-hourly-trend-paper-v1",
+  "inputSha256": "e05104a2cd385d4a297cb47b0a197067ee9b10fb7715d2c082a1a3d3886a7b0b",
+  "events": 15524,
+  "acceptedBooks": 14178,
+  "invalidBooks": 0,
+  "disconnects": 1,
+  "firstMs": 1788929146195,
+  "lastMs": 1788929440916,
+  "signals": {
+    "BTC/USD": {
+      "version": "btc-eth-hourly-trend-paper-v1",
+      "id": "btc-eth-hourly-trend-paper-v1:BTC/USD:1788926400000:bdf24f08bc1b1992eeb8fc52b6f9164b8b8a70172b927bed8363d0aee9165e52",
+      "symbol": "BTC/USD",
+      "barCloseMs": 1788926400000,
+      "availableAtMs": 1788929146195,
+      "side": -1,
+      "reason": "SYSTEMATIC_TREND_SIGNAL",
+      "close": 78635,
+      "emaFast": 78631.14419335511,
+      "emaSlow": 78998.84427838762,
+      "atr": 352.78125,
+      "atrBps": 44.86313346474216,
+      "trendStrength": -1.0422891948835518,
+      "stopBps": 89.72626692948432,
+      "targetBps": 179.45253385896865,
+      "bars": 192,
+      "inputSha256": "bdf24f08bc1b1992eeb8fc52b6f9164b8b8a70172b927bed8363d0aee9165e52"
+    },
+    "ETH/USD": {
+      "version": "btc-eth-hourly-trend-paper-v1",
+      "id": "btc-eth-hourly-trend-paper-v1:ETH/USD:1788926400000:c3ce4f50d11b4b1afc30437b2d04e55a6fc70ba0c4396cdfc2ce9134bb660da9",
+      "symbol": "ETH/USD",
+      "barCloseMs": 1788926400000,
+      "availableAtMs": 1788929146195,
+      "side": null,
+      "reason": "WEAK_TREND",
+      "close": 2489,
+      "emaFast": 2488.2210152215043,
+      "emaSlow": 2486.423187195389,
+      "atr": 14.840625000000003,
+      "atrBps": 59.62484933708318,
+      "trendStrength": 0.12114233909390199,
+      "stopBps": 119.24969867416635,
+      "targetBps": 238.4993973483327,
+      "bars": 192,
+      "inputSha256": "c3ce4f50d11b4b1afc30437b2d04e55a6fc70ba0c4396cdfc2ce9134bb660da9"
+    }
+  },
+  "reasons": {
+    "ETH/USD": {
+      "WEAK_TREND": 6701
+    },
+    "BTC/USD": {
+      "COST_TOO_LARGE_FOR_STOP": 7477
+    }
+  },
+  "firstCandidates": [],
+  "attempts": 0,
+  "fills": [],
+  "completedTrades": 0,
+  "fundedNetProfit": null,
+  "profitabilityEvidence": "UNAVAILABLE_SHORT_ENTRY_PLUMBING_AUDIT",
+  "activeEngineOrdersSent": 0
+}

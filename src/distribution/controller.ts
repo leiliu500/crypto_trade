@@ -6,6 +6,8 @@ import { REGIME_DISTRIBUTION_SPEC } from "./regime-model.js";
 import { DistributionMarket, distributionBookReason } from "./market.js";
 import { DistributionExecutionCase } from "./execution.js";
 import { EfficientDistributionTrainer, EFFICIENT_TRAINING_SPEC } from "./efficient-trainer.js";
+import { assertDistributionSizingPolicy, distributionSizingId, distributionNotionalLimit, LEGACY_SIZING_ID,
+  sizeDistributionContext, type DistributionSize, type DistributionSizingContext, type DistributionSizingPolicy } from "./sizing.js";
 import { DISTRIBUTION_SPEC as S, DISTRIBUTION_ACTIONS, DISTRIBUTION_SCENARIOS,
   distributionEntryProfile, isDistributionEntryProfile, type DistributionEntryProfile, type DistributionDecision, type DistributionSample } from "./spec.js";
 
@@ -15,7 +17,8 @@ export interface ValidationSelection { sampleId: string; signalAtMs: number; com
 export interface SelectedPolicyOutcome { sample: DistributionSample; decision: DistributionDecision; valid: boolean }
 export type DistributionCosts = Readonly<Record<string, { feeBps: number; reserveBps: number }>>;
 export const LEGACY_DISTRIBUTION_TRAINING_VERSION = "btc-eth-common-panel-training-v1";
-export interface DistributionTrainingOptions { efficientTraining?: boolean; regimeModel?: boolean }
+export interface DistributionTrainingOptions { efficientTraining?: boolean; regimeModel?: boolean;
+  sizingPolicy?: DistributionSizingPolicy | undefined }
 
 /** The same controller drives recorded-event replay and the running engine.
  * Training opportunities are collected independently of actual order permissions. */
@@ -35,10 +38,16 @@ export class DistributionController {
   private validationSelections: ValidationSelection[] = [];
   private counters = { evaluations: 0, proposals: 0, selected: 0, completePanels: 0, invalidPanels: 0, invalidSelected: 0 };
   private readonly regimeModel: boolean;
+  private readonly sizingPolicy: DistributionSizingPolicy | undefined;
+  private readonly sizingPolicyId: string;
+  private readonly sizes = new Map<string, DistributionSize>();
   public constructor(private readonly costs: DistributionCosts, private readonly assets: Record<string, AssetRules> = {},
     private readonly profile: Readonly<DistributionEntryProfile> = distributionEntryProfile(),
     options: DistributionTrainingOptions = {}) {
     if (!isDistributionEntryProfile(profile)) throw new Error("INVALID_DISTRIBUTION_ENTRY_PROFILE");
+    if (options.sizingPolicy) assertDistributionSizingPolicy(options.sizingPolicy);
+    this.sizingPolicy = options.sizingPolicy ? structuredClone(options.sizingPolicy) : undefined;
+    this.sizingPolicyId = distributionSizingId(this.sizingPolicy);
     if (options.efficientTraining !== undefined && typeof options.efficientTraining !== "boolean") throw new Error("INVALID_DISTRIBUTION_TRAINING_OPTIONS");
     if (options.regimeModel !== undefined && typeof options.regimeModel !== "boolean") throw new Error("INVALID_DISTRIBUTION_TRAINING_OPTIONS");
     if (options.efficientTraining && profile.entryMode !== "PAPER_TRIAL") throw new Error("EFFICIENT_TRAINING_REQUIRES_PAPER_TRIAL");
@@ -56,10 +65,11 @@ export class DistributionController {
         throw new Error("INVALID_DISTRIBUTION_COSTS");
       }
     }
-    if (options.efficientTraining) this.efficient = new EfficientDistributionTrainer(costs, assets, [], Date.now(), { regimeModel: this.regimeModel });
+    if (options.efficientTraining) this.efficient = new EfficientDistributionTrainer(costs, assets, [], Date.now(),
+      { regimeModel: this.regimeModel, sizingPolicy: this.sizingPolicy });
   }
   public onTrade(trade: MarketTrade): void { this.market.onTrade(trade); }
-  public onBook(book: BookState, asset?: AssetRules): { decision: DistributionDecision | null;
+  public onBook(book: BookState, asset?: AssetRules, sizingContext?: DistributionSizingContext): { decision: DistributionDecision | null;
     trainingDecision: DistributionDecision | null; samples: DistributionSample[]; selections: SelectedPolicyOutcome[] } {
     if (asset) { this.efficient?.assertAssetRules(asset); this.assets[asset.symbol] = asset; }
     const completed: DistributionSample[] = [];
@@ -82,12 +92,17 @@ export class DistributionController {
     const output = (decision: DistributionDecision | null) => ({ decision, trainingDecision,
       samples: completed, selections: this.drainSelections() });
     const contextReady = (evaluationDue || trainingDue) && snapshot?.ready && rules && !distributionBookReason(book);
-    const qty = contextReady ? policyQuantity(book.asks[0]!.px, rules) : 0;
+    const size = contextReady && this.sizingPolicy ? sizeDistributionContext(this.sizingPolicy, book, rules,
+      sizingContext, Math.max(...DISTRIBUTION_ACTIONS.map(a => a.stopLossBps))) : null;
+    if (size) this.sizes.set(book.symbol, size);
+    const qty = size?.qty ?? (contextReady && !this.sizingPolicy ? policyQuantity(book.asks[0]!.px, rules) : 0);
     if (!contextReady || !(qty > 0)) {
+      if (evaluationDue || !book.valid) this.decisions.delete(book.symbol);
       if (this.efficient) completed.push(...this.efficient.onBook(book, null));
       return output(null);
     }
     const context: DistributionDecision = { version: S.version, selectionPolicyVersion: this.profile.selectionPolicyVersion,
+      ...(this.sizingPolicy ? { sizingPolicyId: this.sizingPolicyId } : {}),
       entryMode: this.profile.entryMode,
       symbol: book.symbol, atMs: book.receiveTsMs, quoteSequence: String(book.sequence),
       referenceBid: book.bids[0]!.px, referenceAsk: book.asks[0]!.px, requestedQty: qty,
@@ -183,6 +198,11 @@ export class DistributionController {
   public stats(nowMs = Date.now()) {
     const efficient = this.efficient?.stats() ?? null;
     return { version: S.version, selectionPolicyVersion: this.profile.selectionPolicyVersion,
+      sizingPolicyId: this.sizingPolicyId, sizingMode: this.sizingPolicy ? "RISK_BOUNDED" : "LEGACY_FIXED",
+      maximumNotional: this.sizingPolicy?.maximumNotional ?? S.maximumNotional,
+      maximumEquityFraction: this.sizingPolicy?.maximumEquityFraction ?? null,
+      maximumNotionalBySymbol: Object.fromEntries(S.symbols.map(s => [s, distributionNotionalLimit(this.sizingPolicy, s)])),
+      sizing: Object.fromEntries([...this.sizes].map(([symbol, value]) => [symbol, { ...value }])),
       predictionModelVersion: this.regimeModel ? REGIME_DISTRIBUTION_SPEC.version : S.version,
       trainingPolicyVersion: this.trainingPolicyVersion(), trainingMode: this.efficient ? "INDEPENDENT_HORIZONS" : "LEGACY_PANEL",
       entryMode: this.profile.entryMode, minimumTrainingDays: this.profile.minimumTrainingDays,
@@ -203,6 +223,7 @@ export class DistributionController {
   private complete(batch: Batch, atMs: number): DistributionSample[] {
     this.pending.delete(batch.decision.symbol);
     const rows = DISTRIBUTION_ACTIONS.map(action => ({ id: `${batch.decision.symbol}:${action.id}:${batch.decision.atMs}`,
+      ...(this.sizingPolicy ? { sizingPolicyId: this.sizingPolicyId } : {}),
       symbol: batch.decision.symbol, actionId: action.id, signalAtMs: batch.decision.atMs, completedAtMs: atMs,
       features: [...batch.decision.features], outcomes: batch.cases.filter(c => c.actionId === action.id)
         .map(c => c.execution.snapshot().outcome!) }));
@@ -225,6 +246,7 @@ export class DistributionController {
   private completeSelection(batch: Batch, atMs: number): void {
     const d = batch.decision;
     const sample: DistributionSample = { id: `${d.symbol}:${d.actionId}:${d.atMs}`, symbol: d.symbol,
+      ...(this.sizingPolicy ? { sizingPolicyId: this.sizingPolicyId } : {}),
       actionId: d.actionId!, signalAtMs: d.atMs, completedAtMs: atMs, features: [...d.features],
       outcomes: batch.cases.map(c => c.execution.snapshot().outcome!) };
     const valid = sample.outcomes.every(o => o.status !== "INVALID");
@@ -265,6 +287,7 @@ export class DistributionController {
   }
   public exportState() {
     return structuredClone({ version: S.version, selectionPolicyVersion: this.profile.selectionPolicyVersion,
+      ...(this.sizingPolicy ? { sizingPolicy: this.sizingPolicy, sizingPolicyId: this.sizingPolicyId } : {}),
       trainingPolicyVersion: this.trainingPolicyVersion(), efficientTraining: this.efficient?.exportSchedulerState() ?? null,
       costs: this.costs, samples: this.efficient?.exportSamples() ?? this.samples,
       validationSelections: this.validationSelections, counters: this.counters,
@@ -276,6 +299,9 @@ export class DistributionController {
   }
   public restoreState(value: unknown, cutoffMs: number): number {
     const state = value as ReturnType<DistributionController["exportState"]>;
+    if (!state || (state.sizingPolicyId ?? LEGACY_SIZING_ID) !== this.sizingPolicyId
+      || distributionSizingId(state.sizingPolicy) !== this.sizingPolicyId)
+      throw new Error("INCOMPATIBLE_DISTRIBUTION_SIZING_POLICY");
     if (!Number.isSafeInteger(cutoffMs) || cutoffMs < 0 || !state || state.version !== S.version || JSON.stringify(state.costs) !== JSON.stringify(this.costs)
       || !Array.isArray(state.samples) || state.samples.length > S.maximumSamples * 12) throw new Error("INVALID_DISTRIBUTION_CHECKPOINT");
     const sourceTrainingVersion = state.trainingPolicyVersion ?? LEGACY_DISTRIBUTION_TRAINING_VERSION;
@@ -288,6 +314,8 @@ export class DistributionController {
     const panels = new Map<string, DistributionSample[]>();
     for (const sample of state.samples) {
       if (!sample || typeof sample !== "object") throw new Error("INVALID_DISTRIBUTION_CHECKPOINT_LABEL");
+      if ((sample.sizingPolicyId ?? LEGACY_SIZING_ID) !== this.sizingPolicyId)
+        throw new Error("INCOMPATIBLE_DISTRIBUTION_LABEL_SIZING");
       const key = `${sample.symbol}:${sample.signalAtMs}`, rows = panels.get(key) ?? [];
       rows.push(sample); panels.set(key, rows);
     }
@@ -300,7 +328,7 @@ export class DistributionController {
     }
     for (const sample of state.samples) if (sample.completedAtMs > cutoffMs || !replacement.observe(sample)) throw new Error("INVALID_DISTRIBUTION_CHECKPOINT_LABEL");
     const replacementEfficient = this.efficient ? new EfficientDistributionTrainer(this.costs, this.assets, state.samples, cutoffMs,
-      { regimeModel: this.regimeModel }) : null;
+      { regimeModel: this.regimeModel, sizingPolicy: this.sizingPolicy }) : null;
     if (replacementEfficient) {
       if (sourceEfficient) replacementEfficient.restoreSchedulerState(state.efficientTraining, cutoffMs);
       else {
@@ -367,7 +395,9 @@ export class DistributionController {
         || e.tailLossBps! < 0 || e.lowerMeanNetBps! > e.meanNetBps! + 1e-8
         || Math.abs(e.scoreBps! - (e.lowerMeanNetBps! - S.tailPenalty * e.tailLossBps!)) > 1e-8
         || ![d.referenceBid, d.referenceAsk, d.requestedQty].every(x => Number.isFinite(x) && x > 0)
-        || d.requestedQty * d.referenceAsk > S.maximumNotional + 1e-8
+        || (d.sizingPolicyId ?? LEGACY_SIZING_ID) !== this.sizingPolicyId
+        || (sample.sizingPolicyId ?? LEGACY_SIZING_ID) !== this.sizingPolicyId
+        || d.requestedQty * d.referenceAsk > distributionNotionalLimit(this.sizingPolicy, d.symbol) + 1e-8
         || d.referenceBid >= d.referenceAsk || typeof d.quoteSequence !== "string" || !/^\d+$/.test(d.quoteSequence)
         || d.feeBps !== this.costs[d.symbol]?.feeBps || d.reserveBps !== this.costs[d.symbol]?.reserveBps
         || JSON.stringify(d.features) !== JSON.stringify(sample.features)

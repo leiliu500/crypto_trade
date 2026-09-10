@@ -1,0 +1,149 @@
+{
+  "sealedAtUtc": "2026-09-09T21:27:09.905Z",
+  "reviewedDesignSha256": "de8d9005a5f4c8a8ba8c14ec2904d942e1815c637b43b62b78086baeaef1f9ee",
+  "sourceHashes": {
+    "src/channel/spec.ts": "441313a0bf02b599fc3d0792fcff2143ffeed6fc1229fecf1d93aae5cb189f36",
+    "src/channel/replay.ts": "acea7fceb08e01dcb0cb01dad9c80cbf613d78eba9d2711377f55f63e54c0039",
+    "src/channel/planner.ts": "09db2dae6a7b9c97810c43d54a97605834d4af7d410299a2194ea799587124a2",
+    "src/channel/study-main.ts": "4d7e86f24141faae8407381a365f859714788c8ea21d6297a0682a01f09da489",
+    "src/channel/holdout-spec.ts": "4e0af8a208a10b3d22cf9f09418e3f57b9011e4d75709522e80d4eee7565ce51",
+    "src/channel/holdout-main.ts": "8960bf4b715129eed3e88e1d1406c6ddcab7ba56438789b66b58aaa60c8bdac3",
+    "src/channel/verify-v1-parity-main.ts": "85db3419740c9aa373aa61bae19ebffe8ac136156ecd266ce98d5c6c79eccd85",
+    "test/channel-replay.test.ts": "ca8875d01609c87fbc26c8ac9d7d2e54ee6bc85716627d39206e3ef9e5456cab",
+    "test/channel-study.test.ts": "16e3bec085f481d051f32fafabe20266460e8c21fde16a4aed7355374ea25259",
+    "test/channel-price-protection.test.ts": "207dc4c0b6819bf506a588b533b1d7fb73e2faed1fff4d2ce4ed0d0b532795b1",
+    "test/channel-planner.test.ts": "58bbf936fc6490d371badfd052985b6eaa7f4d8c9b799eab5d9c988f82a80463",
+    "test/channel-holdout.test.ts": "f7d9496dea22e080459c6e3015e23a518f8efa8f7c61352b8f22fab26fb0e3aa",
+    "src/research/hourly-data.ts": "0786552d6f700f8ad906a6f6db80b423560eef6f79dbb7403250ce1eeb260a91",
+    "src/execution/book-walk.ts": "a080eb816006402e7886ab9ab4f8b495f391db21a4e69a4b3a5fa125e516f9e5",
+    "src/execution/planner.ts": "0ac29aeee1c1f4608a2fcec4294a724cfaf407a65adc6099ce37f353b5c46cc7",
+    "src/risk/sizing.ts": "3d0be830f15c1188d116e6209d6b014a53b28c400467399d5a1b669821dbb920",
+    "src/config.ts": "5d1c4b95fec54dc68de8ee6dc514b026ab53bd65f576c1c90589681c0ddc5469",
+    "src/core/market.ts": "8bbdd7973b1ba9ee15f30177273cc9b16df4c3c00bbad9547b25bfa20e512837",
+    "src/strategy/cost.ts": "96387e8f3a6206bf20ddbb9be0e39737e12aecded568737fb060b7794e5bc1cc",
+    "package-lock.json": "2315bada829d31ccb4d3970392ba56d73458d3219dda1ec98d8dda0d41893594",
+    "tsconfig.json": "f67c2b8d0029850632819cc5da43e2c89468c9217e0dd8f93b3e1887afedaca3"
+  },
+  "inputHashes": {
+    "reports/hourly-adaptive-study-2026-09-08/data-older-restored/dataset.json": "6995137d4366500628885518de3908f663ab7584caba0a4fe9845f700ac3f36f",
+    "reports/hourly-adaptive-study-2026-09-08/data-older-restored/manifest.json": "b49fc0c9fe648aec3a049605f1e5c79d6d0a917bcf93c40bd151f47b992e941b",
+    "reports/hourly-adaptive-study-2026-09-08/data-recent/dataset.json": "802694ae936dd864681dee2278f027ea1732a91fd6b635f1b08371673abcb227",
+    "reports/hourly-adaptive-study-2026-09-08/data-recent/manifest.json": "5a57cfcc6dc6cc352f708f3101d0e2026580c5faf7b6661509016feb6483ecb4",
+    "reports/portfolio-funding-extension-2026-09-09/manifest.json": "f00471114323058c5003a36d24a88ecbe6b70810613b122fdfb5ba3195ed633d",
+    "reports/portfolio-funding-extension-2026-09-09/PF_XBTUSD.json.gz": "4b5de4ad486b93e4e3ad89715522d47108509cae977eef5d44a2ad8f25739219",
+    "reports/portfolio-funding-extension-2026-09-09/PF_XBTUSD.headers": "560f504366cd09bd197418ed896f3140139c0f87961bbe0977863898a41dfd2d",
+    "reports/portfolio-funding-extension-2026-09-09/PF_ETHUSD.json.gz": "4b60b533503a7eaf5ee466c43783dd8608a9dc0aabac6816703a376c214bd3e6",
+    "reports/portfolio-funding-extension-2026-09-09/PF_ETHUSD.headers": "2ecd0705811e12216d8fb346669bc030436b557c8118e8f7eaba53c6262b29a8"
+  },
+  "holdout": {
+    "version": "channel-v2-one-reserved-2026-validation-v1",
+    "strategyVersion": "btc-eth-daily-55-20-channel-price-protected-v2",
+    "startMs": 1767225600000,
+    "endMs": 1785542400000,
+    "warmupStartMs": 1756684800000,
+    "minimumCompleteWarmupDays": 100,
+    "warmup": "122_CALENDAR_DAYS_FROM_2025_09_01;NO_POSITIONS_OR_PNL_IN_WARMUP;AT_LEAST_100_COMPLETE_CONSECUTIVE_DAYS_BEFORE_TEST",
+    "scenarios": [
+      "base",
+      "stress"
+    ],
+    "minimumBaseClosedEpisodes": 6,
+    "bootstrap": {
+      "repetitions": 2000,
+      "contiguousBlockWeeks": 4,
+      "lowerQuantile": 0.05,
+      "seed": 1030920769,
+      "metric": "MEAN_COMPLETE_MONDAY_UTC_WEEKLY_MARKED_NET_CHANGE_ON_HOLDOUT_ALONE"
+    },
+    "requirements": [
+      "KNOWN_FUNDED_ACCOUNTING_NO_HELD_MISSING_DATA_OR_UNRESOLVED_POSITIONS",
+      "STRICTLY_POSITIVE_NET_IN_BASE_AND_STRESS",
+      "AT_LEAST_SIX_BASE_CLOSED_EPISODES",
+      "HOLDOUT_ALONE_FOUR_WEEK_BOOTSTRAP_LOWER_FIVE_PERCENT_MEAN_WEEKLY_NET_STRICTLY_POSITIVE",
+      "NO_SESSION_0_75_PERCENT_ROLLING_0_75_PERCENT_OR_ACCOUNT_DRAWDOWN_5_PERCENT_BREACH"
+    ],
+    "previouslyKnownMissingFundingSourceStartsUtc": [
+      "2026-02-04T12:00:00.000Z",
+      "2026-02-13T18:00:00.000Z",
+      "2026-05-09T06:00:00.000Z"
+    ],
+    "missingFundingPolicy": "KEEP_ABSENT;NO_ZERO_FILL_NO_ANALYTICS_SUBSTITUTION;HELD_EXPOSURE_INVALIDATES_FUNDED_RESULT",
+    "fundingMerge": "OFFICIAL_ARCHIVED_NORMALIZED_RATES_PLUS_HASH_VERIFIED_OFFICIAL_HISTORICAL_RATE_API;IDENTICAL_OVERLAPS_ONLY;SOURCE_TIMESTAMP_PLUS_ONE_HOUR",
+    "originalDevelopmentBootstrapFailurePreserved": true,
+    "originalPlannerHistoricalGateUnchanged": true,
+    "benchmarks": "CASH_ZERO_AND_SEPARATE_COSTED_CONSTANT_UNIT_BTC_ETH_LONGS_DESCRIPTIVE_ONLY",
+    "pilotAdditionalRequirements": [
+      "INDEPENDENT_CASH_ORDER_FEE_AND_FUNDING_RECONCILIATION",
+      "CURRENT_ACCOUNT_FEES_AND_VENUE_RULES_VERIFIED",
+      "RECORDED_CURRENT_QUOTE_EXECUTION_EVIDENCE",
+      "SEPARATELY_REVIEWED_PAPER_ONLY_QUALIFICATION_AND_INSTALLED_ROUTE"
+    ],
+    "afterResults": "NO_PARAMETER_OR_GATE_CHANGES_NO_FURTHER_VARIANTS;PRESERVE_ALL_FAILURES",
+    "rootReviewRequiredBeforeEvaluation": true,
+    "realOrdersAllowed": false,
+    "futureProfitGuaranteed": false
+  },
+  "strategy": {
+    "version": "btc-eth-daily-55-20-channel-price-protected-v2",
+    "symbols": [
+      "BTC/USD",
+      "ETH/USD"
+    ],
+    "hourMs": 3600000,
+    "dayMs": 86400000,
+    "initialEquityUsd": 100000,
+    "entryLookbackDays": 55,
+    "exitLookbackDays": 20,
+    "atrDays": 20,
+    "stopAtr": 2,
+    "atrMethod": "WILDER_SEEDED_WITH_FIRST_20_TRUE_RANGES",
+    "finalizationLagMs": 60000,
+    "riskFractionPerAsset": 0.0005,
+    "maximumClusterRiskFraction": 0.001,
+    "maximumLegNotionalUsd": 1000,
+    "maximumLegEquityFraction": 0.01,
+    "maximumGrossUsd": 2000,
+    "sessionLossFraction": 0.0075,
+    "rolling24HourLossFraction": 0.0075,
+    "maximumAccountDrawdownFraction": 0.05,
+    "feesBps": {
+      "base": 5,
+      "stress": 7.5
+    },
+    "adverseSlippageBps": {
+      "base": 2,
+      "stress": 5
+    },
+    "executionDelayHoursAfterDayClose": {
+      "base": 1,
+      "stress": 2
+    },
+    "lots": {
+      "BTC/USD": 0.0001,
+      "ETH/USD": 0.001
+    },
+    "ticks": {
+      "BTC/USD": 1,
+      "ETH/USD": 0.1
+    },
+    "finalFlattenLeadHours": 24,
+    "noNewEntryLeadHours": 48,
+    "stopRatchet": "MAX_PREVIOUS_STOP_AND_COMPLETED_CLOSE_MINUS_2ATR_FOR_LONG_REVERSE_FOR_SHORT",
+    "intrahourStops": "OPEN_GAP_FIRST_ELSE_ADVERSE_STOP_TOUCH;PAY_FULL_HOUR_FUNDING_AND_FORGO_RECEIPT_ON_AMBIGUOUS_TOUCH",
+    "riskMark": "PRIOR_HOURLY_LIQUIDATION_CLOSE_PEAK_TO_SUM_OF_SEPARATE_ADVERSE_HOURLY_EXTREMES;NOT_FULL_INTRAHOUR_PEAK_TO_TROUGH_DRAWDOWN_OR_OBSERVED_SIMULTANEOUS_PRICES",
+    "funding": "ABSOLUTE_USD_PER_BASE_PER_HOUR;NORMALIZED_ROW_END_MINUS_ONE_HOUR_IS_ACCRUAL_START",
+    "fundingKnownAt": "FIXED_CURRENT_HOUR_RATE_ASSUMED_KNOWN_AT_INTERVAL_START;NORMALIZED_ROW_TIMESTAMP_IS_PERIOD_END_NOT_PUBLICATION_TIME",
+    "riskSizing": "STOP_DISTANCE_PLUS_TWO_EXECUTION_FEES_AND_TWO_ADVERSE_SLIPPAGE_ALLOWANCES;RESERVE_REMAINING_SESSION_ROLLING_AND_ACCOUNT_LOSS_HEADROOM_AFTER_EXISTING_POSITION_RISK;NO_DUPLICATE_VOLATILITY_SCALER",
+    "positionSizing": "NO_ADDITIONS;HOURLY_CAP_REDUCTIONS_ONLY;NO_ORIGINAL_STOP_BASED_WINNER_TRIMMING",
+    "reentry": "AFTER_STOP_REQUIRE_A_LATER_COMPLETED_DAILY_SIGNAL;NO_SAME_SIGNAL_REENTRY",
+    "missingData": "NO_SYNTHETIC_BARS_OR_ZERO_FUNDING;HELD_MISSING_DATA_INVALIDATES_RUN",
+    "interpretation": "REUSED_DEVELOPMENT_DATA_AFTER_FAILED_PRIOR_CANDIDATES;NOT_INDEPENDENT_FINAL_VALIDATION",
+    "maximumEntryDisplacementAtr": 0.5,
+    "initialStopAnchor": "COMPLETED_SIGNAL_CLOSE_MINUS_SIDE_TIMES_2ATR;NEVER_REANCHORED_AT_LATE_FILL",
+    "entryProtection": "ADVERSE_TICK_ROUNDED_FILL_WITHIN_ABSOLUTE_HALF_ATR_OF_SIGNAL_CLOSE;STOP_AT_LEAST_ONE_TICK_ON_CORRECT_SIDE",
+    "skippedSignal": "PRICE_DISPLACEMENT_OR_INVALID_STOP_DISCARDS_THIS_DAILY_SIGNAL;NEXT_COMPLETED_DAY_REQUIRED",
+    "hypothesisOrigin": "NEW_PRICE_PROTECTION_HYPOTHESIS_AFTER_V1_DELAY_SENSITIVITY;NOT_A_BUG_FIX_OR_UNTOUCHED_VALIDATION"
+  },
+  "holdoutOutcomesComputedBeforeSeal": false,
+  "originalDevelopmentBootstrapFailurePreserved": true
+}

@@ -1,0 +1,153 @@
+{
+  "version": "two-structural-prototype-screen-v1",
+  "registeredAt": "2026-09-10T19:41:38.714963+00:00",
+  "requestedDistinctSystems": 10000,
+  "newPrototypeCount": 2,
+  "tenThousandSearchComplete": false,
+  "originalMathematicalInventions": 0,
+  "reusedHistoricalData": true,
+  "activationAllowed": false,
+  "validatedProfitable": false,
+  "mathematicalDefinitions": {
+    "bocpd": {
+      "id": "eth-bocpd-runlength-v1",
+      "mathematicalFamily": "Bayesian online run-length inference",
+      "source": "https://arxiv.org/abs/0710.3742",
+      "originalMathematics": false,
+      "symbol": "ETH/USD",
+      "warmupReturns": 90,
+      "hazard": 0.016666666666666666,
+      "priorMean": 0.0,
+      "priorKappa": 1.0,
+      "priorAlpha": 3.0,
+      "priorBetaRule": "(alpha-1)*initial90ReturnSampleVariance; variance floor 1e-8",
+      "decisionHorizonDays": 20,
+      "minimumExpectedRunDays": 10,
+      "meanUncertaintyPenalty": 1.0,
+      "entry": "expected20DayLogReturn - oneLatentMeanSD > logBaseRoundTripCost; expectedRunDays >= 10",
+      "exit": "expected20DayLogReturn <= 0",
+      "otherwise": "retain incumbent target",
+      "horizonMeaning": "Signal heuristic, not a fixed holding deadline or calibrated executable net-return forecast",
+      "bandMeaning": "Base round-trip cost remains fixed in all execution stresses",
+      "inference": "Full run-length bank, no truncation; forward filtering only; no future smoothing",
+      "risk": "Unlevered funded long/cash; common replay entry ceiling applies; no enforced stop or drawdown halt",
+      "status": "FROZEN_RESEARCH_PROTOTYPE_NOT_VALIDATED"
+    },
+    "hmm": {
+      "version": "eth-daily-frozen-three-state-hmm-log-growth-v1",
+      "registeredAtUtc": "2026-09-10T19:39:14.064645+00:00",
+      "status": "FROZEN_BEFORE_HISTORICAL_OUTCOMES",
+      "originalMathematics": false,
+      "researchOnly": true,
+      "candidate": "HMM-inspired trading rule using an established Gaussian hidden Markov model; expected log-growth proxy, not validated expected cash profit.",
+      "symbol": "ETH/USD",
+      "stateCount": 3,
+      "trainingReturnCount": 90,
+      "requiredTrainingCloses": 91,
+      "trainingScope": "First 90 close-to-close log returns only; parameters frozen thereafter. Batch forward/backward fitting is confined to this already observed initial window.",
+      "trainingIterations": 40,
+      "initialMeansTrainingQuantiles": [
+        0.2,
+        0.5,
+        0.8
+      ],
+      "quantileConvention": "Nearest-rank sorted training return at ceil(q*N)-1.",
+      "initialTransitionDiagonal": 0.9,
+      "initialTransitionOffDiagonal": 0.05,
+      "initialStateProbabilities": [
+        0.3333333333333333,
+        0.3333333333333333,
+        0.3333333333333333
+      ],
+      "initialVariance": "Population variance of the 90 training returns, floored at minimumVariance.",
+      "minimumStandardDeviation": 0.002,
+      "transitionPseudocountDiagonal": 8,
+      "transitionPseudocountOffDiagonal": 1,
+      "emissionPseudoObservations": 5,
+      "emissionPseudoMean": 0,
+      "emissionPseudoVariance": "Global population training variance, with same floor.",
+      "regularization": "Each state receives five virtual Gaussian observations with mean zero and variance equal to global training variance: mu=sum(gamma*r)/(sum(gamma)+5); var=(sum(gamma*(r-mu)^2)+5*(globalVariance+mu^2))/(sum(gamma)+5). Transition counts receive declared pseudocounts. These are regularized EM updates, not unpenalized maximum-likelihood EM.",
+      "stateOrdering": "Sort final states by fitted mean and permute transition rows/columns. Initial state probabilities remain uniform.",
+      "forecastHorizonDays": 14,
+      "forecastEquation": "sum(k=1..14) alpha_t * A^k * mu",
+      "entryFeeBpsReference": 80,
+      "adversePriceBpsReference": 3,
+      "entryLogHurdleEquation": "log(((1+0.008)*(1+0.0003))/((1-0.008)*(1-0.0003)))",
+      "exitLogHurdle": 0,
+      "decision": "Cash before the first 90 returns are observed. Thereafter enter ETH if forecast > entryLogHurdle; exit if forecast <= 0; retain previous target in between.",
+      "execution": "Root evaluator supplies delayed funded fills, liquidation accounting and costs; this module emits targets only and never orders. Signal cost reference stays fixed across root execution scenarios.",
+      "trainingInitialization": "Deterministic; no random restarts or alternate initializations.",
+      "gridSearch": false,
+      "dataReuse": "Historical dates have been used in prior studies; any replay remains exploratory.",
+      "requested10000SystemsComplete": false,
+      "source": "https://web.ece.ucsb.edu/Faculty/Rabiner/ece259/Reprints/tutorial%20on%20hmm%20and%20applications.pdf"
+    }
+  },
+  "periods": {
+    "development": [
+      "2025-01-01",
+      "2025-07-01"
+    ],
+    "later_2025": [
+      "2025-07-01",
+      "2026-01-01"
+    ],
+    "recent_2026": [
+      "2026-01-01",
+      "2026-09-10"
+    ],
+    "continuous": [
+      "2025-01-01",
+      "2026-09-10"
+    ]
+  },
+  "scenarios": {
+    "base": {
+      "feeBps": 80,
+      "slippageBps": 3,
+      "signalToOpenBars": 2
+    },
+    "cost": {
+      "feeBps": 100,
+      "slippageBps": 10,
+      "signalToOpenBars": 2
+    },
+    "delay": {
+      "feeBps": 80,
+      "slippageBps": 3,
+      "signalToOpenBars": 3
+    },
+    "combined": {
+      "feeBps": 100,
+      "slippageBps": 10,
+      "signalToOpenBars": 3
+    }
+  },
+  "priorControl": {
+    "id": "sma_eth-040",
+    "status": "previously selected; not a new method"
+  },
+  "account": "Each reset window and separate continuous run starts with $10000. Entry=min($1000,10% current equity,cash,past-volume ceiling), fee-inclusive. One funded long or cash. No additions, leverage, enforced stop/drawdown halt or current-runtime parity.",
+  "execution": "Finalized daily bar i targets fill at open i+2/base or i+3/delay. Terminal flatten pays adverse price and fees at last close. OHLC proxy, not proven executable liquidity.",
+  "selection": "Select between the two new prototypes using worst-scenario development net minus half close drawdown; ties lexicographic. No later reselection.",
+  "nomination": "All12 reset-window/scenario nets positive, >=10 total later episodes per scenario, maximum later low drawdown <=500. Historical proxy nomination only, never proof.",
+  "limitations": [
+    "Two researched and implemented mechanisms are not 10000 original mathematical systems.",
+    "Both model-to-trade rules are new research heuristics, not profit guarantees from source papers.",
+    "Horizon forecasts do not impose a holding deadline and are not calibrated episode profit predictions.",
+    "Current public fee assumptions, no authenticated actual fee verification.",
+    "Known history and small samples prevent untouched validation claims.",
+    "Forecaster mechanisms and economic-system mechanisms are separate taxonomy axes; do not add their counts."
+  ],
+  "hashes": {
+    "reports/structural-system-search-2026-09-10/prototype-study.py": "af3794e743a3d6ca0b6f31b2d32d61203f8790c0369823d6ea586bd42f1d4cdf",
+    "reports/structural-system-search-2026-09-10/changepoint.py": "1b306719063cb49ee068682861e5285d2b72233ce740245fecb5a19d74a5a71f",
+    "reports/structural-system-search-2026-09-10/hmm.py": "56837987000dd71be110fdf98e5e80443ccd24ef68dee5cb653e4bdd38bcc6d4",
+    "reports/structural-system-search-2026-09-10/hmm-spec.json": "9512a93b664d90145a34928d32a8058e0ec08b554b3c04243fead757a9ed4b3b",
+    "tools/profit-search.py": "51bd81e6b416a06fa2516992f05e7e893f4a7a7ecc573d9f191da99eef56c2d5",
+    "reports/parallel-strategy-study-2026-09-10/common.py": "423315441fe6b87ae1dd122a38321e75f2d1811cf2cb99ad4d7d91043e5a0b18",
+    "reports/parallel-strategy-study-2026-09-10/protocol.json": "9b20481a6a0e56324c1612f24b1e9dc9ef6eec5aef2b31eb4f228785c1badc02",
+    "reports/parallel-strategy-study-2026-09-10/data/dataset.json": "951499efbfe353842f55b78b94e7d0fe1ba642afa2867f077810835f2303a45e",
+    "reports/parallel-strategy-study-2026-09-10/data/rules.json": "b4fe02b4819f39b3f37d441dd60895e479d217cfdf340752dd8b25d52aed9e31"
+  }
+}

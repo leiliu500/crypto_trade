@@ -1,0 +1,18 @@
+{
+  "at": "2026-09-10T21:15:41.806Z",
+  "initialEquity": 100000,
+  "cashEquity": 99998.28269740003,
+  "orders": 382,
+  "ordersSha256": "22b4aa92a84ed7e0ddd2bac788bb0d15fee0e57317ba09bf83d272b86864fb59",
+  "activities": 382,
+  "activitiesSha256": "85fd8db91debfc9b6a9bd1f04400288b61383b5e80902f215e290cef0ef2173f",
+  "positions": 0,
+  "positionsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "funding": {
+    "configSha256": "939040b31cc1425a17a11a704112460056f0c5cb35226dffc9a70e91557179a4",
+    "events": 26,
+    "eventsSha256": "70eb7a27be7b72217118f1fbede9f2c530d6ddd156b7a6f862b0e3e566240d75",
+    "priorPrefixSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "newCashEvents": 0
+  }
+}

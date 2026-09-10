@@ -1,0 +1,76 @@
+{
+  "version": "stage-import-in-memory-filesystem-audit-v1",
+  "verified": true,
+  "stageScriptSha256": "abd839abcd8c0349d89f78d24d997acd6f794a2d7a78aa87e355471c686a51a8",
+  "cases": [
+    {
+      "name": "valid audit stages immutable bytes and exact recovery copies",
+      "passed": true,
+      "writes": 5,
+      "expectedRejection": null
+    },
+    {
+      "name": "pending journal is backed up when present",
+      "passed": true,
+      "writes": 6,
+      "expectedRejection": null
+    },
+    {
+      "name": "input replacement after initial read cannot alter staged bytes",
+      "passed": true,
+      "writes": 5,
+      "expectedRejection": null
+    },
+    {
+      "name": "reject report in absent active pending journal",
+      "passed": true,
+      "writes": 0,
+      "expectedRejection": "STAGING_SEPARATE_REPORT_OUTPUT_REQUIRED"
+    },
+    {
+      "name": "reject output parent symlink into active storage",
+      "passed": true,
+      "writes": 0,
+      "expectedRejection": "STAGING_SEPARATE_REPORT_OUTPUT_REQUIRED"
+    },
+    {
+      "name": "reject output traversal into active storage",
+      "passed": true,
+      "writes": 0,
+      "expectedRejection": "STAGING_SEPARATE_REPORT_OUTPUT_REQUIRED"
+    },
+    {
+      "name": "reject artifact evidence mismatch before writes",
+      "passed": true,
+      "writes": 0,
+      "expectedRejection": "STAGING_VERIFIED_CURRENT_IMPORT_REQUIRED"
+    },
+    {
+      "name": "reject stale preflight before writes",
+      "passed": true,
+      "writes": 0,
+      "expectedRejection": "STAGING_VERIFIED_CURRENT_IMPORT_REQUIRED"
+    },
+    {
+      "name": "reject future preflight before writes",
+      "passed": true,
+      "writes": 0,
+      "expectedRejection": "STAGING_VERIFIED_CURRENT_IMPORT_REQUIRED"
+    },
+    {
+      "name": "reject state symlink before writes",
+      "passed": true,
+      "writes": 0,
+      "expectedRejection": "STAGING_STATE_MUST_BE_REGULAR_FILE"
+    },
+    {
+      "name": "existing staged target remains unchanged",
+      "passed": true,
+      "writes": 3,
+      "expectedRejection": "EEXIST"
+    }
+  ],
+  "actualAccountFilesAccessed": false,
+  "applicationModulesImported": false,
+  "ordersSubmitted": 0
+}

@@ -1,0 +1,27 @@
+{
+  "baselinePath": "/tmp/distribution-risk-v2-benchmark-20260909/out/training.json",
+  "candidatePath": "/tmp/distribution-risk-v2-optimized-20260909/out/training.json",
+  "sameSamples": true,
+  "sameOrigins": true,
+  "sameArtifactApartFromSourceIdentity": true,
+  "sameReportApartFromSourceAndOutputIdentity": true,
+  "changedSources": [
+    "src/core/statistics.ts"
+  ],
+  "onlyApprovedStatisticsSourceChanged": true,
+  "sampleSha256": "9c3265e34a64956a34ed9e83f98c1de23f792ca6dbd0928cc5900f93340f1f1a",
+  "originsSha256": "279fe07bcd73f0e45071d7ccf374e6c1df282c7d363c912908839cf00685967f",
+  "labels": 236,
+  "origins": 115,
+  "artifactBytes": 2236409,
+  "meanOriginBytes": 17060.321739130435,
+  "maximumOriginBytes": 17153,
+  "meanLabelBytes": 1073.177966101695,
+  "observedLabelsPerOrigin": 2.0521739130434784,
+  "maximumRetainedLabels": 12288,
+  "projectedBytesAtObservedOriginSharing": 115340947.52542374,
+  "conservativeBytesAtOneOriginPerLabel": 223963274.84745765,
+  "importLimitBytes": 67108864,
+  "profitEstablished": false,
+  "productionImportPerformed": false
+}

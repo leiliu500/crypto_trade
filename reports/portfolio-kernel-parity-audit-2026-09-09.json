@@ -1,0 +1,161 @@
+{
+  "version": "portfolio-independent-synthetic-cashflow-audit-v1",
+  "status": "PASS",
+  "auditedAtUtc": "2026-09-09T01:51:28.952Z",
+  "realMarketPerformanceEvaluated": false,
+  "reserved2026OutcomesRead": false,
+  "sourceFilesModified": false,
+  "sourceHashesBefore": {
+    "src/portfolio/kernel.ts": "3c78b6202330409b9bd84bfb6d9938fd383162069a70c29eaee4f3115decf756",
+    "src/portfolio/types.ts": "932cedcff32633cd3317106ba185d34e879a94fd426b36b196ff45a2c584a3da",
+    "src/portfolio/replay.ts": "f2427846d07113ca44fcb58152ba4476009b0e55f5a44bf142cd07504eef6120",
+    "src/portfolio/protocol.ts": "f585d18b3a423a4bd6ca4380a355f5e7006dbec3649fd6ad43a7fea9125f951c"
+  },
+  "sourceHashesAfter": {
+    "src/portfolio/kernel.ts": "3c78b6202330409b9bd84bfb6d9938fd383162069a70c29eaee4f3115decf756",
+    "src/portfolio/types.ts": "932cedcff32633cd3317106ba185d34e879a94fd426b36b196ff45a2c584a3da",
+    "src/portfolio/replay.ts": "f2427846d07113ca44fcb58152ba4476009b0e55f5a44bf142cd07504eef6120",
+    "src/portfolio/protocol.ts": "f585d18b3a423a4bd6ca4380a355f5e7006dbec3649fd6ad43a7fea9125f951c"
+  },
+  "reproduction": {
+    "scriptPath": "/tmp/portfolio-kernel-parity-audit-20260909.mts",
+    "scriptSha256": "7c054bd0796426c413e269e2580b59d5c5099bc9dc300560706566362c0a502f",
+    "command": "npx tsx /tmp/portfolio-kernel-parity-audit-20260909.mts"
+  },
+  "fixture": {
+    "syntheticOnly": true,
+    "startMs": 1704067200000,
+    "hours": 384,
+    "symbols": [
+      "BTC/USD",
+      "ETH/USD"
+    ],
+    "bars": 768,
+    "fundingRows": 772,
+    "targets": 16,
+    "rules": {
+      "BTC/USD": {
+        "symbol": "BTC/USD",
+        "minOrderSize": 0.0001,
+        "minTradeIncrement": 0.0001,
+        "priceIncrement": 1,
+        "maximumOrderQty": 1200,
+        "shortable": true
+      },
+      "ETH/USD": {
+        "symbol": "ETH/USD",
+        "minOrderSize": 0.001,
+        "minTradeIncrement": 0.001,
+        "priceIncrement": 0.1,
+        "maximumOrderQty": 21000,
+        "shortable": true
+      }
+    },
+    "scenarios": [
+      {
+        "id": "base-source-plus-hour",
+        "delayHours": 1,
+        "feeBps": 5,
+        "slippageBps": 1.5,
+        "fundingShiftMs": 0,
+        "extraFundingBpsPerDay": 0
+      },
+      {
+        "id": "base-source-as-end",
+        "delayHours": 1,
+        "feeBps": 5,
+        "slippageBps": 1.5,
+        "fundingShiftMs": -3600000,
+        "extraFundingBpsPerDay": 0
+      },
+      {
+        "id": "stress-source-plus-hour",
+        "delayHours": 2,
+        "feeBps": 7.5,
+        "slippageBps": 3,
+        "fundingShiftMs": 0,
+        "extraFundingBpsPerDay": 1
+      },
+      {
+        "id": "stress-source-as-end",
+        "delayHours": 2,
+        "feeBps": 7.5,
+        "slippageBps": 3,
+        "fundingShiftMs": -3600000,
+        "extraFundingBpsPerDay": 1
+      }
+    ],
+    "openPrice": "scale*(1+0.04*sin(hour/31)+hour*0.00003); BTC scale100000, ETH scale2000",
+    "closePrice": "open*(1+0.0002*cos(hour)); high=open*1.001; low=open*0.999",
+    "volume": "zero at hours77 and342; otherwise1",
+    "absoluteFunding": "scale*0.000001*sin(hour/4); signed rate changes independent of price",
+    "targetsRule": "Daily targets BTC6USD/ETH6USD, same sign; sign alternates every72h; expires48h after decision"
+  },
+  "independence": "Signed trade-cashflow valuation, fees and funding plus inventory market value; does not reuse kernel average-cost/position/equity functions. Replay outputs supply fill/funding receipts and marks.",
+  "assertions": {
+    "maximumAbsoluteErrorUsd": 1e-7,
+    "allHourlyEquities": true,
+    "perAssetFinalNet": true,
+    "portfolioFinalNet": true,
+    "fullCalendarDailySum": true,
+    "sourceHashesUnchangedDuringAudit": true
+  },
+  "checks": [
+    {
+      "scenario": "base-source-plus-hour",
+      "hours": 384,
+      "equityPoints": 385,
+      "fills": 13,
+      "settlements": 376,
+      "dailyRows": 16,
+      "allPathsKnown": true,
+      "maximumHourlyCashFlowIdentityErrorUsd": 1.1641532182693481e-10,
+      "maximumPerAssetIdentityErrorUsd": 2.1094237467877974e-15,
+      "finalNetIdentityErrorUsd": 1.0454437315843279e-10,
+      "dailySumIdentityErrorUsd": 1.0454437315843279e-10
+    },
+    {
+      "scenario": "base-source-as-end",
+      "hours": 384,
+      "equityPoints": 385,
+      "fills": 13,
+      "settlements": 376,
+      "dailyRows": 16,
+      "allPathsKnown": true,
+      "maximumHourlyCashFlowIdentityErrorUsd": 1.4551915228366852e-10,
+      "maximumPerAssetIdentityErrorUsd": 7.216449660063518e-16,
+      "finalNetIdentityErrorUsd": 1.2542855643005169e-10,
+      "dailySumIdentityErrorUsd": 1.2542855643005169e-10
+    },
+    {
+      "scenario": "stress-source-plus-hour",
+      "hours": 384,
+      "equityPoints": 385,
+      "fills": 13,
+      "settlements": 374,
+      "dailyRows": 16,
+      "allPathsKnown": true,
+      "maximumHourlyCashFlowIdentityErrorUsd": 8.731149137020111e-11,
+      "maximumPerAssetIdentityErrorUsd": 3.7192471324942744e-15,
+      "finalNetIdentityErrorUsd": 4.68114436102951e-11,
+      "dailySumIdentityErrorUsd": 4.68114436102951e-11
+    },
+    {
+      "scenario": "stress-source-as-end",
+      "hours": 384,
+      "equityPoints": 385,
+      "fills": 13,
+      "settlements": 374,
+      "dailyRows": 16,
+      "allPathsKnown": true,
+      "maximumHourlyCashFlowIdentityErrorUsd": 1.1641532182693481e-10,
+      "maximumPerAssetIdentityErrorUsd": 1.0325074129013956e-14,
+      "finalNetIdentityErrorUsd": 1.050354248022245e-10,
+      "dailySumIdentityErrorUsd": 1.050354248022245e-10
+    }
+  ],
+  "limitations": [
+    "Synthetic accounting parity does not establish forecast quality, actual fillability or profitability.",
+    "Independent review also checked fill receipt timing, signed funding, end-minus48h liquidation and persistent unknownness; those read-only findings are not replaced by this fixture."
+  ]
+}

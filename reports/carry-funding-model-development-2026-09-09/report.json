@@ -1,0 +1,1543 @@
+{
+  "schemaVersion": 1,
+  "completedAtUtc": "2026-09-09T05:10:42.301Z",
+  "scope": "FUNDING_CASH_ONLY_NOT_STRATEGY_PNL",
+  "originalInputSha256": [
+    {
+      "path": "reports/hourly-adaptive-study-2026-09-08/data-older-restored/dataset.json",
+      "sha256": "6995137d4366500628885518de3908f663ab7584caba0a4fe9845f700ac3f36f"
+    },
+    {
+      "path": "reports/hourly-adaptive-study-2026-09-08/data-recent/dataset.json",
+      "sha256": "802694ae936dd864681dee2278f027ea1732a91fd6b635f1b08371673abcb227"
+    }
+  ],
+  "normalizedPermittedFundingSha256": "6af88ffc73d83f684546c9ff03ef3756a27e429edd4ed9c66602c60d3f5d3c9f",
+  "normalizedRows": 52594,
+  "identicalCrossFileRows": 1488,
+  "historyAvailability": "ASSUMED_EXTRA_ONE_HOUR_PUBLICATION_LAG",
+  "untouchedTest": false,
+  "validatedProfitability": false,
+  "activationAllowed": false,
+  "completeStrategyPnlUsd": null,
+  "limitations": [
+    "FUNDING_FORECAST_ONLY",
+    "PREVIOUSLY_OBSERVED_DEVELOPMENT_DATA",
+    "NO_PAIRED_PRICE_EXECUTION_BACKTEST",
+    "NO_ACTUAL_ACCOUNT_FEE_VERIFICATION",
+    "SMALL_MONTHLY_SAMPLE",
+    "MISSING_HOURS_MAKE_FULL_COHORT_UNKNOWN"
+  ],
+  "summaries": [
+    {
+      "symbol": "BTC/USD",
+      "year": 2024,
+      "calendarCohorts": 12,
+      "matchedCohorts": 12,
+      "knownForecastCohorts": 12,
+      "knownTargetCohorts": 12,
+      "fullCoverage": true,
+      "metrics": {
+        "adaptive": {
+          "count": 12,
+          "maeUsdPerBase": 641.119703754432,
+          "mseUsdSquaredPerBaseSquared": 733612.4673285838,
+          "rmseUsdPerBase": 856.5118022120791,
+          "meanSignedErrorUsdPerBase": 57.582169260691266,
+          "directionAccuracy": 1,
+          "predictedTotalUsdPerBase": 12074.14501419844,
+          "actualTotalUsdPerBase": 11383.158983070145
+        },
+        "zero": {
+          "count": 12,
+          "maeUsdPerBase": 948.5965819225121,
+          "mseUsdSquaredPerBaseSquared": 1484777.1276184795,
+          "rmseUsdPerBase": 1218.5143116182426,
+          "meanSignedErrorUsdPerBase": -948.5965819225121,
+          "directionAccuracy": 0,
+          "predictedTotalUsdPerBase": 0,
+          "actualTotalUsdPerBase": 11383.158983070145
+        },
+        "last": {
+          "count": 12,
+          "maeUsdPerBase": 825.7188601161456,
+          "mseUsdSquaredPerBaseSquared": 1944784.1107121597,
+          "rmseUsdPerBase": 1394.5551658906002,
+          "meanSignedErrorUsdPerBase": 591.3852980945719,
+          "directionAccuracy": 1,
+          "predictedTotalUsdPerBase": 18479.78256020501,
+          "actualTotalUsdPerBase": 11383.158983070145
+        },
+        "mean30d": {
+          "count": 12,
+          "maeUsdPerBase": 637.5239052335264,
+          "mseUsdSquaredPerBaseSquared": 883447.0025663627,
+          "rmseUsdPerBase": 939.9186148632033,
+          "meanSignedErrorUsdPerBase": -48.237054465367144,
+          "directionAccuracy": 1,
+          "predictedTotalUsdPerBase": 10804.31432948574,
+          "actualTotalUsdPerBase": 11383.158983070145
+        }
+      },
+      "candidateLowerMaeThanEveryBaseline": false,
+      "conservative": {
+        "count": 12,
+        "violations": [
+          {
+            "month": 8,
+            "shortfallUsdPerBase": 119.4580264026986
+          }
+        ],
+        "violationFrequency": 0.08333333333333333,
+        "interpretation": "EMPIRICAL_ESTIMATE_NOT_A_CONFIDENCE_BOUND"
+      }
+    },
+    {
+      "symbol": "BTC/USD",
+      "year": 2025,
+      "calendarCohorts": 12,
+      "matchedCohorts": 6,
+      "knownForecastCohorts": 7,
+      "knownTargetCohorts": 8,
+      "fullCoverage": false,
+      "metrics": {
+        "adaptive": {
+          "count": 6,
+          "maeUsdPerBase": 286.2272139392726,
+          "mseUsdSquaredPerBaseSquared": 102283.87388857052,
+          "rmseUsdPerBase": 319.81850147946494,
+          "meanSignedErrorUsdPerBase": 119.00844483223689,
+          "directionAccuracy": 1,
+          "predictedTotalUsdPerBase": 3977.7805373515384,
+          "actualTotalUsdPerBase": 3263.7298683581166
+        },
+        "zero": {
+          "count": 6,
+          "maeUsdPerBase": 543.9549780596861,
+          "mseUsdSquaredPerBaseSquared": 348646.4022193531,
+          "rmseUsdPerBase": 590.4628711607133,
+          "meanSignedErrorUsdPerBase": -543.9549780596861,
+          "directionAccuracy": 0,
+          "predictedTotalUsdPerBase": 0,
+          "actualTotalUsdPerBase": 3263.7298683581166
+        },
+        "last": {
+          "count": 6,
+          "maeUsdPerBase": 396.90607240310845,
+          "mseUsdSquaredPerBaseSquared": 201648.02547957914,
+          "rmseUsdPerBase": 449.0523638503411,
+          "meanSignedErrorUsdPerBase": 229.75201350962425,
+          "directionAccuracy": 1,
+          "predictedTotalUsdPerBase": 4642.241949415862,
+          "actualTotalUsdPerBase": 3263.7298683581166
+        },
+        "mean30d": {
+          "count": 6,
+          "maeUsdPerBase": 347.7963465393802,
+          "mseUsdSquaredPerBaseSquared": 169163.18563954078,
+          "rmseUsdPerBase": 411.294524203205,
+          "meanSignedErrorUsdPerBase": 184.78932464136824,
+          "directionAccuracy": 1,
+          "predictedTotalUsdPerBase": 4372.465816206326,
+          "actualTotalUsdPerBase": 3263.7298683581166
+        }
+      },
+      "candidateLowerMaeThanEveryBaseline": true,
+      "conservative": {
+        "count": 6,
+        "violations": [
+          {
+            "month": 3,
+            "shortfallUsdPerBase": 21.221807024263285
+          }
+        ],
+        "violationFrequency": 0.16666666666666666,
+        "interpretation": "EMPIRICAL_ESTIMATE_NOT_A_CONFIDENCE_BOUND"
+      }
+    },
+    {
+      "symbol": "ETH/USD",
+      "year": 2024,
+      "calendarCohorts": 12,
+      "matchedCohorts": 12,
+      "knownForecastCohorts": 12,
+      "knownTargetCohorts": 12,
+      "fullCoverage": true,
+      "metrics": {
+        "adaptive": {
+          "count": 12,
+          "maeUsdPerBase": 30.49836688784339,
+          "mseUsdSquaredPerBaseSquared": 1498.5100412247118,
+          "rmseUsdPerBase": 38.710593397992646,
+          "meanSignedErrorUsdPerBase": 3.5166501055557604,
+          "directionAccuracy": 0.9166666666666666,
+          "predictedTotalUsdPerBase": 549.3829965428408,
+          "actualTotalUsdPerBase": 507.18319527617166
+        },
+        "zero": {
+          "count": 12,
+          "maeUsdPerBase": 42.616446552443,
+          "mseUsdSquaredPerBaseSquared": 3058.886467397728,
+          "rmseUsdPerBase": 55.30720086388144,
+          "meanSignedErrorUsdPerBase": -42.265266273014305,
+          "directionAccuracy": 0,
+          "predictedTotalUsdPerBase": 0,
+          "actualTotalUsdPerBase": 507.18319527617166
+        },
+        "last": {
+          "count": 12,
+          "maeUsdPerBase": 45.45185719044693,
+          "mseUsdSquaredPerBaseSquared": 4528.543498659278,
+          "rmseUsdPerBase": 67.2944536990923,
+          "meanSignedErrorUsdPerBase": 26.32203512249583,
+          "directionAccuracy": 0.9166666666666666,
+          "predictedTotalUsdPerBase": 823.0476167461217,
+          "actualTotalUsdPerBase": 507.18319527617166
+        },
+        "mean30d": {
+          "count": 12,
+          "maeUsdPerBase": 30.122068616403862,
+          "mseUsdSquaredPerBaseSquared": 1768.4031514350206,
+          "rmseUsdPerBase": 42.05238579955982,
+          "meanSignedErrorUsdPerBase": -0.8459594456468628,
+          "directionAccuracy": 0.8333333333333334,
+          "predictedTotalUsdPerBase": 497.03168192840934,
+          "actualTotalUsdPerBase": 507.18319527617166
+        }
+      },
+      "candidateLowerMaeThanEveryBaseline": false,
+      "conservative": {
+        "count": 12,
+        "violations": [
+          {
+            "month": 8,
+            "shortfallUsdPerBase": 13.198219204554578
+          }
+        ],
+        "violationFrequency": 0.08333333333333333,
+        "interpretation": "EMPIRICAL_ESTIMATE_NOT_A_CONFIDENCE_BOUND"
+      }
+    },
+    {
+      "symbol": "ETH/USD",
+      "year": 2025,
+      "calendarCohorts": 12,
+      "matchedCohorts": 6,
+      "knownForecastCohorts": 7,
+      "knownTargetCohorts": 8,
+      "fullCoverage": false,
+      "metrics": {
+        "adaptive": {
+          "count": 6,
+          "maeUsdPerBase": 10.958940278598094,
+          "mseUsdSquaredPerBaseSquared": 169.2910706837423,
+          "rmseUsdPerBase": 13.011190210113075,
+          "meanSignedErrorUsdPerBase": 6.818076830000764,
+          "directionAccuracy": 0.6666666666666666,
+          "predictedTotalUsdPerBase": 76.00996351952436,
+          "actualTotalUsdPerBase": 35.101502539519785
+        },
+        "zero": {
+          "count": 6,
+          "maeUsdPerBase": 7.277911656434886,
+          "mseUsdSquaredPerBaseSquared": 114.9958553544472,
+          "rmseUsdPerBase": 10.723612047927098,
+          "meanSignedErrorUsdPerBase": -5.850250423253297,
+          "directionAccuracy": 0,
+          "predictedTotalUsdPerBase": 0,
+          "actualTotalUsdPerBase": 35.101502539519785
+        },
+        "last": {
+          "count": 6,
+          "maeUsdPerBase": 14.307107261818693,
+          "mseUsdSquaredPerBaseSquared": 329.57528740171216,
+          "rmseUsdPerBase": 18.154208531404286,
+          "meanSignedErrorUsdPerBase": 10.796271010477328,
+          "directionAccuracy": 0.6666666666666666,
+          "predictedTotalUsdPerBase": 99.87912860238377,
+          "actualTotalUsdPerBase": 35.101502539519785
+        },
+        "mean30d": {
+          "count": 6,
+          "maeUsdPerBase": 13.77549284534006,
+          "mseUsdSquaredPerBaseSquared": 338.0948299475281,
+          "rmseUsdPerBase": 18.387355164556105,
+          "meanSignedErrorUsdPerBase": 9.388383381554535,
+          "directionAccuracy": 0.6666666666666666,
+          "predictedTotalUsdPerBase": 91.431802828847,
+          "actualTotalUsdPerBase": 35.101502539519785
+        }
+      },
+      "candidateLowerMaeThanEveryBaseline": false,
+      "conservative": {
+        "count": 6,
+        "violations": [
+          {
+            "month": 2,
+            "shortfallUsdPerBase": 14.02911413217652
+          },
+          {
+            "month": 3,
+            "shortfallUsdPerBase": 3.9738143303196076
+          }
+        ],
+        "violationFrequency": 0.3333333333333333,
+        "interpretation": "EMPIRICAL_ESTIMATE_NOT_A_CONFIDENCE_BOUND"
+      }
+    }
+  ],
+  "cohorts": [
+    {
+      "symbol": "BTC/USD",
+      "year": 2024,
+      "month": 1,
+      "decisionMs": 1704067200000,
+      "targetAvailableAtMs": 1706749200000,
+      "historyCutoffMs": 1704063600000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2184,
+      "expectedTargetHours": 744,
+      "observedTargetHours": 744,
+      "missingHistoryEndTimesMs": [],
+      "missingTargetEndTimesMs": [],
+      "forecastStatus": "KNOWN",
+      "targetStatus": "KNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": 1367.7835703285245,
+        "zero": 0,
+        "last": 1870.8447551541544,
+        "mean30d": 1131.1792314420538
+      },
+      "conservativeUsdPerBase": 98.39334909648142,
+      "actualUsdPerBase": 634.7680698827859,
+      "matched": true
+    },
+    {
+      "symbol": "BTC/USD",
+      "year": 2024,
+      "month": 2,
+      "decisionMs": 1706745600000,
+      "targetAvailableAtMs": 1709254800000,
+      "historyCutoffMs": 1706742000000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2184,
+      "expectedTargetHours": 696,
+      "observedTargetHours": 696,
+      "missingHistoryEndTimesMs": [],
+      "missingTargetEndTimesMs": [],
+      "forecastStatus": "KNOWN",
+      "targetStatus": "KNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": 512.2573001730549,
+        "zero": 0,
+        "last": 218.355229131039,
+        "mean30d": 575.1747898000739
+      },
+      "conservativeUsdPerBase": 291.8789623368503,
+      "actualUsdPerBase": 1084.8456981975492,
+      "matched": true
+    },
+    {
+      "symbol": "BTC/USD",
+      "year": 2024,
+      "month": 3,
+      "decisionMs": 1709251200000,
+      "targetAvailableAtMs": 1711933200000,
+      "historyCutoffMs": 1709247600000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2184,
+      "expectedTargetHours": 744,
+      "observedTargetHours": 744,
+      "missingHistoryEndTimesMs": [],
+      "missingTargetEndTimesMs": [],
+      "forecastStatus": "KNOWN",
+      "targetStatus": "KNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": 1616.9844840101734,
+        "zero": 0,
+        "last": 2608.2606937819155,
+        "mean30d": 1134.3055290094132
+      },
+      "conservativeUsdPerBase": 417.30910134563305,
+      "actualUsdPerBase": 3000.8570549143415,
+      "matched": true
+    },
+    {
+      "symbol": "BTC/USD",
+      "year": 2024,
+      "month": 4,
+      "decisionMs": 1711929600000,
+      "targetAvailableAtMs": 1714525200000,
+      "historyCutoffMs": 1711926000000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2184,
+      "expectedTargetHours": 720,
+      "observedTargetHours": 720,
+      "missingHistoryEndTimesMs": [],
+      "missingTargetEndTimesMs": [],
+      "forecastStatus": "KNOWN",
+      "targetStatus": "KNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": 2749.600736618877,
+        "zero": 0,
+        "last": 4982.010381347623,
+        "mean30d": 2880.6663204731954
+      },
+      "conservativeUsdPerBase": 430.27437245144733,
+      "actualUsdPerBase": 581.0574932586479,
+      "matched": true
+    },
+    {
+      "symbol": "BTC/USD",
+      "year": 2024,
+      "month": 5,
+      "decisionMs": 1714521600000,
+      "targetAvailableAtMs": 1717203600000,
+      "historyCutoffMs": 1714518000000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2184,
+      "expectedTargetHours": 744,
+      "observedTargetHours": 744,
+      "missingHistoryEndTimesMs": [],
+      "missingTargetEndTimesMs": [],
+      "forecastStatus": "KNOWN",
+      "targetStatus": "KNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": 566.490715290832,
+        "zero": 0,
+        "last": 1293.5108184169806,
+        "mean30d": 604.8406197090587
+      },
+      "conservativeUsdPerBase": 378.50260747786143,
+      "actualUsdPerBase": 840.7468533534378,
+      "matched": true
+    },
+    {
+      "symbol": "BTC/USD",
+      "year": 2024,
+      "month": 6,
+      "decisionMs": 1717200000000,
+      "targetAvailableAtMs": 1719795600000,
+      "historyCutoffMs": 1717196400000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2184,
+      "expectedTargetHours": 720,
+      "observedTargetHours": 720,
+      "missingHistoryEndTimesMs": [],
+      "missingTargetEndTimesMs": [],
+      "forecastStatus": "KNOWN",
+      "targetStatus": "KNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": 1035.3021556369686,
+        "zero": 0,
+        "last": 1237.748921011039,
+        "mean30d": 818.292420953053
+      },
+      "conservativeUsdPerBase": 313.4094148486211,
+      "actualUsdPerBase": 657.538881201938,
+      "matched": true
+    },
+    {
+      "symbol": "BTC/USD",
+      "year": 2024,
+      "month": 7,
+      "decisionMs": 1719792000000,
+      "targetAvailableAtMs": 1722474000000,
+      "historyCutoffMs": 1719788400000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2184,
+      "expectedTargetHours": 744,
+      "observedTargetHours": 744,
+      "missingHistoryEndTimesMs": [],
+      "missingTargetEndTimesMs": [],
+      "forecastStatus": "KNOWN",
+      "targetStatus": "KNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": 633.7584702812426,
+        "zero": 0,
+        "last": 722.5741882725661,
+        "mean30d": 679.4671491846946
+      },
+      "conservativeUsdPerBase": 261.19716935071494,
+      "actualUsdPerBase": 377.0975465254548,
+      "matched": true
+    },
+    {
+      "symbol": "BTC/USD",
+      "year": 2024,
+      "month": 8,
+      "decisionMs": 1722470400000,
+      "targetAvailableAtMs": 1725152400000,
+      "historyCutoffMs": 1722466800000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2184,
+      "expectedTargetHours": 744,
+      "observedTargetHours": 744,
+      "missingHistoryEndTimesMs": [],
+      "missingTargetEndTimesMs": [],
+      "forecastStatus": "KNOWN",
+      "targetStatus": "KNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": 447.5237468046882,
+        "zero": 0,
+        "last": 555.3968481941458,
+        "mean30d": 362.44217982885823
+      },
+      "conservativeUsdPerBase": 230.62591103811067,
+      "actualUsdPerBase": 111.16788463541208,
+      "matched": true
+    },
+    {
+      "symbol": "BTC/USD",
+      "year": 2024,
+      "month": 9,
+      "decisionMs": 1725148800000,
+      "targetAvailableAtMs": 1727744400000,
+      "historyCutoffMs": 1725145200000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2184,
+      "expectedTargetHours": 720,
+      "observedTargetHours": 720,
+      "missingHistoryEndTimesMs": [],
+      "missingTargetEndTimesMs": [],
+      "forecastStatus": "KNOWN",
+      "targetStatus": "KNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": 128.0368843950509,
+        "zero": 0,
+        "last": 294.2245442860753,
+        "mean30d": 93.80778117839077
+      },
+      "conservativeUsdPerBase": 39.083609189712995,
+      "actualUsdPerBase": 242.20104773014765,
+      "matched": true
+    },
+    {
+      "symbol": "BTC/USD",
+      "year": 2024,
+      "month": 10,
+      "decisionMs": 1727740800000,
+      "targetAvailableAtMs": 1730422800000,
+      "historyCutoffMs": 1727737200000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2184,
+      "expectedTargetHours": 744,
+      "observedTargetHours": 744,
+      "missingHistoryEndTimesMs": [],
+      "missingTargetEndTimesMs": [],
+      "forecastStatus": "KNOWN",
+      "targetStatus": "KNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": 341.2246390671272,
+        "zero": 0,
+        "last": 865.4306666504418,
+        "mean30d": 249.7223240808185
+      },
+      "conservativeUsdPerBase": 35.31803909775467,
+      "actualUsdPerBase": 655.1540833426649,
+      "matched": true
+    },
+    {
+      "symbol": "BTC/USD",
+      "year": 2024,
+      "month": 11,
+      "decisionMs": 1730419200000,
+      "targetAvailableAtMs": 1733014800000,
+      "historyCutoffMs": 1730415600000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2184,
+      "expectedTargetHours": 720,
+      "observedTargetHours": 720,
+      "missingHistoryEndTimesMs": [],
+      "missingTargetEndTimesMs": [],
+      "forecastStatus": "KNOWN",
+      "targetStatus": "KNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": 743.1875678915643,
+        "zero": 0,
+        "last": 1438.6875183216,
+        "mean30d": 636.98999581913
+      },
+      "conservativeUsdPerBase": 58.379019146886804,
+      "actualUsdPerBase": 1585.602060252106,
+      "matched": true
+    },
+    {
+      "symbol": "BTC/USD",
+      "year": 2024,
+      "month": 12,
+      "decisionMs": 1733011200000,
+      "targetAvailableAtMs": 1735693200000,
+      "historyCutoffMs": 1733007600000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2184,
+      "expectedTargetHours": 744,
+      "observedTargetHours": 744,
+      "missingHistoryEndTimesMs": [],
+      "missingTargetEndTimesMs": [],
+      "forecastStatus": "KNOWN",
+      "targetStatus": "KNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": 1931.9947437003364,
+        "zero": 0,
+        "last": 2392.7379956374275,
+        "mean30d": 1637.4259880069992
+      },
+      "conservativeUsdPerBase": 108.58589764353252,
+      "actualUsdPerBase": 1612.1223097756595,
+      "matched": true
+    },
+    {
+      "symbol": "BTC/USD",
+      "year": 2025,
+      "month": 1,
+      "decisionMs": 1735689600000,
+      "targetAvailableAtMs": 1738371600000,
+      "historyCutoffMs": 1735686000000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2184,
+      "expectedTargetHours": 744,
+      "observedTargetHours": 744,
+      "missingHistoryEndTimesMs": [],
+      "missingTargetEndTimesMs": [],
+      "forecastStatus": "KNOWN",
+      "targetStatus": "KNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": 1309.6694853318172,
+        "zero": 0,
+        "last": 1601.3212248587633,
+        "mean30d": 1580.8528139534503
+      },
+      "conservativeUsdPerBase": 517.1289595518289,
+      "actualUsdPerBase": 891.5108990430523,
+      "matched": true
+    },
+    {
+      "symbol": "BTC/USD",
+      "year": 2025,
+      "month": 2,
+      "decisionMs": 1738368000000,
+      "targetAvailableAtMs": 1740790800000,
+      "historyCutoffMs": 1738364400000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2184,
+      "expectedTargetHours": 672,
+      "observedTargetHours": 672,
+      "missingHistoryEndTimesMs": [],
+      "missingTargetEndTimesMs": [],
+      "forecastStatus": "KNOWN",
+      "targetStatus": "KNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": 562.8042753681001,
+        "zero": 0,
+        "last": 892.0963133072828,
+        "mean30d": 776.8946602834718
+      },
+      "conservativeUsdPerBase": 348.7138904527284,
+      "actualUsdPerBase": 443.5578512290948,
+      "matched": true
+    },
+    {
+      "symbol": "BTC/USD",
+      "year": 2025,
+      "month": 3,
+      "decisionMs": 1740787200000,
+      "targetAvailableAtMs": 1743469200000,
+      "historyCutoffMs": 1740783600000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2184,
+      "expectedTargetHours": 744,
+      "observedTargetHours": 744,
+      "missingHistoryEndTimesMs": [],
+      "missingTargetEndTimesMs": [],
+      "forecastStatus": "KNOWN",
+      "targetStatus": "KNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": 646.7184321870335,
+        "zero": 0,
+        "last": 686.9798470867689,
+        "mean30d": 493.2139680591482
+      },
+      "conservativeUsdPerBase": 375.2281189946103,
+      "actualUsdPerBase": 354.00631197034704,
+      "matched": true
+    },
+    {
+      "symbol": "BTC/USD",
+      "year": 2025,
+      "month": 4,
+      "decisionMs": 1743465600000,
+      "targetAvailableAtMs": 1746061200000,
+      "historyCutoffMs": 1743462000000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2184,
+      "expectedTargetHours": 720,
+      "observedTargetHours": 720,
+      "missingHistoryEndTimesMs": [],
+      "missingTargetEndTimesMs": [],
+      "forecastStatus": "KNOWN",
+      "targetStatus": "KNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": 288.514929581946,
+        "zero": 0,
+        "last": 371.12973708434646,
+        "mean30d": 338.6533644301732
+      },
+      "conservativeUsdPerBase": 238.37649473371877,
+      "actualUsdPerBase": 359.84727461271154,
+      "matched": true
+    },
+    {
+      "symbol": "BTC/USD",
+      "year": 2025,
+      "month": 5,
+      "decisionMs": 1746057600000,
+      "targetAvailableAtMs": 1748739600000,
+      "historyCutoffMs": 1746054000000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2184,
+      "expectedTargetHours": 744,
+      "observedTargetHours": 744,
+      "missingHistoryEndTimesMs": [],
+      "missingTargetEndTimesMs": [],
+      "forecastStatus": "KNOWN",
+      "targetStatus": "KNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": 409.0862296193718,
+        "zero": 0,
+        "last": 337.9480152292608,
+        "mean30d": 371.58303639821577
+      },
+      "conservativeUsdPerBase": 181.3085433849596,
+      "actualUsdPerBase": 839.4101919097134,
+      "matched": true
+    },
+    {
+      "symbol": "BTC/USD",
+      "year": 2025,
+      "month": 6,
+      "decisionMs": 1748736000000,
+      "targetAvailableAtMs": 1751331600000,
+      "historyCutoffMs": 1748732400000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2184,
+      "expectedTargetHours": 720,
+      "observedTargetHours": 720,
+      "missingHistoryEndTimesMs": [],
+      "missingTargetEndTimesMs": [],
+      "forecastStatus": "KNOWN",
+      "targetStatus": "KNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": 760.9871852632696,
+        "zero": 0,
+        "last": 752.7668118494399,
+        "mean30d": 811.2679730818668
+      },
+      "conservativeUsdPerBase": 258.99267844281087,
+      "actualUsdPerBase": 375.3973395931978,
+      "matched": true
+    },
+    {
+      "symbol": "BTC/USD",
+      "year": 2025,
+      "month": 7,
+      "decisionMs": 1751328000000,
+      "targetAvailableAtMs": 1754010000000,
+      "historyCutoffMs": 1751324400000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2184,
+      "expectedTargetHours": 744,
+      "observedTargetHours": 743,
+      "missingHistoryEndTimesMs": [],
+      "missingTargetEndTimesMs": [
+        1752188400000
+      ],
+      "forecastStatus": "KNOWN",
+      "targetStatus": "UNKNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": 404.7420615898078,
+        "zero": 0,
+        "last": 445.53023603946144,
+        "mean30d": 388.0925397025822
+      },
+      "conservativeUsdPerBase": 236.5861748002473,
+      "actualUsdPerBase": null,
+      "matched": false
+    },
+    {
+      "symbol": "BTC/USD",
+      "year": 2025,
+      "month": 8,
+      "decisionMs": 1754006400000,
+      "targetAvailableAtMs": 1756688400000,
+      "historyCutoffMs": 1754002800000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2183,
+      "expectedTargetHours": 744,
+      "observedTargetHours": 743,
+      "missingHistoryEndTimesMs": [
+        1752188400000
+      ],
+      "missingTargetEndTimesMs": [
+        1756616400000
+      ],
+      "forecastStatus": "UNKNOWN",
+      "targetStatus": "UNKNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": null,
+        "zero": 0,
+        "last": 1270.7482554994367,
+        "mean30d": null
+      },
+      "conservativeUsdPerBase": null,
+      "actualUsdPerBase": null,
+      "matched": false
+    },
+    {
+      "symbol": "BTC/USD",
+      "year": 2025,
+      "month": 9,
+      "decisionMs": 1756684800000,
+      "targetAvailableAtMs": 1759280400000,
+      "historyCutoffMs": 1756681200000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2182,
+      "expectedTargetHours": 720,
+      "observedTargetHours": 720,
+      "missingHistoryEndTimesMs": [
+        1752188400000,
+        1756616400000
+      ],
+      "missingTargetEndTimesMs": [],
+      "forecastStatus": "UNKNOWN",
+      "targetStatus": "KNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": null,
+        "zero": 0,
+        "last": 1138.073548704274,
+        "mean30d": null
+      },
+      "conservativeUsdPerBase": null,
+      "actualUsdPerBase": 707.7427924908235,
+      "matched": false
+    },
+    {
+      "symbol": "BTC/USD",
+      "year": 2025,
+      "month": 10,
+      "decisionMs": 1759276800000,
+      "targetAvailableAtMs": 1761958800000,
+      "historyCutoffMs": 1759273200000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2182,
+      "expectedTargetHours": 744,
+      "observedTargetHours": 744,
+      "missingHistoryEndTimesMs": [
+        1752188400000,
+        1756616400000
+      ],
+      "missingTargetEndTimesMs": [],
+      "forecastStatus": "UNKNOWN",
+      "targetStatus": "KNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": null,
+        "zero": 0,
+        "last": 775.4931818804297,
+        "mean30d": 732.1172381067
+      },
+      "conservativeUsdPerBase": null,
+      "actualUsdPerBase": 631.3720565706022,
+      "matched": false
+    },
+    {
+      "symbol": "BTC/USD",
+      "year": 2025,
+      "month": 11,
+      "decisionMs": 1761955200000,
+      "targetAvailableAtMs": 1764550800000,
+      "historyCutoffMs": 1761951600000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2183,
+      "expectedTargetHours": 720,
+      "observedTargetHours": 716,
+      "missingHistoryEndTimesMs": [
+        1756616400000
+      ],
+      "missingTargetEndTimesMs": [
+        1762016400000,
+        1762020000000,
+        1762059600000,
+        1763532000000
+      ],
+      "forecastStatus": "UNKNOWN",
+      "targetStatus": "UNKNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": null,
+        "zero": 0,
+        "last": 124.10459416476495,
+        "mean30d": 615.0822119580521
+      },
+      "conservativeUsdPerBase": null,
+      "actualUsdPerBase": null,
+      "matched": false
+    },
+    {
+      "symbol": "BTC/USD",
+      "year": 2025,
+      "month": 12,
+      "decisionMs": 1764547200000,
+      "targetAvailableAtMs": 1767229200000,
+      "historyCutoffMs": 1764543600000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2180,
+      "expectedTargetHours": 744,
+      "observedTargetHours": 743,
+      "missingHistoryEndTimesMs": [
+        1762016400000,
+        1762020000000,
+        1762059600000,
+        1763532000000
+      ],
+      "missingTargetEndTimesMs": [
+        1764842400000
+      ],
+      "forecastStatus": "UNKNOWN",
+      "targetStatus": "UNKNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": null,
+        "zero": 0,
+        "last": 470.07066831981115,
+        "mean30d": null
+      },
+      "conservativeUsdPerBase": null,
+      "actualUsdPerBase": null,
+      "matched": false
+    },
+    {
+      "symbol": "ETH/USD",
+      "year": 2024,
+      "month": 1,
+      "decisionMs": 1704067200000,
+      "targetAvailableAtMs": 1706749200000,
+      "historyCutoffMs": 1704063600000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2184,
+      "expectedTargetHours": 744,
+      "observedTargetHours": 744,
+      "missingHistoryEndTimesMs": [],
+      "missingTargetEndTimesMs": [],
+      "forecastStatus": "KNOWN",
+      "targetStatus": "KNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": 66.49765449637253,
+        "zero": 0,
+        "last": 69.3113669632421,
+        "mean30d": 56.216123016709254
+      },
+      "conservativeUsdPerBase": 6.207842935104761,
+      "actualUsdPerBase": 30.58923481869165,
+      "matched": true
+    },
+    {
+      "symbol": "ETH/USD",
+      "year": 2024,
+      "month": 2,
+      "decisionMs": 1706745600000,
+      "targetAvailableAtMs": 1709254800000,
+      "historyCutoffMs": 1706742000000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2184,
+      "expectedTargetHours": 696,
+      "observedTargetHours": 696,
+      "missingHistoryEndTimesMs": [],
+      "missingTargetEndTimesMs": [],
+      "forecastStatus": "KNOWN",
+      "targetStatus": "KNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": 19.17727647572196,
+        "zero": 0,
+        "last": 12.275189695062528,
+        "mean30d": 27.488752880823636
+      },
+      "conservativeUsdPerBase": 10.865800070620285,
+      "actualUsdPerBase": 60.7522639789427,
+      "matched": true
+    },
+    {
+      "symbol": "ETH/USD",
+      "year": 2024,
+      "month": 3,
+      "decisionMs": 1709251200000,
+      "targetAvailableAtMs": 1711933200000,
+      "historyCutoffMs": 1709247600000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2184,
+      "expectedTargetHours": 744,
+      "observedTargetHours": 744,
+      "missingHistoryEndTimesMs": [],
+      "missingTargetEndTimesMs": [],
+      "forecastStatus": "KNOWN",
+      "targetStatus": "KNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": 85.8572485484406,
+        "zero": 0,
+        "last": 117.03175035439739,
+        "mean30d": 63.07130739450938
+      },
+      "conservativeUsdPerBase": 14.573851733470628,
+      "actualUsdPerBase": 140.47823220182218,
+      "matched": true
+    },
+    {
+      "symbol": "ETH/USD",
+      "year": 2024,
+      "month": 4,
+      "decisionMs": 1711929600000,
+      "targetAvailableAtMs": 1714525200000,
+      "historyCutoffMs": 1711926000000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2184,
+      "expectedTargetHours": 720,
+      "observedTargetHours": 720,
+      "missingHistoryEndTimesMs": [],
+      "missingTargetEndTimesMs": [],
+      "forecastStatus": "KNOWN",
+      "targetStatus": "KNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": 127.02304913986815,
+        "zero": 0,
+        "last": 234.6034195084797,
+        "mean30d": 136.21722988307758
+      },
+      "conservativeUsdPerBase": 13.589507900917226,
+      "actualUsdPerBase": 32.622238876076715,
+      "matched": true
+    },
+    {
+      "symbol": "ETH/USD",
+      "year": 2024,
+      "month": 5,
+      "decisionMs": 1714521600000,
+      "targetAvailableAtMs": 1717203600000,
+      "historyCutoffMs": 1714518000000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2184,
+      "expectedTargetHours": 744,
+      "observedTargetHours": 744,
+      "missingHistoryEndTimesMs": [],
+      "missingTargetEndTimesMs": [],
+      "forecastStatus": "KNOWN",
+      "targetStatus": "KNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": 31.917374820156756,
+        "zero": 0,
+        "last": 78.59426848402468,
+        "mean30d": 33.89836246562668
+      },
+      "conservativeUsdPerBase": 12.475460206441033,
+      "actualUsdPerBase": 45.18851737784012,
+      "matched": true
+    },
+    {
+      "symbol": "ETH/USD",
+      "year": 2024,
+      "month": 6,
+      "decisionMs": 1717200000000,
+      "targetAvailableAtMs": 1719795600000,
+      "historyCutoffMs": 1717196400000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2184,
+      "expectedTargetHours": 720,
+      "observedTargetHours": 720,
+      "missingHistoryEndTimesMs": [],
+      "missingTargetEndTimesMs": [],
+      "forecastStatus": "KNOWN",
+      "targetStatus": "KNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": 56.85033444362686,
+        "zero": 0,
+        "last": 90.27361968691939,
+        "mean30d": 43.96698082240116
+      },
+      "conservativeUsdPerBase": 16.7287456428681,
+      "actualUsdPerBase": 34.70980189792355,
+      "matched": true
+    },
+    {
+      "symbol": "ETH/USD",
+      "year": 2024,
+      "month": 7,
+      "decisionMs": 1719792000000,
+      "targetAvailableAtMs": 1722474000000,
+      "historyCutoffMs": 1719788400000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2184,
+      "expectedTargetHours": 744,
+      "observedTargetHours": 744,
+      "missingHistoryEndTimesMs": [],
+      "missingTargetEndTimesMs": [],
+      "forecastStatus": "KNOWN",
+      "targetStatus": "KNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": 32.375393910358035,
+        "zero": 0,
+        "last": 6.996820014638873,
+        "mean30d": 35.95351070352041
+      },
+      "conservativeUsdPerBase": 12.487875403035567,
+      "actualUsdPerBase": 15.476648685712629,
+      "matched": true
+    },
+    {
+      "symbol": "ETH/USD",
+      "year": 2024,
+      "month": 8,
+      "decisionMs": 1722470400000,
+      "targetAvailableAtMs": 1725152400000,
+      "historyCutoffMs": 1722466800000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2184,
+      "expectedTargetHours": 744,
+      "observedTargetHours": 744,
+      "missingHistoryEndTimesMs": [],
+      "missingTargetEndTimesMs": [],
+      "forecastStatus": "KNOWN",
+      "targetStatus": "KNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": 19.45527400562762,
+        "zero": 0,
+        "last": 47.531789480838924,
+        "mean30d": 14.593653200665925
+      },
+      "conservativeUsdPerBase": 11.091137527982395,
+      "actualUsdPerBase": -2.107081676572182,
+      "matched": true
+    },
+    {
+      "symbol": "ETH/USD",
+      "year": 2024,
+      "month": 9,
+      "decisionMs": 1725148800000,
+      "targetAvailableAtMs": 1727744400000,
+      "historyCutoffMs": 1725145200000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2184,
+      "expectedTargetHours": 720,
+      "observedTargetHours": 720,
+      "missingHistoryEndTimesMs": [],
+      "missingTargetEndTimesMs": [],
+      "forecastStatus": "KNOWN",
+      "targetStatus": "KNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": 0.2189568165187244,
+        "zero": 0,
+        "last": 2.725979915839597,
+        "mean30d": -3.0575211662095403
+      },
+      "conservativeUsdPerBase": -6.7499815104656475,
+      "actualUsdPerBase": 8.560199075222766,
+      "matched": true
+    },
+    {
+      "symbol": "ETH/USD",
+      "year": 2024,
+      "month": 10,
+      "decisionMs": 1727740800000,
+      "targetAvailableAtMs": 1730422800000,
+      "historyCutoffMs": 1727737200000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2184,
+      "expectedTargetHours": 744,
+      "observedTargetHours": 744,
+      "missingHistoryEndTimesMs": [],
+      "missingTargetEndTimesMs": [],
+      "forecastStatus": "KNOWN",
+      "targetStatus": "KNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": 12.726994432742442,
+        "zero": 0,
+        "last": 34.65088156042657,
+        "mean30d": 8.808492674180641
+      },
+      "conservativeUsdPerBase": -7.87511743378379,
+      "actualUsdPerBase": 19.976842501561258,
+      "matched": true
+    },
+    {
+      "symbol": "ETH/USD",
+      "year": 2024,
+      "month": 11,
+      "decisionMs": 1730419200000,
+      "targetAvailableAtMs": 1733014800000,
+      "historyCutoffMs": 1730415600000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2184,
+      "expectedTargetHours": 720,
+      "observedTargetHours": 720,
+      "missingHistoryEndTimesMs": [],
+      "missingTargetEndTimesMs": [],
+      "forecastStatus": "KNOWN",
+      "targetStatus": "KNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": 21.92281286279829,
+        "zero": 0,
+        "last": 30.213581068770804,
+        "mean30d": 19.25340809321443
+      },
+      "conservativeUsdPerBase": -5.8312862517833945,
+      "actualUsdPerBase": 58.75490951471553,
+      "matched": true
+    },
+    {
+      "symbol": "ETH/USD",
+      "year": 2024,
+      "month": 12,
+      "decisionMs": 1733011200000,
+      "targetAvailableAtMs": 1735693200000,
+      "historyCutoffMs": 1733007600000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2184,
+      "expectedTargetHours": 744,
+      "observedTargetHours": 744,
+      "missingHistoryEndTimesMs": [],
+      "missingTargetEndTimesMs": [],
+      "forecastStatus": "KNOWN",
+      "targetStatus": "KNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": 75.36062659060883,
+        "zero": 0,
+        "last": 98.83895001348104,
+        "mean30d": 60.62138195988979
+      },
+      "conservativeUsdPerBase": 5.356382886075581,
+      "actualUsdPerBase": 62.181388024234764,
+      "matched": true
+    },
+    {
+      "symbol": "ETH/USD",
+      "year": 2025,
+      "month": 1,
+      "decisionMs": 1735689600000,
+      "targetAvailableAtMs": 1738371600000,
+      "historyCutoffMs": 1735686000000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2184,
+      "expectedTargetHours": 744,
+      "observedTargetHours": 744,
+      "missingHistoryEndTimesMs": [],
+      "missingTargetEndTimesMs": [],
+      "forecastStatus": "KNOWN",
+      "targetStatus": "KNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": 44.2938097544925,
+        "zero": 0,
+        "last": 48.27525502201378,
+        "mean30d": 61.29802334842258
+      },
+      "conservativeUsdPerBase": 17.619700996410025,
+      "actualUsdPerBase": 23.5171835668202,
+      "matched": true
+    },
+    {
+      "symbol": "ETH/USD",
+      "year": 2025,
+      "month": 2,
+      "decisionMs": 1738368000000,
+      "targetAvailableAtMs": 1740790800000,
+      "historyCutoffMs": 1738364400000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2184,
+      "expectedTargetHours": 672,
+      "observedTargetHours": 672,
+      "missingHistoryEndTimesMs": [],
+      "missingTargetEndTimesMs": [],
+      "forecastStatus": "KNOWN",
+      "targetStatus": "KNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": 19.824613882358612,
+        "zero": 0,
+        "last": 35.159212621866914,
+        "mean30d": 20.48438178310935
+      },
+      "conservativeUsdPerBase": 15.79194954807499,
+      "actualUsdPerBase": 1.76283541589847,
+      "matched": true
+    },
+    {
+      "symbol": "ETH/USD",
+      "year": 2025,
+      "month": 3,
+      "decisionMs": 1740787200000,
+      "targetAvailableAtMs": 1743469200000,
+      "historyCutoffMs": 1740783600000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2184,
+      "expectedTargetHours": 744,
+      "observedTargetHours": 744,
+      "missingHistoryEndTimesMs": [],
+      "missingTargetEndTimesMs": [],
+      "forecastStatus": "KNOWN",
+      "targetStatus": "KNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": 6.283900323661225,
+        "zero": 0,
+        "last": 3.1682484365908508,
+        "mean30d": 3.6127030293822675
+      },
+      "conservativeUsdPerBase": 2.1899182526531216,
+      "actualUsdPerBase": -1.783896077666486,
+      "matched": true
+    },
+    {
+      "symbol": "ETH/USD",
+      "year": 2025,
+      "month": 4,
+      "decisionMs": 1743465600000,
+      "targetAvailableAtMs": 1746061200000,
+      "historyCutoffMs": 1743462000000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2184,
+      "expectedTargetHours": 720,
+      "observedTargetHours": 720,
+      "missingHistoryEndTimesMs": [],
+      "missingTargetEndTimesMs": [],
+      "forecastStatus": "KNOWN",
+      "targetStatus": "KNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": -2.6144016690858156,
+        "zero": 0,
+        "last": 9.704454019590438,
+        "mean30d": -1.8262945764448921
+      },
+      "conservativeUsdPerBase": -4.14082534985744,
+      "actualUsdPerBase": -2.4990876218782776,
+      "matched": true
+    },
+    {
+      "symbol": "ETH/USD",
+      "year": 2025,
+      "month": 5,
+      "decisionMs": 1746057600000,
+      "targetAvailableAtMs": 1748739600000,
+      "historyCutoffMs": 1746054000000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2184,
+      "expectedTargetHours": 744,
+      "observedTargetHours": 744,
+      "missingHistoryEndTimesMs": [],
+      "missingTargetEndTimesMs": [],
+      "forecastStatus": "KNOWN",
+      "targetStatus": "KNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": -1.7256023424548579,
+        "zero": 0,
+        "last": 2.133079439022,
+        "mean30d": -2.579654435226981
+      },
+      "conservativeUsdPerBase": -4.433806984821681,
+      "actualUsdPerBase": 10.581673956129587,
+      "matched": true
+    },
+    {
+      "symbol": "ETH/USD",
+      "year": 2025,
+      "month": 6,
+      "decisionMs": 1748736000000,
+      "targetAvailableAtMs": 1751331600000,
+      "historyCutoffMs": 1748732400000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2184,
+      "expectedTargetHours": 720,
+      "observedTargetHours": 720,
+      "missingHistoryEndTimesMs": [],
+      "missingTargetEndTimesMs": [],
+      "forecastStatus": "KNOWN",
+      "targetStatus": "KNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": 9.947643570552708,
+        "zero": 0,
+        "last": 1.4388790632997968,
+        "mean30d": 10.442643679604675
+      },
+      "conservativeUsdPerBase": -5.077361578142436,
+      "actualUsdPerBase": 3.522793300216293,
+      "matched": true
+    },
+    {
+      "symbol": "ETH/USD",
+      "year": 2025,
+      "month": 7,
+      "decisionMs": 1751328000000,
+      "targetAvailableAtMs": 1754010000000,
+      "historyCutoffMs": 1751324400000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2184,
+      "expectedTargetHours": 744,
+      "observedTargetHours": 743,
+      "missingHistoryEndTimesMs": [],
+      "missingTargetEndTimesMs": [
+        1752188400000
+      ],
+      "forecastStatus": "KNOWN",
+      "targetStatus": "UNKNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": 2.2817275129983963,
+        "zero": 0,
+        "last": 19.153970325458463,
+        "mean30d": 3.6248684840328464
+      },
+      "conservativeUsdPerBase": -4.799708597763634,
+      "actualUsdPerBase": null,
+      "matched": false
+    },
+    {
+      "symbol": "ETH/USD",
+      "year": 2025,
+      "month": 8,
+      "decisionMs": 1754006400000,
+      "targetAvailableAtMs": 1756688400000,
+      "historyCutoffMs": 1754002800000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2183,
+      "expectedTargetHours": 744,
+      "observedTargetHours": 743,
+      "missingHistoryEndTimesMs": [
+        1752188400000
+      ],
+      "missingTargetEndTimesMs": [
+        1756616400000
+      ],
+      "forecastStatus": "UNKNOWN",
+      "targetStatus": "UNKNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": null,
+        "zero": 0,
+        "last": 22.45025026738836,
+        "mean30d": null
+      },
+      "conservativeUsdPerBase": null,
+      "actualUsdPerBase": null,
+      "matched": false
+    },
+    {
+      "symbol": "ETH/USD",
+      "year": 2025,
+      "month": 9,
+      "decisionMs": 1756684800000,
+      "targetAvailableAtMs": 1759280400000,
+      "historyCutoffMs": 1756681200000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2182,
+      "expectedTargetHours": 720,
+      "observedTargetHours": 720,
+      "missingHistoryEndTimesMs": [
+        1752188400000,
+        1756616400000
+      ],
+      "missingTargetEndTimesMs": [],
+      "forecastStatus": "UNKNOWN",
+      "targetStatus": "KNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": null,
+        "zero": 0,
+        "last": 50.102283140640004,
+        "mean30d": null
+      },
+      "conservativeUsdPerBase": null,
+      "actualUsdPerBase": 21.746657956205276,
+      "matched": false
+    },
+    {
+      "symbol": "ETH/USD",
+      "year": 2025,
+      "month": 10,
+      "decisionMs": 1759276800000,
+      "targetAvailableAtMs": 1761958800000,
+      "historyCutoffMs": 1759273200000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2182,
+      "expectedTargetHours": 744,
+      "observedTargetHours": 744,
+      "missingHistoryEndTimesMs": [
+        1752188400000,
+        1756616400000
+      ],
+      "missingTargetEndTimesMs": [],
+      "forecastStatus": "UNKNOWN",
+      "targetStatus": "KNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": null,
+        "zero": 0,
+        "last": 17.74127773096297,
+        "mean30d": 22.538567563443927
+      },
+      "conservativeUsdPerBase": null,
+      "actualUsdPerBase": 9.689247359155342,
+      "matched": false
+    },
+    {
+      "symbol": "ETH/USD",
+      "year": 2025,
+      "month": 11,
+      "decisionMs": 1761955200000,
+      "targetAvailableAtMs": 1764550800000,
+      "historyCutoffMs": 1761951600000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2183,
+      "expectedTargetHours": 720,
+      "observedTargetHours": 716,
+      "missingHistoryEndTimesMs": [
+        1756616400000
+      ],
+      "missingTargetEndTimesMs": [
+        1762016400000,
+        1762020000000,
+        1762059600000,
+        1763532000000
+      ],
+      "forecastStatus": "UNKNOWN",
+      "targetStatus": "UNKNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": null,
+        "zero": 0,
+        "last": -18.510501845999073,
+        "mean30d": 9.457262160322731
+      },
+      "conservativeUsdPerBase": null,
+      "actualUsdPerBase": null,
+      "matched": false
+    },
+    {
+      "symbol": "ETH/USD",
+      "year": 2025,
+      "month": 12,
+      "decisionMs": 1764547200000,
+      "targetAvailableAtMs": 1767229200000,
+      "historyCutoffMs": 1764543600000,
+      "expectedHistoryHours": 2184,
+      "observedHistoryHours": 2180,
+      "expectedTargetHours": 744,
+      "observedTargetHours": 743,
+      "missingHistoryEndTimesMs": [
+        1762016400000,
+        1762020000000,
+        1762059600000,
+        1763532000000
+      ],
+      "missingTargetEndTimesMs": [
+        1764842400000
+      ],
+      "forecastStatus": "UNKNOWN",
+      "targetStatus": "UNKNOWN",
+      "forecastsUsdPerBase": {
+        "adaptive": null,
+        "zero": 0,
+        "last": 7.32387380655925,
+        "mean30d": null
+      },
+      "conservativeUsdPerBase": null,
+      "actualUsdPerBase": null,
+      "matched": false
+    }
+  ]
+}

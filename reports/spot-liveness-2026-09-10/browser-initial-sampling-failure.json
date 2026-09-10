@@ -1,0 +1,13 @@
+{
+  "generatedAt": "2026-09-10T16:02:36.026Z",
+  "mode": "DEPLOYED_READ_ONLY",
+  "url": "http://127.0.0.1:3001",
+  "ordersSubmitted": false,
+  "accountWrites": false,
+  "results": [],
+  "passed": false,
+  "error": "AssertionError [ERR_ASSERTION]: Upstream-response age updates each second\n    at file:///home/ec2-user/crypto_trade/reports/spot-liveness-2026-09-10/browser-smoke.mjs:154:12",
+  "cleanup": {
+    "temporaryProfileRemoved": true
+  }
+}

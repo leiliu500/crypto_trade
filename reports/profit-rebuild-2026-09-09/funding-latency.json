@@ -1,0 +1,39 @@
+{
+  "date": "2026-09-09",
+  "measurement": "LOCAL_SYNTHETIC_WALL_CLOCK_LATENCY_ONLY_NOT_TRADING_RETURNS",
+  "runtime": "Node.js v22.20.0 through tsx",
+  "method": "One signed BTC base-unit inventory, 100 alternating 0.001-unit inventory changes, one positive 0.01 USD/base/hour rate per hour; elapsed performance.now() milliseconds. Timings are single local observations, not production latency guarantees.",
+  "benchmarkFile": "reports/profit-rebuild-2026-09-09/funding-latency-benchmark.ts",
+  "benchmarkSha256": "e65d2c1216b6eaf4b312c1de0580844c4e20f18e5799edc585bd667f51af39b1",
+  "sourceHashes": {
+    "src/kraken/paper-funding.ts": "3f3b1c13ba639c48a5631085b0f0c873abeee92f7af97be7ac14d31cdfe680e5",
+    "src/carry/funding-accrual.ts": "900a3299e620a4e84630697e65c06e493617bc70e0fb5d77d5afbe63343e34b6",
+    "src/kraken/paper-broker.ts": "ea5568d2d8ef02b611859aa8c1116988fb8b65eed2540e08ecdea6efae1ba348"
+  },
+  "beforeSessionObservations": [
+    { "hours": 100, "fills": 100, "buildFillEvidenceMs": 6186.114, "observeRatesMs": 850.329, "snapshotMs": 942.096 },
+    { "hours": 1000, "fills": 100, "buildFillEvidenceMs": 8630.067, "observeRatesMs": 27348.231,
+      "snapshotMs": null, "note": "The entire process reached its 45-second limit during snapshot computation; exact snapshot time was not measured. No original source hash was captured for these diagnostic observations." }
+  ],
+  "optimizedObservations": [
+    { "hours": 1000, "fills": 100, "buildFillEvidenceMs": 976.839, "observeRatesMs": 109.397,
+      "firstPostAdmissionSnapshotMs": 1.569, "nextSecondSnapshotMs": 1.337, "nextHourSnapshotMs": 11.760 },
+    { "hours": 2160, "fills": 100, "buildFillEvidenceMs": 1452.724, "observeRatesMs": 189.055,
+      "firstPostAdmissionSnapshotMs": 3.278, "nextSecondSnapshotMs": 1.601, "nextHourSnapshotMs": 16.473 }
+  ],
+  "implementation": [
+    "Validate immutable rate and position evidence once, then project directly instead of committing and reprojecting each individual rate.",
+    "Binary-search sorted nonoverlapping rates for each holding interval.",
+    "Retain exact rational settled sums and immutable obligations; advance only the unsettled interval and new hourly boundaries.",
+    "Share the economic projection across cash-only postings, while retaining complete event hashes and posting validation.",
+    "Broker cache expires within one second and cannot cross a UTC hourly settlement boundary."
+  ],
+  "validation": {
+    "targetedTests": 88,
+    "status": "PASS",
+    "build": "PASS",
+    "diffCheck": "PASS",
+    "covered": ["Exact bulk-versus-journal parity", "Missing rates", "Long/short and partial-fill accounting", "Late fill corrections", "Restart deduplication", "Cash and fill persistence rollback", "UTC cash sessions", "Rolling funded P&L", "Engine funded risk", "Dashboard funding status", "90-day recurring snapshot regression"]
+  },
+  "limitations": "Initial admission and persistence remain synchronous; the measured 2160-rate batch admission took 189 ms. This report establishes neither exchange execution performance nor strategy profitability."
+}

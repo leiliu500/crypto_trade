@@ -1,0 +1,98 @@
+{
+  "version": "saved-carry-spot-fee-frontier-v1",
+  "registeredAtUtc": "2026-09-09T05:14:01.335Z",
+  "capturedAtUtc": "2026-09-09T04:31:40.065Z",
+  "spec": {
+    "version": "saved-carry-spot-fee-frontier-v1",
+    "researchOnly": true,
+    "spotTakerFeeBpsPerExecutedSide": [
+      0,
+      20,
+      40,
+      80
+    ],
+    "kernel": "UNCHANGED_CARRY_MONITOR_REPORT_AND_EVALUATE_CARRY_ECONOMICS",
+    "changedAssumption": "SPOT_TAKER_FEE_PER_EXECUTED_SIDE_ONLY",
+    "retainedAssumptions": "FUTURES_FEES_FOUR_EXECUTIONS_SPREAD_SLIPPAGE_CAPITAL_HURDLE_COLLATERAL_BASIS_UNWIND_RESERVES_AND_SETTLEMENT_SCENARIOS",
+    "freshness": "AS_SAVED_CAPTURE_ONLY_NOT_CURRENT_QUOTES",
+    "interpretation": "INDIVIDUAL_PRODUCT_AND_BUDGET_SENSITIVITIES_NOT_SIMULTANEOUS_PORTFOLIO_ALLOCATIONS",
+    "zeroSpotFee": "HYPOTHETICAL_LOWER_BOUND_NOT_DEFAULT_OR_ACCOUNT_ENTITLEMENT",
+    "actualFeeVerified": false,
+    "activationAllowed": false,
+    "validatedProfitability": false
+  },
+  "document": "# Funding economics: fixed development protocol\n\nPrepared at 2026-09-09 05:01:22 UTC, before opening the new forecast study's outcomes. The runner must seal this document, its numerical specification, source files, and input hashes before calculating results. A later correction must be recorded explicitly; it must not replace a failed result silently.\n\nThis study tests a small, fixed forecast of funding cash received by a one-base-unit short in Kraken linear BTC/USD and ETH/USD perpetuals. It does **not** backtest a complete spot/perpetual carry strategy. All 2023–2025 source data are development data that have previously been available for inspection. Neither this study nor a chronological split makes them an untouched test. Reserved 2026 strategy returns are excluded.\n\n## Funding units, timestamps, and availability\n\nFor the linear contracts, a positive absolute rate is USD received per base unit short per hour; a negative rate is a payment by the short. A fixed quantity `q` held over an entire hour receives `q * absoluteRate`. Partial-hour accrual uses the held fraction of the hour. Relative rates are a different representation and must not be multiplied by a later market price to manufacture supposedly exact cash flows. Funding accrues continuously and is booked at hour-end or a position change. See [Kraken's linear contract specifications](https://support.kraken.com/articles/4844359082772-linear-multi-collateral-derivatives-contract-specifications).\n\nThe current official [historical-funding API schema](https://docs.kraken.com/api-reference/historical-funding-rates/historical-funding-rates.md) defines `timestamp` as the **start** of the applicable period. For hourly linear-contract rows, source time `t` covers `[t, t + 1 hour)`, with normalized settlement time `t + 1 hour`. This study imposes an additional one-hour publication lag: modeled `availableAt = t + 2 hours`. At decision `d`, the newest admitted normalized settlement is therefore `d - 1 hour`. This historical availability is **assumed**, not an archived record of when a client first received the rate. It is distinct from using a currently published rate during its live accrual period.\n\nThe existing archive audit matched 3,612 CSV/API overlapping rows per asset on timestamp, absolute rate, and relative rate. That supports the archive normalization `settlementTimestamp = sourceTimestamp + 1 hour` on the overlap. Extending the convention to non-overlapping CSV rows remains an explicit inference. Preserve the audit artifact and raw timestamps in provenance; do not claim the CSV export documentation itself specifies the convention.\n\nDuplicate/conflicting timestamps, nonfinite rates, wrong symbols, or unexpected intervals fail validation. Genuine zero funding remains zero. Missing funding is never filled with zero or interpolated. Input rates must be bounded to the permitted source years before any study calculation.\n\n## Frozen cohorts and forecasts\n\nThere is one cohort per calendar month, January 2024 through December 2025, per asset. The decision is the first day of the month at **00:00 UTC**. The target is the sum of absolute funding rates with source timestamps in that entire calendar month, representing USD received by a continuously held short of exactly 1 BTC or 1 ETH. Calendar-month duration determines the number of target hours, including the leap day in February 2024.\n\nThe candidate uses exactly 91 complete days ending at the history cutoff `decision - 1 hour`. Equivalently, its source timestamps cover `[decision - 1 hour - 91 days, decision - 1 hour)`, or normalized settlement timestamps cover `(decision - 1 hour - 91 days, decision - 1 hour]`:\n\n1. `pointHourly = 0.5 * mean(last 7 days) + 0.5 * mean(last 30 days)`.\n2. Partition the trailing 91 days into exactly 13 adjacent, non-overlapping 7-day blocks anchored to that history cutoff. Calculate each block's hourly mean.\n3. `conservativeHourly = min(mean(last 7 days), q10(13 weekly means))`.\n4. `q10` uses the nearest-rank empirical quantile: sort the 13 means ascending and select the second value, `ceil(0.10 * 13)`. It is not an interpolated quantile.\n5. Multiply each hourly forecast by the exact number of hours in the target calendar month to obtain the monthly cash forecast.\n\nAll 2,184 history hours are required for a candidate forecast. If any required hour is missing, the forecast is unavailable with a recorded reason. If any required target-month hour is missing, that month's outcome is `UNKNOWN`; report missing hours and exclude it from scored pairs. A month is not rescued by scoring only its observable fraction. Its full target becomes available one hour after the next month's boundary under the same modeled publication lag. Year filtering uses accrual/source time: the settlement of December 2025's final hour at January 1, 2026 belongs to the permitted December target and does not authorize inspection of any 2026 accrual period or strategy price returns.\n\nThe three fixed point baselines are zero hourly funding, the last completed hourly rate, and the trailing 30-day hourly mean. Their monthly forecasts use the same target duration. Baselines may report their own availability, but the primary comparison uses only identical cohorts where the candidate, all baselines, and the entire target are known. Additional baseline-only cohorts are separately labeled. No horizon, weighting, percentile, or baseline is selected from these results.\n\n## Report contract and acceptance limits\n\nReport every cohort with decision time, history cutoff, expected and observed history/target counts, forecast status, target status, all forecasts, and actual funding cash when complete. Also report input/source hashes and aggregate matched counts per asset and year.\n\nFor each asset and year, report matched mean absolute error, mean squared error, and direction accuracy for each point forecast. Treat positive, zero, and negative as separate directions; a zero forecast is not credited for a nonzero outcome. Report signed error and aggregate forecast/actual totals for interpretation. Values are USD per **one base unit**, so BTC and ETH errors must not be pooled into an economically misleading common dollar score.\n\nFor the conservative forecast, report the count and frequency of complete outcomes below the forecast, plus the magnitude of each violation. The weekly means are not 13 independent future-month draws, and 12 monthly outcomes per year are a small sample. The empirical bound is neither a confidence interval for the mean nor a calibrated coverage guarantee. No significance, predictive effectiveness, or profitable trading claim follows merely from a positive average funding rate.\n\nA useful research result would be lower matched error than simple baselines in both assets without concealing missing cohorts. This is descriptive evidence, not an automatic deployment gate. A failed result remains a failed result: no replacement weights, new horizons, or selective asset/year reporting in this protocol. Cash with zero trading activity is the economic baseline for subsequent complete-strategy evaluation.\n\n## Fee and holding-period frontier\n\nSeparately report current carry snapshots under spot fees of **0, 20, 40, and 80 basis points per executed side**, with explicitly stated futures fees, all four entry/exit executions, spread/slippage, and any financing or conversion costs. These are fee sensitivities, not evidence that an account qualifies for a tier. Until authenticated account-specific fee evidence is available, set `actualFeeVerified: false`; preserve source and observation time. A zero-fee case is a hypothetical lower bound, not the default execution model.\n\nThe [published Kraken fee schedule](https://www.kraken.com/features/fee-schedule) currently shows entry-tier spot maker/taker fees of 40/80 bp and futures maker/taker fees of 2/5 bp; account and jurisdiction determine applicability. The official API schema states that legacy futures fee endpoints stopped reflecting charged fees effective 2026-06-22 and directs account verification to Spot `GetTradeVolume`. Do not use those deprecated futures responses as fee attestation. Maker fees require actual passive fills or a separately validated execution model; a limit order alone does not establish maker execution.\n\nFor equal illustrative entry/exit notionals `N` on each leg, taker round-trip fees alone are `2 * N * (spotFee + futuresFee)`. At 80 bp spot and 5 bp futures, this is 170 bp of one leg's notional, or 85 bp of the combined two-leg gross exposure. Fee schedules are applied to actual executed notionals in a complete ledger. A conditional constant-rate break-even time is costs divided by positive forecast hourly funding revenue; nonpositive revenue has no finite funding-only break-even. It is not a promise that funding persists until that time.\n\nDo not reinterpret an old $12 research scenario as the user's general account exposure limit. Any $12 or $1,000 scenarios here are explicitly labeled research sensitivities and do not alter runtime limits.\n\n## Requirements for a later trading decision\n\nThe economic entry condition is positive conservative **complete-strategy** net value relative to cash after executable costs and an explicit risk allowance, using fixed rules registered before evaluation. This funding-only study cannot satisfy that condition on its own. A paired ledger must also include spot/perpetual basis change, quantity mismatch, terminal liquidation, financing, margin, and collateral costs. Synchronized executable spot and futures books, matched instrument units, actual fee evidence, funding receipts, and a defined hedge-repair/exit policy are required.\n\nZero-funding and reversed-funding paths are mandatory stress reports under the same decisions, holding period, and execution assumptions. They measure potential loss and required capital. Requiring a funding-only trade to earn positive returns when funding is zero and fees are positive would be an impossible profitability gate; survival and capital limits must be specified separately. Missing prices, funding, or unresolved hedge fills make full economic results unknown.\n\nDated cash-and-carry is a separate possible instrument choice, not a remedy inferred from a weak perpetual forecast. Evaluate observable executable basis versus spot purchase, futures entry and settlement fees, spot unwind, cash opportunity cost, and liquidity reserves. Kraken charges a taker fee when a dated position settles, and the settlement index differs from an arbitrary spot exit print. Annual return must use committed spot cash plus derivative collateral and repair reserves as its denominator. Same-venue execution does not remove basis, liquidation, custody, or transfer risk. [BIS research on crypto carry](https://www.bis.org/publications/working-paper-1087-crypto-carry) explains the economic role of market segmentation and constrained arbitrage capital; it does not establish a guaranteed opportunity for this account.\n\nNo model or strategy is activated by this report. Improved data, exact accounting, clear abstention, and a reproducible failed test are valid outcomes of this research process.\n",
+  "sourceHashes": {
+    "src/carry/fee-frontier-main.ts": "7e8a0de27519f5963ebccbaa7d70b419d564aef991ddca5ee0dc2f0b4ffc810b",
+    "src/carry/monitor.ts": "6fda02de3b8a9bf6d55f62e45f4aeed6ea172e0c4c03f9ea7e9f2ca4b9bcd641",
+    "src/carry/economics.ts": "57a37a9788b9030eaaf30f5a499b95223f769a7193223747627814a5f6143ce5",
+    "src/carry/config.ts": "8929daa39e9752416e347178301b24342e26b3594308aeb40941cea8d624ab1b",
+    "src/economics/fee-validation.ts": "49fd1d83461d6786d9c2c391d39c878bea51779b60380e359a6ca3ec8723fce2",
+    "tsconfig.json": "f67c2b8d0029850632819cc5da43e2c89468c9217e0dd8f93b3e1887afedaca3",
+    "package-lock.json": "2315bada829d31ccb4d3970392ba56d73458d3219dda1ec98d8dda0d41893594"
+  },
+  "sealedInputs": {
+    "inputPath": "/home/ec2-user/crypto_trade/reports/carry-feasibility-reviewed-2026-09-09/public-input.json.gz",
+    "compressedInputSha256": "21e43af9dc06a8a211456a2c3dd50fa7677b3b6e42a23372faf46eab4fbba993",
+    "decodedInputSha256": "4c2e7e3f7b6291f2be2cdd5897786aca3b85eeb1cf4cd0b5c777790025d00cf7",
+    "normalizedSnapshotSha256": "4c2e7e3f7b6291f2be2cdd5897786aca3b85eeb1cf4cd0b5c777790025d00cf7",
+    "configurationPath": "/home/ec2-user/crypto_trade/config/carry-research.json",
+    "configurationSha256": "8331c1d03d90c4ea99f035abb32b55b9a53192224b488a8733274c068f93b304",
+    "normalizedConfigurationSha256": "e4a30e75183ac9d9ec1a20ba49d9b8caad3eac0436737b3cca8d7af02e6be1c1",
+    "documentPath": "/home/ec2-user/crypto_trade/docs/FUNDING_ECONOMIC_PROTOCOL.md",
+    "documentSha256": "21c082adb28c2d9c6db81ed9e8de561b8ea0ab234b8b1fe6ab43eaf3b2701388"
+  },
+  "baseConfiguration": {
+    "schemaVersion": 1,
+    "mode": "MONITOR_ONLY",
+    "spotTakerFeeBps": 80,
+    "derivativeTakerFeeBps": 5,
+    "annualCapitalHurdleFraction": 0.05,
+    "slippageBpsPerExecution": 1.5,
+    "settlementBasisReserveBps": 50,
+    "unwindReserveBps": 25,
+    "maximumQuoteAgeMs": 2000,
+    "maximumQuoteSkewMs": 1000,
+    "maximumFundingAgeMs": 2000,
+    "settlementPriceMultipliers": [
+      0.5,
+      1,
+      2
+    ],
+    "perpetualScenarioHoldingHours": 720,
+    "minimumDatedMaturityDays": 30,
+    "maximumDatedMaturityDays": 90,
+    "derivativeReserveFraction": 1,
+    "budgets": [
+      {
+        "id": "prior-12-usd-research",
+        "availableGrossUsd": 12,
+        "availableCashUsd": 6.12,
+        "availableCollateralUsd": 6
+      },
+      {
+        "id": "1000-usd-sensitivity",
+        "availableGrossUsd": 1000,
+        "availableCashUsd": 510,
+        "availableCollateralUsd": 500
+      }
+    ]
+  },
+  "changes": [
+    {
+      "spotTakerFeeBps": 0
+    },
+    {
+      "spotTakerFeeBps": 20
+    },
+    {
+      "spotTakerFeeBps": 40
+    },
+    {
+      "spotTakerFeeBps": 80
+    }
+  ],
+  "outcomesCalculated": false,
+  "actualFeeVerified": false,
+  "activationAllowed": false
+}

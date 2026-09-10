@@ -1,0 +1,84 @@
+{
+  "passed": true,
+  "checkedAt": "2026-09-10T21:24:38.601Z",
+  "path": "/?view=eth40",
+  "dashboardPort": 3001,
+  "eth40HostPortRemoved": true,
+  "eth40ImageManifestAndAccountsPreserved": true,
+  "btcPaperContainerAndAccountsPreserved": true,
+  "futuresDashboardStatePreserved": true,
+  "eth40Sequence": 143,
+  "served": [
+    {
+      "file": "index.html",
+      "sha256": "c73812dfab6d4cc8cbb6605b6572eb936c245a55c78631c5a73fa70cfecbe11b"
+    },
+    {
+      "file": "app.js",
+      "sha256": "8249d8d90f7990c5bfd27a0b185ea12a3bb4cf3f051e95492a03da02314f805e"
+    },
+    {
+      "file": "spot.js",
+      "sha256": "9d1f906738e302f5116e0c9200c852155edf9dd340d118ae59785b6909222433"
+    },
+    {
+      "file": "eth40.js",
+      "sha256": "de661e047d97748ee12a09c789bd37204db391f811a644cc5cf6a4e77a6496af"
+    },
+    {
+      "file": "styles.css",
+      "sha256": "e82f46bb5c070b6437a47f6432850f4c6983924ef18ef4494349e57620017fa2"
+    }
+  ],
+  "containers": [
+    {
+      "name": "/crypto-trade-engine",
+      "id": "5c62f61ef350ab9ed2c943e71dfecf24022b597ba65d0496d7ca76e5121b29a1",
+      "image": "sha256:3aa5df86197a36162940c0f5b99e53ef6dae1e4313ae10ec53be2f2a7c270e66",
+      "startedAt": "2026-09-10T21:23:12.934823383Z",
+      "health": "healthy",
+      "publishedPorts": {
+        "3001/tcp": [
+          {
+            "HostIp": "",
+            "HostPort": "3001"
+          }
+        ]
+      },
+      "networks": [
+        "crypto-trade_default"
+      ]
+    },
+    {
+      "name": "/crypto-spot-trend-paper",
+      "id": "ee21ed86427c6e76a529bb33b8cec4ba06e2cfd0cc5623b41b4701346446b413",
+      "image": "sha256:3682285933465fb691269a080586f08421f007c1c087d8d4f208dfcd72038b63",
+      "startedAt": "2026-09-10T16:55:32.13218234Z",
+      "health": "healthy",
+      "publishedPorts": {
+        "3002/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "3002"
+          }
+        ]
+      },
+      "networks": [
+        "crypto-spot-paper_default",
+        "crypto-trade_default"
+      ]
+    },
+    {
+      "name": "/crypto-eth40-paper",
+      "id": "fecc7a9f51f2b2528e8a345452605b2923b64f458351f43551f69bf17a98995c",
+      "image": "sha256:39dbd1a51ea727fc50db700a2e2df36b53806050f5cd5a7dcfa8b60566644cc7",
+      "startedAt": "2026-09-10T20:49:38.242143818Z",
+      "health": "healthy",
+      "publishedPorts": {},
+      "networks": [
+        "crypto-eth40-paper_default",
+        "crypto-trade_default"
+      ]
+    }
+  ]
+}

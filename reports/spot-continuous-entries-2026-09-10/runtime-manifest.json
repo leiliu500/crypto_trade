@@ -1,0 +1,33 @@
+{
+  "runtimeSha256": "2a87d7a11589f50058d691f42b869595d9948e699236c3ca9804ba10513eab48",
+  "files": [
+    {
+      "file": "src/spot-trend/paper.ts",
+      "sha256": "d673a171e240b5090cb4db6eb47c2b4aaceea6cecb27589799ed6168901199a9"
+    },
+    {
+      "file": "src/spot-trend/paper-main.ts",
+      "sha256": "75cb33a524bd1803da020cd7d5f9386061cd6cdc4c82e34284c9b133398ca162"
+    },
+    {
+      "file": "src/spot-trend/market.ts",
+      "sha256": "2f9c90c460164ffeb0bacc08822c25b59c6523bd6b1d64fcc93162e3dc652565"
+    },
+    {
+      "file": "src/spot-trend/evidence.ts",
+      "sha256": "e6a0a83b5f43e645ba7f61d54be6b2707381b8a5aff66226657e74ea8b0c8641"
+    },
+    {
+      "file": "src/spot-trend/journal.ts",
+      "sha256": "149cd6448f9dc39046670ee69bf360d0acfdaa288c60c619d301b9224b8acedd"
+    },
+    {
+      "file": "src/spot-trend/orders.ts",
+      "sha256": "b077dd94798993280563d161dee561ad3dc7345849d643bd4993ffd172946f8e"
+    },
+    {
+      "file": "src/spot-trend/migration.ts",
+      "sha256": "e3df2d214c7276d488e5a6350d49bc948fe12a65baae261cf3d8f2bac26f4611"
+    }
+  ]
+}

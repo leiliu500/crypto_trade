@@ -1,0 +1,9 @@
+/*.json
+!/protocol.json
+!/selection.json
+!/confirmation.json
+!/summary.json
+!/*-start.json
+!/*-integrity.json
+!/*-audit.json
+!/validation-status.json

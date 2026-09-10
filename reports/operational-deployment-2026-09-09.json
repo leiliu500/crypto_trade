@@ -1,0 +1,81 @@
+{
+  "verifiedAtUtc": "2026-09-09T04:52:42.218845+00:00",
+  "configurationSha256": "b7aab83032966ef7f38afb3d705adb8c1549f7552fec1d442020bdf7fb753529",
+  "databaseRunFingerprintMatched": true,
+  "before": {
+    "generatedAtMs": 1788928668005,
+    "mode": "paper",
+    "paper": true,
+    "configurationVersion": "btc-eth-distributional-v11.0.0",
+    "entriesAllowed": true,
+    "haltReasons": [],
+    "database": {
+      "connected": true,
+      "status": "connected",
+      "queuedRecords": 0,
+      "droppedRecords": 0,
+      "lastPersistedAtMs": 1788928667571,
+      "lastError": null
+    },
+    "positions": 0,
+    "orders": 0
+  },
+  "after": {
+    "generatedAtMs": 1788929561880,
+    "mode": "paper",
+    "paper": true,
+    "configurationVersion": "btc-eth-paper-controls-v12.0.0",
+    "entriesAllowed": true,
+    "haltReasons": [],
+    "database": {
+      "connected": true,
+      "status": "connected",
+      "queuedRecords": 0,
+      "droppedRecords": 0,
+      "lastPersistedAtMs": 1788929561494,
+      "lastError": null
+    },
+    "positions": 0,
+    "orders": 0
+  },
+  "validation": {
+    "releaseTestsPassed": 1017,
+    "releaseTestsFailed": 0,
+    "typeScriptBuild": "PASS",
+    "readOnlyDatabaseStatementTimeout": {
+      "passed": true,
+      "configuredTestMs": 1000,
+      "observedMs": 1038
+    },
+    "gitDiffCheck": "PASS"
+  },
+  "strategyStatus": {
+    "existingEfficientPaperTrialStillExperimental": true,
+    "carryActivationAllowed": false,
+    "profitabilityEstablished": false
+  },
+  "knownLimitations": [
+    "Legacy rolling loss uses UTC-session loss, not an exact trailing24h ledger",
+    "Runtime futures fees are configured assumptions; actual account fee tier unverified",
+    "Carry execution funding is a discrete synthetic proxy; fully costed net PnL unknown",
+    "Carry history lacks synchronized spot/futures execution data"
+  ],
+  "sourceHashes": {
+    "config/base.json": "ea4ab1d4a56426318c625442602e229f1a6cb78cf81c064d878916c1cd58ebcc",
+    "config/btc_usd.json": "d335dbac0082a727da1922972be50c93ccce73fafc47724a193906f64f0b3eba",
+    "config/eth_usd.json": "abf52f5f067e78d393ccba280ebf61fa6098f09d8673876c661d0af1ec49f133",
+    "config/carry-research.json": "8331c1d03d90c4ea99f035abb32b55b9a53192224b488a8733274c068f93b304",
+    ".env.example": "1e1e52f398bebce1bcbc6103f217528954681ea67a52c35dafe4965ab52214ea",
+    "docker-compose.yml": "051227e0f6078afc15b3a876717e074c3c8101dfbc7b7e4bfd15b6a5b49da68a",
+    ".dockerignore": "23b4706aebc7e6408c7103cbee693e5b6ababd68023d0e72b7fe4891f2f515aa",
+    "src/config.ts": "c46a5f4bcf0d9ab94e45aec5dd6e6878cbba47d91ba0c859e37308aa5d1851ec",
+    "src/config/audit.ts": "d9f83fc9da8ed662ca4465c10224f74475d69a300a8fcb3362a503d78efc8bbe",
+    "src/main.ts": "6a89496755b0b26eb3763f86a9b8ed08a131bd97577767aefe76182ff866fdd8",
+    "src/database/persistence-watch.ts": "6a1e93909d3346e4fbf445f20d91f5c980524cd4d378f64305ccbf509544c896",
+    "src/database/postgres-store.ts": "b26f7be8386ce10b9ad59706f87af14046774b5aa1be468824df4d7710b20a97",
+    "src/engine/trading-engine.ts": "4e63e8e9235d05cdbff06b24e584c6d0cf9a9317897ff0e62467d13bb2167bcf",
+    "src/risk/risk-state.ts": "81683068282d66579354b36969eeb2da50ea81e5b0af049eda683b505d67c7aa",
+    "src/execution/order-state.ts": "3ee981889a7c22e0801db866b14c8dc57619e48a629c8138e97e6d7124fc3ce0",
+    "src/research/policy-store.ts": "07758bfdb7d53fd589c847c9803025e881076d6ae9f88cdec8f29c00cd6dc580"
+  }
+}

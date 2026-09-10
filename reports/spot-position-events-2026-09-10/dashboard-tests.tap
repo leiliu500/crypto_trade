@@ -1,0 +1,590 @@
+TAP version 13
+# Subtest: dashboard keeps exact trailing loss separate from session P&L and never substitutes unknown history
+ok 1 - dashboard keeps exact trailing loss separate from session P&L and never substitutes unknown history
+  ---
+  duration_ms: 33.066473
+  type: 'test'
+  ...
+# Subtest: operations monitor retains an order's full P&L history after the position closes
+ok 2 - operations monitor retains an order's full P&L history after the position closes
+  ---
+  duration_ms: 11.173279
+  type: 'test'
+  ...
+# Subtest: operations monitor emits one authoritative closed-position telemetry record
+ok 3 - operations monitor emits one authoritative closed-position telemetry record
+  ---
+  duration_ms: 3.868449
+  type: 'test'
+  ...
+# Subtest: operations monitor bounds default P&L history retained in memory
+ok 4 - operations monitor bounds default P&L history retained in memory
+  ---
+  duration_ms: 9028.591597
+  type: 'test'
+  ...
+# Subtest: dashboard broadcast skips serialization when there are no websocket clients
+ok 5 - dashboard broadcast skips serialization when there are no websocket clients
+  ---
+  duration_ms: 0.847105
+  type: 'test'
+  ...
+# Subtest: ordinary database telemetry is sampled and unchanged orders are deduplicated
+ok 6 - ordinary database telemetry is sampled and unchanged orders are deduplicated
+  ---
+  duration_ms: 2.107789
+  type: 'test'
+  ...
+# Subtest: durable health payload excludes high-cardinality dashboard collections
+ok 7 - durable health payload excludes high-cardinality dashboard collections
+  ---
+  duration_ms: 1.641123
+  type: 'test'
+  ...
+# Subtest: dashboard resets total session P&L at UTC rollover and carries live equity forward
+ok 8 - dashboard resets total session P&L at UTC rollover and carries live equity forward
+  ---
+  duration_ms: 1.613204
+  type: 'test'
+  ...
+# Subtest: dashboard does not subtract the prior Kraken UTC session after the broker resets its counter
+ok 9 - dashboard does not subtract the prior Kraken UTC session after the broker resets its counter
+  ---
+  duration_ms: 1.340458
+  type: 'test'
+  ...
+# Subtest: dashboard waits for account reconciliation before locking the UTC opening equity
+ok 10 - dashboard waits for account reconciliation before locking the UTC opening equity
+  ---
+  duration_ms: 1.630624
+  type: 'test'
+  ...
+# Subtest: filled reduce-only exit cards inherit complete history and actual realized P&L
+ok 11 - filled reduce-only exit cards inherit complete history and actual realized P&L
+  ---
+  duration_ms: 2.652065
+  type: 'test'
+  ...
+# Subtest: closed-trade P&L uses exact asymmetric fees from each execution leg
+ok 12 - closed-trade P&L uses exact asymmetric fees from each execution leg
+  ---
+  duration_ms: 1.054504
+  type: 'test'
+  ...
+# Subtest: partial exits allocate entry fees once and aggregate as one realized trade
+ok 13 - partial exits allocate entry fees once and aggregate as one realized trade
+  ---
+  duration_ms: 1.638626
+  type: 'test'
+  ...
+# Subtest: dashboard distinguishes a motion reset from invalid market data
+ok 14 - dashboard distinguishes a motion reset from invalid market data
+  ---
+  duration_ms: 13.141579
+  type: 'test'
+  ...
+# Subtest: market projection carries authoritative policy pulse instead of legacy readiness
+ok 15 - market projection carries authoritative policy pulse instead of legacy readiness
+  ---
+  duration_ms: 2.941664
+  type: 'test'
+  ...
+# Subtest: Market Pulse renders new policy signals, evidence and clocks without the legacy ready fallback
+ok 16 - Market Pulse renders new policy signals, evidence and clocks without the legacy ready fallback
+  ---
+  duration_ms: 70.282009
+  type: 'test'
+  ...
+# Subtest: joint model display separates submission permission, training, forecast freshness and entry gates
+ok 17 - joint model display separates submission permission, training, forecast freshness and entry gates
+  ---
+  duration_ms: 45.541534
+  type: 'test'
+  ...
+# Subtest: dashboard formats the realized P&L reconciliation at five-decimal USD precision
+ok 18 - dashboard formats the realized P&L reconciliation at five-decimal USD precision
+  ---
+  duration_ms: 7.294682
+  type: 'test'
+  ...
+# Subtest: dashboard fills a complete twenty-minute P&L history with one-minute checkpoints
+ok 19 - dashboard fills a complete twenty-minute P&L history with one-minute checkpoints
+  ---
+  duration_ms: 8.486208
+  type: 'test'
+  ...
+# Subtest: dashboard uses adaptive price precision for micro-priced assets
+ok 20 - dashboard uses adaptive price precision for micro-priced assets
+  ---
+  duration_ms: 5.332743
+  type: 'test'
+  ...
+# Subtest: dashboard assets provide a phone-safe layout
+ok 21 - dashboard assets provide a phone-safe layout
+  ---
+  duration_ms: 4.37061
+  type: 'test'
+  ...
+# Subtest: dashboard groups one trade into one card while keeping standalone order filters strict
+ok 22 - dashboard groups one trade into one card while keeping standalone order filters strict
+  ---
+  duration_ms: 5.379402
+  type: 'test'
+  ...
+# Subtest: operations monitor exposes structured cancellation reasons in order cards and timelines
+ok 23 - operations monitor exposes structured cancellation reasons in order cards and timelines
+  ---
+  duration_ms: 0.909631
+  type: 'test'
+  ...
+# Subtest: order cards stay in reverse creation-time order when an older order updates later
+ok 24 - order cards stay in reverse creation-time order when an older order updates later
+  ---
+  duration_ms: 0.605063
+  type: 'test'
+  ...
+# Subtest: dashboard only exposes orders and events from the current UTC session
+ok 25 - dashboard only exposes orders and events from the current UTC session
+  ---
+  duration_ms: 1.99329
+  type: 'test'
+  ...
+# Subtest: hydrated database orders retain their full card details after an engine reboot
+ok 26 - hydrated database orders retain their full card details after an engine reboot
+  ---
+  duration_ms: 0.937483
+  type: 'test'
+  ...
+# Subtest: dashboard server serves the read-only API, health probe, and browser routes
+ok 27 - dashboard server serves the read-only API, health probe, and browser routes
+  ---
+  duration_ms: 72.295483
+  type: 'test'
+  ...
+# Subtest: PostgreSQL migration defines the complete operational record set
+ok 28 - PostgreSQL migration defines the complete operational record set
+  ---
+  duration_ms: 12.160705
+  type: 'test'
+  ...
+# Subtest: model results count each actual entry once and separate evaluation, qualified, and legacy trades
+ok 29 - model results count each actual entry once and separate evaluation, qualified, and legacy trades
+  ---
+  duration_ms: 5.140299
+  type: 'test'
+  ...
+# Subtest: monitor retains the exact model forecast and evaluation mode in persisted order cards
+ok 30 - monitor retains the exact model forecast and evaluation mode in persisted order cards
+  ---
+  duration_ms: 1.379836
+  type: 'test'
+  ...
+# Subtest: main dashboard proxies only its fixed paper URL, preserves other endpoints, and serves spot.js
+ok 31 - main dashboard proxies only its fixed paper URL, preserves other endpoints, and serves spot.js
+  ---
+  duration_ms: 230.98007
+  type: 'test'
+  ...
+# Subtest: spot proxy shares one in-flight request and a bounded cache between dashboard clients
+ok 32 - spot proxy shares one in-flight request and a bounded cache between dashboard clients
+  ---
+  duration_ms: 23.506133
+  type: 'test'
+  ...
+# Subtest: spot proxy preserves paper order transitions, fills, and durable rejection details
+ok 33 - spot proxy preserves paper order transitions, fills, and durable rejection details
+  ---
+  duration_ms: 7.391667
+  type: 'test'
+  ...
+# Subtest: an expired successful cache never hides an upstream failure with stale green telemetry
+ok 34 - an expired successful cache never hides an upstream failure with stale green telemetry
+  ---
+  duration_ms: 38.688818
+  type: 'test'
+  ...
+# Subtest: spot proxy rejects live mode, malformed accounting, order arrays, and non-JSON statuses
+    # Subtest: live mode
+    ok 1 - live mode
+      ---
+      duration_ms: 35.277975
+      type: 'test'
+      ...
+    # Subtest: live enabled
+    ok 2 - live enabled
+      ---
+      duration_ms: 6.916055
+      type: 'test'
+      ...
+    # Subtest: claimed proof
+    ok 3 - claimed proof
+      ---
+      duration_ms: 17.493821
+      type: 'test'
+      ...
+    # Subtest: missing account
+    ok 4 - missing account
+      ---
+      duration_ms: 7.625332
+      type: 'test'
+      ...
+    # Subtest: non-finite cash
+    ok 5 - non-finite cash
+      ---
+      duration_ms: 27.835618
+      type: 'test'
+      ...
+    # Subtest: negative quantity
+    ok 6 - negative quantity
+      ---
+      duration_ms: 7.057819
+      type: 'test'
+      ...
+    # Subtest: invalid timestamp
+    ok 7 - invalid timestamp
+      ---
+      duration_ms: 26.513946
+      type: 'test'
+      ...
+    # Subtest: invalid receipts
+    ok 8 - invalid receipts
+      ---
+      duration_ms: 5.690772
+      type: 'test'
+      ...
+    # Subtest: missing enabled orders
+    ok 9 - missing enabled orders
+      ---
+      duration_ms: 5.971296
+      type: 'test'
+      ...
+    # Subtest: invalid order
+    ok 10 - invalid order
+      ---
+      duration_ms: 5.763639
+      type: 'test'
+      ...
+    # Subtest: null response
+    ok 11 - null response
+      ---
+      duration_ms: 7.527349
+      type: 'test'
+      ...
+    # Subtest: array response
+    ok 12 - array response
+      ---
+      duration_ms: 30.101612
+      type: 'test'
+      ...
+    # Subtest: HTML response
+    ok 13 - HTML response
+      ---
+      duration_ms: 8.78393
+      type: 'test'
+      ...
+    1..13
+ok 35 - spot proxy rejects live mode, malformed accounting, order arrays, and non-JSON statuses
+  ---
+  duration_ms: 197.055929
+  type: 'test'
+  ...
+# Subtest: spot proxy caps both declared and streamed response bodies
+    # Subtest: content length
+    ok 1 - content length
+      ---
+      duration_ms: 20.709635
+      type: 'test'
+      ...
+    # Subtest: chunked stream
+    ok 2 - chunked stream
+      ---
+      duration_ms: 24.963187
+      type: 'test'
+      ...
+    1..2
+ok 36 - spot proxy caps both declared and streamed response bodies
+  ---
+  duration_ms: 46.530141
+  type: 'test'
+  ...
+# Subtest: spot proxy never follows an upstream redirect
+ok 37 - spot proxy never follows an upstream redirect
+  ---
+  duration_ms: 4.958518
+  type: 'test'
+  ...
+# Subtest: spot proxy enforces its deadline through both headers and body streaming
+    # Subtest: headers stall
+    ok 1 - headers stall
+      ---
+      duration_ms: 36.717029
+      type: 'test'
+      ...
+    # Subtest: body stalls
+    ok 2 - body stalls
+      ---
+      duration_ms: 32.652909
+      type: 'test'
+      ...
+    1..2
+ok 38 - spot proxy enforces its deadline through both headers and body streaming
+  ---
+  duration_ms: 70.110823
+  type: 'test'
+  ...
+# Subtest: a cached response cannot claim health with stale or future upstream success time
+    # Subtest: -600001
+    ok 1 - -600001
+      ---
+      duration_ms: 12.823889
+      type: 'test'
+      ...
+    # Subtest: 10000
+    ok 2 - 10000
+      ---
+      duration_ms: 4.411646
+      type: 'test'
+      ...
+    1..2
+ok 39 - a cached response cannot claim health with stale or future upstream success time
+  ---
+  duration_ms: 17.997217
+  type: 'test'
+  ...
+# Subtest: invalid or credential-bearing upstream configuration fails closed without throwing
+ok 40 - invalid or credential-bearing upstream configuration fails closed without throwing
+  ---
+  duration_ms: 1.690889
+  type: 'test'
+  ...
+# Subtest: main dashboard includes the spot module and clearly separates futures capital
+ok 41 - main dashboard includes the spot module and clearly separates futures capital
+  ---
+  duration_ms: 44.2942
+  type: 'test'
+  ...
+# Subtest: spot dashboard shows current account P&L and never imports historical gains
+ok 42 - spot dashboard shows current account P&L and never imports historical gains
+  ---
+  duration_ms: 58.385662
+  type: 'test'
+  ...
+# Subtest: missing marks and metrics remain unknown instead of displaying fabricated zero profit
+ok 43 - missing marks and metrics remain unknown instead of displaying fabricated zero profit
+  ---
+  duration_ms: 3.718567
+  type: 'test'
+  ...
+# Subtest: a failed request retains the last account snapshot but removes order readiness
+ok 44 - a failed request retains the last account snapshot but removes order readiness
+  ---
+  duration_ms: 10.031415
+  type: 'test'
+  ...
+# Subtest: staleness uses server cycle time and monotonic elapsed time despite browser clock changes
+ok 45 - staleness uses server cycle time and monotonic elapsed time despite browser clock changes
+  ---
+  duration_ms: 11.614178
+  type: 'test'
+  ...
+# Subtest: startup failure, malformed status, halted and unexpected execution modes are explicit
+ok 46 - startup failure, malformed status, halted and unexpected execution modes are explicit
+  ---
+  duration_ms: 39.455795
+  type: 'test'
+  ...
+# Subtest: IOC partial fills show booked quantity, canceled remainder and escaped lifecycle details
+ok 47 - IOC partial fills show booked quantity, canceled remainder and escaped lifecycle details
+  ---
+  duration_ms: 5.825114
+  type: 'test'
+  ...
+# Subtest: rejected orders show their reason without fabricating fills or fill prices
+ok 48 - rejected orders show their reason without fabricating fills or fill prices
+  ---
+  duration_ms: 4.5721
+  type: 'test'
+  ...
+# Subtest: entry window observes Thursday UTC boundaries and never announces a guaranteed entry
+ok 49 - entry window observes Thursday UTC boundaries and never announces a guaranteed entry
+  ---
+  duration_ms: 2.14521
+  type: 'test'
+  ...
+# Subtest: entry schedule follows service metadata during the legacy-to-continuous rollout
+ok 50 - entry schedule follows service metadata during the legacy-to-continuous rollout
+  ---
+  duration_ms: 30.190883
+  type: 'test'
+  ...
+# Subtest: continuous entry cadence uses configuration and retains consumed-entry and position limits
+ok 51 - continuous entry cadence uses configuration and retains consumed-entry and position limits
+  ---
+  duration_ms: 6.523222
+  type: 'test'
+  ...
+# Subtest: unrecognized or contradictory schedule metadata does not invent continuous or weekly entry timing
+ok 52 - unrecognized or contradictory schedule metadata does not invent continuous or weekly entry timing
+  ---
+  duration_ms: 3.985885
+  type: 'test'
+  ...
+# Subtest: spot polling runs every five seconds, permits one request at a time, and times out for retry
+ok 53 - spot polling runs every five seconds, permits one request at a time, and times out for retry
+  ---
+  duration_ms: 19.915235
+  type: 'test'
+  ...
+# Subtest: missing enablement and order ledger fields are not reported as disabled or zero submissions
+ok 54 - missing enablement and order ledger fields are not reported as disabled or zero submissions
+  ---
+  duration_ms: 4.255418
+  type: 'test'
+  ...
+# Subtest: spot response reachability is independent of stale recorded evaluations and market checks
+ok 55 - spot response reachability is independent of stale recorded evaluations and market checks
+  ---
+  duration_ms: 4.006984
+  type: 'test'
+  ...
+# Subtest: liveness ages, approximate countdown and header clock tick every second without extra polling
+ok 56 - liveness ages, approximate countdown and header clock tick every second without extra polling
+  ---
+  duration_ms: 17.539634
+  type: 'test'
+  ...
+# Subtest: overdue evaluation estimate never resets on unchanged polls or claims a cycle is running
+ok 57 - overdue evaluation estimate never resets on unchanged polls or claims a cycle is running
+  ---
+  duration_ms: 8.894475
+  type: 'test'
+  ...
+# Subtest: session observations track distinct recorded evaluations and merge later settlement timestamps
+ok 58 - session observations track distinct recorded evaluations and merge later settlement timestamps
+  ---
+  duration_ms: 17.319373
+  type: 'test'
+  ...
+# Subtest: missing and future telemetry stay unknown; zero only means no successful check when explicitly recorded
+ok 59 - missing and future telemetry stay unknown; zero only means no successful check when explicitly recorded
+  ---
+  duration_ms: 10.692811
+  type: 'test'
+  ...
+# Subtest: paper broker liveness counts lifecycle states separately and never reports terminal orders as profitable trades
+ok 60 - paper broker liveness counts lifecycle states separately and never reports terminal orders as profitable trades
+  ---
+  duration_ms: 6.899636
+  type: 'test'
+  ...
+# Subtest: cached upstream timestamps cannot renew liveness, and futures view starts no spot timers
+ok 61 - cached upstream timestamps cannot renew liveness, and futures view starts no spot timers
+  ---
+  duration_ms: 8.482259
+  type: 'test'
+  ...
+# Subtest: filled order cards show evolving LONG position results while sell orders explicitly close LONG
+ok 62 - filled order cards show evolving LONG position results while sell orders explicitly close LONG
+  ---
+  duration_ms: 10.762135
+  type: 'test'
+  ...
+# Subtest: position history failures, mismatched sources and missing marks do not fabricate closure or profit
+ok 63 - position history failures, mismatched sources and missing marks do not fabricate closure or profit
+  ---
+  duration_ms: 14.710953
+  type: 'test'
+  ...
+# Subtest: older activity pages URL-encode cursors, merge by event ID, and survive current snapshot refreshes
+ok 64 - older activity pages URL-encode cursors, merge by event ID, and survive current snapshot refreshes
+  ---
+  duration_ms: 20.483686
+  type: 'test'
+  ...
+# Subtest: unfilled entry orders and loading position history are distinguished from missing history
+ok 65 - unfilled entry orders and loading position history are distinguished from missing history
+  ---
+  duration_ms: 7.40628
+  type: 'test'
+  ...
+# Subtest: pagination times out for retry and ignores results after the episode becomes unavailable
+ok 66 - pagination times out for retry and ignores results after the episode becomes unavailable
+  ---
+  duration_ms: 14.707401
+  type: 'test'
+  ...
+# Subtest: position duration and recorded mark age tick without creating records; closed duration stays fixed
+ok 67 - position duration and recorded mark age tick without creating records; closed duration stays fixed
+  ---
+  duration_ms: 6.07844
+  type: 'test'
+  ...
+# Subtest: a held long shows real holding evaluations and evolving marks with fee-inclusive P&L
+ok 68 - a held long shows real holding evaluations and evolving marks with fee-inclusive P&L
+  ---
+  duration_ms: 30.830713
+  type: 'test'
+  ...
+# Subtest: partial exits allocate acquisition fees and remaining basis and keep sell cards long
+ok 69 - partial exits allocate acquisition fees and remaining basis and keep sell cards long
+  ---
+  duration_ms: 6.379299
+  type: 'test'
+  ...
+# Subtest: closed episodes preserve their own realized results when a later long position opens
+ok 70 - closed episodes preserve their own realized results when a later long position opens
+  ---
+  duration_ms: 3.811806
+  type: 'test'
+  ...
+# Subtest: unchanged-price completed trades show both entry and exit fees as a realized loss
+ok 71 - unchanged-price completed trades show both entry and exit fees as a realized loss
+  ---
+  duration_ms: 1.715248
+  type: 'test'
+  ...
+# Subtest: stale, future or missing current books give unknown open valuation instead of reusing an older mark
+ok 72 - stale, future or missing current books give unknown open valuation instead of reusing an older mark
+  ---
+  duration_ms: 1.473873
+  type: 'test'
+  ...
+# Subtest: a recorded invalid valuation remains unknown even when the compact cycle contains a fresh positive bid
+ok 73 - a recorded invalid valuation remains unknown even when the compact cycle contains a fresh positive bid
+  ---
+  duration_ms: 1.755325
+  type: 'test'
+  ...
+# Subtest: lifecycle and committed phases deduplicate by stable identity and projection never changes input
+ok 74 - lifecycle and committed phases deduplicate by stable identity and projection never changes input
+  ---
+  duration_ms: 1.992184
+  type: 'test'
+  ...
+# Subtest: pending and unfilled rejected reductions link to the held long episode without inventing fills
+ok 75 - pending and unfilled rejected reductions link to the held long episode without inventing fills
+  ---
+  duration_ms: 2.284974
+  type: 'test'
+  ...
+# Subtest: unfilled buys have no position episode and invalid account or cycle evidence fails closed
+ok 76 - unfilled buys have no position episode and invalid account or cycle evidence fails closed
+  ---
+  duration_ms: 1.923311
+  type: 'test'
+  ...
+# Subtest: compact committed account totals retain the same activity as complete cycle states
+ok 77 - compact committed account totals retain the same activity as complete cycle states
+  ---
+  duration_ms: 1.960453
+  type: 'test'
+  ...
+1..77
+# tests 96
+# suites 0
+# pass 96
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 10511.624583

@@ -1,0 +1,58 @@
+{
+  "checkedAt": "2026-09-10T15:55:34.708401+00:00",
+  "containers": [
+    {
+      "name": "/crypto-trade-engine",
+      "image": "sha256:8f70e03fc0bd16222b2ab993fbcb49f335e8c0d103acb436ff824b8e9697216f",
+      "startedAt": "2026-09-10T06:30:27.45205105Z",
+      "health": "healthy",
+      "volumes": [
+        "crypto_trade_event_data"
+      ],
+      "networks": [
+        "crypto-trade_default"
+      ]
+    },
+    {
+      "name": "/crypto-spot-trend-paper",
+      "image": "sha256:6b8b607debf4afa5054d1bac78cdd9086a8354b85494db73ab8b03864e43b8fe",
+      "startedAt": "2026-09-10T06:20:45.441977439Z",
+      "health": "healthy",
+      "volumes": [
+        "crypto_trade_spot_trend_research"
+      ],
+      "networks": [
+        "crypto-spot-paper_default",
+        "crypto-trade_default"
+      ]
+    }
+  ],
+  "futures": {
+    "cashEquity": 99998.28269740003,
+    "orders": 382,
+    "ordersSha256": "12966f0db5a38f98315561dde992cfb875ed5c37aee19f6593c2043615a1338e",
+    "activities": 382,
+    "activitiesSha256": "85fd8db91debfc9b6a9bd1f04400288b61383b5e80902f215e290cef0ef2173f",
+    "positionsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "spot": {
+    "account": {
+      "initialCashUsd": 100000,
+      "cashUsd": 100000,
+      "quantity": 0,
+      "entryCostUsd": 0,
+      "realizedNetUsd": 0,
+      "feesUsd": 0,
+      "receipts": []
+    },
+    "accountSha256": "e7d57e0c0296175813a5097f7cb9eb9de5cc5077ea50379f5b7140a6edf5b723",
+    "ordersSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "runtimeSha256": "7f98cc50ef5158dc075f6a172eeb4343cbce286c5a676debe2a17335dcc229da",
+    "startedAtMs": 1789019349083,
+    "cycles": 123,
+    "migrationEvidence": {
+      "file": "migrations/343a24cefa2879f957583cb7ee7f7ddbdd7daa54afc71b4918f007212beae7a1.json",
+      "sha256": "4cedc642840cd35347c3df96dcc9880be0b1ec02fca25331a6414d94790f30f0"
+    }
+  }
+}

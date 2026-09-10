@@ -1,37 +1,102 @@
 # Multi-venue minimal-latency crypto engine
 
-A TypeScript BTC/ETH research and paper-trading engine using Kraken Futures order books and trades. The replacement strategy learns conditional distributions of executable net returns, compares six long/short actions with staying flat, and measures its selected shadow trades before permitting capped paper orders. Risk, order lifecycle, telemetry, and local paper accounts remain shared.
+A TypeScript BTC/ETH research and paper-trading workspace. BTC spot and the frozen ETH40 forward observation run independently. The distribution model is disabled, including its training and paper-entry permissions. The Futures dashboard shows market feeds, account balances and recorded orders; its distribution-model panels have been removed. Historical model code, checkpoints and account records are retained for offline research.
 
-Recent BTC/ETH price history is checkpointed every five seconds and before
-shutdown. A deployment with complete recent history needs about thirty seconds
+A new, separate [BTC spot trend system](docs/SPOT_TREND_SYSTEM.md) uses cash-funded
+weekly positions instead of short-horizon perpetual forecasts. Its frozen
+January 2017–September 2026 test generated 11 completed episodes and net gains
+of $1,175.60 base / $1,228.51 with higher costs and delay. That is about 1.18% /
+1.23% of the $100,000 simulated account over the full interval, with a $100
+initial entry budget. Buy-and-hold earned more; the uncertainty bound remains
+negative. It qualifies for a separate research paper trial, **not validated
+profitable trading**. The service submits durable local paper IOC orders through
+a cash-and-inventory broker and uses its own ledger. The main dashboard on port
+3001 opens the BTC spot view with orders, balances, net P&L, and entry blockers.
+The ETH40 paper tab includes forward results and liveness on the same port.
+Futures monitoring retains market and account information without model panels;
+the spot status endpoint remains on port 3002. Real exchange order
+submission is disabled. [Full results and independent audit](reports/new-spot-system-2026-09-10/historical-study/report.md).
+
+The retained configuration `btc-eth-risk-bounded-sizing-v14.0.0` replaced the distributional
+paper engine's $12 limit with a **$1,000 ceiling and 1% of current equity**.
+Modeled loss, book participation, lot sizes and portfolio limits further reduce
+each order. Size-dependent training uses a separate checkpoint; the original
+$12 outcomes are preserved and cannot qualify the new sizes. The size-aware
+history replay reconstructs matching outcomes from recorded books and trades;
+startup verifies their sizing, feature and execution-code provenance before import.
+[Sizing mathematics and migration](docs/PAPER_POSITION_SIZING.md).
+
+The history repair was deployed on September 10 at 00:04 UTC. Startup imported
+5,763 historical outcomes and retained 6,148 outcomes across six dates, including
+newer paper samples. Account continuity and runtime health passed verification.
+At that deployment, BTC and ETH decisions had sufficient training support but negative
+economic scores; the distribution model has since been disabled. **The profit problem is not
+solved.** [Deployment evidence](reports/profit-engine-rebuild-2026-09-09/deployment-2026-09-10/report.md).
+
+The earlier [profit-engine rebuild](docs/PROFIT_ENGINE_REBUILD.md) adds a daily
+price-channel strategy with fixed signal stops and protection against chasing
+late price moves. Its price-protected variant is positive after fees and funding
+in all four declared historical cost/delay cases: **$84.19 / $98.24 in 2024** and
+**$138.32 / $31.70 in 2025 H1**. Its statistical lower bound remains negative, so
+it is **not activated or validated profitable**. The single reserved 2026 test
+also did not qualify: missing funding halted new entries and left full net
+profit unknown. Independent verification and all failed candidates are retained.
+The existing paper engine's
+historical-training compatibility gap is repaired separately; profitability
+and account risk gates remain in force.
+
+The separate [systematic rebuild](docs/SYSTEMATIC_REBUILD.md) now includes
+completed-hour trend signals, volatility-based risk, side-specific executable
+depth, delayed IOC execution, cash-aware exits and a frozen profitability study.
+Its first candidate **failed**: baseline net was -$1,021.72 in 2024 and -$803.78
+in January–June 2025, after fees and archived funding assumptions. More entries
+did not produce an edge. It remains disabled, as does the distributional
+strategy. The retained v14 risk limits are unchanged. [All baseline/stress results and limits](reports/systematic-rebuild-2026-09-09/economic-screen/report.md).
+
+The [profit rebuild](docs/PROFIT_REBUILD.md) adds causal weekly forecasts,
+uncertainty-aware allocation and complete paper funding accounting. Both weekly
+candidates also failed: the confidence rule produced no trades; the separate
+mean-variance rule lost **$273.52 in 2024 and $261.97 in January–June 2025** under
+base fees and funding assumptions. All eight cost/funding runs were negative.
+These strategies remain research-only. [Frozen results](reports/profit-rebuild-2026-09-09/economic-screen-v2/report.md).
+The paper broker now records signed funding cash atomically with durable state;
+rolling/session net values include those postings, while missing funding is
+unknown and trade-level price P&L is labeled separately. No profitable strategy
+has been established.
+
+When explicitly enabled for research, the distribution model checkpoints
+recent BTC/ETH price history every five seconds and before shutdown. A deployment with complete recent history needs about thirty seconds
 of fresh live flow before evaluation, instead of thirty minutes of price warmup.
 `DISTRIBUTIONAL_HISTORY_FILE` selects the compact history file; an observed gap
 over ninety seconds requires normal warmup. For the initial deployment,
 `npm run research:distribution:warmup -- --out=FILE RECORDING...` prepares it from
 frozen raw recordings. [History preparation and startup details](docs/DISTRIBUTIONAL_REBUILD.md#historical-market-warmup).
 
-Training also accepts completed historical Kraken Futures books and trades.
+Both legacy fixed-size and explicitly selected risk-bounded training modes accept recorded Kraken Futures books and trades.
 `npm run research:distribution:train -- --state-out=FILE RECORDING...` prepares
 an immutable training artifact; `DISTRIBUTIONAL_TRAINING_FILE` imports it before
 startup, merging complete historical outcomes with existing training. Historical
 dates count toward training coverage. Replay does not count as live prospective
-validation. [Training backfill details](docs/DISTRIBUTIONAL_REBUILD.md#historical-training-backfill).
+validation. Use `--sizing-mode=RISK_BOUNDED --reference-equity=100000 --reference-high-water=100000`
+to reconstruct the current policy's labels; old-size labels are never relabeled.
+[Training backfill details](docs/DISTRIBUTIONAL_REBUILD.md#historical-training-backfill).
 
 The paper trial can enable `DISTRIBUTIONAL_EFFICIENT_TRAINING_ENABLED=true`
 alongside `DISTRIBUTIONAL_PAPER_TRIAL_ENABLED=true`. It collects paired 5-, 15-,
 and 30-minute actions every 6, 16, and 31 minutes and learns each action as soon
 as all execution scenarios finish. Entry checks remain on fresh quotes at most
-once per second. Existing historical labels are retained; sample, score, cost,
+once per second. Existing labels with matching sizing provenance are retained; sample, score, cost,
 and execution gates still apply. This improves collection efficiency but has
 not established profitable trading. [Deployment and rollback details](docs/DISTRIBUTIONAL_REBUILD.md#independent-horizon-paper-training).
 
 It does **not** promise profit or zero latency. The checked-in `.env.example` selects the Kraken Futures adapter and starts in shadow mode; `npm run paper` enables its local paper broker. Kraken market data is production public data, while orders, fills, balances, and positions remain strictly local. Kraken live order routing is intentionally unavailable.
 
-## Rebuilt default strategy layer
+## Archived distribution strategy
 
-Configuration `btc-eth-distributional-v11.0.0` enables the replacement in Compose
-and `.env.example` through `DISTRIBUTIONAL_ENGINE_ENABLED=true`. It owns all new
-entries and cannot fall back to the earlier Bayesian or rule entry engines.
+Configuration `btc-eth-distributional-v11.0.0` originally introduced the replacement
+through `DISTRIBUTIONAL_ENGINE_ENABLED=true`. The deployment, Compose defaults
+and `.env.example` now disable both distribution and policy engines.
+`MODEL_ONLY_ENTRIES=true` also blocks legacy fallback entries.
 Direct config loading leaves this flag off for explicit legacy compatibility.
 `DISTRIBUTIONAL_PAPER_ENTRIES_ENABLED=true` permits orders only after supported
 training and prospective selected-trade validation, fresh quotes, exact sizing,
