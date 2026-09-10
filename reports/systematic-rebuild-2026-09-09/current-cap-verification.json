@@ -1,0 +1,38 @@
+{
+  "verifiedAtUtc": "2026-09-09T17:31:33.868000+00:00",
+  "configurationVersion": "btc-eth-risk-bounded-sizing-v14.0.0",
+  "mode": "paper",
+  "equityUsd": 99998.28269740003,
+  "entriesAllowed": true,
+  "openPositions": 0,
+  "dashboardOrders": 0,
+  "markets": [
+    {
+      "symbol": "BTC/USD",
+      "maximumNotional": 1000,
+      "maximumEquityFraction": 0.01,
+      "sizing": {
+        "qty": 0.0002,
+        "maximumNotional": 999.9828269740003,
+        "minimumOrderNotional": 7.8811,
+        "reason": "RISK_BOUNDED_SIZE_READY",
+        "bindingLimit": "liquidity"
+      },
+      "decisionReason": "INSUFFICIENT_DAYS"
+    },
+    {
+      "symbol": "ETH/USD",
+      "maximumNotional": 1000,
+      "maximumEquityFraction": 0.01,
+      "sizing": {
+        "qty": 0.002,
+        "maximumNotional": 999.9828269740003,
+        "minimumOrderNotional": 2.495,
+        "reason": "RISK_BOUNDED_SIZE_READY",
+        "bindingLimit": "liquidity"
+      },
+      "decisionReason": "INSUFFICIENT_DAYS"
+    }
+  ],
+  "systematicCandidateActivated": false
+}

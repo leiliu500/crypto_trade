@@ -1,0 +1,39 @@
+{
+  "passed": true,
+  "syntheticOnly": true,
+  "moduleSha256": "9a79e104ffdb1350755f0c67a35b7da65a002bd44d179d359dca6b99798bbcc4",
+  "variants": [
+    {
+      "id": "balanced",
+      "passed": true,
+      "syntheticEntries": 19,
+      "syntheticExits": 18,
+      "prefixChecks": 5,
+      "flatSeriesProducesNoFalseSignals": true
+    },
+    {
+      "id": "fast",
+      "passed": true,
+      "syntheticEntries": 19,
+      "syntheticExits": 18,
+      "prefixChecks": 5,
+      "flatSeriesProducesNoFalseSignals": true
+    },
+    {
+      "id": "patient",
+      "passed": true,
+      "syntheticEntries": 10,
+      "syntheticExits": 9,
+      "prefixChecks": 5,
+      "flatSeriesProducesNoFalseSignals": true
+    },
+    {
+      "id": "rising_trend",
+      "passed": true,
+      "syntheticEntries": 16,
+      "syntheticExits": 15,
+      "prefixChecks": 5,
+      "flatSeriesProducesNoFalseSignals": true
+    }
+  ]
+}

@@ -1,0 +1,1541 @@
+{
+  "version": "btc-eth-weekly-gross-forecast-inventory-v1",
+  "policy": "weekly-forecast",
+  "benchmarkOnly": false,
+  "scenario": "stress",
+  "fundingAssumption": "source-plus-hour",
+  "startMs": 1735689600000,
+  "endMs": 1751328000000,
+  "evidenceKind": "HOURLY_CANDLE_PROXY",
+  "accountingKnown": true,
+  "fundingTimestampVerified": false,
+  "synthetic": false,
+  "completedTrades": 0,
+  "orderCount": 0,
+  "grossPnlUsd": 0,
+  "feeUsd": 0,
+  "fundingCashUsd": 0,
+  "knownFundingCashUsd": 0,
+  "netPnlUsd": 0,
+  "markedNetPnlUsd": 0,
+  "netReturnOnInitialEquity": 0,
+  "maxDrawdownUsd": 0,
+  "knownMarkedMaxDrawdownProxyUsd": 0,
+  "maxDrawdownFraction": 0,
+  "maximumEntryNotionalUsd": 0,
+  "maximumMarkedNotionalUsd": 0,
+  "maximumRiskBudgetUsd": 0,
+  "riskBreachCount": 0,
+  "riskHaltReasons": [],
+  "fundingRequiredHours": 0,
+  "fundingObservedHours": 0,
+  "missingFundingHours": 0,
+  "zeroVolumeHeldHours": 0,
+  "weeklyDecisions": 26,
+  "turnoverUsd": 0,
+  "exposureNotionalHours": 0,
+  "hurdleBps": 45,
+  "trades": [],
+  "orders": [],
+  "perAsset": [
+    {
+      "symbol": "BTC/USD",
+      "grossPnlUsd": 0,
+      "feeUsd": 0,
+      "knownFundingCashUsd": 0,
+      "fundingCashUsd": 0,
+      "netPnlUsd": 0,
+      "turnoverUsd": 0,
+      "completedTrades": 0,
+      "orders": 0,
+      "exposureNotionalHours": 0,
+      "fundingRequiredHours": 0,
+      "missingFundingHours": 0
+    },
+    {
+      "symbol": "ETH/USD",
+      "grossPnlUsd": 0,
+      "feeUsd": 0,
+      "knownFundingCashUsd": 0,
+      "fundingCashUsd": 0,
+      "netPnlUsd": 0,
+      "turnoverUsd": 0,
+      "completedTrades": 0,
+      "orders": 0,
+      "exposureNotionalHours": 0,
+      "fundingRequiredHours": 0,
+      "missingFundingHours": 0
+    }
+  ],
+  "dailyNetPnlUsd": [
+    {
+      "date": "2025-01-01",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-01-02",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-01-03",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-01-04",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-01-05",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-01-06",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-01-07",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-01-08",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-01-09",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-01-10",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-01-11",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-01-12",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-01-13",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-01-14",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-01-15",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-01-16",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-01-17",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-01-18",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-01-19",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-01-20",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-01-21",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-01-22",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-01-23",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-01-24",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-01-25",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-01-26",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-01-27",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-01-28",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-01-29",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-01-30",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-01-31",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-02-01",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-02-02",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-02-03",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-02-04",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-02-05",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-02-06",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-02-07",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-02-08",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-02-09",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-02-10",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-02-11",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-02-12",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-02-13",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-02-14",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-02-15",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-02-16",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-02-17",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-02-18",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-02-19",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-02-20",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-02-21",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-02-22",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-02-23",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-02-24",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-02-25",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-02-26",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-02-27",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-02-28",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-03-01",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-03-02",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-03-03",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-03-04",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-03-05",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-03-06",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-03-07",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-03-08",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-03-09",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-03-10",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-03-11",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-03-12",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-03-13",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-03-14",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-03-15",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-03-16",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-03-17",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-03-18",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-03-19",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-03-20",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-03-21",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-03-22",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-03-23",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-03-24",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-03-25",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-03-26",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-03-27",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-03-28",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-03-29",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-03-30",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-03-31",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-04-01",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-04-02",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-04-03",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-04-04",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-04-05",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-04-06",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-04-07",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-04-08",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-04-09",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-04-10",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-04-11",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-04-12",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-04-13",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-04-14",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-04-15",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-04-16",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-04-17",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-04-18",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-04-19",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-04-20",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-04-21",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-04-22",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-04-23",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-04-24",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-04-25",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-04-26",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-04-27",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-04-28",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-04-29",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-04-30",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-05-01",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-05-02",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-05-03",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-05-04",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-05-05",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-05-06",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-05-07",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-05-08",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-05-09",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-05-10",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-05-11",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-05-12",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-05-13",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-05-14",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-05-15",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-05-16",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-05-17",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-05-18",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-05-19",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-05-20",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-05-21",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-05-22",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-05-23",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-05-24",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-05-25",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-05-26",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-05-27",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-05-28",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-05-29",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-05-30",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-05-31",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-06-01",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-06-02",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-06-03",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-06-04",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-06-05",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-06-06",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-06-07",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-06-08",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-06-09",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-06-10",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-06-11",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-06-12",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-06-13",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-06-14",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-06-15",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-06-16",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-06-17",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-06-18",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-06-19",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-06-20",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-06-21",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-06-22",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-06-23",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-06-24",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-06-25",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-06-26",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-06-27",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-06-28",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-06-29",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2025-06-30",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    }
+  ],
+  "blockReasons": {
+    "NO_POSITIVE_CONSERVATIVE_NET_MEAN": 52
+  },
+  "unresolvedPosition": null,
+  "flatBenchmark": {
+    "completedTrades": 0,
+    "netPnlUsd": 0,
+    "maxDrawdownUsd": 0
+  },
+  "limitations": [
+    "Hourly candles do not establish executable depth, latency, spread, partial fills or impact; this is not executable-profit evidence.",
+    "Positive full-hour volume is used only as a fill-availability proxy; future candle volume never permits fallback to a second symbol at the same open.",
+    "Within-hour chronology is synthetic. Favorable-before-adverse marks retain peak-to-trough drawdown; stops receive an extra adverse execution allowance.",
+    "Funding uses archived absolute USD-per-unit rates prorated over synthetic holding intervals. FundingRow timestamps are normalized interval ends; source-plus-hour assigns [end-1h,end), while source-as-end shifts that interval one hour earlier. Actual settlement timing is unverified.",
+    "Missing held funding makes total funded P&L and drawdown unknown and permanently blocks later entries in that run.",
+    "Current lots, ticks and fixed fee assumptions do not establish historical contract specifications or account fee tiers.",
+    "Sizing reserves current rolling-loss, UTC-session-loss and drawdown dollar headroom. The notional cap is enforced at entry and hourly trims; intrabar price moves and zero-volume hours can exceed it before an executable reduction.",
+    "Depth is unavailable. Quantities are optimistic liquidity-feasible ceilings, with no claim of live depth participation parity.",
+    "Weekly forecast confidence bounds concern parameter uncertainty of a conditional mean; they are not predictive intervals or profit guarantees.",
+    "Flat orders are requested 48 hours before each window ends. Unfilled inventory is reported unresolved, never silently assigned a closing fill."
+  ]
+}

@@ -1,5 +1,7 @@
 import type { RecordedEvent } from "../backtest/replay.js";
 import { LocalOrderBook } from "../core/order-book.js";
+import type { BookFlow, BookState, MarketTrade } from "../core/market.js";
+import type { DistributionSizingContext } from "./sizing.js";
 import type { AssetRules } from "../execution/planner.js";
 import { DistributionController, type SelectedPolicyOutcome } from "./controller.js";
 import { DISTRIBUTION_ACTIONS, DISTRIBUTION_SCENARIOS, DISTRIBUTION_SPEC,
@@ -9,6 +11,13 @@ export interface DistributionReplayOptions {
   validationStartMs: number;
   laterStartMs: number;
   includeOutcomes?: boolean;
+  independentTrainingActions?: boolean;
+  /** Optional causal sizing-feature path. Existing fixed-size replays do not
+   * invoke it. Trade observations must advance the same feature clocks as live. */
+  sizingContext?: {
+    onBook(book: BookState, flow: BookFlow): DistributionSizingContext | null;
+    onTrade(trade: MarketTrade, currentBook: BookState | undefined): void;
+  };
 }
 export type DistributionReplayController = Pick<DistributionController, "onBook" | "onTrade" | "invalidate" | "stats">
   & Partial<Pick<DistributionController, "drainSelections">>;
@@ -77,7 +86,11 @@ export async function replayDistribution(events: AsyncIterable<RecordedEvent> | 
     }
     const symbol = event.kind === "BOOK" ? event.delta.symbol : event.trade.symbol;
     if (!assets[symbol] || !costs[symbol]) continue;
-    if (event.kind === "TRADE") { quality.trades++; controller.onTrade(event.trade); continue; }
+    if (event.kind === "TRADE") {
+      quality.trades++; controller.onTrade(event.trade);
+      options.sizingContext?.onTrade(event.trade, books.get(symbol)?.snapshot());
+      continue;
+    }
     quality.books++;
     if (!Number.isFinite(event.delta.exchangeTsMs)) {
       quality.invalidTimestamps++; invalidate(now, "INVALID_EXCHANGE_TIMESTAMP"); continue;
@@ -104,7 +117,10 @@ export async function replayDistribution(events: AsyncIterable<RecordedEvent> | 
     symbolQuality.quoteGaps += Number(quoteGapMs > DISTRIBUTION_SPEC.maximumQuoteGapMs);
     symbolQuality.maximumQuoteGapMs = Math.max(symbolQuality.maximumQuoteGapMs, quoteGapMs);
     symbolQuality.lastMs = now; quality.symbols[symbol] = symbolQuality;
-    const result = controller.onBook(update.state);
+    const sizingContext = options.sizingContext?.onBook(update.state, update.flow);
+    if (options.sizingContext && sizingContext === null) continue;
+    const result = options.sizingContext ? controller.onBook(update.state, assets[symbol], sizingContext ?? undefined)
+      : controller.onBook(update.state);
     acceptSamples(result.samples);
     acceptSelections(result.selections ?? []);
     if (result.trainingDecision) {
@@ -132,8 +148,10 @@ export async function replayDistribution(events: AsyncIterable<RecordedEvent> | 
       "Rebuilt recorded level-2 snapshots/deltas and trades; no quote-only depth substitutes or event downsampling",
       "Recorded engine-emission order is preserved: Kraken batches books across symbols so original receipt timestamps can interleave backwards; true per-symbol/per-stream reversals invalidate",
       "The same causal controller learns only completed preceding paths and freezes each decision before future observations",
-      "Inference runs on fresh books at most once per second per symbol; six-action training panels retain their independent 31-minute nonoverlap schedule",
-      "All six actions and three execution stresses share each training opportunity; common action comparisons exclude an entire training panel if any path is invalid or missing",
+      options.independentTrainingActions ? "Independent actions use their unchanged horizon-specific nonoverlap clocks; every action requires three complete execution scenarios"
+        : "Inference runs on fresh books at most once per second per symbol; six-action training panels retain their independent 31-minute nonoverlap schedule",
+      options.independentTrainingActions ? "Full-panel matched comparisons are inapplicable to independent-action training; raw action completion counts do not establish profitability"
+        : "All six actions and three execution stresses share each training opportunity; common action comparisons exclude an entire training panel if any path is invalid or missing",
       "Selected policy outcomes run independently of training panels and never supply training labels; their shared portfolio slot lasts until all three execution scenarios finish",
       "Training panels crossing the later-period boundary are purged jointly; selected decisions are purged only when their own selected path crosses that boundary",
       "Selected invalid/missing outcomes are reported separately and never replaced by zero; actual nonfills and flat decisions earn zero",
@@ -141,7 +159,7 @@ export async function replayDistribution(events: AsyncIterable<RecordedEvent> | 
       "Configured paper fees, current supplied instrument rules and execution/funding reserve; no observed funding cash flows or exchange-sequence guarantee",
       "Selected actions share the controller's global research slot; outcomes remain simulated and do not include actual account capital constraints or live fills",
       "Selected mean includes zero for flat inference decisions; selected-action mean uses selected decisions only, and neither is account P&L or an annualized return",
-      "Selected-action returns include prospective research selections; paper-eligible counts require the controller's separate completed selected-policy validation and still precede live risk/liquidity permissions",
+      "Selected-action returns include research selections; paper eligibility follows the explicitly configured controller profile and still precedes live risk/liquidity permissions",
       "Default replay keeps running aggregates and at most two pending training panels plus one selected policy; full per-inference decisions require explicit includeOutcomes",
       "Recorded data was already available during design; the later chronological period is not an untouched holdout",
       "No trading orders or model installation are performed; zero selected fills do not establish profit",
@@ -181,8 +199,11 @@ class StreamingDistributionAssessment {
   private purged = 0;
   private maximumPendingTrainingPanels = 0;
   private maximumPendingSelections = 0;
+  private readonly independentOrigins = new Set<string>();
+  private independentCompleteActions = 0;
+  private independentInvalidActions = 0;
 
-  public constructor(private readonly options: Pick<DistributionReplayOptions, "validationStartMs" | "laterStartMs">) {
+  public constructor(private readonly options: Pick<DistributionReplayOptions, "validationStartMs" | "laterStartMs" | "independentTrainingActions">) {
     for (const period of ["VALIDATION", "LATER"] as const) for (const symbol of DISTRIBUTION_SPEC.symbols) {
       for (const scenario of DISTRIBUTION_SCENARIOS) {
         this.selected.push({ period, symbol, scenario: scenario.id, originalOpportunities: 0, boundaryPurged: 0,
@@ -195,12 +216,29 @@ class StreamingDistributionAssessment {
     }
   }
   public observeTrainingDecision(decision: DistributionDecision): void {
+    if (this.options.independentTrainingActions) {
+      const key = `${decision.symbol}:${decision.atMs}`;
+      if (this.independentOrigins.has(key)) throw new Error("REPLAY_DUPLICATE_INDEPENDENT_ORIGIN");
+      this.independentOrigins.add(key); this.opportunities++; return;
+    }
     if (this.training.has(decision.symbol)) throw new Error("REPLAY_OVERLAPPING_TRAINING_PANEL");
     this.opportunities++;
     this.training.set(decision.symbol, { symbol: decision.symbol, atMs: decision.atMs });
     this.maximumPendingTrainingPanels = Math.max(this.maximumPendingTrainingPanels, this.training.size);
   }
   public observeTrainingSamples(samples: readonly DistributionSample[]): void {
+    if (this.options.independentTrainingActions) {
+      for (const sample of samples) {
+        if (!this.independentOrigins.has(`${sample.symbol}:${sample.signalAtMs}`)) throw new Error("REPLAY_ACTION_WITHOUT_ORIGIN");
+        const complete = sample.outcomes.length === DISTRIBUTION_SCENARIOS.length
+          && DISTRIBUTION_SCENARIOS.every(s => sample.outcomes.filter(o => o.scenario === s.id).length === 1)
+          && sample.outcomes.every(o => o.status !== "INVALID" && Number.isFinite(o.netBps));
+        if (complete) this.independentCompleteActions++; else this.independentInvalidActions++;
+        for (const outcome of sample.outcomes) if (outcome.status === "INVALID")
+          this.sampleInvalidReasons[outcome.reason] = (this.sampleInvalidReasons[outcome.reason] ?? 0) + 1;
+      }
+      return;
+    }
     const panels = new Map<string, DistributionSample[]>();
     for (const sample of samples) {
       const key = `${sample.symbol}|${sample.signalAtMs}`, group = panels.get(key) ?? [];
@@ -289,6 +327,8 @@ class StreamingDistributionAssessment {
     for (const pending of this.training.values()) this.completeTraining(pending, []);
     if (this.selection) { this.missingSelectedOutcomes++; this.completeSelection(this.selection, null); }
     return { opportunities: this.opportunities, trainingOpportunities: this.opportunities,
+      ...(this.options.independentTrainingActions ? { fullPanelComparisonsApplicable: false,
+        independentCompleteActions: this.independentCompleteActions, independentInvalidActions: this.independentInvalidActions } : {}),
       inferenceDecisions: this.inferenceDecisions, selectedDecisions: this.selectedDecisions,
       selectedOutcomes: this.selectedOutcomes, missingSelectedOutcomes: this.missingSelectedOutcomes,
       completeCommonOpportunities: this.complete, incompleteOrInvalidOpportunities: this.incomplete,

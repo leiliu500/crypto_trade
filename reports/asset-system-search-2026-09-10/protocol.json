@@ -1,0 +1,99 @@
+{
+  "version": "btc-eth-separate-system-comparison-v1",
+  "registeredAt": "2026-09-10T21:38:23.847901+00:00",
+  "researchOnly": true,
+  "productionChangesAllowed": false,
+  "futureProfitGuaranteed": false,
+  "historicalDataPreviouslyReused": true,
+  "scope": "BTC/USD and ETH/USD cash-funded long-or-cash systems; 8 predeclared candidate applications, not 8 original mathematical inventions or a 10000-system search.",
+  "periods": {
+    "development": [
+      "2025-01-01",
+      "2025-07-01"
+    ],
+    "later_2025": [
+      "2025-07-01",
+      "2026-01-01"
+    ],
+    "recent_2026": [
+      "2026-01-01",
+      "2026-09-10"
+    ],
+    "continuous": [
+      "2025-01-01",
+      "2026-09-10"
+    ]
+  },
+  "selection": "One new candidate per asset selected solely on 2025H1 maximum worst-scenario(net minus 0.5 daily-close drawdown), lexical ties. Lock before this run evaluates later periods. All later candidates retained for audit, no reselection.",
+  "account": {
+    "initialCashUsd": 10000,
+    "entryCapUsd": 1000,
+    "entryCashFraction": 0.1,
+    "pastCompletedDayVolumeParticipation": 0.001,
+    "fullyFunded": true,
+    "shorts": false,
+    "leverage": false,
+    "additions": false,
+    "idleCashYield": 0
+  },
+  "scenarios": {
+    "base": {
+      "feeBps": 80,
+      "slippageBps": 3,
+      "signalToOpenBars": 2
+    },
+    "cost": {
+      "feeBps": 100,
+      "slippageBps": 10,
+      "signalToOpenBars": 2
+    },
+    "delay": {
+      "feeBps": 80,
+      "slippageBps": 3,
+      "signalToOpenBars": 3
+    },
+    "combined": {
+      "feeBps": 100,
+      "slippageBps": 10,
+      "signalToOpenBars": 3
+    }
+  },
+  "execution": "Signal from completed daily i, finalized close+60s, fills at open i+2 or i+3. Buy cap uses latest finalized daily volume i-2 at execution i, including delay scenario. Adverse side-aware tick rounding; historical lot/minimum assumptions. Full OHLC fills and exits are screening proxies, not verified executable liquidity. Terminal sale pays all specified costs and never counts as a natural completed episode.",
+  "controls": {
+    "cash": "$10000 zero yield",
+    "buyHold": "Each asset, same lag/start/fee-inclusive entry budget; retains idle cash",
+    "eth40": "Prior fixedSMA40 hysteresis/warmup90 same daily protocol",
+    "btcWeeklySignal": "Native 40-week SMA hysteresis1.0166, current-native-week-open availability cutoff evaluated at daily-close+60s, then same daily lag/entrybudget. Normalized signal control, not exact minute-execution/sizing/mark-cap parity with current $100000 BTC paper service."
+  },
+  "qualification": {
+    "positiveNetAllDevelopmentAndLaterPeriodsAllScenarios": true,
+    "naturalCompletedEpisodesCombinedLaterPeriodsMinimumEachScenario": 10,
+    "naturalEpisodeEachLaterPeriodEachScenario": true,
+    "maximumLaterIntradayLowDrawdownUsd": 500,
+    "positiveDescriptiveAdjustedExcessBoundsVsCashBuyHoldAndCurrentControl": true,
+    "actualProfitValidationRequiresFreshForwardData": true
+  },
+  "bootstrap": {
+    "replicates": 5000,
+    "blockDays": 14,
+    "seed": 20260910,
+    "oneSidedNominalAlpha": 0.05,
+    "currentCandidateTrialCount": 8,
+    "interpretation": "Descriptive paired bootstrap only. Known history reuse, unknown prior candidate search count and few episodes prevent confirmatory significance claims."
+  },
+  "costSource": {
+    "url": "https://www.kraken.com/features/fee-schedule",
+    "verifiedOn": "2026-09-10",
+    "tier1SpotTakerBps": 80,
+    "tier1SpotMakerBps": 40,
+    "actualAccountTierVerified": false
+  },
+  "limitations": [
+    "No untouched historical holdout: these dates were previously searched.",
+    "Eight candidate applications can share a mathematical or economic family; no parameter-grid inflation.",
+    "No model changes after ranking. Corrections require a disclosed separate run.",
+    "Returns exclude taxes, infrastructure costs and inaccessible executable depth.",
+    "Window runs reset to cash and force terminal sale; continuous run is diagnostic.",
+    "A strongest historical candidate is not a universal or proven future-profit system."
+  ]
+}

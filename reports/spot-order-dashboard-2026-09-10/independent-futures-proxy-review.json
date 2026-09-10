@@ -1,0 +1,190 @@
+{
+  "verifiedAtUtc": "2026-09-10T06:23:59.795Z",
+  "reviewer": "integration_deploy_review",
+  "passed": true,
+  "checks": {
+    "deployedVerifiedFuturesImage": true,
+    "frozenSourceClosurePreserved": true,
+    "futuresPaperMode": true,
+    "futuresConfigurationVersionPreserved": true,
+    "originalFuturesVolumePreserved": true,
+    "originalAccountConfigPreserved": true,
+    "cashExactlyPreserved": true,
+    "ordersAndActivitiesExactlyPreserved": true,
+    "positionsExactlyPreserved": true,
+    "fundingEpochAndHistoryPreserved": true,
+    "fundingEpochKnownAndNoUnpostedAdjustments": true,
+    "startupTrainingRestored": true,
+    "startupHistoricalImportVerified": true,
+    "immutableTrainingArtifactPreserved": true,
+    "marketHistoryRestored": true,
+    "noRecordedTrainingOrHistoryErrors": true,
+    "historicalDatesRetained": true,
+    "runningModelsMatchPersistedPolicy": true,
+    "futuresHealthHealthy": true,
+    "dashboardFresh": true,
+    "spotProxyMatchesActualService": true,
+    "spotProxyFresh": true,
+    "separatePaperSpotOrdersEnabled": true
+  },
+  "inputs": {
+    "beforeAccountSha256": "f1ff1e3b3767c5b096023474490045108eefe3ec3f2aaa41c7f8477998755781",
+    "imageVerificationSha256": "5918c69e43a57ef7d6fce803b2a30bcf806fdc5ea1e0396a290580a7e6d72c7c"
+  },
+  "containers": [
+    {
+      "name": "/crypto-trade-engine",
+      "image": "sha256:f2c56ce778d47b1f2fef74636a27f277d92bd4aaca69b835ca9d2b51bfd92cda",
+      "startedAtUtc": "2026-09-10T06:19:55.580100173Z",
+      "health": "healthy",
+      "networks": [
+        "crypto-trade_default"
+      ],
+      "volumes": [
+        {
+          "name": "crypto_trade_event_data",
+          "destination": "/app/data"
+        }
+      ]
+    },
+    {
+      "name": "/crypto-spot-trend-paper",
+      "image": "sha256:6b8b607debf4afa5054d1bac78cdd9086a8354b85494db73ab8b03864e43b8fe",
+      "startedAtUtc": "2026-09-10T06:20:45.441977439Z",
+      "health": "healthy",
+      "networks": [
+        "crypto-spot-paper_default",
+        "crypto-trade_default"
+      ],
+      "volumes": [
+        {
+          "name": "crypto_trade_spot_trend_research",
+          "destination": "/app/data"
+        }
+      ]
+    }
+  ],
+  "runtime": {
+    "capturedAtMs": 1789021439538,
+    "config": {
+      "mode": "paper",
+      "paper": true,
+      "venue": "kraken_futures",
+      "initialEquity": 100000,
+      "paperTrial": true,
+      "efficientTraining": true,
+      "regimeModel": false,
+      "trainingFile": "/app/data/distributional-training-risk-v2-20260909T201636-357d2802753bfecd.json"
+    },
+    "source": {
+      "count": 82,
+      "sha256": "c57475ab04ce281cbd83f86f95f0099d56d24ef5edcee758e293be197f8d036b"
+    },
+    "account": {
+      "beforeSavedAtUtc": "2026-09-10T06:00:32.193Z",
+      "afterSavedAtUtc": "2026-09-10T06:19:56.270Z",
+      "beforeCashUsd": 99998.28269740003,
+      "afterCashUsd": 99998.28269740003,
+      "cashDeltaUsd": 0,
+      "beforeOrders": 382,
+      "afterOrders": 382,
+      "beforePositions": 0,
+      "afterPositions": 0,
+      "beforeActivities": 382,
+      "afterActivities": 382,
+      "allOrdersExactlyPreserved": true,
+      "allActivitiesExactlyPreserved": true,
+      "positionsExactlyPreserved": true,
+      "accountConfigPreserved": true,
+      "fundingEpochUtc": "2026-09-09T20:14:26.595Z",
+      "fundingConfigPreserved": true,
+      "fundingStatesValid": true,
+      "fundingEventsAppendOnly": true,
+      "beforeFundingEvents": 11,
+      "afterFundingEvents": 11,
+      "newFundingEventTypes": {},
+      "newCashEventCount": 0,
+      "priorHistoryFundingUnknownPreserved": true,
+      "priorHistoryFundingUnknown": true,
+      "beforeEpochFundingKnown": true,
+      "afterEpochFundingKnown": true,
+      "afterDueUnpostedFundingAdjustments": 0
+    },
+    "training": {
+      "artifactSha256": "357d2802753bfecd18eabdd6fefe6fd7cec9649fadaed06d3a47fbe5436fd9c8",
+      "sizingPolicyId": "827a3c64f88eb32848104dc94f37b416f185a057441576e12cc16a4144ba7c02",
+      "selectionPolicyVersion": "btc-eth-selected-policy-paper-trial-3d-efficient-v1",
+      "trainingPolicyVersion": "btc-eth-independent-horizon-training-v1",
+      "retainedSamples": 6279,
+      "trainingDates": [
+        "2026-09-04",
+        "2026-09-05",
+        "2026-09-06",
+        "2026-09-07",
+        "2026-09-08",
+        "2026-09-09",
+        "2026-09-10"
+      ]
+    }
+  },
+  "startup": {
+    "stateRestored": 6279,
+    "training": {
+      "addedSamples": 0,
+      "retainedSamples": 6279,
+      "brokerOrdersSubmitted": 0,
+      "artifactSha256": "357d2802753bfecd18eabdd6fefe6fd7cec9649fadaed06d3a47fbe5436fd9c8"
+    },
+    "marketHistoryRestored": {
+      "restoredSymbols": [
+        "BTC/USD",
+        "ETH/USD"
+      ],
+      "restoredSamples": 362,
+      "rejectedSymbols": []
+    },
+    "errorTypes": []
+  },
+  "dashboard": {
+    "httpStatus": 200,
+    "healthHttpStatus": 200,
+    "health": "healthy",
+    "database": "connected",
+    "configurationVersion": "btc-eth-risk-bounded-sizing-v14.0.0",
+    "equityUsd": 99998.28269740003,
+    "entriesAllowed": true,
+    "models": [
+      {
+        "symbol": "BTC/USD",
+        "sizingPolicyId": "827a3c64f88eb32848104dc94f37b416f185a057441576e12cc16a4144ba7c02",
+        "selectionPolicyVersion": "btc-eth-selected-policy-paper-trial-3d-efficient-v1",
+        "trainingPolicyVersion": "btc-eth-independent-horizon-training-v1",
+        "retainedSamples": 6279,
+        "minimumTrainingDays": 3
+      },
+      {
+        "symbol": "ETH/USD",
+        "sizingPolicyId": "827a3c64f88eb32848104dc94f37b416f185a057441576e12cc16a4144ba7c02",
+        "selectionPolicyVersion": "btc-eth-selected-policy-paper-trial-3d-efficient-v1",
+        "trainingPolicyVersion": "btc-eth-independent-horizon-training-v1",
+        "retainedSamples": 6279,
+        "minimumTrainingDays": 3
+      }
+    ]
+  },
+  "spotProxy": {
+    "httpStatus": 200,
+    "available": true,
+    "generatedAtMs": 1789021439778,
+    "upstreamFetchedAtMs": 1789021439778,
+    "exactStatusMatchesDirect": true,
+    "mode": "RESEARCH_PAPER",
+    "orderSubmissionEnabled": true,
+    "liveTradingEnabled": false,
+    "stateVersion": "btc-spot-weekly-research-paper-runner-v2",
+    "cycles": 9,
+    "orders": 0,
+    "receipts": 0
+  },
+  "note": "Read-only deployment audit. Historical training and paper submission capability do not establish future profitability."
+}

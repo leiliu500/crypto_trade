@@ -1,0 +1,658 @@
+{
+  "generatedAt": "2026-09-09T17:37:56.954Z",
+  "strategyVersion": "btc-eth-hourly-trend-paper-v1",
+  "protocolSha256": "72131dfcb7572d5f77dea59a5218aa9dcc086cf7b535a16266f702774bd9bf95",
+  "strategySourceSha256": "f0bc9591c1ae9ac2eb8f8f24c63eb7e9fab399b5d0cf5b2b3bcd9c06d1755cd5",
+  "strategyConfigSha256": "363ec6537a58a9189b317983ca06341cfadd61176686caa18288cb107baeac24",
+  "dataSha256": "6ea97bdb102554d4d3152279a5667c0d7fe3319dd3472b6581ac69ed5917eecc",
+  "validation": {
+    "protocolSha256": "72131dfcb7572d5f77dea59a5218aa9dcc086cf7b535a16266f702774bd9bf95",
+    "developmentPassed": false,
+    "prospectivePassed": false,
+    "paperActivationAllowed": false,
+    "realOrdersAllowed": false,
+    "reasons": [
+      "DEVELOPMENT_ECONOMICS_FAILED_OR_INCOMPLETE",
+      "PROSPECTIVE_PROFIT_EVIDENCE_REQUIRED"
+    ],
+    "runs": [
+      {
+        "key": "development-2024:base:source-plus-hour",
+        "passed": false,
+        "reasons": [
+          "NET_PROFIT_NOT_POSITIVE",
+          "DRAWDOWN_LIMIT_FAILED",
+          "ASSET_PROFIT_OR_TRADES_FAILED",
+          "NET_UNCERTAINTY_GATE_FAILED"
+        ],
+        "lowerMeanNetUsdPerDay": -4.001120899797677,
+        "activeWeeks": 53
+      },
+      {
+        "key": "development-2024:base:source-as-end",
+        "passed": false,
+        "reasons": [
+          "NET_PROFIT_NOT_POSITIVE",
+          "DRAWDOWN_LIMIT_FAILED",
+          "ASSET_PROFIT_OR_TRADES_FAILED",
+          "NET_UNCERTAINTY_GATE_FAILED"
+        ],
+        "lowerMeanNetUsdPerDay": -4.002348458191373,
+        "activeWeeks": 53
+      },
+      {
+        "key": "development-2024:stress:source-plus-hour",
+        "passed": false,
+        "reasons": [
+          "NET_PROFIT_NOT_POSITIVE",
+          "DRAWDOWN_LIMIT_FAILED",
+          "ASSET_PROFIT_OR_TRADES_FAILED",
+          "NET_UNCERTAINTY_GATE_FAILED"
+        ],
+        "lowerMeanNetUsdPerDay": -4.502953528558417,
+        "activeWeeks": 53
+      },
+      {
+        "key": "development-2024:stress:source-as-end",
+        "passed": false,
+        "reasons": [
+          "NET_PROFIT_NOT_POSITIVE",
+          "DRAWDOWN_LIMIT_FAILED",
+          "ASSET_PROFIT_OR_TRADES_FAILED",
+          "NET_UNCERTAINTY_GATE_FAILED"
+        ],
+        "lowerMeanNetUsdPerDay": -4.5029691740450835,
+        "activeWeeks": 53
+      },
+      {
+        "key": "development-2025-h1:base:source-plus-hour",
+        "passed": false,
+        "reasons": [
+          "NET_PROFIT_NOT_POSITIVE",
+          "DRAWDOWN_LIMIT_FAILED",
+          "ASSET_PROFIT_OR_TRADES_FAILED",
+          "NET_UNCERTAINTY_GATE_FAILED"
+        ],
+        "lowerMeanNetUsdPerDay": -6.6068106343470125,
+        "activeWeeks": 26
+      },
+      {
+        "key": "development-2025-h1:base:source-as-end",
+        "passed": false,
+        "reasons": [
+          "NET_PROFIT_NOT_POSITIVE",
+          "DRAWDOWN_LIMIT_FAILED",
+          "ASSET_PROFIT_OR_TRADES_FAILED",
+          "NET_UNCERTAINTY_GATE_FAILED"
+        ],
+        "lowerMeanNetUsdPerDay": -6.606983995635292,
+        "activeWeeks": 26
+      },
+      {
+        "key": "development-2025-h1:stress:source-plus-hour",
+        "passed": false,
+        "reasons": [
+          "NET_PROFIT_NOT_POSITIVE",
+          "DRAWDOWN_LIMIT_FAILED",
+          "ASSET_PROFIT_OR_TRADES_FAILED",
+          "NET_UNCERTAINTY_GATE_FAILED"
+        ],
+        "lowerMeanNetUsdPerDay": -5.859187614279956,
+        "activeWeeks": 26
+      },
+      {
+        "key": "development-2025-h1:stress:source-as-end",
+        "passed": false,
+        "reasons": [
+          "NET_PROFIT_NOT_POSITIVE",
+          "DRAWDOWN_LIMIT_FAILED",
+          "ASSET_PROFIT_OR_TRADES_FAILED",
+          "NET_UNCERTAINTY_GATE_FAILED"
+        ],
+        "lowerMeanNetUsdPerDay": -5.858912649025006,
+        "activeWeeks": 26
+      }
+    ]
+  },
+  "runs": [
+    {
+      "windowId": "development-2024",
+      "scenario": "base",
+      "fundingAssumption": "source-plus-hour",
+      "startMs": 1704067200000,
+      "endMs": 1735689600000,
+      "evidenceKind": "HOURLY_CANDLE_PROXY",
+      "accountingKnown": true,
+      "synthetic": false,
+      "fundingTimestampVerified": false,
+      "completedTrades": 493,
+      "grossPnlUsd": -598.6592999999998,
+      "feeUsd": 389.70902445,
+      "fundingCashUsd": -33.356507577226594,
+      "netPnlUsd": -1021.7248320272254,
+      "netReturnOnInitialEquity": -0.010217248320272253,
+      "maxDrawdownUsd": 1058.0057621143642,
+      "fundingRequiredHours": 7296,
+      "fundingObservedHours": 7296,
+      "missingFundingHours": 0,
+      "perAsset": [
+        {
+          "symbol": "BTC/USD",
+          "completedTrades": 238,
+          "grossPnlUsd": -120.00620000000006,
+          "feeUsd": 195.46589360000002,
+          "fundingCashUsd": -18.49010331040955,
+          "netPnlUsd": -333.9621969104098,
+          "turnoverUsd": 390931.78720000014
+        },
+        {
+          "symbol": "ETH/USD",
+          "completedTrades": 255,
+          "grossPnlUsd": -478.65309999999977,
+          "feeUsd": 194.24313085,
+          "fundingCashUsd": -14.866404266817044,
+          "netPnlUsd": -687.7626351168165,
+          "turnoverUsd": 388486.2617000001
+        }
+      ],
+      "signalsEvaluated": 3668,
+      "blockReasons": {
+        "ENTRY_FILLED_PROXY": 493,
+        "PORTFOLIO_POSITION_SLOT_OCCUPIED": 6803,
+        "WEAK_TREND": 1329,
+        "COST_TOO_LARGE_FOR_STOP": 476,
+        "REENTRY_COOLDOWN": 1083,
+        "PRICE_TREND_DISAGREEMENT": 287
+      },
+      "ambiguousBars": 97,
+      "unresolvedPosition": null,
+      "maximumEntryNotionalUsd": 999.822,
+      "maximumRiskBudgetUsd": 34.96422256227339,
+      "riskBreachCount": 0,
+      "riskHaltReasons": [],
+      "turnoverUsd": 779418.0489000003,
+      "flatBenchmark": {
+        "completedTrades": 0,
+        "netPnlUsd": 0,
+        "maxDrawdownUsd": 0
+      }
+    },
+    {
+      "windowId": "development-2024",
+      "scenario": "base",
+      "fundingAssumption": "source-as-end",
+      "startMs": 1704067200000,
+      "endMs": 1735689600000,
+      "evidenceKind": "HOURLY_CANDLE_PROXY",
+      "accountingKnown": true,
+      "synthetic": false,
+      "fundingTimestampVerified": false,
+      "completedTrades": 493,
+      "grossPnlUsd": -598.5417999999999,
+      "feeUsd": 389.70247630000006,
+      "fundingCashUsd": -33.524649448472054,
+      "netPnlUsd": -1021.7689257484712,
+      "netReturnOnInitialEquity": -0.010217689257484713,
+      "maxDrawdownUsd": 1058.024099260685,
+      "fundingRequiredHours": 7296,
+      "fundingObservedHours": 7296,
+      "missingFundingHours": 0,
+      "perAsset": [
+        {
+          "symbol": "BTC/USD",
+          "completedTrades": 238,
+          "grossPnlUsd": -119.88870000000011,
+          "feeUsd": 195.45934545000003,
+          "fundingCashUsd": -18.582028265783105,
+          "netPnlUsd": -333.93007371578284,
+          "turnoverUsd": 390918.6909000001
+        },
+        {
+          "symbol": "ETH/USD",
+          "completedTrades": 255,
+          "grossPnlUsd": -478.65309999999977,
+          "feeUsd": 194.24313085,
+          "fundingCashUsd": -14.942621182688951,
+          "netPnlUsd": -687.8388520326884,
+          "turnoverUsd": 388486.2617000001
+        }
+      ],
+      "signalsEvaluated": 3668,
+      "blockReasons": {
+        "ENTRY_FILLED_PROXY": 493,
+        "PORTFOLIO_POSITION_SLOT_OCCUPIED": 6803,
+        "WEAK_TREND": 1329,
+        "COST_TOO_LARGE_FOR_STOP": 476,
+        "REENTRY_COOLDOWN": 1083,
+        "PRICE_TREND_DISAGREEMENT": 287
+      },
+      "ambiguousBars": 97,
+      "unresolvedPosition": null,
+      "maximumEntryNotionalUsd": 999.822,
+      "maximumRiskBudgetUsd": 34.96409810608474,
+      "riskBreachCount": 0,
+      "riskHaltReasons": [],
+      "turnoverUsd": 779404.9526000002,
+      "flatBenchmark": {
+        "completedTrades": 0,
+        "netPnlUsd": 0,
+        "maxDrawdownUsd": 0
+      }
+    },
+    {
+      "windowId": "development-2024",
+      "scenario": "stress",
+      "fundingAssumption": "source-plus-hour",
+      "startMs": 1704067200000,
+      "endMs": 1735689600000,
+      "evidenceKind": "HOURLY_CANDLE_PROXY",
+      "accountingKnown": true,
+      "synthetic": false,
+      "fundingTimestampVerified": false,
+      "completedTrades": 441,
+      "grossPnlUsd": -707.1727000000006,
+      "feeUsd": 488.4880680750002,
+      "fundingCashUsd": -26.85143941853659,
+      "netPnlUsd": -1222.5122074935375,
+      "netReturnOnInitialEquity": -0.012225122074935375,
+      "maxDrawdownUsd": 1231.1013048502646,
+      "fundingRequiredHours": 6724,
+      "fundingObservedHours": 6724,
+      "missingFundingHours": 0,
+      "perAsset": [
+        {
+          "symbol": "BTC/USD",
+          "completedTrades": 208,
+          "grossPnlUsd": -345.7960000000004,
+          "feeUsd": 240.8791018500001,
+          "fundingCashUsd": -14.746393837047082,
+          "netPnlUsd": -601.4214956870472,
+          "turnoverUsd": 321172.13579999993
+        },
+        {
+          "symbol": "ETH/USD",
+          "completedTrades": 233,
+          "grossPnlUsd": -361.37670000000026,
+          "feeUsd": 247.60896622500016,
+          "fundingCashUsd": -12.105045581489508,
+          "netPnlUsd": -621.0907118064899,
+          "turnoverUsd": 330145.2882999997
+        }
+      ],
+      "signalsEvaluated": 4745,
+      "blockReasons": {
+        "COST_TOO_LARGE_FOR_STOP": 1265,
+        "WEAK_TREND": 1653,
+        "PRICE_TREND_DISAGREEMENT": 316,
+        "ENTRY_FILLED_PROXY": 441,
+        "PORTFOLIO_POSITION_SLOT_OCCUPIED": 6283,
+        "REENTRY_COOLDOWN": 1070
+      },
+      "ambiguousBars": 84,
+      "unresolvedPosition": null,
+      "maximumEntryNotionalUsd": 999.0536,
+      "maximumRiskBudgetUsd": 29.591694932675505,
+      "riskBreachCount": 0,
+      "riskHaltReasons": [],
+      "turnoverUsd": 651317.4240999997,
+      "flatBenchmark": {
+        "completedTrades": 0,
+        "netPnlUsd": 0,
+        "maxDrawdownUsd": 0
+      }
+    },
+    {
+      "windowId": "development-2024",
+      "scenario": "stress",
+      "fundingAssumption": "source-as-end",
+      "startMs": 1704067200000,
+      "endMs": 1735689600000,
+      "evidenceKind": "HOURLY_CANDLE_PROXY",
+      "accountingKnown": true,
+      "synthetic": false,
+      "fundingTimestampVerified": false,
+      "completedTrades": 441,
+      "grossPnlUsd": -707.0508000000007,
+      "feeUsd": 488.47848045000023,
+      "fundingCashUsd": -27.004240839902813,
+      "netPnlUsd": -1222.5335212899038,
+      "netReturnOnInitialEquity": -0.012225335212899037,
+      "maxDrawdownUsd": 1231.1228941774461,
+      "fundingRequiredHours": 6724,
+      "fundingObservedHours": 6724,
+      "missingFundingHours": 0,
+      "perAsset": [
+        {
+          "symbol": "BTC/USD",
+          "completedTrades": 208,
+          "grossPnlUsd": -345.7960000000004,
+          "feeUsd": 240.8791018500001,
+          "fundingCashUsd": -14.917094194734927,
+          "netPnlUsd": -601.592196044735,
+          "turnoverUsd": 321172.13579999993
+        },
+        {
+          "symbol": "ETH/USD",
+          "completedTrades": 233,
+          "grossPnlUsd": -361.2548000000003,
+          "feeUsd": 247.5993786000001,
+          "fundingCashUsd": -12.087146645167884,
+          "netPnlUsd": -620.941325245168,
+          "turnoverUsd": 330132.50479999976
+        }
+      ],
+      "signalsEvaluated": 4745,
+      "blockReasons": {
+        "COST_TOO_LARGE_FOR_STOP": 1265,
+        "WEAK_TREND": 1653,
+        "PRICE_TREND_DISAGREEMENT": 316,
+        "ENTRY_FILLED_PROXY": 441,
+        "PORTFOLIO_POSITION_SLOT_OCCUPIED": 6283,
+        "REENTRY_COOLDOWN": 1070
+      },
+      "ambiguousBars": 84,
+      "unresolvedPosition": null,
+      "maximumEntryNotionalUsd": 999.0536,
+      "maximumRiskBudgetUsd": 29.591694932675505,
+      "riskBreachCount": 0,
+      "riskHaltReasons": [],
+      "turnoverUsd": 651304.6405999997,
+      "flatBenchmark": {
+        "completedTrades": 0,
+        "netPnlUsd": 0,
+        "maxDrawdownUsd": 0
+      }
+    },
+    {
+      "windowId": "development-2025-h1",
+      "scenario": "base",
+      "fundingAssumption": "source-plus-hour",
+      "startMs": 1735689600000,
+      "endMs": 1751328000000,
+      "evidenceKind": "HOURLY_CANDLE_PROXY",
+      "accountingKnown": true,
+      "synthetic": false,
+      "fundingTimestampVerified": false,
+      "completedTrades": 244,
+      "grossPnlUsd": -623.5747999999999,
+      "feeUsd": 176.5554909,
+      "fundingCashUsd": -3.6480263601395513,
+      "netPnlUsd": -803.7783172601396,
+      "netReturnOnInitialEquity": -0.008037783172601396,
+      "maxDrawdownUsd": 828.2037327288999,
+      "fundingRequiredHours": 3478,
+      "fundingObservedHours": 3478,
+      "missingFundingHours": 0,
+      "perAsset": [
+        {
+          "symbol": "BTC/USD",
+          "completedTrades": 98,
+          "grossPnlUsd": -339.41429999999986,
+          "feeUsd": 85.85755954999998,
+          "fundingCashUsd": -2.6833781284536915,
+          "netPnlUsd": -427.9552376784538,
+          "turnoverUsd": 171715.11910000004
+        },
+        {
+          "symbol": "ETH/USD",
+          "completedTrades": 146,
+          "grossPnlUsd": -284.1605,
+          "feeUsd": 90.69793135000003,
+          "fundingCashUsd": -0.9646482316858599,
+          "netPnlUsd": -375.82307958168576,
+          "turnoverUsd": 181395.86270000009
+        }
+      ],
+      "signalsEvaluated": 2076,
+      "blockReasons": {
+        "WEAK_TREND": 772,
+        "ENTRY_FILLED_PROXY": 244,
+        "PORTFOLIO_POSITION_SLOT_OCCUPIED": 3234,
+        "REENTRY_COOLDOWN": 589,
+        "COST_TOO_LARGE_FOR_STOP": 346,
+        "PRICE_TREND_DISAGREEMENT": 125,
+        "ZERO_VOLUME_EXIT_UNAVAILABLE": 6
+      },
+      "ambiguousBars": 53,
+      "unresolvedPosition": null,
+      "maximumEntryNotionalUsd": 999.5985999999999,
+      "maximumRiskBudgetUsd": 34.642334782253776,
+      "riskBreachCount": 0,
+      "riskHaltReasons": [],
+      "turnoverUsd": 353110.9818000001,
+      "flatBenchmark": {
+        "completedTrades": 0,
+        "netPnlUsd": 0,
+        "maxDrawdownUsd": 0
+      }
+    },
+    {
+      "windowId": "development-2025-h1",
+      "scenario": "base",
+      "fundingAssumption": "source-as-end",
+      "startMs": 1735689600000,
+      "endMs": 1751328000000,
+      "evidenceKind": "HOURLY_CANDLE_PROXY",
+      "accountingKnown": true,
+      "synthetic": false,
+      "fundingTimestampVerified": false,
+      "completedTrades": 244,
+      "grossPnlUsd": -623.5747999999999,
+      "feeUsd": 176.5554909,
+      "fundingCashUsd": -3.6952805546504637,
+      "netPnlUsd": -803.8255714546508,
+      "netReturnOnInitialEquity": -0.008038255714546508,
+      "maxDrawdownUsd": 828.2627346598892,
+      "fundingRequiredHours": 3478,
+      "fundingObservedHours": 3478,
+      "missingFundingHours": 0,
+      "perAsset": [
+        {
+          "symbol": "BTC/USD",
+          "completedTrades": 98,
+          "grossPnlUsd": -339.41429999999986,
+          "feeUsd": 85.85755954999998,
+          "fundingCashUsd": -2.7205133182116588,
+          "netPnlUsd": -427.99237286821165,
+          "turnoverUsd": 171715.11910000004
+        },
+        {
+          "symbol": "ETH/USD",
+          "completedTrades": 146,
+          "grossPnlUsd": -284.1605,
+          "feeUsd": 90.69793135000003,
+          "fundingCashUsd": -0.9747672364388051,
+          "netPnlUsd": -375.83319858643887,
+          "turnoverUsd": 181395.86270000009
+        }
+      ],
+      "signalsEvaluated": 2076,
+      "blockReasons": {
+        "WEAK_TREND": 772,
+        "ENTRY_FILLED_PROXY": 244,
+        "PORTFOLIO_POSITION_SLOT_OCCUPIED": 3234,
+        "REENTRY_COOLDOWN": 589,
+        "COST_TOO_LARGE_FOR_STOP": 346,
+        "PRICE_TREND_DISAGREEMENT": 125,
+        "ZERO_VOLUME_EXIT_UNAVAILABLE": 6
+      },
+      "ambiguousBars": 53,
+      "unresolvedPosition": null,
+      "maximumEntryNotionalUsd": 999.5985999999999,
+      "maximumRiskBudgetUsd": 34.64234018966227,
+      "riskBreachCount": 0,
+      "riskHaltReasons": [],
+      "turnoverUsd": 353110.9818000001,
+      "flatBenchmark": {
+        "completedTrades": 0,
+        "netPnlUsd": 0,
+        "maxDrawdownUsd": 0
+      }
+    },
+    {
+      "windowId": "development-2025-h1",
+      "scenario": "stress",
+      "fundingAssumption": "source-plus-hour",
+      "startMs": 1735689600000,
+      "endMs": 1751328000000,
+      "evidenceKind": "HOURLY_CANDLE_PROXY",
+      "accountingKnown": true,
+      "synthetic": false,
+      "fundingTimestampVerified": false,
+      "completedTrades": 214,
+      "grossPnlUsd": -488.28049999999905,
+      "feeUsd": 215.015167275,
+      "fundingCashUsd": -4.174232074771107,
+      "netPnlUsd": -707.4698993497703,
+      "netReturnOnInitialEquity": -0.007074698993497703,
+      "maxDrawdownUsd": 757.3372723109933,
+      "fundingRequiredHours": 3247,
+      "fundingObservedHours": 3247,
+      "missingFundingHours": 0,
+      "perAsset": [
+        {
+          "symbol": "BTC/USD",
+          "completedTrades": 65,
+          "grossPnlUsd": -327.14039999999983,
+          "feeUsd": 79.33652985,
+          "fundingCashUsd": -3.2516234264749753,
+          "netPnlUsd": -409.728553276475,
+          "turnoverUsd": 105782.03980000004
+        },
+        {
+          "symbol": "ETH/USD",
+          "completedTrades": 149,
+          "grossPnlUsd": -161.14009999999925,
+          "feeUsd": 135.678637425,
+          "fundingCashUsd": -0.9226086482961309,
+          "netPnlUsd": -297.7413460732952,
+          "turnoverUsd": 180904.8498999999
+        }
+      ],
+      "signalsEvaluated": 2498,
+      "blockReasons": {
+        "WEAK_TREND": 856,
+        "ENTRY_FILLED_PROXY": 214,
+        "PORTFOLIO_POSITION_SLOT_OCCUPIED": 3033,
+        "COST_TOO_LARGE_FOR_STOP": 640,
+        "REENTRY_COOLDOWN": 656,
+        "PRICE_TREND_DISAGREEMENT": 129,
+        "ZERO_VOLUME_EXIT_UNAVAILABLE": 3,
+        "ZERO_VOLUME_ENTRY_NO_FILL": 3
+      },
+      "ambiguousBars": 40,
+      "unresolvedPosition": null,
+      "maximumEntryNotionalUsd": 999.2735999999999,
+      "maximumRiskBudgetUsd": 29.44434480694846,
+      "riskBreachCount": 0,
+      "riskHaltReasons": [],
+      "turnoverUsd": 286686.88969999994,
+      "flatBenchmark": {
+        "completedTrades": 0,
+        "netPnlUsd": 0,
+        "maxDrawdownUsd": 0
+      }
+    },
+    {
+      "windowId": "development-2025-h1",
+      "scenario": "stress",
+      "fundingAssumption": "source-as-end",
+      "startMs": 1735689600000,
+      "endMs": 1751328000000,
+      "evidenceKind": "HOURLY_CANDLE_PROXY",
+      "accountingKnown": true,
+      "synthetic": false,
+      "fundingTimestampVerified": false,
+      "completedTrades": 214,
+      "grossPnlUsd": -488.19169999999906,
+      "feeUsd": 215.011826175,
+      "fundingCashUsd": -4.2706197131734704,
+      "netPnlUsd": -707.4741458881726,
+      "netReturnOnInitialEquity": -0.007074741458881727,
+      "maxDrawdownUsd": 757.3385673484445,
+      "fundingRequiredHours": 3247,
+      "fundingObservedHours": 3247,
+      "missingFundingHours": 0,
+      "perAsset": [
+        {
+          "symbol": "BTC/USD",
+          "completedTrades": 65,
+          "grossPnlUsd": -327.14039999999983,
+          "feeUsd": 79.33652985,
+          "fundingCashUsd": -3.2680796435634463,
+          "netPnlUsd": -409.7450094935635,
+          "turnoverUsd": 105782.03980000004
+        },
+        {
+          "symbol": "ETH/USD",
+          "completedTrades": 149,
+          "grossPnlUsd": -161.05129999999926,
+          "feeUsd": 135.675296325,
+          "fundingCashUsd": -1.0025400696100237,
+          "netPnlUsd": -297.72913639460916,
+          "turnoverUsd": 180900.39509999994
+        }
+      ],
+      "signalsEvaluated": 2498,
+      "blockReasons": {
+        "WEAK_TREND": 856,
+        "ENTRY_FILLED_PROXY": 214,
+        "PORTFOLIO_POSITION_SLOT_OCCUPIED": 3033,
+        "COST_TOO_LARGE_FOR_STOP": 640,
+        "REENTRY_COOLDOWN": 656,
+        "PRICE_TREND_DISAGREEMENT": 129,
+        "ZERO_VOLUME_EXIT_UNAVAILABLE": 3,
+        "ZERO_VOLUME_ENTRY_NO_FILL": 3
+      },
+      "ambiguousBars": 40,
+      "unresolvedPosition": null,
+      "maximumEntryNotionalUsd": 999.2735999999999,
+      "maximumRiskBudgetUsd": 29.444487152150842,
+      "riskBreachCount": 0,
+      "riskHaltReasons": [],
+      "turnoverUsd": 286682.4349,
+      "flatBenchmark": {
+        "completedTrades": 0,
+        "netPnlUsd": 0,
+        "maxDrawdownUsd": 0
+      }
+    }
+  ],
+  "latencySensitivity": [
+    {
+      "windowId": "development-2024",
+      "delayHours": 2,
+      "completedTrades": 0,
+      "netPnlUsd": 0,
+      "blockReasons": {
+        "SIGNAL_STALE_OR_UNAVAILABLE": 17568
+      },
+      "interpretation": "OPERATIONAL_EXPIRY_CHECK_NOT_A_PROFITABILITY_RUN"
+    },
+    {
+      "windowId": "development-2025-h1",
+      "delayHours": 2,
+      "completedTrades": 0,
+      "netPnlUsd": 0,
+      "blockReasons": {
+        "SIGNAL_STALE_OR_UNAVAILABLE": 8688
+      },
+      "interpretation": "OPERATIONAL_EXPIRY_CHECK_NOT_A_PROFITABILITY_RUN"
+    }
+  ],
+  "limitations": [
+    "Hourly candles cannot establish available order-book depth, spread, latency, partial fills or price impact; no executable-profit claim is supported.",
+    "A completed candle becomes usable after the loader's 60-second finalization delay; first eligible hourly fill is one hour after signal close.",
+    "The stress scenario changes fees and adverse slippage, not signal age. A separately reported extra hour of latency expires the signal.",
+    "Intrabar chronology is unknown. The lower-P&L result of two OHLC-consistent paths is a conservative proxy, not a bound over every possible tick path.",
+    "Path selection compares pre-funding liquidation P&L, matching the unfunded live exit ledger; funding duration can differ between paths, so this is not a lower bound on funded net P&L.",
+    "A zero-volume candle supplies no fill. Exiting inventory remains open until a positive-volume candle or causes unresolved end-of-window accounting.",
+    "The current instrument lots, ticks and fee assumptions do not prove historical contract rules or account fee tiers.",
+    "Funding uses archived absolute dollar rates, not relative rate times trade price. Both unverified timestamp interpretations are retained.",
+    "Funding for intrabar exits is prorated using the declared synthetic path times; actual historical settlement cash flows remain unverified.",
+    "The live paper ledger has no funding feed. The shared exit rule therefore uses the same reserve; replay reports historical funding separately without feeding future rates into decisions.",
+    "Order-book depth and the five-second jump estimate are unavailable in this dataset; sizing is an optimistic liquidity-feasible ceiling with zero extra jump buffer, not live sizing parity.",
+    "2024 and 2025 H1 were inspected in prior studies and are repeated development, not untouched holdouts. Reserved January-July 2026 is not evaluated."
+  ],
+  "conclusion": "REJECTED: DEVELOPMENT_ECONOMICS_DO_NOT_ESTABLISH_PROFITABILITY; DO_NOT_ACTIVATE"
+}

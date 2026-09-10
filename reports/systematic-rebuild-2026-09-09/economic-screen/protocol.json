@@ -1,0 +1,190 @@
+{
+  "registeredAtMs": 1788975459540,
+  "registeredAt": "2026-09-09T17:37:39.540Z",
+  "strategy": {
+    "version": "btc-eth-hourly-trend-paper-v1",
+    "barMs": 3600000,
+    "fastSpan": 16,
+    "slowSpan": 64,
+    "atrSpan": 32,
+    "minimumBars": 192,
+    "minimumTrendStrength": 0.5,
+    "stopAtr": 2,
+    "targetAtr": 4,
+    "trailingAtr": 2,
+    "trailActivationR": 1,
+    "maximumHoldMs": 259200000,
+    "reentryCooldownMs": 21600000,
+    "maximumSignalAgeMs": 4500000,
+    "maximumQuoteAgeMs": 1000,
+    "entryLatencyMs": 250,
+    "entryTtlMs": 2000,
+    "maximumSpreadBps": 5,
+    "maximumEntrySlippageBps": 3,
+    "maximumCostToStopRatio": 0.25,
+    "fundingReserveBpsPerDay": 3,
+    "maximumPendingAttemptsPerSignal": 3,
+    "retryMs": 60000,
+    "interpretation": "SYSTEMATIC_PAPER_HYPOTHESIS_NOT_RETURN_FORECAST"
+  },
+  "validation": {
+    "version": "systematic-profitability-validation-v1",
+    "strategyVersion": "btc-eth-hourly-trend-paper-v1",
+    "historicalInterpretation": "REPEATED_DEVELOPMENT_NOT_UNTOUCHED_HOLDOUT",
+    "developmentWindows": [
+      {
+        "windowId": "development-2024",
+        "startMs": 1704067200000,
+        "endMs": 1735689600000
+      },
+      {
+        "windowId": "development-2025-h1",
+        "startMs": 1735689600000,
+        "endMs": 1751328000000
+      }
+    ],
+    "scenarios": [
+      "base",
+      "stress"
+    ],
+    "fundingSensitivities": [
+      "source-plus-hour",
+      "source-as-end"
+    ],
+    "minimumCompletedTradesPerDevelopmentRun": 20,
+    "minimumCompletedTradesPerAsset": 5,
+    "minimumActiveWeeksPerRun": 8,
+    "activeWeekDefinition": "NONOVERLAPPING_SEVEN_DAY_BLOCKS_FROM_WINDOW_START_WITH_COMPLETED_TRADES",
+    "positiveNetRequiredForEachAssetAndRun": true,
+    "benchmark": {
+      "name": "FLAT_CASH_WITHOUT_INTEREST",
+      "netPnlUsd": 0
+    },
+    "studyRiskNotionalUsd": 1000,
+    "maximumDrawdownUsd": 200,
+    "maximumDrawdownStudyNotionalFraction": 0.2,
+    "drawdownBasis": "PEAK_TO_TROUGH_LIQUIDATION_EQUITY_INCLUDING_OPEN_POSITIONS_AND_COSTS",
+    "uncertainty": {
+      "method": "MOVING_BLOCK_BOOTSTRAP_COMPLETE_CALENDAR_DAILY_NET",
+      "blockDays": 7,
+      "repetitions": 2000,
+      "seed": 1369331617,
+      "lowerQuantile": 0.05,
+      "minimumLowerMeanNetUsdPerDay": 0,
+      "interpretation": "NOMINAL_DEPENDENCE_AWARE_NOT_MULTIPLE_RESEARCH_ADJUSTED_OR_PROFIT_GUARANTEE"
+    },
+    "prospective": {
+      "required": true,
+      "minimumCalendarDays": 90,
+      "minimumCompletedTradesPerRun": 30,
+      "registrationMustPrecedeWindow": true,
+      "sourceMustRemainFrozen": true,
+      "configMustRemainFrozen": true,
+      "evidenceKind": "RECORDED_BOOK_PAPER",
+      "fundingMustBeVerified": true,
+      "scenarios": [
+        "base",
+        "stress"
+      ]
+    },
+    "unknownAccounting": "FAIL_CLOSED",
+    "syntheticEvidence": "REJECT",
+    "realOrdersAuthorized": false
+  },
+  "assumptions": {
+    "version": "systematic-hourly-economic-screen-v1",
+    "evidenceKind": "HOURLY_CANDLE_PROXY",
+    "initialEquityUsd": 100000,
+    "maximumNotionalUsd": 1000,
+    "maximumEquityFraction": 0.01,
+    "maximumGrossNotionalUsd": 5000,
+    "maximumPositions": 1,
+    "baseRiskFraction": 0.001,
+    "maximumDrawdownFraction": 0.05,
+    "targetAtrBps": 20,
+    "rollingLossFraction": 0.0075,
+    "utcSessionLossFraction": 0.0075,
+    "lossLatch": "REALIZED_PRICE_CASH_MINUS_TIMED_FEES_PLUS_FUNDING; HALT_PERSISTS_WITHIN_EACH_RUN",
+    "candleFinalizationDelayMs": 60000,
+    "entryDelayHours": 1,
+    "expirySensitivityDelayHours": 2,
+    "fees": {
+      "base": 5,
+      "stress": 7.5
+    },
+    "adverseSlippage": {
+      "base": 1.5,
+      "stress": 3
+    },
+    "executionPriceCosts": "ADVERSE_SLIPPAGE_PLUS_HALF_OF_SPREAD_BUDGET_ON_EACH_FILL; EXTRA_ADVERSE_ALLOWANCE_AT_STOP_THRESHOLDS",
+    "spreadBudgetBps": 1,
+    "positiveCostErrorP95Bps": 2,
+    "fundingReserveBps": 9,
+    "adverseExecutionBudgetBps": 6,
+    "jumpBufferBps": 0,
+    "lots": {
+      "BTC/USD": 0.0001,
+      "ETH/USD": 0.001
+    },
+    "ticks": {
+      "BTC/USD": 1,
+      "ETH/USD": 0.1
+    },
+    "selection": "LARGEST_ABSOLUTE_ATR_SCALED_TREND_THEN_SYMBOL",
+    "intrabar": "LOWER_TERMINAL_PNL_OF_O_L_H_C_AND_O_H_L_C_WITH_LINEAR_THIRD_HOUR_SEGMENTS",
+    "funding": "ABSOLUTE_USD_PER_UNIT_RATE_PRORATED_OVER_SIMULATED_HOLD_INTERVAL",
+    "fundingInExitRule": "UNOBSERVED_LIVE_LEDGER_PLUS_NINE_BPS_RESERVE; OBSERVED_FUNDING_SEPARATE_IN_REPORT",
+    "limitations": [
+      "Hourly candles cannot establish available order-book depth, spread, latency, partial fills or price impact; no executable-profit claim is supported.",
+      "A completed candle becomes usable after the loader's 60-second finalization delay; first eligible hourly fill is one hour after signal close.",
+      "The stress scenario changes fees and adverse slippage, not signal age. A separately reported extra hour of latency expires the signal.",
+      "Intrabar chronology is unknown. The lower-P&L result of two OHLC-consistent paths is a conservative proxy, not a bound over every possible tick path.",
+      "Path selection compares pre-funding liquidation P&L, matching the unfunded live exit ledger; funding duration can differ between paths, so this is not a lower bound on funded net P&L.",
+      "A zero-volume candle supplies no fill. Exiting inventory remains open until a positive-volume candle or causes unresolved end-of-window accounting.",
+      "The current instrument lots, ticks and fee assumptions do not prove historical contract rules or account fee tiers.",
+      "Funding uses archived absolute dollar rates, not relative rate times trade price. Both unverified timestamp interpretations are retained.",
+      "Funding for intrabar exits is prorated using the declared synthetic path times; actual historical settlement cash flows remain unverified.",
+      "The live paper ledger has no funding feed. The shared exit rule therefore uses the same reserve; replay reports historical funding separately without feeding future rates into decisions.",
+      "Order-book depth and the five-second jump estimate are unavailable in this dataset; sizing is an optimistic liquidity-feasible ceiling with zero extra jump buffer, not live sizing parity.",
+      "2024 and 2025 H1 were inspected in prior studies and are repeated development, not untouched holdouts. Reserved January-July 2026 is not evaluated."
+    ]
+  },
+  "protocolSha256": "72131dfcb7572d5f77dea59a5218aa9dcc086cf7b535a16266f702774bd9bf95",
+  "strategySourceSha256": "f0bc9591c1ae9ac2eb8f8f24c63eb7e9fab399b5d0cf5b2b3bcd9c06d1755cd5",
+  "strategyConfigSha256": "363ec6537a58a9189b317983ca06341cfadd61176686caa18288cb107baeac24",
+  "dataSha256": "6ea97bdb102554d4d3152279a5667c0d7fe3319dd3472b6581ac69ed5917eecc",
+  "originalDataSha256": "802694ae936dd864681dee2278f027ea1732a91fd6b635f1b08371673abcb227",
+  "sourceHashes": {
+    "src/systematic/spec.ts": "6e0339be53e6318cf112504cc46de587f1d1820418f1487833341aa0ca64bc54",
+    "src/systematic/signal.ts": "8f4105fa3aede6bea75d02828adc6ceb1fe41f3be4923f7d6017e467f8192cc0",
+    "src/systematic/history.ts": "184f3707160304a6b831afa2c5521a214e59bcf47f9a56eb922ac4ff57c47db5",
+    "src/systematic/planner.ts": "ad4f475ef3612bb690ca838230555c716aabecdd65c11a5ebd4547aa4b4d0be1",
+    "src/systematic/position.ts": "16461c15dc7737dfd74668c2c0cbbf70271f0e791903ae1a3bb85462edd8298e",
+    "src/systematic/replay.ts": "87f593b1ef430175205c9e363c776b9744ac33059bda0d9cc592d11976e7d7a8",
+    "src/systematic/replay-main.ts": "3de548affa65635dba5c5cc87933659d90940e74efb236131317604ce70cc964",
+    "src/systematic/validation.ts": "98920638e63869fe8db1e3b33aa7bf7555bbde6454d321eac7e29b7b246590c0",
+    "src/risk/sizing.ts": "3d0be830f15c1188d116e6209d6b014a53b28c400467399d5a1b669821dbb920",
+    "src/risk/risk-state.ts": "81683068282d66579354b36969eeb2da50ea81e5b0af049eda683b505d67c7aa",
+    "src/core/market.ts": "8bbdd7973b1ba9ee15f30177273cc9b16df4c3c00bbad9547b25bfa20e512837",
+    "src/economics/net-liquidation.ts": "2a3d21588c1d8a73b93422baef2e8db1b044a071d47e5fb43146ac6471ab0578",
+    "src/execution/book-walk.ts": "a080eb816006402e7886ab9ab4f8b495f391db21a4e69a4b3a5fa125e516f9e5",
+    "src/research/hourly-data.ts": "0786552d6f700f8ad906a6f6db80b423560eef6f79dbb7403250ce1eeb260a91",
+    "src/config.ts": "5d1c4b95fec54dc68de8ee6dc514b026ab53bd65f576c1c90589681c0ddc5469",
+    "config/base.json": "749c7f3bb2dca8bc02332d92c21ace33cad4e9a23ba7c658132cf47ca0a0a20e",
+    "config/btc_usd.json": "d335dbac0082a727da1922972be50c93ccce73fafc47724a193906f64f0b3eba",
+    "config/eth_usd.json": "abf52f5f067e78d393ccba280ebf61fa6098f09d8673876c661d0af1ec49f133",
+    "package.json": "e42c034fc1ad2c128e1b84ea91ae78827604ed35590e5609670070a97968d21e",
+    "package-lock.json": "2315bada829d31ccb4d3970392ba56d73458d3219dda1ec98d8dda0d41893594"
+  },
+  "dataDirectory": "/home/ec2-user/crypto_trade/reports/hourly-adaptive-study-2026-09-08/data-recent",
+  "evaluatedBars": {
+    "fromMs": 1703347200000,
+    "toMsExclusive": 1751328000000
+  },
+  "excludedReservedWindow": {
+    "fromMs": 1767225600000,
+    "toMsExclusive": 1785542400000,
+    "evaluated": false
+  },
+  "interpretation": "FROZEN_BEFORE_THIS_REPLAY; PRIOR_STUDIES_ALREADY_INSPECTED_DEVELOPMENT_PERIODS"
+}

@@ -1,0 +1,12 @@
+{
+  "samples": 236,
+  "origins": 115,
+  "exactDecodedOriginBytes": true,
+  "sameFullArtifact": true,
+  "sameSourceIdentity": true,
+  "originalBytes": 2236408,
+  "packedBytes": 718973,
+  "decodedBytes": 1962053,
+  "outerLimitBytes": 67108864,
+  "decodedLimitBytes": 268435456
+}

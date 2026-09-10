@@ -1,0 +1,65 @@
+{
+  "stage": "develop",
+  "verifiedAtUtc": "2026-09-09T01:53:41.797Z",
+  "summarySha256": "f141a178421398ad8da1f4f54e321cbc6142edbb82ec33a85610fd57bf9082e1",
+  "protocolSha256": "807be0de5acd8d381bd3527ea781fefae744cf92a1df98c08271545cbbf0a66a",
+  "sourceHashes": {
+    "src/portfolio/types.ts": "932cedcff32633cd3317106ba185d34e879a94fd426b36b196ff45a2c584a3da",
+    "src/portfolio/signals.ts": "66907f0868be89af33445d7041454ff960d018eb469af886b43224624f1f6293",
+    "src/portfolio/kernel.ts": "3c78b6202330409b9bd84bfb6d9938fd383162069a70c29eaee4f3115decf756",
+    "src/portfolio/replay.ts": "f2427846d07113ca44fcb58152ba4476009b0e55f5a44bf142cd07504eef6120",
+    "src/portfolio/protocol.ts": "f585d18b3a423a4bd6ca4380a355f5e7006dbec3649fd6ad43a7fea9125f951c",
+    "src/portfolio/study-main.ts": "4aa4260d397c091445464fcc5609f8f6264fe1027ef4bf76ba88ff7d590a7d4e",
+    "src/portfolio/shadow.ts": "b14fc376b6678424187232745d5b92dc867aac48f46af04b24046ce0a776e827",
+    "src/portfolio/live-main.ts": "365730955686861db5946bdca7680ffc7ae1615c8e577591e60182265467e155",
+    "src/research/hourly-data.ts": "0786552d6f700f8ad906a6f6db80b423560eef6f79dbb7403250ce1eeb260a91",
+    "src/research/hourly-study-statistics.ts": "0a9b6437903c26845958748d18f4b43f3ad35749f616da924cd61252442c7a36",
+    "src/core/order-book.ts": "030a9979f2f6a1f4d736e4b927202ffeb446fb1a5a25a18f0a427dc61624db63",
+    "src/core/market.ts": "8bbdd7973b1ba9ee15f30177273cc9b16df4c3c00bbad9547b25bfa20e512837",
+    "src/kraken/market-stream.ts": "42b3005e966c09c0b1fe12012569ac27062a16436a05c373fac28ad514df7d89",
+    "src/kraken/paper-broker.ts": "9c6f240965a31cb7121e11e757856a11ad967a727e2415390b31ff66d7199857",
+    "src/execution/planner.ts": "5954f3b7796fd7ba907e251de7f933e52680b8ab9abb69ba332ab961e87f3604",
+    "src/venue/client.ts": "14c9a6fad0580f43d21926983558f097e0255b33e5b56a2b297517bf2884be2e",
+    "package-lock.json": "2315bada829d31ccb4d3970392ba56d73458d3219dda1ec98d8dda0d41893594",
+    "reports/distribution-instrument-rules-2026-09-07.json": "a89ee77c1a871c63266cde004776e7484ccdc81d544b7d32a81f56cb07d89cdf"
+  },
+  "dataSeals": [
+    {
+      "directory": "/home/ec2-user/crypto_trade/reports/hourly-adaptive-study-2026-09-08/data-older-restored",
+      "datasetSha256": "6995137d4366500628885518de3908f663ab7584caba0a4fe9845f700ac3f36f",
+      "manifestSha256": "b49fc0c9fe648aec3a049605f1e5c79d6d0a917bcf93c40bd151f47b992e941b"
+    },
+    {
+      "directory": "/home/ec2-user/crypto_trade/reports/hourly-adaptive-study-2026-09-08/data-recent",
+      "datasetSha256": "802694ae936dd864681dee2278f027ea1732a91fd6b635f1b08371673abcb227",
+      "manifestSha256": "5a57cfcc6dc6cc352f708f3101d0e2026580c5faf7b6661509016feb6483ecb4"
+    }
+  ],
+  "artifacts": {
+    "develop-multiscale-trend-targets.json": "c423885b1dd89381376f3a4356176f1aa3368a84513c4fd184fa95a786e5dc7f",
+    "develop-multiscale-trend-base-source-plus-hour.json": "57ae14f45a4f4684ce2c7fa3069643912b089a72fb070e71c7cf31e53b4b9bc3",
+    "develop-multiscale-trend-base-source-as-end.json": "81915559e082b500c28ea0f655c81a4aa483ed1d5e781b458b2bc8f9ebb79fbb",
+    "develop-multiscale-trend-stress-source-plus-hour.json": "dd9c6d0c0acb87d789866384d875bf1e8ca29da6733035fcfce59840a499efae",
+    "develop-multiscale-trend-stress-source-as-end.json": "4d54ad992aff7b556b79ed80dc03079a61fec557b677bdf99e561126ecc902ff",
+    "develop-sign-trend-90d-targets.json": "d35ea219bf62326dbb6eb69ddf8ed1507d5ea78676410949a4fbad61cee630b4",
+    "develop-sign-trend-90d-base-source-plus-hour.json": "876bdd5913fd67a87b78fac25446c5a1685bd70451fd508e31128a6fa82c1459",
+    "develop-sign-trend-90d-base-source-as-end.json": "c34e7b15a323dde08f4adcaa982e644782efac6c376bd28f7e2a8ca3b7d45e76",
+    "develop-sign-trend-90d-stress-source-plus-hour.json": "e60f07b73864d5d691601c5611efa067eb16dbe2b33ffc6d5e49418187a96d3b",
+    "develop-sign-trend-90d-stress-source-as-end.json": "ddb034da15bc28072d06800033a78bf40c2a980cb99e7f38994976019f4742e2",
+    "develop-constant-btc-targets.json": "2116bff4811aaa7233bf2b0383f8dbfbc9bec30a7a1452a37f0662e8fd582de9",
+    "develop-constant-btc-base-source-plus-hour.json": "0a18fef3760dbb0f20ca1aea2ac9f8f5d28f8b6cbc6d475b8f65e5767dc1475f",
+    "develop-constant-btc-base-source-as-end.json": "b0b1d6274380b800b18498b2cc61028ff81c6d73831e635947de614acda988d4",
+    "develop-constant-btc-stress-source-plus-hour.json": "0c49bf02ce049c861b44087bcf5c468e326075eb08e337035c344ebe684a3b77",
+    "develop-constant-btc-stress-source-as-end.json": "66c6cf3d5a56d63220d66b2fc4ab5040f25f16180fb3cef35b36c0f8f6117257",
+    "develop-constant-eth-targets.json": "19e4f3887543c0e5c69c72cb36d45e31566c59187eede36eccfbb91bc16e1321",
+    "develop-constant-eth-base-source-plus-hour.json": "7a795c9e1eb1a4abecc1e2540890b061691bc8abfba56156840905e8a7e65823",
+    "develop-constant-eth-base-source-as-end.json": "a65d9ec244dcce3a937e551eeb7eeb01eb8bb94f07650c3d7ced7379e1985dac",
+    "develop-constant-eth-stress-source-plus-hour.json": "6f32e474a2ff6ce20befb6e8fc1264802488ac42d45da3e95249720a572be143",
+    "develop-constant-eth-stress-source-as-end.json": "c5f261158d7c223d90c94532e77ad83bcf52dd5cf4510437097b420d93b6770b",
+    "develop-flat-targets.json": "f932329c37170b9ab741b20ffa14813f4c85e3bc115b0a393b3efc1530687d54",
+    "develop-flat-base-source-plus-hour.json": "95ac50ffa2bf6f72a0ebfcd40445ae812fb22b26c4faefef085ea4726c050c0c",
+    "develop-flat-base-source-as-end.json": "68533b9de2e3139f9dcfc7179f0e0f3eb295cfb4dcb3ef797ce88fa1595abfcc",
+    "develop-flat-stress-source-plus-hour.json": "a6bcfffe506b025281fed60c903520c88da8b9819fc901a6e6bbcd6f9c74b06c",
+    "develop-flat-stress-source-as-end.json": "ce563a568b848e5c54c091f145c796932addae8136ff694f33be256aa3e1b1d1"
+  }
+}

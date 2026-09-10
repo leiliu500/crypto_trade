@@ -1,0 +1,331 @@
+{
+  "passed": true,
+  "network": "none",
+  "futuresConfigurationAndPreviousLayersUnchanged": true,
+  "closure": {
+    "count": 82,
+    "sha256": "c57475ab04ce281cbd83f86f95f0099d56d24ef5edcee758e293be197f8d036b"
+  },
+  "migration": {
+    "passed": true,
+    "evidenceSha256": "3eed46dd2a5f17dc48e87e190243971754b1c7b0394ebcadb4eb289d30ebb509",
+    "runtimeSha256": "2a87d7a11589f50058d691f42b869595d9948e699236c3ca9804ba10513eab48",
+    "version": "btc-spot-weekly-research-paper-runner-v3",
+    "cycles": 134,
+    "account": {
+      "initialCashUsd": 100000,
+      "cashUsd": 100000,
+      "quantity": 0,
+      "entryCostUsd": 0,
+      "realizedNetUsd": 0,
+      "feesUsd": 0,
+      "receipts": []
+    },
+    "runtimeUpgradeEvidence": {
+      "file": "runtime-upgrades/5a44fbe0c9a43b6eab4f66392cdf12112da0f0b7237b234ad53d1c40f0df4002.json",
+      "sha256": "00d2b856665995d4a380004f47b51915ddaa5916371252c0834afe12daf69244"
+    },
+    "migrationEvidence": {
+      "file": "migrations/343a24cefa2879f957583cb7ee7f7ddbdd7daa54afc71b4918f007212beae7a1.json",
+      "sha256": "4cedc642840cd35347c3df96dcc9880be0b1ec02fca25331a6414d94790f30f0"
+    }
+  },
+  "smoke": {
+    "version": "spot-order-lifecycle-compiled-smoke-v1",
+    "syntheticData": true,
+    "mode": "RESEARCH_PAPER",
+    "liveTradingEnabled": false,
+    "networkUsed": false,
+    "productionAccountAccessed": false,
+    "financialPerformanceEvidence": false,
+    "startedAt": "2026-09-10T16:54:34.545Z",
+    "passed": true,
+    "checks": [
+      {
+        "name": "full: exclusive journal lock",
+        "passed": true,
+        "rejection": "SPOT_PAPER_LOCK_UNAVAILABLE:1:"
+      },
+      {
+        "name": "full: submission has no cash or fill effects",
+        "passed": true
+      },
+      {
+        "name": "full: submitted journal reload preserves request and cash",
+        "passed": true
+      },
+      {
+        "name": "full: broker produces the expected terminal order",
+        "passed": true
+      },
+      {
+        "name": "full: settled journal reload and repeat settlement do not duplicate fills",
+        "passed": true
+      },
+      {
+        "name": "full: missing submission proof rejected",
+        "passed": true,
+        "rejection": "SPOT_MISSING_SUBMISSION_EVIDENCE"
+      },
+      {
+        "name": "full: tampered submission bytes rejected",
+        "passed": true,
+        "rejection": "SPOT_CYCLE_EVIDENCE_CHANGED"
+      },
+      {
+        "name": "full: missing submission file rejected",
+        "passed": true,
+        "rejection": "ENOENT: no such file or directory, open '/tmp/spot-order-lifecycle-synthetic-bbBKhH/full/cycles/1-1605139320000-submitted.json'"
+      },
+      {
+        "name": "full: mismatched submission state rejected",
+        "passed": true,
+        "rejection": "SPOT_SUBMISSION_STATE_MISMATCH"
+      },
+      {
+        "name": "full: settlement without a submitted order rejected",
+        "passed": true,
+        "rejection": "SPOT_SETTLEMENT_WITHOUT_SUBMITTED_ORDER"
+      },
+      {
+        "name": "full: complete journal remains valid after corruption checks",
+        "passed": true
+      },
+      {
+        "name": "partial-ioc: exclusive journal lock",
+        "passed": true,
+        "rejection": "SPOT_PAPER_LOCK_UNAVAILABLE:1:"
+      },
+      {
+        "name": "partial-ioc: submission has no cash or fill effects",
+        "passed": true
+      },
+      {
+        "name": "partial-ioc: submitted journal reload preserves request and cash",
+        "passed": true
+      },
+      {
+        "name": "partial-ioc: broker produces the expected terminal order",
+        "passed": true
+      },
+      {
+        "name": "partial-ioc: settled journal reload and repeat settlement do not duplicate fills",
+        "passed": true
+      },
+      {
+        "name": "partial-ioc: missing submission proof rejected",
+        "passed": true,
+        "rejection": "SPOT_MISSING_SUBMISSION_EVIDENCE"
+      },
+      {
+        "name": "partial-ioc: tampered submission bytes rejected",
+        "passed": true,
+        "rejection": "SPOT_CYCLE_EVIDENCE_CHANGED"
+      },
+      {
+        "name": "partial-ioc: missing submission file rejected",
+        "passed": true,
+        "rejection": "ENOENT: no such file or directory, open '/tmp/spot-order-lifecycle-synthetic-bbBKhH/partial-ioc/cycles/1-1605139320000-submitted.json'"
+      },
+      {
+        "name": "partial-ioc: mismatched submission state rejected",
+        "passed": true,
+        "rejection": "SPOT_SUBMISSION_STATE_MISMATCH"
+      },
+      {
+        "name": "partial-ioc: settlement without a submitted order rejected",
+        "passed": true,
+        "rejection": "SPOT_SETTLEMENT_WITHOUT_SUBMITTED_ORDER"
+      },
+      {
+        "name": "partial-ioc: complete journal remains valid after corruption checks",
+        "passed": true
+      }
+    ],
+    "scenarios": [
+      {
+        "name": "full",
+        "stateFile": "/tmp/spot-order-lifecycle-synthetic-bbBKhH/full/state.json",
+        "orderId": "paper-spot-49a5117e7421f14e6a0e3d65ba1f7287",
+        "orderStatus": "FILLED",
+        "eventTypes": [
+          "SUBMITTED",
+          "ACCEPTED",
+          "FILLED"
+        ],
+        "requestedQuantity": 0.68797745,
+        "filledQuantity": 0.68797745,
+        "receiptCount": 1,
+        "cashBeforeUsd": 100000,
+        "cashAfterUsd": 99900.06934905064,
+        "quantityAfter": 0.68797745,
+        "feesUsd": 0.79310040436,
+        "submissionProof": {
+          "file": "cycles/1-1605139320000-submitted.json",
+          "sha256": "ecd3cff8136041957e513ef0de9d09d6a8c8ca6e8a92fb2f6d77f8436de83e55"
+        },
+        "settlementProof": {
+          "file": "cycles/1-1605139320001-settled.json",
+          "sha256": "20329148569f25625452ad53fccdfd382d3f89f09a36a1c9d5bfe920b63b1442"
+        },
+        "stateSha256": "30b256823394f7c50b09ca8fb8bb7bc7abde277dadc148f8f1b3e03d6abf8bf0"
+      },
+      {
+        "name": "partial-ioc",
+        "stateFile": "/tmp/spot-order-lifecycle-synthetic-bbBKhH/partial-ioc/state.json",
+        "orderId": "paper-spot-49a5117e7421f14e6a0e3d65ba1f7287",
+        "orderStatus": "CANCELED",
+        "eventTypes": [
+          "SUBMITTED",
+          "ACCEPTED",
+          "PARTIAL_FILL",
+          "CANCELED"
+        ],
+        "requestedQuantity": 0.68797745,
+        "filledQuantity": 0.01,
+        "receiptCount": 1,
+        "cashBeforeUsd": 100000,
+        "cashAfterUsd": 99998.547472,
+        "quantityAfter": 0.01,
+        "feesUsd": 0.011528,
+        "submissionProof": {
+          "file": "cycles/1-1605139320000-submitted.json",
+          "sha256": "d3fdc92463cbae1a7815f7b76855bcac0132682fc15d531c4ce84000196244a8"
+        },
+        "settlementProof": {
+          "file": "cycles/1-1605139320001-settled.json",
+          "sha256": "63654df1f193d1f3d930e805d6988ee35639f60ed0df9000a265efa7dfa3f8d0"
+        },
+        "stateSha256": "874d46197a16dece731013569c9e857e04ea6a92b9b6ba031926697a16b68d2c"
+      }
+    ],
+    "runtimeSourceSha256": "2a87d7a11589f50058d691f42b869595d9948e699236c3ca9804ba10513eab48",
+    "compiledManifestSha256": "475eab9a50e29cc0b69526fa3e9eca8783698c7a1d32ae464f70277386c5ae96",
+    "compiledManifest": [
+      {
+        "file": "dist/src/spot-trend/account.js",
+        "sha256": "8ed7478ae1b68d68ce19fc1f81e6ed78c2da12b367831ba662a78965eb66b530"
+      },
+      {
+        "file": "dist/src/spot-trend/data.js",
+        "sha256": "c1029826b81fdcbef8e382ca3b7f214489cf5ced984679295f5491a259a00f1e"
+      },
+      {
+        "file": "dist/src/spot-trend/evidence.js",
+        "sha256": "cdc62f4f8933646e03c7f35319bcb29a4069eb7777fb1fad5dad342bd8153ab3"
+      },
+      {
+        "file": "dist/src/spot-trend/journal.js",
+        "sha256": "d1c17d44b16e495b639a01fe6a0fd41f8b554103a8ba7caaaf24582af830a299"
+      },
+      {
+        "file": "dist/src/spot-trend/market.js",
+        "sha256": "eb3839a4b6522a7fce188f0fc836817044b1df988c299bc15db11966038eb6bb"
+      },
+      {
+        "file": "dist/src/spot-trend/migration.js",
+        "sha256": "8a69d4f1af7bc8d45f38140400f83af81a170b359e1f78d656c2019f53b10209"
+      },
+      {
+        "file": "dist/src/spot-trend/orders.js",
+        "sha256": "1668b5880d274e5bc4eef2abc8fb0fec125cd18feba0a88d4fbe199b0ca40177"
+      },
+      {
+        "file": "dist/src/spot-trend/paper-main.js",
+        "sha256": "d46b532c17c0cdead721ebbc418497dcb0de44fe57f023d991a32255778daf07"
+      },
+      {
+        "file": "dist/src/spot-trend/paper.js",
+        "sha256": "4966c1757b88abaa7e050a6d43d14c285b26ff8c1b3b00c89575ee01a5abebba"
+      },
+      {
+        "file": "dist/src/spot-trend/replay.js",
+        "sha256": "0aa746b83e3e3892d89f0e421eb4254e220e8565411a4217a4e16b5f4076535e"
+      },
+      {
+        "file": "dist/src/spot-trend/signal.js",
+        "sha256": "06074157dc673adb2cd9a5185fb5750c5a041c3eeda90e80431d526c0f233daf"
+      },
+      {
+        "file": "dist/src/spot-trend/spec.js",
+        "sha256": "ffa96969f3d658c74bfd1c56ee74b036fe17a6ff8914ef919d15c7ec03337b92"
+      },
+      {
+        "file": "dist/src/spot-trend/study-main.js",
+        "sha256": "53b5215b1d25376ea99385a670c69f561934c4bff98daaede1cbd72babda867f"
+      }
+    ],
+    "syntheticJournalRoot": "/tmp/spot-order-lifecycle-synthetic-bbBKhH",
+    "completedAt": "2026-09-10T16:54:34.922Z"
+  },
+  "images": [
+    {
+      "id": "sha256:c9eb00619c56e06b0e68c8e9b11c676c622b88a0dd69089ca459b8d20dca274f",
+      "tags": [
+        "crypto-trade-engine:spot-dashboard-v3"
+      ],
+      "layers": [
+        "sha256:34884abbe92863fce933ed7c39c0e045631af0ed86d5cc0dfbdf9fdca426ce3c",
+        "sha256:5654eeaf04645c03fadc59bca7835753203d173222ab6ad8729f75b3dde98784",
+        "sha256:fe2c6446e3d9c78c5f734536452b9ea4bf7c4c46c4b4a575d2973b79691ec57a",
+        "sha256:baf2266664bacf240e13831e4192f8c92196c603ce8a20a4a50035ad87f8f2fb",
+        "sha256:330e74924af849bbd61f2d2fcd72d8f90c8cea4fe35e18ee7f6ac144ad8db37c",
+        "sha256:cb8e30cdb39f00ca181e8c84b54e3036877765f1b54adfcc57220c1022ef1289",
+        "sha256:6a9152c5f3ad7958e8110b272501649d59b0bfe26eedfc9f1c2c213b51bf99b8",
+        "sha256:211f5490affc8648d200a2c56ab987ec0675345d65652e78cb7e98d0872a629e",
+        "sha256:a99fae0d8d5dcedef5c8b720e3c2b9406315e2accc17ca559dabfaf2fcd0849e",
+        "sha256:3e9fccb2372ec4ed2e9638ce218fe52bf9dbd6c69c841e7d76de8c80b0fc9ead",
+        "sha256:fc9a1af697fee75ec67ef8f40ffcfe43e7cb20e035eb484897672d4133426b72",
+        "sha256:75d16100110a5c40f3ec9672b769d8ca1cceca8c481335ae75b1a32f8c98f6f6",
+        "sha256:d91ce9745ae2fc771260b7638655b8c39dd86f598b32f34ce7084b1cbcd17a6f",
+        "sha256:5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef",
+        "sha256:a9942c58e75cb28f4270bcdfec9a654483e3f280a80721626fb09d1332a0d49f",
+        "sha256:4329602e86ed35bebdd06419ede45740258b57cc2178278ff30a7740b624c5c0",
+        "sha256:a17183d6c54df3df0b430c94d6150d27fd0666e74ab25dbf93a8a0a8d5bca151"
+      ]
+    },
+    {
+      "id": "sha256:dccf9b4434c9760c366231fca34f8c483368fb0af3450f8bdeef2117b9d2601e",
+      "tags": [
+        "crypto-trade-engine:spot-dashboard-v4"
+      ],
+      "layers": [
+        "sha256:34884abbe92863fce933ed7c39c0e045631af0ed86d5cc0dfbdf9fdca426ce3c",
+        "sha256:5654eeaf04645c03fadc59bca7835753203d173222ab6ad8729f75b3dde98784",
+        "sha256:fe2c6446e3d9c78c5f734536452b9ea4bf7c4c46c4b4a575d2973b79691ec57a",
+        "sha256:baf2266664bacf240e13831e4192f8c92196c603ce8a20a4a50035ad87f8f2fb",
+        "sha256:330e74924af849bbd61f2d2fcd72d8f90c8cea4fe35e18ee7f6ac144ad8db37c",
+        "sha256:cb8e30cdb39f00ca181e8c84b54e3036877765f1b54adfcc57220c1022ef1289",
+        "sha256:6a9152c5f3ad7958e8110b272501649d59b0bfe26eedfc9f1c2c213b51bf99b8",
+        "sha256:211f5490affc8648d200a2c56ab987ec0675345d65652e78cb7e98d0872a629e",
+        "sha256:a99fae0d8d5dcedef5c8b720e3c2b9406315e2accc17ca559dabfaf2fcd0849e",
+        "sha256:3e9fccb2372ec4ed2e9638ce218fe52bf9dbd6c69c841e7d76de8c80b0fc9ead",
+        "sha256:fc9a1af697fee75ec67ef8f40ffcfe43e7cb20e035eb484897672d4133426b72",
+        "sha256:75d16100110a5c40f3ec9672b769d8ca1cceca8c481335ae75b1a32f8c98f6f6",
+        "sha256:d91ce9745ae2fc771260b7638655b8c39dd86f598b32f34ce7084b1cbcd17a6f",
+        "sha256:5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef",
+        "sha256:a9942c58e75cb28f4270bcdfec9a654483e3f280a80721626fb09d1332a0d49f",
+        "sha256:4329602e86ed35bebdd06419ede45740258b57cc2178278ff30a7740b624c5c0",
+        "sha256:6a13c6b74f7b8f27a962399fb90242ad83c2836d9960157a0daddf10ae651bdf"
+      ]
+    },
+    {
+      "id": "sha256:3682285933465fb691269a080586f08421f007c1c087d8d4f208dfcd72038b63",
+      "tags": [
+        "crypto-spot-trend-paper:v3"
+      ],
+      "layers": [
+        "sha256:34884abbe92863fce933ed7c39c0e045631af0ed86d5cc0dfbdf9fdca426ce3c",
+        "sha256:5654eeaf04645c03fadc59bca7835753203d173222ab6ad8729f75b3dde98784",
+        "sha256:fe2c6446e3d9c78c5f734536452b9ea4bf7c4c46c4b4a575d2973b79691ec57a",
+        "sha256:baf2266664bacf240e13831e4192f8c92196c603ce8a20a4a50035ad87f8f2fb",
+        "sha256:330e74924af849bbd61f2d2fcd72d8f90c8cea4fe35e18ee7f6ac144ad8db37c",
+        "sha256:d22091ec958e1a7e6eccae4b78d1147309083dd342977ab4aa15ec4c3dc3c0cb",
+        "sha256:271855bcdf50cdb6dff553f430cf7e95119337be29f74d077bb9ac1bdf362482",
+        "sha256:6647e49bd087cea88f314a7cfd925f4a3e67469b1f5429c545ac8e72c6bc2158",
+        "sha256:0bee5162521cc79cfab66fac95dded31e25439f4e5b8dc1cd16b5a3002a859f2",
+        "sha256:ba19214381f910df1b7eb6e6b433c8ae52eb58fafa1e9153b0aeaa0390438c41"
+      ]
+    }
+  ]
+}

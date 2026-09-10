@@ -1,0 +1,86 @@
+{
+  "checkedAtUtc": "2026-09-09T21:00:41.429Z",
+  "originalProtocolSha256": "fca966e8a5471fbecfcedfc0e0e565dc3bf9c012d8c3b29423faf0e0c8514565",
+  "allOriginalRunsIdentical": true,
+  "matches": [
+    {
+      "file": "2024-base-channel.json",
+      "originalSha256": "722cf4922778740662c9abcb63e82bc7f6e4d2f430f89e541b23d416e91360ae",
+      "reproducedSha256": "722cf4922778740662c9abcb63e82bc7f6e4d2f430f89e541b23d416e91360ae",
+      "identical": true
+    },
+    {
+      "file": "2024-base-buy-hold-btc.json",
+      "originalSha256": "695bf85a47293be0431e234df31a25c135846c798b3f80a211b43d029b17a60f",
+      "reproducedSha256": "695bf85a47293be0431e234df31a25c135846c798b3f80a211b43d029b17a60f",
+      "identical": true
+    },
+    {
+      "file": "2024-base-buy-hold-eth.json",
+      "originalSha256": "8961b9c8d08cda8a58ee1c83072f515e7852bf1afb31b82750eb5e26f69516a3",
+      "reproducedSha256": "8961b9c8d08cda8a58ee1c83072f515e7852bf1afb31b82750eb5e26f69516a3",
+      "identical": true
+    },
+    {
+      "file": "2024-stress-channel.json",
+      "originalSha256": "55a1229b07d28eebba052e372834748b02bb12c04699148889ea8fafb9ddd87e",
+      "reproducedSha256": "55a1229b07d28eebba052e372834748b02bb12c04699148889ea8fafb9ddd87e",
+      "identical": true
+    },
+    {
+      "file": "2024-stress-buy-hold-btc.json",
+      "originalSha256": "92e44b51752682cbe0c344daad518912fc52ec99da1e7bf9b66a712480ea7ac6",
+      "reproducedSha256": "92e44b51752682cbe0c344daad518912fc52ec99da1e7bf9b66a712480ea7ac6",
+      "identical": true
+    },
+    {
+      "file": "2024-stress-buy-hold-eth.json",
+      "originalSha256": "d513d07391e7d1f785f1c7dcf6e35d0361052d24226ae5b8fa63bc2cec387666",
+      "reproducedSha256": "d513d07391e7d1f785f1c7dcf6e35d0361052d24226ae5b8fa63bc2cec387666",
+      "identical": true
+    },
+    {
+      "file": "2025-h1-base-channel.json",
+      "originalSha256": "2811350a741cce18ad47d2d59a6f84960d36bca49fd03d3ad414cbe354bdecab",
+      "reproducedSha256": "2811350a741cce18ad47d2d59a6f84960d36bca49fd03d3ad414cbe354bdecab",
+      "identical": true
+    },
+    {
+      "file": "2025-h1-base-buy-hold-btc.json",
+      "originalSha256": "d7a82a39bc8047c581766c024351e512874a59c3936d21b0ad8ae2a512e103d2",
+      "reproducedSha256": "d7a82a39bc8047c581766c024351e512874a59c3936d21b0ad8ae2a512e103d2",
+      "identical": true
+    },
+    {
+      "file": "2025-h1-base-buy-hold-eth.json",
+      "originalSha256": "c4030274c6a3e4a9faf79c6d258b875d47774fe3aa71e55f9582ca362810c77a",
+      "reproducedSha256": "c4030274c6a3e4a9faf79c6d258b875d47774fe3aa71e55f9582ca362810c77a",
+      "identical": true
+    },
+    {
+      "file": "2025-h1-stress-channel.json",
+      "originalSha256": "a3a105a1620120ea406baaccfc9adb75f824e1dea673a09526d6105fa8535bf4",
+      "reproducedSha256": "a3a105a1620120ea406baaccfc9adb75f824e1dea673a09526d6105fa8535bf4",
+      "identical": true
+    },
+    {
+      "file": "2025-h1-stress-buy-hold-btc.json",
+      "originalSha256": "aa4db783b365d813f2d4604922dd488d2156bcd464eb06b4725e65b75f65bdbc",
+      "reproducedSha256": "aa4db783b365d813f2d4604922dd488d2156bcd464eb06b4725e65b75f65bdbc",
+      "identical": true
+    },
+    {
+      "file": "2025-h1-stress-buy-hold-eth.json",
+      "originalSha256": "4532ca0ec230b371b4c7df954fbe6e0a3b571993457f33b64e061fd5a374417c",
+      "reproducedSha256": "4532ca0ec230b371b4c7df954fbe6e0a3b571993457f33b64e061fd5a374417c",
+      "identical": true
+    }
+  ],
+  "sourceHashes": {
+    "src/channel/spec.ts": "441313a0bf02b599fc3d0792fcff2143ffeed6fc1229fecf1d93aae5cb189f36",
+    "src/channel/replay.ts": "6dad38d4e00faf56f25914b28732623b67cdfe7789733e41095af93085f46a46",
+    "src/channel/verify-v1-parity-main.ts": "85db3419740c9aa373aa61bae19ebffe8ac136156ecd266ce98d5c6c79eccd85"
+  },
+  "v2StrategyOutcomesComputed": false,
+  "reserved2026Evaluated": false
+}

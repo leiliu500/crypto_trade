@@ -1,0 +1,22 @@
+{
+  "recordedAtUtc": "2026-09-09T02:20:43.349377+00:00",
+  "softwareValidation": {
+    "fullSuitePassed": 912,
+    "failed": 0,
+    "typeScriptBuildPassed": true,
+    "sourceSealsVerifiedNow": true
+  },
+  "developmentPassed": false,
+  "v1SourcesPreserved": true,
+  "laterStageRefusals": {
+    "confirm": "PORTFOLIO_STAGE_DENIED_DEVELOP_FAILED",
+    "test": "PORTFOLIO_STAGE_DENIED_CONFIRM_MISSING",
+    "shadowPreflight": "PORTFOLIO_STAGE_DENIED_DEVELOP_FAILED"
+  },
+  "laterStageStartMarkersExist": false,
+  "candidateActivated": false,
+  "realOrdersAllowed": false,
+  "profitabilityEstablished": false,
+  "independentAccountingAuditSha256": "815edf18a8851b18f2aa61b69e9c257c5c28e7468ce576989e0413f2ca7cb26b",
+  "independentSelectionAuditSha256": "f1f8054344e96a00304d0fd3a7853b90825f10fd08c9a806d114f8fb6fa533bd"
+}

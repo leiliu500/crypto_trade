@@ -1,0 +1,125 @@
+{
+  "registrationVersion": "btc-long-horizon-carry-development-registration-v1",
+  "registeredAt": "2026-09-09T20:46:12.405Z",
+  "spec": {
+    "version": "btc-matched-quantity-long-horizon-carry-v1",
+    "symbol": "BTC/USD",
+    "scope": "DEVELOPMENT_ECONOMIC_SCREEN_ONLY",
+    "hypothesisRegistry": "SEPARATE_FROM_CONCURRENT_55D_CHANNEL_TREND_HYPOTHESIS;NO_OUTCOME_SELECTED_FALLBACK",
+    "initialEquityUsd": 100000,
+    "hourMs": 3600000,
+    "dayMs": 86400000,
+    "weekMs": 604800000,
+    "yearDays": 365,
+    "forecastLookbackDays": 90,
+    "forecastHaircutFraction": 0.5,
+    "forecastUnits": "MEAN_MATURED_ABSOLUTE_USD_PER_BTC_HOUR",
+    "forecastAnnualization": "MEAN_ABSOLUTE_RATE*8760/DECISION_PERPETUAL_PRICE",
+    "holdingDays": 180,
+    "fundingExitLookbackDays": 28,
+    "fundingExitConsecutiveWeeks": 2,
+    "decisionUtcWeekday": 4,
+    "decisionDelayMs": 60000,
+    "entryDelayWeeks": 1,
+    "spotIntervalMinutes": 10080,
+    "perpetualIntervalMinutes": 60,
+    "maximumLegNotionalUsd": 1000,
+    "maximumLegEquityFraction": 0.01,
+    "collateralMultiple": 2,
+    "collateralGuardFraction": 0.2,
+    "annualCapitalHurdleFraction": 0.05,
+    "basisUnwindReserveBps": 75,
+    "quantityStepBtc": 0.0001,
+    "minimumQuantityBtc": 0.0001,
+    "fixedMatchedQuantity": true,
+    "automaticCollateralTransfers": false,
+    "capitalDefinition": "ALL_IN_SPOT_PURCHASE_CASH_PLUS_TWICE_PERPETUAL_ENTRY_NOTIONAL",
+    "quantityPolicy": "SHARED_LOT_FLOOR_AT_ENTRY;MIN_OF_BOTH_LEG_NOTIONAL_AND_AVAILABLE_CAPITAL_CAPS;NO_ADD_OR_REBALANCE",
+    "maximumLegNotionalAppliesAt": "ENTRY;MARKED_EXPOSURE_REPORTED_SEPARATELY",
+    "collateralGuardPolicy": "HOURLY_ADVERSE_PERPETUAL_HIGH_MARK;EXIT_NEXT_ELIGIBLE_SPOT_WEEK_OPEN;ANY_INTERVENING_GUARD_BREACH_FAILS",
+    "terminalPolicy": "FLATTEN_AT_LAST_SPOT_WEEK_OPEN_WHOSE_WHOLE_BAR_ENDS_BY_WINDOW_END;DISCLOSE_HORIZON_TRUNCATION",
+    "allowTruncatedHorizonEntries": true,
+    "sameBoundaryExitAndReentry": false,
+    "postExitEntryPolicy": "NEW_CAUSAL_WEEKLY_DECISION_AND_NEXT_SOURCE_WEEK_OPEN_REQUIRED",
+    "fundingKnownAt": "MAPPED_INTERVAL_END",
+    "actualFeeVerified": false,
+    "historicalMarginVerified": false,
+    "evidenceKind": "INDEPENDENT_SPOT_WEEKLY_TRADES_AND_PERPETUAL_HOURLY_CANDLE_PROXY",
+    "benchmark": "5_PERCENT_SIMPLE_ANNUAL_HURDLE_ON_ACTUAL_COMMITTED_CAPITAL_FOR_ACTUAL_HOLDING_TIME;NOT_CREDITED_CASH_INTEREST",
+    "scenarios": {
+      "base": {
+        "spotFeeBps": 80,
+        "perpetualFeeBps": 5,
+        "slippageBpsPerExecution": 2
+      },
+      "stress": {
+        "spotFeeBps": 100,
+        "perpetualFeeBps": 7.5,
+        "slippageBpsPerExecution": 5
+      }
+    },
+    "fundingEndShiftHours": [
+      0,
+      1
+    ],
+    "windows": [
+      {
+        "id": "development-2024",
+        "startMs": 1704067200000,
+        "endMs": 1735689600000
+      },
+      {
+        "id": "confirmation-2025-h1",
+        "startMs": 1735689600000,
+        "endMs": 1751328000000
+      }
+    ],
+    "acceptance": {
+      "minimumCompletedCyclesPerWindowScenario": 1,
+      "netFundedCashMustBeStrictlyPositive": true,
+      "capitalBenchmarkExcessMustBeStrictlyPositive": true,
+      "allEightRunsRequired": true,
+      "allMarginAndSourceEvidenceKnown": true,
+      "noMissingHeldPriceOrFunding": true,
+      "noUnresolvedLegsOrCollateralGuardBreaches": true,
+      "historicalPositiveProxyIsInsufficientForExecution": true,
+      "fullValidationAllowed": false,
+      "runtimeActivationAllowed": false,
+      "realOrdersAllowed": false,
+      "futureProfitGuaranteed": false
+    }
+  },
+  "specSha256": "81d41807504131b8390358fb733c9d7887dadde677d094e50c1e96a5b5414c31",
+  "sourceHashes": [
+    {
+      "path": "src/carry/horizon-spec.ts",
+      "sha256": "da43c9d8dd95b770c67994007acc8d9e56fd4aae30642660b7a2644ae1cf25ed"
+    },
+    {
+      "path": "docs/LONG_HORIZON_CARRY.md",
+      "sha256": "4cb081c9ebd8c0315a9152f747b277172b651124faf88dd21c3d9dcd961c80c9"
+    },
+    {
+      "path": "reports/carry-horizon-audit-2026-09-09/spot-history/manifest.json",
+      "sha256": "2936aa1db4c7da66aeae80b84f9d0b76a4e73ffac4bfad49cbd717d9bb35af41"
+    },
+    {
+      "path": "reports/carry-horizon-audit-2026-09-09/spot-history/dataset.json",
+      "sha256": "9a47c7bb44432393e0327bad95d801c19982fab218c6f7e96e01af74e683683d"
+    },
+    {
+      "path": "reports/hourly-adaptive-study-2026-09-08/data-recent/dataset.json",
+      "sha256": "802694ae936dd864681dee2278f027ea1732a91fd6b635f1b08371673abcb227"
+    },
+    {
+      "path": "reports/hourly-adaptive-study-2026-09-08/data-older-restored/dataset.json",
+      "sha256": "6995137d4366500628885518de3908f663ab7584caba0a4fe9845f700ac3f36f"
+    }
+  ],
+  "strategyOutcomeComputedBeforeRegistration": false,
+  "reserved2026Evaluated": false,
+  "studyRunnerMustSealFinalSourceBeforeOutcomes": true,
+  "completeExecutionEvidence": false,
+  "runtimeActivationAllowed": false,
+  "realOrdersAllowed": false
+}

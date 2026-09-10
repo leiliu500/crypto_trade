@@ -1,0 +1,25 @@
+{
+  "family": "reversion",
+  "id": "patient",
+  "params": {
+    "id": "patient",
+    "trend_span": 150,
+    "fit_window": 90,
+    "entry_z": 1.5,
+    "max_holding_days": 42,
+    "min_half_life": 1.5,
+    "max_half_life": 35,
+    "edge_multiple": 1.75,
+    "trend_floor_20d": -0.05
+  },
+  "developmentUtility": 0.0,
+  "specSha256": "d224ef78b34e3423406c040566744b04af53fd847b9153b5f8cf7d8fa09572d8",
+  "moduleSha256": "9a79e104ffdb1350755f0c67a35b7da65a002bd44d179d359dca6b99798bbcc4",
+  "trialCount": 4,
+  "selectedUsing": "development stress net PnL minus half maximum dollar drawdown; lexicographic tie break",
+  "period": [
+    "2025-01-01",
+    "2025-07-01"
+  ],
+  "laterOutcomesInspected": false
+}

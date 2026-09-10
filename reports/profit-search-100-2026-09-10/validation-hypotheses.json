@@ -1,0 +1,262 @@
+{
+  "version": "profit-search-validation-hypotheses-v1",
+  "createdDateUtc": "2026-09-10",
+  "authorRole": "validation_audit",
+  "hypothesisCount": 25,
+  "agentCountRepresented": 1,
+  "scope": "25 distinct validation and evidence interventions; these are not 25 agents or 25 proven profitable strategies.",
+  "runtimeChanged": false,
+  "liveOrdersSubmitted": false,
+  "interventions": [
+    {
+      "id": "V01",
+      "intervention": "Preserve the complete search ledger",
+      "rationale": "Supported selection controls require every attempted configuration, failed run, and zero-trade outcome to remain visible; reporting only the maximum over 100 trials inflates perceived skill.",
+      "evidence_path": "reports/parallel-strategy-study-2026-09-10/compare.py",
+      "testability": "Assert exactly the registered configuration IDs occur in output and output cannot silently skip exceptions.",
+      "impact": "high",
+      "status": "supported",
+      "statusMeaning": "Supported as a validation improvement or existing invariant, not proof of a profitable strategy."
+    },
+    {
+      "id": "V02",
+      "intervention": "Keep the chronology and deterministic selection frozen",
+      "rationale": "Selection must consume only development observations and use a fixed tie break; subsequent windows measure the frozen choice.",
+      "evidence_path": "reports/parallel-strategy-study-2026-09-10/final-selection-lock.json",
+      "testability": "Repeat selection with truncated development data and compare candidate ID and source hashes.",
+      "impact": "high",
+      "status": "supported",
+      "statusMeaning": "Supported as a validation improvement or existing invariant, not proof of a profitable strategy."
+    },
+    {
+      "id": "V03",
+      "intervention": "Relabel familiar windows as exploratory diagnostics",
+      "rationale": "These calendar dates were reused by earlier searches; chronological ordering cannot restore untouched evidence.",
+      "evidence_path": "reports/parallel-strategy-study-2026-09-10/protocol.json",
+      "testability": "Require historyPreviouslyReused=true and prohibit prospective or untouched labels in generated output.",
+      "impact": "high",
+      "status": "supported",
+      "statusMeaning": "Supported as a validation improvement or existing invariant, not proof of a profitable strategy."
+    },
+    {
+      "id": "V04",
+      "intervention": "Measure the frozen candidate on subsequently collected data",
+      "rationale": "Only subsequent observations can resolve whether a reused-data winner's edge persists; existing 2025–2026 data cannot supply them.",
+      "evidence_path": "reports/new-spot-system-2026-09-10/historical-study/report.md",
+      "testability": "Freeze signal, costs, sizing, horizon and evaluation criteria before collecting a future paper ledger.",
+      "impact": "high",
+      "status": "needs_data",
+      "statusMeaning": "Necessary assessment cannot be resolved from the shared daily dataset alone."
+    },
+    {
+      "id": "V05",
+      "intervention": "Retain zero-yield cash as the non-trading benchmark",
+      "rationale": "All previous daily candidates lost in the final period; rejecting a losing strategy may be better than increasing activity.",
+      "evidence_path": "reports/parallel-strategy-study-2026-09-10/comparison.json",
+      "testability": "Assert cash has zero trades, fees, drawdown and net P&L in every scenario and window.",
+      "impact": "high",
+      "status": "supported",
+      "statusMeaning": "Supported as a validation improvement or existing invariant, not proof of a profitable strategy."
+    },
+    {
+      "id": "V06",
+      "intervention": "Add equally funded BTC and ETH buy-and-hold comparisons",
+      "rationale": "A bullish interval can make many rules profitable without positive timing value; each benchmark must use the same allocation, fill costs and liquidation convention.",
+      "evidence_path": "reports/parallel-strategy-study-2026-09-10/common.py",
+      "testability": "Compute paired daily net excess for each strategy and fixed-unit benchmark under identical accounting.",
+      "impact": "high",
+      "status": "supported",
+      "statusMeaning": "Supported as a validation improvement or existing invariant, not proof of a profitable strategy."
+    },
+    {
+      "id": "V07",
+      "intervention": "Require exact runtime replay before replacing the runtime",
+      "rationale": "The daily evaluator lacks the runtime's 40-native-week state, 0.1%-equity entry sizing, marked cap and account halt; daily candidates do not demonstrate runtime improvement.",
+      "evidence_path": "src/spot-trend/spec.ts",
+      "testability": "Use native weekly warmup and replay matching runtime rules, then compare order intentions and ledger outcomes for representative prefixes.",
+      "impact": "high",
+      "status": "needs_data",
+      "statusMeaning": "Necessary assessment cannot be resolved from the shared daily dataset alone."
+    },
+    {
+      "id": "V08",
+      "intervention": "Report total-account returns alongside allocation returns",
+      "rationale": "A $1,000 research entry against $10,000 cash differs greatly from the runtime's initial $100 against $100,000; allocation returns are not account returns.",
+      "evidence_path": "src/spot-trend/spec.ts",
+      "testability": "Check P&L divided by account capital and entry budget independently; print denominators and actual maximum exposure.",
+      "impact": "high",
+      "status": "supported",
+      "statusMeaning": "Supported as a validation improvement or existing invariant, not proof of a profitable strategy."
+    },
+    {
+      "id": "V09",
+      "intervention": "Independently reconstruct cash from all fills",
+      "rationale": "Profitable-looking realized P&L can omit fee-funded basis or open liabilities; common.py currently reconciles trade P&L and terminal cash correctly.",
+      "evidence_path": "src/spot-trend/account.ts",
+      "testability": "Reconstruct cash and inventory from signed fills and fees; compare summed daily P&L, trade P&L and terminal liquidated equity.",
+      "impact": "high",
+      "status": "supported",
+      "statusMeaning": "Supported as a validation improvement or existing invariant, not proof of a profitable strategy."
+    },
+    {
+      "id": "V10",
+      "intervention": "Present a risk/return frontier using two drawdown measures",
+      "rationale": "Daily-close drawdown misses losses within a day; sampled prior-peak-to-low drawdown is useful but is not full intraday high-to-low drawdown.",
+      "evidence_path": "reports/parallel-strategy-study-2026-09-10/common.py",
+      "testability": "Retain net, close drawdown and sampled low drawdown separately and show nondominated configurations without scalarizing away risk.",
+      "impact": "high",
+      "status": "supported",
+      "statusMeaning": "Supported as a validation improvement or existing invariant, not proof of a profitable strategy."
+    },
+    {
+      "id": "V11",
+      "intervention": "Make the entry cap explicit in sizing sensitivities",
+      "rationale": "common.py hardcodes cash*0.1 in spend; increasing its budget argument alone above 10% cash does not increase allocation.",
+      "evidence_path": "reports/parallel-strategy-study-2026-09-10/common.py",
+      "testability": "On synthetic high-volume flat prices show identical initial fills for budget=1000 and budget=10000 against capital=10000; disclose binding cap.",
+      "impact": "medium",
+      "status": "supported",
+      "statusMeaning": "Supported as a validation improvement or existing invariant, not proof of a profitable strategy."
+    },
+    {
+      "id": "V12",
+      "intervention": "Run same-signal fee sensitivity before treating costs as the sole cause",
+      "rationale": "Prior daily candidates still lost with zero commissions, so fee cuts alone did not solve those signals.",
+      "evidence_path": "reports/parallel-strategy-study-2026-09-10/sensitivity.json",
+      "testability": "Hold target sequence and timing fixed while varying per-side fee; retain adverse price costs and report each candidate's break-even fee.",
+      "impact": "high",
+      "status": "supported",
+      "statusMeaning": "Supported as a validation improvement or existing invariant, not proof of a profitable strategy."
+    },
+    {
+      "id": "V13",
+      "intervention": "Verify the actual applicable account fee tier",
+      "rationale": "80 bps per side is a configured paper assumption; lower real fees might change economics but should not be invented from nominal capital.",
+      "evidence_path": "reports/parallel-strategy-study-2026-09-10/protocol.json",
+      "testability": "Obtain product- and account-specific fee evidence before substituting a cheaper execution scenario.",
+      "impact": "high",
+      "status": "needs_data",
+      "statusMeaning": "Necessary assessment cannot be resolved from the shared daily dataset alone."
+    },
+    {
+      "id": "V14",
+      "intervention": "Separate price-cost stress from execution-delay stress",
+      "rationale": "Combined delay and fees may improve results because a later market price is favorable; it is not necessarily the worst scenario.",
+      "evidence_path": "reports/parallel-strategy-study-2026-09-10/sensitivity.json",
+      "testability": "Evaluate base, same-delay higher fees/slippage, same-cost extra delay, and combined stress; display all four.",
+      "impact": "high",
+      "status": "supported",
+      "statusMeaning": "Supported as a validation improvement or existing invariant, not proof of a profitable strategy."
+    },
+    {
+      "id": "V15",
+      "intervention": "Version instrument rules and expose historical-rule assumptions",
+      "rationale": "Current tick, lot and minimum rules applied to past candles need explicit labeling; historical executability is not independently known.",
+      "evidence_path": "reports/parallel-strategy-study-2026-09-10/data/rules.json",
+      "testability": "Bind current rules with hashes and test rule sensitivity; historical-rule validation requires contemporaneous rule archives.",
+      "impact": "medium",
+      "status": "needs_data",
+      "statusMeaning": "Necessary assessment cannot be resolved from the shared daily dataset alone."
+    },
+    {
+      "id": "V16",
+      "intervention": "Separate strategy exits from forced terminal liquidation",
+      "rationale": "A forced final close converts a long open holding to an episode; it is not evidence the strategy found an executable exit at that timestamp.",
+      "evidence_path": "reports/parallel-strategy-study-2026-09-10/final-detail.json",
+      "testability": "Count target-change exits separately from terminal exits and align final valuation time across all competing implementations.",
+      "impact": "high",
+      "status": "supported",
+      "statusMeaning": "Supported as a validation improvement or existing invariant, not proof of a profitable strategy."
+    },
+    {
+      "id": "V17",
+      "intervention": "Bind every result to immutable data and source files",
+      "rationale": "Reusing a report after code or normalized data changes can silently make its audit obsolete.",
+      "evidence_path": "src/spot-trend/evidence.ts",
+      "testability": "Verify dataset, raw sources, rules, evaluator, candidate generator, protocol and output hashes before accepting a result bundle.",
+      "impact": "high",
+      "status": "supported",
+      "statusMeaning": "Supported as a validation improvement or existing invariant, not proof of a profitable strategy."
+    },
+    {
+      "id": "V18",
+      "intervention": "Check prefix invariance for every candidate",
+      "rationale": "Future bars must not alter historical targets; checking only a family winner misses defects in the other search trials.",
+      "evidence_path": "reports/parallel-strategy-study-2026-09-10/audit.py",
+      "testability": "For all 100 configurations compare full-history prefix targets against targets recomputed on several truncated histories.",
+      "impact": "high",
+      "status": "supported",
+      "statusMeaning": "Supported as a validation improvement or existing invariant, not proof of a profitable strategy."
+    },
+    {
+      "id": "V19",
+      "intervention": "Use only finalized volume at each execution decision",
+      "rationale": "The daily evaluator correctly uses i-2 volume at open i because i-1 has not passed the one-minute finalization delay.",
+      "evidence_path": "reports/parallel-strategy-study-2026-09-10/common.py",
+      "testability": "Mutate i-1 volume and all future values and assert the current fill is unchanged; retain i-2 or earlier for participation sizing.",
+      "impact": "high",
+      "status": "supported",
+      "statusMeaning": "Supported as a validation improvement or existing invariant, not proof of a profitable strategy."
+    },
+    {
+      "id": "V20",
+      "intervention": "Validate fills against synchronized executable books",
+      "rationale": "OHLC opens and daily volume cannot prove spread, depth, acceptance, fill probability or executable protective exits; daily sells currently always fill.",
+      "evidence_path": "src/spot-trend/account.ts",
+      "testability": "Collect timestamped L2 plus intent/submission/fill receipts, replay IOC limits and partial fills, and compare realized shortfall to candle proxies.",
+      "impact": "high",
+      "status": "needs_data",
+      "statusMeaning": "Necessary assessment cannot be resolved from the shared daily dataset alone."
+    },
+    {
+      "id": "V21",
+      "intervention": "Retain unfilled, minimum-size and partial-order outcomes",
+      "rationale": "Discarding rejections can falsely increase coverage and lower costs; the runtime already models these outcomes while common.py simplifies execution.",
+      "evidence_path": "src/spot-trend/orders.ts",
+      "testability": "Reconcile attempted orders to rejected/canceled/partial/filled states; preserve dust and do not erase inventory that cannot be sold.",
+      "impact": "high",
+      "status": "supported",
+      "statusMeaning": "Supported as a validation improvement or existing invariant, not proof of a profitable strategy."
+    },
+    {
+      "id": "V22",
+      "intervention": "Stress contribution concentration across episodes and calendar blocks",
+      "rationale": "Prior rotation validation depended on one large ETH gain; a few long episodes do not constitute many independent bets.",
+      "evidence_path": "reports/parallel-strategy-study-2026-09-10/report.md",
+      "testability": "Report largest trade/month contribution, remove-best-episode net, active days and distinct completed strategy exits.",
+      "impact": "high",
+      "status": "supported",
+      "statusMeaning": "Supported as a validation improvement or existing invariant, not proof of a profitable strategy."
+    },
+    {
+      "id": "V23",
+      "intervention": "Treat multiple-trial bootstrap intervals as descriptive",
+      "rationale": "A 100-candidate screen and unknown earlier trials require stronger interpretation limits than the prior study's 12-trial adjustment; dependence and sparse episodes remain.",
+      "evidence_path": "reports/parallel-strategy-study-2026-09-10/compare.py",
+      "testability": "Use paired calendar-block resampling, retain cash days and a deterministic seed, disclose all trial counts and test several predeclared block lengths.",
+      "impact": "high",
+      "status": "supported",
+      "statusMeaning": "Supported as a validation improvement or existing invariant, not proof of a profitable strategy."
+    },
+    {
+      "id": "V24",
+      "intervention": "Check neighboring parameters and period boundaries",
+      "rationale": "An isolated lookback optimum can be noise; neighboring lookbacks and modest boundary shifts help reveal fragility without converting reused data to fresh validation.",
+      "evidence_path": "reports/parallel-strategy-study-2026-09-10/protocol.json",
+      "testability": "Retain family curves across all registered lookbacks and show adjacent-parameter outcomes plus predeclared calendar subperiod diagnostics.",
+      "impact": "medium",
+      "status": "supported",
+      "statusMeaning": "Supported as a validation improvement or existing invariant, not proof of a profitable strategy."
+    },
+    {
+      "id": "V25",
+      "intervention": "Increase order frequency or capital as a standalone profit fix",
+      "rationale": "More exposure scales negative net expectancy; prior daily candidates lost even with zero commissions, and synthetic flat-price round trips lose after fees.",
+      "evidence_path": "test/spot-trend-continuous-entry.test.ts",
+      "testability": "Compare unchanged-price round trips and fee-scaled sensitivities; require positive measured expectancy before treating scale or activity as beneficial.",
+      "impact": "high",
+      "status": "rejected",
+      "statusMeaning": "Rejected as a standalone remedy for profitability."
+    }
+  ]
+}

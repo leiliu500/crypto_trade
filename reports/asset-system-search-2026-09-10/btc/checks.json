@@ -1,0 +1,170 @@
+{
+  "status": "PASS",
+  "sourceSha256": "1d7a84d44221b44a4b25622b5afa1d3e7eb78a1f261f0906b95a9e6611a21af4",
+  "independentPositiveDefiniteAndGpPosteriorChecks": 13,
+  "rankPermutationAndTieChecks": 123,
+  "independentKalmanPaths": 7,
+  "syntheticFamilies": 6,
+  "syntheticPolicyPaths": 24,
+  "causalPrefixChecks": 48,
+  "otherAssetIsolationChecks": 4,
+  "directionalEventPathChecks": 1,
+  "nativeTargetDiagnostics": {
+    "btc_kalman_velocity_v1": {
+      "longBars": 209,
+      "changes": 15,
+      "sha256": "5ba0300cfddab53ca662c88f95b63bf3d78bccd048bc4125ea6f597f041d1587"
+    },
+    "btc_nonlinear_gp_v1": {
+      "longBars": 172,
+      "changes": 8,
+      "sha256": "e7ece14051f571e9d5e4e51538c327e8d7d4cd56f9feabf4f026325c8c2da6ca"
+    },
+    "btc_rank_sen_trend_v1": {
+      "longBars": 216,
+      "changes": 7,
+      "sha256": "1ec0b5c15e96b133709ba562788d5b50c786b4ecc7f687d31d438dfae812da30"
+    },
+    "btc_directional_change_v1": {
+      "longBars": 328,
+      "changes": 19,
+      "sha256": "422d57d0dd199ee8f3a8963a55332583c866c3d56772d8eab3ce1d3821ba8756"
+    }
+  },
+  "syntheticTargetDiagnostics": {
+    "flat": {
+      "btc_kalman_velocity_v1": {
+        "longDays": 0,
+        "changes": 0,
+        "targetSha256": "a4bea5d3ed79eddeada61ce3b388b5d3ce70226259610a126e72d97d622d1774"
+      },
+      "btc_nonlinear_gp_v1": {
+        "longDays": 0,
+        "changes": 0,
+        "targetSha256": "a4bea5d3ed79eddeada61ce3b388b5d3ce70226259610a126e72d97d622d1774"
+      },
+      "btc_rank_sen_trend_v1": {
+        "longDays": 0,
+        "changes": 0,
+        "targetSha256": "a4bea5d3ed79eddeada61ce3b388b5d3ce70226259610a126e72d97d622d1774"
+      },
+      "btc_directional_change_v1": {
+        "longDays": 0,
+        "changes": 0,
+        "targetSha256": "a4bea5d3ed79eddeada61ce3b388b5d3ce70226259610a126e72d97d622d1774"
+      }
+    },
+    "rising": {
+      "btc_kalman_velocity_v1": {
+        "longDays": 150,
+        "changes": 1,
+        "targetSha256": "62ff1f50cd2fdd9ca457bcfb8d387992a29189630e18c32fd0288bcbcd307639"
+      },
+      "btc_nonlinear_gp_v1": {
+        "longDays": 150,
+        "changes": 1,
+        "targetSha256": "62ff1f50cd2fdd9ca457bcfb8d387992a29189630e18c32fd0288bcbcd307639"
+      },
+      "btc_rank_sen_trend_v1": {
+        "longDays": 150,
+        "changes": 1,
+        "targetSha256": "62ff1f50cd2fdd9ca457bcfb8d387992a29189630e18c32fd0288bcbcd307639"
+      },
+      "btc_directional_change_v1": {
+        "longDays": 137,
+        "changes": 1,
+        "targetSha256": "fdaa7bc61b0dc1f0b4dcb2612d5cc6a605c7ec1a31ac7cc81dd326f27da7e3d4"
+      }
+    },
+    "falling": {
+      "btc_kalman_velocity_v1": {
+        "longDays": 0,
+        "changes": 0,
+        "targetSha256": "a4bea5d3ed79eddeada61ce3b388b5d3ce70226259610a126e72d97d622d1774"
+      },
+      "btc_nonlinear_gp_v1": {
+        "longDays": 0,
+        "changes": 0,
+        "targetSha256": "a4bea5d3ed79eddeada61ce3b388b5d3ce70226259610a126e72d97d622d1774"
+      },
+      "btc_rank_sen_trend_v1": {
+        "longDays": 0,
+        "changes": 0,
+        "targetSha256": "a4bea5d3ed79eddeada61ce3b388b5d3ce70226259610a126e72d97d622d1774"
+      },
+      "btc_directional_change_v1": {
+        "longDays": 0,
+        "changes": 0,
+        "targetSha256": "a4bea5d3ed79eddeada61ce3b388b5d3ce70226259610a126e72d97d622d1774"
+      }
+    },
+    "reversal": {
+      "btc_kalman_velocity_v1": {
+        "longDays": 51,
+        "changes": 2,
+        "targetSha256": "8835a0078055de7f5d1cfea242d36d27317046c63e32f17d43a53d8ff4661046"
+      },
+      "btc_nonlinear_gp_v1": {
+        "longDays": 56,
+        "changes": 2,
+        "targetSha256": "0d699cee2108c1ca50a799f8ad53bc0e327746da605e6cd59e38c258675426ba"
+      },
+      "btc_rank_sen_trend_v1": {
+        "longDays": 65,
+        "changes": 2,
+        "targetSha256": "210b483e863f61992c7b3e43eafbd3ea11d3f118e789222d893a77a48fec9d58"
+      },
+      "btc_directional_change_v1": {
+        "longDays": 37,
+        "changes": 2,
+        "targetSha256": "bf793babf497585b4f7ff69e62629c022f3e54673d4b22f8fd74a8219416515a"
+      }
+    },
+    "alternating": {
+      "btc_kalman_velocity_v1": {
+        "longDays": 0,
+        "changes": 0,
+        "targetSha256": "a4bea5d3ed79eddeada61ce3b388b5d3ce70226259610a126e72d97d622d1774"
+      },
+      "btc_nonlinear_gp_v1": {
+        "longDays": 0,
+        "changes": 0,
+        "targetSha256": "a4bea5d3ed79eddeada61ce3b388b5d3ce70226259610a126e72d97d622d1774"
+      },
+      "btc_rank_sen_trend_v1": {
+        "longDays": 0,
+        "changes": 0,
+        "targetSha256": "a4bea5d3ed79eddeada61ce3b388b5d3ce70226259610a126e72d97d622d1774"
+      },
+      "btc_directional_change_v1": {
+        "longDays": 77,
+        "changes": 43,
+        "targetSha256": "8e8020b62b6547a481b0d078a1b29d5aefebe5c70551505cc1d15d904af3f74c"
+      }
+    },
+    "shock": {
+      "btc_kalman_velocity_v1": {
+        "longDays": 14,
+        "changes": 2,
+        "targetSha256": "0abf981bba3e19ce248635733770ed8305c71a9c8f1b879a34fe87b4e0476d6a"
+      },
+      "btc_nonlinear_gp_v1": {
+        "longDays": 0,
+        "changes": 0,
+        "targetSha256": "a4bea5d3ed79eddeada61ce3b388b5d3ce70226259610a126e72d97d622d1774"
+      },
+      "btc_rank_sen_trend_v1": {
+        "longDays": 0,
+        "changes": 0,
+        "targetSha256": "a4bea5d3ed79eddeada61ce3b388b5d3ce70226259610a126e72d97d622d1774"
+      },
+      "btc_directional_change_v1": {
+        "longDays": 1,
+        "changes": 2,
+        "targetSha256": "952236a6b197ec685f9c28b2858f3a610a441c0270fcae90944710ecb872a5ec"
+      }
+    }
+  },
+  "elapsedSeconds": 9.311140343081206,
+  "limitation": "Checks prove these bounded implementation properties, not profit, calibrated uncertainty, or global structural originality."
+}

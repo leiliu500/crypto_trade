@@ -1,0 +1,26 @@
+{
+  "capturedAt": "2026-09-09T20:05:23.230Z",
+  "mode": "paper",
+  "overall": "healthy",
+  "entriesAllowed": true,
+  "equity": 99998.28269740003,
+  "positions": [],
+  "openOrders": [],
+  "rollingPnlDetails": {
+    "status": "KNOWN",
+    "reason": null,
+    "asOfMs": 1788984323230,
+    "windowStartExclusiveMs": 1788897923230,
+    "windowEndInclusiveMs": 1788984323230,
+    "realizedPricePnl24hUsd": 0,
+    "fees24hUsd": 0,
+    "netRealizedPnl24hUsd": 0,
+    "utcSessionNetPnlUsd": 0,
+    "retainedFillEvents": 382,
+    "retainedMissingFeeEvents": 102,
+    "missingFeeEvents24h": 0,
+    "missingFeeEventsUtcSession": 0,
+    "measurement": "REALIZED_PRICE_PNL_MINUS_RECORDED_EXECUTION_FEES",
+    "fundingIncluded": false
+  }
+}

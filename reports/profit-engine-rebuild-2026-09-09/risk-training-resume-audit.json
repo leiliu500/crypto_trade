@@ -1,0 +1,27 @@
+{
+  "fixture": "Synthetic constant-price books only; no historical performance evaluated",
+  "passed": true,
+  "initialCompletedMs": 1735693202000,
+  "initialLastObservedMs": 1735693203000,
+  "results": [
+    {
+      "name": "Earlier than mature labels",
+      "accepted": false,
+      "expectedAccepted": false,
+      "error": "Error: TRAINING_STATE_OVERLAPS_REPLAY_HISTORY"
+    },
+    {
+      "name": "After mature labels but before final scheduler receipt",
+      "accepted": false,
+      "expectedAccepted": false,
+      "error": "Error: INVALID_EFFICIENT_TRAINING_RECEIPT_FLOOR"
+    },
+    {
+      "name": "Later nonoverlapping prefix",
+      "accepted": true,
+      "expectedAccepted": true,
+      "retainedSamples": 28,
+      "prospectiveSelections": 0
+    }
+  ]
+}

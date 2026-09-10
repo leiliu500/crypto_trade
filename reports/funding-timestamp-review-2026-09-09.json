@@ -1,0 +1,170 @@
+{
+  "version": "kraken-funding-timestamp-review-v1",
+  "createdAtUtc": "2026-09-09T01:25:32.319409+00:00",
+  "scope": "2023 and 2024 funding coverage only; no strategy performance evaluated",
+  "timestampConventionVerified": false,
+  "parserPath": "src/research/hourly-data.ts",
+  "parserSha256": "0786552d6f700f8ad906a6f6db80b423560eef6f79dbb7403250ce1eeb260a91",
+  "sources": [
+    {
+      "url": "https://support.kraken.com/articles/export-historical-funding-rates",
+      "finding": "CSV export since inception; timestamp start/end meaning not stated"
+    },
+    {
+      "url": "https://support.kraken.com/articles/4844359082772-linear-multi-collateral-derivatives-contract-specifications",
+      "finding": "Continuous accrual using rate set at prior hour boundary, settlement at hour end or position changes; absolute funding rate is USD per contract unit per hour"
+    },
+    {
+      "url": "https://docs.kraken.com/api-reference/historical-funding-rates/historical-funding-rates",
+      "finding": "Historical response timestamp example is UTC but start/end meaning not stated"
+    }
+  ],
+  "coverage": [
+    {
+      "symbol": "BTC/USD",
+      "year": 2023,
+      "rawPath": "reports/hourly-adaptive-study-2026-09-08/data-older-restored/raw/PF_XBTUSD-funding.csv",
+      "rawSha256": "8abfb9f959d9989fab6ddbcf587f31d24ae39684974cc2147c283ef2455bc7ef",
+      "rawCalendarRows": 8760,
+      "absoluteRatePresentCount": 8760,
+      "mappings": [
+        {
+          "name": "NORMALIZED_SOURCE_PLUS_1H",
+          "sourceToSettlementOffsetMs": 3600000,
+          "requiredSettlements": 8760,
+          "observedRows": 8760,
+          "uniqueSettlements": 8760,
+          "duplicateRows": 0,
+          "missingCount": 0,
+          "unexpectedCount": 0,
+          "firstSettlementMs": 1672534800000,
+          "lastSettlementMs": 1704067200000
+        },
+        {
+          "name": "NORMALIZED_MINUS_1H_SOURCE_AS_END",
+          "sourceToSettlementOffsetMs": 0,
+          "requiredSettlements": 8760,
+          "observedRows": 8760,
+          "uniqueSettlements": 8760,
+          "duplicateRows": 0,
+          "missingCount": 0,
+          "unexpectedCount": 0,
+          "firstSettlementMs": 1672534800000,
+          "lastSettlementMs": 1704067200000
+        }
+      ]
+    },
+    {
+      "symbol": "BTC/USD",
+      "year": 2024,
+      "rawPath": "reports/hourly-adaptive-study-2026-09-08/data-older-restored/raw/PF_XBTUSD-funding.csv",
+      "rawSha256": "8abfb9f959d9989fab6ddbcf587f31d24ae39684974cc2147c283ef2455bc7ef",
+      "rawCalendarRows": 8784,
+      "absoluteRatePresentCount": 8784,
+      "mappings": [
+        {
+          "name": "NORMALIZED_SOURCE_PLUS_1H",
+          "sourceToSettlementOffsetMs": 3600000,
+          "requiredSettlements": 8784,
+          "observedRows": 8784,
+          "uniqueSettlements": 8784,
+          "duplicateRows": 0,
+          "missingCount": 0,
+          "unexpectedCount": 0,
+          "firstSettlementMs": 1704070800000,
+          "lastSettlementMs": 1735689600000
+        },
+        {
+          "name": "NORMALIZED_MINUS_1H_SOURCE_AS_END",
+          "sourceToSettlementOffsetMs": 0,
+          "requiredSettlements": 8784,
+          "observedRows": 8784,
+          "uniqueSettlements": 8784,
+          "duplicateRows": 0,
+          "missingCount": 0,
+          "unexpectedCount": 0,
+          "firstSettlementMs": 1704070800000,
+          "lastSettlementMs": 1735689600000
+        }
+      ]
+    },
+    {
+      "symbol": "ETH/USD",
+      "year": 2023,
+      "rawPath": "reports/hourly-adaptive-study-2026-09-08/data-older-restored/raw/PF_ETHUSD-funding.csv",
+      "rawSha256": "814bc79243578ff0b3846d409db421b346a35116334b8b709c181942c52615a8",
+      "rawCalendarRows": 8760,
+      "absoluteRatePresentCount": 8760,
+      "mappings": [
+        {
+          "name": "NORMALIZED_SOURCE_PLUS_1H",
+          "sourceToSettlementOffsetMs": 3600000,
+          "requiredSettlements": 8760,
+          "observedRows": 8760,
+          "uniqueSettlements": 8760,
+          "duplicateRows": 0,
+          "missingCount": 0,
+          "unexpectedCount": 0,
+          "firstSettlementMs": 1672534800000,
+          "lastSettlementMs": 1704067200000
+        },
+        {
+          "name": "NORMALIZED_MINUS_1H_SOURCE_AS_END",
+          "sourceToSettlementOffsetMs": 0,
+          "requiredSettlements": 8760,
+          "observedRows": 8760,
+          "uniqueSettlements": 8760,
+          "duplicateRows": 0,
+          "missingCount": 0,
+          "unexpectedCount": 0,
+          "firstSettlementMs": 1672534800000,
+          "lastSettlementMs": 1704067200000
+        }
+      ]
+    },
+    {
+      "symbol": "ETH/USD",
+      "year": 2024,
+      "rawPath": "reports/hourly-adaptive-study-2026-09-08/data-older-restored/raw/PF_ETHUSD-funding.csv",
+      "rawSha256": "814bc79243578ff0b3846d409db421b346a35116334b8b709c181942c52615a8",
+      "rawCalendarRows": 8784,
+      "absoluteRatePresentCount": 8784,
+      "mappings": [
+        {
+          "name": "NORMALIZED_SOURCE_PLUS_1H",
+          "sourceToSettlementOffsetMs": 3600000,
+          "requiredSettlements": 8784,
+          "observedRows": 8784,
+          "uniqueSettlements": 8784,
+          "duplicateRows": 0,
+          "missingCount": 0,
+          "unexpectedCount": 0,
+          "firstSettlementMs": 1704070800000,
+          "lastSettlementMs": 1735689600000
+        },
+        {
+          "name": "NORMALIZED_MINUS_1H_SOURCE_AS_END",
+          "sourceToSettlementOffsetMs": 0,
+          "requiredSettlements": 8784,
+          "observedRows": 8784,
+          "uniqueSettlements": 8784,
+          "duplicateRows": 0,
+          "missingCount": 0,
+          "unexpectedCount": 0,
+          "firstSettlementMs": 1704070800000,
+          "lastSettlementMs": 1735689600000
+        }
+      ]
+    }
+  ],
+  "accountingProtocol": {
+    "cashFlow": "cash -= signedUnitsHeldDuringHour * archivedAbsoluteRate",
+    "hourBoundaryOrder": "Accrue and settle previous interval on inventory held during it before applying boundary fills",
+    "mappingComparison": "Run both timestamp mappings with identical signals, fills, units, fees and execution stress; report each and require success under both; do not select better mapping",
+    "boundaryRule": "Apply timestamp offset before selecting calendar settlement window; retain raw boundary rows",
+    "unverifiedScope": "These are timing-sensitivity accounting scenarios, not proven exact historical cash flows and not exhaustive bounds on all possible data error",
+    "missingRateRule": "Any required absent rate while inventory is nonzero makes full-period net return and drawdown unknown; do not forward-fill or insert zero",
+    "unchangedPriorReports": true,
+    "futurePeriodPerformanceInspected": false
+  }
+}

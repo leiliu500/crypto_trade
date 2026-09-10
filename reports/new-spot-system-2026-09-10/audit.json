@@ -1,0 +1,268 @@
+{
+  "version": "independent-spot-trend-audit-v1",
+  "auditedAtUtc": "2026-09-10T05:33:00.429Z",
+  "passed": true,
+  "checks": 73337,
+  "fileHashes": {
+    "reports/new-spot-system-2026-09-10/audit.mjs": "25eed9b7969f8add0b68ec07eaf4ca1c78a02dd79ca92d1465e21faa389c7493",
+    "reports/new-spot-system-2026-09-10/historical-study/protocol.json": "3f3edd0a3a6cd3ff4becff497bfbaacdea7dd6beb9499b1b6343b13bd7edd701",
+    "reports/new-spot-system-2026-09-10/historical-study/report.json": "8c6f93b0ad585bef74931e6e067c06364f1aea7da9cabe2d63682127a93888cd",
+    "reports/new-spot-system-2026-09-10/historical-study/report.md": "70660cd7840333a0dff1de9f123addb7ac0691980f0b9ff923aef489cd5a3659",
+    "src/spot-trend/spec.ts": "a93cbc06c54668cb915f5011d7f6ffd04c3062261732f0c62b0f2d13ea98e25a",
+    "reports/new-spot-system-2026-09-10/historical-study/sources/src/spot-trend/spec.ts": "a93cbc06c54668cb915f5011d7f6ffd04c3062261732f0c62b0f2d13ea98e25a",
+    "src/spot-trend/data.ts": "33692c162453e016837459911b54949c08da87070759c674ab52b4f9e8719020",
+    "reports/new-spot-system-2026-09-10/historical-study/sources/src/spot-trend/data.ts": "33692c162453e016837459911b54949c08da87070759c674ab52b4f9e8719020",
+    "src/spot-trend/account.ts": "12a33739b685eb68506ebe0a76d21ee53804213dd7bd73706425a7f5470cdd2f",
+    "reports/new-spot-system-2026-09-10/historical-study/sources/src/spot-trend/account.ts": "12a33739b685eb68506ebe0a76d21ee53804213dd7bd73706425a7f5470cdd2f",
+    "src/spot-trend/signal.ts": "f9ef8b0a81f81a75c9186a00e58226de2d39464d16e6b8ea78227f26e61ddc03",
+    "reports/new-spot-system-2026-09-10/historical-study/sources/src/spot-trend/signal.ts": "f9ef8b0a81f81a75c9186a00e58226de2d39464d16e6b8ea78227f26e61ddc03",
+    "src/spot-trend/replay.ts": "f2d942844a8c973ae3d8bd6189ca529e250f77e693b4786973e44f815cccda57",
+    "reports/new-spot-system-2026-09-10/historical-study/sources/src/spot-trend/replay.ts": "f2d942844a8c973ae3d8bd6189ca529e250f77e693b4786973e44f815cccda57",
+    "src/spot-trend/study-main.ts": "5b673f53bc406178273d1283f91fd50aea3424ba79c6e26808e1a726ac87e9b9",
+    "reports/new-spot-system-2026-09-10/historical-study/sources/src/spot-trend/study-main.ts": "5b673f53bc406178273d1283f91fd50aea3424ba79c6e26808e1a726ac87e9b9",
+    "package-lock.json": "2315bada829d31ccb4d3970392ba56d73458d3219dda1ec98d8dda0d41893594",
+    "reports/new-spot-system-2026-09-10/historical-study/sources/package-lock.json": "2315bada829d31ccb4d3970392ba56d73458d3219dda1ec98d8dda0d41893594",
+    "tsconfig.json": "f67c2b8d0029850632819cc5da43e2c89468c9217e0dd8f93b3e1887afedaca3",
+    "reports/new-spot-system-2026-09-10/historical-study/sources/tsconfig.json": "f67c2b8d0029850632819cc5da43e2c89468c9217e0dd8f93b3e1887afedaca3",
+    "reports/new-spot-system-2026-09-10/market-data/manifest.json": "a37206b53dd1f90c514f4527634e137098fd6e2a069149af253c92473746802e",
+    "reports/new-spot-system-2026-09-10/market-data/dataset.json": "ab3518310bfd0e4b40f539ef69a864ea5fa56908708003711d61b9d835b90df6",
+    "reports/new-spot-system-2026-09-10/market-data/registration.json": "8b52f5f42e6e6854a5ff9b1ccb51ed3485a4e4b6ddf3fd766def76668314f178",
+    "reports/new-spot-system-2026-09-10/market-data/source.json": "6e92f2ffbd3e1931dbb27435abb49d16871da6937f3c07b7f6336728406094c5",
+    "reports/new-spot-system-2026-09-10/historical-study/full-base-trend.json": "0bedb74190a68b7a9b84444fdfadcebbc08af7750979654dd176ffb3be61c78b",
+    "reports/new-spot-system-2026-09-10/historical-study/full-base-buy-hold.json": "a58c009bf5a7304679536dbc2315d32192b35d1a1755e180dcc2f1fdd72d4e0a",
+    "reports/new-spot-system-2026-09-10/historical-study/full-base-cash.json": "a24d3977079f62a4deb2a9b630beeaef9192d1a960f5e28648770da6493077fe",
+    "reports/new-spot-system-2026-09-10/historical-study/full-stress-trend.json": "87a921a25128dbc89e88c99afaeed8003eb22c14a23156dfd7bb7f59bc21610b",
+    "reports/new-spot-system-2026-09-10/historical-study/full-stress-buy-hold.json": "268e0fe9fb6e62ed2614aab6d8ef38a5a7890503c7e6b46d28c6f66fc62ff2c7",
+    "reports/new-spot-system-2026-09-10/historical-study/full-stress-cash.json": "d7125ca2e08f4fae338ef7e36d72b0251e05ece8731786f3459f1c300974b816",
+    "reports/new-spot-system-2026-09-10/historical-study/2017-2019-base-trend.json": "bd21a7fb0555b220ceffec019fbe0a74456fc3978499c4a6c914cf95cbcec3a2",
+    "reports/new-spot-system-2026-09-10/historical-study/2017-2019-base-buy-hold.json": "45cb0905e00a74b9bcfe99354189d89f5a1c117b6ae46ab20d2ac37c02225353",
+    "reports/new-spot-system-2026-09-10/historical-study/2017-2019-base-cash.json": "c15fb3a7892f909e8190374951a72f516a9895d0b9af7947c5ecd060ba37384b",
+    "reports/new-spot-system-2026-09-10/historical-study/2017-2019-stress-trend.json": "13c60c3d077f6c75f090c1869b51d054737d29e46044c15ce8f40c89a6e8a625",
+    "reports/new-spot-system-2026-09-10/historical-study/2017-2019-stress-buy-hold.json": "4df80be4e8adc58014617ec2351dfcd16e442b75865d882eaaeab287f7cf33ed",
+    "reports/new-spot-system-2026-09-10/historical-study/2017-2019-stress-cash.json": "bc1637b3128958dbd751b39c1e517f30413d2729bda37793af5085f084fdf557",
+    "reports/new-spot-system-2026-09-10/historical-study/2020-2022-base-trend.json": "83e6eced9275928b01caa25936c86741cf04b137a16b8f0588e40e12a3fd2ebf",
+    "reports/new-spot-system-2026-09-10/historical-study/2020-2022-base-buy-hold.json": "5ea04e229c0044326ebc1beabbf7eee88579968bdd58a7ba39f534e02632c27c",
+    "reports/new-spot-system-2026-09-10/historical-study/2020-2022-base-cash.json": "8e1f0fca0319b41ac585462de5f5394d38209ed56e6b7afb9aa8e6340a1cfd40",
+    "reports/new-spot-system-2026-09-10/historical-study/2020-2022-stress-trend.json": "ca8aeec032ecbf47d5db4d7af6e9af71c0d366099ecc8d068547d910d641fcb9",
+    "reports/new-spot-system-2026-09-10/historical-study/2020-2022-stress-buy-hold.json": "318666c783a3b1451956bd2662e8754810a6b11f74b1e877152184d0cf05cd0f",
+    "reports/new-spot-system-2026-09-10/historical-study/2020-2022-stress-cash.json": "a850f1fe98a9b46bd6888866944256539a003bf8f9924738302a36e56ac3c43c",
+    "reports/new-spot-system-2026-09-10/historical-study/2023-2026-september-base-trend.json": "923d45191f4aca7d6eafb5f45e9f705f0c5748b474a38a03a3be0db85aed0ebb",
+    "reports/new-spot-system-2026-09-10/historical-study/2023-2026-september-base-buy-hold.json": "fd7b1d14c4948c97a04498efbe75865ee7dc14c0a48285999db4f7676c67e62d",
+    "reports/new-spot-system-2026-09-10/historical-study/2023-2026-september-base-cash.json": "6efb79cd716c0ffca1dec365ca9630c54e41272ca05e142af53bd81830eddf82",
+    "reports/new-spot-system-2026-09-10/historical-study/2023-2026-september-stress-trend.json": "e4ba9ecd9ab776ae5667aa8d50ac7cc1154a751f7a2629024a601de90c61386e",
+    "reports/new-spot-system-2026-09-10/historical-study/2023-2026-september-stress-buy-hold.json": "9726a528d6030e257cdcf8d95d854782de3d20bda619845c838381216590c366",
+    "reports/new-spot-system-2026-09-10/historical-study/2023-2026-september-stress-cash.json": "64e5473f12750356de854fd117f669b1014edefb44234fdb99bbf93484d95bd9"
+  },
+  "studyDirectory": "reports/new-spot-system-2026-09-10/historical-study",
+  "dataDirectory": "reports/new-spot-system-2026-09-10/market-data",
+  "strategyVersion": "btc-spot-funded-weekly-trend-v1",
+  "researchPaperEligible": true,
+  "applicationModulesImported": false,
+  "exactDecimalCashReconciled": true,
+  "greatestNumericResidual": 0.008681430466822349,
+  "runs": [
+    {
+      "file": "full-base-trend.json",
+      "cashReconciled": true,
+      "sourceWeeks": 505,
+      "fills": 25,
+      "exactDecimalCashResidualUsd": 2.9103830456733704e-11,
+      "closedEpisodes": 11
+    },
+    {
+      "file": "full-base-buy-hold.json",
+      "cashReconciled": true,
+      "sourceWeeks": 505,
+      "fills": 2,
+      "exactDecimalCashResidualUsd": 0,
+      "closedEpisodes": 1
+    },
+    {
+      "file": "full-base-cash.json",
+      "cashReconciled": true,
+      "sourceWeeks": 505,
+      "fills": 0,
+      "exactDecimalCashResidualUsd": 0,
+      "closedEpisodes": 0
+    },
+    {
+      "file": "full-stress-trend.json",
+      "cashReconciled": true,
+      "sourceWeeks": 505,
+      "fills": 25,
+      "exactDecimalCashResidualUsd": -1.4551915228366852e-11,
+      "closedEpisodes": 11
+    },
+    {
+      "file": "full-stress-buy-hold.json",
+      "cashReconciled": true,
+      "sourceWeeks": 505,
+      "fills": 2,
+      "exactDecimalCashResidualUsd": 0,
+      "closedEpisodes": 1
+    },
+    {
+      "file": "full-stress-cash.json",
+      "cashReconciled": true,
+      "sourceWeeks": 505,
+      "fills": 0,
+      "exactDecimalCashResidualUsd": 0,
+      "closedEpisodes": 0
+    },
+    {
+      "file": "2017-2019-base-trend.json",
+      "cashReconciled": true,
+      "sourceWeeks": 155,
+      "fills": 11,
+      "exactDecimalCashResidualUsd": 1.4551915228366852e-11,
+      "closedEpisodes": 4
+    },
+    {
+      "file": "2017-2019-base-buy-hold.json",
+      "cashReconciled": true,
+      "sourceWeeks": 155,
+      "fills": 2,
+      "exactDecimalCashResidualUsd": 1.4551915228366852e-11,
+      "closedEpisodes": 1
+    },
+    {
+      "file": "2017-2019-base-cash.json",
+      "cashReconciled": true,
+      "sourceWeeks": 155,
+      "fills": 0,
+      "exactDecimalCashResidualUsd": 0,
+      "closedEpisodes": 0
+    },
+    {
+      "file": "2017-2019-stress-trend.json",
+      "cashReconciled": true,
+      "sourceWeeks": 155,
+      "fills": 11,
+      "exactDecimalCashResidualUsd": 1.4551915228366852e-11,
+      "closedEpisodes": 4
+    },
+    {
+      "file": "2017-2019-stress-buy-hold.json",
+      "cashReconciled": true,
+      "sourceWeeks": 155,
+      "fills": 2,
+      "exactDecimalCashResidualUsd": 0,
+      "closedEpisodes": 1
+    },
+    {
+      "file": "2017-2019-stress-cash.json",
+      "cashReconciled": true,
+      "sourceWeeks": 155,
+      "fills": 0,
+      "exactDecimalCashResidualUsd": 0,
+      "closedEpisodes": 0
+    },
+    {
+      "file": "2020-2022-base-trend.json",
+      "cashReconciled": true,
+      "sourceWeeks": 156,
+      "fills": 8,
+      "exactDecimalCashResidualUsd": 1.4551915228366852e-11,
+      "closedEpisodes": 4
+    },
+    {
+      "file": "2020-2022-base-buy-hold.json",
+      "cashReconciled": true,
+      "sourceWeeks": 156,
+      "fills": 2,
+      "exactDecimalCashResidualUsd": 0,
+      "closedEpisodes": 1
+    },
+    {
+      "file": "2020-2022-base-cash.json",
+      "cashReconciled": true,
+      "sourceWeeks": 156,
+      "fills": 0,
+      "exactDecimalCashResidualUsd": 0,
+      "closedEpisodes": 0
+    },
+    {
+      "file": "2020-2022-stress-trend.json",
+      "cashReconciled": true,
+      "sourceWeeks": 156,
+      "fills": 8,
+      "exactDecimalCashResidualUsd": 0,
+      "closedEpisodes": 4
+    },
+    {
+      "file": "2020-2022-stress-buy-hold.json",
+      "cashReconciled": true,
+      "sourceWeeks": 156,
+      "fills": 2,
+      "exactDecimalCashResidualUsd": -1.4551915228366852e-11,
+      "closedEpisodes": 1
+    },
+    {
+      "file": "2020-2022-stress-cash.json",
+      "cashReconciled": true,
+      "sourceWeeks": 156,
+      "fills": 0,
+      "exactDecimalCashResidualUsd": 0,
+      "closedEpisodes": 0
+    },
+    {
+      "file": "2023-2026-september-base-trend.json",
+      "cashReconciled": true,
+      "sourceWeeks": 192,
+      "fills": 6,
+      "exactDecimalCashResidualUsd": 0,
+      "closedEpisodes": 3
+    },
+    {
+      "file": "2023-2026-september-base-buy-hold.json",
+      "cashReconciled": true,
+      "sourceWeeks": 192,
+      "fills": 2,
+      "exactDecimalCashResidualUsd": 0,
+      "closedEpisodes": 1
+    },
+    {
+      "file": "2023-2026-september-base-cash.json",
+      "cashReconciled": true,
+      "sourceWeeks": 192,
+      "fills": 0,
+      "exactDecimalCashResidualUsd": 0,
+      "closedEpisodes": 0
+    },
+    {
+      "file": "2023-2026-september-stress-trend.json",
+      "cashReconciled": true,
+      "sourceWeeks": 192,
+      "fills": 6,
+      "exactDecimalCashResidualUsd": 0,
+      "closedEpisodes": 3
+    },
+    {
+      "file": "2023-2026-september-stress-buy-hold.json",
+      "cashReconciled": true,
+      "sourceWeeks": 192,
+      "fills": 2,
+      "exactDecimalCashResidualUsd": 1.4551915228366852e-11,
+      "closedEpisodes": 1
+    },
+    {
+      "file": "2023-2026-september-stress-cash.json",
+      "cashReconciled": true,
+      "sourceWeeks": 192,
+      "fills": 0,
+      "exactDecimalCashResidualUsd": 0,
+      "closedEpisodes": 0
+    }
+  ],
+  "bootstrapLowerMeanWeeklyNetUsd": -0.4781742076421477,
+  "provenProfitable": false,
+  "independentProspectiveValidationPassed": false,
+  "liveTradingAllowed": false,
+  "limitations": [
+    "Mathematical and source consistency is not a guarantee of executable or future profit.",
+    "Historical market prices were already known; this audit is not an untouched strategy holdout.",
+    "Weekly proxy fills, unknown intraperiod price order and current fee assumptions retain all report limitations.",
+    "Buy-and-hold has the same initial purchase budget but is not exposure- or risk-matched.",
+    "The negative lower bootstrap mean remains inconclusive even when the small research-paper nomination screen passes."
+  ]
+}

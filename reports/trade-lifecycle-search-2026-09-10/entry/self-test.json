@@ -1,0 +1,30 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "check": "prefix_causality",
+      "candidatePrefixComparisons": 90
+    },
+    {
+      "check": "six_lengths_booleans_warmups_baseline_subsets_and_future_mutation"
+    },
+    {
+      "check": "flat_alternative_gates_inactive_and_price_volume_unit_invariance"
+    },
+    {
+      "check": "positive_drift_and_positive_pressure_firing_witnesses"
+    },
+    {
+      "check": "BTC_noisy_path_rejected_and_ordered_pullback_cross_fires"
+    },
+    {
+      "check": "ETH_range_shock_and_unconfirmed_baseline_rejected"
+    },
+    {
+      "check": "same_closes_opposite_close_location_changes_ETH_pressure_gate"
+    }
+  ],
+  "profitResultsComputedOrInspected": false,
+  "codeSha256": "e43773ed29f16655dd6edd881b4a7f25c5dcd51b382ef4d34ac54b897a411e8e",
+  "datasetSha256": "951499efbfe353842f55b78b94e7d0fe1ba642afa2867f077810835f2303a45e"
+}

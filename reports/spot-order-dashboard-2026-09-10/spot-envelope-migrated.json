@@ -1,0 +1,64 @@
+{
+  "version": "spot-paper-journal-v1",
+  "state": {
+    "version": "btc-spot-weekly-research-paper-runner-v2",
+    "mode": "RESEARCH_PAPER",
+    "startedAtMs": 1789019349083,
+    "lastCycleMs": 1789021184958,
+    "cycles": 8,
+    "account": {
+      "initialCashUsd": 100000,
+      "cashUsd": 100000,
+      "quantity": 0,
+      "entryCostUsd": 0,
+      "realizedNetUsd": 0,
+      "feesUsd": 0,
+      "receipts": []
+    },
+    "peakEquityUsd": 100000,
+    "halted": false,
+    "lastSignal": {
+      "version": "btc-spot-funded-weekly-trend-v1",
+      "availableAtMs": 1788393660000,
+      "lastWeekEndMs": 1788393600000,
+      "close": 77305.1,
+      "state": "long",
+      "reason": "TREND_ENTER",
+      "movingAverage": 74385.5475
+    },
+    "lastDecision": {
+      "timestampMs": 1789021184958,
+      "action": "hold",
+      "reason": "NEXT_WEEK_ENTRY_WINDOW",
+      "fill": null,
+      "orderId": null,
+      "signal": {
+        "version": "btc-spot-funded-weekly-trend-v1",
+        "availableAtMs": 1788393660000,
+        "lastWeekEndMs": 1788393600000,
+        "close": 77305.1,
+        "state": "long",
+        "reason": "TREND_ENTER",
+        "movingAverage": 74385.5475
+      },
+      "mark": {
+        "equityUsd": 100000,
+        "liquidationEquityUsd": 100000,
+        "unrealizedNetUsd": 0,
+        "netPnlUsd": 0
+      }
+    },
+    "evidenceSha256": "3eed46dd2a5f17dc48e87e190243971754b1c7b0394ebcadb4eb289d30ebb509",
+    "orders": []
+  },
+  "runtimeSourceSha256": "7f98cc50ef5158dc075f6a172eeb4343cbce286c5a676debe2a17335dcc229da",
+  "lastEvidence": {
+    "file": "cycles/8-1789021184958-submitted.json",
+    "sha256": "82a7cc1afe2686869c3510a3e7579a87ca7ce3b8a6f5d0a60586796c27be747f"
+  },
+  "receiptEvidence": {},
+  "migrationEvidence": {
+    "file": "migrations/343a24cefa2879f957583cb7ee7f7ddbdd7daa54afc71b4918f007212beae7a1.json",
+    "sha256": "4cedc642840cd35347c3df96dcc9880be0b1ec02fca25331a6414d94790f30f0"
+  }
+}

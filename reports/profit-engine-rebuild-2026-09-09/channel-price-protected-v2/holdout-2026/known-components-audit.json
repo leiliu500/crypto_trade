@@ -1,0 +1,125 @@
+{
+  "kind": "POST_RUN_KNOWN_COMPONENT_RECONCILIATION_ONLY_NO_STRATEGY_RERUN",
+  "createdAtUtc": "2026-09-09T21:28:14.951672+00:00",
+  "fullFundedResultsKnown": false,
+  "partialComponentsAreNotFullProfit": true,
+  "explanation": "Both paths permanently block new entries after the first missing held funding hour. Known arithmetic below excludes absent rate cashflows and does not establish January-July funded profits. Full drawdown and funded confidence bounds remain unknown. The absence of modeled risk halts is not proof of full funded risk compliance.",
+  "runs": [
+    {
+      "scenario": "base",
+      "runSha256": "c87d06c8c373e4f2f201ef35c6cb86bd972f6c3e10ca330aaa9df16a04b05675",
+      "fullFundedPnlUsd": null,
+      "fullFundedAccountingKnown": false,
+      "grossPricePnlUsd": 121.98510000000003,
+      "modeledFeesUsd": 1.77447315,
+      "fundingFromPresentRatesOnlyUsd": -1.4502771153447749,
+      "partialKnownComponentSumUsd": 118.76034973465525,
+      "partialLedgerDifferenceUsd": 118.76034973472997,
+      "partialReconciliationResidualUsd": -7.472067409253214e-11,
+      "closedEpisodes": 3,
+      "missingHeldFunding": [
+        {
+          "symbol": "ETH/USD",
+          "accrualStartUtc": "2026-02-04T12:00:00+00:00",
+          "accrualEndUtc": "2026-02-04T13:00:00+00:00",
+          "heldEpisodes": [
+            {
+              "side": -1,
+              "entryQty": 0.179,
+              "entryUtc": "2026-01-31T01:00:00+00:00",
+              "exitUtc": "2026-02-25T22:00:00+00:00"
+            }
+          ]
+        },
+        {
+          "symbol": "BTC/USD",
+          "accrualStartUtc": "2026-02-04T12:00:00+00:00",
+          "accrualEndUtc": "2026-02-04T13:00:00+00:00",
+          "heldEpisodes": [
+            {
+              "side": -1,
+              "entryQty": 0.0066,
+              "entryUtc": "2026-02-01T01:00:00+00:00",
+              "exitUtc": "2026-02-06T18:00:00+00:00"
+            }
+          ]
+        },
+        {
+          "symbol": "ETH/USD",
+          "accrualStartUtc": "2026-02-13T18:00:00+00:00",
+          "accrualEndUtc": "2026-02-13T19:00:00+00:00",
+          "heldEpisodes": [
+            {
+              "side": -1,
+              "entryQty": 0.179,
+              "entryUtc": "2026-01-31T01:00:00+00:00",
+              "exitUtc": "2026-02-25T22:00:00+00:00"
+            }
+          ]
+        }
+      ],
+      "firstAccountingFailureUtc": "2026-02-04T12:00:00+00:00",
+      "lastExitUtc": "2026-02-25T22:00:00+00:00",
+      "noAdditionalEntriesAfterAccountingFailure": true
+    },
+    {
+      "scenario": "stress",
+      "runSha256": "a6568f11de87722ad387de39e1e039cb87ec93b2b58012c5583d31c206044749",
+      "fullFundedPnlUsd": null,
+      "fullFundedAccountingKnown": false,
+      "grossPricePnlUsd": 110.75250000000004,
+      "modeledFeesUsd": 2.560809525,
+      "fundingFromPresentRatesOnlyUsd": -1.3988708891924808,
+      "partialKnownComponentSumUsd": 106.79281958580756,
+      "partialLedgerDifferenceUsd": 106.79281958569482,
+      "partialReconciliationResidualUsd": 1.127489213104127e-10,
+      "closedEpisodes": 3,
+      "missingHeldFunding": [
+        {
+          "symbol": "ETH/USD",
+          "accrualStartUtc": "2026-02-04T12:00:00+00:00",
+          "accrualEndUtc": "2026-02-04T13:00:00+00:00",
+          "heldEpisodes": [
+            {
+              "side": -1,
+              "entryQty": 0.172,
+              "entryUtc": "2026-01-31T02:00:00+00:00",
+              "exitUtc": "2026-02-25T22:00:00+00:00"
+            }
+          ]
+        },
+        {
+          "symbol": "BTC/USD",
+          "accrualStartUtc": "2026-02-04T12:00:00+00:00",
+          "accrualEndUtc": "2026-02-04T13:00:00+00:00",
+          "heldEpisodes": [
+            {
+              "side": -1,
+              "entryQty": 0.0062,
+              "entryUtc": "2026-02-01T02:00:00+00:00",
+              "exitUtc": "2026-02-06T18:00:00+00:00"
+            }
+          ]
+        },
+        {
+          "symbol": "ETH/USD",
+          "accrualStartUtc": "2026-02-13T18:00:00+00:00",
+          "accrualEndUtc": "2026-02-13T19:00:00+00:00",
+          "heldEpisodes": [
+            {
+              "side": -1,
+              "entryQty": 0.172,
+              "entryUtc": "2026-01-31T02:00:00+00:00",
+              "exitUtc": "2026-02-25T22:00:00+00:00"
+            }
+          ]
+        }
+      ],
+      "firstAccountingFailureUtc": "2026-02-04T12:00:00+00:00",
+      "lastExitUtc": "2026-02-25T22:00:00+00:00",
+      "noAdditionalEntriesAfterAccountingFailure": true
+    }
+  ],
+  "strategyOrGateChanges": false,
+  "runtimeActivated": false
+}

@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "defaultView": "BTC_SPOT",
+  "futuresView": "/?view=futures",
+  "testsPassed": 41,
+  "checks": {
+    "image": true,
+    "servedAssets": true,
+    "continuity": true,
+    "browser": true
+  },
+  "tradingBehaviorChanged": false,
+  "deployedImage": "sha256:8f70e03fc0bd16222b2ab993fbcb49f335e8c0d103acb436ff824b8e9697216f"
+}

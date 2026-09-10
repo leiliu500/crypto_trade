@@ -1,0 +1,657 @@
+{
+  "version": "btc-eth-profitability-status-v1",
+  "createdAtUtc": "2026-09-09T00:08:37.951181+00:00",
+  "status": "PROFITABILITY_NOT_ESTABLISHED",
+  "readOnlyOperationalAudit": true,
+  "runtimeSourceOrConfigurationChanged": false,
+  "newModelActivated": false,
+  "liveSnapshots": [
+    {
+      "capturedAtUtc": "2026-09-09T00:00:20.749000+00:00",
+      "mode": "paper",
+      "paper": true,
+      "overall": "healthy",
+      "entriesAllowed": true,
+      "databaseConnected": true,
+      "databaseDroppedRecords": 0,
+      "openPositions": 0,
+      "currentUtcDayOrderCards": 0,
+      "markets": [
+        {
+          "symbol": "BTC/USD",
+          "bookValid": true,
+          "stale": false,
+          "providerAgeMs": 80,
+          "warmedUp": true,
+          "paperEnabled": true,
+          "decisionAtUtc": "2026-09-09T00:00:20.688000+00:00",
+          "selectionPolicyVersion": "btc-eth-selected-policy-paper-trial-3d-efficient-v1",
+          "predictionModelVersion": "btc-eth-distributional-control-v1",
+          "evaluationIntervalMs": 1000,
+          "trainingIntervals": [
+            {
+              "horizonMs": 300000,
+              "intervalMs": 360000
+            },
+            {
+              "horizonMs": 900000,
+              "intervalMs": 960000
+            },
+            {
+              "horizonMs": 1800000,
+              "intervalMs": 1860000
+            }
+          ],
+          "globalEvaluationsSinceRestart": 23339,
+          "globalSelectionsSinceRestart": 0,
+          "globalRetainedTrainingLabels": 1472,
+          "marketReadiness": {
+            "symbol": "BTC/USD",
+            "sampleCount": 181,
+            "restoredSampleCount": 0,
+            "oldestAtMs": 1788910208975,
+            "latestAtMs": 1788912016764,
+            "coverageMs": 1800000,
+            "remainingMs": 0,
+            "flowCoverageMs": 30000,
+            "flowRemainingMs": 0,
+            "ready": true,
+            "reason": "READY"
+          },
+          "selectedAction": null,
+          "paperReady": false,
+          "estimates": [
+            {
+              "actionId": "long-5m",
+              "samples": 44,
+              "effectiveSamples": 40.778445969966114,
+              "observedDays": 4,
+              "meanNetBps": -10.23132232326652,
+              "scoreBps": -15.920528094549947,
+              "reason": "INSUFFICIENT_SAMPLES",
+              "eligible": false
+            },
+            {
+              "actionId": "short-5m",
+              "samples": 44,
+              "effectiveSamples": 40.77851083605396,
+              "observedDays": 4,
+              "meanNetBps": -10.580879711233719,
+              "scoreBps": -16.126701649131117,
+              "reason": "INSUFFICIENT_SAMPLES",
+              "eligible": false
+            },
+            {
+              "actionId": "long-15m",
+              "samples": 37,
+              "effectiveSamples": 34.731798269084514,
+              "observedDays": 4,
+              "meanNetBps": -10.736248539839266,
+              "scoreBps": -19.843030510162265,
+              "reason": "INSUFFICIENT_SAMPLES",
+              "eligible": false
+            },
+            {
+              "actionId": "short-15m",
+              "samples": 37,
+              "effectiveSamples": 34.731798269084514,
+              "observedDays": 4,
+              "meanNetBps": -7.83380725201443,
+              "scoreBps": -15.279817575843266,
+              "reason": "INSUFFICIENT_SAMPLES",
+              "eligible": false
+            },
+            {
+              "actionId": "long-30m",
+              "samples": 37,
+              "effectiveSamples": 34.681476529266476,
+              "observedDays": 4,
+              "meanNetBps": -10.722476231257083,
+              "scoreBps": -21.63213547730967,
+              "reason": "INSUFFICIENT_SAMPLES",
+              "eligible": false
+            },
+            {
+              "actionId": "short-30m",
+              "samples": 37,
+              "effectiveSamples": 34.681476529266476,
+              "observedDays": 4,
+              "meanNetBps": -8.242917184603078,
+              "scoreBps": -16.49121191787438,
+              "reason": "INSUFFICIENT_SAMPLES",
+              "eligible": false
+            }
+          ]
+        },
+        {
+          "symbol": "ETH/USD",
+          "bookValid": true,
+          "stale": false,
+          "providerAgeMs": 71,
+          "warmedUp": true,
+          "paperEnabled": true,
+          "decisionAtUtc": "2026-09-09T00:00:20.084000+00:00",
+          "selectionPolicyVersion": "btc-eth-selected-policy-paper-trial-3d-efficient-v1",
+          "predictionModelVersion": "btc-eth-distributional-control-v1",
+          "evaluationIntervalMs": 1000,
+          "trainingIntervals": [
+            {
+              "horizonMs": 300000,
+              "intervalMs": 360000
+            },
+            {
+              "horizonMs": 900000,
+              "intervalMs": 960000
+            },
+            {
+              "horizonMs": 1800000,
+              "intervalMs": 1860000
+            }
+          ],
+          "globalEvaluationsSinceRestart": 23339,
+          "globalSelectionsSinceRestart": 0,
+          "globalRetainedTrainingLabels": 1472,
+          "marketReadiness": {
+            "symbol": "ETH/USD",
+            "sampleCount": 180,
+            "restoredSampleCount": 0,
+            "oldestAtMs": 1788910206820,
+            "latestAtMs": 1788912012869,
+            "coverageMs": 1800000,
+            "remainingMs": 0,
+            "flowCoverageMs": 30000,
+            "flowRemainingMs": 0,
+            "ready": true,
+            "reason": "READY"
+          },
+          "selectedAction": null,
+          "paperReady": false,
+          "estimates": [
+            {
+              "actionId": "long-5m",
+              "samples": 74,
+              "effectiveSamples": 69.17070330183476,
+              "observedDays": 4,
+              "meanNetBps": -12.142672817197349,
+              "scoreBps": -18.719700478371408,
+              "reason": "SCORE_BELOW_MINIMUM",
+              "eligible": false
+            },
+            {
+              "actionId": "short-5m",
+              "samples": 74,
+              "effectiveSamples": 69.17096758048,
+              "observedDays": 4,
+              "meanNetBps": -12.625438888673642,
+              "scoreBps": -19.435582014492873,
+              "reason": "SCORE_BELOW_MINIMUM",
+              "eligible": false
+            },
+            {
+              "actionId": "long-15m",
+              "samples": 59,
+              "effectiveSamples": 54.67859287003004,
+              "observedDays": 4,
+              "meanNetBps": -12.364474607788345,
+              "scoreBps": -22.065620461193497,
+              "reason": "SCORE_BELOW_MINIMUM",
+              "eligible": false
+            },
+            {
+              "actionId": "short-15m",
+              "samples": 59,
+              "effectiveSamples": 54.67859287003004,
+              "observedDays": 4,
+              "meanNetBps": -10.225236320192842,
+              "scoreBps": -20.869182559763647,
+              "reason": "SCORE_BELOW_MINIMUM",
+              "eligible": false
+            },
+            {
+              "actionId": "long-30m",
+              "samples": 58,
+              "effectiveSamples": 53.84241161983487,
+              "observedDays": 4,
+              "meanNetBps": -9.615017746323339,
+              "scoreBps": -23.790645957126202,
+              "reason": "SCORE_BELOW_MINIMUM",
+              "eligible": false
+            },
+            {
+              "actionId": "short-30m",
+              "samples": 58,
+              "effectiveSamples": 53.84241180432837,
+              "observedDays": 4,
+              "meanNetBps": -13.00028377323589,
+              "scoreBps": -27.016966380913306,
+              "reason": "SCORE_BELOW_MINIMUM",
+              "eligible": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "capturedAtUtc": "2026-09-09T00:02:32.064000+00:00",
+      "mode": "paper",
+      "paper": true,
+      "overall": "healthy",
+      "entriesAllowed": true,
+      "databaseConnected": true,
+      "databaseDroppedRecords": 0,
+      "openPositions": 0,
+      "currentUtcDayOrderCards": 0,
+      "markets": [
+        {
+          "symbol": "BTC/USD",
+          "bookValid": true,
+          "stale": false,
+          "providerAgeMs": 72,
+          "warmedUp": true,
+          "paperEnabled": true,
+          "decisionAtUtc": "2026-09-09T00:02:31.464000+00:00",
+          "selectionPolicyVersion": "btc-eth-selected-policy-paper-trial-3d-efficient-v1",
+          "predictionModelVersion": "btc-eth-distributional-control-v1",
+          "evaluationIntervalMs": 1000,
+          "trainingIntervals": [
+            {
+              "horizonMs": 300000,
+              "intervalMs": 360000
+            },
+            {
+              "horizonMs": 900000,
+              "intervalMs": 960000
+            },
+            {
+              "horizonMs": 1800000,
+              "intervalMs": 1860000
+            }
+          ],
+          "globalEvaluationsSinceRestart": 23590,
+          "globalSelectionsSinceRestart": 0,
+          "globalRetainedTrainingLabels": 1476,
+          "marketReadiness": {
+            "symbol": "BTC/USD",
+            "sampleCount": 181,
+            "restoredSampleCount": 0,
+            "oldestAtMs": 1788910339452,
+            "latestAtMs": 1788912147160,
+            "coverageMs": 1800000,
+            "remainingMs": 0,
+            "flowCoverageMs": 30000,
+            "flowRemainingMs": 0,
+            "ready": true,
+            "reason": "READY"
+          },
+          "selectedAction": null,
+          "paperReady": false,
+          "estimates": [
+            {
+              "actionId": "long-5m",
+              "samples": 70,
+              "effectiveSamples": 65.2019423345672,
+              "observedDays": 4,
+              "meanNetBps": -12.145913058296482,
+              "scoreBps": -16.95646991422668,
+              "reason": "SCORE_BELOW_MINIMUM",
+              "eligible": false
+            },
+            {
+              "actionId": "short-5m",
+              "samples": 70,
+              "effectiveSamples": 65.20192346254544,
+              "observedDays": 4,
+              "meanNetBps": -12.765717959754674,
+              "scoreBps": -17.64306728294826,
+              "reason": "SCORE_BELOW_MINIMUM",
+              "eligible": false
+            },
+            {
+              "actionId": "long-15m",
+              "samples": 61,
+              "effectiveSamples": 56.475583790133676,
+              "observedDays": 4,
+              "meanNetBps": -10.943820006240975,
+              "scoreBps": -18.59056012097842,
+              "reason": "SCORE_BELOW_MINIMUM",
+              "eligible": false
+            },
+            {
+              "actionId": "short-15m",
+              "samples": 61,
+              "effectiveSamples": 56.47764972424152,
+              "observedDays": 4,
+              "meanNetBps": -12.479748065862807,
+              "scoreBps": -21.848932422642577,
+              "reason": "SCORE_BELOW_MINIMUM",
+              "eligible": false
+            },
+            {
+              "actionId": "long-30m",
+              "samples": 55,
+              "effectiveSamples": 51.574633862168824,
+              "observedDays": 4,
+              "meanNetBps": -10.301690226798858,
+              "scoreBps": -20.9710970553654,
+              "reason": "SCORE_BELOW_MINIMUM",
+              "eligible": false
+            },
+            {
+              "actionId": "short-30m",
+              "samples": 55,
+              "effectiveSamples": 51.574633862168824,
+              "observedDays": 4,
+              "meanNetBps": -12.614000662881136,
+              "scoreBps": -22.775614340269662,
+              "reason": "SCORE_BELOW_MINIMUM",
+              "eligible": false
+            }
+          ]
+        },
+        {
+          "symbol": "ETH/USD",
+          "bookValid": true,
+          "stale": false,
+          "providerAgeMs": 70,
+          "warmedUp": true,
+          "paperEnabled": true,
+          "decisionAtUtc": "2026-09-09T00:02:31.791000+00:00",
+          "selectionPolicyVersion": "btc-eth-selected-policy-paper-trial-3d-efficient-v1",
+          "predictionModelVersion": "btc-eth-distributional-control-v1",
+          "evaluationIntervalMs": 1000,
+          "trainingIntervals": [
+            {
+              "horizonMs": 300000,
+              "intervalMs": 360000
+            },
+            {
+              "horizonMs": 900000,
+              "intervalMs": 960000
+            },
+            {
+              "horizonMs": 1800000,
+              "intervalMs": 1860000
+            }
+          ],
+          "globalEvaluationsSinceRestart": 23590,
+          "globalSelectionsSinceRestart": 0,
+          "globalRetainedTrainingLabels": 1476,
+          "marketReadiness": {
+            "symbol": "ETH/USD",
+            "sampleCount": 180,
+            "restoredSampleCount": 0,
+            "oldestAtMs": 1788910337472,
+            "latestAtMs": 1788912143394,
+            "coverageMs": 1800000,
+            "remainingMs": 0,
+            "flowCoverageMs": 30000,
+            "flowRemainingMs": 0,
+            "ready": true,
+            "reason": "READY"
+          },
+          "selectedAction": null,
+          "paperReady": false,
+          "estimates": [
+            {
+              "actionId": "long-5m",
+              "samples": 75,
+              "effectiveSamples": 69.46815967090107,
+              "observedDays": 4,
+              "meanNetBps": -11.354554357016589,
+              "scoreBps": -18.05504601577892,
+              "reason": "SCORE_BELOW_MINIMUM",
+              "eligible": false
+            },
+            {
+              "actionId": "short-5m",
+              "samples": 76,
+              "effectiveSamples": 70.3950537932105,
+              "observedDays": 4,
+              "meanNetBps": -12.507902206434983,
+              "scoreBps": -19.30907152399043,
+              "reason": "SCORE_BELOW_MINIMUM",
+              "eligible": false
+            },
+            {
+              "actionId": "long-15m",
+              "samples": 60,
+              "effectiveSamples": 56.05564535881392,
+              "observedDays": 4,
+              "meanNetBps": -9.003702605700068,
+              "scoreBps": -18.62342426949139,
+              "reason": "SCORE_BELOW_MINIMUM",
+              "eligible": false
+            },
+            {
+              "actionId": "short-15m",
+              "samples": 60,
+              "effectiveSamples": 56.054629192093685,
+              "observedDays": 4,
+              "meanNetBps": -11.721019279647289,
+              "scoreBps": -21.658255012889807,
+              "reason": "SCORE_BELOW_MINIMUM",
+              "eligible": false
+            },
+            {
+              "actionId": "long-30m",
+              "samples": 57,
+              "effectiveSamples": 53.24061021292304,
+              "observedDays": 4,
+              "meanNetBps": -8.920982700316907,
+              "scoreBps": -22.58983004474082,
+              "reason": "SCORE_BELOW_MINIMUM",
+              "eligible": false
+            },
+            {
+              "actionId": "short-30m",
+              "samples": 57,
+              "effectiveSamples": 53.2406099412032,
+              "observedDays": 4,
+              "meanNetBps": -10.652755066472166,
+              "scoreBps": -23.07637750968173,
+              "reason": "SCORE_BELOW_MINIMUM",
+              "eligible": false
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "cadenceObservation": {
+    "elapsedSeconds": 131.315,
+    "additionalEvaluationsBothAssetsCombined": 251,
+    "additionalTrainingLabels": 4,
+    "additionalSelections": 0,
+    "conclusion": "Inference advances independently while training labels complete; the 31-minute label clock is not a global evaluation pause."
+  },
+  "fourteenHourDecisionAudit": {
+    "scope": "Persisted market snapshots, deduplicated by symbol and decision atMs; not a census of every one-second evaluation. Prices and training samples are not future outcomes.",
+    "reasons": [
+      {
+        "reason": "INSUFFICIENT_DAYS",
+        "symbol": "BTC/USD",
+        "action_estimates": 2759,
+        "maximum_mean_net_bps": 0.16797739160016237,
+        "minimum_mean_net_bps": -8.409932202893334,
+        "positive_mean_estimates": 5
+      },
+      {
+        "reason": "INSUFFICIENT_SAMPLES",
+        "symbol": "BTC/USD",
+        "action_estimates": 76531,
+        "maximum_mean_net_bps": -0.2847028768842529,
+        "minimum_mean_net_bps": -13.607555214823797,
+        "positive_mean_estimates": 0
+      },
+      {
+        "reason": "SCORE_BELOW_MINIMUM",
+        "symbol": "BTC/USD",
+        "action_estimates": 150276,
+        "maximum_mean_net_bps": -7.2890386453598515,
+        "minimum_mean_net_bps": -15.368623696876222,
+        "positive_mean_estimates": 0
+      },
+      {
+        "reason": "INSUFFICIENT_DAYS",
+        "symbol": "ETH/USD",
+        "action_estimates": 8328,
+        "maximum_mean_net_bps": 1.0400424445254943,
+        "minimum_mean_net_bps": -9.613527000699046,
+        "positive_mean_estimates": 165
+      },
+      {
+        "reason": "INSUFFICIENT_SAMPLES",
+        "symbol": "ETH/USD",
+        "action_estimates": 131230,
+        "maximum_mean_net_bps": -0.1266786840255749,
+        "minimum_mean_net_bps": -13.693932024640752,
+        "positive_mean_estimates": 0
+      },
+      {
+        "reason": "OUT_OF_SUPPORT",
+        "symbol": "ETH/USD",
+        "action_estimates": 72,
+        "maximum_mean_net_bps": null,
+        "minimum_mean_net_bps": null,
+        "positive_mean_estimates": 0
+      },
+      {
+        "reason": "SCORE_BELOW_MINIMUM",
+        "symbol": "ETH/USD",
+        "action_estimates": 88526,
+        "maximum_mean_net_bps": -4.803083531242412,
+        "minimum_mean_net_bps": -14.357822624241136,
+        "positive_mean_estimates": 0
+      }
+    ],
+    "decisions": [
+      {
+        "symbol": "BTC/USD",
+        "selected_decisions": 0,
+        "paper_ready_decisions": 0,
+        "observed_distinct_decisions": 38261
+      },
+      {
+        "symbol": "ETH/USD",
+        "selected_decisions": 0,
+        "paper_ready_decisions": 0,
+        "observed_distinct_decisions": 38026
+      }
+    ],
+    "endExclusive": "2026-09-09T00:00:00Z",
+    "observations": [
+      {
+        "symbol": "BTC/USD",
+        "last_at": "2026-09-08T23:59:59.177+00:00",
+        "first_at": "2026-09-08T10:00:00.532+00:00",
+        "stale_snapshots": 7,
+        "stored_snapshots": 48412,
+        "valid_book_snapshots": 48390,
+        "missing_decision_snapshots": 8455
+      },
+      {
+        "symbol": "ETH/USD",
+        "last_at": "2026-09-08T23:59:59.177+00:00",
+        "first_at": "2026-09-08T10:00:00.532+00:00",
+        "stale_snapshots": 7,
+        "stored_snapshots": 48412,
+        "valid_book_snapshots": 48394,
+        "missing_decision_snapshots": 8456
+      }
+    ],
+    "startInclusive": "2026-09-08T10:00:00Z"
+  },
+  "fourteenHourOrderLedgerAudit": {
+    "intervalEnd": "2026-09-09T00:00:00Z",
+    "fillsOccurred": 0,
+    "intervalStart": "2026-09-08T10:00:00Z",
+    "ordersCreated": 0
+  },
+  "latestResearch": {
+    "study": "reports/hourly-student-study-2026-09-08/selection.json",
+    "selectionSha256": "69cb31eb62c1a0cd8168915b16795d51db13b4a7ef8017f976b5802c6ef61609",
+    "period": "2024 development, repeatedly studied historical period; not independent final confirmation",
+    "maximumEntryNotionalUsd": 12,
+    "candidateAssetRunsAreSeparateAccounts": true,
+    "results": [
+      {
+        "candidate": "student-t-boost-net-24h",
+        "symbol": "BTC/USD",
+        "eligible": false,
+        "predictiveGatePassed": false,
+        "base": {
+          "completedTrades": 212,
+          "projectedNetPnlUsd": -0.35123479370668065,
+          "netBeforeAllFundingUsd": 1.2287795500010672
+        },
+        "stress": {
+          "completedTrades": 206,
+          "projectedNetPnlUsd": -3.3119930065440712,
+          "netBeforeAllFundingUsd": -0.7019568500022978
+        }
+      },
+      {
+        "candidate": "student-t-boost-net-24h",
+        "symbol": "ETH/USD",
+        "eligible": false,
+        "predictiveGatePassed": false,
+        "base": {
+          "completedTrades": 202,
+          "projectedNetPnlUsd": -2.7034088122600224,
+          "netBeforeAllFundingUsd": -0.7099660999967883
+        },
+        "stress": {
+          "completedTrades": 199,
+          "projectedNetPnlUsd": -4.118280737806344,
+          "netBeforeAllFundingUsd": -1.0720394250060332
+        }
+      }
+    ],
+    "candidateActivated": false,
+    "profitabilityEstablished": false,
+    "finalTestOpened": false,
+    "costCaveat": "Projected fees, slippage and adverse funding reserves, not reconciled actual historical funding payments. Removing funding can change BTC base sign, but not BTC stress or ETH base/stress."
+  },
+  "findings": [
+    "Current conditional strategy is evaluating healthy BTC/ETH feeds. Both assets pass data support in the second snapshot, but all six actions per asset have negative estimated net returns.",
+    "Some historical/current contexts lack local sample support despite a larger total retained bank. More bank rows do not mean every context has enough comparable outcomes.",
+    "All persisted action estimates reaching SCORE_BELOW_MINIMUM in the fixed 14-hour audit have negative estimated means. This is a forecast diagnosis, not proof that profitable historical paths did not exist.",
+    "Hourly adaptive and Student models remain research-only; their failed results cannot be counted as an improvement to running strategy profitability.",
+    "Source review found no taker/maker fee mismatch or fee double subtraction. The configured paper taker cost is 5bp per fill, plus the model uses a 3bp reserve; the reserve is not an extra broker-paid fee.",
+    "An earlier audit documented phase-sensitive volatility in the legacy representation. The separate regime candidate excludes that coordinate but failed evaluation; this defect does not establish that a correction would produce a profitable strategy."
+  ],
+  "limits": [
+    "Persisted snapshots do not capture every inference; counts are deduplicated observed decisions across engine restarts, not independent statistical samples.",
+    "Missing decision snapshots and warmup periods are reported, not counted as evaluated or as losing trades.",
+    "Dashboard orders cover the current UTC day; the separate database audit is used for the interval crossing midnight.",
+    "Selected research trades are simulations with projected costs and must not be attributed to the paper account.",
+    "No new parameter sweep, reserved 2026 final-test evaluation, gate relaxation or deployment was performed.",
+    "Software verification and faster training do not establish a positive expected return."
+  ],
+  "sources": [
+    {
+      "path": "/tmp/crypto-live-profit-audit-2026-09-09.json",
+      "sha256": "5a5ed4ad1c65989a793f64d1ced0c4e66a4f1d988a97f08fdfee57f8f9384be1"
+    },
+    {
+      "path": "/tmp/crypto-live-profit-audit-2026-09-09-second.json",
+      "sha256": "b76d26dc1afb2de02b6e16e7e6ed4000de963d91145bb868f73c099cd6919665"
+    },
+    {
+      "path": "/tmp/crypto-profit-decisions-2026-09-09.sql",
+      "sha256": "19c257ddba3dad6bd3bb08f40fa232d612a26cad3deae1ac09654b3cdf3b22d9"
+    },
+    {
+      "path": "/tmp/crypto-profit-decisions-2026-09-09.json",
+      "sha256": "ea396b92df47bd1fa47d666e31f0f29d130c1cd5f5e1ee0e942dc2510098ec96"
+    },
+    {
+      "path": "/tmp/crypto-profit-ledger-minimal-2026-09-09.sql",
+      "sha256": "1839a015a6b01aba51dd73b4e9c743f81e90b456d15fdcaad15486e1a90a68ca"
+    },
+    {
+      "path": "/tmp/crypto-profit-ledger-minimal-2026-09-09.json",
+      "sha256": "dac894c0db549a79a82f806c42bfc437b3569caf0240b7022ab3f93d38578133"
+    }
+  ]
+}

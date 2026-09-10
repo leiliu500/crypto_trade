@@ -1,0 +1,100 @@
+{
+  "status": "synthetic accounting checks passed; no empirical maker ranking",
+  "scenarios": {
+    "base_taker": {
+      "entry_fee_bps": 80,
+      "exit_fee_bps": 80,
+      "entry_slip_bps": 3,
+      "exit_slip_bps": 3,
+      "reference_price_break_even_percent": 1.6738892635532596,
+      "flat_price_pnl_per_1000_budget": -16.46331497376184,
+      "plus_1_percent_price_pnl_per_1000_budget": -6.627948123499458
+    },
+    "stress_taker": {
+      "entry_fee_bps": 100,
+      "exit_fee_bps": 100,
+      "entry_slip_bps": 10,
+      "exit_slip_bps": 10,
+      "reference_price_break_even_percent": 2.2244466688911135,
+      "flat_price_pnl_per_1000_budget": -21.76041780002176,
+      "plus_1_percent_price_pnl_per_1000_budget": -11.978021978021978
+    },
+    "hypothetical_maker_entry_taker_exit_same_3bp_proxy": {
+      "entry_fee_bps": 40,
+      "exit_fee_bps": 80,
+      "entry_slip_bps": 3,
+      "exit_slip_bps": 3,
+      "reference_price_break_even_percent": 1.2704214490153498,
+      "flat_price_pnl_per_1000_budget": -12.544842125051728,
+      "plus_1_percent_price_pnl_per_1000_budget": -2.670290546302245
+    }
+  },
+  "states": {
+    "unfilled_canceled": {
+      "status": "CANCELED",
+      "cash": "1000",
+      "inventory": "0",
+      "fees": "0",
+      "remainder": "1",
+      "reconciled": true,
+      "fallback_allowed": true
+    },
+    "partial_cancel_requested": {
+      "status": "CANCEL_REQUESTED",
+      "cash": "974.80",
+      "inventory": "0.25",
+      "fees": "0.20",
+      "remainder": "0.75",
+      "reconciled": false,
+      "fallback_allowed": false
+    },
+    "partial_terminal_before_reconciliation": {
+      "status": "CANCELED",
+      "cash": "964.72",
+      "inventory": "0.35",
+      "fees": "0.28",
+      "remainder": "0.65",
+      "reconciled": false,
+      "fallback_allowed": false
+    },
+    "partial_terminal_reconciled": {
+      "status": "CANCELED",
+      "cash": "964.72",
+      "inventory": "0.35",
+      "fees": "0.28",
+      "remainder": "0.65",
+      "reconciled": true,
+      "fallback_allowed": true
+    }
+  },
+  "conflicting_duplicate_rejected": true,
+  "exact_fee_only_maker_entry_price_disadvantage_limit_bps": 39.8406374501992,
+  "payoff_identity": "E[P&L] = p_fill * E[P&L|fill] + (1-p_fill) * E[P&L|no_fill]",
+  "assumed_payoff_examples": [
+    {
+      "assumed_fill_probability": 0.25,
+      "assumed_conditional_filled_pnl": 10.0,
+      "assumed_unfilled_cash_pnl": 0,
+      "toy_expected_pnl": 2.5
+    },
+    {
+      "assumed_fill_probability": 0.75,
+      "assumed_conditional_filled_pnl": 10.0,
+      "assumed_unfilled_cash_pnl": 0,
+      "toy_expected_pnl": 7.5
+    },
+    {
+      "assumed_fill_probability": 0.75,
+      "assumed_conditional_filled_pnl": -10.0,
+      "assumed_unfilled_cash_pnl": 0,
+      "toy_expected_pnl": -7.5
+    }
+  ],
+  "caveats": [
+    "Synthetic executions are supplied inputs, never inferred from OHLC.",
+    "Unfilled cash P&L is zero here; missed opportunity is a separate counterfactual.",
+    "Higher fill probability alone need not improve P&L when conditional fills lose.",
+    "Fallback permission here is reconciliation only; signal, cash, quantity, quote and risk checks are also required.",
+    "Passive fee and 3bp scenarios are algebra, not maker execution estimates."
+  ]
+}

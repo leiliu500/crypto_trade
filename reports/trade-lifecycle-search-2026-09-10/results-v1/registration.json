@@ -1,0 +1,949 @@
+{
+  "registeredAt": "2026-09-10T22:00:22.457834+00:00",
+  "combinations": {
+    "BTC/USD": [
+      {
+        "id": "btc_entry_baseline__btc_hold_immediate_v1__btc_thesis_only",
+        "entry": "btc_entry_baseline",
+        "holding": {
+          "id": "btc_hold_immediate_v1",
+          "minimumHoldBars": 0,
+          "thesisBreakConfirmBars": 1,
+          "maxHoldBars": null
+        },
+        "exit": {
+          "id": "btc_thesis_only",
+          "atrLookback": 20,
+          "stopAtrMultiple": null,
+          "trailingAtrMultiple": null,
+          "profitAtrMultiple": null
+        }
+      },
+      {
+        "id": "btc_entry_baseline__btc_hold_immediate_v1__btc_volatility_trailing",
+        "entry": "btc_entry_baseline",
+        "holding": {
+          "id": "btc_hold_immediate_v1",
+          "minimumHoldBars": 0,
+          "thesisBreakConfirmBars": 1,
+          "maxHoldBars": null
+        },
+        "exit": {
+          "id": "btc_volatility_trailing",
+          "atrLookback": 20,
+          "stopAtrMultiple": 3.0,
+          "trailingAtrMultiple": 4.0,
+          "profitAtrMultiple": null
+        }
+      },
+      {
+        "id": "btc_entry_baseline__btc_hold_immediate_v1__btc_asymmetric_bracket",
+        "entry": "btc_entry_baseline",
+        "holding": {
+          "id": "btc_hold_immediate_v1",
+          "minimumHoldBars": 0,
+          "thesisBreakConfirmBars": 1,
+          "maxHoldBars": null
+        },
+        "exit": {
+          "id": "btc_asymmetric_bracket",
+          "atrLookback": 20,
+          "stopAtrMultiple": 2.0,
+          "trailingAtrMultiple": null,
+          "profitAtrMultiple": 4.0
+        }
+      },
+      {
+        "id": "btc_entry_baseline__btc_hold_weekly_persistence_v1__btc_thesis_only",
+        "entry": "btc_entry_baseline",
+        "holding": {
+          "id": "btc_hold_weekly_persistence_v1",
+          "minimumHoldBars": 7,
+          "thesisBreakConfirmBars": 7,
+          "maxHoldBars": null
+        },
+        "exit": {
+          "id": "btc_thesis_only",
+          "atrLookback": 20,
+          "stopAtrMultiple": null,
+          "trailingAtrMultiple": null,
+          "profitAtrMultiple": null
+        }
+      },
+      {
+        "id": "btc_entry_baseline__btc_hold_weekly_persistence_v1__btc_volatility_trailing",
+        "entry": "btc_entry_baseline",
+        "holding": {
+          "id": "btc_hold_weekly_persistence_v1",
+          "minimumHoldBars": 7,
+          "thesisBreakConfirmBars": 7,
+          "maxHoldBars": null
+        },
+        "exit": {
+          "id": "btc_volatility_trailing",
+          "atrLookback": 20,
+          "stopAtrMultiple": 3.0,
+          "trailingAtrMultiple": 4.0,
+          "profitAtrMultiple": null
+        }
+      },
+      {
+        "id": "btc_entry_baseline__btc_hold_weekly_persistence_v1__btc_asymmetric_bracket",
+        "entry": "btc_entry_baseline",
+        "holding": {
+          "id": "btc_hold_weekly_persistence_v1",
+          "minimumHoldBars": 7,
+          "thesisBreakConfirmBars": 7,
+          "maxHoldBars": null
+        },
+        "exit": {
+          "id": "btc_asymmetric_bracket",
+          "atrLookback": 20,
+          "stopAtrMultiple": 2.0,
+          "trailingAtrMultiple": null,
+          "profitAtrMultiple": 4.0
+        }
+      },
+      {
+        "id": "btc_entry_baseline__btc_hold_bounded_thesis_v1__btc_thesis_only",
+        "entry": "btc_entry_baseline",
+        "holding": {
+          "id": "btc_hold_bounded_thesis_v1",
+          "minimumHoldBars": 0,
+          "thesisBreakConfirmBars": 1,
+          "maxHoldBars": 84
+        },
+        "exit": {
+          "id": "btc_thesis_only",
+          "atrLookback": 20,
+          "stopAtrMultiple": null,
+          "trailingAtrMultiple": null,
+          "profitAtrMultiple": null
+        }
+      },
+      {
+        "id": "btc_entry_baseline__btc_hold_bounded_thesis_v1__btc_volatility_trailing",
+        "entry": "btc_entry_baseline",
+        "holding": {
+          "id": "btc_hold_bounded_thesis_v1",
+          "minimumHoldBars": 0,
+          "thesisBreakConfirmBars": 1,
+          "maxHoldBars": 84
+        },
+        "exit": {
+          "id": "btc_volatility_trailing",
+          "atrLookback": 20,
+          "stopAtrMultiple": 3.0,
+          "trailingAtrMultiple": 4.0,
+          "profitAtrMultiple": null
+        }
+      },
+      {
+        "id": "btc_entry_baseline__btc_hold_bounded_thesis_v1__btc_asymmetric_bracket",
+        "entry": "btc_entry_baseline",
+        "holding": {
+          "id": "btc_hold_bounded_thesis_v1",
+          "minimumHoldBars": 0,
+          "thesisBreakConfirmBars": 1,
+          "maxHoldBars": 84
+        },
+        "exit": {
+          "id": "btc_asymmetric_bracket",
+          "atrLookback": 20,
+          "stopAtrMultiple": 2.0,
+          "trailingAtrMultiple": null,
+          "profitAtrMultiple": 4.0
+        }
+      },
+      {
+        "id": "btc_entry_path_efficiency__btc_hold_immediate_v1__btc_thesis_only",
+        "entry": "btc_entry_path_efficiency",
+        "holding": {
+          "id": "btc_hold_immediate_v1",
+          "minimumHoldBars": 0,
+          "thesisBreakConfirmBars": 1,
+          "maxHoldBars": null
+        },
+        "exit": {
+          "id": "btc_thesis_only",
+          "atrLookback": 20,
+          "stopAtrMultiple": null,
+          "trailingAtrMultiple": null,
+          "profitAtrMultiple": null
+        }
+      },
+      {
+        "id": "btc_entry_path_efficiency__btc_hold_immediate_v1__btc_volatility_trailing",
+        "entry": "btc_entry_path_efficiency",
+        "holding": {
+          "id": "btc_hold_immediate_v1",
+          "minimumHoldBars": 0,
+          "thesisBreakConfirmBars": 1,
+          "maxHoldBars": null
+        },
+        "exit": {
+          "id": "btc_volatility_trailing",
+          "atrLookback": 20,
+          "stopAtrMultiple": 3.0,
+          "trailingAtrMultiple": 4.0,
+          "profitAtrMultiple": null
+        }
+      },
+      {
+        "id": "btc_entry_path_efficiency__btc_hold_immediate_v1__btc_asymmetric_bracket",
+        "entry": "btc_entry_path_efficiency",
+        "holding": {
+          "id": "btc_hold_immediate_v1",
+          "minimumHoldBars": 0,
+          "thesisBreakConfirmBars": 1,
+          "maxHoldBars": null
+        },
+        "exit": {
+          "id": "btc_asymmetric_bracket",
+          "atrLookback": 20,
+          "stopAtrMultiple": 2.0,
+          "trailingAtrMultiple": null,
+          "profitAtrMultiple": 4.0
+        }
+      },
+      {
+        "id": "btc_entry_path_efficiency__btc_hold_weekly_persistence_v1__btc_thesis_only",
+        "entry": "btc_entry_path_efficiency",
+        "holding": {
+          "id": "btc_hold_weekly_persistence_v1",
+          "minimumHoldBars": 7,
+          "thesisBreakConfirmBars": 7,
+          "maxHoldBars": null
+        },
+        "exit": {
+          "id": "btc_thesis_only",
+          "atrLookback": 20,
+          "stopAtrMultiple": null,
+          "trailingAtrMultiple": null,
+          "profitAtrMultiple": null
+        }
+      },
+      {
+        "id": "btc_entry_path_efficiency__btc_hold_weekly_persistence_v1__btc_volatility_trailing",
+        "entry": "btc_entry_path_efficiency",
+        "holding": {
+          "id": "btc_hold_weekly_persistence_v1",
+          "minimumHoldBars": 7,
+          "thesisBreakConfirmBars": 7,
+          "maxHoldBars": null
+        },
+        "exit": {
+          "id": "btc_volatility_trailing",
+          "atrLookback": 20,
+          "stopAtrMultiple": 3.0,
+          "trailingAtrMultiple": 4.0,
+          "profitAtrMultiple": null
+        }
+      },
+      {
+        "id": "btc_entry_path_efficiency__btc_hold_weekly_persistence_v1__btc_asymmetric_bracket",
+        "entry": "btc_entry_path_efficiency",
+        "holding": {
+          "id": "btc_hold_weekly_persistence_v1",
+          "minimumHoldBars": 7,
+          "thesisBreakConfirmBars": 7,
+          "maxHoldBars": null
+        },
+        "exit": {
+          "id": "btc_asymmetric_bracket",
+          "atrLookback": 20,
+          "stopAtrMultiple": 2.0,
+          "trailingAtrMultiple": null,
+          "profitAtrMultiple": 4.0
+        }
+      },
+      {
+        "id": "btc_entry_path_efficiency__btc_hold_bounded_thesis_v1__btc_thesis_only",
+        "entry": "btc_entry_path_efficiency",
+        "holding": {
+          "id": "btc_hold_bounded_thesis_v1",
+          "minimumHoldBars": 0,
+          "thesisBreakConfirmBars": 1,
+          "maxHoldBars": 84
+        },
+        "exit": {
+          "id": "btc_thesis_only",
+          "atrLookback": 20,
+          "stopAtrMultiple": null,
+          "trailingAtrMultiple": null,
+          "profitAtrMultiple": null
+        }
+      },
+      {
+        "id": "btc_entry_path_efficiency__btc_hold_bounded_thesis_v1__btc_volatility_trailing",
+        "entry": "btc_entry_path_efficiency",
+        "holding": {
+          "id": "btc_hold_bounded_thesis_v1",
+          "minimumHoldBars": 0,
+          "thesisBreakConfirmBars": 1,
+          "maxHoldBars": 84
+        },
+        "exit": {
+          "id": "btc_volatility_trailing",
+          "atrLookback": 20,
+          "stopAtrMultiple": 3.0,
+          "trailingAtrMultiple": 4.0,
+          "profitAtrMultiple": null
+        }
+      },
+      {
+        "id": "btc_entry_path_efficiency__btc_hold_bounded_thesis_v1__btc_asymmetric_bracket",
+        "entry": "btc_entry_path_efficiency",
+        "holding": {
+          "id": "btc_hold_bounded_thesis_v1",
+          "minimumHoldBars": 0,
+          "thesisBreakConfirmBars": 1,
+          "maxHoldBars": 84
+        },
+        "exit": {
+          "id": "btc_asymmetric_bracket",
+          "atrLookback": 20,
+          "stopAtrMultiple": 2.0,
+          "trailingAtrMultiple": null,
+          "profitAtrMultiple": 4.0
+        }
+      },
+      {
+        "id": "btc_entry_pullback_recovery__btc_hold_immediate_v1__btc_thesis_only",
+        "entry": "btc_entry_pullback_recovery",
+        "holding": {
+          "id": "btc_hold_immediate_v1",
+          "minimumHoldBars": 0,
+          "thesisBreakConfirmBars": 1,
+          "maxHoldBars": null
+        },
+        "exit": {
+          "id": "btc_thesis_only",
+          "atrLookback": 20,
+          "stopAtrMultiple": null,
+          "trailingAtrMultiple": null,
+          "profitAtrMultiple": null
+        }
+      },
+      {
+        "id": "btc_entry_pullback_recovery__btc_hold_immediate_v1__btc_volatility_trailing",
+        "entry": "btc_entry_pullback_recovery",
+        "holding": {
+          "id": "btc_hold_immediate_v1",
+          "minimumHoldBars": 0,
+          "thesisBreakConfirmBars": 1,
+          "maxHoldBars": null
+        },
+        "exit": {
+          "id": "btc_volatility_trailing",
+          "atrLookback": 20,
+          "stopAtrMultiple": 3.0,
+          "trailingAtrMultiple": 4.0,
+          "profitAtrMultiple": null
+        }
+      },
+      {
+        "id": "btc_entry_pullback_recovery__btc_hold_immediate_v1__btc_asymmetric_bracket",
+        "entry": "btc_entry_pullback_recovery",
+        "holding": {
+          "id": "btc_hold_immediate_v1",
+          "minimumHoldBars": 0,
+          "thesisBreakConfirmBars": 1,
+          "maxHoldBars": null
+        },
+        "exit": {
+          "id": "btc_asymmetric_bracket",
+          "atrLookback": 20,
+          "stopAtrMultiple": 2.0,
+          "trailingAtrMultiple": null,
+          "profitAtrMultiple": 4.0
+        }
+      },
+      {
+        "id": "btc_entry_pullback_recovery__btc_hold_weekly_persistence_v1__btc_thesis_only",
+        "entry": "btc_entry_pullback_recovery",
+        "holding": {
+          "id": "btc_hold_weekly_persistence_v1",
+          "minimumHoldBars": 7,
+          "thesisBreakConfirmBars": 7,
+          "maxHoldBars": null
+        },
+        "exit": {
+          "id": "btc_thesis_only",
+          "atrLookback": 20,
+          "stopAtrMultiple": null,
+          "trailingAtrMultiple": null,
+          "profitAtrMultiple": null
+        }
+      },
+      {
+        "id": "btc_entry_pullback_recovery__btc_hold_weekly_persistence_v1__btc_volatility_trailing",
+        "entry": "btc_entry_pullback_recovery",
+        "holding": {
+          "id": "btc_hold_weekly_persistence_v1",
+          "minimumHoldBars": 7,
+          "thesisBreakConfirmBars": 7,
+          "maxHoldBars": null
+        },
+        "exit": {
+          "id": "btc_volatility_trailing",
+          "atrLookback": 20,
+          "stopAtrMultiple": 3.0,
+          "trailingAtrMultiple": 4.0,
+          "profitAtrMultiple": null
+        }
+      },
+      {
+        "id": "btc_entry_pullback_recovery__btc_hold_weekly_persistence_v1__btc_asymmetric_bracket",
+        "entry": "btc_entry_pullback_recovery",
+        "holding": {
+          "id": "btc_hold_weekly_persistence_v1",
+          "minimumHoldBars": 7,
+          "thesisBreakConfirmBars": 7,
+          "maxHoldBars": null
+        },
+        "exit": {
+          "id": "btc_asymmetric_bracket",
+          "atrLookback": 20,
+          "stopAtrMultiple": 2.0,
+          "trailingAtrMultiple": null,
+          "profitAtrMultiple": 4.0
+        }
+      },
+      {
+        "id": "btc_entry_pullback_recovery__btc_hold_bounded_thesis_v1__btc_thesis_only",
+        "entry": "btc_entry_pullback_recovery",
+        "holding": {
+          "id": "btc_hold_bounded_thesis_v1",
+          "minimumHoldBars": 0,
+          "thesisBreakConfirmBars": 1,
+          "maxHoldBars": 84
+        },
+        "exit": {
+          "id": "btc_thesis_only",
+          "atrLookback": 20,
+          "stopAtrMultiple": null,
+          "trailingAtrMultiple": null,
+          "profitAtrMultiple": null
+        }
+      },
+      {
+        "id": "btc_entry_pullback_recovery__btc_hold_bounded_thesis_v1__btc_volatility_trailing",
+        "entry": "btc_entry_pullback_recovery",
+        "holding": {
+          "id": "btc_hold_bounded_thesis_v1",
+          "minimumHoldBars": 0,
+          "thesisBreakConfirmBars": 1,
+          "maxHoldBars": 84
+        },
+        "exit": {
+          "id": "btc_volatility_trailing",
+          "atrLookback": 20,
+          "stopAtrMultiple": 3.0,
+          "trailingAtrMultiple": 4.0,
+          "profitAtrMultiple": null
+        }
+      },
+      {
+        "id": "btc_entry_pullback_recovery__btc_hold_bounded_thesis_v1__btc_asymmetric_bracket",
+        "entry": "btc_entry_pullback_recovery",
+        "holding": {
+          "id": "btc_hold_bounded_thesis_v1",
+          "minimumHoldBars": 0,
+          "thesisBreakConfirmBars": 1,
+          "maxHoldBars": 84
+        },
+        "exit": {
+          "id": "btc_asymmetric_bracket",
+          "atrLookback": 20,
+          "stopAtrMultiple": 2.0,
+          "trailingAtrMultiple": null,
+          "profitAtrMultiple": 4.0
+        }
+      }
+    ],
+    "ETH/USD": [
+      {
+        "id": "eth_entry_baseline__eth_hold_immediate_v1__eth_thesis_only",
+        "entry": "eth_entry_baseline",
+        "holding": {
+          "id": "eth_hold_immediate_v1",
+          "minimumHoldBars": 0,
+          "thesisBreakConfirmBars": 1,
+          "maxHoldBars": null
+        },
+        "exit": {
+          "id": "eth_thesis_only",
+          "atrLookback": 20,
+          "stopAtrMultiple": null,
+          "trailingAtrMultiple": null,
+          "profitAtrMultiple": null
+        }
+      },
+      {
+        "id": "eth_entry_baseline__eth_hold_immediate_v1__eth_volatility_trailing",
+        "entry": "eth_entry_baseline",
+        "holding": {
+          "id": "eth_hold_immediate_v1",
+          "minimumHoldBars": 0,
+          "thesisBreakConfirmBars": 1,
+          "maxHoldBars": null
+        },
+        "exit": {
+          "id": "eth_volatility_trailing",
+          "atrLookback": 20,
+          "stopAtrMultiple": 3.0,
+          "trailingAtrMultiple": 4.0,
+          "profitAtrMultiple": null
+        }
+      },
+      {
+        "id": "eth_entry_baseline__eth_hold_immediate_v1__eth_asymmetric_bracket",
+        "entry": "eth_entry_baseline",
+        "holding": {
+          "id": "eth_hold_immediate_v1",
+          "minimumHoldBars": 0,
+          "thesisBreakConfirmBars": 1,
+          "maxHoldBars": null
+        },
+        "exit": {
+          "id": "eth_asymmetric_bracket",
+          "atrLookback": 20,
+          "stopAtrMultiple": 2.0,
+          "trailingAtrMultiple": null,
+          "profitAtrMultiple": 4.0
+        }
+      },
+      {
+        "id": "eth_entry_baseline__eth_hold_daily_persistence_v1__eth_thesis_only",
+        "entry": "eth_entry_baseline",
+        "holding": {
+          "id": "eth_hold_daily_persistence_v1",
+          "minimumHoldBars": 2,
+          "thesisBreakConfirmBars": 2,
+          "maxHoldBars": null
+        },
+        "exit": {
+          "id": "eth_thesis_only",
+          "atrLookback": 20,
+          "stopAtrMultiple": null,
+          "trailingAtrMultiple": null,
+          "profitAtrMultiple": null
+        }
+      },
+      {
+        "id": "eth_entry_baseline__eth_hold_daily_persistence_v1__eth_volatility_trailing",
+        "entry": "eth_entry_baseline",
+        "holding": {
+          "id": "eth_hold_daily_persistence_v1",
+          "minimumHoldBars": 2,
+          "thesisBreakConfirmBars": 2,
+          "maxHoldBars": null
+        },
+        "exit": {
+          "id": "eth_volatility_trailing",
+          "atrLookback": 20,
+          "stopAtrMultiple": 3.0,
+          "trailingAtrMultiple": 4.0,
+          "profitAtrMultiple": null
+        }
+      },
+      {
+        "id": "eth_entry_baseline__eth_hold_daily_persistence_v1__eth_asymmetric_bracket",
+        "entry": "eth_entry_baseline",
+        "holding": {
+          "id": "eth_hold_daily_persistence_v1",
+          "minimumHoldBars": 2,
+          "thesisBreakConfirmBars": 2,
+          "maxHoldBars": null
+        },
+        "exit": {
+          "id": "eth_asymmetric_bracket",
+          "atrLookback": 20,
+          "stopAtrMultiple": 2.0,
+          "trailingAtrMultiple": null,
+          "profitAtrMultiple": 4.0
+        }
+      },
+      {
+        "id": "eth_entry_baseline__eth_hold_bounded_thesis_v1__eth_thesis_only",
+        "entry": "eth_entry_baseline",
+        "holding": {
+          "id": "eth_hold_bounded_thesis_v1",
+          "minimumHoldBars": 0,
+          "thesisBreakConfirmBars": 1,
+          "maxHoldBars": 40
+        },
+        "exit": {
+          "id": "eth_thesis_only",
+          "atrLookback": 20,
+          "stopAtrMultiple": null,
+          "trailingAtrMultiple": null,
+          "profitAtrMultiple": null
+        }
+      },
+      {
+        "id": "eth_entry_baseline__eth_hold_bounded_thesis_v1__eth_volatility_trailing",
+        "entry": "eth_entry_baseline",
+        "holding": {
+          "id": "eth_hold_bounded_thesis_v1",
+          "minimumHoldBars": 0,
+          "thesisBreakConfirmBars": 1,
+          "maxHoldBars": 40
+        },
+        "exit": {
+          "id": "eth_volatility_trailing",
+          "atrLookback": 20,
+          "stopAtrMultiple": 3.0,
+          "trailingAtrMultiple": 4.0,
+          "profitAtrMultiple": null
+        }
+      },
+      {
+        "id": "eth_entry_baseline__eth_hold_bounded_thesis_v1__eth_asymmetric_bracket",
+        "entry": "eth_entry_baseline",
+        "holding": {
+          "id": "eth_hold_bounded_thesis_v1",
+          "minimumHoldBars": 0,
+          "thesisBreakConfirmBars": 1,
+          "maxHoldBars": 40
+        },
+        "exit": {
+          "id": "eth_asymmetric_bracket",
+          "atrLookback": 20,
+          "stopAtrMultiple": 2.0,
+          "trailingAtrMultiple": null,
+          "profitAtrMultiple": 4.0
+        }
+      },
+      {
+        "id": "eth_entry_volatility_confirmation__eth_hold_immediate_v1__eth_thesis_only",
+        "entry": "eth_entry_volatility_confirmation",
+        "holding": {
+          "id": "eth_hold_immediate_v1",
+          "minimumHoldBars": 0,
+          "thesisBreakConfirmBars": 1,
+          "maxHoldBars": null
+        },
+        "exit": {
+          "id": "eth_thesis_only",
+          "atrLookback": 20,
+          "stopAtrMultiple": null,
+          "trailingAtrMultiple": null,
+          "profitAtrMultiple": null
+        }
+      },
+      {
+        "id": "eth_entry_volatility_confirmation__eth_hold_immediate_v1__eth_volatility_trailing",
+        "entry": "eth_entry_volatility_confirmation",
+        "holding": {
+          "id": "eth_hold_immediate_v1",
+          "minimumHoldBars": 0,
+          "thesisBreakConfirmBars": 1,
+          "maxHoldBars": null
+        },
+        "exit": {
+          "id": "eth_volatility_trailing",
+          "atrLookback": 20,
+          "stopAtrMultiple": 3.0,
+          "trailingAtrMultiple": 4.0,
+          "profitAtrMultiple": null
+        }
+      },
+      {
+        "id": "eth_entry_volatility_confirmation__eth_hold_immediate_v1__eth_asymmetric_bracket",
+        "entry": "eth_entry_volatility_confirmation",
+        "holding": {
+          "id": "eth_hold_immediate_v1",
+          "minimumHoldBars": 0,
+          "thesisBreakConfirmBars": 1,
+          "maxHoldBars": null
+        },
+        "exit": {
+          "id": "eth_asymmetric_bracket",
+          "atrLookback": 20,
+          "stopAtrMultiple": 2.0,
+          "trailingAtrMultiple": null,
+          "profitAtrMultiple": 4.0
+        }
+      },
+      {
+        "id": "eth_entry_volatility_confirmation__eth_hold_daily_persistence_v1__eth_thesis_only",
+        "entry": "eth_entry_volatility_confirmation",
+        "holding": {
+          "id": "eth_hold_daily_persistence_v1",
+          "minimumHoldBars": 2,
+          "thesisBreakConfirmBars": 2,
+          "maxHoldBars": null
+        },
+        "exit": {
+          "id": "eth_thesis_only",
+          "atrLookback": 20,
+          "stopAtrMultiple": null,
+          "trailingAtrMultiple": null,
+          "profitAtrMultiple": null
+        }
+      },
+      {
+        "id": "eth_entry_volatility_confirmation__eth_hold_daily_persistence_v1__eth_volatility_trailing",
+        "entry": "eth_entry_volatility_confirmation",
+        "holding": {
+          "id": "eth_hold_daily_persistence_v1",
+          "minimumHoldBars": 2,
+          "thesisBreakConfirmBars": 2,
+          "maxHoldBars": null
+        },
+        "exit": {
+          "id": "eth_volatility_trailing",
+          "atrLookback": 20,
+          "stopAtrMultiple": 3.0,
+          "trailingAtrMultiple": 4.0,
+          "profitAtrMultiple": null
+        }
+      },
+      {
+        "id": "eth_entry_volatility_confirmation__eth_hold_daily_persistence_v1__eth_asymmetric_bracket",
+        "entry": "eth_entry_volatility_confirmation",
+        "holding": {
+          "id": "eth_hold_daily_persistence_v1",
+          "minimumHoldBars": 2,
+          "thesisBreakConfirmBars": 2,
+          "maxHoldBars": null
+        },
+        "exit": {
+          "id": "eth_asymmetric_bracket",
+          "atrLookback": 20,
+          "stopAtrMultiple": 2.0,
+          "trailingAtrMultiple": null,
+          "profitAtrMultiple": 4.0
+        }
+      },
+      {
+        "id": "eth_entry_volatility_confirmation__eth_hold_bounded_thesis_v1__eth_thesis_only",
+        "entry": "eth_entry_volatility_confirmation",
+        "holding": {
+          "id": "eth_hold_bounded_thesis_v1",
+          "minimumHoldBars": 0,
+          "thesisBreakConfirmBars": 1,
+          "maxHoldBars": 40
+        },
+        "exit": {
+          "id": "eth_thesis_only",
+          "atrLookback": 20,
+          "stopAtrMultiple": null,
+          "trailingAtrMultiple": null,
+          "profitAtrMultiple": null
+        }
+      },
+      {
+        "id": "eth_entry_volatility_confirmation__eth_hold_bounded_thesis_v1__eth_volatility_trailing",
+        "entry": "eth_entry_volatility_confirmation",
+        "holding": {
+          "id": "eth_hold_bounded_thesis_v1",
+          "minimumHoldBars": 0,
+          "thesisBreakConfirmBars": 1,
+          "maxHoldBars": 40
+        },
+        "exit": {
+          "id": "eth_volatility_trailing",
+          "atrLookback": 20,
+          "stopAtrMultiple": 3.0,
+          "trailingAtrMultiple": 4.0,
+          "profitAtrMultiple": null
+        }
+      },
+      {
+        "id": "eth_entry_volatility_confirmation__eth_hold_bounded_thesis_v1__eth_asymmetric_bracket",
+        "entry": "eth_entry_volatility_confirmation",
+        "holding": {
+          "id": "eth_hold_bounded_thesis_v1",
+          "minimumHoldBars": 0,
+          "thesisBreakConfirmBars": 1,
+          "maxHoldBars": 40
+        },
+        "exit": {
+          "id": "eth_asymmetric_bracket",
+          "atrLookback": 20,
+          "stopAtrMultiple": 2.0,
+          "trailingAtrMultiple": null,
+          "profitAtrMultiple": 4.0
+        }
+      },
+      {
+        "id": "eth_entry_volume_pressure__eth_hold_immediate_v1__eth_thesis_only",
+        "entry": "eth_entry_volume_pressure",
+        "holding": {
+          "id": "eth_hold_immediate_v1",
+          "minimumHoldBars": 0,
+          "thesisBreakConfirmBars": 1,
+          "maxHoldBars": null
+        },
+        "exit": {
+          "id": "eth_thesis_only",
+          "atrLookback": 20,
+          "stopAtrMultiple": null,
+          "trailingAtrMultiple": null,
+          "profitAtrMultiple": null
+        }
+      },
+      {
+        "id": "eth_entry_volume_pressure__eth_hold_immediate_v1__eth_volatility_trailing",
+        "entry": "eth_entry_volume_pressure",
+        "holding": {
+          "id": "eth_hold_immediate_v1",
+          "minimumHoldBars": 0,
+          "thesisBreakConfirmBars": 1,
+          "maxHoldBars": null
+        },
+        "exit": {
+          "id": "eth_volatility_trailing",
+          "atrLookback": 20,
+          "stopAtrMultiple": 3.0,
+          "trailingAtrMultiple": 4.0,
+          "profitAtrMultiple": null
+        }
+      },
+      {
+        "id": "eth_entry_volume_pressure__eth_hold_immediate_v1__eth_asymmetric_bracket",
+        "entry": "eth_entry_volume_pressure",
+        "holding": {
+          "id": "eth_hold_immediate_v1",
+          "minimumHoldBars": 0,
+          "thesisBreakConfirmBars": 1,
+          "maxHoldBars": null
+        },
+        "exit": {
+          "id": "eth_asymmetric_bracket",
+          "atrLookback": 20,
+          "stopAtrMultiple": 2.0,
+          "trailingAtrMultiple": null,
+          "profitAtrMultiple": 4.0
+        }
+      },
+      {
+        "id": "eth_entry_volume_pressure__eth_hold_daily_persistence_v1__eth_thesis_only",
+        "entry": "eth_entry_volume_pressure",
+        "holding": {
+          "id": "eth_hold_daily_persistence_v1",
+          "minimumHoldBars": 2,
+          "thesisBreakConfirmBars": 2,
+          "maxHoldBars": null
+        },
+        "exit": {
+          "id": "eth_thesis_only",
+          "atrLookback": 20,
+          "stopAtrMultiple": null,
+          "trailingAtrMultiple": null,
+          "profitAtrMultiple": null
+        }
+      },
+      {
+        "id": "eth_entry_volume_pressure__eth_hold_daily_persistence_v1__eth_volatility_trailing",
+        "entry": "eth_entry_volume_pressure",
+        "holding": {
+          "id": "eth_hold_daily_persistence_v1",
+          "minimumHoldBars": 2,
+          "thesisBreakConfirmBars": 2,
+          "maxHoldBars": null
+        },
+        "exit": {
+          "id": "eth_volatility_trailing",
+          "atrLookback": 20,
+          "stopAtrMultiple": 3.0,
+          "trailingAtrMultiple": 4.0,
+          "profitAtrMultiple": null
+        }
+      },
+      {
+        "id": "eth_entry_volume_pressure__eth_hold_daily_persistence_v1__eth_asymmetric_bracket",
+        "entry": "eth_entry_volume_pressure",
+        "holding": {
+          "id": "eth_hold_daily_persistence_v1",
+          "minimumHoldBars": 2,
+          "thesisBreakConfirmBars": 2,
+          "maxHoldBars": null
+        },
+        "exit": {
+          "id": "eth_asymmetric_bracket",
+          "atrLookback": 20,
+          "stopAtrMultiple": 2.0,
+          "trailingAtrMultiple": null,
+          "profitAtrMultiple": 4.0
+        }
+      },
+      {
+        "id": "eth_entry_volume_pressure__eth_hold_bounded_thesis_v1__eth_thesis_only",
+        "entry": "eth_entry_volume_pressure",
+        "holding": {
+          "id": "eth_hold_bounded_thesis_v1",
+          "minimumHoldBars": 0,
+          "thesisBreakConfirmBars": 1,
+          "maxHoldBars": 40
+        },
+        "exit": {
+          "id": "eth_thesis_only",
+          "atrLookback": 20,
+          "stopAtrMultiple": null,
+          "trailingAtrMultiple": null,
+          "profitAtrMultiple": null
+        }
+      },
+      {
+        "id": "eth_entry_volume_pressure__eth_hold_bounded_thesis_v1__eth_volatility_trailing",
+        "entry": "eth_entry_volume_pressure",
+        "holding": {
+          "id": "eth_hold_bounded_thesis_v1",
+          "minimumHoldBars": 0,
+          "thesisBreakConfirmBars": 1,
+          "maxHoldBars": 40
+        },
+        "exit": {
+          "id": "eth_volatility_trailing",
+          "atrLookback": 20,
+          "stopAtrMultiple": 3.0,
+          "trailingAtrMultiple": 4.0,
+          "profitAtrMultiple": null
+        }
+      },
+      {
+        "id": "eth_entry_volume_pressure__eth_hold_bounded_thesis_v1__eth_asymmetric_bracket",
+        "entry": "eth_entry_volume_pressure",
+        "holding": {
+          "id": "eth_hold_bounded_thesis_v1",
+          "minimumHoldBars": 0,
+          "thesisBreakConfirmBars": 1,
+          "maxHoldBars": 40
+        },
+        "exit": {
+          "id": "eth_asymmetric_bracket",
+          "atrLookback": 20,
+          "stopAtrMultiple": 2.0,
+          "trailingAtrMultiple": null,
+          "profitAtrMultiple": 4.0
+        }
+      }
+    ]
+  },
+  "baseline": {
+    "BTC/USD": "btc_entry_baseline__btc_hold_immediate_v1__btc_thesis_only",
+    "ETH/USD": "eth_entry_baseline__eth_hold_immediate_v1__eth_thesis_only"
+  },
+  "hashes": {
+    "reports/trade-lifecycle-search-2026-09-10/study.py": "5c74b00b2f50d3d3e96d983c9e594988b256a4aed7a984df1b841aafa0478a91",
+    "reports/trade-lifecycle-search-2026-09-10/simulator.py": "26c78bbc7cbcc6b0dc92eba2128cf232fa38ff7b85890aaee031ffb0d22eda22",
+    "reports/trade-lifecycle-search-2026-09-10/protocol.json": "ec95cb03d0200135ca17a8fe4741ec1b9761bc083c982edb6c1357aefcce7925",
+    "reports/parallel-strategy-study-2026-09-10/data/dataset.json": "951499efbfe353842f55b78b94e7d0fe1ba642afa2867f077810835f2303a45e",
+    "reports/parallel-strategy-study-2026-09-10/data/rules.json": "b4fe02b4819f39b3f37d441dd60895e479d217cfdf340752dd8b25d52aed9e31",
+    "reports/asset-system-search-2026-09-10/study.py": "b033b17d1730bf1e45f44af9b777b8b1a1dc0352dc9e45b92b2691d3743874d4",
+    "tools/profit-search.py": "51bd81e6b416a06fa2516992f05e7e893f4a7a7ecc573d9f191da99eef56c2d5",
+    "reports/new-spot-system-2026-09-10/market-data/dataset.json": "ab3518310bfd0e4b40f539ef69a864ea5fa56908708003711d61b9d835b90df6",
+    "reports/trade-lifecycle-search-2026-09-10/entry/candidates.py": "e43773ed29f16655dd6edd881b4a7f25c5dcd51b382ef4d34ac54b897a411e8e",
+    "reports/trade-lifecycle-search-2026-09-10/entry/registry.json": "9a891b69df3e191f9b218687c83107eb3a83672804776164b223c9dbc789d096",
+    "reports/trade-lifecycle-search-2026-09-10/holding/candidates.py": "b1d4b9b73b40d3503d36d12b4ceb76bcd5ef704155a92177f25f91235cef6d45",
+    "reports/trade-lifecycle-search-2026-09-10/holding/registry.json": "65dbbd36f95fe7b03676aa95d60cbe2cdb61b7a178c9aba9ca11d0c431d86c3e",
+    "reports/trade-lifecycle-search-2026-09-10/exit/candidates.py": "6fb61b78c346f19b5e3cd9296e3783af7f2e803a585911cadc1309161e51d643",
+    "reports/trade-lifecycle-search-2026-09-10/exit/registry.json": "fd4c1566dfd68011fed1599711ccdcfc53a5d8bc9718821535398aaebb049efa"
+  },
+  "historicalDataPreviouslyReused": true,
+  "combinationCount": 54
+}

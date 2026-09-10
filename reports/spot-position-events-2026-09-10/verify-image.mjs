@@ -1,0 +1,24 @@
+import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
+import {readFileSync,writeFileSync} from 'node:fs';
+const out='reports/spot-position-events-2026-09-10';
+const run=args=>execFileSync('docker',args,{encoding:'utf8',maxBuffer:8*1024*1024}).trim();
+const images=JSON.parse(run(['image','inspect','crypto-trade-engine:spot-dashboard-v4','crypto-trade-engine:spot-dashboard-v5','crypto-spot-trend-paper:v3','crypto-trade-engine:spot-dashboard-base-20260910']));
+assert.deepEqual(images[0].Config,images[1].Config);
+assert.deepEqual(images[1].RootFS.Layers.slice(0,images[3].RootFS.Layers.length),images[3].RootFS.Layers);
+const code=`const {readRiskTrainingSourceHashes}=await import('./dist/src/distribution/risk-training-source.js');const {createHash}=await import('node:crypto');const hashes=readRiskTrainingSourceHashes();console.log(JSON.stringify({count:hashes.length,sha256:createHash('sha256').update(JSON.stringify(hashes)).digest('hex')}));`;
+const closure=JSON.parse(run(['run','--rm','--read-only','--network','none',images[1].Id,'node','--input-type=module','-e',code]));
+assert.equal(closure.count,82);assert.equal(closure.sha256,'c57475ab04ce281cbd83f86f95f0099d56d24ef5edcee758e293be197f8d036b');
+const activityCode=`
+const assert=(await import('node:assert/strict')).default;const {readFile}=await import('node:fs/promises');const {createHash}=await import('node:crypto');
+const {SpotPaperActivityReader}=await import('./dist/src/dashboard/spot-activity-reader.js');
+const raw=await readFile('/app/spot-paper-data/state.json');const envelope=JSON.parse(raw);const reader=new SpotPaperActivityReader();
+const result=await reader.snapshot(envelope.state);assert.equal(result.available,true,JSON.stringify(result));
+const buy=envelope.state.orders.find(o=>o.request.side==='buy'&&o.filledQuantity>0);assert.ok(buy);const activity=result.orders[buy.orderId];assert.ok(activity);assert.equal(activity.direction,'LONG');assert.equal(activity.intent,'OPEN_LONG');assert.equal(activity.remainingQuantity,envelope.state.account.quantity);
+assert.ok(Math.abs(activity.unrealizedNetUsd-envelope.state.lastDecision.mark.unrealizedNetUsd)<1e-7);assert.ok(activity.events.some(e=>e.reason==='HOLD_SPOT_NO_ADDITIONS'));assert.ok(activity.events.some(e=>e.type==='FILLED'));
+assert.equal(new Set(activity.events.map(e=>e.id)).size,activity.events.length);
+const hash=x=>createHash('sha256').update(x).digest('hex');assert.equal(hash(await readFile('/app/spot-paper-data/state.json')),hash(raw));
+console.log(JSON.stringify({passed:true,journalSha256:hash(raw),sourceCycle:result.sourceCycle,activity}));`;
+const activity=JSON.parse(run(['run','--rm','--read-only','--network','none','-v','crypto_trade_spot_trend_research:/app/spot-paper-data:ro',images[1].Id,'node','--input-type=module','-e',activityCode]));
+const result={passed:true,network:'none',readOnlyRootFilesystem:true,readOnlySpotJournal:true,futuresSourceClosure:closure,activity,images:images.slice(0,3).map(x=>({id:x.Id,tags:x.RepoTags}))};
+writeFileSync(out+'/image-verification.json',JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify({passed:true,closure,sourceCycle:activity.sourceCycle,events:activity.activity.totalEvents,position:activity.activity.positionStatus,images:result.images},null,2));

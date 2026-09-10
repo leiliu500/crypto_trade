@@ -1,0 +1,120 @@
+{
+  "registeredAt": "2026-09-09T20:55:05.847Z",
+  "specification": {
+    "version": "btc-matched-quantity-long-horizon-carry-v1",
+    "symbol": "BTC/USD",
+    "scope": "DEVELOPMENT_ECONOMIC_SCREEN_ONLY",
+    "hypothesisRegistry": "SEPARATE_FROM_CONCURRENT_55D_CHANNEL_TREND_HYPOTHESIS;NO_OUTCOME_SELECTED_FALLBACK",
+    "initialEquityUsd": 100000,
+    "hourMs": 3600000,
+    "dayMs": 86400000,
+    "weekMs": 604800000,
+    "yearDays": 365,
+    "forecastLookbackDays": 90,
+    "forecastHaircutFraction": 0.5,
+    "forecastUnits": "MEAN_MATURED_ABSOLUTE_USD_PER_BTC_HOUR",
+    "forecastAnnualization": "MEAN_ABSOLUTE_RATE*8760/DECISION_PERPETUAL_PRICE",
+    "holdingDays": 180,
+    "fundingExitLookbackDays": 28,
+    "fundingExitConsecutiveWeeks": 2,
+    "decisionUtcWeekday": 4,
+    "decisionDelayMs": 60000,
+    "entryDelayWeeks": 1,
+    "spotIntervalMinutes": 10080,
+    "perpetualIntervalMinutes": 60,
+    "maximumLegNotionalUsd": 1000,
+    "maximumLegEquityFraction": 0.01,
+    "collateralMultiple": 2,
+    "collateralGuardFraction": 0.2,
+    "annualCapitalHurdleFraction": 0.05,
+    "basisUnwindReserveBps": 75,
+    "quantityStepBtc": 0.0001,
+    "minimumQuantityBtc": 0.0001,
+    "fixedMatchedQuantity": true,
+    "automaticCollateralTransfers": false,
+    "capitalDefinition": "ALL_IN_SPOT_PURCHASE_CASH_PLUS_TWICE_PERPETUAL_ENTRY_NOTIONAL",
+    "quantityPolicy": "SHARED_LOT_FLOOR_AT_ENTRY;MIN_OF_BOTH_LEG_NOTIONAL_AND_AVAILABLE_CAPITAL_CAPS;NO_ADD_OR_REBALANCE",
+    "maximumLegNotionalAppliesAt": "ENTRY;MARKED_EXPOSURE_REPORTED_SEPARATELY",
+    "collateralGuardPolicy": "HOURLY_ADVERSE_PERPETUAL_HIGH_MARK;EXIT_NEXT_ELIGIBLE_SPOT_WEEK_OPEN;ANY_INTERVENING_GUARD_BREACH_FAILS",
+    "terminalPolicy": "FLATTEN_AT_LAST_SPOT_WEEK_OPEN_WHOSE_WHOLE_BAR_ENDS_BY_WINDOW_END;DISCLOSE_HORIZON_TRUNCATION",
+    "allowTruncatedHorizonEntries": true,
+    "sameBoundaryExitAndReentry": false,
+    "postExitEntryPolicy": "NEW_CAUSAL_WEEKLY_DECISION_AND_NEXT_SOURCE_WEEK_OPEN_REQUIRED",
+    "fundingKnownAt": "MAPPED_INTERVAL_END",
+    "actualFeeVerified": false,
+    "historicalMarginVerified": false,
+    "evidenceKind": "INDEPENDENT_SPOT_WEEKLY_TRADES_AND_PERPETUAL_HOURLY_CANDLE_PROXY",
+    "benchmark": "5_PERCENT_SIMPLE_ANNUAL_HURDLE_ON_ACTUAL_COMMITTED_CAPITAL_FOR_ACTUAL_HOLDING_TIME;NOT_CREDITED_CASH_INTEREST",
+    "scenarios": {
+      "base": {
+        "spotFeeBps": 80,
+        "perpetualFeeBps": 5,
+        "slippageBpsPerExecution": 2
+      },
+      "stress": {
+        "spotFeeBps": 100,
+        "perpetualFeeBps": 7.5,
+        "slippageBpsPerExecution": 5
+      }
+    },
+    "fundingEndShiftHours": [
+      0,
+      1
+    ],
+    "windows": [
+      {
+        "id": "development-2024",
+        "startMs": 1704067200000,
+        "endMs": 1735689600000
+      },
+      {
+        "id": "confirmation-2025-h1",
+        "startMs": 1735689600000,
+        "endMs": 1751328000000
+      }
+    ],
+    "acceptance": {
+      "minimumCompletedCyclesPerWindowScenario": 1,
+      "netFundedCashMustBeStrictlyPositive": true,
+      "capitalBenchmarkExcessMustBeStrictlyPositive": true,
+      "allEightRunsRequired": true,
+      "allMarginAndSourceEvidenceKnown": true,
+      "noMissingHeldPriceOrFunding": true,
+      "noUnresolvedLegsOrCollateralGuardBreaches": true,
+      "historicalPositiveProxyIsInsufficientForExecution": true,
+      "fullValidationAllowed": false,
+      "runtimeActivationAllowed": false,
+      "realOrdersAllowed": false,
+      "futureProfitGuaranteed": false
+    }
+  },
+  "specificationSha256": "81d41807504131b8390358fb733c9d7887dadde677d094e50c1e96a5b5414c31",
+  "sourceHashes": {
+    "src/carry/horizon-spec.ts": "da43c9d8dd95b770c67994007acc8d9e56fd4aae30642660b7a2644ae1cf25ed",
+    "src/carry/horizon-signal.ts": "4e5558bf248efdf5ce9fa764a1be5775f5ceae4afe9e447dd86e0a1046c2cabd",
+    "src/carry/horizon-replay.ts": "4062b1be28158c99a656af7359d827ff1cd94eeb5b566a52d1414f84fb215172",
+    "src/carry/horizon-study-main.ts": "6da0e8dc59fcfce14d4fd410718d60cae67f682d35912a646754db20d1416701",
+    "src/carry/inventory.ts": "a35bf93c725781736dcf8cb709acc84620d45655fc5a3c4175c5fd0fd9d01edf",
+    "src/research/hourly-data.ts": "0786552d6f700f8ad906a6f6db80b423560eef6f79dbb7403250ce1eeb260a91",
+    "src/research/spot-history-data.ts": "1c580263bb1fc7de80d2def842bb75f873d1687d32d653dcb5040607e0caddc2"
+  },
+  "admittedDataSha256": "4e0e3e25ae4e34a4b04894916208e57201b60f3ed43e7746c7e6c6e562b0cc9d",
+  "dataSources": [
+    {
+      "path": "reports/carry-horizon-audit-2026-09-09/spot-history",
+      "datasetSha256": "9a47c7bb44432393e0327bad95d801c19982fab218c6f7e96e01af74e683683d",
+      "manifestSha256": "2936aa1db4c7da66aeae80b84f9d0b76a4e73ffac4bfad49cbd717d9bb35af41"
+    },
+    {
+      "path": "reports/hourly-adaptive-study-2026-09-08/data-older-restored",
+      "datasetSha256": "6995137d4366500628885518de3908f663ab7584caba0a4fe9845f700ac3f36f",
+      "manifestSha256": "b49fc0c9fe648aec3a049605f1e5c79d6d0a917bcf93c40bd151f47b992e941b"
+    },
+    {
+      "path": "reports/hourly-adaptive-study-2026-09-08/data-recent",
+      "datasetSha256": "802694ae936dd864681dee2278f027ea1732a91fd6b635f1b08371673abcb227",
+      "manifestSha256": "5a57cfcc6dc6cc352f708f3101d0e2026580c5faf7b6661509016feb6483ecb4"
+    }
+  ],
+  "reserved2026Evaluated": false
+}

@@ -1,0 +1,78 @@
+{
+  "version": "independent-profit-search-audit-v1",
+  "passed": true,
+  "checks": [
+    "all 100 registered configurations retained; reused-data and no-deployment labels valid",
+    "all study artifacts and registered sources match hashes; raw daily source hashes verified",
+    "900 causal prefix-invariance checks across all 100 target configurations",
+    "development-only rank and all 400 development replays match without later data",
+    "1200 ledgers independently reconcile funded cash, inventory, both fees, timing, daily/trade P&L and close drawdown",
+    "all 36 cash and equally funded buy-and-hold scenario/window baselines reproduce",
+    "screen pass counts, selected row and explicitly biased hindsight diagnostic reconcile"
+  ],
+  "screenDirectory": "reports/profit-search-100-2026-09-10/screen",
+  "configurations": 100,
+  "prefixChecks": 900,
+  "independentDevelopmentReplays": 400,
+  "independentLedgers": 1200,
+  "uniqueObservedTargetPaths": 94,
+  "selectedId": "sma_eth-040",
+  "passingCount": 0,
+  "caveats": [
+    "All history was reused; audit correctness does not establish profit.",
+    "Six formula classes split into ten asset/family groups; 100 configurations are related.",
+    "The 90-day pullback variants are structurally unable to enter because entry requires price both above and below the same 90-day mean.",
+    "Daily execution and low-price drawdown retain the disclosed proxy limitations.",
+    "Observed unique target paths are dataset-specific, not a count of independent statistical hypotheses."
+  ],
+  "structurallyInactiveCandidates": [
+    "pullback_btc-090",
+    "pullback_eth-090"
+  ],
+  "supplementaryDiagnostics": {
+    "passed": true,
+    "continuousLedgers": 4,
+    "continuousBaselines": 12,
+    "bootstrapComparisons": 12,
+    "bootstrapRepetitionsPerComparison": 20000,
+    "continuous": {
+      "base": {
+        "netPnlUsd": 948.4058453573653,
+        "returnOnAccountPct": 9.484058453573653,
+        "maxDrawdownUsd": 667.245078296759,
+        "maxIntradayLowDrawdownUsd": 705.8366896301322,
+        "closedTrades": 10
+      },
+      "cost": {
+        "netPnlUsd": 889.4351416000354,
+        "returnOnAccountPct": 8.894351416000346,
+        "maxDrawdownUsd": 690.5843533401403,
+        "maxIntradayLowDrawdownUsd": 734.3507254985925,
+        "closedTrades": 10
+      },
+      "delay": {
+        "netPnlUsd": 900.1022220676005,
+        "returnOnAccountPct": 9.001022220676003,
+        "maxDrawdownUsd": 702.0081243986369,
+        "maxIntradayLowDrawdownUsd": 718.7363630075652,
+        "closedTrades": 10
+      },
+      "combined": {
+        "netPnlUsd": 841.395078962978,
+        "returnOnAccountPct": 8.413950789629787,
+        "maxDrawdownUsd": 735.9357033635715,
+        "maxIntradayLowDrawdownUsd": 752.574606513188,
+        "closedTrades": 10
+      }
+    },
+    "sourceHashes": {
+      "reports/profit-search-100-2026-09-10/analyze.py": "1f8efe2eef0376dfb4605a1bc64941c5108b9b4ff335a1d4b52ca891a6e92ff2",
+      "reports/profit-search-100-2026-09-10/selected-diagnostics.json": "177a2f9217d52eddcf44983f52e8093a75910660e919a2dd1e762ea8c1328ece"
+    }
+  },
+  "fileHashes": {
+    "tools/profit-search.py": "51bd81e6b416a06fa2516992f05e7e893f4a7a7ecc573d9f191da99eef56c2d5",
+    "reports/profit-search-100-2026-09-10/screen/artifact-integrity.json": "04c83bf046a807cb6f30ac727359659e47a6c14530130cf1113f4d3c2f3dbb4c",
+    "reports/profit-search-100-2026-09-10/screen-audit.py": "40c645ecaaff45c72208f9ac14d8cab518d5c81be0796f3e6ca91e7797e17ca8"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "builtAtUtc": "2026-09-09T21:53:02.880448+00:00",
+  "imageId": "sha256:4e5d6e8ecd4e816fdcb550caa11c20ff9172d0aa580ed99deaf4bccf8bca0c1a",
+  "priorRunningImageId": "sha256:9d102b68d4631df5be09e0892b19d265621d7d006193338a9247154384dd85b0",
+  "riskTrainingSourceCodeSha256": "c57475ab04ce281cbd83f86f95f0099d56d24ef5edcee758e293be197f8d036b",
+  "canonicalSourceFiles": 82,
+  "compiledRuntimeSourceIdentityMatchesReplay": true,
+  "fullTestSuiteBeforeOriginPacking": {
+    "passed": 1297,
+    "failed": 0,
+    "output": "/tmp/crypto-profit-rebuild-final-tests.tap"
+  },
+  "originPackingFocusedTestsAndBuildPassed": true,
+  "immutableArtifactRoundtripAudit": "risk-training-origin-packing-audit.json",
+  "deployed": false,
+  "historicalBankImportPerformed": false,
+  "channelActivated": false,
+  "profitsEstablished": false
+}

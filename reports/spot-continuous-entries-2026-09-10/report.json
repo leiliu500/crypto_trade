@@ -1,0 +1,92 @@
+{
+  "version": "spot-continuous-entry-deployment-v1",
+  "recordedAt": "2026-09-10T17:01:50.088Z",
+  "passed": true,
+  "change": "Removed the first-hour-only entry gate; delayed closed-week signal, sizing, fees and risk controls unchanged.",
+  "liveTradingEnabled": false,
+  "provenProfitable": false,
+  "validation": {
+    "regressionTests": 202,
+    "finalUiTests": 21,
+    "compiledLifecycleChecks": 22,
+    "deploymentChecks": 10,
+    "desktopMobileBrowserPassed": true,
+    "independentRecordedBookReviewPassed": true
+  },
+  "deployed": [
+    {
+      "id": "sha256:dccf9b4434c9760c366231fca34f8c483368fb0af3450f8bdeef2117b9d2601e",
+      "tags": [
+        "crypto-trade-engine:spot-dashboard-v4"
+      ]
+    },
+    {
+      "id": "sha256:3682285933465fb691269a080586f08421f007c1c087d8d4f208dfcd72038b63",
+      "tags": [
+        "crypto-spot-trend-paper:v3"
+      ]
+    }
+  ],
+  "runtimeSourceSha256": "2a87d7a11589f50058d691f42b869595d9948e699236c3ca9804ba10513eab48",
+  "parentResearchEvidenceSha256": "3eed46dd2a5f17dc48e87e190243971754b1c7b0394ebcadb4eb289d30ebb509",
+  "account": {
+    "startedAtMs": 1789019349083,
+    "initialCashUsd": 100000,
+    "cashUsd": 99900.09999846495,
+    "quantity": 0.00128587,
+    "entryCostUsd": 99.90000153503999,
+    "realizedNetUsd": 0,
+    "feesUsd": 0.79285715504,
+    "receipts": [
+      {
+        "id": "btc-spot-weekly-research-paper-runner-v3:1789019349083:136:buy",
+        "side": "buy",
+        "quantity": 0.00128587,
+        "price": 77074,
+        "feeBps": 80,
+        "timestampMs": 1789059332724
+      }
+    ]
+  },
+  "cycle": 137,
+  "latestDecision": {
+    "timestampMs": 1789059633161,
+    "action": "hold",
+    "reason": "HOLD_SPOT_NO_ADDITIONS",
+    "fill": null,
+    "orderId": null,
+    "signal": {
+      "version": "btc-spot-funded-weekly-trend-v1",
+      "availableAtMs": 1788393660000,
+      "lastWeekEndMs": 1788393600000,
+      "close": 77305.1,
+      "state": "long",
+      "reason": "TREND_ENTER",
+      "movingAverage": 74385.5475
+    },
+    "mark": {
+      "equityUsd": 99999.27979449995,
+      "liquidationEquityUsd": 99998.48635613167,
+      "unrealizedNetUsd": -1.5136438683199884,
+      "netPnlUsd": -1.5136438683257438
+    }
+  },
+  "firstFillAt": "2026-09-10T16:55:32.724Z",
+  "replay": {
+    "cycles": 134,
+    "previousOrders": 0,
+    "revisedOrders": 1,
+    "revisedRealizedNetUsd": 0,
+    "revisedLiquidationNetUsd": -3.2158431912976084
+  },
+  "limitations": [
+    "Profitability is unvalidated; revised timing has no independent economic validation.",
+    "Recorded-book replay was retrospective and had no completed trend episodes.",
+    "Fills are local L2 simulations, not actual exchange executions.",
+    "Holding-period returns and future execution costs can produce losses."
+  ],
+  "verificationNotes": [
+    "Initial deployment check ran during futures startup warmup; status became healthy without code or configuration changes.",
+    "Initial browser age assertion sampled a whole-second rounding boundary; corrected harness waits two display ticks without adding API requests. Original failed browser report retained."
+  ]
+}

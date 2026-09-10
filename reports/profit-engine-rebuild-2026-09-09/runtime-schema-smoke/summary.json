@@ -1,0 +1,22 @@
+{
+  "kind": "ACTUAL_RUNTIME_SCHEMA_SMOKE_ONLY_NOT_DEPLOYMENT_VERIFICATION",
+  "createdAtUtc": "2026-09-09T22:27:51.226227+00:00",
+  "image": "sha256:4e5d6e8ecd4e816fdcb550caa11c20ff9172d0aa580ed99deaf4bccf8bca0c1a",
+  "verifierSha256": "729dbe312eb86c7e1ed69f25e9493283c9cfe4f3720e4e89deb4836b0f6c8610",
+  "expectedRejectionObserved": true,
+  "verifierExitCode": 2,
+  "verifierError": "INCOMPATIBLE_IMPORT_PREFLIGHT",
+  "checks": {
+    "currentSourceAndCaptureContextVerified": true,
+    "fundingEpochAndHistoryPreserved": true,
+    "paperCashPositionsAndOrdersReconciled": true
+  },
+  "sameImmutablePaperSnapshotBeforeAndAfter": true,
+  "emptyImportEvidenceSuppliedIntentionally": true,
+  "fullDeploymentVerified": false,
+  "liveAccountMutationsPerformed": false,
+  "ordersSubmitted": 0,
+  "verifierNetwork": "none",
+  "capturedInputDirectory": "/tmp/crypto-runtime-schema-smoke-mkl22fo_",
+  "report": "/home/ec2-user/crypto_trade/reports/profit-engine-rebuild-2026-09-09/runtime-schema-smoke/runtime-schema-smoke.json"
+}

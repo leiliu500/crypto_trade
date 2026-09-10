@@ -1,0 +1,208 @@
+{
+  "version": "structural-system-distinctness-feasibility-v1",
+  "createdDateUtc": "2026-09-10",
+  "scope": "Advisory identity/count and evidence feasibility audit; no runtime mutation.",
+  "requestedDistinctSystems": 10000,
+  "interpretationPending": [
+    "Established mathematics newly implemented in this engine",
+    "Original-to-literature mathematics or systems"
+  ],
+  "counts": {
+    "newSystemsImplementedByThisAudit": 0,
+    "structurallyDifferentInferencePrototypesReviewed": 2,
+    "fittedDecisionPoliciesWithNonbaselineBehavior": 1,
+    "fittedDecisionPoliciesEquivalentToExistingBaseline": 1,
+    "newOriginalMathematicalInventionsDemonstrated": 0,
+    "requested10000Completed": false,
+    "profitableSystemEstablished": false
+  },
+  "feasibility": {
+    "generating10000Rows": "Computationally straightforward; not fulfillment of a distinct-system requirement.",
+    "certifying10000StructuralIdentities": "Unsubstantiated by available evidence; requires accepted identity cards, lineage and semantic review.",
+    "certifying10000OriginalInventions": "Cannot be promised or inferred from generated formulas; requires derivation, literature comparison and independent scrutiny.",
+    "testingAllOnCurrentDailySpotData": "Not valid for funding, derivatives liquidation, queue-sensitive execution, order flow or cross-venue mechanisms.",
+    "pairwiseComparisonsIfExhaustive": 49995000,
+    "recommendedNextAction": "Build the identity registry, classify prior templates, then implement and audit a sourced representative tranche with market-appropriate evidence.",
+    "prototypePlanFromParent": {
+      "status": "Implemented by parent team; independently audited in prototype-audit.json",
+      "plannedModels": [
+        "Bayesian run-length change-point model",
+        "Hidden Markov model"
+      ],
+      "configurationCountPerModel": 1,
+      "noveltyClaimAllowed": "Established methods newly implemented in inspected engine, subject to source and identity review",
+      "noveltyClaimNotEstablished": "Original mathematics",
+      "countingCaveat": "Two inference prototypes do not satisfy a 10000-system request. Frozen HMM decision control is formally equivalent to ETH buy-and-hold after warmup; only BOCPD adds a nonbaseline fitted policy. Both failed the exploratory profitability screen.",
+      "identityCounts": {
+        "inferencePrototypes": 2,
+        "nonbaselineFittedDecisionPolicies": 1,
+        "newValidatedProfitableSystems": 0,
+        "originalMathematicalInventions": 0
+      },
+      "auditEvidence": "reports/structural-system-search-2026-09-10/prototype-audit.json",
+      "hmmRedundancyProof": "Fourteen-day expected log growth is linear in the filtered posterior. All three pure-state forecasts exceed the entry hurdle, so every posterior mixture targets long. All 16 study window/scenario ledgers equal ETH buy-and-hold.",
+      "bocpdOutcome": "Selected because development is zero-trade cash while HMM loses; later-2025 and continuous net lose, recent-2026 has no trades."
+    }
+  },
+  "previous100ScreenAudit": {
+    "source": "tools/profit-search.py",
+    "registeredConfigurations": 100,
+    "assetFamilyGroups": 10,
+    "decisionTemplates": 6,
+    "templates": [
+      "SMA hysteresis",
+      "Endpoint momentum hysteresis",
+      "Close-channel breakout",
+      "Trend-conditioned z-score pullback",
+      "Relative-momentum rotation",
+      "Multi-window SMA consensus"
+    ],
+    "recurringScalarStatisticTypes": 4,
+    "primitiveStatisticTypes": [
+      "Moving average",
+      "Endpoint return",
+      "Rolling extremum",
+      "Standardized deviation"
+    ],
+    "compositeTemplates": [
+      "Relative-momentum rotation",
+      "Multi-window SMA consensus"
+    ],
+    "observedUniqueTargetPaths": 94,
+    "zeroActivityConfigurations": 7,
+    "structurallyInactiveIds": [
+      "pullback_btc-090",
+      "pullback_eth-090"
+    ],
+    "originalToLiteratureInventionsDemonstrated": 0,
+    "frozenExploratoryScreenPasses": 0,
+    "independenceEstablished": false,
+    "evidencePaths": [
+      "reports/profit-search-100-2026-09-10/screen/protocol.json",
+      "reports/profit-search-100-2026-09-10/screen-audit.json",
+      "reports/profit-search-100-2026-09-10/selected-diagnostics.json"
+    ]
+  },
+  "identityPolicy": {
+    "separateCounters": [
+      "Economic mechanisms",
+      "Mathematical templates",
+      "Integrated systems",
+      "Implementations",
+      "Parameter configurations",
+      "Attempted search trials",
+      "Observed signal paths"
+    ],
+    "requiredCardFields": [
+      "Economic mechanism and falsifiable net-cost hypothesis",
+      "Available information and timestamps",
+      "Model assumptions and state equations",
+      "Objective and decision/control equations",
+      "Execution contract and full accounting",
+      "Nearest families and normalized-equation comparison",
+      "Lineage and primary provenance",
+      "Structural witness and ablation",
+      "Novelty category",
+      "Data and implementation status",
+      "Version hashes"
+    ],
+    "doNotCountAsNewStructure": [
+      "Parameter changes",
+      "Asset substitutions",
+      "Algebraic equivalents",
+      "Renamed code",
+      "Seed changes",
+      "Feature swaps without a justified new mechanism",
+      "Fixed-weight ensembles",
+      "Cartesian-product packaging"
+    ],
+    "uncertainDistinctness": "Exclude from certified count until reviewed; retain in candidate and trial ledgers.",
+    "finiteProbeLimitation": "Different outputs on finite paths do not prove global structural non-equivalence; identical outputs do not establish global equivalence.",
+    "statisticalTrialRule": "Deduplicating a structural taxonomy must not erase any attempted model/configuration that influenced selection."
+  },
+  "evidenceStages": [
+    "Provenance and identity",
+    "Implementation invariants",
+    "Mechanism and data viability",
+    "Exploratory market-appropriate replay",
+    "Frozen external/prospective test",
+    "Measured execution validation",
+    "Authorized bounded deployment decision"
+  ],
+  "comparisonPolicy": {
+    "shared": "All-in account equity, committed capital, exposure, costs, common calendar within cohort, tail/risk diagnostics and uncertainty",
+    "notShared": "One OHLC fill simulator across spot, funding, derivatives, order flow and queue-sensitive systems",
+    "cohorts": [
+      "Slow funded spot direction",
+      "Pairs/relative value",
+      "Futures/perpetual carry/basis",
+      "Order-flow prediction",
+      "Market making/execution control",
+      "Cross-venue arbitrage"
+    ],
+    "universalBestClaimAllowed": false,
+    "reusedHistoryIsProspective": false
+  },
+  "multipleSearchControls": {
+    "allTrialsRetained": true,
+    "candidateMethods": [
+      "White Reality Check for comparable benchmark-relative losses",
+      "Deflated Sharpe Ratio under defensible distribution/dependence inputs",
+      "PBO/CSCV as a retrospective selection-fragility diagnostic"
+    ],
+    "automaticValidity": false,
+    "priorBootstrapRepetitions": 20000,
+    "nominalFamilyAlpha": 0.05,
+    "bonferroniPerTrialAlphaFor10000": 0.000005,
+    "expectedBootstrapSamplesBelowThatTail": 0.1,
+    "tailResolutionAdequate": false,
+    "moreReplicatesRepairSelectionBias": false,
+    "sparseEpisodeIllustration": {
+      "historicalEpisodes": 10,
+      "historicalCalendarDays": 617,
+      "daysPerEpisode": 61.7,
+      "prospectivePrediction": false
+    }
+  },
+  "primarySources": [
+    {
+      "title": "A Reality Check for Data Snooping",
+      "author": "Halbert White",
+      "year": 2000,
+      "url": "https://onlinelibrary.wiley.com/doi/10.1111/1468-0262.00152",
+      "verifiedViaWeb": true,
+      "use": "Benchmark-relative inference after specification search"
+    },
+    {
+      "title": "The Deflated Sharpe Ratio",
+      "authors": [
+        "David H. Bailey",
+        "Marcos López de Prado"
+      ],
+      "year": 2014,
+      "url": "https://www.davidhbailey.com/dhbpapers/deflated-sharpe.pdf",
+      "verifiedViaWeb": true,
+      "use": "Selection inflation, non-normality and dependent trial distinction"
+    },
+    {
+      "title": "The Probability of Backtest Overfitting",
+      "authors": [
+        "David H. Bailey",
+        "Jonathan M. Borwein",
+        "Marcos López de Prado",
+        "Qiji Jim Zhu"
+      ],
+      "url": "https://www.davidhbailey.com/dhbpapers/backtest-prob.pdf",
+      "verifiedViaWeb": true,
+      "use": "Retrospective selection-process overfitting diagnostics"
+    },
+    {
+      "title": "Kraken Get OHLC Data",
+      "url": "https://docs.kraken.com/api-reference/market-data/get-ohlc-data",
+      "verifiedViaWeb": true,
+      "use": "Recent history limit and unfinished last row; not order-level data"
+    }
+  ],
+  "runtimeChanged": false,
+  "realOrdersSubmitted": false
+}

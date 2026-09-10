@@ -1,0 +1,6 @@
+{
+  "passed": true,
+  "beforeImage": "sha256:8f70e03fc0bd16222b2ab993fbcb49f335e8c0d103acb436ff824b8e9697216f",
+  "configurationDifferences": [],
+  "scope": "DASHBOARD_ASSETS_ONLY"
+}

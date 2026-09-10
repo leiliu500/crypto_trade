@@ -1,0 +1,1662 @@
+{
+  "schemaVersion": 1,
+  "mode": "MONITOR_ONLY",
+  "capturedAtUtc": "2026-09-09T04:31:40.065Z",
+  "inputSha256": "4c2e7e3f7b6291f2be2cdd5897786aca3b85eeb1cf4cd0b5c777790025d00cf7",
+  "configuration": {
+    "schemaVersion": 1,
+    "mode": "MONITOR_ONLY",
+    "spotTakerFeeBps": 0,
+    "derivativeTakerFeeBps": 5,
+    "annualCapitalHurdleFraction": 0.05,
+    "slippageBpsPerExecution": 1.5,
+    "settlementBasisReserveBps": 50,
+    "unwindReserveBps": 25,
+    "maximumQuoteAgeMs": 2000,
+    "maximumQuoteSkewMs": 1000,
+    "maximumFundingAgeMs": 2000,
+    "settlementPriceMultipliers": [
+      0.5,
+      1,
+      2
+    ],
+    "perpetualScenarioHoldingHours": 720,
+    "minimumDatedMaturityDays": 30,
+    "maximumDatedMaturityDays": 90,
+    "derivativeReserveFraction": 1,
+    "budgets": [
+      {
+        "id": "prior-12-usd-research",
+        "availableGrossUsd": 12,
+        "availableCashUsd": 6.12,
+        "availableCollateralUsd": 6
+      },
+      {
+        "id": "1000-usd-sensitivity",
+        "availableGrossUsd": 1000,
+        "availableCashUsd": 510,
+        "availableCollateralUsd": 500
+      }
+    ]
+  },
+  "activationAllowed": false,
+  "validatedProfitability": false,
+  "interpretation": "INDEPENDENT_BUDGET_SCENARIOS_NOT_SIMULTANEOUS_ALLOCATIONS_OR_BACKTEST_RETURNS",
+  "quoteEvidence": "REST_SNAPSHOTS_NOT_ATOMIC_PAIRED_FILLS;SPOT_HTTP_DATE_HAS_ONE_SECOND_PRECISION",
+  "limitations": [
+    "ACCOUNT_FEES_UNVERIFIED",
+    "NO_PAIRED_HISTORICAL_EXECUTION_EVIDENCE",
+    "FUTURE_FUNDING_VARIABLE",
+    "MARGIN_AND_SETTLEMENT_PATH_NOT_VALIDATED"
+  ],
+  "rows": [
+    {
+      "base": "BTC",
+      "product": "PF_XBTUSD",
+      "budgetId": "prior-12-usd-research",
+      "maturityDays": null,
+      "datedPolicyEligible": false,
+      "economics": {
+        "version": "funded-spot-linear-carry-economics-v1",
+        "status": "INFEASIBLE",
+        "activationAllowed": false,
+        "evidenceComplete": false,
+        "reasons": [
+          "CARRY_ACCOUNT_FEES_UNVERIFIED",
+          "CARRY_EXECUTION_EVIDENCE_UNVERIFIED",
+          "CARRY_MINIMUM_PAIR_EXCEEDS_GROSS_BUDGET",
+          "CARRY_MINIMUM_PAIR_EXCEEDS_CASH_BUDGET",
+          "CARRY_MINIMUM_PAIR_EXCEEDS_COLLATERAL_BUDGET"
+        ],
+        "matchedQuantityStep": 0.0001,
+        "minimumMatchedBaseQty": 0.0001,
+        "minimumPairedGrossUsd": 15.779676596500003,
+        "allocatedBaseQty": 0,
+        "allocatedPairedGrossUsd": 0,
+        "requiredCashUsd": 0,
+        "requiredCollateralUsd": 0,
+        "reservedCapitalUsd": 0,
+        "derivativeReserveFraction": 1,
+        "holdingHours": 720,
+        "currentFundingAgeMs": 479,
+        "entryBasisPerBaseUsd": 9.89999999999418,
+        "entryBasisBps": 1.2550534918998046,
+        "entryBasisAnnualizedFraction": 0.0015269817484780956,
+        "executionFees": null,
+        "breakEvenAbsoluteFundingUsdPerBasePerHour": null,
+        "breakEvenAnnualFundingFractionOnSpotNotional": null,
+        "breakEvenAnnualCarryFractionOnSpotNotional": null,
+        "scenarios": [],
+        "conventions": [
+          "Research scenarios only; this module never authorizes trading.",
+          "Linear USD contracts only; all quantities and depth are underlying BASE units. Contract multipliers must be normalized by the adapter.",
+          "Gross exposure is the sum of both legs valued at adverse current asks; no hedge netting or price-path cap guarantee.",
+          "Cash reserves fund the spot purchase and both spot fees; collateral reserves fund the derivative reserve, both derivative fees, all slippage, and basis/unwind buffers.",
+          "Dated scenarios assume convergence to each supplied settlement price and charge a conservative four-execution round trip, including derivative close fees.",
+          "Perpetual scenarios preserve current spot and derivative bid/ask prices; quoted entry basis is not assumed to converge.",
+          "Funding scenarios are hypothetical constant-rate paths, not forecasts. Adverse funding uses negative absolute magnitude.",
+          "Capital hurdle is simple annual cost on reserved spot cash plus derivative collateral over a 365-day year; basis/unwind reserves use spot entry ask notional.",
+          "Future exit depth, fees, basis, liquidity, margin calls and funding are unverified by current books; residual and one-leg execution risk requires a separate coordinator."
+        ]
+      }
+    },
+    {
+      "base": "BTC",
+      "product": "PF_XBTUSD",
+      "budgetId": "1000-usd-sensitivity",
+      "maturityDays": null,
+      "datedPolicyEligible": false,
+      "economics": {
+        "version": "funded-spot-linear-carry-economics-v1",
+        "status": "FEASIBLE",
+        "activationAllowed": false,
+        "evidenceComplete": false,
+        "reasons": [
+          "CARRY_ACCOUNT_FEES_UNVERIFIED",
+          "CARRY_EXECUTION_EVIDENCE_UNVERIFIED"
+        ],
+        "matchedQuantityStep": 0.0001,
+        "minimumMatchedBaseQty": 0.0001,
+        "minimumPairedGrossUsd": 15.779676596500003,
+        "allocatedBaseQty": 0.0062,
+        "allocatedPairedGrossUsd": 978.3399489830001,
+        "requiredCashUsd": 489.1361794230001,
+        "requiredCollateralUsd": 493.65432495346494,
+        "reservedCapitalUsd": 982.790504376465,
+        "derivativeReserveFraction": 1,
+        "holdingHours": 720,
+        "currentFundingAgeMs": 479,
+        "entryBasisPerBaseUsd": 9.89999999999418,
+        "entryBasisBps": 1.2550534918998046,
+        "entryBasisAnnualizedFraction": 0.0015269817484780956,
+        "executionFees": {
+          "spotEntryUsd": 0,
+          "derivativeEntryUsd": 0.244525415685,
+          "spotExitUsd": 0,
+          "derivativeExitUsd": 0.24460188478,
+          "totalUsd": 0.48912730046499997
+        },
+        "breakEvenAbsoluteFundingUsdPerBasePerHour": 1.903279677406734,
+        "breakEvenAnnualFundingFractionOnSpotNotional": 0.2113653330656265,
+        "breakEvenAnnualCarryFractionOnSpotNotional": 0.21136533306562647,
+        "scenarios": [
+          {
+            "name": "PERPETUAL_CONSTANT_CURRENT_FUNDING",
+            "assumedSettlementSpotPriceUsd": null,
+            "assumedAbsoluteFundingUsdPerBasePerHour": 1.0018519009049738,
+            "grossBasisCaptureUsd": 0,
+            "executionSpreadCostUsd": 0.006820000000036089,
+            "slippageCostUsd": 0.2934569429999999,
+            "fees": {
+              "spotEntryUsd": 0,
+              "derivativeEntryUsd": 0.244525415685,
+              "spotExitUsd": 0,
+              "derivativeExitUsd": 0.24460188478,
+              "totalUsd": 0.48912730046499997
+            },
+            "fundingIncomeUsd": 4.472266885639803,
+            "capitalHurdleCostUsd": 4.038865086478624,
+            "settlementBasisReserveUsd": 2.4453141000000005,
+            "unwindReserveUsd": 1.2226570500000002,
+            "netAfterCostsUsd": -4.0239735943038575,
+            "annualizedNetOnReservedCapitalFraction": -0.049815647566136594
+          },
+          {
+            "name": "PERPETUAL_ZERO_FUNDING",
+            "assumedSettlementSpotPriceUsd": null,
+            "assumedAbsoluteFundingUsdPerBasePerHour": 0,
+            "grossBasisCaptureUsd": 0,
+            "executionSpreadCostUsd": 0.006820000000036089,
+            "slippageCostUsd": 0.2934569429999999,
+            "fees": {
+              "spotEntryUsd": 0,
+              "derivativeEntryUsd": 0.244525415685,
+              "spotExitUsd": 0,
+              "derivativeExitUsd": 0.24460188478,
+              "totalUsd": 0.48912730046499997
+            },
+            "fundingIncomeUsd": 0,
+            "capitalHurdleCostUsd": 4.038865086478624,
+            "settlementBasisReserveUsd": 2.4453141000000005,
+            "unwindReserveUsd": 1.2226570500000002,
+            "netAfterCostsUsd": -8.49624047994366,
+            "annualizedNetOnReservedCapitalFraction": -0.10518103846037725
+          },
+          {
+            "name": "PERPETUAL_ADVERSE_CURRENT_MAGNITUDE",
+            "assumedSettlementSpotPriceUsd": null,
+            "assumedAbsoluteFundingUsdPerBasePerHour": -1.0018519009049738,
+            "grossBasisCaptureUsd": 0,
+            "executionSpreadCostUsd": 0.006820000000036089,
+            "slippageCostUsd": 0.2934569429999999,
+            "fees": {
+              "spotEntryUsd": 0,
+              "derivativeEntryUsd": 0.244525415685,
+              "spotExitUsd": 0,
+              "derivativeExitUsd": 0.24460188478,
+              "totalUsd": 0.48912730046499997
+            },
+            "fundingIncomeUsd": -4.472266885639803,
+            "capitalHurdleCostUsd": 4.038865086478624,
+            "settlementBasisReserveUsd": 2.4453141000000005,
+            "unwindReserveUsd": 1.2226570500000002,
+            "netAfterCostsUsd": -12.968507365583465,
+            "annualizedNetOnReservedCapitalFraction": -0.16054642935461796
+          }
+        ],
+        "conventions": [
+          "Research scenarios only; this module never authorizes trading.",
+          "Linear USD contracts only; all quantities and depth are underlying BASE units. Contract multipliers must be normalized by the adapter.",
+          "Gross exposure is the sum of both legs valued at adverse current asks; no hedge netting or price-path cap guarantee.",
+          "Cash reserves fund the spot purchase and both spot fees; collateral reserves fund the derivative reserve, both derivative fees, all slippage, and basis/unwind buffers.",
+          "Dated scenarios assume convergence to each supplied settlement price and charge a conservative four-execution round trip, including derivative close fees.",
+          "Perpetual scenarios preserve current spot and derivative bid/ask prices; quoted entry basis is not assumed to converge.",
+          "Funding scenarios are hypothetical constant-rate paths, not forecasts. Adverse funding uses negative absolute magnitude.",
+          "Capital hurdle is simple annual cost on reserved spot cash plus derivative collateral over a 365-day year; basis/unwind reserves use spot entry ask notional.",
+          "Future exit depth, fees, basis, liquidity, margin calls and funding are unverified by current books; residual and one-leg execution risk requires a separate coordinator."
+        ]
+      }
+    },
+    {
+      "base": "BTC",
+      "product": "FF_XBTUSD_260925",
+      "budgetId": "prior-12-usd-research",
+      "maturityDays": 16.144675173611112,
+      "datedPolicyEligible": false,
+      "economics": {
+        "version": "funded-spot-linear-carry-economics-v1",
+        "status": "INFEASIBLE",
+        "activationAllowed": false,
+        "evidenceComplete": false,
+        "reasons": [
+          "CARRY_ACCOUNT_FEES_UNVERIFIED",
+          "CARRY_EXECUTION_EVIDENCE_UNVERIFIED",
+          "CARRY_MINIMUM_PAIR_EXCEEDS_GROSS_BUDGET",
+          "CARRY_MINIMUM_PAIR_EXCEEDS_CASH_BUDGET",
+          "CARRY_MINIMUM_PAIR_EXCEEDS_COLLATERAL_BUDGET"
+        ],
+        "matchedQuantityStep": 0.0001,
+        "minimumMatchedBaseQty": 0.0001,
+        "minimumPairedGrossUsd": 15.791078306500003,
+        "allocatedBaseQty": 0,
+        "allocatedPairedGrossUsd": 0,
+        "requiredCashUsd": 0,
+        "requiredCollateralUsd": 0,
+        "reservedCapitalUsd": 0,
+        "derivativeReserveFraction": 1,
+        "holdingHours": 387.4722041666667,
+        "currentFundingAgeMs": null,
+        "entryBasisPerBaseUsd": 119.89999999999418,
+        "entryBasisBps": 15.200092290801326,
+        "entryBasisAnnualizedFraction": 0.03436448009316959,
+        "executionFees": null,
+        "breakEvenAbsoluteFundingUsdPerBasePerHour": null,
+        "breakEvenAnnualFundingFractionOnSpotNotional": null,
+        "breakEvenAnnualCarryFractionOnSpotNotional": null,
+        "scenarios": [],
+        "conventions": [
+          "Research scenarios only; this module never authorizes trading.",
+          "Linear USD contracts only; all quantities and depth are underlying BASE units. Contract multipliers must be normalized by the adapter.",
+          "Gross exposure is the sum of both legs valued at adverse current asks; no hedge netting or price-path cap guarantee.",
+          "Cash reserves fund the spot purchase and both spot fees; collateral reserves fund the derivative reserve, both derivative fees, all slippage, and basis/unwind buffers.",
+          "Dated scenarios assume convergence to each supplied settlement price and charge a conservative four-execution round trip, including derivative close fees.",
+          "Perpetual scenarios preserve current spot and derivative bid/ask prices; quoted entry basis is not assumed to converge.",
+          "Funding scenarios are hypothetical constant-rate paths, not forecasts. Adverse funding uses negative absolute magnitude.",
+          "Capital hurdle is simple annual cost on reserved spot cash plus derivative collateral over a 365-day year; basis/unwind reserves use spot entry ask notional.",
+          "Future exit depth, fees, basis, liquidity, margin calls and funding are unverified by current books; residual and one-leg execution risk requires a separate coordinator."
+        ]
+      }
+    },
+    {
+      "base": "BTC",
+      "product": "FF_XBTUSD_260925",
+      "budgetId": "1000-usd-sensitivity",
+      "maturityDays": 16.144675173611112,
+      "datedPolicyEligible": false,
+      "economics": {
+        "version": "funded-spot-linear-carry-economics-v1",
+        "status": "FEASIBLE",
+        "activationAllowed": false,
+        "evidenceComplete": false,
+        "reasons": [
+          "CARRY_ACCOUNT_FEES_UNVERIFIED",
+          "CARRY_EXECUTION_EVIDENCE_UNVERIFIED"
+        ],
+        "matchedQuantityStep": 0.0001,
+        "minimumMatchedBaseQty": 0.0001,
+        "minimumPairedGrossUsd": 15.791078306500003,
+        "allocatedBaseQty": 0.0062,
+        "allocatedPairedGrossUsd": 979.0468550030001,
+        "requiredCashUsd": 489.1361794230001,
+        "requiredCollateralUsd": 494.752917318958,
+        "reservedCapitalUsd": 983.8890967419582,
+        "derivativeReserveFraction": 1,
+        "holdingHours": 387.4722041666667,
+        "currentFundingAgeMs": null,
+        "entryBasisPerBaseUsd": 119.89999999999418,
+        "entryBasisBps": 15.200092290801326,
+        "entryBasisAnnualizedFraction": 0.03436448009316959,
+        "executionFees": {
+          "spotEntryUsd": 0,
+          "derivativeEntryUsd": 0.24486636453500002,
+          "spotExitUsd": 0,
+          "derivativeExitUsd": 0.4891361794230001,
+          "totalUsd": 0.7340025439580001
+        },
+        "breakEvenAbsoluteFundingUsdPerBasePerHour": null,
+        "breakEvenAnnualFundingFractionOnSpotNotional": null,
+        "breakEvenAnnualCarryFractionOnSpotNotional": 0.32443319058450065,
+        "scenarios": [
+          {
+            "name": "DATED_CONSTANT_SETTLEMENT_PRICE",
+            "assumedSettlementSpotPriceUsd": 39440.55,
+            "assumedAbsoluteFundingUsdPerBasePerHour": null,
+            "grossBasisCaptureUsd": 0.7433799999999638,
+            "executionSpreadCostUsd": 0,
+            "slippageCostUsd": 0.22018977599999998,
+            "fees": {
+              "spotEntryUsd": 0,
+              "derivativeEntryUsd": 0.24486636453500002,
+              "spotExitUsd": 0,
+              "derivativeExitUsd": 0.12228404485575002,
+              "totalUsd": 0.36715040939075005
+            },
+            "fundingIncomeUsd": 0,
+            "capitalHurdleCostUsd": 2.1759684758570623,
+            "settlementBasisReserveUsd": 2.4453141000000005,
+            "unwindReserveUsd": 1.2226570500000002,
+            "netAfterCostsUsd": -5.687899811247849,
+            "annualizedNetOnReservedCapitalFraction": -0.13069812073006987
+          },
+          {
+            "name": "DATED_CONSTANT_SETTLEMENT_PRICE",
+            "assumedSettlementSpotPriceUsd": 78881.1,
+            "assumedAbsoluteFundingUsdPerBasePerHour": null,
+            "grossBasisCaptureUsd": 0.7433799999999638,
+            "executionSpreadCostUsd": 0,
+            "slippageCostUsd": 0.293549199,
+            "fees": {
+              "spotEntryUsd": 0,
+              "derivativeEntryUsd": 0.24486636453500002,
+              "spotExitUsd": 0,
+              "derivativeExitUsd": 0.24456808971150004,
+              "totalUsd": 0.48943445424650006
+            },
+            "fundingIncomeUsd": 0,
+            "capitalHurdleCostUsd": 2.1759684758570623,
+            "settlementBasisReserveUsd": 2.4453141000000005,
+            "unwindReserveUsd": 1.2226570500000002,
+            "netAfterCostsUsd": -5.883543279103599,
+            "annualizedNetOnReservedCapitalFraction": -0.13519366995393195
+          },
+          {
+            "name": "DATED_CONSTANT_SETTLEMENT_PRICE",
+            "assumedSettlementSpotPriceUsd": 157762.2,
+            "assumedAbsoluteFundingUsdPerBasePerHour": null,
+            "grossBasisCaptureUsd": 0.7433799999999638,
+            "executionSpreadCostUsd": 0,
+            "slippageCostUsd": 0.440268045,
+            "fees": {
+              "spotEntryUsd": 0,
+              "derivativeEntryUsd": 0.24486636453500002,
+              "spotExitUsd": 0,
+              "derivativeExitUsd": 0.4891361794230001,
+              "totalUsd": 0.7340025439580001
+            },
+            "fundingIncomeUsd": 0,
+            "capitalHurdleCostUsd": 2.1759684758570623,
+            "settlementBasisReserveUsd": 2.4453141000000005,
+            "unwindReserveUsd": 1.2226570500000002,
+            "netAfterCostsUsd": -6.2748302148151,
+            "annualizedNetOnReservedCapitalFraction": -0.14418476840165603
+          }
+        ],
+        "conventions": [
+          "Research scenarios only; this module never authorizes trading.",
+          "Linear USD contracts only; all quantities and depth are underlying BASE units. Contract multipliers must be normalized by the adapter.",
+          "Gross exposure is the sum of both legs valued at adverse current asks; no hedge netting or price-path cap guarantee.",
+          "Cash reserves fund the spot purchase and both spot fees; collateral reserves fund the derivative reserve, both derivative fees, all slippage, and basis/unwind buffers.",
+          "Dated scenarios assume convergence to each supplied settlement price and charge a conservative four-execution round trip, including derivative close fees.",
+          "Perpetual scenarios preserve current spot and derivative bid/ask prices; quoted entry basis is not assumed to converge.",
+          "Funding scenarios are hypothetical constant-rate paths, not forecasts. Adverse funding uses negative absolute magnitude.",
+          "Capital hurdle is simple annual cost on reserved spot cash plus derivative collateral over a 365-day year; basis/unwind reserves use spot entry ask notional.",
+          "Future exit depth, fees, basis, liquidity, margin calls and funding are unverified by current books; residual and one-leg execution risk requires a separate coordinator."
+        ]
+      }
+    },
+    {
+      "base": "BTC",
+      "product": "FF_XBTUSD_261225",
+      "budgetId": "prior-12-usd-research",
+      "maturityDays": 107.1446751736111,
+      "datedPolicyEligible": false,
+      "economics": {
+        "version": "funded-spot-linear-carry-economics-v1",
+        "status": "INFEASIBLE",
+        "activationAllowed": false,
+        "evidenceComplete": false,
+        "reasons": [
+          "CARRY_ACCOUNT_FEES_UNVERIFIED",
+          "CARRY_EXECUTION_EVIDENCE_UNVERIFIED",
+          "CARRY_MINIMUM_PAIR_EXCEEDS_GROSS_BUDGET",
+          "CARRY_MINIMUM_PAIR_EXCEEDS_CASH_BUDGET",
+          "CARRY_MINIMUM_PAIR_EXCEEDS_COLLATERAL_BUDGET"
+        ],
+        "matchedQuantityStep": 0.0001,
+        "minimumMatchedBaseQty": 0.0001,
+        "minimumPairedGrossUsd": 15.900594731500004,
+        "allocatedBaseQty": 0,
+        "allocatedPairedGrossUsd": 0,
+        "requiredCashUsd": 0,
+        "requiredCollateralUsd": 0,
+        "reservedCapitalUsd": 0,
+        "derivativeReserveFraction": 1,
+        "holdingHours": 2571.4722041666664,
+        "currentFundingAgeMs": null,
+        "entryBasisPerBaseUsd": 868.8999999999942,
+        "entryBasisBps": 110.15312920331866,
+        "entryBasisAnnualizedFraction": 0.03752486261595733,
+        "executionFees": null,
+        "breakEvenAbsoluteFundingUsdPerBasePerHour": null,
+        "breakEvenAnnualFundingFractionOnSpotNotional": null,
+        "breakEvenAnnualCarryFractionOnSpotNotional": null,
+        "scenarios": [],
+        "conventions": [
+          "Research scenarios only; this module never authorizes trading.",
+          "Linear USD contracts only; all quantities and depth are underlying BASE units. Contract multipliers must be normalized by the adapter.",
+          "Gross exposure is the sum of both legs valued at adverse current asks; no hedge netting or price-path cap guarantee.",
+          "Cash reserves fund the spot purchase and both spot fees; collateral reserves fund the derivative reserve, both derivative fees, all slippage, and basis/unwind buffers.",
+          "Dated scenarios assume convergence to each supplied settlement price and charge a conservative four-execution round trip, including derivative close fees.",
+          "Perpetual scenarios preserve current spot and derivative bid/ask prices; quoted entry basis is not assumed to converge.",
+          "Funding scenarios are hypothetical constant-rate paths, not forecasts. Adverse funding uses negative absolute magnitude.",
+          "Capital hurdle is simple annual cost on reserved spot cash plus derivative collateral over a 365-day year; basis/unwind reserves use spot entry ask notional.",
+          "Future exit depth, fees, basis, liquidity, margin calls and funding are unverified by current books; residual and one-leg execution risk requires a separate coordinator."
+        ]
+      }
+    },
+    {
+      "base": "BTC",
+      "product": "FF_XBTUSD_261225",
+      "budgetId": "1000-usd-sensitivity",
+      "maturityDays": 107.1446751736111,
+      "datedPolicyEligible": false,
+      "economics": {
+        "version": "funded-spot-linear-carry-economics-v1",
+        "status": "FEASIBLE",
+        "activationAllowed": false,
+        "evidenceComplete": false,
+        "reasons": [
+          "CARRY_ACCOUNT_FEES_UNVERIFIED",
+          "CARRY_EXECUTION_EVIDENCE_UNVERIFIED"
+        ],
+        "matchedQuantityStep": 0.0001,
+        "minimumMatchedBaseQty": 0.0001,
+        "minimumPairedGrossUsd": 15.900594731500004,
+        "allocatedBaseQty": 0.0061,
+        "allocatedPairedGrossUsd": 969.9362786215003,
+        "requiredCashUsd": 481.24688620650016,
+        "requiredCollateralUsd": 493.45650292308153,
+        "reservedCapitalUsd": 974.7033891295816,
+        "derivativeReserveFraction": 1,
+        "holdingHours": 2571.4722041666664,
+        "currentFundingAgeMs": null,
+        "entryBasisPerBaseUsd": 868.8999999999942,
+        "entryBasisBps": 110.15312920331866,
+        "entryBasisAnnualizedFraction": 0.03752486261595733,
+        "executionFees": {
+          "spotEntryUsd": 0,
+          "derivativeEntryUsd": 0.24320101437500002,
+          "spotExitUsd": 0,
+          "derivativeExitUsd": 0.4812468862065002,
+          "totalUsd": 0.7244479005815002
+        },
+        "breakEvenAbsoluteFundingUsdPerBasePerHour": null,
+        "breakEvenAnnualFundingFractionOnSpotNotional": null,
+        "breakEvenAnnualCarryFractionOnSpotNotional": 0.13503380167488385,
+        "scenarios": [
+          {
+            "name": "DATED_CONSTANT_SETTLEMENT_PRICE",
+            "assumedSettlementSpotPriceUsd": 39440.55,
+            "assumedAbsoluteFundingUsdPerBasePerHour": null,
+            "grossBasisCaptureUsd": 5.300289999999965,
+            "executionSpreadCostUsd": 0,
+            "slippageCostUsd": 0.21732366300000003,
+            "fees": {
+              "spotEntryUsd": 0,
+              "derivativeEntryUsd": 0.24320101437500002,
+              "spotExitUsd": 0,
+              "derivativeExitUsd": 0.12031172155162505,
+              "totalUsd": 0.3635127359266251
+            },
+            "fundingIncomeUsd": 0,
+            "capitalHurdleCostUsd": 14.30606548204204,
+            "settlementBasisReserveUsd": 2.405873550000001,
+            "unwindReserveUsd": 1.2029367750000004,
+            "netAfterCostsUsd": -13.1954222059687,
+            "annualizedNetOnReservedCapitalFraction": -0.046118278371270235
+          },
+          {
+            "name": "DATED_CONSTANT_SETTLEMENT_PRICE",
+            "assumedSettlementSpotPriceUsd": 78881.1,
+            "assumedAbsoluteFundingUsdPerBasePerHour": null,
+            "grossBasisCaptureUsd": 5.300289999999965,
+            "executionSpreadCostUsd": 0,
+            "slippageCostUsd": 0.28949986950000006,
+            "fees": {
+              "spotEntryUsd": 0,
+              "derivativeEntryUsd": 0.24320101437500002,
+              "spotExitUsd": 0,
+              "derivativeExitUsd": 0.2406234431032501,
+              "totalUsd": 0.4838244574782501
+            },
+            "fundingIncomeUsd": 0,
+            "capitalHurdleCostUsd": 14.30606548204204,
+            "settlementBasisReserveUsd": 2.405873550000001,
+            "unwindReserveUsd": 1.2029367750000004,
+            "netAfterCostsUsd": -13.387910134020327,
+            "annualizedNetOnReservedCapitalFraction": -0.04679102773164905
+          },
+          {
+            "name": "DATED_CONSTANT_SETTLEMENT_PRICE",
+            "assumedSettlementSpotPriceUsd": 157762.2,
+            "assumedAbsoluteFundingUsdPerBasePerHour": null,
+            "grossBasisCaptureUsd": 5.300289999999965,
+            "executionSpreadCostUsd": 0,
+            "slippageCostUsd": 0.4338522825000001,
+            "fees": {
+              "spotEntryUsd": 0,
+              "derivativeEntryUsd": 0.24320101437500002,
+              "spotExitUsd": 0,
+              "derivativeExitUsd": 0.4812468862065002,
+              "totalUsd": 0.7244479005815002
+            },
+            "fundingIncomeUsd": 0,
+            "capitalHurdleCostUsd": 14.30606548204204,
+            "settlementBasisReserveUsd": 2.405873550000001,
+            "unwindReserveUsd": 1.2029367750000004,
+            "netAfterCostsUsd": -13.772885990123577,
+            "annualizedNetOnReservedCapitalFraction": -0.04813652645240669
+          }
+        ],
+        "conventions": [
+          "Research scenarios only; this module never authorizes trading.",
+          "Linear USD contracts only; all quantities and depth are underlying BASE units. Contract multipliers must be normalized by the adapter.",
+          "Gross exposure is the sum of both legs valued at adverse current asks; no hedge netting or price-path cap guarantee.",
+          "Cash reserves fund the spot purchase and both spot fees; collateral reserves fund the derivative reserve, both derivative fees, all slippage, and basis/unwind buffers.",
+          "Dated scenarios assume convergence to each supplied settlement price and charge a conservative four-execution round trip, including derivative close fees.",
+          "Perpetual scenarios preserve current spot and derivative bid/ask prices; quoted entry basis is not assumed to converge.",
+          "Funding scenarios are hypothetical constant-rate paths, not forecasts. Adverse funding uses negative absolute magnitude.",
+          "Capital hurdle is simple annual cost on reserved spot cash plus derivative collateral over a 365-day year; basis/unwind reserves use spot entry ask notional.",
+          "Future exit depth, fees, basis, liquidity, margin calls and funding are unverified by current books; residual and one-leg execution risk requires a separate coordinator."
+        ]
+      }
+    },
+    {
+      "base": "BTC",
+      "product": "FF_XBTUSD_260911",
+      "budgetId": "prior-12-usd-research",
+      "maturityDays": 2.144675173611111,
+      "datedPolicyEligible": false,
+      "economics": {
+        "version": "funded-spot-linear-carry-economics-v1",
+        "status": "INFEASIBLE",
+        "activationAllowed": false,
+        "evidenceComplete": false,
+        "reasons": [
+          "CARRY_ACCOUNT_FEES_UNVERIFIED",
+          "CARRY_EXECUTION_EVIDENCE_UNVERIFIED",
+          "CARRY_MINIMUM_PAIR_EXCEEDS_GROSS_BUDGET",
+          "CARRY_MINIMUM_PAIR_EXCEEDS_CASH_BUDGET",
+          "CARRY_MINIMUM_PAIR_EXCEEDS_COLLATERAL_BUDGET"
+        ],
+        "matchedQuantityStep": 0.0001,
+        "minimumMatchedBaseQty": 0.0001,
+        "minimumPairedGrossUsd": 15.780176671500005,
+        "allocatedBaseQty": 0,
+        "allocatedPairedGrossUsd": 0,
+        "requiredCashUsd": 0,
+        "requiredCollateralUsd": 0,
+        "reservedCapitalUsd": 0,
+        "derivativeReserveFraction": 1,
+        "holdingHours": 51.47220416666667,
+        "currentFundingAgeMs": null,
+        "entryBasisPerBaseUsd": 12.89999999999418,
+        "entryBasisBps": 1.6353727318696443,
+        "entryBasisAnnualizedFraction": 0.027832235598054093,
+        "executionFees": null,
+        "breakEvenAbsoluteFundingUsdPerBasePerHour": null,
+        "breakEvenAnnualFundingFractionOnSpotNotional": null,
+        "breakEvenAnnualCarryFractionOnSpotNotional": null,
+        "scenarios": [],
+        "conventions": [
+          "Research scenarios only; this module never authorizes trading.",
+          "Linear USD contracts only; all quantities and depth are underlying BASE units. Contract multipliers must be normalized by the adapter.",
+          "Gross exposure is the sum of both legs valued at adverse current asks; no hedge netting or price-path cap guarantee.",
+          "Cash reserves fund the spot purchase and both spot fees; collateral reserves fund the derivative reserve, both derivative fees, all slippage, and basis/unwind buffers.",
+          "Dated scenarios assume convergence to each supplied settlement price and charge a conservative four-execution round trip, including derivative close fees.",
+          "Perpetual scenarios preserve current spot and derivative bid/ask prices; quoted entry basis is not assumed to converge.",
+          "Funding scenarios are hypothetical constant-rate paths, not forecasts. Adverse funding uses negative absolute magnitude.",
+          "Capital hurdle is simple annual cost on reserved spot cash plus derivative collateral over a 365-day year; basis/unwind reserves use spot entry ask notional.",
+          "Future exit depth, fees, basis, liquidity, margin calls and funding are unverified by current books; residual and one-leg execution risk requires a separate coordinator."
+        ]
+      }
+    },
+    {
+      "base": "BTC",
+      "product": "FF_XBTUSD_260911",
+      "budgetId": "1000-usd-sensitivity",
+      "maturityDays": 2.144675173611111,
+      "datedPolicyEligible": false,
+      "economics": {
+        "version": "funded-spot-linear-carry-economics-v1",
+        "status": "FEASIBLE",
+        "activationAllowed": false,
+        "evidenceComplete": false,
+        "reasons": [
+          "CARRY_ACCOUNT_FEES_UNVERIFIED",
+          "CARRY_EXECUTION_EVIDENCE_UNVERIFIED"
+        ],
+        "matchedQuantityStep": 0.0001,
+        "minimumMatchedBaseQty": 0.0001,
+        "minimumPairedGrossUsd": 15.780176671500005,
+        "allocatedBaseQty": 0.0062,
+        "allocatedPairedGrossUsd": 978.3709536330002,
+        "requiredCashUsd": 489.1361794230001,
+        "requiredCollateralUsd": 494.0765847887131,
+        "reservedCapitalUsd": 983.2127642117132,
+        "derivativeReserveFraction": 1,
+        "holdingHours": 51.47220416666667,
+        "currentFundingAgeMs": null,
+        "entryBasisPerBaseUsd": 12.89999999999418,
+        "entryBasisBps": 1.6353727318696443,
+        "entryBasisAnnualizedFraction": 0.027832235598054093,
+        "executionFees": {
+          "spotEntryUsd": 0,
+          "derivativeEntryUsd": 0.24453471429,
+          "spotExitUsd": 0,
+          "derivativeExitUsd": 0.4891361794230001,
+          "totalUsd": 0.7336708937130001
+        },
+        "breakEvenAbsoluteFundingUsdPerBasePerHour": null,
+        "breakEvenAnnualFundingFractionOnSpotNotional": null,
+        "breakEvenAnnualCarryFractionOnSpotNotional": 1.7854214737323193,
+        "scenarios": [
+          {
+            "name": "DATED_CONSTANT_SETTLEMENT_PRICE",
+            "assumedSettlementSpotPriceUsd": 39440.55,
+            "assumedAbsoluteFundingUsdPerBasePerHour": null,
+            "grossBasisCaptureUsd": 0.07997999999996391,
+            "executionSpreadCostUsd": 0,
+            "slippageCostUsd": 0.22009026599999998,
+            "fees": {
+              "spotEntryUsd": 0,
+              "derivativeEntryUsd": 0.24453471429,
+              "spotExitUsd": 0,
+              "derivativeExitUsd": 0.12228404485575002,
+              "totalUsd": 0.36681875914575
+            },
+            "fundingIncomeUsd": 0,
+            "capitalHurdleCostUsd": 0.2888591788743037,
+            "settlementBasisReserveUsd": 2.4453141000000005,
+            "unwindReserveUsd": 1.2226570500000002,
+            "netAfterCostsUsd": -4.46375935402009,
+            "annualizedNetOnReservedCapitalFraction": -0.7726531958263448
+          },
+          {
+            "name": "DATED_CONSTANT_SETTLEMENT_PRICE",
+            "assumedSettlementSpotPriceUsd": 78881.1,
+            "assumedAbsoluteFundingUsdPerBasePerHour": null,
+            "grossBasisCaptureUsd": 0.07997999999996391,
+            "executionSpreadCostUsd": 0,
+            "slippageCostUsd": 0.293449689,
+            "fees": {
+              "spotEntryUsd": 0,
+              "derivativeEntryUsd": 0.24453471429,
+              "spotExitUsd": 0,
+              "derivativeExitUsd": 0.24456808971150004,
+              "totalUsd": 0.4891028040015001
+            },
+            "fundingIncomeUsd": 0,
+            "capitalHurdleCostUsd": 0.2888591788743037,
+            "settlementBasisReserveUsd": 2.4453141000000005,
+            "unwindReserveUsd": 1.2226570500000002,
+            "netAfterCostsUsd": -4.65940282187584,
+            "annualizedNetOnReservedCapitalFraction": -0.8065180480041743
+          },
+          {
+            "name": "DATED_CONSTANT_SETTLEMENT_PRICE",
+            "assumedSettlementSpotPriceUsd": 157762.2,
+            "assumedAbsoluteFundingUsdPerBasePerHour": null,
+            "grossBasisCaptureUsd": 0.07997999999996391,
+            "executionSpreadCostUsd": 0,
+            "slippageCostUsd": 0.44016853499999997,
+            "fees": {
+              "spotEntryUsd": 0,
+              "derivativeEntryUsd": 0.24453471429,
+              "spotExitUsd": 0,
+              "derivativeExitUsd": 0.4891361794230001,
+              "totalUsd": 0.7336708937130001
+            },
+            "fundingIncomeUsd": 0,
+            "capitalHurdleCostUsd": 0.2888591788743037,
+            "settlementBasisReserveUsd": 2.4453141000000005,
+            "unwindReserveUsd": 1.2226570500000002,
+            "netAfterCostsUsd": -5.050689757587341,
+            "annualizedNetOnReservedCapitalFraction": -0.8742477523598334
+          }
+        ],
+        "conventions": [
+          "Research scenarios only; this module never authorizes trading.",
+          "Linear USD contracts only; all quantities and depth are underlying BASE units. Contract multipliers must be normalized by the adapter.",
+          "Gross exposure is the sum of both legs valued at adverse current asks; no hedge netting or price-path cap guarantee.",
+          "Cash reserves fund the spot purchase and both spot fees; collateral reserves fund the derivative reserve, both derivative fees, all slippage, and basis/unwind buffers.",
+          "Dated scenarios assume convergence to each supplied settlement price and charge a conservative four-execution round trip, including derivative close fees.",
+          "Perpetual scenarios preserve current spot and derivative bid/ask prices; quoted entry basis is not assumed to converge.",
+          "Funding scenarios are hypothetical constant-rate paths, not forecasts. Adverse funding uses negative absolute magnitude.",
+          "Capital hurdle is simple annual cost on reserved spot cash plus derivative collateral over a 365-day year; basis/unwind reserves use spot entry ask notional.",
+          "Future exit depth, fees, basis, liquidity, margin calls and funding are unverified by current books; residual and one-leg execution risk requires a separate coordinator."
+        ]
+      }
+    },
+    {
+      "base": "ETH",
+      "product": "PF_ETHUSD",
+      "budgetId": "prior-12-usd-research",
+      "maturityDays": null,
+      "datedPolicyEligible": false,
+      "economics": {
+        "version": "funded-spot-linear-carry-economics-v1",
+        "status": "FEASIBLE",
+        "activationAllowed": false,
+        "evidenceComplete": false,
+        "reasons": [
+          "CARRY_ACCOUNT_FEES_UNVERIFIED",
+          "CARRY_EXECUTION_EVIDENCE_UNVERIFIED"
+        ],
+        "matchedQuantityStep": 0.001,
+        "minimumMatchedBaseQty": 0.001,
+        "minimumPairedGrossUsd": 4.995129157,
+        "allocatedBaseQty": 0.002,
+        "allocatedPairedGrossUsd": 9.990258314,
+        "requiredCashUsd": 4.994909124000001,
+        "requiredCollateralUsd": 5.040796485015,
+        "reservedCapitalUsd": 10.035705609015,
+        "derivativeReserveFraction": 1,
+        "holdingHours": 720,
+        "currentFundingAgeMs": 479,
+        "entryBasisPerBaseUsd": 0.11999999999989086,
+        "entryBasisBps": 0.48056129559270744,
+        "entryBasisAnnualizedFraction": 0.000584682909637794,
+        "executionFees": {
+          "spotEntryUsd": 0,
+          "derivativeEntryUsd": 0.0024968254199999994,
+          "spotExitUsd": 0,
+          "derivativeExitUsd": 0.0024976745950000003,
+          "totalUsd": 0.004994500015
+        },
+        "breakEvenAbsoluteFundingUsdPerBasePerHour": 0.06035411167046726,
+        "breakEvenAnnualFundingFractionOnSpotNotional": 0.21172810572079917,
+        "breakEvenAnnualCarryFractionOnSpotNotional": 0.21172810572079917,
+        "scenarios": [
+          {
+            "name": "PERPETUAL_CONSTANT_CURRENT_FUNDING",
+            "assumedSettlementSpotPriceUsd": null,
+            "assumedAbsoluteFundingUsdPerBasePerHour": 0.03474312203700083,
+            "grossBasisCaptureUsd": 0,
+            "executionSpreadCostUsd": 0.00022000000000025466,
+            "slippageCostUsd": 0.0029965950000000003,
+            "fees": {
+              "spotEntryUsd": 0,
+              "derivativeEntryUsd": 0.0024968254199999994,
+              "spotExitUsd": 0,
+              "derivativeExitUsd": 0.0024976745950000003,
+              "totalUsd": 0.004994500015
+            },
+            "fundingIncomeUsd": 0.05003009573328119,
+            "capitalHurdleCostUsd": 0.0412426257904726,
+            "settlementBasisReserveUsd": 0.0249708,
+            "unwindReserveUsd": 0.0124854,
+            "netAfterCostsUsd": -0.03687982507219167,
+            "annualizedNetOnReservedCapitalFraction": -0.044710811163618025
+          },
+          {
+            "name": "PERPETUAL_ZERO_FUNDING",
+            "assumedSettlementSpotPriceUsd": null,
+            "assumedAbsoluteFundingUsdPerBasePerHour": 0,
+            "grossBasisCaptureUsd": 0,
+            "executionSpreadCostUsd": 0.00022000000000025466,
+            "slippageCostUsd": 0.0029965950000000003,
+            "fees": {
+              "spotEntryUsd": 0,
+              "derivativeEntryUsd": 0.0024968254199999994,
+              "spotExitUsd": 0,
+              "derivativeExitUsd": 0.0024976745950000003,
+              "totalUsd": 0.004994500015
+            },
+            "fundingIncomeUsd": 0,
+            "capitalHurdleCostUsd": 0.0412426257904726,
+            "settlementBasisReserveUsd": 0.0249708,
+            "unwindReserveUsd": 0.0124854,
+            "netAfterCostsUsd": -0.08690992080547286,
+            "annualizedNetOnReservedCapitalFraction": -0.10536419437380946
+          },
+          {
+            "name": "PERPETUAL_ADVERSE_CURRENT_MAGNITUDE",
+            "assumedSettlementSpotPriceUsd": null,
+            "assumedAbsoluteFundingUsdPerBasePerHour": -0.03474312203700083,
+            "grossBasisCaptureUsd": 0,
+            "executionSpreadCostUsd": 0.00022000000000025466,
+            "slippageCostUsd": 0.0029965950000000003,
+            "fees": {
+              "spotEntryUsd": 0,
+              "derivativeEntryUsd": 0.0024968254199999994,
+              "spotExitUsd": 0,
+              "derivativeExitUsd": 0.0024976745950000003,
+              "totalUsd": 0.004994500015
+            },
+            "fundingIncomeUsd": -0.05003009573328119,
+            "capitalHurdleCostUsd": 0.0412426257904726,
+            "settlementBasisReserveUsd": 0.0249708,
+            "unwindReserveUsd": 0.0124854,
+            "netAfterCostsUsd": -0.13694001653875404,
+            "annualizedNetOnReservedCapitalFraction": -0.1660175775840009
+          }
+        ],
+        "conventions": [
+          "Research scenarios only; this module never authorizes trading.",
+          "Linear USD contracts only; all quantities and depth are underlying BASE units. Contract multipliers must be normalized by the adapter.",
+          "Gross exposure is the sum of both legs valued at adverse current asks; no hedge netting or price-path cap guarantee.",
+          "Cash reserves fund the spot purchase and both spot fees; collateral reserves fund the derivative reserve, both derivative fees, all slippage, and basis/unwind buffers.",
+          "Dated scenarios assume convergence to each supplied settlement price and charge a conservative four-execution round trip, including derivative close fees.",
+          "Perpetual scenarios preserve current spot and derivative bid/ask prices; quoted entry basis is not assumed to converge.",
+          "Funding scenarios are hypothetical constant-rate paths, not forecasts. Adverse funding uses negative absolute magnitude.",
+          "Capital hurdle is simple annual cost on reserved spot cash plus derivative collateral over a 365-day year; basis/unwind reserves use spot entry ask notional.",
+          "Future exit depth, fees, basis, liquidity, margin calls and funding are unverified by current books; residual and one-leg execution risk requires a separate coordinator."
+        ]
+      }
+    },
+    {
+      "base": "ETH",
+      "product": "PF_ETHUSD",
+      "budgetId": "1000-usd-sensitivity",
+      "maturityDays": null,
+      "datedPolicyEligible": false,
+      "economics": {
+        "version": "funded-spot-linear-carry-economics-v1",
+        "status": "FEASIBLE",
+        "activationAllowed": false,
+        "evidenceComplete": false,
+        "reasons": [
+          "CARRY_ACCOUNT_FEES_UNVERIFIED",
+          "CARRY_EXECUTION_EVIDENCE_UNVERIFIED"
+        ],
+        "matchedQuantityStep": 0.001,
+        "minimumMatchedBaseQty": 0.001,
+        "minimumPairedGrossUsd": 4.995129157,
+        "allocatedBaseQty": 0.04,
+        "allocatedPairedGrossUsd": 199.80516628,
+        "requiredCashUsd": 99.89818248000002,
+        "requiredCollateralUsd": 100.8159297003,
+        "reservedCapitalUsd": 200.71411218030002,
+        "derivativeReserveFraction": 1,
+        "holdingHours": 720,
+        "currentFundingAgeMs": 479,
+        "entryBasisPerBaseUsd": 0.11999999999989086,
+        "entryBasisBps": 0.48056129559270744,
+        "entryBasisAnnualizedFraction": 0.000584682909637794,
+        "executionFees": {
+          "spotEntryUsd": 0,
+          "derivativeEntryUsd": 0.049936508399999996,
+          "spotExitUsd": 0,
+          "derivativeExitUsd": 0.049953491900000015,
+          "totalUsd": 0.0998900003
+        },
+        "breakEvenAbsoluteFundingUsdPerBasePerHour": 0.06035411167046727,
+        "breakEvenAnnualFundingFractionOnSpotNotional": 0.21172810572079923,
+        "breakEvenAnnualCarryFractionOnSpotNotional": 0.2117281057207992,
+        "scenarios": [
+          {
+            "name": "PERPETUAL_CONSTANT_CURRENT_FUNDING",
+            "assumedSettlementSpotPriceUsd": null,
+            "assumedAbsoluteFundingUsdPerBasePerHour": 0.03474312203700083,
+            "grossBasisCaptureUsd": 0,
+            "executionSpreadCostUsd": 0.004400000000005093,
+            "slippageCostUsd": 0.0599319,
+            "fees": {
+              "spotEntryUsd": 0,
+              "derivativeEntryUsd": 0.049936508399999996,
+              "spotExitUsd": 0,
+              "derivativeExitUsd": 0.049953491900000015,
+              "totalUsd": 0.0998900003
+            },
+            "fundingIncomeUsd": 1.0006019146656238,
+            "capitalHurdleCostUsd": 0.8248525158094522,
+            "settlementBasisReserveUsd": 0.499416,
+            "unwindReserveUsd": 0.249708,
+            "netAfterCostsUsd": -0.7375965014438336,
+            "annualizedNetOnReservedCapitalFraction": -0.044710811163618046
+          },
+          {
+            "name": "PERPETUAL_ZERO_FUNDING",
+            "assumedSettlementSpotPriceUsd": null,
+            "assumedAbsoluteFundingUsdPerBasePerHour": 0,
+            "grossBasisCaptureUsd": 0,
+            "executionSpreadCostUsd": 0.004400000000005093,
+            "slippageCostUsd": 0.0599319,
+            "fees": {
+              "spotEntryUsd": 0,
+              "derivativeEntryUsd": 0.049936508399999996,
+              "spotExitUsd": 0,
+              "derivativeExitUsd": 0.049953491900000015,
+              "totalUsd": 0.0998900003
+            },
+            "fundingIncomeUsd": 0,
+            "capitalHurdleCostUsd": 0.8248525158094522,
+            "settlementBasisReserveUsd": 0.499416,
+            "unwindReserveUsd": 0.249708,
+            "netAfterCostsUsd": -1.7381984161094575,
+            "annualizedNetOnReservedCapitalFraction": -0.10536419437380948
+          },
+          {
+            "name": "PERPETUAL_ADVERSE_CURRENT_MAGNITUDE",
+            "assumedSettlementSpotPriceUsd": null,
+            "assumedAbsoluteFundingUsdPerBasePerHour": -0.03474312203700083,
+            "grossBasisCaptureUsd": 0,
+            "executionSpreadCostUsd": 0.004400000000005093,
+            "slippageCostUsd": 0.0599319,
+            "fees": {
+              "spotEntryUsd": 0,
+              "derivativeEntryUsd": 0.049936508399999996,
+              "spotExitUsd": 0,
+              "derivativeExitUsd": 0.049953491900000015,
+              "totalUsd": 0.0998900003
+            },
+            "fundingIncomeUsd": -1.0006019146656238,
+            "capitalHurdleCostUsd": 0.8248525158094522,
+            "settlementBasisReserveUsd": 0.499416,
+            "unwindReserveUsd": 0.249708,
+            "netAfterCostsUsd": -2.738800330775081,
+            "annualizedNetOnReservedCapitalFraction": -0.1660175775840009
+          }
+        ],
+        "conventions": [
+          "Research scenarios only; this module never authorizes trading.",
+          "Linear USD contracts only; all quantities and depth are underlying BASE units. Contract multipliers must be normalized by the adapter.",
+          "Gross exposure is the sum of both legs valued at adverse current asks; no hedge netting or price-path cap guarantee.",
+          "Cash reserves fund the spot purchase and both spot fees; collateral reserves fund the derivative reserve, both derivative fees, all slippage, and basis/unwind buffers.",
+          "Dated scenarios assume convergence to each supplied settlement price and charge a conservative four-execution round trip, including derivative close fees.",
+          "Perpetual scenarios preserve current spot and derivative bid/ask prices; quoted entry basis is not assumed to converge.",
+          "Funding scenarios are hypothetical constant-rate paths, not forecasts. Adverse funding uses negative absolute magnitude.",
+          "Capital hurdle is simple annual cost on reserved spot cash plus derivative collateral over a 365-day year; basis/unwind reserves use spot entry ask notional.",
+          "Future exit depth, fees, basis, liquidity, margin calls and funding are unverified by current books; residual and one-leg execution risk requires a separate coordinator."
+        ]
+      }
+    },
+    {
+      "base": "ETH",
+      "product": "FF_ETHUSD_260925",
+      "budgetId": "prior-12-usd-research",
+      "maturityDays": 16.144675173611112,
+      "datedPolicyEligible": false,
+      "economics": {
+        "version": "funded-spot-linear-carry-economics-v1",
+        "status": "FEASIBLE",
+        "activationAllowed": false,
+        "evidenceComplete": false,
+        "reasons": [
+          "CARRY_ACCOUNT_FEES_UNVERIFIED",
+          "CARRY_EXECUTION_EVIDENCE_UNVERIFIED"
+        ],
+        "matchedQuantityStep": 0.001,
+        "minimumMatchedBaseQty": 0.001,
+        "minimumPairedGrossUsd": 5.000129907000001,
+        "allocatedBaseQty": 0.002,
+        "allocatedPairedGrossUsd": 10.000259814000001,
+        "requiredCashUsd": 4.994909124000001,
+        "requiredCollateralUsd": 5.0547992538690005,
+        "reservedCapitalUsd": 10.049708377869003,
+        "derivativeReserveFraction": 1,
+        "holdingHours": 387.4722041666667,
+        "currentFundingAgeMs": null,
+        "entryBasisPerBaseUsd": 4.619999999999891,
+        "entryBasisBps": 18.50160988033922,
+        "entryBasisAnnualizedFraction": 0.04182857526524852,
+        "executionFees": {
+          "spotEntryUsd": 0,
+          "derivativeEntryUsd": 0.0025013247449999997,
+          "spotExitUsd": 0,
+          "derivativeExitUsd": 0.004994909124000001,
+          "totalUsd": 0.007496233869
+        },
+        "breakEvenAbsoluteFundingUsdPerBasePerHour": null,
+        "breakEvenAnnualFundingFractionOnSpotNotional": null,
+        "breakEvenAnnualCarryFractionOnSpotNotional": 0.32446340851143124,
+        "scenarios": [
+          {
+            "name": "DATED_CONSTANT_SETTLEMENT_PRICE",
+            "assumedSettlementSpotPriceUsd": 1248.54,
+            "assumedAbsoluteFundingUsdPerBasePerHour": null,
+            "grossBasisCaptureUsd": 0.009239999999999781,
+            "executionSpreadCostUsd": 0,
+            "slippageCostUsd": 0.002248758,
+            "fees": {
+              "spotEntryUsd": 0,
+              "derivativeEntryUsd": 0.0025013247449999997,
+              "spotExitUsd": 0,
+              "derivativeExitUsd": 0.0012487272810000002,
+              "totalUsd": 0.003750052026
+            },
+            "fundingIncomeUsd": 0,
+            "capitalHurdleCostUsd": 0.022225928404138808,
+            "settlementBasisReserveUsd": 0.0249708,
+            "unwindReserveUsd": 0.0124854,
+            "netAfterCostsUsd": -0.056440938430139025,
+            "annualizedNetOnReservedCapitalFraction": -0.12697093548548655
+          },
+          {
+            "name": "DATED_CONSTANT_SETTLEMENT_PRICE",
+            "assumedSettlementSpotPriceUsd": 2497.08,
+            "assumedAbsoluteFundingUsdPerBasePerHour": null,
+            "grossBasisCaptureUsd": 0.009239999999999781,
+            "executionSpreadCostUsd": 0,
+            "slippageCostUsd": 0.0029978819999999995,
+            "fees": {
+              "spotEntryUsd": 0,
+              "derivativeEntryUsd": 0.0025013247449999997,
+              "spotExitUsd": 0,
+              "derivativeExitUsd": 0.0024974545620000004,
+              "totalUsd": 0.004998779307
+            },
+            "fundingIncomeUsd": 0,
+            "capitalHurdleCostUsd": 0.022225928404138808,
+            "settlementBasisReserveUsd": 0.0249708,
+            "unwindReserveUsd": 0.0124854,
+            "netAfterCostsUsd": -0.05843878971113903,
+            "annualizedNetOnReservedCapitalFraction": -0.13146535129721923
+          },
+          {
+            "name": "DATED_CONSTANT_SETTLEMENT_PRICE",
+            "assumedSettlementSpotPriceUsd": 4994.16,
+            "assumedAbsoluteFundingUsdPerBasePerHour": null,
+            "grossBasisCaptureUsd": 0.009239999999999781,
+            "executionSpreadCostUsd": 0,
+            "slippageCostUsd": 0.004496129999999999,
+            "fees": {
+              "spotEntryUsd": 0,
+              "derivativeEntryUsd": 0.0025013247449999997,
+              "spotExitUsd": 0,
+              "derivativeExitUsd": 0.004994909124000001,
+              "totalUsd": 0.007496233869
+            },
+            "fundingIncomeUsd": 0,
+            "capitalHurdleCostUsd": 0.022225928404138808,
+            "settlementBasisReserveUsd": 0.0249708,
+            "unwindReserveUsd": 0.0124854,
+            "netAfterCostsUsd": -0.062434492273139026,
+            "annualizedNetOnReservedCapitalFraction": -0.1404541829206846
+          }
+        ],
+        "conventions": [
+          "Research scenarios only; this module never authorizes trading.",
+          "Linear USD contracts only; all quantities and depth are underlying BASE units. Contract multipliers must be normalized by the adapter.",
+          "Gross exposure is the sum of both legs valued at adverse current asks; no hedge netting or price-path cap guarantee.",
+          "Cash reserves fund the spot purchase and both spot fees; collateral reserves fund the derivative reserve, both derivative fees, all slippage, and basis/unwind buffers.",
+          "Dated scenarios assume convergence to each supplied settlement price and charge a conservative four-execution round trip, including derivative close fees.",
+          "Perpetual scenarios preserve current spot and derivative bid/ask prices; quoted entry basis is not assumed to converge.",
+          "Funding scenarios are hypothetical constant-rate paths, not forecasts. Adverse funding uses negative absolute magnitude.",
+          "Capital hurdle is simple annual cost on reserved spot cash plus derivative collateral over a 365-day year; basis/unwind reserves use spot entry ask notional.",
+          "Future exit depth, fees, basis, liquidity, margin calls and funding are unverified by current books; residual and one-leg execution risk requires a separate coordinator."
+        ]
+      }
+    },
+    {
+      "base": "ETH",
+      "product": "FF_ETHUSD_260925",
+      "budgetId": "1000-usd-sensitivity",
+      "maturityDays": 16.144675173611112,
+      "datedPolicyEligible": false,
+      "economics": {
+        "version": "funded-spot-linear-carry-economics-v1",
+        "status": "FEASIBLE",
+        "activationAllowed": false,
+        "evidenceComplete": false,
+        "reasons": [
+          "CARRY_ACCOUNT_FEES_UNVERIFIED",
+          "CARRY_EXECUTION_EVIDENCE_UNVERIFIED"
+        ],
+        "matchedQuantityStep": 0.001,
+        "minimumMatchedBaseQty": 0.001,
+        "minimumPairedGrossUsd": 5.000129907000001,
+        "allocatedBaseQty": 0.197,
+        "allocatedPairedGrossUsd": 985.0255916790002,
+        "requiredCashUsd": 491.9985487140001,
+        "requiredCollateralUsd": 497.89772650609655,
+        "reservedCapitalUsd": 989.8962752200966,
+        "derivativeReserveFraction": 1,
+        "holdingHours": 387.4722041666667,
+        "currentFundingAgeMs": null,
+        "entryBasisPerBaseUsd": 4.619999999999891,
+        "entryBasisBps": 18.50160988033922,
+        "entryBasisAnnualizedFraction": 0.04182857526524852,
+        "executionFees": {
+          "spotEntryUsd": 0,
+          "derivativeEntryUsd": 0.2463804873825,
+          "spotExitUsd": 0,
+          "derivativeExitUsd": 0.4919985487140001,
+          "totalUsd": 0.7383790360965001
+        },
+        "breakEvenAbsoluteFundingUsdPerBasePerHour": null,
+        "breakEvenAnnualFundingFractionOnSpotNotional": null,
+        "breakEvenAnnualCarryFractionOnSpotNotional": 0.3244634085114312,
+        "scenarios": [
+          {
+            "name": "DATED_CONSTANT_SETTLEMENT_PRICE",
+            "assumedSettlementSpotPriceUsd": 1248.54,
+            "assumedAbsoluteFundingUsdPerBasePerHour": null,
+            "grossBasisCaptureUsd": 0.9101399999999785,
+            "executionSpreadCostUsd": 0,
+            "slippageCostUsd": 0.221502663,
+            "fees": {
+              "spotEntryUsd": 0,
+              "derivativeEntryUsd": 0.2463804873825,
+              "spotExitUsd": 0,
+              "derivativeExitUsd": 0.12299963717850003,
+              "totalUsd": 0.36938012456100006
+            },
+            "fundingIncomeUsd": 0,
+            "capitalHurdleCostUsd": 2.1892539478076722,
+            "settlementBasisReserveUsd": 2.4596238,
+            "unwindReserveUsd": 1.2298119,
+            "netAfterCostsUsd": -5.559432435368693,
+            "annualizedNetOnReservedCapitalFraction": -0.12697093548548655
+          },
+          {
+            "name": "DATED_CONSTANT_SETTLEMENT_PRICE",
+            "assumedSettlementSpotPriceUsd": 2497.08,
+            "assumedAbsoluteFundingUsdPerBasePerHour": null,
+            "grossBasisCaptureUsd": 0.9101399999999785,
+            "executionSpreadCostUsd": 0,
+            "slippageCostUsd": 0.29529137699999997,
+            "fees": {
+              "spotEntryUsd": 0,
+              "derivativeEntryUsd": 0.2463804873825,
+              "spotExitUsd": 0,
+              "derivativeExitUsd": 0.24599927435700006,
+              "totalUsd": 0.49237976173950004
+            },
+            "fundingIncomeUsd": 0,
+            "capitalHurdleCostUsd": 2.1892539478076722,
+            "settlementBasisReserveUsd": 2.4596238,
+            "unwindReserveUsd": 1.2298119,
+            "netAfterCostsUsd": -5.756220786547194,
+            "annualizedNetOnReservedCapitalFraction": -0.13146535129721926
+          },
+          {
+            "name": "DATED_CONSTANT_SETTLEMENT_PRICE",
+            "assumedSettlementSpotPriceUsd": 4994.16,
+            "assumedAbsoluteFundingUsdPerBasePerHour": null,
+            "grossBasisCaptureUsd": 0.9101399999999785,
+            "executionSpreadCostUsd": 0,
+            "slippageCostUsd": 0.442868805,
+            "fees": {
+              "spotEntryUsd": 0,
+              "derivativeEntryUsd": 0.2463804873825,
+              "spotExitUsd": 0,
+              "derivativeExitUsd": 0.4919985487140001,
+              "totalUsd": 0.7383790360965001
+            },
+            "fundingIncomeUsd": 0,
+            "capitalHurdleCostUsd": 2.1892539478076722,
+            "settlementBasisReserveUsd": 2.4596238,
+            "unwindReserveUsd": 1.2298119,
+            "netAfterCostsUsd": -6.149797488904193,
+            "annualizedNetOnReservedCapitalFraction": -0.1404541829206846
+          }
+        ],
+        "conventions": [
+          "Research scenarios only; this module never authorizes trading.",
+          "Linear USD contracts only; all quantities and depth are underlying BASE units. Contract multipliers must be normalized by the adapter.",
+          "Gross exposure is the sum of both legs valued at adverse current asks; no hedge netting or price-path cap guarantee.",
+          "Cash reserves fund the spot purchase and both spot fees; collateral reserves fund the derivative reserve, both derivative fees, all slippage, and basis/unwind buffers.",
+          "Dated scenarios assume convergence to each supplied settlement price and charge a conservative four-execution round trip, including derivative close fees.",
+          "Perpetual scenarios preserve current spot and derivative bid/ask prices; quoted entry basis is not assumed to converge.",
+          "Funding scenarios are hypothetical constant-rate paths, not forecasts. Adverse funding uses negative absolute magnitude.",
+          "Capital hurdle is simple annual cost on reserved spot cash plus derivative collateral over a 365-day year; basis/unwind reserves use spot entry ask notional.",
+          "Future exit depth, fees, basis, liquidity, margin calls and funding are unverified by current books; residual and one-leg execution risk requires a separate coordinator."
+        ]
+      }
+    },
+    {
+      "base": "ETH",
+      "product": "FF_ETHUSD_261225",
+      "budgetId": "prior-12-usd-research",
+      "maturityDays": 107.1446751736111,
+      "datedPolicyEligible": false,
+      "economics": {
+        "version": "funded-spot-linear-carry-economics-v1",
+        "status": "FEASIBLE",
+        "activationAllowed": false,
+        "evidenceComplete": false,
+        "reasons": [
+          "CARRY_ACCOUNT_FEES_UNVERIFIED",
+          "CARRY_EXECUTION_EVIDENCE_UNVERIFIED"
+        ],
+        "matchedQuantityStep": 0.001,
+        "minimumMatchedBaseQty": 0.001,
+        "minimumPairedGrossUsd": 5.028934227000001,
+        "allocatedBaseQty": 0.002,
+        "allocatedPairedGrossUsd": 10.057868454000001,
+        "requiredCashUsd": 4.994909124000001,
+        "requiredCollateralUsd": 5.112255031509,
+        "reservedCapitalUsd": 10.107164155509,
+        "derivativeReserveFraction": 1,
+        "holdingHours": 2571.4722041666664,
+        "currentFundingAgeMs": null,
+        "entryBasisPerBaseUsd": -112.98000000000002,
+        "entryBasisBps": -452.4484598010481,
+        "entryBasisAnnualizedFraction": -0.15413149329147077,
+        "executionFees": {
+          "spotEntryUsd": 0,
+          "derivativeEntryUsd": 0.002383742385,
+          "spotExitUsd": 0,
+          "derivativeExitUsd": 0.004994909124000001,
+          "totalUsd": 0.007378651509000001
+        },
+        "breakEvenAbsoluteFundingUsdPerBasePerHour": null,
+        "breakEvenAnnualFundingFractionOnSpotNotional": null,
+        "breakEvenAnnualCarryFractionOnSpotNotional": 0.13481534060017167,
+        "scenarios": [
+          {
+            "name": "DATED_CONSTANT_SETTLEMENT_PRICE",
+            "assumedSettlementSpotPriceUsd": 1248.54,
+            "assumedAbsoluteFundingUsdPerBasePerHour": null,
+            "grossBasisCaptureUsd": -0.22596000000000005,
+            "executionSpreadCostUsd": 0,
+            "slippageCostUsd": 0.002213478,
+            "fees": {
+              "spotEntryUsd": 0,
+              "derivativeEntryUsd": 0.002383742385,
+              "spotExitUsd": 0,
+              "derivativeExitUsd": 0.0012487272810000002,
+              "totalUsd": 0.003632469666
+            },
+            "fundingIncomeUsd": 0,
+            "capitalHurdleCostUsd": 0.14834641374909277,
+            "settlementBasisReserveUsd": 0.0249708,
+            "unwindReserveUsd": 0.0124854,
+            "netAfterCostsUsd": -0.4176085614150928,
+            "annualizedNetOnReservedCapitalFraction": -0.14075451871772893
+          },
+          {
+            "name": "DATED_CONSTANT_SETTLEMENT_PRICE",
+            "assumedSettlementSpotPriceUsd": 2497.08,
+            "assumedAbsoluteFundingUsdPerBasePerHour": null,
+            "grossBasisCaptureUsd": -0.22596000000000005,
+            "executionSpreadCostUsd": 0,
+            "slippageCostUsd": 0.002962602,
+            "fees": {
+              "spotEntryUsd": 0,
+              "derivativeEntryUsd": 0.002383742385,
+              "spotExitUsd": 0,
+              "derivativeExitUsd": 0.0024974545620000004,
+              "totalUsd": 0.004881196947
+            },
+            "fundingIncomeUsd": 0,
+            "capitalHurdleCostUsd": 0.14834641374909277,
+            "settlementBasisReserveUsd": 0.0249708,
+            "unwindReserveUsd": 0.0124854,
+            "netAfterCostsUsd": -0.41960641269609283,
+            "annualizedNetOnReservedCapitalFraction": -0.14142789235397304
+          },
+          {
+            "name": "DATED_CONSTANT_SETTLEMENT_PRICE",
+            "assumedSettlementSpotPriceUsd": 4994.16,
+            "assumedAbsoluteFundingUsdPerBasePerHour": null,
+            "grossBasisCaptureUsd": -0.22596000000000005,
+            "executionSpreadCostUsd": 0,
+            "slippageCostUsd": 0.00446085,
+            "fees": {
+              "spotEntryUsd": 0,
+              "derivativeEntryUsd": 0.002383742385,
+              "spotExitUsd": 0,
+              "derivativeExitUsd": 0.004994909124000001,
+              "totalUsd": 0.007378651509000001
+            },
+            "fundingIncomeUsd": 0,
+            "capitalHurdleCostUsd": 0.14834641374909277,
+            "settlementBasisReserveUsd": 0.0249708,
+            "unwindReserveUsd": 0.0124854,
+            "netAfterCostsUsd": -0.4236021152580928,
+            "annualizedNetOnReservedCapitalFraction": -0.1427746396264613
+          }
+        ],
+        "conventions": [
+          "Research scenarios only; this module never authorizes trading.",
+          "Linear USD contracts only; all quantities and depth are underlying BASE units. Contract multipliers must be normalized by the adapter.",
+          "Gross exposure is the sum of both legs valued at adverse current asks; no hedge netting or price-path cap guarantee.",
+          "Cash reserves fund the spot purchase and both spot fees; collateral reserves fund the derivative reserve, both derivative fees, all slippage, and basis/unwind buffers.",
+          "Dated scenarios assume convergence to each supplied settlement price and charge a conservative four-execution round trip, including derivative close fees.",
+          "Perpetual scenarios preserve current spot and derivative bid/ask prices; quoted entry basis is not assumed to converge.",
+          "Funding scenarios are hypothetical constant-rate paths, not forecasts. Adverse funding uses negative absolute magnitude.",
+          "Capital hurdle is simple annual cost on reserved spot cash plus derivative collateral over a 365-day year; basis/unwind reserves use spot entry ask notional.",
+          "Future exit depth, fees, basis, liquidity, margin calls and funding are unverified by current books; residual and one-leg execution risk requires a separate coordinator."
+        ]
+      }
+    },
+    {
+      "base": "ETH",
+      "product": "FF_ETHUSD_261225",
+      "budgetId": "1000-usd-sensitivity",
+      "maturityDays": 107.1446751736111,
+      "datedPolicyEligible": false,
+      "economics": {
+        "version": "funded-spot-linear-carry-economics-v1",
+        "status": "FEASIBLE",
+        "activationAllowed": false,
+        "evidenceComplete": false,
+        "reasons": [
+          "CARRY_ACCOUNT_FEES_UNVERIFIED",
+          "CARRY_EXECUTION_EVIDENCE_UNVERIFIED"
+        ],
+        "matchedQuantityStep": 0.001,
+        "minimumMatchedBaseQty": 0.001,
+        "minimumPairedGrossUsd": 5.028934227000001,
+        "allocatedBaseQty": 0.195,
+        "allocatedPairedGrossUsd": 980.6421742650001,
+        "requiredCashUsd": 487.0036395900001,
+        "requiredCollateralUsd": 498.4448655721275,
+        "reservedCapitalUsd": 985.4485051621276,
+        "derivativeReserveFraction": 1,
+        "holdingHours": 2571.4722041666664,
+        "currentFundingAgeMs": null,
+        "entryBasisPerBaseUsd": -112.98000000000002,
+        "entryBasisBps": -452.4484598010481,
+        "entryBasisAnnualizedFraction": -0.15413149329147077,
+        "executionFees": {
+          "spotEntryUsd": 0,
+          "derivativeEntryUsd": 0.2324148825375,
+          "spotExitUsd": 0,
+          "derivativeExitUsd": 0.4870036395900001,
+          "totalUsd": 0.7194185221275001
+        },
+        "breakEvenAbsoluteFundingUsdPerBasePerHour": null,
+        "breakEvenAnnualFundingFractionOnSpotNotional": null,
+        "breakEvenAnnualCarryFractionOnSpotNotional": 0.13481534060017167,
+        "scenarios": [
+          {
+            "name": "DATED_CONSTANT_SETTLEMENT_PRICE",
+            "assumedSettlementSpotPriceUsd": 1248.54,
+            "assumedAbsoluteFundingUsdPerBasePerHour": null,
+            "grossBasisCaptureUsd": -22.031100000000006,
+            "executionSpreadCostUsd": 0,
+            "slippageCostUsd": 0.215814105,
+            "fees": {
+              "spotEntryUsd": 0,
+              "derivativeEntryUsd": 0.2324148825375,
+              "spotExitUsd": 0,
+              "derivativeExitUsd": 0.12175090989750002,
+              "totalUsd": 0.354165792435
+            },
+            "fundingIncomeUsd": 0,
+            "capitalHurdleCostUsd": 14.463775340536545,
+            "settlementBasisReserveUsd": 2.434653,
+            "unwindReserveUsd": 1.2173265,
+            "netAfterCostsUsd": -40.716834737971546,
+            "annualizedNetOnReservedCapitalFraction": -0.14075451871772893
+          },
+          {
+            "name": "DATED_CONSTANT_SETTLEMENT_PRICE",
+            "assumedSettlementSpotPriceUsd": 2497.08,
+            "assumedAbsoluteFundingUsdPerBasePerHour": null,
+            "grossBasisCaptureUsd": -22.031100000000006,
+            "executionSpreadCostUsd": 0,
+            "slippageCostUsd": 0.288853695,
+            "fees": {
+              "spotEntryUsd": 0,
+              "derivativeEntryUsd": 0.2324148825375,
+              "spotExitUsd": 0,
+              "derivativeExitUsd": 0.24350181979500005,
+              "totalUsd": 0.47591670233250005
+            },
+            "fundingIncomeUsd": 0,
+            "capitalHurdleCostUsd": 14.463775340536545,
+            "settlementBasisReserveUsd": 2.434653,
+            "unwindReserveUsd": 1.2173265,
+            "netAfterCostsUsd": -40.911625237869046,
+            "annualizedNetOnReservedCapitalFraction": -0.14142789235397304
+          },
+          {
+            "name": "DATED_CONSTANT_SETTLEMENT_PRICE",
+            "assumedSettlementSpotPriceUsd": 4994.16,
+            "assumedAbsoluteFundingUsdPerBasePerHour": null,
+            "grossBasisCaptureUsd": -22.031100000000006,
+            "executionSpreadCostUsd": 0,
+            "slippageCostUsd": 0.434932875,
+            "fees": {
+              "spotEntryUsd": 0,
+              "derivativeEntryUsd": 0.2324148825375,
+              "spotExitUsd": 0,
+              "derivativeExitUsd": 0.4870036395900001,
+              "totalUsd": 0.7194185221275001
+            },
+            "fundingIncomeUsd": 0,
+            "capitalHurdleCostUsd": 14.463775340536545,
+            "settlementBasisReserveUsd": 2.434653,
+            "unwindReserveUsd": 1.2173265,
+            "netAfterCostsUsd": -41.30120623766405,
+            "annualizedNetOnReservedCapitalFraction": -0.14277463962646128
+          }
+        ],
+        "conventions": [
+          "Research scenarios only; this module never authorizes trading.",
+          "Linear USD contracts only; all quantities and depth are underlying BASE units. Contract multipliers must be normalized by the adapter.",
+          "Gross exposure is the sum of both legs valued at adverse current asks; no hedge netting or price-path cap guarantee.",
+          "Cash reserves fund the spot purchase and both spot fees; collateral reserves fund the derivative reserve, both derivative fees, all slippage, and basis/unwind buffers.",
+          "Dated scenarios assume convergence to each supplied settlement price and charge a conservative four-execution round trip, including derivative close fees.",
+          "Perpetual scenarios preserve current spot and derivative bid/ask prices; quoted entry basis is not assumed to converge.",
+          "Funding scenarios are hypothetical constant-rate paths, not forecasts. Adverse funding uses negative absolute magnitude.",
+          "Capital hurdle is simple annual cost on reserved spot cash plus derivative collateral over a 365-day year; basis/unwind reserves use spot entry ask notional.",
+          "Future exit depth, fees, basis, liquidity, margin calls and funding are unverified by current books; residual and one-leg execution risk requires a separate coordinator."
+        ]
+      }
+    },
+    {
+      "base": "ETH",
+      "product": "FF_ETHUSD_260911",
+      "budgetId": "prior-12-usd-research",
+      "maturityDays": 2.144675173611111,
+      "datedPolicyEligible": false,
+      "economics": {
+        "version": "funded-spot-linear-carry-economics-v1",
+        "status": "FEASIBLE",
+        "activationAllowed": false,
+        "evidenceComplete": false,
+        "reasons": [
+          "CARRY_ACCOUNT_FEES_UNVERIFIED",
+          "CARRY_EXECUTION_EVIDENCE_UNVERIFIED"
+        ],
+        "matchedQuantityStep": 0.001,
+        "minimumMatchedBaseQty": 0.001,
+        "minimumPairedGrossUsd": 4.9962293220000005,
+        "allocatedBaseQty": 0.002,
+        "allocatedPairedGrossUsd": 9.992458644000001,
+        "requiredCashUsd": 4.994909124000001,
+        "requiredCollateralUsd": 5.046992624499,
+        "reservedCapitalUsd": 10.041901748499,
+        "derivativeReserveFraction": 1,
+        "holdingHours": 51.47220416666667,
+        "currentFundingAgeMs": null,
+        "entryBasisPerBaseUsd": 0.42000000000007276,
+        "entryBasisBps": 1.6819645345766965,
+        "entryBasisAnnualizedFraction": 0.028625176561670514,
+        "executionFees": {
+          "spotEntryUsd": 0,
+          "derivativeEntryUsd": 0.002497125375,
+          "spotExitUsd": 0,
+          "derivativeExitUsd": 0.004994909124000001,
+          "totalUsd": 0.007492034499000001
+        },
+        "breakEvenAbsoluteFundingUsdPerBasePerHour": null,
+        "breakEvenAnnualFundingFractionOnSpotNotional": null,
+        "breakEvenAnnualCarryFractionOnSpotNotional": 1.7854383441001411,
+        "scenarios": [
+          {
+            "name": "DATED_CONSTANT_SETTLEMENT_PRICE",
+            "assumedSettlementSpotPriceUsd": 1248.54,
+            "assumedAbsoluteFundingUsdPerBasePerHour": null,
+            "grossBasisCaptureUsd": 0.0008400000000001455,
+            "executionSpreadCostUsd": 0,
+            "slippageCostUsd": 0.0022474979999999997,
+            "fees": {
+              "spotEntryUsd": 0,
+              "derivativeEntryUsd": 0.002497125375,
+              "spotExitUsd": 0,
+              "derivativeExitUsd": 0.0012487272810000002,
+              "totalUsd": 0.003745852656
+            },
+            "fundingIncomeUsd": 0,
+            "capitalHurdleCostUsd": 0.002950221558335317,
+            "settlementBasisReserveUsd": 0.0249708,
+            "unwindReserveUsd": 0.0124854,
+            "netAfterCostsUsd": -0.04555977221433517,
+            "annualizedNetOnReservedCapitalFraction": -0.7721415377366198
+          },
+          {
+            "name": "DATED_CONSTANT_SETTLEMENT_PRICE",
+            "assumedSettlementSpotPriceUsd": 2497.08,
+            "assumedAbsoluteFundingUsdPerBasePerHour": null,
+            "grossBasisCaptureUsd": 0.0008400000000001455,
+            "executionSpreadCostUsd": 0,
+            "slippageCostUsd": 0.002996622,
+            "fees": {
+              "spotEntryUsd": 0,
+              "derivativeEntryUsd": 0.002497125375,
+              "spotExitUsd": 0,
+              "derivativeExitUsd": 0.0024974545620000004,
+              "totalUsd": 0.004994579937000001
+            },
+            "fundingIncomeUsd": 0,
+            "capitalHurdleCostUsd": 0.002950221558335317,
+            "settlementBasisReserveUsd": 0.0249708,
+            "unwindReserveUsd": 0.0124854,
+            "netAfterCostsUsd": -0.047557623495335176,
+            "annualizedNetOnReservedCapitalFraction": -0.8060008808655356
+          },
+          {
+            "name": "DATED_CONSTANT_SETTLEMENT_PRICE",
+            "assumedSettlementSpotPriceUsd": 4994.16,
+            "assumedAbsoluteFundingUsdPerBasePerHour": null,
+            "grossBasisCaptureUsd": 0.0008400000000001455,
+            "executionSpreadCostUsd": 0,
+            "slippageCostUsd": 0.00449487,
+            "fees": {
+              "spotEntryUsd": 0,
+              "derivativeEntryUsd": 0.002497125375,
+              "spotExitUsd": 0,
+              "derivativeExitUsd": 0.004994909124000001,
+              "totalUsd": 0.007492034499000001
+            },
+            "fundingIncomeUsd": 0,
+            "capitalHurdleCostUsd": 0.002950221558335317,
+            "settlementBasisReserveUsd": 0.0249708,
+            "unwindReserveUsd": 0.0124854,
+            "netAfterCostsUsd": -0.051553326057335175,
+            "annualizedNetOnReservedCapitalFraction": -0.873719567123367
+          }
+        ],
+        "conventions": [
+          "Research scenarios only; this module never authorizes trading.",
+          "Linear USD contracts only; all quantities and depth are underlying BASE units. Contract multipliers must be normalized by the adapter.",
+          "Gross exposure is the sum of both legs valued at adverse current asks; no hedge netting or price-path cap guarantee.",
+          "Cash reserves fund the spot purchase and both spot fees; collateral reserves fund the derivative reserve, both derivative fees, all slippage, and basis/unwind buffers.",
+          "Dated scenarios assume convergence to each supplied settlement price and charge a conservative four-execution round trip, including derivative close fees.",
+          "Perpetual scenarios preserve current spot and derivative bid/ask prices; quoted entry basis is not assumed to converge.",
+          "Funding scenarios are hypothetical constant-rate paths, not forecasts. Adverse funding uses negative absolute magnitude.",
+          "Capital hurdle is simple annual cost on reserved spot cash plus derivative collateral over a 365-day year; basis/unwind reserves use spot entry ask notional.",
+          "Future exit depth, fees, basis, liquidity, margin calls and funding are unverified by current books; residual and one-leg execution risk requires a separate coordinator."
+        ]
+      }
+    },
+    {
+      "base": "ETH",
+      "product": "FF_ETHUSD_260911",
+      "budgetId": "1000-usd-sensitivity",
+      "maturityDays": 2.144675173611111,
+      "datedPolicyEligible": false,
+      "economics": {
+        "version": "funded-spot-linear-carry-economics-v1",
+        "status": "FEASIBLE",
+        "activationAllowed": false,
+        "evidenceComplete": false,
+        "reasons": [
+          "CARRY_ACCOUNT_FEES_UNVERIFIED",
+          "CARRY_EXECUTION_EVIDENCE_UNVERIFIED"
+        ],
+        "matchedQuantityStep": 0.001,
+        "minimumMatchedBaseQty": 0.001,
+        "minimumPairedGrossUsd": 4.9962293220000005,
+        "allocatedBaseQty": 0.198,
+        "allocatedPairedGrossUsd": 989.2534057560001,
+        "requiredCashUsd": 494.49600327600007,
+        "requiredCollateralUsd": 499.65226982540105,
+        "reservedCapitalUsd": 994.1482731014012,
+        "derivativeReserveFraction": 1,
+        "holdingHours": 51.47220416666667,
+        "currentFundingAgeMs": null,
+        "entryBasisPerBaseUsd": 0.42000000000007276,
+        "entryBasisBps": 1.6819645345766965,
+        "entryBasisAnnualizedFraction": 0.028625176561670514,
+        "executionFees": {
+          "spotEntryUsd": 0,
+          "derivativeEntryUsd": 0.24721541212500003,
+          "spotExitUsd": 0,
+          "derivativeExitUsd": 0.4944960032760001,
+          "totalUsd": 0.741711415401
+        },
+        "breakEvenAbsoluteFundingUsdPerBasePerHour": null,
+        "breakEvenAnnualFundingFractionOnSpotNotional": null,
+        "breakEvenAnnualCarryFractionOnSpotNotional": 1.7854383441001411,
+        "scenarios": [
+          {
+            "name": "DATED_CONSTANT_SETTLEMENT_PRICE",
+            "assumedSettlementSpotPriceUsd": 1248.54,
+            "assumedAbsoluteFundingUsdPerBasePerHour": null,
+            "grossBasisCaptureUsd": 0.08316000000001442,
+            "executionSpreadCostUsd": 0,
+            "slippageCostUsd": 0.22250230199999999,
+            "fees": {
+              "spotEntryUsd": 0,
+              "derivativeEntryUsd": 0.24721541212500003,
+              "spotExitUsd": 0,
+              "derivativeExitUsd": 0.12362400081900002,
+              "totalUsd": 0.370839412944
+            },
+            "fundingIncomeUsd": 0,
+            "capitalHurdleCostUsd": 0.29207193427519645,
+            "settlementBasisReserveUsd": 2.4721092000000002,
+            "unwindReserveUsd": 1.2360546000000001,
+            "netAfterCostsUsd": -4.510417449219182,
+            "annualizedNetOnReservedCapitalFraction": -0.7721415377366198
+          },
+          {
+            "name": "DATED_CONSTANT_SETTLEMENT_PRICE",
+            "assumedSettlementSpotPriceUsd": 2497.08,
+            "assumedAbsoluteFundingUsdPerBasePerHour": null,
+            "grossBasisCaptureUsd": 0.08316000000001442,
+            "executionSpreadCostUsd": 0,
+            "slippageCostUsd": 0.296665578,
+            "fees": {
+              "spotEntryUsd": 0,
+              "derivativeEntryUsd": 0.24721541212500003,
+              "spotExitUsd": 0,
+              "derivativeExitUsd": 0.24724800163800004,
+              "totalUsd": 0.49446341376300007
+            },
+            "fundingIncomeUsd": 0,
+            "capitalHurdleCostUsd": 0.29207193427519645,
+            "settlementBasisReserveUsd": 2.4721092000000002,
+            "unwindReserveUsd": 1.2360546000000001,
+            "netAfterCostsUsd": -4.708204726038183,
+            "annualizedNetOnReservedCapitalFraction": -0.8060008808655356
+          },
+          {
+            "name": "DATED_CONSTANT_SETTLEMENT_PRICE",
+            "assumedSettlementSpotPriceUsd": 4994.16,
+            "assumedAbsoluteFundingUsdPerBasePerHour": null,
+            "grossBasisCaptureUsd": 0.08316000000001442,
+            "executionSpreadCostUsd": 0,
+            "slippageCostUsd": 0.44499213,
+            "fees": {
+              "spotEntryUsd": 0,
+              "derivativeEntryUsd": 0.24721541212500003,
+              "spotExitUsd": 0,
+              "derivativeExitUsd": 0.4944960032760001,
+              "totalUsd": 0.741711415401
+            },
+            "fundingIncomeUsd": 0,
+            "capitalHurdleCostUsd": 0.29207193427519645,
+            "settlementBasisReserveUsd": 2.4721092000000002,
+            "unwindReserveUsd": 1.2360546000000001,
+            "netAfterCostsUsd": -5.103779279676182,
+            "annualizedNetOnReservedCapitalFraction": -0.8737195671233668
+          }
+        ],
+        "conventions": [
+          "Research scenarios only; this module never authorizes trading.",
+          "Linear USD contracts only; all quantities and depth are underlying BASE units. Contract multipliers must be normalized by the adapter.",
+          "Gross exposure is the sum of both legs valued at adverse current asks; no hedge netting or price-path cap guarantee.",
+          "Cash reserves fund the spot purchase and both spot fees; collateral reserves fund the derivative reserve, both derivative fees, all slippage, and basis/unwind buffers.",
+          "Dated scenarios assume convergence to each supplied settlement price and charge a conservative four-execution round trip, including derivative close fees.",
+          "Perpetual scenarios preserve current spot and derivative bid/ask prices; quoted entry basis is not assumed to converge.",
+          "Funding scenarios are hypothetical constant-rate paths, not forecasts. Adverse funding uses negative absolute magnitude.",
+          "Capital hurdle is simple annual cost on reserved spot cash plus derivative collateral over a 365-day year; basis/unwind reserves use spot entry ask notional.",
+          "Future exit depth, fees, basis, liquidity, margin calls and funding are unverified by current books; residual and one-leg execution risk requires a separate coordinator."
+        ]
+      }
+    }
+  ],
+  "actualFeeVerified": false,
+  "feeInterpretation": "HYPOTHETICAL_LOWER_BOUND_NOT_DEFAULT_OR_ACCOUNT_ENTITLEMENT",
+  "historicalSnapshotOnly": true,
+  "protocolSha256": "19a90390aece15b34839224af141f503b3e8518965e2e8ee69b877c82a27fe2c"
+}

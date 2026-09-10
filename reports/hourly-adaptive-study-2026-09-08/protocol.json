@@ -1,0 +1,184 @@
+{
+  "registeredAtUtc": "2026-09-08T23:10:48.057Z",
+  "definition": {
+    "version": "btc-eth-adaptive-versus-price-rules-v1",
+    "periods": {
+      "develop": {
+        "startMs": 1704067200000,
+        "endMs": 1735689600000
+      },
+      "confirm": {
+        "startMs": 1735689600000,
+        "endMs": 1767225600000
+      },
+      "test": {
+        "startMs": 1767225600000,
+        "endMs": 1785542400000
+      }
+    },
+    "candidates": [
+      {
+        "id": "adaptive-trend-4h",
+        "model": {
+          "id": "trend-4h",
+          "kind": "trend",
+          "horizonHours": 4
+        }
+      },
+      {
+        "id": "adaptive-recovery-4h",
+        "model": {
+          "id": "recovery-4h",
+          "kind": "recovery",
+          "horizonHours": 4
+        }
+      },
+      {
+        "id": "adaptive-trend-24h",
+        "model": {
+          "id": "trend-24h",
+          "kind": "trend",
+          "horizonHours": 24
+        }
+      },
+      {
+        "id": "adaptive-recovery-24h",
+        "model": {
+          "id": "recovery-24h",
+          "kind": "recovery",
+          "horizonHours": 24
+        }
+      },
+      {
+        "id": "channel-breakout-24h",
+        "setup": "channel-breakout-24h"
+      },
+      {
+        "id": "trend-recovery-24h",
+        "setup": "trend-recovery-24h"
+      }
+    ],
+    "priorExposure": "2024_WAS_PRIOR_TRAINING;_2025_PREVIOUSLY_INSPECTED;_2026_JAN_JUL_UNOPENED;_AUGUST_EXCLUDED",
+    "adaptiveModel": {
+      "version": "btc-eth-hourly-monthly-adaptive-ridge-v1",
+      "featureAndLabelVersion": "btc-eth-hourly-trend-recovery-ridge-v1",
+      "candidates": [
+        {
+          "id": "trend-4h",
+          "kind": "trend",
+          "horizonHours": 4
+        },
+        {
+          "id": "recovery-4h",
+          "kind": "recovery",
+          "horizonHours": 4
+        },
+        {
+          "id": "trend-24h",
+          "kind": "trend",
+          "horizonHours": 24
+        },
+        {
+          "id": "recovery-24h",
+          "kind": "recovery",
+          "horizonHours": 24
+        }
+      ],
+      "refit": "UTC_CALENDAR_MONTH_START",
+      "trailingDecisionDays": 365,
+      "recencyHalfLifeDays": 90,
+      "recencyClock": "LABEL_COMPLETED_AT_MS",
+      "recencyWeight": "2^((completedAtMs-cutoffMs)/(90*24*3600000))",
+      "normalization": "WEIGHTED_POPULATION_MEAN_AND_STANDARD_DEVIATION",
+      "featureStandardDeviationFloor": 0.1,
+      "ridgePenalty": 16,
+      "ridgeObjective": "SUM_WEIGHTED_SQUARED_ERROR_PLUS_16_TIMES_COEFFICIENT_L2_SQUARED",
+      "interceptPenalized": false,
+      "minimumSamples": 6000,
+      "minimumWeightedESS": 1000,
+      "weightedESSInterpretation": "WEIGHT_CONCENTRATION_NOT_INDEPENDENT_LABEL_COUNT",
+      "latestLabelStrictlyBeforeCutoff": true,
+      "predictionsExpireAtNextMonth": true
+    },
+    "priceSetups": {
+      "version": "btc-eth-hourly-price-setups-v1",
+      "researchOnly": true,
+      "setupIds": [
+        "channel-breakout-24h",
+        "trend-recovery-24h"
+      ],
+      "horizonHours": 24,
+      "minimumContinuousBars": 169,
+      "signalKnownAt": "CURRENT_BAR_OPEN_PLUS_ONE_HOUR",
+      "outputWindow": "DECISION_FROM_INCLUSIVE_TO_EXCLUSIVE",
+      "channelHours": 24,
+      "channel": "CURRENT_CLOSE_STRICTLY_OUTSIDE_PREVIOUS_24_HIGH_LOW; EMIT_FALSE_TO_TRUE_PER_SIDE",
+      "ema": "RECURSIVE_ALPHA_2_OVER_PERIOD_PLUS_1; FIRST_CLOSE_SEED; RESET_ON_OWN_GAP",
+      "fastEmaHours": 24,
+      "slowEmaHours": 168,
+      "atr": "SIMPLE_MEAN_LAST_14_TRUE_RANGES_INCLUDING_CURRENT; TRUE_RANGE_USES_PREVIOUS_CLOSE",
+      "recoveryLookbackHours": 4,
+      "recoveryBandAtr": 0.25,
+      "recoveryLong": "EMA24>EMA168; CLOSE>EMA24+.25ATR; PREVIOUS_CLOSE<=PREVIOUS_EMA24+.25PREVIOUS_ATR; ANY_PREVIOUS_4_CLOSES<=THEIR_EMA24",
+      "recoveryShort": "EMA24<EMA168; CLOSE<EMA24-.25ATR; PREVIOUS_CLOSE>=PREVIOUS_EMA24-.25PREVIOUS_ATR; ANY_PREVIOUS_4_CLOSES>=THEIR_EMA24",
+      "roomBps": "2*ATR14/CURRENT_CLOSE*10000_GEOMETRIC_ONLY",
+      "breakoutStrength": "DIRECTIONAL_DISTANCE_BEYOND_PREVIOUS_CHANNEL_DIVIDED_BY_ATR14",
+      "recoveryStrength": "SIDE_TIMES_CLOSE_MINUS_EMA24_DIVIDED_BY_ATR14",
+      "peerRequired": false,
+      "trainingSamplesRequired": false,
+      "zeroAtr": "NO_SIGNAL"
+    },
+    "selection": {
+      "perAssetMinimumTrades": 20,
+      "portfolioMinimumTrades": 100,
+      "minimumActiveUtcDates": 40,
+      "maximumDrawdownUsd": 12,
+      "maximumOneDayLossUsd": 12,
+      "selectionUtility": "STRESS_NET_PNL_MINUS_0.5_MTM_DRAWDOWN; LEXICOGRAPHIC_ID_TIE",
+      "assetSelection": "HIGHEST_UTILITY_ELIGIBLE_CANDIDATE_PER_ASSET_IN_2024; NO_COMBINATION_SEARCH",
+      "portfolioRanking": "UTC_DAY_ALTERNATING",
+      "requirePositiveBaseAndStressPerAsset": true,
+      "requireBeatingSelectedNonFlatBaselineInBothScenarios": true,
+      "finalConfidence": "BASE_PAIRED_WEEKLY_ONE_SIDED_95_PERCENT_LOWER_BOUND_POSITIVE_VS_FLAT_AND_SELECTED_BASELINE"
+    },
+    "trainingDecisionPurgeHours": 26,
+    "decisionEndBufferHours": 51,
+    "entryQualification": "ABS_MODEL_GROSS_OR_GEOMETRIC_TWO_ATR_ROOM_MINUS_13BPS_MINUS_BASE_FUNDING_RESERVE_TIMES_HORIZON_STRICTLY_GREATER_THAN_5BPS",
+    "priceRuleScoreInterpretation": "GEOMETRIC_ROOM_IS_NOT_PREDICTED_RETURN_OR_PROBABILITY;_QUALIFICATION_IS_ONLY_A_COST_SCREEN",
+    "scenarios": {
+      "base": {
+        "id": "base",
+        "delayHours": 1,
+        "feeBpsPerSide": 5,
+        "slippageBpsPerSide": 1.5,
+        "extraAdverseFundingBpsPer24h": 0
+      },
+      "stress": {
+        "id": "stress",
+        "delayHours": 2,
+        "feeBpsPerSide": 7.5,
+        "slippageBpsPerSide": 3,
+        "extraAdverseFundingBpsPer24h": 1
+      }
+    },
+    "fundingLookbackDays": 365,
+    "minimumFundingSamples": 6000,
+    "funding": "FIXED_AT_EACH_PERIOD_START:PRECEDING_365_DAYS_ABSOLUTE_HOURLY_RATE_P95_BASE_P99_STRESS;_ALWAYS_ADVERSE;_NO_CREDITS",
+    "fundingInterpretation": "SCENARIO_RETURNS;_ACTUAL_SETTLEMENT_TIMING_AND_POST_FEB2026_FUNDING_UNVERIFIED",
+    "orderRules": "SNAPSHOT_2026_09_07_ASSUMED_FOR_HISTORY;_ADVERSE_TICK_ROUNDING;_LOT_FLOOR;_MINIMUM_SIZE;_ONE_GLOBAL_12_USD_SLOT",
+    "exitRetry": "HOURLY_UNTIL_NOMINAL_PLUS_24H_INCLUSIVE;_LAST_ZERO_VOLUME_FAILURE_KNOWN_AT_PLUS_25H;_UNKNOWN_RETAINS_SLOT",
+    "baselines": [
+      "flat",
+      "fixed-trend-168h-held-24h",
+      "buy-hold-btc",
+      "buy-hold-eth"
+    ],
+    "baselineSelection": "HIGHEST_STRESS_NET_MINUS_HALF_DRAWDOWN_NONFLAT_IN_2024;_LEXICOGRAPHIC_ID_TIE",
+    "buyHoldHorizon": "PERIOD_HOURS_MINUS_28_ALLOWS_ENTRY_DELAY_AND_EXIT_RETRIES",
+    "inference": "2000_PAIRED_MOVING_7_DAY_BLOCKS_FULL_CALENDAR_SEED_20260908;_NOMINAL_ONE_SIDED_95_PERCENT_NOT_MULTIPLICITY_ADJUSTED",
+    "sealedRule": "ASSET_CHOICES_AND_UPDATE_ALGORITHM_FIXED_BEFORE_CONFIRMATION;_MONTHLY_CAUSAL_REFITS_ALLOWED_DURING_FINAL",
+    "noParameterSearch": true,
+    "noAutomaticActivation": true,
+    "realOrdersAllowed": false
+  }
+}

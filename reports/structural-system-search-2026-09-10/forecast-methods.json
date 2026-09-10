@@ -1,0 +1,627 @@
+{
+  "schemaVersion": "structural-forecast-taxonomy-v1",
+  "createdAtUtc": "2026-09-10T19:36:58.441579+00:00",
+  "status": "INITIAL_TAXONOMY_ONE_RESEARCH_PROTOTYPE_FAR_BELOW_10000",
+  "requestedDistinctSystemCount": 10000,
+  "catalogedMechanismCount": 11,
+  "implementedMechanismCount": 1,
+  "testedMechanismCount": 1,
+  "validatedProfitableSystemCount": 0,
+  "completed10000Claim": false,
+  "originalMathematicsClaim": false,
+  "countingUnit": "Conservatively grouped established inference/forecast mechanism, not a configuration or complete executable trading system.",
+  "noveltyAuditLimit": "Not located in inspected current source and research artifacts; this is not a proof of absence from all git history, hidden files or external literature.",
+  "researchOnly": true,
+  "productionChanged": false,
+  "firstDailyPrototypeIds": [
+    "F01",
+    "F02"
+  ],
+  "methods": [
+    {
+      "id": "F01",
+      "name": "Hidden Markov model of recurring return regimes",
+      "equations": [
+        "z_t | z_(t-1)=i ~ Categorical(A_i); r_t | z_t=j ~ g_j(r_t; theta_j).",
+        "alpha_t(j) proportional_to g_j(r_t) * sum_i A_ij * alpha_(t-1)(i).",
+        "p(r_(t+1) | r_(1:t)) = sum_ij alpha_t(i) * A_ij * g_j(r_(t+1))."
+      ],
+      "mechanismNovelty": "A latent state persists probabilistically and can recur. The inspected regime model is a supervised feature-split tree; it has no hidden-state transition law or forward probability recursion.",
+      "requiredObservations": [
+        "Completed daily returns, optionally completed volume or spread proxies with their availability timestamps.",
+        "Contiguous training and later sequential forecast blocks; enough regime transitions for any meaningful assessment."
+      ],
+      "economicHypothesis": "If return dynamics recur in persistent regimes, conditioning on filtered regime uncertainty could avoid applying one unconditional relationship across incompatible conditions. Whether conditional means exceed fees remains unknown.",
+      "primarySources": [
+        {
+          "title": "Rabiner, A Tutorial on Hidden Markov Models and Selected Applications in Speech Recognition (1989)",
+          "url": "https://web.ece.ucsb.edu/Faculty/Rabiner/ece259/Reprints/tutorial%20on%20hmm%20and%20applications.pdf",
+          "verifiedUtcDate": "2026-09-10",
+          "supports": "Established method, not profitability of the proposed crypto application."
+        }
+      ],
+      "nearestEquivalentsAndExclusions": [
+        "Do not count state numbers, emission distributions, labels bull/bear or symbol choices as new mechanisms.",
+        "A threshold trend label or CART leaf renamed a hidden state does not qualify.",
+        "Filtered inference is required at each decision; smoothing using future observations leaks information."
+      ],
+      "repositoryEvidence": [
+        "src/distribution/regime-model.ts",
+        "src/strategy/deterministic-regime.ts",
+        "reports/parallel-strategy-study-2026-09-10/report.md"
+      ],
+      "status": "IMPLEMENTED_SYNTHETIC_CHECKED_FROZEN_REPLAY_FAILED_BEHAVIOR_EQUALS_PASSIVE_ETH",
+      "noveltyStatus": "NOT_LOCATED_AT_INITIAL_ENGINE_AUDIT_NOW_IMPLEMENTED_IN_ISOLATED_RESEARCH",
+      "originalMathematicsClaim": false,
+      "implemented": true,
+      "tested": true,
+      "profitabilityEstablished": false,
+      "prototypeFeasibility": {
+        "existingDailyDataSufficientForPrototype": true,
+        "dataPath": "reports/parallel-strategy-study-2026-09-10/data/dataset.json",
+        "limitation": "720 daily bars support a small research implementation, not reliable profitability or stable regime-parameter estimates.",
+        "firstExperiment": "Predeclare two latent regimes and a causal training/forecast schedule; score next-observation predictive density before any funded net-return replay."
+      },
+      "priority": "first_daily_prototype",
+      "syntheticChecksPassed": 23,
+      "implementationFiles": [
+        "reports/structural-system-search-2026-09-10/hmm.py",
+        "reports/structural-system-search-2026-09-10/hmm-spec.json"
+      ],
+      "implementationSha256": {
+        "reports/structural-system-search-2026-09-10/hmm.py": "56837987000dd71be110fdf98e5e80443ccd24ef68dee5cb653e4bdd38bcc6d4",
+        "reports/structural-system-search-2026-09-10/hmm-spec.json": "9512a93b664d90145a34928d32a8058e0ec08b554b3c04243fead757a9ed4b3b"
+      },
+      "frozenSpecification": "Three Gaussian states; first 90 returns only; 40 regularized EM updates; 14-day expected log growth; fixed base-cost hurdle; ETH long or cash.",
+      "historicalReplayReviewed": true,
+      "behavioralDiagnostic": "reports/structural-system-search-2026-09-10/hmm-diagnostic.json"
+    },
+    {
+      "id": "F02",
+      "name": "Bayesian online changepoint detection with posterior run length",
+      "equations": [
+        "p(l_t,r_(1:t)) = sum_l p(l_t | l_(t-1)=l) * p(r_t | l,r_(1:t-1)) * p(l,r_(1:t-1)).",
+        "p(l_t=0 | l_(t-1)=l)=H(l); p(l_t=l+1 | l_(t-1)=l)=1-H(l).",
+        "Predictive distribution = sum_l p(l_t=l | r_(1:t)) * p(r_(t+1) | current_segment_l)."
+      ],
+      "mechanismNovelty": "Maintains probability over the age of the current data-generating segment and marginalizes segment forecasts. Existing CUSUM accumulates threshold evidence; existing DynamicBayes exponentially decays all sufficient statistics. Neither represents a posterior over structural-reset locations.",
+      "requiredObservations": [
+        "Ordered completed daily returns and exact observation availability.",
+        "Segment-prior and hazard declarations made before outcomes; no retrospectively chosen change dates."
+      ],
+      "economicHypothesis": "If abrupt changes make old data actively misleading, a run-length posterior could adapt faster than fixed forgetting while retaining uncertainty about whether a change occurred. More resets can also overreact to ordinary noise.",
+      "primarySources": [
+        {
+          "title": "Adams and MacKay, Bayesian Online Changepoint Detection (2007)",
+          "url": "https://arxiv.org/abs/0710.3742",
+          "verifiedUtcDate": "2026-09-10",
+          "supports": "Established method, not profitability of the proposed crypto application."
+        }
+      ],
+      "nearestEquivalentsAndExclusions": [
+        "Changing CUSUM thresholds or an EWMA half-life is excluded.",
+        "Different hazard rates or conjugate priors are configurations of this one mechanism.",
+        "Unlike F01, segments have newly drawn parameters rather than membership in a fixed set of recurring latent states."
+      ],
+      "repositoryEvidence": [
+        "src/research/dynamic-bayes.ts",
+        "src/strategy/breakout-retest.ts",
+        "reports/parallel-strategy-study-2026-09-10/trend/candidate.py"
+      ],
+      "status": "INITIAL_TAXONOMY_NOT_IMPLEMENTED_NOT_TESTED",
+      "noveltyStatus": "ESTABLISHED_METHOD_NOT_LOCATED_IN_INSPECTED_ENGINE",
+      "originalMathematicsClaim": false,
+      "implemented": false,
+      "tested": false,
+      "profitabilityEstablished": false,
+      "prototypeFeasibility": {
+        "existingDailyDataSufficientForPrototype": true,
+        "dataPath": "reports/parallel-strategy-study-2026-09-10/data/dataset.json",
+        "limitation": "Sample supports run-length inference and predictive diagnostics; rare changes and reused dates limit generalization.",
+        "firstExperiment": "Freeze one hazard/prior before replay; compare sequential log scores against fixed-forgetting Bayesian estimates on the same observations."
+      },
+      "priority": "first_daily_prototype"
+    },
+    {
+      "id": "F03",
+      "name": "Nonlinear Gaussian-process predictive regression",
+      "equations": [
+        "f ~ GP(m,k); y_i=f(x_i)+epsilon_i, epsilon_i~N(0,sigma_n^2).",
+        "m_* = m(x_*) + k_*^T (K+sigma_n^2 I)^(-1) (y-m(X)).",
+        "v_* = k(x_*,x_*) - k_*^T (K+sigma_n^2 I)^(-1) k_*."
+      ],
+      "mechanismNovelty": "Uses a joint function prior and predictive covariance over training/query locations. Existing kernel estimation computes recency-weighted local empirical outcome averages; existing ridge uses a finite fixed linear map.",
+      "requiredObservations": [
+        "Causal feature vectors and matured forward-return labels at fixed horizons.",
+        "Sufficient support and dependence-aware train/evaluation separation; cost and fill labels for trading use."
+      ],
+      "economicHypothesis": "A smooth nonlinear return relationship could escape the bias of a linear fit while expressing where support is weak. Smoothness itself supplies no economic edge and covariance is model-dependent.",
+      "primarySources": [
+        {
+          "title": "Rasmussen and Williams, Gaussian Processes for Machine Learning, Chapter 2 (2006)",
+          "url": "https://gaussianprocess.org/gpml/chapters/RW2.pdf",
+          "verifiedUtcDate": "2026-09-10",
+          "supports": "Established method, not profitability of the proposed crypto application."
+        }
+      ],
+      "nearestEquivalentsAndExclusions": [
+        "Linear-kernel GP posterior means can equal Bayesian linear/ridge regression; those are excluded as duplicates.",
+        "Different nonlinear kernels or length scales are configurations, not additional mechanisms.",
+        "GP uncertainty must not be reported as guaranteed financial coverage."
+      ],
+      "repositoryEvidence": [
+        "src/distribution/model.ts",
+        "src/research/hourly-model.ts",
+        "src/research/dynamic-bayes.ts"
+      ],
+      "status": "INITIAL_TAXONOMY_NOT_IMPLEMENTED_NOT_TESTED",
+      "noveltyStatus": "ESTABLISHED_METHOD_NOT_LOCATED_IN_INSPECTED_ENGINE",
+      "originalMathematicsClaim": false,
+      "implemented": false,
+      "tested": false,
+      "profitabilityEstablished": false,
+      "prototypeFeasibility": {
+        "existingDailyDataSufficientForPrototype": true,
+        "limitation": "Only a small low-dimensional prototype is justified; overlapping multi-day labels sharply reduce effective sample size.",
+        "firstExperiment": "Use one predeclared nonlinear covariance on a small fixed causal feature map; compare predictive scores and then costed outcomes to the matching linear/kernel baselines."
+      },
+      "priority": "defer"
+    },
+    {
+      "id": "F04",
+      "name": "Multivariate Hawkes event-arrival forecasting",
+      "equations": [
+        "lambda_i(t)=mu_i + sum_j integral_(0)^(t-) phi_ij(t-s) dN_j(s).",
+        "Event log likelihood = sum_events log(lambda_event_type(t)) - sum_i integral lambda_i(t) dt."
+      ],
+      "mechanismNovelty": "Models causal excitation from individual event arrivals into future event intensities. Existing flow features and fill hazards are snapshot/history-summary formulas, not a fitted mutually exciting point-process likelihood.",
+      "requiredObservations": [
+        "Sequence-accurate timestamped buy/sell events and possibly adds/cancels, with event classification and gap diagnostics.",
+        "Contemporaneous books and actual maker/taker costs for any executable profit test."
+      ],
+      "economicHypothesis": "Clustered aggressive order flow might help forecast near-term adverse price moves or avoid toxic entries. Arrival predictability need not produce a move larger than spot costs.",
+      "primarySources": [
+        {
+          "title": "Hawkes, Point Spectra of Some Mutually Exciting Point Processes (1971)",
+          "url": "https://academic.oup.com/jrsssb/article/33/3/438/7027167",
+          "verifiedUtcDate": "2026-09-10",
+          "supports": "Established method, not profitability of the proposed crypto application."
+        }
+      ],
+      "nearestEquivalentsAndExclusions": [
+        "Changing flow lookbacks or log-hazard coefficients is excluded.",
+        "Exponential/power-law kernels, event marks and numbers of event types do not create separate families here.",
+        "A hybrid Hawkes plus queue-reactive model would overlap F04 and F05, not create an independent third mechanism by addition."
+      ],
+      "repositoryEvidence": [
+        "src/core/features.ts",
+        "src/execution/planner.ts",
+        "src/kraken/market-stream.ts"
+      ],
+      "status": "INITIAL_TAXONOMY_NOT_IMPLEMENTED_NOT_TESTED",
+      "noveltyStatus": "ESTABLISHED_METHOD_NOT_LOCATED_IN_INSPECTED_ENGINE",
+      "originalMathematicsClaim": false,
+      "implemented": false,
+      "tested": false,
+      "profitabilityEstablished": false,
+      "prototypeFeasibility": {
+        "existingDailyDataSufficientForPrototype": false,
+        "limitation": "Daily OHLC destroys event-arrival order and cannot fit or validate event excitation.",
+        "firstExperiment": "First audit prospective event-stream completeness; then fit event likelihood and assess unseen arrival prediction before execution economics."
+      },
+      "priority": "defer"
+    },
+    {
+      "id": "F05",
+      "name": "Queue-reactive Markov limit-order-book forecasting",
+      "equations": [
+        "(L f)(q)=sum_e lambda_e(q) * [f(q+nu_e)-f(q)].",
+        "For price-direction hitting probability h, Lh=0 on interior states, h=1 at up-price boundary and h=0 at down-price boundary."
+      ],
+      "mechanismNovelty": "Infers event transition intensities conditional on actual queue states and solves a stochastic book evolution model. Existing depth/persistence features and heuristic maker hazard do not simulate a calibrated queue-state transition generator.",
+      "requiredObservations": [
+        "Full sequence-consistent book additions, cancellations and trades with queue sizes and price changes.",
+        "Venue-specific matching/aggregation semantics, missing-message detection and execution costs."
+      ],
+      "economicHypothesis": "Book-state depletion probabilities could forecast adverse selection and attainable fills better than an aggregate imbalance. This primarily tests execution quality and very short-horizon price distribution.",
+      "primarySources": [
+        {
+          "title": "Huang, Lehalle and Rosenbaum, Simulating and Analyzing Order Book Data: The Queue-Reactive Model (2013/2014)",
+          "url": "https://arxiv.org/abs/1312.0563",
+          "verifiedUtcDate": "2026-09-10",
+          "supports": "Established method, not profitability of the proposed crypto application."
+        }
+      ],
+      "nearestEquivalentsAndExclusions": [
+        "A static imbalance threshold or assumed fill probability is excluded.",
+        "Changing depth levels or bucket discretizations is configuration, not new mathematics.",
+        "Unlike F04, the basic process is Markov in queue state rather than depending on the entire event-excitation history."
+      ],
+      "repositoryEvidence": [
+        "src/core/features.ts",
+        "src/core/order-book.ts",
+        "src/execution/planner.ts"
+      ],
+      "status": "INITIAL_TAXONOMY_NOT_IMPLEMENTED_NOT_TESTED",
+      "noveltyStatus": "ESTABLISHED_METHOD_NOT_LOCATED_IN_INSPECTED_ENGINE",
+      "originalMathematicsClaim": false,
+      "implemented": false,
+      "tested": false,
+      "profitabilityEstablished": false,
+      "prototypeFeasibility": {
+        "existingDailyDataSufficientForPrototype": false,
+        "limitation": "Requires a new book-event dataset; current daily bars are inadequate.",
+        "firstExperiment": "Estimate transition and held-out absorption probabilities on synchronized native books, including nonfills."
+      },
+      "priority": "defer"
+    },
+    {
+      "id": "F06",
+      "name": "Direct conditional quantile regression",
+      "equations": [
+        "beta_tau = argmin_beta sum_i rho_tau(y_i-x_i^T beta).",
+        "rho_tau(u)=u*(tau-1[u<0]); Q_tau(Y|x)=x^T beta_tau."
+      ],
+      "mechanismNovelty": "Fits conditional quantiles directly through asymmetric absolute loss. Existing mean/ridge fits, Student-t location-scale estimates and empirical weighted quantiles do not optimize conditional regression quantiles.",
+      "requiredObservations": [
+        "Causal features and matured net-return outcomes; enough tail observations at each declared quantile.",
+        "Consistent action, horizon and fill/cost conventions."
+      ],
+      "economicHypothesis": "Asymmetric downside may depend on features differently from mean return, so direct downside prediction could reject trades whose mean hides unfavorable tails. It need not increase average profit.",
+      "primarySources": [
+        {
+          "title": "Koenker and Bassett, Regression Quantiles (1978)",
+          "url": "https://people.eecs.berkeley.edu/~jordan/sail/readings/koenker-bassett.pdf",
+          "verifiedUtcDate": "2026-09-10",
+          "supports": "Established method, not profitability of the proposed crypto application."
+        }
+      ],
+      "nearestEquivalentsAndExclusions": [
+        "Changing a percentile in an existing empirical distribution is excluded.",
+        "Quantile levels and spline basis choices are configurations of the same estimator.",
+        "A forecast quantile is not a confidence bound for the mean and may lose calibration under regime changes."
+      ],
+      "repositoryEvidence": [
+        "src/research/hourly-student-model.ts",
+        "src/research/hourly-net-calibration.ts",
+        "src/distribution/model.ts",
+        "src/carry/funding-model.ts"
+      ],
+      "status": "INITIAL_TAXONOMY_NOT_IMPLEMENTED_NOT_TESTED",
+      "noveltyStatus": "ESTABLISHED_METHOD_NOT_LOCATED_IN_INSPECTED_ENGINE",
+      "originalMathematicsClaim": false,
+      "implemented": false,
+      "tested": false,
+      "profitabilityEstablished": false,
+      "prototypeFeasibility": {
+        "existingDailyDataSufficientForPrototype": true,
+        "limitation": "A central or moderate quantile prototype is possible; extreme-tail calibration lacks enough independent observations.",
+        "firstExperiment": "Compare predeclared pinball loss and empirical coverage against the existing empirical-distribution baseline."
+      },
+      "priority": "defer"
+    },
+    {
+      "id": "F07",
+      "name": "Dynamic conditional copula for joint asset dependence",
+      "equations": [
+        "F_t(y_1,y_2)=C_(theta_t)(F_(1,t)(y_1),F_(2,t)(y_2)).",
+        "Joint density = c_(theta_t)(u_1,u_2)*f_(1,t)(y_1)*f_(2,t)(y_2), u_j=F_(j,t)(y_j)."
+      ],
+      "mechanismNovelty": "Separates evolving cross-asset dependence, including asymmetric joint tails, from marginal return models. Inspected cross-asset Bayes predicts with observed regressors and experts but lacks a conditional copula joint density.",
+      "requiredObservations": [
+        "Synchronized BTC/ETH returns and marginal predictive probability transforms.",
+        "Long enough history of joint stress events and a causal dependence-update schedule."
+      ],
+      "economicHypothesis": "Assets that appear diverse in ordinary periods may fail together in downturns; modeling tail dependence could improve allocation or abstention. It supplies joint risk information, not an automatic positive mean.",
+      "primarySources": [
+        {
+          "title": "Patton, Modelling Asymmetric Exchange Rate Dependence (2006)",
+          "url": "https://public.econ.duke.edu/~ap172/Patton_IER_2006.pdf",
+          "verifiedUtcDate": "2026-09-10",
+          "supports": "Established method, not profitability of the proposed crypto application."
+        }
+      ],
+      "nearestEquivalentsAndExclusions": [
+        "Changing correlation windows or adding another observed BTC/ETH regressor is excluded.",
+        "Gaussian copula with fixed Gaussian margins collapses to ordinary multivariate Gaussian dependence; that special case is excluded.",
+        "Different copula names/parameters are not separately counted."
+      ],
+      "repositoryEvidence": [
+        "src/research/cross-asset-model.ts",
+        "src/portfolio/signals.ts",
+        "src/distribution/model.ts"
+      ],
+      "status": "INITIAL_TAXONOMY_NOT_IMPLEMENTED_NOT_TESTED",
+      "noveltyStatus": "ESTABLISHED_METHOD_NOT_LOCATED_IN_INSPECTED_ENGINE",
+      "originalMathematicsClaim": false,
+      "implemented": false,
+      "tested": false,
+      "profitabilityEstablished": false,
+      "prototypeFeasibility": {
+        "existingDailyDataSufficientForPrototype": true,
+        "limitation": "A bivariate demonstration is possible; dependable dynamic tail estimation is not established by 720 daily bars.",
+        "firstExperiment": "Evaluate joint predictive scores and tail co-exceedance calibration before any allocation experiment."
+      },
+      "priority": "defer"
+    },
+    {
+      "id": "F08",
+      "name": "Causal temporal convolutional sequence learner",
+      "equations": [
+        "h_t^(l)=phi(b^(l)+sum_(k=0)^(K-1) W_k^(l) h_(t-d_l*k)^(l-1)).",
+        "Forecast r_(t+h) = g(h_t^(L)); all convolution indices are <=t."
+      ],
+      "mechanismNovelty": "Learns ordered lag interactions through a nonlinear causal sequence representation, unlike manually aggregated feature vectors supplied to ridge or shallow trees.",
+      "requiredObservations": [
+        "Long causal input sequences and matured return/execution labels with gaps and publication lags tracked.",
+        "Much more independent data than the daily sample for meaningful generalization."
+      ],
+      "economicHypothesis": "An ordered sequence of pressure and recovery might carry information lost by snapshot aggregates. This remains an unproven crypto application; neural flexibility also increases fitting risk.",
+      "primarySources": [
+        {
+          "title": "Bai, Kolter and Koltun, An Empirical Evaluation of Generic Convolutional and Recurrent Networks for Sequence Modeling (2018)",
+          "url": "https://arxiv.org/abs/1803.01271",
+          "verifiedUtcDate": "2026-09-10",
+          "supports": "Established method, not profitability of the proposed crypto application."
+        }
+      ],
+      "nearestEquivalentsAndExclusions": [
+        "Depth, width, dilation and activation changes are configurations.",
+        "For conservative counting, recurrent networks, attention networks and reservoir architecture alternatives are collapsed into this broad learned-sequence category rather than listed as many new systems.",
+        "A convolution with no nonlinear composition that reproduces an existing moving average is excluded."
+      ],
+      "repositoryEvidence": [
+        "src/research/hourly-student-model.ts",
+        "src/research/hourly-volume-features.ts",
+        "src/research/hourly-model.ts"
+      ],
+      "status": "INITIAL_TAXONOMY_NOT_IMPLEMENTED_NOT_TESTED",
+      "noveltyStatus": "ESTABLISHED_METHOD_NOT_LOCATED_IN_INSPECTED_ENGINE",
+      "originalMathematicsClaim": false,
+      "implemented": false,
+      "tested": false,
+      "profitabilityEstablished": false,
+      "prototypeFeasibility": {
+        "existingDailyDataSufficientForPrototype": false,
+        "limitation": "Can be coded against 720 bars, but data would not support a meaningful learned-sequence search.",
+        "firstExperiment": "Obtain a sufficiently long independent sequence dataset, freeze architecture and compare against the same-feature simple learner."
+      },
+      "priority": "defer"
+    },
+    {
+      "id": "F09",
+      "name": "Conditional normalizing-flow density estimation",
+      "equations": [
+        "z~p_0; y=T_theta(z;x), with T_theta invertible in z.",
+        "log p_theta(y|x)=log p_0(T_theta^(-1)(y;x))+log|det dT_theta^(-1)(y;x)/dy|."
+      ],
+      "mechanismNovelty": "Learns a flexible density through invertible transformations and change-of-variables likelihood. Existing Student-t boosting limits conditional shape to location/scale, while empirical calibration reuses standardized residual shapes.",
+      "requiredObservations": [
+        "Many matured causal outcome labels spanning conditional shapes and tails.",
+        "Held-out density and calibration checks with tail and support diagnostics."
+      ],
+      "economicHypothesis": "Conditional skew or multimodality beyond a fixed location-scale family might improve loss distribution estimates. Better likelihood alone does not establish profitable trade selection.",
+      "primarySources": [
+        {
+          "title": "Rezende and Mohamed, Variational Inference with Normalizing Flows (2015)",
+          "url": "https://proceedings.mlr.press/v37/rezende15.html",
+          "verifiedUtcDate": "2026-09-10",
+          "supports": "Established method, not profitability of the proposed crypto application."
+        }
+      ],
+      "nearestEquivalentsAndExclusions": [
+        "An affine transform of one Student-t distribution is an existing location-scale special case and is excluded.",
+        "Flow layers, spline knots and base distributions do not count as independent mechanisms.",
+        "This source establishes flow-based inference; using a conditional flow for crypto executable outcomes is an application proposed here."
+      ],
+      "repositoryEvidence": [
+        "src/research/hourly-student-model.ts",
+        "src/research/hourly-net-calibration.ts"
+      ],
+      "status": "INITIAL_TAXONOMY_NOT_IMPLEMENTED_NOT_TESTED",
+      "noveltyStatus": "ESTABLISHED_METHOD_NOT_LOCATED_IN_INSPECTED_ENGINE",
+      "originalMathematicsClaim": false,
+      "implemented": false,
+      "tested": false,
+      "profitabilityEstablished": false,
+      "prototypeFeasibility": {
+        "existingDailyDataSufficientForPrototype": false,
+        "limitation": "The available daily sample is too small to justify a flexible conditional-density search.",
+        "firstExperiment": "Demonstrate conditional density misspecification on a larger fixed dataset before introducing flow complexity."
+      },
+      "priority": "defer"
+    },
+    {
+      "id": "F10",
+      "name": "Invariant causal prediction across independently defined environments",
+      "equations": [
+        "For candidate predictor subset S, require Y^e = f_S(X_S^e)+epsilon^e with epsilon^e independent_of X_S^e and the same law across environments e.",
+        "Retain subsets not rejected by invariance tests; identifiable causal subset estimates use their intersection under the method assumptions."
+      ],
+      "mechanismNovelty": "Uses cross-environment invariance as an identifying restriction, rather than merely searching stable predictive correlations. Existing chronological tests and feature regimes do not implement invariant causal predictor selection.",
+      "requiredObservations": [
+        "Observed environments with credible exogenous changes or intervention interpretation, predictor release timestamps and sufficient support in each.",
+        "A defensible structural assumption explaining which mechanism should remain invariant."
+      ],
+      "economicHypothesis": "Some predictive relationships may fail because they are regime-specific coincidences; an invariant mechanism could transfer better. Calendar partitions alone do not prove interventions or causality.",
+      "primarySources": [
+        {
+          "title": "Peters, Buhlmann and Meinshausen, Causal Inference Using Invariant Prediction (2015/2016)",
+          "url": "https://arxiv.org/abs/1501.01332",
+          "verifiedUtcDate": "2026-09-10",
+          "supports": "Established method, not profitability of the proposed crypto application."
+        }
+      ],
+      "nearestEquivalentsAndExclusions": [
+        "Rebranding ordinary walk-forward validation as causal inference is excluded.",
+        "Arbitrary bull/bear period labels do not establish the required identification assumptions.",
+        "Changing accepted significance levels or chosen covariates is not a separate mathematical system."
+      ],
+      "repositoryEvidence": [
+        "src/research/hourly-adaptive-study-gates.ts",
+        "src/distribution/regime-model.ts",
+        "src/profit/validation.ts"
+      ],
+      "status": "INITIAL_TAXONOMY_NOT_IMPLEMENTED_NOT_TESTED",
+      "noveltyStatus": "ESTABLISHED_METHOD_NOT_LOCATED_IN_INSPECTED_ENGINE",
+      "originalMathematicsClaim": false,
+      "implemented": false,
+      "tested": false,
+      "profitabilityEstablished": false,
+      "prototypeFeasibility": {
+        "existingDailyDataSufficientForPrototype": false,
+        "limitation": "Daily OHLC alone provides no defensible intervention/environment identification.",
+        "firstExperiment": "Define an externally grounded environment/data design and test assumptions before fitting an invariant predictor."
+      },
+      "priority": "defer"
+    },
+    {
+      "id": "F11",
+      "name": "Dynamic latent-factor forecasting from a broad panel",
+      "equations": [
+        "X_it = lambda_i(L)^T f_t + e_it.",
+        "y_(t+h)=alpha_h+beta_h(L)^T f_t+gamma_h(L)y_t+epsilon_(t+h).",
+        "Estimate the common factor span from past panel observations, then fit the forecast projection using matured labels."
+      ],
+      "mechanismNovelty": "Extracts a low-dimensional latent common process from a broad observed panel before forecasting. Inspected cross-asset models use a small hand-selected observed BTC/ETH feature vector rather than latent panel factors.",
+      "requiredObservations": [
+        "Point-in-time broad asset or economic panel with historical constituent membership, missingness and release calendars.",
+        "Enough cross-sectional dimension and time coverage to separate common factors from idiosyncratic noise."
+      ],
+      "economicHypothesis": "Common liquidity or risk demand across many assets might summarize information that two-asset regressors miss. A macroeconomic factor forecasting method does not establish crypto return predictability.",
+      "primarySources": [
+        {
+          "title": "Stock and Watson, Macroeconomic Forecasting Using Diffusion Indexes (2002)",
+          "url": "https://www.princeton.edu/~mwatson/papers/Stock_Watson_JBES_2002.pdf",
+          "verifiedUtcDate": "2026-09-10",
+          "supports": "Established method, not profitability of the proposed crypto application."
+        }
+      ],
+      "nearestEquivalentsAndExclusions": [
+        "Rotating or rescaling a fixed BTC/ETH feature vector is excluded.",
+        "Factor count, panel subsets and lag choices are configurations.",
+        "Factor extraction alone is not a trading strategy; the forecast and funded decision rule remain to be specified."
+      ],
+      "repositoryEvidence": [
+        "src/research/cross-asset-model.ts",
+        "src/research/hourly-volume-features.ts"
+      ],
+      "status": "INITIAL_TAXONOMY_NOT_IMPLEMENTED_NOT_TESTED",
+      "noveltyStatus": "ESTABLISHED_METHOD_NOT_LOCATED_IN_INSPECTED_ENGINE",
+      "originalMathematicsClaim": false,
+      "implemented": false,
+      "tested": false,
+      "profitabilityEstablished": false,
+      "prototypeFeasibility": {
+        "existingDailyDataSufficientForPrototype": false,
+        "limitation": "Two daily assets are inadequate for the intended broad latent-panel mechanism.",
+        "firstExperiment": "Build the historically available broad panel; freeze factor extraction and compare incremental predictive value to observed-feature regression."
+      },
+      "priority": "defer"
+    }
+  ],
+  "excludedOrCollapsed": [
+    {
+      "family": "Linear/ridge/adaptive Bayesian regression",
+      "reason": "Implemented, including discounted Normal-inverse-gamma sufficient statistics and Student predictive uncertainty.",
+      "paths": [
+        "src/research/dynamic-bayes.ts",
+        "src/research/hourly-model.ts",
+        "src/research/hourly-adaptive-model.ts",
+        "src/profit/model.ts"
+      ]
+    },
+    {
+      "family": "Kernel/neighborhood empirical conditional distributions",
+      "reason": "Implemented; changing bandwidth, distance or memory cannot create another mechanism.",
+      "paths": [
+        "src/distribution/model.ts",
+        "src/distribution/cost-aware-model.ts"
+      ]
+    },
+    {
+      "family": "Shallow tree regime models and distributional boosting",
+      "reason": "CART partitions and Student-t natural-gradient boosting already implemented.",
+      "paths": [
+        "src/distribution/regime-model.ts",
+        "src/research/hourly-student-model.ts"
+      ]
+    },
+    {
+      "family": "CUSUM and OU/AR(1) reversion",
+      "reason": "Implemented and researched; reset thresholds or changing reversion fits are not novel mechanisms.",
+      "paths": [
+        "src/strategy/breakout-retest.ts",
+        "reports/parallel-strategy-study-2026-09-10/trend/candidate.py",
+        "reports/parallel-strategy-study-2026-09-10/reversion/candidate.py"
+      ]
+    },
+    {
+      "family": "SMA/momentum/breakout/pullback/rotation variants",
+      "reason": "Existing deterministic signal families and the 100-configuration screen cover these mechanisms.",
+      "paths": [
+        "src/spot-trend/signal.ts",
+        "src/channel/planner.ts",
+        "reports/profit-search-100-2026-09-10/screen/protocol.json"
+      ]
+    },
+    {
+      "family": "Cox/survival/competing exponential hazards",
+      "reason": "Conservatively excluded because planner already computes competing log-linear fill and cancellation hazards; fitting richer baselines is a potential extension rather than a clean absent-family claim.",
+      "paths": [
+        "src/execution/planner.ts",
+        "src/analysis/trade-optimization.ts"
+      ]
+    },
+    {
+      "family": "GARCH/recursive conditional variance",
+      "reason": "Conservatively excluded from count because existing EWMA variance is a closely related restricted recursion; a claim of substantial new mechanism requires a sharper model/estimation distinction.",
+      "paths": [
+        "src/core/statistics.ts",
+        "src/strategy/breakout-retest.ts"
+      ]
+    },
+    {
+      "family": "Linear Kalman filtering/particle filtering names alone",
+      "reason": "An inference algorithm alone does not establish a new economic/generative system; linear-Gaussian special cases overlap existing Bayesian linear estimation. No extra count without a distinct latent transition/observation model.",
+      "paths": [
+        "src/research/dynamic-bayes.ts"
+      ]
+    }
+  ],
+  "inspectedSourceSha256": {
+    "reports/parallel-strategy-study-2026-09-10/report.md": "991b53d07ea5db3ac9bd8efcc161cc9a6ab54fe3f0396aa8c514bcd6ec0797c0",
+    "reports/parallel-strategy-study-2026-09-10/reversion/candidate.py": "9a79e104ffdb1350755f0c67a35b7da65a002bd44d179d359dca6b99798bbcc4",
+    "reports/parallel-strategy-study-2026-09-10/trend/candidate.py": "12d722994475f2ff824df04ed2c64f9bdb0333598851045859a0950df7cae2bd",
+    "reports/profit-search-100-2026-09-10/screen/protocol.json": "c41b388a944797be0131129d31287c0d0c9f339fca8ea9441b4443a863d809b5",
+    "src/analysis/trade-optimization.ts": "bf3e2d9f645eb8ea6426e710e76e2c0fb97ba7e48081020656f8247607f2b238",
+    "src/carry/funding-model.ts": "82f57b69ce484021b7c17c475f1ad79d8b71e78d83f5868eced9bd5ef90720c3",
+    "src/channel/planner.ts": "09db2dae6a7b9c97810c43d54a97605834d4af7d410299a2194ea799587124a2",
+    "src/core/features.ts": "4b837fac12efe9f956d0d2ce482890e6814ba1f071d6c1d8d48c85e1f56e3d5b",
+    "src/core/order-book.ts": "030a9979f2f6a1f4d736e4b927202ffeb446fb1a5a25a18f0a427dc61624db63",
+    "src/core/statistics.ts": "d2030c1b49513ed7eacadbffe7bed2e8a571a65d5a2424112197b5bd72807c5e",
+    "src/distribution/cost-aware-model.ts": "1bee1b88bac491711eed56217d612d716c6f7fedd57cefc35d3ec21a3b70d29c",
+    "src/distribution/model.ts": "54dad777f1bbea1f9f24c531ab7600e0da9328c824f90ab3875de5c4606beabf",
+    "src/distribution/regime-model.ts": "20f074a4037f619b391f782523780216a3c688885a389021ca6f63fd87237657",
+    "src/execution/planner.ts": "0ac29aeee1c1f4608a2fcec4294a724cfaf407a65adc6099ce37f353b5c46cc7",
+    "src/kraken/market-stream.ts": "42b3005e966c09c0b1fe12012569ac27062a16436a05c373fac28ad514df7d89",
+    "src/portfolio/signals.ts": "66907f0868be89af33445d7041454ff960d018eb469af886b43224624f1f6293",
+    "src/profit/model.ts": "cebdf2b12ada5577d04c7d79526210ff7ce1140af9d4ad54a7292cfdfaeda5de",
+    "src/profit/validation.ts": "dcb900846bda6fdb059ad605b2c49eca1b7b1541333d62e7bfd3a24ab8a0b371",
+    "src/research/cross-asset-model.ts": "dbe2034039b0e4c2824a22f0a407aba9aafda3e54c2d74ad28dea26ae0fe9ecf",
+    "src/research/dynamic-bayes.ts": "c4b765e68588ff5ba2209abe9739ffc4db8218b0d2a19922db64449bda3f2336",
+    "src/research/hourly-adaptive-model.ts": "65bf37e08f3598f8dcedba944be81ca2223a832b0c0832aa40afb27aac48e648",
+    "src/research/hourly-adaptive-study-gates.ts": "e27cbedcca1d8cc18fbc9a0ad764d7116fd3fbf813f9a2abf2914b419abc5ba1",
+    "src/research/hourly-model.ts": "69ac3085efe1377801d0d056224f5f6a3155764dc3faf71b00d315facc1c8c3f",
+    "src/research/hourly-net-calibration.ts": "b6ba46abdcda565b2d57082c474480e60e2916e25fd1657756f77b1263273452",
+    "src/research/hourly-student-model.ts": "79754c03b1abe2218f40c5873091c024cbee2c521e9d6363158aa0036c30f203",
+    "src/research/hourly-volume-features.ts": "ca773fc49553949cc15736ddede96c4c2721cbc75be51d07a72774573a1c8059",
+    "src/spot-trend/signal.ts": "f9ef8b0a81f81a75c9186a00e58226de2d39464d16e6b8ea78227f26e61ddc03",
+    "src/strategy/breakout-retest.ts": "22fec8ee06a1fe3f070ed6e450c512c2672d6731641d6759b633e75bfb35f735",
+    "src/strategy/deterministic-regime.ts": "56eb5bd467adcaa204a6bb44eec93fc7869e88a638add9fd7af2769496384550"
+  },
+  "syntheticCheckedMechanismCount": 1,
+  "testedMechanismCountMeaning": "Catalog mechanisms whose frozen historical replay by root was independently reviewed by this author; synthetic checks counted separately.",
+  "historicallyReplayedByRootAndReviewedMechanismCount": 1,
+  "historicalReplayExecutionsByAuthor": 0
+}

@@ -1,0 +1,114 @@
+{
+  "version": "parallel-native-spot-study-v1",
+  "registeredAt": "2026-09-10T18:00:53.407106+00:00",
+  "researchOnly": true,
+  "activationAllowed": false,
+  "symbols": [
+    "BTC/USD",
+    "ETH/USD"
+  ],
+  "interval": "1d",
+  "historyPreviouslyReused": true,
+  "futureProfitGuaranteed": false,
+  "periods": {
+    "development": [
+      "2025-01-01",
+      "2025-07-01"
+    ],
+    "validation": [
+      "2025-07-01",
+      "2026-01-01"
+    ],
+    "final": [
+      "2026-01-01",
+      "2026-09-10"
+    ]
+  },
+  "selection": "Each family: highest development stress net minus 0.5 close-liquidation drawdown; then family winner by same validation utility. Ties lexicographic. Final cannot change selection.",
+  "maximumVariantsPerFamily": 4,
+  "families": [
+    "trend",
+    "reversion",
+    "rotation"
+  ],
+  "initialCapitalUsd": 10000,
+  "entryBudgetUsd": 1000,
+  "maximumEntryEquityFraction": 0.1,
+  "sizing": "One funded long position, entry budget includes fee. No leverage, shorts, additions or daily rebalancing. Marked exposure can drift above initial budget.",
+  "scenarios": {
+    "base": {
+      "feeBps": 80,
+      "slippageBps": 3,
+      "signalToOpenBars": 2
+    },
+    "stress": {
+      "feeBps": 100,
+      "slippageBps": 10,
+      "signalToOpenBars": 3
+    }
+  },
+  "costs": "Configured paper spot fee assumptions, not a claim about the actual account tier. Price costs charged adversely both sides and rounded to tick.",
+  "timing": "Target from completed bar i available after i close plus 60s; base fill at open i+2, stress i+3. Period starts flat; only in-period signals may trade. Terminal exit at last close with costs, an explicit retrospective liquidation convention.",
+  "liquidity": "Entry capped at 0.1% of bar i-2 volume times close: latest daily bar finalized before execution open i. Current instrument rules assumed historically; historical books/fills/spreads unverified.",
+  "metrics": "Net final cash after all fees and terminal exit; daily liquidation-value equity drawdown; low-price drawdown separately. No credit for unrealized final holdings.",
+  "baselines": [
+    "cash",
+    "buy-hold-btc",
+    "buy-hold-eth"
+  ],
+  "qualification": {
+    "positiveNetBothScenariosBothLaterPeriods": true,
+    "minimumClosedTradesCombinedLaterPeriods": 10,
+    "nonzeroTradesEachLaterPeriod": true,
+    "maximumFinalCloseDrawdownUsd": 500,
+    "positiveFinalPairedBlockBootstrapLowerBoundAgainstCashAndDevelopmentSelectedBuyHold": true
+  },
+  "inference": "5000 circular moving 14-day bootstrap replicates, same paired indices. One-sided 95% nominal and 1-0.05/12 familywise trial-adjusted lower bounds; both descriptive due to prior history reuse and unknown earlier searches.",
+  "sources": [
+    {
+      "symbol": "BTC/USD",
+      "file": "data/BTC-daily-source.json",
+      "sha256": "12c308dca0d57b0b268c7dd9af9b743f00a9c0ce26176d769127667fe82cc162",
+      "bytes": 62277,
+      "url": "https://api.kraken.com/0/public/OHLC?pair=XBTUSD&interval=1440",
+      "sourceRows": 721,
+      "completedBars": 720
+    },
+    {
+      "symbol": "ETH/USD",
+      "file": "data/ETH-daily-source.json",
+      "sha256": "c983b6a9dedbc39bc96052d5cc54b94b8ac8e22bfc32dac900da00643bf22462",
+      "bytes": 61898,
+      "url": "https://api.kraken.com/0/public/OHLC?pair=ETHUSD&interval=1440",
+      "sourceRows": 721,
+      "completedBars": 720
+    }
+  ],
+  "rules": {
+    "BTC/USD": {
+      "minQty": 5e-05,
+      "minCost": 0.5,
+      "lot": 1e-08,
+      "tick": 0.1
+    },
+    "ETH/USD": {
+      "minQty": 0.001,
+      "minCost": 0.5,
+      "lot": 1e-08,
+      "tick": 0.01
+    }
+  },
+  "limitations": [
+    "720 completed days per symbol; limited regimes and rare tail evidence.",
+    "Daily candles cannot demonstrate intraday missed opportunities, immediate stop fills, available depth or order acceptance.",
+    "Long/cash only. Results cannot transfer to futures or shorting.",
+    "Chronological held-out comparison is not a new prospective experiment because earlier research reused these dates."
+  ],
+  "datasetSha256": "951499efbfe353842f55b78b94e7d0fe1ba642afa2867f077810835f2303a45e",
+  "amendments": [
+    {
+      "at": "2026-09-10T18:02:02.760305+00:00",
+      "reason": "Independent review caught volume-finalization boundary; use i-2 not i-1. No target formulas changed. Development rerun required; later windows not evaluated."
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "passed": true,
+  "scope": "Selection code/lock and qualification review, plus independent raw-source trend cash audit",
+  "criticalFindings": [],
+  "checks": [
+    "Common, protocol, all three model and development selection hashes match the prefinal lock",
+    "Frozen family ranking exactly matches validation stress utility, never final utility",
+    "Trend order prices, lot sizing, delayed signal timestamp, fees, flat inventory and cash reconcile to raw Kraken rows using Decimal",
+    "Every model is negative in both final scenarios; qualification failures and paired excess-P&L totals are consistent"
+  ],
+  "independentTrendMoney": {
+    "base": {
+      "independentNetPnlUsd": -16.9544681672,
+      "independentFeesUsd": 15.864291492200001,
+      "verifiedOrders": [
+        {
+          "side": "BUY",
+          "symbol": "BTC/USD",
+          "price": 78351.2,
+          "sourceReference": 78327.7,
+          "terminal": false
+        },
+        {
+          "side": "SELL",
+          "symbol": "BTC/USD",
+          "price": 78265.1,
+          "sourceReference": 78288.6,
+          "terminal": true
+        }
+      ],
+      "strategyTriggeredExits": 0,
+      "terminalClosures": 1
+    },
+    "stress": {
+      "independentNetPnlUsd": -6.45696955979,
+      "independentFeesUsd": 19.93676495479,
+      "verifiedOrders": [
+        {
+          "side": "BUY",
+          "symbol": "BTC/USD",
+          "price": 77159.8,
+          "sourceReference": 77082.7,
+          "terminal": false
+        },
+        {
+          "side": "SELL",
+          "symbol": "BTC/USD",
+          "price": 78210.3,
+          "sourceReference": 78288.6,
+          "terminal": true
+        }
+      ],
+      "strategyTriggeredExits": 0,
+      "terminalClosures": 1
+    }
+  },
+  "codeReview": {
+    "validationSignalsReceiveOnlyPre2026Bars": true,
+    "developmentWinnersRecomputedBeforeValidation": true,
+    "finalCannotChangeFrozenSelection": true,
+    "bootstrapPairedCircular14DayBlocks": true,
+    "bootstrapAdjustmentDescriptiveDueToReusedHistory": true,
+    "noClaimOfCalibratedProspectiveConfidence": true
+  },
+  "reportingCautions": [
+    "The prefinal selected model is rotation; trend has the smallest final loss only retrospectively and cannot replace it as a validated winner.",
+    "Trend has zero strategy-triggered exits in the final window; its one reported closed episode is a forced terminal liquidation.",
+    "The 12-trial bootstrap adjustment does not account for unknown earlier studies, and sparse trades plus nonstationarity limit statistical interpretation.",
+    "finalEvaluated=false in final-selection-lock.json describes the immutable prefinal snapshot, not the current completion state."
+  ],
+  "fingerprints": {
+    "compare.py": "5fbff5c06de8c97b0b3906baff514fa7478c57acb718b8f04b22eccff75ab9e2",
+    "final-selection-lock.json": "570d73ab2dbc66437ab0973e4255d3f64b88bd224771efab92539eec5e690863",
+    "comparison.json": "23ac94a3c35a08c7dcda8ef261094b4470980404cecd3e09ccbe2daca1cf7d94",
+    "final-detail.json": "9eb691b8fa5a41c3e16561321df02b3ab65b111208f54f2031d073b123a3c688",
+    "sensitivity.json": "b0c0b39d7dfbb339ae2d360a1183386a902ff23809030c66a73f9b1f5eab47d0"
+  }
+}

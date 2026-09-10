@@ -1,0 +1,529 @@
+{
+  "system": "BTC spot weekly trend",
+  "mode": "RESEARCH_PAPER",
+  "liveTradingEnabled": false,
+  "orderSubmissionEnabled": true,
+  "orderExecutionMode": "LOCAL_SPOT_PAPER_BROKER",
+  "provenProfitable": false,
+  "strategy": {
+    "version": "btc-spot-weekly-research-paper-runner-v3",
+    "mode": "RESEARCH_PAPER",
+    "cycleIntervalMs": 300000,
+    "maximumBookAgeMs": 5000,
+    "entrySchedule": "CONTINUOUS_EACH_CYCLE",
+    "entryWindowMs": null,
+    "signalCutoff": "CURRENT_NATIVE_WEEK_OPEN;ONLY_ALREADY_FINALIZED_PREVIOUS_SIGNALS;MATCHES_HISTORICAL_BASE_WEEK_DELAY",
+    "entries": "EVALUATE_EVERY_CYCLE_THROUGHOUT_WEEK;FIRST_PARTIAL_FILL_CONSUMES_WEEKLY_ENTRY_NO_ADDITIONS",
+    "timingValidation": "REVISED_TIMING_UNDER_PROSPECTIVE_PAPER_EVALUATION;HISTORICAL_RESULTS_ARE_PARENT_STRATEGY_ONLY",
+    "exits": "CURRENT_DELAYED_WEEKLY_CASH_STATE_OR_MISSING_HISTORY_OR_PERSISTENT_ACCOUNT_DRAWDOWN_HALT;RETRY_PARTIAL_EXITS_WITH_FRESH_BOOKS",
+    "execution": "DURABLE_SUBMITTED_PAPER_IOC_THEN_BROKER_ACCEPTANCE_FILL_OR_CANCEL;10_BPS_COLLAR;5_PERCENT_ELIGIBLE_DEPTH;NO_LIVE_EXCHANGE_ORDERS",
+    "interpretation": "FORWARD_RESEARCH_PAPER_ONLY;L2_SIMULATED_FILLS_ARE_NOT_OBSERVED_VENUE_FILLS;LIVE_TRADING_DISABLED"
+  },
+  "healthy": true,
+  "lastError": null,
+  "lastSuccessMs": 1789074348529,
+  "evidence": {
+    "baseNetUsd": 1175.5967730305565,
+    "stressNetUsd": 1228.512191738846,
+    "baseEpisodes": 11,
+    "stressEpisodes": 11,
+    "lowerMeanWeeklyNetUsd": -0.4781742076421477,
+    "provenProfitable": false,
+    "scope": "PARENT_WEEKLY_STRATEGY",
+    "revisedTimingValidated": false,
+    "revisedTimingStatus": "PROSPECTIVE_PAPER_EVALUATION"
+  },
+  "state": {
+    "version": "btc-spot-weekly-research-paper-runner-v3",
+    "mode": "RESEARCH_PAPER",
+    "startedAtMs": 1789019349083,
+    "lastCycleMs": 1789074348529,
+    "cycles": 186,
+    "account": {
+      "initialCashUsd": 100000,
+      "cashUsd": 99900.09999846495,
+      "quantity": 0.00128587,
+      "entryCostUsd": 99.90000153503999,
+      "realizedNetUsd": 0,
+      "feesUsd": 0.79285715504,
+      "receipts": [
+        {
+          "id": "btc-spot-weekly-research-paper-runner-v3:1789019349083:136:buy",
+          "side": "buy",
+          "quantity": 0.00128587,
+          "price": 77074,
+          "feeBps": 80,
+          "timestampMs": 1789059332724
+        }
+      ]
+    },
+    "peakEquityUsd": 100000,
+    "halted": false,
+    "lastSignal": {
+      "version": "btc-spot-funded-weekly-trend-v1",
+      "availableAtMs": 1788393660000,
+      "lastWeekEndMs": 1788393600000,
+      "close": 77305.1,
+      "state": "long",
+      "reason": "TREND_ENTER",
+      "movingAverage": 74385.5475
+    },
+    "lastDecision": {
+      "timestampMs": 1789074348529,
+      "action": "hold",
+      "reason": "HOLD_SPOT_NO_ADDITIONS",
+      "fill": null,
+      "orderId": null,
+      "signal": {
+        "version": "btc-spot-funded-weekly-trend-v1",
+        "availableAtMs": 1788393660000,
+        "lastWeekEndMs": 1788393600000,
+        "close": 77305.1,
+        "state": "long",
+        "reason": "TREND_ENTER",
+        "movingAverage": 74385.5475
+      },
+      "mark": {
+        "equityUsd": 99999.41365356695,
+        "liquidationEquityUsd": 99998.61914432613,
+        "unrealizedNetUsd": -1.38085567385599,
+        "netPnlUsd": -1.3808556738658808
+      }
+    },
+    "evidenceSha256": "3eed46dd2a5f17dc48e87e190243971754b1c7b0394ebcadb4eb289d30ebb509",
+    "orders": [
+      {
+        "request": {
+          "clientOrderId": "btc-spot-weekly-research-paper-runner-v3:1789019349083:136:buy",
+          "symbol": "BTC/USD",
+          "side": "buy",
+          "quantity": 0.00128587,
+          "limitPrice": 77151,
+          "timeInForce": "ioc",
+          "reduceOnly": false,
+          "createdAtMs": 1789059332678,
+          "feeBps": 80
+        },
+        "orderId": "paper-spot-4dd38b8829b96a6dff78b6bdd6bdee31",
+        "status": "FILLED",
+        "filledQuantity": 0.00128587,
+        "averageFillPrice": 77074,
+        "feeUsd": 0.79285715504,
+        "rejectionReason": null,
+        "cancellationReason": null,
+        "events": [
+          {
+            "type": "SUBMITTED",
+            "timestampMs": 1789059332678
+          },
+          {
+            "type": "ACCEPTED",
+            "timestampMs": 1789059332724
+          },
+          {
+            "type": "FILLED",
+            "timestampMs": 1789059332724
+          }
+        ],
+        "fill": {
+          "id": "btc-spot-weekly-research-paper-runner-v3:1789019349083:136:buy",
+          "side": "buy",
+          "quantity": 0.00128587,
+          "price": 77074,
+          "feeBps": 80,
+          "timestampMs": 1789059332724
+        }
+      }
+    ]
+  },
+  "available": true,
+  "generatedAtMs": 1789074409919,
+  "upstreamFetchedAtMs": 1789074409919,
+  "orderActivity": {
+    "available": true,
+    "sourceCycle": 186,
+    "sourceTimestampMs": 1789074348529,
+    "orders": {
+      "paper-spot-4dd38b8829b96a6dff78b6bdd6bdee31": {
+        "orderId": "paper-spot-4dd38b8829b96a6dff78b6bdd6bdee31",
+        "entryOrderId": "paper-spot-4dd38b8829b96a6dff78b6bdd6bdee31",
+        "direction": "LONG",
+        "intent": "OPEN_LONG",
+        "positionStatus": "OPEN",
+        "openedAtMs": 1789059332724,
+        "closedAtMs": null,
+        "remainingQuantity": 0.00128587,
+        "remainingEntryCostUsd": 99.90000153503999,
+        "realizedNetUsd": 0,
+        "unrealizedNetUsd": -1.38085567385599,
+        "totalNetUsd": -1.38085567385599,
+        "markPrice": 77234.6,
+        "markAtMs": 1789074348528,
+        "events": [
+          {
+            "id": "cycle:1789019349083:186:STRATEGY_EVALUATION:1789074348529",
+            "timestampMs": 1789074348529,
+            "type": "STRATEGY_EVALUATION",
+            "cycle": 186,
+            "reason": "HOLD_SPOT_NO_ADDITIONS",
+            "quantity": 0.00128587,
+            "markPrice": 77234.6,
+            "realizedNetUsd": 0,
+            "unrealizedNetUsd": -1.38085567385599,
+            "totalNetUsd": -1.38085567385599
+          },
+          {
+            "id": "cycle:1789019349083:185:STRATEGY_EVALUATION:1789074048155",
+            "timestampMs": 1789074048155,
+            "type": "STRATEGY_EVALUATION",
+            "cycle": 185,
+            "reason": "HOLD_SPOT_NO_ADDITIONS",
+            "quantity": 0.00128587,
+            "markPrice": 77261.7,
+            "realizedNetUsd": 0,
+            "unrealizedNetUsd": -1.346287373471995,
+            "totalNetUsd": -1.346287373471995
+          },
+          {
+            "id": "cycle:1789019349083:184:STRATEGY_EVALUATION:1789073747770",
+            "timestampMs": 1789073747770,
+            "type": "STRATEGY_EVALUATION",
+            "cycle": 184,
+            "reason": "HOLD_SPOT_NO_ADDITIONS",
+            "quantity": 0.00128587,
+            "markPrice": 77278.8,
+            "realizedNetUsd": 0,
+            "unrealizedNetUsd": -1.324474903487996,
+            "totalNetUsd": -1.324474903487996
+          },
+          {
+            "id": "cycle:1789019349083:183:STRATEGY_EVALUATION:1789073447521",
+            "timestampMs": 1789073447521,
+            "type": "STRATEGY_EVALUATION",
+            "cycle": 183,
+            "reason": "HOLD_SPOT_NO_ADDITIONS",
+            "quantity": 0.00128587,
+            "markPrice": 77231.9,
+            "realizedNetUsd": 0,
+            "unrealizedNetUsd": -1.3842997480639951,
+            "totalNetUsd": -1.3842997480639951
+          },
+          {
+            "id": "cycle:1789019349083:182:STRATEGY_EVALUATION:1789073147284",
+            "timestampMs": 1789073147284,
+            "type": "STRATEGY_EVALUATION",
+            "cycle": 182,
+            "reason": "HOLD_SPOT_NO_ADDITIONS",
+            "quantity": 0.00128587,
+            "markPrice": 77274.9,
+            "realizedNetUsd": 0,
+            "unrealizedNetUsd": -1.3294496773440017,
+            "totalNetUsd": -1.3294496773440017
+          },
+          {
+            "id": "cycle:1789019349083:181:STRATEGY_EVALUATION:1789072847056",
+            "timestampMs": 1789072847056,
+            "type": "STRATEGY_EVALUATION",
+            "cycle": 181,
+            "reason": "HOLD_SPOT_NO_ADDITIONS",
+            "quantity": 0.00128587,
+            "markPrice": 77248.9,
+            "realizedNetUsd": 0,
+            "unrealizedNetUsd": -1.3626148363840116,
+            "totalNetUsd": -1.3626148363840116
+          },
+          {
+            "id": "cycle:1789019349083:180:STRATEGY_EVALUATION:1789072546799",
+            "timestampMs": 1789072546799,
+            "type": "STRATEGY_EVALUATION",
+            "cycle": 180,
+            "reason": "HOLD_SPOT_NO_ADDITIONS",
+            "quantity": 0.00128587,
+            "markPrice": 77211.8,
+            "realizedNetUsd": 0,
+            "unrealizedNetUsd": -1.409938967168003,
+            "totalNetUsd": -1.409938967168003
+          },
+          {
+            "id": "cycle:1789019349083:179:STRATEGY_EVALUATION:1789072246577",
+            "timestampMs": 1789072246577,
+            "type": "STRATEGY_EVALUATION",
+            "cycle": 179,
+            "reason": "HOLD_SPOT_NO_ADDITIONS",
+            "quantity": 0.00128587,
+            "markPrice": 77254,
+            "realizedNetUsd": 0,
+            "unrealizedNetUsd": -1.356109362879991,
+            "totalNetUsd": -1.356109362879991
+          },
+          {
+            "id": "cycle:1789019349083:178:STRATEGY_EVALUATION:1789071946315",
+            "timestampMs": 1789071946315,
+            "type": "STRATEGY_EVALUATION",
+            "cycle": 178,
+            "reason": "HOLD_SPOT_NO_ADDITIONS",
+            "quantity": 0.00128587,
+            "markPrice": 77240.6,
+            "realizedNetUsd": 0,
+            "unrealizedNetUsd": -1.3732021756159867,
+            "totalNetUsd": -1.3732021756159867
+          },
+          {
+            "id": "cycle:1789019349083:177:STRATEGY_EVALUATION:1789071645933",
+            "timestampMs": 1789071645933,
+            "type": "STRATEGY_EVALUATION",
+            "cycle": 177,
+            "reason": "HOLD_SPOT_NO_ADDITIONS",
+            "quantity": 0.00128587,
+            "markPrice": 77299.9,
+            "realizedNetUsd": 0,
+            "unrealizedNetUsd": -1.2975601013440041,
+            "totalNetUsd": -1.2975601013440041
+          },
+          {
+            "id": "cycle:1789019349083:176:STRATEGY_EVALUATION:1789071345706",
+            "timestampMs": 1789071345706,
+            "type": "STRATEGY_EVALUATION",
+            "cycle": 176,
+            "reason": "HOLD_SPOT_NO_ADDITIONS",
+            "quantity": 0.00128587,
+            "markPrice": 77270.2,
+            "realizedNetUsd": 0,
+            "unrealizedNetUsd": -1.335444917631989,
+            "totalNetUsd": -1.335444917631989
+          },
+          {
+            "id": "cycle:1789019349083:175:STRATEGY_EVALUATION:1789071045310",
+            "timestampMs": 1789071045310,
+            "type": "STRATEGY_EVALUATION",
+            "cycle": 175,
+            "reason": "HOLD_SPOT_NO_ADDITIONS",
+            "quantity": 0.00128587,
+            "markPrice": 77257.7,
+            "realizedNetUsd": 0,
+            "unrealizedNetUsd": -1.351389705632002,
+            "totalNetUsd": -1.351389705632002
+          },
+          {
+            "id": "cycle:1789019349083:174:STRATEGY_EVALUATION:1789070744903",
+            "timestampMs": 1789070744903,
+            "type": "STRATEGY_EVALUATION",
+            "cycle": 174,
+            "reason": "HOLD_SPOT_NO_ADDITIONS",
+            "quantity": 0.00128587,
+            "markPrice": 77144.5,
+            "realizedNetUsd": 0,
+            "unrealizedNetUsd": -1.4957857057599995,
+            "totalNetUsd": -1.4957857057599995
+          },
+          {
+            "id": "cycle:1789019349083:173:STRATEGY_EVALUATION:1789070444631",
+            "timestampMs": 1789070444631,
+            "type": "STRATEGY_EVALUATION",
+            "cycle": 173,
+            "reason": "HOLD_SPOT_NO_ADDITIONS",
+            "quantity": 0.00128587,
+            "markPrice": 77123.9,
+            "realizedNetUsd": 0,
+            "unrealizedNetUsd": -1.5220627163839993,
+            "totalNetUsd": -1.5220627163839993
+          },
+          {
+            "id": "cycle:1789019349083:172:STRATEGY_EVALUATION:1789070144383",
+            "timestampMs": 1789070144383,
+            "type": "STRATEGY_EVALUATION",
+            "cycle": 172,
+            "reason": "HOLD_SPOT_NO_ADDITIONS",
+            "quantity": 0.00128587,
+            "markPrice": 77111.7,
+            "realizedNetUsd": 0,
+            "unrealizedNetUsd": -1.5376248294719943,
+            "totalNetUsd": -1.5376248294719943
+          },
+          {
+            "id": "cycle:1789019349083:171:STRATEGY_EVALUATION:1789069844017",
+            "timestampMs": 1789069844017,
+            "type": "STRATEGY_EVALUATION",
+            "cycle": 171,
+            "reason": "HOLD_SPOT_NO_ADDITIONS",
+            "quantity": 0.00128587,
+            "markPrice": 77060.1,
+            "realizedNetUsd": 0,
+            "unrealizedNetUsd": -1.6034449143359808,
+            "totalNetUsd": -1.6034449143359808
+          },
+          {
+            "id": "cycle:1789019349083:170:STRATEGY_EVALUATION:1789069543793",
+            "timestampMs": 1789069543793,
+            "type": "STRATEGY_EVALUATION",
+            "cycle": 170,
+            "reason": "HOLD_SPOT_NO_ADDITIONS",
+            "quantity": 0.00128587,
+            "markPrice": 77194.1,
+            "realizedNetUsd": 0,
+            "unrealizedNetUsd": -1.4325167869759952,
+            "totalNetUsd": -1.4325167869759952
+          },
+          {
+            "id": "cycle:1789019349083:169:STRATEGY_EVALUATION:1789069243425",
+            "timestampMs": 1789069243425,
+            "type": "STRATEGY_EVALUATION",
+            "cycle": 169,
+            "reason": "HOLD_SPOT_NO_ADDITIONS",
+            "quantity": 0.00128587,
+            "markPrice": 77199.9,
+            "realizedNetUsd": 0,
+            "unrealizedNetUsd": -1.4251184053440085,
+            "totalNetUsd": -1.4251184053440085
+          },
+          {
+            "id": "cycle:1789019349083:168:STRATEGY_EVALUATION:1789068943146",
+            "timestampMs": 1789068943146,
+            "type": "STRATEGY_EVALUATION",
+            "cycle": 168,
+            "reason": "HOLD_SPOT_NO_ADDITIONS",
+            "quantity": 0.00128587,
+            "markPrice": 77166.1,
+            "realizedNetUsd": 0,
+            "unrealizedNetUsd": -1.4682331120959873,
+            "totalNetUsd": -1.4682331120959873
+          },
+          {
+            "id": "cycle:1789019349083:167:STRATEGY_EVALUATION:1789068642912",
+            "timestampMs": 1789068642912,
+            "type": "STRATEGY_EVALUATION",
+            "cycle": 167,
+            "reason": "HOLD_SPOT_NO_ADDITIONS",
+            "quantity": 0.00128587,
+            "markPrice": 77120.8,
+            "realizedNetUsd": 0,
+            "unrealizedNetUsd": -1.5260170238079809,
+            "totalNetUsd": -1.5260170238079809
+          },
+          {
+            "id": "cycle:1789019349083:166:STRATEGY_EVALUATION:1789068342663",
+            "timestampMs": 1789068342663,
+            "type": "STRATEGY_EVALUATION",
+            "cycle": 166,
+            "reason": "HOLD_SPOT_NO_ADDITIONS",
+            "quantity": 0.00128587,
+            "markPrice": 77208,
+            "realizedNetUsd": 0,
+            "unrealizedNetUsd": -1.4147861827199932,
+            "totalNetUsd": -1.4147861827199932
+          },
+          {
+            "id": "cycle:1789019349083:165:STRATEGY_EVALUATION:1789068042270",
+            "timestampMs": 1789068042270,
+            "type": "STRATEGY_EVALUATION",
+            "cycle": 165,
+            "reason": "HOLD_SPOT_NO_ADDITIONS",
+            "quantity": 0.00128587,
+            "markPrice": 77121.2,
+            "realizedNetUsd": 0,
+            "unrealizedNetUsd": -1.5255067905920043,
+            "totalNetUsd": -1.5255067905920043
+          },
+          {
+            "id": "cycle:1789019349083:164:STRATEGY_EVALUATION:1789067741864",
+            "timestampMs": 1789067741864,
+            "type": "STRATEGY_EVALUATION",
+            "cycle": 164,
+            "reason": "HOLD_SPOT_NO_ADDITIONS",
+            "quantity": 0.00128587,
+            "markPrice": 77147,
+            "realizedNetUsd": 0,
+            "unrealizedNetUsd": -1.4925967481599827,
+            "totalNetUsd": -1.4925967481599827
+          },
+          {
+            "id": "cycle:1789019349083:163:STRATEGY_EVALUATION:1789067441627",
+            "timestampMs": 1789067441627,
+            "type": "STRATEGY_EVALUATION",
+            "cycle": 163,
+            "reason": "HOLD_SPOT_NO_ADDITIONS",
+            "quantity": 0.00128587,
+            "markPrice": 77153.8,
+            "realizedNetUsd": 0,
+            "unrealizedNetUsd": -1.4839227834879836,
+            "totalNetUsd": -1.4839227834879836
+          },
+          {
+            "id": "cycle:1789019349083:162:STRATEGY_EVALUATION:1789067141113",
+            "timestampMs": 1789067141113,
+            "type": "STRATEGY_EVALUATION",
+            "cycle": 162,
+            "reason": "HOLD_SPOT_NO_ADDITIONS",
+            "quantity": 0.00128587,
+            "markPrice": 77150,
+            "realizedNetUsd": 0,
+            "unrealizedNetUsd": -1.488769999039988,
+            "totalNetUsd": -1.488769999039988
+          },
+          {
+            "id": "cycle:1789019349083:161:STRATEGY_EVALUATION:1789066840731",
+            "timestampMs": 1789066840731,
+            "type": "STRATEGY_EVALUATION",
+            "cycle": 161,
+            "reason": "HOLD_SPOT_NO_ADDITIONS",
+            "quantity": 0.00128587,
+            "markPrice": 77196.5,
+            "realizedNetUsd": 0,
+            "unrealizedNetUsd": -1.4294553876799938,
+            "totalNetUsd": -1.4294553876799938
+          },
+          {
+            "id": "cycle:1789019349083:160:STRATEGY_EVALUATION:1789066540504",
+            "timestampMs": 1789066540504,
+            "type": "STRATEGY_EVALUATION",
+            "cycle": 160,
+            "reason": "HOLD_SPOT_NO_ADDITIONS",
+            "quantity": 0.00128587,
+            "markPrice": 77206.4,
+            "realizedNetUsd": 0,
+            "unrealizedNetUsd": -1.4168271155839989,
+            "totalNetUsd": -1.4168271155839989
+          },
+          {
+            "id": "cycle:1789019349083:159:STRATEGY_EVALUATION:1789066240278",
+            "timestampMs": 1789066240278,
+            "type": "STRATEGY_EVALUATION",
+            "cycle": 159,
+            "reason": "HOLD_SPOT_NO_ADDITIONS",
+            "quantity": 0.00128587,
+            "markPrice": 77060.4,
+            "realizedNetUsd": 0,
+            "unrealizedNetUsd": -1.6030622394239913,
+            "totalNetUsd": -1.6030622394239913
+          },
+          {
+            "id": "cycle:1789019349083:158:STRATEGY_EVALUATION:1789065939890",
+            "timestampMs": 1789065939890,
+            "type": "STRATEGY_EVALUATION",
+            "cycle": 158,
+            "reason": "HOLD_SPOT_NO_ADDITIONS",
+            "quantity": 0.00128587,
+            "markPrice": 77098.9,
+            "realizedNetUsd": 0,
+            "unrealizedNetUsd": -1.553952292384011,
+            "totalNetUsd": -1.553952292384011
+          },
+          {
+            "id": "cycle:1789019349083:157:STRATEGY_EVALUATION:1789065639508",
+            "timestampMs": 1789065639508,
+            "type": "STRATEGY_EVALUATION",
+            "cycle": 157,
+            "reason": "HOLD_SPOT_NO_ADDITIONS",
+            "quantity": 0.00128587,
+            "markPrice": 77098.4,
+            "realizedNetUsd": 0,
+            "unrealizedNetUsd": -1.554590083904003,
+            "totalNetUsd": -1.554590083904003
+          }
+        ],
+        "totalEvents": 54,
+        "nextCursor": "cycle:1789019349083:157:STRATEGY_EVALUATION:1789065639508"
+      }
+    }
+  }
+}

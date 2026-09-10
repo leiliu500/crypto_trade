@@ -456,6 +456,9 @@ export class OperationsMonitor extends EventEmitter {
       sessionRealizedPnl: session.realizedPnl,
       sessionUnrealizedPnl: session.unrealizedPnl,
       realizedSessionPnl: state.realizedSessionPnl,
+      realizedPnl24h: state.realizedPnlMeasurement === "KNOWN" ? state.realizedPnl24h ?? null : null,
+      realizedPnlMeasurement: state.realizedPnlMeasurement ?? "UNAVAILABLE",
+      rollingPnlDetails: state.rollingPnlDetails ? structuredClone(state.rollingPnlDetails) : null,
       realizedSessionBreakdown,
       latencyP95Ms: state.latency.decisionToVenue?.count ? state.latency.decisionToVenue.p95 : null,
       liveness, database: { ...this.databaseHealth }, markets, positions, orders: visibleOrders,
@@ -765,6 +768,7 @@ function emptySnapshot(): DashboardSnapshot {
     configurationVersion: "-", signalMode: "DETERMINISTIC_ONLY", started: false,
     uptimeMs: 0, overall: "degraded", entriesAllowed: false, haltReasons: [], equity: 0, equityHighWater: 0,
     sessionStartingEquity: 0, sessionPnl: 0, sessionRealizedPnl: 0, sessionUnrealizedPnl: 0, realizedSessionPnl: 0,
+    realizedPnl24h: null, realizedPnlMeasurement: "UNAVAILABLE", rollingPnlDetails: null,
     realizedSessionBreakdown: null,
     latencyP95Ms: null, liveness: [], database: disabledDatabaseHealth(), markets: [], positions: [], orders: [],
     events: [] };

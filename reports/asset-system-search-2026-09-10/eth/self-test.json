@@ -1,0 +1,49 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "check": "causal_prefix_and_warmup",
+      "id": "eth_kalman_drift_v1",
+      "prefixes": 16
+    },
+    {
+      "check": "causal_prefix_and_warmup",
+      "id": "eth_crossasset_mature_ridge_v1",
+      "prefixes": 16
+    },
+    {
+      "check": "causal_prefix_and_warmup",
+      "id": "eth_volume_pressure_v1",
+      "prefixes": 16
+    },
+    {
+      "check": "causal_prefix_and_warmup",
+      "id": "eth_drawdown_recovery_v1",
+      "prefixes": 16
+    },
+    {
+      "check": "four_flat_histories_remain_cash",
+      "count": 4
+    },
+    {
+      "check": "filter_and_regression_positive_negative_drift_witnesses",
+      "count": 4
+    },
+    {
+      "check": "ridge_independent_discounted_normal_equations",
+      "histories": 3
+    },
+    {
+      "check": "same_closes_distinct_pressure_and_volume_unit_invariance"
+    },
+    {
+      "check": "ordered_recovery_entry_exit_and_cooldown"
+    },
+    {
+      "check": "frozen_parameter_mutation_rejected"
+    }
+  ],
+  "candidateCodeSha256": "f80033e952cdcd5bc51cc733e6ddd0ed0fb5d55b69ac7e0ffed7fc20ffccc742",
+  "datasetSha256": "951499efbfe353842f55b78b94e7d0fe1ba642afa2867f077810835f2303a45e",
+  "profitResultsInspected": false
+}

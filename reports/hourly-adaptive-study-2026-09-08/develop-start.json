@@ -1,0 +1,35 @@
+{
+  "sourceHashes": {
+    "src/research/hourly-data.ts": "0786552d6f700f8ad906a6f6db80b423560eef6f79dbb7403250ce1eeb260a91",
+    "src/research/hourly-model.ts": "69ac3085efe1377801d0d056224f5f6a3155764dc3faf71b00d315facc1c8c3f",
+    "src/research/hourly-adaptive-model.ts": "65bf37e08f3598f8dcedba944be81ca2223a832b0c0832aa40afb27aac48e648",
+    "src/research/hourly-price-setups.ts": "14c0a0c35d6b12a9b99e25d5a80d611960e6f48457e6097cff54f84583321f43",
+    "src/research/hourly-retry-simulator.ts": "239759778a583c623ca55636a9b53140aa9f9690eb1bbbac2d304117265f08aa",
+    "src/research/hourly-adaptive-study-main.ts": "9cdf86f64cbe96da82d615852cdf61e46ffe8892d602857605702c13308c36c4",
+    "src/research/hourly-adaptive-study-gates.ts": "e27cbedcca1d8cc18fbc9a0ad764d7116fd3fbf813f9a2abf2914b419abc5ba1",
+    "src/research/hourly-study-statistics.ts": "0a9b6437903c26845958748d18f4b43f3ad35749f616da924cd61252442c7a36",
+    "reports/distribution-instrument-rules-2026-09-07.json": "a89ee77c1a871c63266cde004776e7484ccdc81d544b7d32a81f56cb07d89cdf",
+    "package.json": "57b37eee487870483842e7af18ed1444bb9645a7d74abdd456c337c916ee2517",
+    "package-lock.json": "2315bada829d31ccb4d3970392ba56d73458d3219dda1ec98d8dda0d41893594"
+  },
+  "protocolSha256": "70a866fe364f2de0145115c3d68bdd4b7cd34c3b2407a51967d0bd7b56427eb3",
+  "dataSeal": {
+    "datasets": [
+      {
+        "directory": "/home/ec2-user/crypto_trade/reports/hourly-adaptive-study-2026-09-08/data-older-restored",
+        "datasetSha256": "6995137d4366500628885518de3908f663ab7584caba0a4fe9845f700ac3f36f",
+        "manifestSha256": "b49fc0c9fe648aec3a049605f1e5c79d6d0a917bcf93c40bd151f47b992e941b"
+      },
+      {
+        "directory": "/home/ec2-user/crypto_trade/reports/hourly-adaptive-study-2026-09-08/data-recent",
+        "datasetSha256": "802694ae936dd864681dee2278f027ea1732a91fd6b635f1b08371673abcb227",
+        "manifestSha256": "5a57cfcc6dc6cc352f708f3101d0e2026580c5faf7b6661509016feb6483ecb4"
+      }
+    ],
+    "normalizedBarsSha256": "b7cd4397ffebedec4791ac45a9028bcd38f8d906abfae8dbb3550dac671fcf58",
+    "normalizedFundingSha256": "1940ed6bf7cd6ed413c80035440d7df52453e263ffda110a75bbc7448e33a9ba",
+    "bars": 65760,
+    "fundingRows": 55572
+  },
+  "startedAtUtc": "2026-09-08T23:11:30.683Z"
+}

@@ -1,0 +1,28 @@
+{
+  "stage": "develop",
+  "completedAtUtc": "2026-09-08T23:11:48.383Z",
+  "artifacts": {
+    "develop-adaptive-recovery-24h-BTC.json": "e7941824ec17ed935462c704d529e79335927a538c0ace6f5190f183891a3621",
+    "develop-adaptive-recovery-24h-ETH.json": "1f670d2c45a5eca57085b34b4cc91bea3d2638a68df10207e57d1c9abc750bc0",
+    "develop-adaptive-recovery-4h-BTC.json": "67cea7893453d032bdc442d79452827c027e9861cb91285faf7f0e49109c92e4",
+    "develop-adaptive-recovery-4h-ETH.json": "d785d12c117292ddac7cd5fc6d3e72e8a01dd434691609e74598d36bff20ee58",
+    "develop-adaptive-trend-24h-BTC.json": "584c77da79e856d697dc7a10f955e6bf4db6f3a108589a5d0d73842688c37c8e",
+    "develop-adaptive-trend-24h-ETH.json": "15e14ca863a06458cf77c4e104c513187189d176e7e8577ccf0e6eb3391c40d6",
+    "develop-adaptive-trend-4h-BTC.json": "a0c904854a00f17fdfda432a9c8a5d05e0bad59e6745a6dd8d96bdba36a79b2e",
+    "develop-adaptive-trend-4h-ETH.json": "fd4c1c34b7b4f169ccdd5ac9acc986b83cab37ea4bf770661a4e97fdc08e75ca",
+    "develop-baselines.json": "0fae5a217a380598663b3f9d411ff694161ad263e097ca0934948cd39a337228",
+    "develop-channel-breakout-24h-BTC.json": "ee139c019e8634dc0e9b8ab40abcc9471372e69b4a56ba776ec08e483d815055",
+    "develop-channel-breakout-24h-ETH.json": "1a81c95b71c67b406e53f680e8f90a48605b7637556a0d9b994eaee4e7b15fc8",
+    "develop-portfolio.json": "d981b26a664c51da98c10b66048a3e7a622e69968c181a8e07319a066ccb7593",
+    "develop-signals-adaptive-recovery-24h.json": "6679bef063a3c0fd6ae3910bb9e59f8a85b3fefbc3c25d6bea0c8a398a4cff5a",
+    "develop-signals-adaptive-recovery-4h.json": "b740980d6e89b24efc8d67b1052df01b7020d96e3460ae6cfec6a8b90c8de724",
+    "develop-signals-adaptive-trend-24h.json": "fbdc0a090c802b6f51c31ad3bb7de7e90629ec67fd85a8e26f89407d2dc8921d",
+    "develop-signals-adaptive-trend-4h.json": "57b43336db27ce43991246cefa085b259cb3661ee5fb4202c61bd3f7fe474b2d",
+    "develop-signals-channel-breakout-24h.json": "236ef91a62d6a9ed0b829dbd77304c645bd8e1cf01650c976257c462295b44e2",
+    "develop-signals-trend-recovery-24h.json": "324b3df6b19b8186a9876b6e5fba5692bcbcfad632098426f9c99b562200a72e",
+    "develop-start.json": "1c886cf8fa1aa78792f7fe97e4e3441d045ba419cc6a1210ff4695f89f63facd",
+    "develop-trend-recovery-24h-BTC.json": "4901407020cbe9e27d84f7cb78575cc0a4fd5aa71136a4d01ad6dbf9d25d4d05",
+    "develop-trend-recovery-24h-ETH.json": "d2b1cb13959c7336ca85127a8f17f4003b289a68606e645bcd0330f6b8fd0dbe",
+    "selection.json": "6d9877f9c7cd8b9f772e803de4c6d3d1b518effaf0cdcd6991bcbb6b191dc3e5"
+  }
+}

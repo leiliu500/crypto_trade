@@ -312,6 +312,9 @@ export interface DashboardSnapshot {
   sessionRealizedPnl: number;
   sessionUnrealizedPnl: number;
   realizedSessionPnl: number;
+  realizedPnl24h: number | null;
+  realizedPnlMeasurement: "KNOWN" | "UNKNOWN" | "UNAVAILABLE";
+  rollingPnlDetails: import("../risk/rolling-pnl.js").RollingPnlSnapshot | null;
   realizedSessionBreakdown: DashboardSessionPnlBreakdown | null;
   latencyP95Ms: number | null;
   liveness: readonly LivenessCheck[];

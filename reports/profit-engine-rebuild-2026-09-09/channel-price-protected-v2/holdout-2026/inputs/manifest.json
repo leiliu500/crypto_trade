@@ -1,0 +1,60 @@
+{
+  "dataSha256": "ace97292b3baedaa2c8772b22066c1fc95750d7a21cd58908a88725bf6b9c78f",
+  "coverage": [
+    {
+      "symbol": "BTC/USD",
+      "missingWarmupOrTestBars": [],
+      "missingTestFunding": [
+        {
+          "fromMs": 1770206400000,
+          "toMsExclusive": 1770210000000,
+          "hours": 1
+        },
+        {
+          "fromMs": 1771005600000,
+          "toMsExclusive": 1771009200000,
+          "hours": 1
+        },
+        {
+          "fromMs": 1778306400000,
+          "toMsExclusive": 1778310000000,
+          "hours": 1
+        }
+      ]
+    },
+    {
+      "symbol": "ETH/USD",
+      "missingWarmupOrTestBars": [],
+      "missingTestFunding": [
+        {
+          "fromMs": 1770206400000,
+          "toMsExclusive": 1770210000000,
+          "hours": 1
+        },
+        {
+          "fromMs": 1771005600000,
+          "toMsExclusive": 1771009200000,
+          "hours": 1
+        },
+        {
+          "fromMs": 1778306400000,
+          "toMsExclusive": 1778310000000,
+          "hours": 1
+        }
+      ]
+    }
+  ],
+  "sourceHashes": {
+    "reports/hourly-adaptive-study-2026-09-08/data-older-restored/dataset.json": "6995137d4366500628885518de3908f663ab7584caba0a4fe9845f700ac3f36f",
+    "reports/hourly-adaptive-study-2026-09-08/data-older-restored/manifest.json": "b49fc0c9fe648aec3a049605f1e5c79d6d0a917bcf93c40bd151f47b992e941b",
+    "reports/hourly-adaptive-study-2026-09-08/data-recent/dataset.json": "802694ae936dd864681dee2278f027ea1732a91fd6b635f1b08371673abcb227",
+    "reports/hourly-adaptive-study-2026-09-08/data-recent/manifest.json": "5a57cfcc6dc6cc352f708f3101d0e2026580c5faf7b6661509016feb6483ecb4",
+    "reports/portfolio-funding-extension-2026-09-09/manifest.json": "f00471114323058c5003a36d24a88ecbe6b70810613b122fdfb5ba3195ed633d",
+    "reports/portfolio-funding-extension-2026-09-09/PF_XBTUSD.json.gz": "4b5de4ad486b93e4e3ad89715522d47108509cae977eef5d44a2ad8f25739219",
+    "reports/portfolio-funding-extension-2026-09-09/PF_XBTUSD.headers": "560f504366cd09bd197418ed896f3140139c0f87961bbe0977863898a41dfd2d",
+    "reports/portfolio-funding-extension-2026-09-09/PF_ETHUSD.json.gz": "4b60b533503a7eaf5ee466c43783dd8608a9dc0aabac6816703a376c214bd3e6",
+    "reports/portfolio-funding-extension-2026-09-09/PF_ETHUSD.headers": "2ecd0705811e12216d8fb346669bc030436b557c8118e8f7eaba53c6262b29a8"
+  },
+  "noMissingFundingFilled": true,
+  "timestampConvention": "ABSOLUTE_USD_PER_BASE_PER_HOUR;NORMALIZED_ROW_END_MINUS_ONE_HOUR_IS_ACCRUAL_START"
+}

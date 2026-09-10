@@ -2,13 +2,17 @@ import { randomUUID } from "node:crypto";
 import { EventEmitter } from "node:events";
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
-import type { MarketTrade } from "../core/market.js";
+import type { BookState, MarketTrade } from "../core/market.js";
 import type { BookDelta } from "../core/order-book.js";
 import { LocalOrderBook } from "../core/order-book.js";
 import { distributionBookReason } from "../distribution/market.js";
 import { DISTRIBUTION_SPEC } from "../distribution/spec.js";
+import { SYSTEMATIC_SPEC } from "../systematic/spec.js";
 import type { ExecutionPlan } from "../execution/planner.js";
 import type { PrivateOrderEvent } from "../execution/order-state.js";
+import { loadPaperFundingRates, newPaperFundingState, observePaperFundingFill, observePaperFundingRates,
+  paperFundingSnapshot, postPaperFunding, restorePaperFundingState, validatePaperFundingState,
+  type PaperFundingPosting, type PaperFundingRate, type PaperFundingSnapshot, type PaperFundingState } from "./paper-funding.js";
 import { VenueApiError, type OrderGateway, type VenueClient } from "../venue/client.js";
 import type {
   ActivitiesQuery, VenueAccount, VenueAccountConfiguration, VenueActivity, VenueApiResponse, VenueAsset,
@@ -32,11 +36,13 @@ export interface KrakenPaperBrokerConfig {
   restBaseUrl?: string;
   chartsBaseUrl?: string;
   stateFile?: string;
+  fundingEnabled?: boolean;
+  now?: () => number;
 }
 
 interface PaperBook { bids: Map<number, number>; asks: Map<number, number>; timestampMs: number; }
 interface PaperPosition { symbol: string; side: 1 | -1; qty: number; entryPx: number; }
-interface PaperOrder { plan: ExecutionPlan; remote: VenueOrder; queueAhead: number; }
+interface PaperOrder { plan: ExecutionPlan; remote: VenueOrder; queueAhead: number; arrivalAfterSequence?: bigint; }
 interface SerializedPaperOrder { plan: Omit<ExecutionPlan, "originatingSequence"> & { originatingSequence: string }; remote: VenueOrder; queueAhead: number; }
 export interface KrakenPaperHistoricalOrder { plan: ExecutionPlan; remote: VenueOrder; }
 export interface KrakenPaperHistory {
@@ -44,9 +50,13 @@ export interface KrakenPaperHistory {
   activities: readonly VenueActivity[];
   makerFeeBpsBySymbol: Readonly<Record<string, number>>;
   takerFeeBpsBySymbol: Readonly<Record<string, number>>;
+  funding?: { state: PaperFundingState; snapshot: KrakenPaperFundingSnapshot; priorHistoryFundingUnknown: boolean };
+}
+export interface KrakenPaperFundingSnapshot extends PaperFundingSnapshot {
+  priorHistoryFundingUnknown: boolean; lifetimeFundingAccountingKnown: boolean;
 }
 interface KrakenPaperState {
-  schemaVersion: 3;
+  schemaVersion: 3 | 4;
   initialEquity: number;
   productsBySymbol: Record<string, string>;
   savedAt: string;
@@ -56,10 +66,12 @@ interface KrakenPaperState {
   positions: PaperPosition[];
   orders: SerializedPaperOrder[];
   activities: VenueActivity[];
+  funding?: { state: PaperFundingState; priorHistoryFundingUnknown: boolean };
 }
 const KRAKEN_HTTP_TIMEOUT_MS = 10_000;
 const MAX_PAPER_ACTIVITIES = 10_000;
 const isDistributionOrder = (plan: ExecutionPlan): boolean => plan.policy?.id.startsWith("distribution-") ?? false;
+const isDelayedIoc = (plan: ExecutionPlan): boolean => isDistributionOrder(plan) || plan.systematic !== undefined;
 
 export class KrakenPaperTradeStream extends EventEmitter {
   private heartbeatTimer: NodeJS.Timeout | undefined;
@@ -87,13 +99,20 @@ export class KrakenPaperBroker implements VenueClient, OrderGateway {
   private cashEquity: number;
   private utcSessionDate: string;
   private utcSessionStartingCashEquity: number;
+  private fundingState: PaperFundingState | undefined;
+  private priorHistoryFundingUnknown = false;
+  private readonly now: () => number;
+  private fundingSnapshotCache: { state: PaperFundingState; snapshot: KrakenPaperFundingSnapshot } | undefined;
 
   public constructor(private readonly paperCfg: KrakenPaperBrokerConfig, fetcher: typeof fetch = fetch) {
     if (!(paperCfg.initialEquity > 0)) throw new Error("Kraken paper initial equity must be positive");
     this.paperFetcher = fetcher;
+    this.now = paperCfg.now ?? Date.now;
     this.cashEquity = paperCfg.initialEquity;
-    this.utcSessionDate = utcDate(Date.now());
+    this.utcSessionDate = utcDate(this.now());
     this.utcSessionStartingCashEquity = paperCfg.initialEquity;
+    if (paperCfg.fundingEnabled) this.fundingState = newPaperFundingState({ startedAtMs: this.now(),
+      productsBySymbol: paperCfg.productsBySymbol });
     this.restoreState();
   }
 
@@ -108,22 +127,25 @@ export class KrakenPaperBroker implements VenueClient, OrderGateway {
     applyLevels(book.asks, delta.asks);
     book.timestampMs = delta.exchangeTsMs;
     this.books.set(delta.symbol, book);
-    // Distributional research models an IOC arriving on the first fresh book
-    // after 250ms. Reusing the decision quote in a microtask would remove its
-    // adverse selection and nonfills. Older strategies retain their lifecycle.
+    // Research IOC orders arrive on a later fresh book after measured latency;
+    // a microtask fill at the decision quote would remove nonfills and adverse selection.
     for (const order of this.ordersById.values()) {
       if (order.plan.symbol !== delta.symbol || order.remote.status !== "new"
-        || order.plan.timeInForce !== "ioc" || !isDistributionOrder(order.plan)) continue;
+        || order.plan.timeInForce !== "ioc" || !isDelayedIoc(order.plan)) continue;
       if (!Number.isFinite(delta.receiveTsMs) || delta.receiveTsMs > order.plan.expiresMs) {
         this.cancelPaperOrder(order, Number.isFinite(delta.receiveTsMs) ? delta.receiveTsMs : undefined); continue;
       }
       if (update.duplicate) continue;
       if (!update.accepted || !update.state || distributionBookReason(update.state)
-        || delta.receiveTsMs < order.plan.createdMs
+        || delta.receiveTsMs < Math.max(priorAtMs, order.plan.createdMs)
         || delta.receiveTsMs - Math.max(priorAtMs, order.plan.createdMs) > DISTRIBUTION_SPEC.maximumQuoteGapMs) {
         this.cancelPaperOrder(order, delta.receiveTsMs); continue;
       }
-      if (delta.receiveTsMs >= order.plan.createdMs + 250) this.executeIoc(order, delta.receiveTsMs);
+      const latencyMs = order.plan.systematic ? SYSTEMATIC_SPEC.entryLatencyMs : 250;
+      if (delta.receiveTsMs >= order.plan.createdMs + latencyMs
+        && update.state.sequence > (order.arrivalAfterSequence ?? order.plan.originatingSequence)) {
+        this.executeIoc(order, delta.receiveTsMs, update.state);
+      }
     }
   }
 
@@ -142,14 +164,15 @@ export class KrakenPaperBroker implements VenueClient, OrderGateway {
         || (paperOrder.plan.side === -1 && trade.px > paperOrder.plan.limitPx)) paperOrder.queueAhead = 0;
       if (paperOrder.queueAhead > 0 || available <= 0) continue;
       const remaining = Number(paperOrder.remote.qty) - Number(paperOrder.remote.filled_qty);
-      this.applyExecution(paperOrder, Math.min(remaining, available), paperOrder.plan.limitPx);
+      this.applyExecution(paperOrder, Math.min(remaining, available), paperOrder.plan.limitPx,
+        this.fundingState ? trade.receiveTsMs : undefined);
     }
   }
 
   public async send(plan: ExecutionPlan): Promise<VenueOrder> {
     if (this.orderIdByClientId.has(plan.clientOrderId)) throw new VenueApiError("duplicate client order id", 400);
     this.validatePlan(plan);
-    const now = new Date().toISOString();
+    const now = new Date(this.now()).toISOString();
     const id = `kraken-paper-${randomUUID()}`;
     const remote: VenueOrder = {
       id, client_order_id: plan.clientOrderId, asset_id: this.paperCfg.productsBySymbol[plan.symbol] ?? plan.symbol,
@@ -161,14 +184,30 @@ export class KrakenPaperBroker implements VenueClient, OrderGateway {
     };
     const book = this.books.get(plan.symbol);
     const queueAhead = book ? (plan.side === 1 ? book.bids : book.asks).get(plan.limitPx) ?? 0 : 0;
-    const paperOrder = { plan, remote, queueAhead };
+    const paperOrder: PaperOrder = { plan, remote, queueAhead,
+      arrivalAfterSequence: this.distributionBooks.get(plan.symbol)?.snapshot().sequence ?? 0n };
     this.ordersById.set(id, paperOrder);
     this.orderIdByClientId.set(plan.clientOrderId, id);
     this.persistState();
     queueMicrotask(() => {
-      if (plan.timeInForce === "ioc" && paperOrder.remote.status === "new" && !isDistributionOrder(plan)) this.executeIoc(paperOrder);
+      try {
+        if (plan.timeInForce === "ioc" && paperOrder.remote.status === "new" && !isDelayedIoc(plan)) this.executeIoc(paperOrder);
+      } catch (error) { this.reportExecutionFailure(error, id); }
     });
     return cloneOrder(remote);
+  }
+
+  /** Event boundaries report failed simulations instead of letting an exception
+   * terminate the process. Cash and fill evidence are preserved by applyExecution's
+   * rollback. Cancellation is attempted only for an order with no recorded fill. */
+  public reportExecutionFailure(error: unknown, orderId?: string): void {
+    this.tradeStream.emit("streamError", error);
+    const order = orderId ? this.ordersById.get(orderId) : undefined;
+    if (!order || isTerminal(order.remote.status) || Number(order.remote.filled_qty) > 0) return;
+    try { this.cancelPaperOrder(order); }
+    catch (cancelError) {
+      this.tradeStream.emit("streamError", new Error(`PAPER_EXECUTION_RECOVERY_FAILED:${error instanceof Error ? error.message : String(error)}; cancellation: ${cancelError instanceof Error ? cancelError.message : String(cancelError)}`));
+    }
   }
 
   public async cancel(orderId: string): Promise<void> {
@@ -199,7 +238,7 @@ export class KrakenPaperBroker implements VenueClient, OrderGateway {
   }
 
   public async getClock(): Promise<VenueApiResponse<VenueClock>> {
-    const now = new Date().toISOString();
+    const now = new Date(this.now()).toISOString();
     return response({ timestamp: now, is_open: true, next_open: now, next_close: now });
   }
 
@@ -238,7 +277,7 @@ export class KrakenPaperBroker implements VenueClient, OrderGateway {
   }
 
   public async getPortfolioHistory(): Promise<VenueApiResponse<unknown>> {
-    if (this.rollUtcCashSession(Date.now())) this.persistState();
+    if (this.rollUtcCashSession(this.now())) this.persistState();
     return response({
       equity: [this.utcSessionStartingCashEquity, this.cashEquity],
       profit_loss: [0, this.cashEquity - this.utcSessionStartingCashEquity],
@@ -251,6 +290,7 @@ export class KrakenPaperBroker implements VenueClient, OrderGateway {
 
   /** Read-only durable history used to repair an empty telemetry database after a restart. */
   public history(): KrakenPaperHistory {
+    const snapshot = this.fundingSnapshot();
     return {
       orders: [...this.ordersById.values()].map(({ plan, remote }) => ({
         plan: clonePlan(plan), remote: cloneOrder(remote),
@@ -258,7 +298,69 @@ export class KrakenPaperBroker implements VenueClient, OrderGateway {
       activities: this.activities.map((activity) => ({ ...activity })),
       makerFeeBpsBySymbol: { ...this.paperCfg.makerFeeBpsBySymbol },
       takerFeeBpsBySymbol: { ...this.paperCfg.takerFeeBpsBySymbol },
+      ...(this.fundingState && snapshot ? { funding: { state: this.fundingState, snapshot,
+        priorHistoryFundingUnknown: this.priorHistoryFundingUnknown } } : {}),
     };
+  }
+
+  /** Funding evidence is separate from strict FILL activities. Legacy history
+   * remains unchanged; this model can only account from its declared epoch. */
+  public fundingSnapshot(asOfMs?: number): KrakenPaperFundingSnapshot | undefined {
+    if (!this.fundingState) return undefined;
+    const atMs = asOfMs ?? Math.max(this.now(), this.fundingState.lastObservedAtMs);
+    const cached = this.fundingSnapshotCache;
+    if (cached?.state === this.fundingState
+      && atMs >= cached.snapshot.asOfMs && atMs - cached.snapshot.asOfMs < 1_000
+      && Math.floor(atMs / 3_600_000) === Math.floor(cached.snapshot.asOfMs / 3_600_000)) return cached.snapshot;
+    const snapshot = paperFundingSnapshot(this.fundingState, atMs);
+    const result = freezeSnapshot({ ...snapshot, priorHistoryFundingUnknown: this.priorHistoryFundingUnknown,
+      lifetimeFundingAccountingKnown: snapshot.fundingAccountingKnown && !this.priorHistoryFundingUnknown });
+    this.fundingSnapshotCache = { state: this.fundingState, snapshot: result };
+    return result;
+  }
+
+  public fundingHistory(asOfMs?: number): KrakenPaperHistory["funding"] {
+    const snapshot = this.fundingSnapshot(asOfMs);
+    return this.fundingState && snapshot ? Object.freeze({ state: this.fundingState, snapshot,
+      priorHistoryFundingUnknown: this.priorHistoryFundingUnknown }) : undefined;
+  }
+
+  public applyFundingRates(rates: readonly PaperFundingRate[], observedAtMs?: number): PaperFundingPosting[] {
+    if (!this.fundingState) throw new Error("KRAKEN_PAPER_FUNDING_NOT_ENABLED");
+    const atMs = observedAtMs ?? Math.max(this.now(), this.fundingState.lastObservedAtMs);
+    const state = observePaperFundingRates(this.fundingState, rates, atMs);
+    return this.commitFunding(state, atMs);
+  }
+
+  public settleFunding(asOfMs?: number): PaperFundingPosting[] {
+    if (!this.fundingState) return [];
+    return this.commitFunding(this.fundingState, asOfMs ?? Math.max(this.now(), this.fundingState.lastObservedAtMs));
+  }
+
+  public async refreshFunding() {
+    if (!this.fundingState) throw new Error("KRAKEN_PAPER_FUNDING_NOT_ENABLED");
+    const data = await loadPaperFundingRates({ productsBySymbol: this.paperCfg.productsBySymbol,
+      fromMs: this.fundingState.config.startedAtMs }, { fetcher: this.paperFetcher, now: this.now });
+    const observedAtMs = Math.max(data.observedAtMs, this.now(), this.fundingState.lastObservedAtMs);
+    const postings = this.applyFundingRates(data.rates, observedAtMs);
+    return { postings, sources: data.sources, snapshot: this.fundingSnapshot(observedAtMs)! };
+  }
+
+  private commitFunding(observed: PaperFundingState, asOfMs: number): PaperFundingPosting[] {
+    const result = postPaperFunding(observed, asOfMs), oldState = this.fundingState, oldCash = this.cashEquity;
+    if (result.state === oldState && result.postings.length === 0) return [];
+    const oldSessionDate = this.utcSessionDate, oldSessionCash = this.utcSessionStartingCashEquity;
+    this.rollUtcCashSession(asOfMs);
+    this.fundingState = result.state;
+    this.fundingSnapshotCache = undefined;
+    this.cashEquity += result.postings.reduce((total, posting) => total + posting.cashDeltaUsd, 0);
+    try { this.persistState(); }
+    catch (error) {
+      this.fundingState = oldState; this.cashEquity = oldCash;
+      this.utcSessionDate = oldSessionDate; this.utcSessionStartingCashEquity = oldSessionCash; throw error;
+    }
+    for (const posting of result.postings) this.tradeStream.emit("funding", { ...posting });
+    return result.postings;
   }
 
   public async latestOrderbooks(symbols: readonly string[]): Promise<VenueApiResponse<{ orderbooks: Record<string, VenueOrderbook> }>> {
@@ -326,6 +428,12 @@ export class KrakenPaperBroker implements VenueClient, OrderGateway {
   }
 
   private validatePlan(plan: ExecutionPlan): void {
+    if (plan.systematic !== undefined && (plan.timeInForce !== "ioc" || plan.style !== "taker"
+      || !Number.isFinite(plan.createdMs) || !Number.isFinite(plan.expiresMs) || plan.createdMs < 0
+      || plan.expiresMs < plan.createdMs + SYSTEMATIC_SPEC.entryLatencyMs
+      || plan.expiresMs > plan.createdMs + SYSTEMATIC_SPEC.entryTtlMs)) {
+      throw new VenueApiError("invalid systematic paper arrival window", 400);
+    }
     if (isDistributionOrder(plan) && (!Number.isFinite(plan.createdMs) || !Number.isFinite(plan.expiresMs)
       || plan.createdMs < 0 || plan.expiresMs < plan.createdMs + 250
       || plan.expiresMs > plan.createdMs + DISTRIBUTION_SPEC.maximumQuoteAgeMs)) {
@@ -342,12 +450,16 @@ export class KrakenPaperBroker implements VenueClient, OrderGateway {
     if (!plan.reduceOnlyIntent && current) throw new VenueApiError("paper position already exists", 422);
   }
 
-  private executeIoc(paperOrder: PaperOrder, executionAtMs?: number): void {
+  private executeIoc(paperOrder: PaperOrder, executionAtMs?: number, acceptedBook?: BookState): void {
     const book = this.books.get(paperOrder.plan.symbol);
     if (!book) { this.cancelPaperOrder(paperOrder, executionAtMs); return; }
     let remaining = Number(paperOrder.remote.qty);
     if (paperOrder.plan.reduceOnlyIntent) remaining = Math.min(remaining, this.positions.get(paperOrder.plan.symbol)?.qty ?? 0);
-    const levels = sorted(paperOrder.plan.side === 1 ? book.asks : book.bids, paperOrder.plan.side === -1);
+    // A rejected duplicate can differ from its first payload. Research fills
+    // use only the validated snapshot, never raw levels from an ignored event.
+    const levels: Array<readonly [number, number]> = acceptedBook
+      ? (paperOrder.plan.side === 1 ? acceptedBook.asks : acceptedBook.bids).map(level => [level.px, level.qty] as const)
+      : sorted(paperOrder.plan.side === 1 ? book.asks : book.bids, paperOrder.plan.side === -1);
     let filled = 0, value = 0;
     for (const [price, quantity] of levels) {
       const protectedByLimit = paperOrder.plan.side === 1 ? price <= paperOrder.plan.limitPx : price >= paperOrder.plan.limitPx;
@@ -367,14 +479,24 @@ export class KrakenPaperBroker implements VenueClient, OrderGateway {
     const reducible = plan.reduceOnlyIntent ? oldPosition?.qty ?? 0 : requestedQty;
     const qty = Math.min(requestedQty, remainingOrder, reducible);
     if (!(qty > 0)) return;
+    const fillId = randomUUID(), filledAtMs = executionAtMs ?? this.now();
+    const observedAtMs = Math.max(this.now(), this.fundingState?.lastObservedAtMs ?? 0);
+    // Prepare funding before changing order, position or cash. One checkpoint
+    // commits the fill, its exact inventory consequence and any cash settlement.
+    const funding = this.fundingState ? postPaperFunding(observePaperFundingFill(this.fundingState,
+      { id: fillId, symbol: plan.symbol, occurredAtMs: filledAtMs, side: plan.side, qty }, observedAtMs), observedAtMs) : undefined;
+    const priorRemote = cloneOrder(paperOrder.remote), priorPosition = oldPosition ? { ...oldPosition } : undefined;
+    const priorCash = this.cashEquity, priorSessionDate = this.utcSessionDate;
+    const priorSessionCash = this.utcSessionStartingCashEquity, priorFunding = this.fundingState;
+    const removedActivity = this.activities.length >= MAX_PAPER_ACTIVITIES ? this.activities.at(-1) : undefined;
     const oldFilled = Number(paperOrder.remote.filled_qty);
     const totalFilled = oldFilled + qty;
     const oldAverage = Number(paperOrder.remote.filled_avg_price ?? 0);
     const average = (oldAverage * oldFilled + price * qty) / totalFilled;
     paperOrder.remote.filled_qty = String(totalFilled);
     paperOrder.remote.filled_avg_price = String(average);
-    paperOrder.remote.updated_at = new Date(executionAtMs ?? Date.now()).toISOString();
-    this.rollUtcCashSession(Date.parse(paperOrder.remote.updated_at));
+    paperOrder.remote.updated_at = new Date(filledAtMs).toISOString();
+    this.rollUtcCashSession(this.fundingState ? observedAtMs : filledAtMs);
     const final = totalFilled >= Number(paperOrder.remote.qty) - 1e-12;
     paperOrder.remote.status = final ? "filled" : "partially_filled";
     if (final) paperOrder.remote.filled_at = paperOrder.remote.updated_at;
@@ -393,21 +515,38 @@ export class KrakenPaperBroker implements VenueClient, OrderGateway {
       : this.paperCfg.takerFeeBpsBySymbol[plan.symbol] ?? 0;
     this.cashEquity -= qty * price * feeBps / 10_000;
     const positionQty = this.positions.get(plan.symbol)?.qty ?? 0;
-    this.activities.unshift({ id: randomUUID(), activity_type: "FILL", transaction_time: paperOrder.remote.updated_at,
+    this.activities.unshift({ id: fillId, activity_type: "FILL", transaction_time: paperOrder.remote.updated_at,
       symbol: plan.symbol, qty: String(qty), price: String(price), order_id: paperOrder.remote.id,
       fee_usd: String(qty * price * feeBps / 10_000) });
     if (this.activities.length > MAX_PAPER_ACTIVITIES) this.activities.length = MAX_PAPER_ACTIVITIES;
-    this.persistState();
+    if (funding) {
+      this.fundingState = funding.state;
+      this.cashEquity += funding.postings.reduce((total, posting) => total + posting.cashDeltaUsd, 0);
+      this.fundingSnapshotCache = undefined;
+    }
+    try { this.persistState(); }
+    catch (error) {
+      paperOrder.remote = priorRemote;
+      if (priorPosition) this.positions.set(plan.symbol, priorPosition); else this.positions.delete(plan.symbol);
+      this.cashEquity = priorCash; this.utcSessionDate = priorSessionDate;
+      this.utcSessionStartingCashEquity = priorSessionCash; this.fundingState = priorFunding;
+      this.fundingSnapshotCache = undefined; this.activities.shift();
+      if (removedActivity) this.activities.push(removedActivity);
+      throw error;
+    }
     this.tradeStream.emit("order", { ...this.privateEvent(paperOrder, final ? "fill" : "partial_fill", qty, price, positionQty),
       feeUsd: qty * price * feeBps / 10_000 });
+    for (const posting of funding?.postings ?? []) this.tradeStream.emit("funding", { ...posting });
   }
 
   private cancelPaperOrder(paperOrder: PaperOrder, executionAtMs?: number): void {
     if (isTerminal(paperOrder.remote.status)) return;
+    const priorRemote = cloneOrder(paperOrder.remote);
     paperOrder.remote.status = "canceled";
-    paperOrder.remote.updated_at = new Date(executionAtMs ?? Date.now()).toISOString();
+    paperOrder.remote.updated_at = new Date(executionAtMs ?? this.now()).toISOString();
     paperOrder.remote.canceled_at = paperOrder.remote.updated_at;
-    this.persistState();
+    try { this.persistState(); }
+    catch (error) { paperOrder.remote = priorRemote; throw error; }
     this.tradeStream.emit("order", this.privateEvent(paperOrder, "canceled", 0,
       Number(paperOrder.remote.filled_avg_price ?? 0), this.positions.get(paperOrder.plan.symbol)?.qty ?? 0));
   }
@@ -437,10 +576,19 @@ export class KrakenPaperBroker implements VenueClient, OrderGateway {
       this.orderIdByClientId.set(paperOrder.remote.client_order_id, paperOrder.remote.id);
     }
     this.activities.push(...state.activities.map((activity) => ({ ...activity })));
+    if (state.funding) {
+      this.fundingState = restorePaperFundingState(state.funding.state, this.now());
+      this.priorHistoryFundingUnknown = state.funding.priorHistoryFundingUnknown;
+    } else if (this.paperCfg.fundingEnabled) {
+      this.fundingState = newPaperFundingState({ startedAtMs: this.now(), productsBySymbol: this.paperCfg.productsBySymbol,
+        initialSignedQtyBySymbol: Object.fromEntries(state.positions.map(position => [position.symbol, position.side * position.qty])) });
+      this.priorHistoryFundingUnknown = state.positions.length > 0 || state.activities.length > 0
+        || state.cashEquity !== state.initialEquity;
+    }
 
     // Local maker orders cannot be simulated while the process is down. Keep
     // their history, but never assume that an unobserved resting order survived.
-    const restoredAt = new Date().toISOString();
+    const restoredAt = new Date(this.now()).toISOString();
     for (const order of this.ordersById.values()) {
       if (isTerminal(order.remote.status)) continue;
       order.remote.status = "canceled";
@@ -454,10 +602,10 @@ export class KrakenPaperBroker implements VenueClient, OrderGateway {
     const stateFile = this.paperCfg.stateFile;
     if (!stateFile) return;
     const state: KrakenPaperState = {
-      schemaVersion: 3,
+      schemaVersion: this.fundingState ? 4 : 3,
       initialEquity: this.paperCfg.initialEquity,
       productsBySymbol: sortedRecord(this.paperCfg.productsBySymbol),
-      savedAt: new Date().toISOString(),
+      savedAt: new Date(this.now()).toISOString(),
       cashEquity: this.cashEquity,
       utcSessionDate: this.utcSessionDate,
       utcSessionStartingCashEquity: this.utcSessionStartingCashEquity,
@@ -467,6 +615,8 @@ export class KrakenPaperBroker implements VenueClient, OrderGateway {
         remote: cloneOrder(remote), queueAhead,
       })),
       activities: this.activities.map((activity) => ({ ...activity })),
+      ...(this.fundingState ? { funding: { state: this.fundingState,
+        priorHistoryFundingUnknown: this.priorHistoryFundingUnknown } } : {}),
     };
     mkdirSync(dirname(stateFile), { recursive: true });
     const temporaryFile = `${stateFile}.${process.pid}.tmp`;
@@ -544,6 +694,13 @@ export async function loadKrakenFuturesInstruments(productsBySymbol: Readonly<Re
 }
 
 function response<T>(data: T): VenueApiResponse<T> { return { data, status: 200, requestId: `kraken-paper-${randomUUID()}` }; }
+function freezeSnapshot<T>(value: T): T {
+  if (value && typeof value === "object" && !Object.isFrozen(value)) {
+    for (const child of Object.values(value)) freezeSnapshot(child);
+    Object.freeze(value);
+  }
+  return value;
+}
 function cloneOrder(order: VenueOrder): VenueOrder { return { ...order }; }
 function clonePlan(plan: ExecutionPlan): ExecutionPlan {
   return {
@@ -575,7 +732,7 @@ function parseRestLevels(value: unknown, descending: boolean): Array<{ p: number
 function validatePaperState(raw: unknown, cfg: KrakenPaperBrokerConfig, stateFile: string): KrakenPaperState {
   const invalid = (reason: string): never => { throw new Error(`Invalid Kraken paper state in ${stateFile}: ${reason}`); };
   const state = isRecord(raw) ? raw : invalid("root must be an object");
-  if (state.schemaVersion !== 1 && state.schemaVersion !== 2 && state.schemaVersion !== 3) {
+  if (state.schemaVersion !== 1 && state.schemaVersion !== 2 && state.schemaVersion !== 3 && state.schemaVersion !== 4) {
     invalid(`unsupported schema version ${String(state.schemaVersion)}`);
   }
   if (state.initialEquity !== cfg.initialEquity) invalid("initial equity does not match KRAKEN_PAPER_INITIAL_EQUITY");
@@ -619,10 +776,36 @@ function validatePaperState(raw: unknown, cfg: KrakenPaperBrokerConfig, stateFil
   if (activityRecords.length > MAX_PAPER_ACTIVITIES || activityRecords.some((activity) => !isRecord(activity))) {
     invalid("activities are invalid or exceed the retention limit");
   }
-  const today = utcDate(Date.now());
+  const nowMs = (cfg.now ?? Date.now)();
+  let funding: KrakenPaperState["funding"];
+  if (state.schemaVersion === 4) {
+    const fundingRecord = isRecord(state.funding) ? state.funding : invalid("funding checkpoint must be an object");
+    if (typeof fundingRecord.priorHistoryFundingUnknown !== "boolean"
+      || !validatePaperFundingState(fundingRecord.state, nowMs)) invalid("funding checkpoint is invalid");
+    const fundingState = fundingRecord.state as PaperFundingState;
+    if (!sameRecord(fundingState.config.productsBySymbol, cfg.productsBySymbol)) invalid("funding products do not match configuration");
+    const snapshot = paperFundingSnapshot(fundingState, nowMs);
+    for (const row of snapshot.perSymbol) {
+      const position = positions.find(item => item.symbol === row.symbol);
+      const signedQty = position ? position.side * position.qty : 0;
+      if (Math.abs(row.signedBaseQty - signedQty) > 64 * Number.EPSILON * Math.max(1, Math.abs(signedQty)))
+        invalid("funding inventory does not match account positions");
+    }
+    const fundingFills = new Map(fundingState.events.flatMap(event => event.type === "FILL" ? [[event.fill.id, event.fill] as const] : []));
+    const ordersById = new Map(orders.map(order => [order.remote.id, order]));
+    for (const activity of activityRecords as VenueActivity[]) {
+      if (activity.activity_type !== "FILL" || Date.parse(activity.transaction_time ?? "") < fundingState.config.startedAtMs) continue;
+      const fill = fundingFills.get(activity.id), order = activity.order_id ? ordersById.get(activity.order_id) : undefined;
+      if (!fill || !order || fill.symbol !== activity.symbol || fill.side !== order.plan.side
+        || fill.qty !== Number(activity.qty) || fill.occurredAtMs !== Date.parse(activity.transaction_time ?? ""))
+        invalid("funding fill evidence does not match activities");
+    }
+    funding = { state: fundingState, priorHistoryFundingUnknown: fundingRecord.priorHistoryFundingUnknown as boolean };
+  } else if (state.funding !== undefined) invalid("funding requires schema version 4");
+  const today = utcDate(nowMs);
   let utcSessionDate = today;
   let utcSessionStartingCashEquity = cashEquity;
-  if (state.schemaVersion === 3) {
+  if (state.schemaVersion === 3 || state.schemaVersion === 4) {
     const sessionDate = state.utcSessionDate;
     const sessionStartingCashEquity = state.utcSessionStartingCashEquity;
     if (typeof sessionDate !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(sessionDate)
@@ -636,10 +819,10 @@ function validatePaperState(raw: unknown, cfg: KrakenPaperBrokerConfig, stateFil
       cfg.initialEquity, cashEquity, orders, activityRecords as VenueActivity[], cfg, Date.parse(`${today}T00:00:00.000Z`),
     ) ?? cashEquity;
   }
-  return { schemaVersion: 3, initialEquity: cfg.initialEquity, productsBySymbol: sortedRecord(cfg.productsBySymbol),
+  return { schemaVersion: funding ? 4 : 3, initialEquity: cfg.initialEquity, productsBySymbol: sortedRecord(cfg.productsBySymbol),
     savedAt: typeof state.savedAt === "string" ? state.savedAt : "", cashEquity,
     utcSessionDate, utcSessionStartingCashEquity,
-    positions, orders, activities: activityRecords as VenueActivity[] };
+    positions, orders, activities: activityRecords as VenueActivity[], ...(funding ? { funding } : {}) };
 }
 
 function replayUtcSessionStartingCashEquity(initialEquity: number, persistedCashEquity: number,

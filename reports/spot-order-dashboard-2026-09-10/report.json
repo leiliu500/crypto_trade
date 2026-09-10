@@ -1,0 +1,46 @@
+{
+  "passed": true,
+  "scope": "PAPER_ORDER_SUBMISSION_AND_MAIN_DASHBOARD",
+  "liveTradingEnabled": false,
+  "provenProfitable": false,
+  "testCount": 195,
+  "compiledLifecycleChecks": 22,
+  "futuresTradingSourceFilesPreserved": 82,
+  "exactImageVerification": true,
+  "actualSpotMigrationAndRestartVerified": true,
+  "desktopAndMobileBrowserVerified": true,
+  "dashboardProxyMatchesSpotStatus": true,
+  "spotAccount": {
+    "initialCashUsd": 100000,
+    "cashUsd": 100000,
+    "quantity": 0,
+    "entryCostUsd": 0,
+    "realizedNetUsd": 0,
+    "feesUsd": 0,
+    "receipts": []
+  },
+  "spotOrders": 0,
+  "entryReason": "NEXT_WEEK_ENTRY_WINDOW",
+  "nextPossibleEntryWindowUtc": {
+    "start": "2026-09-17T00:00:00Z",
+    "end": "2026-09-17T01:00:00Z",
+    "guaranteedEntry": false
+  },
+  "runtimeSha256": "7f98cc50ef5158dc075f6a172eeb4343cbce286c5a676debe2a17335dcc229da",
+  "images": [
+    {
+      "id": "sha256:f2c56ce778d47b1f2fef74636a27f277d92bd4aaca69b835ca9d2b51bfd92cda",
+      "tags": [
+        "crypto-trade-engine:spot-dashboard-v1"
+      ]
+    },
+    {
+      "id": "sha256:6b8b607debf4afa5054d1bac78cdd9086a8354b85494db73ab8b03864e43b8fe",
+      "tags": [
+        "crypto-spot-trend-paper:v2"
+      ]
+    }
+  ],
+  "independentFuturesContinuityAndProxyReviewPassed": true,
+  "independentReviewChecks": 23
+}

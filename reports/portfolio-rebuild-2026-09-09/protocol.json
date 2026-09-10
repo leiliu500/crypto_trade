@@ -1,0 +1,141 @@
+{
+  "protocol": {
+    "version": "btc-eth-persistent-target-study-v1",
+    "strategy": {
+      "version": "btc-eth-persistent-target-portfolio-v1",
+      "maximumGrossNotionalUsd": 12,
+      "trendLookbackDays": [
+        30,
+        90,
+        360
+      ],
+      "volatilityLookbackDays": 60,
+      "minimumDailyVolatility": 0.0001,
+      "signalClip": 1,
+      "decisionIntervalMs": 86400000,
+      "sameSideDeadbandFraction": 0.25,
+      "targetValidityMs": 172800000,
+      "targetExpiryAction": "FLATTEN_ON_FRESH_EXECUTABLE_QUOTES",
+      "maximumPendingOrders": 2,
+      "maximumQuoteAgeMs": 5000,
+      "targetInterpretation": "DIMENSIONLESS_TREND_AND_RELATIVE_INVERSE_VOLATILITY;NOT_EXPECTED_RETURN",
+      "sizing": "JOINT_FEASIBLE_LOT_ALLOCATION_UNDER_SHARED_12_USD_GROSS_CAP",
+      "objective": "SUM_SQUARED_USD_TRACKING_ERROR_DIVIDED_BY_12_PLUS_ESTIMATED_ADJUSTMENT_COST_USD"
+    },
+    "periods": {
+      "develop": {
+        "startMs": 1704067200000,
+        "endMs": 1735689600000
+      },
+      "confirm": {
+        "startMs": 1735689600000,
+        "endMs": 1767225600000
+      },
+      "test": {
+        "startMs": 1767225600000,
+        "endMs": 1785542400000
+      }
+    },
+    "policies": [
+      "multiscale-trend",
+      "sign-trend-90d",
+      "constant-btc",
+      "constant-eth",
+      "flat"
+    ],
+    "scenarios": [
+      {
+        "id": "base-source-plus-hour",
+        "delayHours": 1,
+        "feeBps": 5,
+        "slippageBps": 1.5,
+        "fundingShiftMs": 0,
+        "extraFundingBpsPerDay": 0
+      },
+      {
+        "id": "base-source-as-end",
+        "delayHours": 1,
+        "feeBps": 5,
+        "slippageBps": 1.5,
+        "fundingShiftMs": -3600000,
+        "extraFundingBpsPerDay": 0
+      },
+      {
+        "id": "stress-source-plus-hour",
+        "delayHours": 2,
+        "feeBps": 7.5,
+        "slippageBps": 3,
+        "fundingShiftMs": 0,
+        "extraFundingBpsPerDay": 1
+      },
+      {
+        "id": "stress-source-as-end",
+        "delayHours": 2,
+        "feeBps": 7.5,
+        "slippageBps": 3,
+        "fundingShiftMs": -3600000,
+        "extraFundingBpsPerDay": 1
+      }
+    ],
+    "candidate": "multiscale-trend",
+    "comparisonRule": "sign-trend-90d",
+    "priorExposure": "2024_AND_2025_PREVIOUSLY_STUDIED;2026_JAN_JUL_RESERVED;AUGUST_EXCLUDED",
+    "initialization": "361_CONSECUTIVE_COMPLETED_PAIRED_UTC_DAILY_CLOSES;NO_FITTED_LABEL_BANK",
+    "economics": "SIGNED_ARCHIVED_ABSOLUTE_FUNDING_CASH_FLOWS;ALL_FOUR_SCENARIOS_REPORTED",
+    "fundingTiming": "SOURCE_PLUS_HOUR_AND_SOURCE_AS_END_ARE_UNVERIFIED_SENSITIVITIES_NOT_PROVEN_BOUNDS",
+    "unavailableFunding": "ANY_MISSING_REQUIRED_RATE_DURING_EXPOSURE_MAKES_ACCOUNTING_UNKNOWN",
+    "execution": "MAX_ACTUAL_TARGET_AVAILABILITY_AND_DECISION_PLUS_DELAY;ONE_PHASE_PER_HOUR;REDUCTIONS_CONFIRMED_BEFORE_ADDITIONS",
+    "terminalPolicy": "REQUEST_FLAT_FROM_END_MINUS_48H;RETRY_UNTIL_END;UNRESOLVED_INVENTORY_IS_UNKNOWN",
+    "cap": "12_USD_SHARED_BTC_ETH_EXECUTABLE_GROSS_NOTIONAL_AT_ADJUSTMENT;MARK_DRIFT_REQUIRES_REDUCTION",
+    "baselineMeaning": "CONSTANT_BTC_ETH_ARE_CAPPED_CONSTANT_USD_TARGETS_NOT_LITERAL_FIXED_UNIT_BUY_AND_HOLD",
+    "utility": "NET_PNL_USD_MINUS_HALF_MAXIMUM_DRAWDOWN_USD",
+    "gates": {
+      "minimumPortfolioExposureHours": 2160,
+      "minimumPerAssetExposureHours": 720,
+      "minimumTargetCoverageFraction": 0.99,
+      "maximumDrawdownUsd": 3,
+      "maximumOneDayLossUsd": 1.2,
+      "positiveNetForPortfolioAndBothAssetsInEveryScenario": true,
+      "requireUtilityAboveFlatAndSignTrendInEveryScenario": true,
+      "passiveBenchmarks": "REPORT_SAME_COST_COMPARISONS;NOT_A_CLAIM_OF_PASSIVE_BENCHMARK_OUTPERFORMANCE",
+      "finalEvidence": "PAIRED_WEEKLY_95_PERCENT_LOWER_BOUND_ABOVE_ZERO_VS_FLAT_AND_SIGN_TREND_IN_ALL_SCENARIOS"
+    },
+    "noParameterSearch": true,
+    "realOrdersAllowed": false,
+    "automaticPromotion": false,
+    "limitation": "Historical candle execution and unresolved funding timing cannot certify actual venue fill profitability."
+  },
+  "sourceHashes": {
+    "src/portfolio/types.ts": "932cedcff32633cd3317106ba185d34e879a94fd426b36b196ff45a2c584a3da",
+    "src/portfolio/signals.ts": "66907f0868be89af33445d7041454ff960d018eb469af886b43224624f1f6293",
+    "src/portfolio/kernel.ts": "3c78b6202330409b9bd84bfb6d9938fd383162069a70c29eaee4f3115decf756",
+    "src/portfolio/replay.ts": "f2427846d07113ca44fcb58152ba4476009b0e55f5a44bf142cd07504eef6120",
+    "src/portfolio/protocol.ts": "f585d18b3a423a4bd6ca4380a355f5e7006dbec3649fd6ad43a7fea9125f951c",
+    "src/portfolio/study-main.ts": "4aa4260d397c091445464fcc5609f8f6264fe1027ef4bf76ba88ff7d590a7d4e",
+    "src/portfolio/shadow.ts": "b14fc376b6678424187232745d5b92dc867aac48f46af04b24046ce0a776e827",
+    "src/portfolio/live-main.ts": "365730955686861db5946bdca7680ffc7ae1615c8e577591e60182265467e155",
+    "src/research/hourly-data.ts": "0786552d6f700f8ad906a6f6db80b423560eef6f79dbb7403250ce1eeb260a91",
+    "src/research/hourly-study-statistics.ts": "0a9b6437903c26845958748d18f4b43f3ad35749f616da924cd61252442c7a36",
+    "src/core/order-book.ts": "030a9979f2f6a1f4d736e4b927202ffeb446fb1a5a25a18f0a427dc61624db63",
+    "src/core/market.ts": "8bbdd7973b1ba9ee15f30177273cc9b16df4c3c00bbad9547b25bfa20e512837",
+    "src/kraken/market-stream.ts": "42b3005e966c09c0b1fe12012569ac27062a16436a05c373fac28ad514df7d89",
+    "src/kraken/paper-broker.ts": "9c6f240965a31cb7121e11e757856a11ad967a727e2415390b31ff66d7199857",
+    "src/execution/planner.ts": "5954f3b7796fd7ba907e251de7f933e52680b8ab9abb69ba332ab961e87f3604",
+    "src/venue/client.ts": "14c9a6fad0580f43d21926983558f097e0255b33e5b56a2b297517bf2884be2e",
+    "package-lock.json": "2315bada829d31ccb4d3970392ba56d73458d3219dda1ec98d8dda0d41893594",
+    "reports/distribution-instrument-rules-2026-09-07.json": "a89ee77c1a871c63266cde004776e7484ccdc81d544b7d32a81f56cb07d89cdf"
+  },
+  "dataSeals": [
+    {
+      "directory": "/home/ec2-user/crypto_trade/reports/hourly-adaptive-study-2026-09-08/data-older-restored",
+      "datasetSha256": "6995137d4366500628885518de3908f663ab7584caba0a4fe9845f700ac3f36f",
+      "manifestSha256": "b49fc0c9fe648aec3a049605f1e5c79d6d0a917bcf93c40bd151f47b992e941b"
+    },
+    {
+      "directory": "/home/ec2-user/crypto_trade/reports/hourly-adaptive-study-2026-09-08/data-recent",
+      "datasetSha256": "802694ae936dd864681dee2278f027ea1732a91fd6b635f1b08371673abcb227",
+      "manifestSha256": "5a57cfcc6dc6cc352f708f3101d0e2026580c5faf7b6661509016feb6483ecb4"
+    }
+  ],
+  "createdAtUtc": "2026-09-09T01:52:11.775Z"
+}

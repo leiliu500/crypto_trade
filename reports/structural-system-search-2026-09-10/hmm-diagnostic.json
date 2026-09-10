@@ -1,0 +1,231 @@
+{
+  "version": "frozen-hmm-decision-degeneracy-diagnostic-v1",
+  "createdAtUtc": "2026-09-10T19:44:11.337820+00:00",
+  "specificCandidate": "eth-daily-frozen-three-state-hmm-log-growth-v1",
+  "modelChanged": false,
+  "retuned": false,
+  "originalInvention": false,
+  "tenThousandSystemsComplete": false,
+  "scope": "Diagnostic of the already frozen and replayed HMM instance; no statement that all HMM strategies fail.",
+  "training": {
+    "returnCount": 90,
+    "firstCloseDate": "2024-09-20",
+    "lastTrainingCloseDate": "2024-12-19",
+    "meanDailyLogReturn": 0.00319443934745443,
+    "model": {
+      "means": [
+        -0.0019334749143562389,
+        -0.0010952269731789106,
+        0.012077005620831301
+      ],
+      "variances": [
+        0.0008605413881816893,
+        0.0007756230572223775,
+        0.0017914353017960383
+      ],
+      "transition": [
+        [
+          0.7940938684866642,
+          0.10141807683834785,
+          0.1044880546749879
+        ],
+        [
+          0.09796239591682353,
+          0.7962152578796134,
+          0.10582234620356307
+        ],
+        [
+          0.11081593571232103,
+          0.11363256352579684,
+          0.7755515007618821
+        ]
+      ],
+      "initial": [
+        0.3333333333333333,
+        0.3333333333333333,
+        0.3333333333333333
+      ],
+      "trainingLogLikelihood": 178.28813009581248,
+      "filteredTrainingPosterior": [
+        0.3612073429301392,
+        0.24577533915692565,
+        0.39301731791293515
+      ]
+    }
+  },
+  "decisionMath": {
+    "horizonDays": 14,
+    "entryLogCostHurdle": 0.016600341364441277,
+    "pureStateExpectedLogReturns": [
+      0.02972619565077071,
+      0.031804527266314324,
+      0.05830718809719439
+    ],
+    "minimumAcrossEveryPossiblePosterior": 0.02972619565077071,
+    "allPureStatesAboveEntryHurdle": true,
+    "proof": "Let v=sum(k=1..14) A^k*mu. A filtered posterior alpha is in the probability simplex, so its forecast alpha*v is a convex combination of v components. Every component exceeds the entry hurdle. Therefore every valid posterior enters/retains ETH; exit at forecast<=0 is unreachable for this frozen fit.",
+    "estimatedStationaryStateProbability": [
+      0.33588002061484795,
+      0.34506613072794007,
+      0.31905384865720987
+    ],
+    "estimatedStationaryMeanDailyLogReturn": 0.0028258737955849976
+  },
+  "observed": {
+    "inputBars": 720,
+    "warmupCashTargets": 90,
+    "postWarmupBars": 630,
+    "postWarmupEthTargets": 630,
+    "postWarmupCashTargets": 0,
+    "minimumFilteredForecast": 0.034438546209554236,
+    "maximumFilteredForecast": 0.05830708071012303,
+    "savedTargetsExactlyMatched": true,
+    "targetTransitions": [
+      {
+        "barIndex": 90,
+        "barOpenDate": "2024-12-19",
+        "target": "ETH/USD"
+      }
+    ]
+  },
+  "passiveComparisons": [
+    {
+      "period": "development",
+      "scenario": "base",
+      "fullLedgerExactlyEqual": true,
+      "hmmNetPnlUsd": -291.73121088652806,
+      "ethPassiveNetPnlUsd": -291.73121088652806,
+      "closedEpisodes": 1
+    },
+    {
+      "period": "development",
+      "scenario": "cost",
+      "fullLedgerExactlyEqual": true,
+      "hmmNetPnlUsd": -295.54639428495284,
+      "ethPassiveNetPnlUsd": -295.54639428495284,
+      "closedEpisodes": 1
+    },
+    {
+      "period": "development",
+      "scenario": "delay",
+      "fullLedgerExactlyEqual": true,
+      "hmmNetPnlUsd": -322.159312042746,
+      "ethPassiveNetPnlUsd": -322.159312042746,
+      "closedEpisodes": 1
+    },
+    {
+      "period": "development",
+      "scenario": "combined",
+      "fullLedgerExactlyEqual": true,
+      "hmmNetPnlUsd": -325.808977961251,
+      "ethPassiveNetPnlUsd": -325.808977961251,
+      "closedEpisodes": 1
+    },
+    {
+      "period": "later_2025",
+      "scenario": "base",
+      "fullLedgerExactlyEqual": true,
+      "hmmNetPnlUsd": 135.2894212280189,
+      "ethPassiveNetPnlUsd": 135.2894212280189,
+      "closedEpisodes": 1
+    },
+    {
+      "period": "later_2025",
+      "scenario": "cost",
+      "fullLedgerExactlyEqual": true,
+      "hmmNetPnlUsd": 129.17739068048832,
+      "ethPassiveNetPnlUsd": 129.17739068048832,
+      "closedEpisodes": 1
+    },
+    {
+      "period": "later_2025",
+      "scenario": "delay",
+      "fullLedgerExactlyEqual": true,
+      "hmmNetPnlUsd": 126.15328701780527,
+      "ethPassiveNetPnlUsd": 126.15328701780527,
+      "closedEpisodes": 1
+    },
+    {
+      "period": "later_2025",
+      "scenario": "combined",
+      "fullLedgerExactlyEqual": true,
+      "hmmNetPnlUsd": 120.08811139338832,
+      "ethPassiveNetPnlUsd": 120.08811139338832,
+      "closedEpisodes": 1
+    },
+    {
+      "period": "recent_2026",
+      "scenario": "base",
+      "fullLedgerExactlyEqual": true,
+      "hmmNetPnlUsd": -223.00078580831905,
+      "ethPassiveNetPnlUsd": -223.00078580831905,
+      "closedEpisodes": 1
+    },
+    {
+      "period": "recent_2026",
+      "scenario": "cost",
+      "fullLedgerExactlyEqual": true,
+      "hmmNetPnlUsd": -227.18392492790372,
+      "ethPassiveNetPnlUsd": -227.18392492790372,
+      "closedEpisodes": 1
+    },
+    {
+      "period": "recent_2026",
+      "scenario": "delay",
+      "fullLedgerExactlyEqual": true,
+      "hmmNetPnlUsd": -223.3636326922915,
+      "ethPassiveNetPnlUsd": -223.3636326922915,
+      "closedEpisodes": 1
+    },
+    {
+      "period": "recent_2026",
+      "scenario": "combined",
+      "fullLedgerExactlyEqual": true,
+      "hmmNetPnlUsd": -227.54456524672605,
+      "ethPassiveNetPnlUsd": -227.54456524672605,
+      "closedEpisodes": 1
+    },
+    {
+      "period": "continuous",
+      "scenario": "base",
+      "fullLedgerExactlyEqual": true,
+      "hmmNetPnlUsd": -296.88360362657295,
+      "ethPassiveNetPnlUsd": -296.88360362657295,
+      "closedEpisodes": 1
+    },
+    {
+      "period": "continuous",
+      "scenario": "cost",
+      "fullLedgerExactlyEqual": true,
+      "hmmNetPnlUsd": -300.6689503765283,
+      "ethPassiveNetPnlUsd": -300.6689503765283,
+      "closedEpisodes": 1
+    },
+    {
+      "period": "continuous",
+      "scenario": "delay",
+      "fullLedgerExactlyEqual": true,
+      "hmmNetPnlUsd": -327.09035177092665,
+      "ethPassiveNetPnlUsd": -327.09035177092665,
+      "closedEpisodes": 1
+    },
+    {
+      "period": "continuous",
+      "scenario": "combined",
+      "fullLedgerExactlyEqual": true,
+      "hmmNetPnlUsd": -330.7114745764211,
+      "ethPassiveNetPnlUsd": -330.7114745764211,
+      "closedEpisodes": 1
+    }
+  ],
+  "behaviorallyDifferentFromPassiveAfterWarmup": false,
+  "distinctMechanismDoesNotImplyDistinctDecisionBehavior": true,
+  "profitabilityEstablished": false,
+  "sourceSha256": {
+    "reports/structural-system-search-2026-09-10/hmm.py": "56837987000dd71be110fdf98e5e80443ccd24ef68dee5cb653e4bdd38bcc6d4",
+    "reports/structural-system-search-2026-09-10/hmm-spec.json": "9512a93b664d90145a34928d32a8058e0ec08b554b3c04243fead757a9ed4b3b",
+    "reports/parallel-strategy-study-2026-09-10/data/dataset.json": "951499efbfe353842f55b78b94e7d0fe1ba642afa2867f077810835f2303a45e",
+    "reports/structural-system-search-2026-09-10/prototype-screen/targets.json": "17bef715c8d03ba86af228f199fc7e26d92c9a8cd65fb49b5c84102295f955ba",
+    "reports/structural-system-search-2026-09-10/prototype-screen/full-ledgers.json": "36e1d38fabc7be0b41efb383c5d53c109d37e835f1f4bc30e133390027d307c6"
+  }
+}

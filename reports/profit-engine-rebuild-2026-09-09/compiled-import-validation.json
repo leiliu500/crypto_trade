@@ -1,0 +1,12 @@
+{
+  "verifiedAtUtc": "2026-09-09T21:56:54.527075+00:00",
+  "imageId": "sha256:4e5d6e8ecd4e816fdcb550caa11c20ff9172d0aa580ed99deaf4bccf8bca0c1a",
+  "command": "node --test --test-concurrency=1 dist/test/distribution-risk-training.test.js",
+  "network": "none",
+  "accountVolumeMounted": false,
+  "passed": 9,
+  "failed": 0,
+  "durationMs": 4593.725488,
+  "brokerOrdersSubmitted": 0,
+  "deployed": false
+}

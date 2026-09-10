@@ -1,0 +1,386 @@
+{
+  "schemaVersion": 1,
+  "auditedAtUtc": "2026-09-09T05:16:51.379Z",
+  "status": "PASSED",
+  "scope": "INDEPENDENT_FUNDING_ARITHMETIC_AND_ARTIFACT_AUDIT;NOT_STRATEGY_PERFORMANCE",
+  "auditor": {
+    "path": "/tmp/audit-carry-funding-study.mjs",
+    "sha256": "720e247e4873a9acc2b5b5872ae2ad8fd21f1dfbdd027c32719539561a18d1a9",
+    "method": "No study implementation imports. Independently reconstruct all 48 cohorts using source-time ranges and compensated summation; recompute all four asset/year summaries. Parse only funding arrays from original input bytes."
+  },
+  "artifacts": [
+    {
+      "path": "reports/carry-funding-model-development-2026-09-09/registration.json",
+      "sha256": "212650a7173a6835b0e97cc7f6045586e9a8b5c054f8e24fae7017fe48b93cd6"
+    },
+    {
+      "path": "reports/carry-funding-model-development-2026-09-09/report.json",
+      "sha256": "664770cd5d6928d07c984e58ac80fffb3c6e8a6217b023690c6e0bd604eb2c27"
+    },
+    {
+      "path": "reports/carry-funding-model-development-2026-09-09/integrity.json",
+      "sha256": "10c1e2d6f5d4fa8f07b01f6c8489edb938b00581850d0274233f280c760ed27a"
+    },
+    {
+      "path": "reports/carry-funding-model-development-2026-09-09/README.md",
+      "sha256": "4b30544b583f65bbe6e9ff05e5d88f3e2f4719e618fcb1fb5831f749bfad9a2d"
+    }
+  ],
+  "sourceChecks": [
+    {
+      "path": "docs/FUNDING_ECONOMIC_PROTOCOL.md",
+      "sha256": "21c082adb28c2d9c6db81ed9e8de561b8ea0ab234b8b1fe6ab43eaf3b2701388",
+      "actualSha256": "21c082adb28c2d9c6db81ed9e8de561b8ea0ab234b8b1fe6ab43eaf3b2701388"
+    },
+    {
+      "path": "src/carry/funding-model.ts",
+      "sha256": "82f57b69ce484021b7c17c475f1ad79d8b71e78d83f5868eced9bd5ef90720c3",
+      "actualSha256": "82f57b69ce484021b7c17c475f1ad79d8b71e78d83f5868eced9bd5ef90720c3"
+    },
+    {
+      "path": "src/carry/funding-study-main.ts",
+      "sha256": "fcfa09e79f2424ec24c8b1305bd26978d5485fc9c0440e371ba8450d5eba2634",
+      "actualSha256": "fcfa09e79f2424ec24c8b1305bd26978d5485fc9c0440e371ba8450d5eba2634"
+    },
+    {
+      "path": "test/carry-funding-model.test.ts",
+      "sha256": "bbfb9be82b88a705f6ff29944e4aaa47f1d63a5c505ab678fb503f0a8a7e1c13",
+      "actualSha256": "bbfb9be82b88a705f6ff29944e4aaa47f1d63a5c505ab678fb503f0a8a7e1c13"
+    }
+  ],
+  "inputChecks": [
+    {
+      "path": "reports/hourly-adaptive-study-2026-09-08/data-older-restored/dataset.json",
+      "sha256": "6995137d4366500628885518de3908f663ab7584caba0a4fe9845f700ac3f36f",
+      "actualSha256": "6995137d4366500628885518de3908f663ab7584caba0a4fe9845f700ac3f36f",
+      "bytes": 4332365,
+      "retainedPermittedFundingRows": 17520,
+      "parsing": "ONLY_FUNDING_ARRAY_DECODED;PRICE_ARRAYS_NOT_PARSED"
+    },
+    {
+      "path": "reports/hourly-adaptive-study-2026-09-08/data-recent/dataset.json",
+      "sha256": "802694ae936dd864681dee2278f027ea1732a91fd6b635f1b08371673abcb227",
+      "actualSha256": "802694ae936dd864681dee2278f027ea1732a91fd6b635f1b08371673abcb227",
+      "bytes": 9907083,
+      "retainedPermittedFundingRows": 36562,
+      "parsing": "ONLY_FUNDING_ARRAY_DECODED;PRICE_ARRAYS_NOT_PARSED"
+    }
+  ],
+  "normalizedFundingSha256": "6af88ffc73d83f684546c9ff03ef3756a27e429edd4ed9c66602c60d3f5d3c9f",
+  "normalizedFundingRows": 52594,
+  "sourceTimeRange": {
+    "startInclusive": 1672531200000,
+    "endExclusive": 1767225600000
+  },
+  "coverage": [
+    {
+      "symbol": "BTC/USD",
+      "sourceYear": 2023,
+      "expectedHours": 8760,
+      "observedHours": 8760,
+      "missingSettlementTimesMs": []
+    },
+    {
+      "symbol": "BTC/USD",
+      "sourceYear": 2024,
+      "expectedHours": 8784,
+      "observedHours": 8784,
+      "missingSettlementTimesMs": []
+    },
+    {
+      "symbol": "BTC/USD",
+      "sourceYear": 2025,
+      "expectedHours": 8760,
+      "observedHours": 8753,
+      "missingSettlementTimesMs": [
+        1752188400000,
+        1756616400000,
+        1762016400000,
+        1762020000000,
+        1762059600000,
+        1763532000000,
+        1764842400000
+      ]
+    },
+    {
+      "symbol": "ETH/USD",
+      "sourceYear": 2023,
+      "expectedHours": 8760,
+      "observedHours": 8760,
+      "missingSettlementTimesMs": []
+    },
+    {
+      "symbol": "ETH/USD",
+      "sourceYear": 2024,
+      "expectedHours": 8784,
+      "observedHours": 8784,
+      "missingSettlementTimesMs": []
+    },
+    {
+      "symbol": "ETH/USD",
+      "sourceYear": 2025,
+      "expectedHours": 8760,
+      "observedHours": 8753,
+      "missingSettlementTimesMs": [
+        1752188400000,
+        1756616400000,
+        1762016400000,
+        1762020000000,
+        1762059600000,
+        1763532000000,
+        1764842400000
+      ]
+    }
+  ],
+  "comparisons": [
+    {
+      "symbol": "BTC/USD",
+      "year": 2024,
+      "matchedMonths": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "unknownTargetMonths": [],
+      "unknownHistoryMonths": [],
+      "maeUsdPerBase": {
+        "adaptive": 641.1197037544318,
+        "zero": 948.5965819225121,
+        "last": 825.7188601161456,
+        "mean30d": 637.5239052335263
+      },
+      "conservativeViolations": [
+        {
+          "month": 8,
+          "shortfallUsdPerBase": 119.45802640269861
+        }
+      ]
+    },
+    {
+      "symbol": "BTC/USD",
+      "year": 2025,
+      "matchedMonths": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "unknownTargetMonths": [
+        7,
+        8,
+        11,
+        12
+      ],
+      "unknownHistoryMonths": [
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "maeUsdPerBase": {
+        "adaptive": 286.2272139392729,
+        "zero": 543.954978059686,
+        "last": 396.90607240310874,
+        "mean30d": 347.7963465393805
+      },
+      "conservativeViolations": [
+        {
+          "month": 3,
+          "shortfallUsdPerBase": 21.221807024263455
+        }
+      ]
+    },
+    {
+      "symbol": "ETH/USD",
+      "year": 2024,
+      "matchedMonths": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "unknownTargetMonths": [],
+      "unknownHistoryMonths": [],
+      "maeUsdPerBase": {
+        "adaptive": 30.49836688784337,
+        "zero": 42.616446552443,
+        "last": 45.45185719044692,
+        "mean30d": 30.12206861640385
+      },
+      "conservativeViolations": [
+        {
+          "month": 8,
+          "shortfallUsdPerBase": 13.198219204554578
+        }
+      ]
+    },
+    {
+      "symbol": "ETH/USD",
+      "year": 2025,
+      "matchedMonths": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "unknownTargetMonths": [
+        7,
+        8,
+        11,
+        12
+      ],
+      "unknownHistoryMonths": [
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "maeUsdPerBase": {
+        "adaptive": 10.958940278598101,
+        "zero": 7.277911656434888,
+        "last": 14.307107261818691,
+        "mean30d": 13.77549284534008
+      },
+      "conservativeViolations": [
+        {
+          "month": 2,
+          "shortfallUsdPerBase": 14.02911413217652
+        },
+        {
+          "month": 3,
+          "shortfallUsdPerBase": 3.9738143303196094
+        }
+      ]
+    }
+  ],
+  "numericVerification": {
+    "cohorts": 48,
+    "numericChecks": 839,
+    "maximumAbsoluteDifference": 8.149072527885437e-10,
+    "maximumRelativeDifference": 8.035614327632528e-15,
+    "tolerance": "1e-8 absolute + 1e-12 relative"
+  },
+  "checks": [
+    {
+      "label": "source:docs/FUNDING_ECONOMIC_PROTOCOL.md",
+      "passed": true
+    },
+    {
+      "label": "source:src/carry/funding-model.ts",
+      "passed": true
+    },
+    {
+      "label": "source:src/carry/funding-study-main.ts",
+      "passed": true
+    },
+    {
+      "label": "source:test/carry-funding-model.test.ts",
+      "passed": true
+    },
+    {
+      "label": "registered_before_result",
+      "passed": true
+    },
+    {
+      "label": "integrity_after_result",
+      "passed": true
+    },
+    {
+      "label": "integrity_source_unchanged",
+      "passed": true
+    },
+    {
+      "label": "report_hash",
+      "passed": true
+    },
+    {
+      "label": "protocol_is_frozen_document",
+      "passed": true
+    },
+    {
+      "label": "registered_years",
+      "passed": true
+    },
+    {
+      "label": "publication_lag",
+      "passed": true
+    },
+    {
+      "label": "input:reports/hourly-adaptive-study-2026-09-08/data-older-restored/dataset.json",
+      "passed": true
+    },
+    {
+      "label": "input:reports/hourly-adaptive-study-2026-09-08/data-recent/dataset.json",
+      "passed": true
+    },
+    {
+      "label": "normalized_rows",
+      "passed": true,
+      "details": {
+        "actual": 52594
+      }
+    },
+    {
+      "label": "cross_file_duplicates",
+      "passed": true,
+      "details": {
+        "actual": 1488
+      }
+    },
+    {
+      "label": "normalized_hash",
+      "passed": true
+    },
+    {
+      "label": "input_hashes_in_report",
+      "passed": true
+    },
+    {
+      "label": "complete_calendar_cohorts",
+      "passed": true
+    },
+    {
+      "label": "four_asset_year_summaries",
+      "passed": true
+    },
+    {
+      "label": "profitability_and_activation_disabled",
+      "passed": true
+    },
+    {
+      "label": "README_consistent",
+      "passed": true
+    }
+  ],
+  "discrepancies": [],
+  "limitations": [
+    "Registration order is supported by saved timestamps and inspected runner ordering; no externally signed receipt or fsync durability attestation.",
+    "Checks cover declared source/data seals, not a hermetic runtime/environment seal.",
+    "2023–2025 data are development; the historical publication lag is assumed.",
+    "Only funding cash is evaluated; no paired price data or strategy return computation.",
+    "No 2026 accrual-period rows retained and no price arrays parsed by this audit."
+  ]
+}

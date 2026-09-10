@@ -1,0 +1,41 @@
+{
+  "candidate": "causal_ou_residual_reversion",
+  "hypothesis": "A long-lived trend can contain temporary negative price dislocations. Buy only when a causal autoregression of the detrended log-price residual forecasts enough reversion to cover stressed roundtrip costs; reject collapsing or non-mean-reverting regimes.",
+  "instruments": ["BTC/USD", "ETH/USD"],
+  "position_domain": "funded spot long or cash",
+  "signal_frequency": "completed daily candles only",
+  "execution": "Root common evaluator: next available daily open with adverse execution price and fees. Signals never use the future open.",
+  "mathematics": {
+    "trend": "Causal exponentially weighted moving average of log close, alpha = 2 / (trend_span + 1).",
+    "residual": "r_t = log(close_t) - EMA_t; every past residual uses only its own available history.",
+    "fit": "Ordinary least squares r_j = a + phi * r_(j-1) + epsilon_j over a fixed trailing fit window.",
+    "equilibrium": "mu = a / (1 - phi)",
+    "stationary_scale": "sqrt(unbiased innovation variance / (1 - phi^2))",
+    "half_life": "-log(2) / log(phi)",
+    "entry_z": "(r_t - mu) / stationary_scale <= -entry_z",
+    "gross_forecast": "(mu - r_t) * (1 - phi^max_holding_days) + min(0, (EMA_t - EMA_(t-20)) / 20) * max_holding_days",
+    "cost_hurdle": "gross_forecast >= edge_multiple * (log(1.01 / 0.99) + log(1.001 / 0.999)); the same exact log-cost hurdle for 100-bps fees and 10-bps slippage per side applies to every execution-cost scenario.",
+    "regime": "0.2 < phi < 0.98, configured half-life bounds, positive finite innovation variance, and the 20-day log-trend change above the configured floor.",
+    "exit": "At a completed close, leave when residual z >= -0.1, regime/fit becomes invalid, maximum holding days elapse, or log return from the signal reference close <= -max(0.04, 2.5 * entry_stationary_scale)."
+  },
+  "risk": {
+    "allocation": "One global long position. When flat and both instruments qualify, choose the highest forecast gross return divided by stationary residual scale; ties use symbol order. Hold that instrument until an explicit exit.",
+    "max_portfolio_entry_notional_usd": 1000,
+    "initial_cash_usd": 10000,
+    "leverage": 1,
+    "intraday_stop_assumption": "None. Exits are evaluated on closed candles and execute on a later open, so overnight gaps and delayed exits remain possible.",
+    "warmup": "At least max(trend_span, fit_window + 1, 21) observations. EMA begins at the first observed log close."
+  },
+  "variants": [
+    {"name": "balanced", "trend_span": 120, "fit_window": 60, "entry_z": 1.3, "max_holding_days": 30, "min_half_life": 1.5, "max_half_life": 30, "edge_multiple": 1.5, "trend_floor_20d": -0.05},
+    {"name": "fast", "trend_span": 90, "fit_window": 45, "entry_z": 1.15, "max_holding_days": 21, "min_half_life": 1.5, "max_half_life": 20, "edge_multiple": 1.35, "trend_floor_20d": -0.05},
+    {"name": "patient", "trend_span": 150, "fit_window": 90, "entry_z": 1.5, "max_holding_days": 42, "min_half_life": 1.5, "max_half_life": 35, "edge_multiple": 1.75, "trend_floor_20d": -0.05},
+    {"name": "rising_trend", "trend_span": 120, "fit_window": 60, "entry_z": 1.3, "max_holding_days": 30, "min_half_life": 1.5, "max_half_life": 30, "edge_multiple": 1.5, "trend_floor_20d": 0.0}
+  ],
+  "selection": {
+    "permitted_period": "2025-01-01 inclusive through 2025-07-01 exclusive",
+    "objective": "Highest development stress net profit minus 0.5 times maximum dollar drawdown, with root-defined activity eligibility.",
+    "trial_count": 4,
+    "future_outcomes": "No validation or final-period outcomes inspected during model design or selection. Historical periods have been reused in older research and are not claimed to be virgin holdouts."
+  }
+}

@@ -16,25 +16,40 @@ export function recoverPolicyPositions(history: KrakenPaperHistory, remote: read
     const entry = history.orders.filter((o) => o.plan.symbol.replace(/[^A-Z0-9]/gi, "").toUpperCase() === symbol
       && !o.plan.reduceOnlyIntent && Number(o.remote.filled_qty) > 0)
       .sort((a, b) => Date.parse(b.remote.created_at) - Date.parse(a.remote.created_at))[0];
-    if (!entry?.plan.policy || entry.plan.side !== side || !(qty > 0) || !(entryPx > 0)
+    if (!entry || (!entry.plan.policy && entry.plan.systematic === undefined) || entry.plan.side !== side || !(qty > 0) || !(entryPx > 0)
       || Math.abs(Number(entry.remote.filled_avg_price) - entryPx) > Math.max(1e-8, entryPx * 1e-6)) continue;
     const previousIndex = result.findIndex((s) => s.symbol === entry.plan.symbol && s.side === side
       && Math.abs(s.entryPx - entryPx) <= Math.max(1e-8, entryPx * 1e-6));
-    if (previousIndex >= 0 && result[previousIndex]!.policy) continue;
-    const openedMs = Date.parse(entry.remote.filled_at ?? entry.remote.created_at);
+    const previous = previousIndex >= 0 ? result[previousIndex] : undefined;
+    const sameSystematicLifecycle = entry.plan.systematic !== undefined && previous?.systematic !== undefined
+      && previous.systematic?.signalId === entry.plan.systematic?.signalId
+      && Math.abs(previous.qty - qty) < 1e-8 && Math.abs((previous.ledger?.remainingQty ?? NaN) - qty) < 1e-8;
+    if (sameSystematicLifecycle || (entry.plan.systematic === undefined && previous?.policy)) continue;
+    // A partially filled IOC is canceled with no filled_at. Its observed first
+    // fill, not the process wall clock at order creation, starts the holding age.
+    const entryFillTimes = history.activities.filter(activity => activity.order_id === entry.remote.id)
+      .map(activity => Date.parse(activity.transaction_time ?? "")).filter(Number.isFinite);
+    const openedMs = entryFillTimes.length ? Math.min(...entryFillTimes)
+      : Date.parse(entry.remote.filled_at ?? entry.remote.created_at);
     if (!Number.isFinite(openedMs)) continue;
-    const initialRiskPx = entry.plan.risk.maximumLossPerUnit;
+    const systematicStop = entryPx * Number(entry.plan.systematic?.stopBps) / 10_000;
+    const initialRiskPx = entry.plan.systematic !== undefined
+      ? Number.isFinite(systematicStop) && systematicStop > 0 && systematicStop < entryPx
+        ? systematicStop : entryPx * .01
+      : entry.plan.risk.maximumLossPerUnit;
     const restored: Position = { symbol: entry.plan.symbol, side, qty, entryPx, openedMs, initialRiskPx,
       roundTripCostPx: entryPx * entry.plan.expectedCost.roundTripBps / 10_000,
-      mfePx: 0, maePx: 0, floorPx: -entryPx * (findPolicy(entry.plan.policy.id)?.stopLossBps ?? 0) / 10_000,
+      mfePx: 0, maePx: 0, floorPx: entry.plan.systematic !== undefined ? -initialRiskPx
+        : -entryPx * (findPolicy(entry.plan.policy!.id)?.stopLossBps ?? 0) / 10_000,
       breakEvenArmed: false, phase: "OPEN", executionPath: "TAKER_TAKER",
-      policy: { ...entry.plan.policy },
+      ...(entry.plan.policy ? { policy: { ...entry.plan.policy } } : {}),
+      ...(entry.plan.systematic !== undefined ? { systematic: structuredClone(entry.plan.systematic) } : {}),
       ...(entry.plan.entryFamily ? { entryFamily: entry.plan.entryFamily } : {}),
       ...(entry.plan.economicHorizonMs ? { selectedHorizonMs: entry.plan.economicHorizonMs } : {}) };
-    if (entry.plan.policy.id.startsWith("retest-")) {
+    if (entry.plan.systematic !== undefined || entry.plan.policy?.id.startsWith("retest-")) {
       const ledger = newLinearLedger(side);
       const orders = new Map(history.orders.map((o) => [o.remote.id, o]));
-      const start = Date.parse(entry.remote.created_at);
+      const start = Math.min(Date.parse(entry.remote.created_at), openedMs);
       let completeFees = true;
       for (const activity of [...history.activities].reverse()) {
         const order = orders.get(activity.order_id ?? "");

@@ -1,0 +1,89 @@
+{
+  "version": "asset-holding-permissions-v1",
+  "registeredAtUtc": "2026-09-10T21:53:47.029182+00:00",
+  "researchOnly": true,
+  "productionChangesAllowed": false,
+  "newCandidatePnlEvaluatedBeforeRegistration": false,
+  "historicalDataPreviouslyReused": true,
+  "newMathematicsClaimed": false,
+  "candidateCodeSha256": "b1d4b9b73b40d3503d36d12b4ceb76bcd5ef704155a92177f25f91235cef6d45",
+  "specs": {
+    "BTC/USD": [
+      {
+        "id": "btc_hold_immediate_v1",
+        "minimumHoldBars": 0,
+        "thesisBreakConfirmBars": 1,
+        "maxHoldBars": null
+      },
+      {
+        "id": "btc_hold_weekly_persistence_v1",
+        "minimumHoldBars": 7,
+        "thesisBreakConfirmBars": 7,
+        "maxHoldBars": null
+      },
+      {
+        "id": "btc_hold_bounded_thesis_v1",
+        "minimumHoldBars": 0,
+        "thesisBreakConfirmBars": 1,
+        "maxHoldBars": 84
+      }
+    ],
+    "ETH/USD": [
+      {
+        "id": "eth_hold_immediate_v1",
+        "minimumHoldBars": 0,
+        "thesisBreakConfirmBars": 1,
+        "maxHoldBars": null
+      },
+      {
+        "id": "eth_hold_daily_persistence_v1",
+        "minimumHoldBars": 2,
+        "thesisBreakConfirmBars": 2,
+        "maxHoldBars": null
+      },
+      {
+        "id": "eth_hold_bounded_thesis_v1",
+        "minimumHoldBars": 0,
+        "thesisBreakConfirmBars": 1,
+        "maxHoldBars": 40
+      }
+    ]
+  },
+  "contract": {
+    "scope": "Gate exits caused by loss of the parent signal thesis. No entry signal, sizing, order placement, extra fill or liquidation price is produced.",
+    "barClock": "A bar is one distinct finalized daily OHLC observation. Do not count polling cycles or duplicate signal publications. Entry fill at UTC open k has age zero; the completed bar k becomes available at open k+1 plus finalization delay and advances age to one. The immediately preceding bar k-1 is pre-entry and cannot advance age or confirmation.",
+    "holdingAge": "Count completed daily bars after the first actual inventory-acquiring fill. Pending buys have no holding age. Partial exits retain the original entry clock; reset only once inventory is actually zero.",
+    "confirmation": "While inventory is positive, count consecutive newly finalized post-fill daily observations whose parent thesis is cash. Reset this streak to zero when a newly finalized observation restores the long thesis. Never increment from repeated polling of the same source bar.",
+    "btcConfirmationInterpretation": "The seven daily observations in the BTC persistence candidate can repeat one unchanged weekly parent state. This is a seven-day persistence/grace test, not seven independent weekly confirmations.",
+    "minimumHoldBars": "A thesis-loss exit is permitted only if holding age is at least minimumHoldBars AND the consecutive cash-thesis streak is at least thesisBreakConfirmBars. A prior cash streak does not compel exit after the thesis has recovered.",
+    "maxHoldBars": "When non-null, age at or above this limit requests exit regardless of the current thesis or minimumHoldBars. It is a decision deadline, not a guaranteed last fill date.",
+    "priority": "Risk or account/data safety exit overrides all holding permissions; maximum age is next; confirmed thesis loss after minimum age is next; otherwise keep existing inventory unchanged.",
+    "executionTiming": "The decision uses only information finalized by its timestamp and can fill only at a later eligible execution event. No same-bar retrofill, forced stop fill, or reset of the entry clock on a submitted-but-unfilled order.",
+    "pendingExit": "Holding cannot silently cancel a risk exit or a time-budget exit. Execution owns cancellation/replacement and residual inventory; a partial fill is not a completed episode.",
+    "inventory": "No additions, pyramiding or averaging down. Holding permission retains current units subject to independent risk reductions; it does not increase an entry budget.",
+    "marking": "Mark cash plus residual units at a fresh executable bid net of exit costs; when unavailable, report an unavailable mark rather than a synthetic fresh price. Historical daily OHLC marks remain explicitly labeled screening proxies.",
+    "boundary": "Forced terminal valuations are disclosed separately and never count as natural completed holding episodes."
+  },
+  "rationales": {
+    "btc_hold_immediate_v1": "Baseline: preserve immediate response to a lost weekly thesis at the next permitted execution event, with no minimum or time cap.",
+    "btc_hold_weekly_persistence_v1": "A one-native-week grace budget reduces responses to a newly weak weekly state; require seven consecutive daily observations of the lost thesis and one week of actual exposure. This tests delayed conviction, while admitting larger reversal losses and repeated-state dependence.",
+    "btc_hold_bounded_thesis_v1": "Immediate thesis exit with an 84-day (12-week) exposure budget. Twelve complete weekly opportunities provide a coarse finite review horizon without choosing a time limit from historical trade outcomes. Strong continuing trends may be cut short.",
+    "eth_hold_immediate_v1": "Baseline: retain the existing daily thesis response, with no minimum or time cap.",
+    "eth_hold_daily_persistence_v1": "Require two finalized daily observations after entry and a two-day consecutive loss of the daily thesis. This tests whether allowing one daily reversal to recover offsets the extra risk and execution delay; two is a minimal confirmation alternative, not an estimated optimum.",
+    "eth_hold_bounded_thesis_v1": "Immediate thesis exit with a 40-day exposure budget equal to one full ETH40 lookback. This tests a finite capital commitment tied to the existing signal horizon, not a fitted optimum."
+  },
+  "sourceFilesReviewed": [
+    "src/spot-trend/spec.ts",
+    "src/spot-trend/paper.ts",
+    "src/eth40/spec.ts",
+    "src/eth40/engine.ts",
+    "reports/asset-system-search-2026-09-10/execution/report.md"
+  ],
+  "limitations": [
+    "Different counts follow the parents weekly versus daily signal horizons; no claim that asset labels alone determine optimal holding time.",
+    "Cost amortization does not guarantee positive expected return; never defer a mandatory exit merely to recover fees.",
+    "All supplied history was previously reused. Chronological partitions are descriptive, not an untouched holdout.",
+    "The baseline holding permission is a normalized research component; it does not reproduce every current runtime execution, safety or risk rule.",
+    "Parameters frozen before new holding P&L; any implementation correction or contract change requires a disclosed new registration."
+  ]
+}

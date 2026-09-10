@@ -1,0 +1,22 @@
+{
+  "registeredAtMs": 1788986187716,
+  "spec": {
+    "version": "kraken-independent-spot-history-v1",
+    "symbols": [
+      "BTC/USD",
+      "ETH/USD"
+    ],
+    "intervalsMinutes": [
+      1440,
+      10080
+    ],
+    "startMs": 1672272000000,
+    "endMsExclusive": 1751328000000,
+    "candleFinalizationAssumptionMs": 60000,
+    "maximumResponseBytes": 1048576,
+    "source": "https://docs.kraken.com/api-reference/market-data/get-ohlc-data",
+    "interpretation": "RETROSPECTIVE_SPOT_TRADE_AGGREGATES_NOT_PAIRED_EXECUTION_QUOTES"
+  },
+  "activationAllowed": false,
+  "strategyPerformanceComputed": false
+}

@@ -1,0 +1,69 @@
+{
+  "verifiedAt": "2026-09-09T20:17:07.886Z",
+  "status": "HEALTHY_FUNDED_PAPER_ACCOUNTING_DEPLOYED",
+  "profitabilityEstablished": false,
+  "rejectedStrategiesActivated": false,
+  "imageId": "sha256:9d102b68d4631df5be09e0892b19d265621d7d006193338a9247154384dd85b0",
+  "configurationSha256": "dfcb9cb848a9013897a8c6a1ef4b8676be9fad5bdf709624d7b52edfc9467df7",
+  "configurationVersion": "btc-eth-risk-bounded-sizing-v14.0.0",
+  "mode": "paper",
+  "realOrdersSupported": false,
+  "equityBefore": 99998.28269740003,
+  "equityAfter": 99998.28269740003,
+  "effectiveMaximumNotionalUsd": 999.9828269740003,
+  "positions": [],
+  "retainedFillEvents": 382,
+  "paperStateSchemaVersion": 4,
+  "fundingEpochPreservedAcrossSecondRestart": true,
+  "lifetimeFundingAccountingKnown": false,
+  "rollingPnlDetails": {
+    "status": "KNOWN",
+    "reason": null,
+    "asOfMs": 1788985027886,
+    "windowStartExclusiveMs": 1788898627886,
+    "windowEndInclusiveMs": 1788985027886,
+    "realizedPricePnl24hUsd": 0,
+    "fees24hUsd": 0,
+    "netRealizedPnl24hUsd": 0,
+    "utcSessionNetPnlUsd": 0,
+    "retainedFillEvents": 382,
+    "retainedMissingFeeEvents": 102,
+    "missingFeeEvents24h": 0,
+    "missingFeeEventsUtcSession": 0,
+    "measurement": "REALIZED_PRICE_PNL_MINUS_RECORDED_FEES_PLUS_PAPER_FUNDING_CASH_POSTINGS",
+    "fundingIncluded": true,
+    "fundingCash24hUsd": 0,
+    "fundingCashUtcSessionUsd": 0,
+    "fundingCoverageStartedAtMs": 1788984866595,
+    "fundingUnsettledAccrualUsd": 0,
+    "fundingSource": "PAPER_MODEL_NOT_VENUE_CASH_RECEIPTS"
+  },
+  "sourceHashes": {
+    "src/main.ts": "359a86a705856f1d80edcce46b1dda18275d68b634d65b3b6e711834341d3c8e",
+    "src/config/audit.ts": "06cb060024b3a6097f74d0488645b124fa7f8e0b2203dfbf96d74cce5bf981dd",
+    "src/engine/trading-engine.ts": "31a09f630952af6fd17a8c07f1aacef5b3faff98deac3d9db3fea4be5a7cc767",
+    "src/kraken/paper-broker.ts": "b32d8f5bf9b0d675cc1296a28941dfc630fc28f2084f5be4cb39b65dea5ef0e0",
+    "src/kraken/paper-funding.ts": "3f3b1c13ba639c48a5631085b0f0c873abeee92f7af97be7ac14d31cdfe680e5",
+    "src/carry/funding-accrual.ts": "900a3299e620a4e84630697e65c06e493617bc70e0fb5d77d5afbe63343e34b6",
+    "src/risk/rolling-pnl.ts": "04e44da24fd4fef6ab270256c1a9db71a19ab628aaca0f13c7d1af355a7fbf58",
+    "src/risk/paper-funding-cash.ts": "7486c4c4fe29f3460ce02b492cf9529042e16b01da6162507c5baa82173ffd78",
+    "src/dashboard/public/app.js": "800b1dee9d0d8f23c8e0c5b54f8b667f83aa3b804f0e1354ee35deaac7e46b40"
+  },
+  "validation": {
+    "fullSuiteExitCode": 0,
+    "finalRecoveryTests": 20,
+    "operationalConfigurationTests": 6,
+    "buildExitCode": 0,
+    "independentStudyPaths": 48,
+    "studyAnomalies": 0
+  },
+  "research": {
+    "confidenceV1": "ZERO_TRADES_ZERO_PROFIT_REJECTED",
+    "meanVarianceV2": {
+      "allEightRunsLostMoney": true,
+      "baseNet2024": -273.5203517889156,
+      "baseNet2025H1": -261.965971154483,
+      "report": "economic-screen-v2/report.json"
+    }
+  }
+}

@@ -1,0 +1,338 @@
+{
+  "registeredAt": "2026-09-10T21:38:24.020456+00:00",
+  "candidateApplications": 8,
+  "registry": {
+    "btc": [
+      {
+        "asset": "BTC/USD",
+        "warmupBars": 90,
+        "researchOnly": true,
+        "validatedProfitable": false,
+        "mathematicalNovelty": "Established mathematics, no original invention claimed",
+        "economics": "Directional persistence or conditional positive returns; no structural arbitrage",
+        "constraints": [
+          "Funded BTC long or cash only; no leverage, shorts, or additions",
+          "Completed daily observations only; execution delay supplied by shared evaluator",
+          "Reused history; no untouched holdout or prospective profitability evidence",
+          "Decision thresholds fixed at base costs across all cost/delay scenarios"
+        ],
+        "id": "btc_kalman_velocity_v1",
+        "name": "Latent local-linear trend",
+        "family": "kalman_local_linear",
+        "constants": {
+          "forecastDays": 20,
+          "uncertaintyPenalty": 1,
+          "observationVarianceScale": 1,
+          "levelProcessVarianceScale": 0.01,
+          "velocityProcessVarianceScale": 0.0001,
+          "initialVelocityVarianceDivisor": 90,
+          "returnVarianceFloor": 1e-08
+        },
+        "state": "Filtered log level, daily log velocity, 2x2 covariance, previous desired target",
+        "equations": [
+          "x_t = F x_(t-1) + w_t, F=[[1,1],[0,1]], log(C_t)=H x_t+v_t, H=[1,0]",
+          "R=sample variance of first89 daily log returns; Q=diag(.01R,.0001R), then frozen",
+          "Pminus=F P F^T+Q; K=Pminus H^T/(H Pminus H^T+R)",
+          "x=xminus+K(log(C)-H xminus); P=(I-KH)Pminus",
+          "Enter when20*(velocity-sqrt(P_velocity)) > fixed base log roundtripcost; exit when velocity<=0"
+        ],
+        "initialization": "At completed bar89: level=log(C89), velocity=mean(r1..r89), P=diag(R,R/90); no prior trades",
+        "null": "The inferred positive latent velocity fails to persist long enough to pay both sides of trading costs",
+        "failureRegime": "Abrupt reversal, volatility shifts, misspecified linear-Gaussian dynamics; covariance is not calibrated tail risk",
+        "nearestPrior": "SMA/endpoint trend and adaptive Bayesian regression already exist",
+        "structuralDifference": "Two-dimensional latent level/velocity dynamics with propagated state covariance, versus fixed-window price averages or supervised coefficient regression",
+        "distinctnessStatus": "Provisional new daily inference implementation; fixed-gain filtering can be represented as an infinite linear filter, so no claim of independent new economics",
+        "sources": [
+          {
+            "title": "Kalman (1960), A New Approach to Linear Filtering and Prediction Problems",
+            "url": "https://doi.org/10.1115/1.3662552",
+            "verification": "Bibliographic record verified; direct paper download unavailable during source lookup"
+          }
+        ]
+      },
+      {
+        "asset": "BTC/USD",
+        "warmupBars": 90,
+        "researchOnly": true,
+        "validatedProfitable": false,
+        "mathematicalNovelty": "Established mathematics, no original invention claimed",
+        "economics": "Directional persistence or conditional positive returns; no structural arbitrage",
+        "constraints": [
+          "Funded BTC long or cash only; no leverage, shorts, or additions",
+          "Completed daily observations only; execution delay supplied by shared evaluator",
+          "Reused history; no untouched holdout or prospective profitability evidence",
+          "Decision thresholds fixed at base costs across all cost/delay scenarios"
+        ],
+        "id": "btc_nonlinear_gp_v1",
+        "name": "Causal nonlinear return forecast",
+        "family": "squared_exponential_gp",
+        "constants": {
+          "horizonDays": 14,
+          "retrainEveryBars": 7,
+          "trainingStrideBars": 3,
+          "maximumTrainingRows": 40,
+          "minimumTrainingRows": 12,
+          "kernelAmplitude": 0.08,
+          "observationNoise": 0.12,
+          "lengthScale": 1,
+          "featureScales": [
+            0.05,
+            0.1,
+            0.03
+          ],
+          "uncertaintyPenalty": 0.25,
+          "numericalJitter": 1e-12
+        },
+        "state": "Bounded causal labeled feature bank; weekly frozen kernel factor and coefficients; previous target",
+        "equations": [
+          "z_t=[log(C_t/C_(t-7))/.05, log(C_t/C_(t-28))/.10, stdev(r_(t-13)..r_t)/.03]",
+          "y_j=log(C_(j+14)/C_j), eligible only when j+14<=t; train at90+7k",
+          "Use at most40 indices j=t-14-3k>=28; k(z,zprime)=.08^2*exp(-||z-zprime||^2/2)",
+          "A=K+(.12^2+1e-12)I; mu=kstar^T A^-1 y; latentVariance=.08^2-kstar^T A^-1 kstar",
+          "Enter when mu-.25*sqrt(latentVariance)>fixed base log roundtripcost; exit when mu<=0"
+        ],
+        "initialization": "No target until90 bars and at least12 fully matured labels; zero-mean GP prior, no fit to future labels",
+        "null": "Past local return patterns have no stable conditional mean beyond costs; predicted gains fail after delay",
+        "failureRegime": "Regime changes, limited training support, overlapping labels, and uncalibrated kernel/noise assumptions",
+        "nearestPrior": "Existing Gaussian-distance empirical conditional averages and ridge regression; prior GP catalog was advisory only",
+        "structuralDifference": "Nonlinear full training-kernel inverse and joint posterior covariance; not the existing normalized independent distance-weighted average or a linear-kernel/ridge substitution",
+        "distinctnessStatus": "Provisional distinct nonlinear inference implementation; predictive confidence is model-based, not empirically calibrated",
+        "sources": [
+          {
+            "title": "Rasmussen and Williams, Gaussian Processes for Machine Learning, Chapter2",
+            "url": "https://gaussianprocess.org/gpml/chapters/RW2.pdf",
+            "verification": "Primary author-hosted chapter opened; regression equations2.22\u20132.24"
+          }
+        ]
+      },
+      {
+        "asset": "BTC/USD",
+        "warmupBars": 90,
+        "researchOnly": true,
+        "validatedProfitable": false,
+        "mathematicalNovelty": "Established mathematics, no original invention claimed",
+        "economics": "Directional persistence or conditional positive returns; no structural arbitrage",
+        "constraints": [
+          "Funded BTC long or cash only; no leverage, shorts, or additions",
+          "Completed daily observations only; execution delay supplied by shared evaluator",
+          "Reused history; no untouched holdout or prospective profitability evidence",
+          "Decision thresholds fixed at base costs across all cost/delay scenarios"
+        ],
+        "id": "btc_rank_sen_trend_v1",
+        "name": "Rank persistence and robust slope",
+        "family": "mann_kendall_theil_sen",
+        "constants": {
+          "windowDays": 60,
+          "minimumKendallTau": 0.35,
+          "forecastDays": 20
+        },
+        "state": "Latest60 log closes and previous desired target",
+        "equations": [
+          "S=sum_(a<b) sign(log(C_b)-log(C_a)); tau=S/[60*59/2]",
+          "SenSlope=median_(a<b)((log(C_b)-log(C_a))/(b-a))",
+          "Enter when tau>=.35 and20*SenSlope>fixed base log roundtripcost; exit when tau<=0 or SenSlope<=0"
+        ],
+        "initialization": "First eligible decision at90; retain target in entry/exit hysteresis region",
+        "null": "Rank-monotone historical paths do not imply enough future positive slope to overcome trading costs",
+        "failureRegime": "Slow exits after reversals, persistent sideways noise; serial dependence invalidates treating tau as a significance test",
+        "nearestPrior": "SMA/endpoint momentum/channel trend; the new statistic remains in the directional-persistence economic family",
+        "structuralDifference": "All-pair ordinal evidence and median pairwise slopes are nonlinear rank estimators, not fixed linear price averages or rolling extrema",
+        "distinctnessStatus": "Provisional new estimator composition, not a new economic mechanism; tau is descriptive and no p-value is asserted",
+        "sources": [
+          {
+            "title": "Mann (1945), Nonparametric Tests Against Trend",
+            "url": "https://www.jstor.org/stable/1907187",
+            "verification": "Primary article URL resolves but full text not available via tool"
+          },
+          {
+            "title": "Sen (1968), Estimates of the Regression Coefficient Based on Kendall's Tau",
+            "url": "https://doi.org/10.1080/01621459.1968.10480934",
+            "verification": "Bibliography verified; publisher returned403"
+          }
+        ]
+      },
+      {
+        "asset": "BTC/USD",
+        "warmupBars": 90,
+        "researchOnly": true,
+        "validatedProfitable": false,
+        "mathematicalNovelty": "Established mathematics, no original invention claimed",
+        "economics": "Directional persistence or conditional positive returns; no structural arbitrage",
+        "constraints": [
+          "Funded BTC long or cash only; no leverage, shorts, or additions",
+          "Completed daily observations only; execution delay supplied by shared evaluator",
+          "Reused history; no untouched holdout or prospective profitability evidence",
+          "Decision thresholds fixed at base costs across all cost/delay scenarios"
+        ],
+        "id": "btc_directional_change_v1",
+        "name": "Directional-change event state",
+        "family": "directional_change_event_clock",
+        "constants": {
+          "atrDays": 14,
+          "minimumReversalFraction": 0.04,
+          "atrMultiple": 3
+        },
+        "state": "Up/down event direction, extremum since last opposite event, reversal fraction fixed at each event",
+        "equations": [
+          "TR_t=max(H_t-L_t,abs(H_t-C_(t-1)),abs(L_t-C_(t-1))); ATR14=mean(latest14TR)",
+          "At initialization or an event set delta=max(.04,3*ATR14/C_t); freeze delta until next event",
+          "Down state: trough=min(trough,C_t); if C_t>=trough*(1+delta), switch up, peak=C_t",
+          "Up state: peak=max(peak,C_t); if C_t<=peak*(1-delta), switch down, trough=C_t",
+          "Target BTC in up state, cash in down state; sample only daily closes, never infer intraday event ordering"
+        ],
+        "initialization": "At89 initialize down, trough=C89, freeze then-current reversal fraction; first eligible target90",
+        "null": "Price overshoots following a confirmed reversal are too small or too short to clear fees and delayed entries",
+        "failureRegime": "Alternating reversals, overshoots completed before delayed execution, threshold frozen across volatility changes",
+        "nearestPrior": "Close-channel breakouts and trailing exit controls",
+        "structuralDifference": "Event-reset unbounded-memory extrema rather than extrema over a fixed calendar window; both entry and exit move the event clock",
+        "distinctnessStatus": "Established directional-change control variant; conservative new-mathematics count excludes it pending equivalence review",
+        "sources": [
+          {
+            "title": "Glattfelder and Golub, Bridging the Gap: Decoding the Intrinsic Nature of Time in Market Data",
+            "url": "https://arxiv.org/abs/2204.02682",
+            "verification": "Primary preprint abstract opened; event-time mathematics is provenance, not evidence for BTC profit"
+          }
+        ]
+      }
+    ],
+    "eth": [
+      {
+        "id": "eth_kalman_drift_v1",
+        "name": "ETH continuous-state drift filter",
+        "family": "continuous_latent_linear_trend",
+        "economicMechanism": "Persistent directional demand may support a sufficiently large, slow ETH drift after costs.",
+        "information": "ETH completed closes; causal EWMA of past squared log returns.",
+        "equations": [
+          "y_t=log(C_t), z_t=(level_t,drift_t), F=[[1,1],[0,1]], H=[1,0].",
+          "Before observation t: R=max(1e-8, prior EWMA squared return); Q=diag(.01R,.0001R).",
+          "z_pred=Fz; P_pred=FPF^T+Q; K=P_pred*H^T/(H*P_pred*H^T+R); z=z_pred+K(y-H*z_pred); P=(I-KH)P_pred.",
+          "After filtering t, EWMA=.94*EWMA+.06*(y_t-y_(t-1))^2.",
+          "Enter if 14*drift - 14*sqrt(P_drift,drift)>base log round-trip cost; exit if drift<=0; otherwise retain target."
+        ],
+        "parameters": {
+          "horizonDays": 14,
+          "ewmaDecay": 0.94,
+          "initialDailyReturnVariance": 0.0016,
+          "levelProcessVarianceFraction": 0.01,
+          "driftProcessVarianceFraction": 0.0001,
+          "initialDriftVarianceDivisor": 90,
+          "uncertaintyPenaltySd": 1,
+          "logEntryHurdle": 0.016600341364441277,
+          "warmupBars": 90
+        },
+        "initialization": "First log close, zero drift, P=diag(.0016,.0016/90), EWMA=.0016; filter from bar 1, suppress targets before index 90.",
+        "nearestPriorFamily": "ETH40 trend and the previous HMM/BOCPD inference prototypes.",
+        "materialDifference": "A continuous two-state posterior and covariance-dependent entry hurdle; no discrete latent-state bank or fixed lookback close mean.",
+        "novelty": "Established inference template applied to ETH; no original mathematics or distinct economic source claimed.",
+        "nullAndFailure": "Filtered drift need not persist. Gaussian assumptions, changes in volatility, and slow reversals can produce losses; the state-uncertainty penalty excludes future process risk.",
+        "sources": [
+          "https://hans.fugal.net/comps/papers/kalman_1960.pdf"
+        ]
+      },
+      {
+        "id": "eth_crossasset_mature_ridge_v1",
+        "name": "ETH mature-label BTC context regression",
+        "family": "causal_crossasset_direct_horizon_regression",
+        "economicMechanism": "A lagged BTC/ETH return relationship could predict ETH continuation or catch-up over 14 days.",
+        "information": "ETH and BTC closes through t; only historical 14-day outcomes fully realized by t enter training.",
+        "equations": [
+          "x_t=[1, log(ETH_t/ETH_(t-14))/.10, log(BTC_t/BTC_(t-14))/.10, log(BTC_t/BTC_(t-1))/.03].",
+          "At t>=28, mature label y=log(ETH_t/ETH_(t-14)) for regressor x_(t-14).",
+          "g=P*x/(lambda+x^T*P*x); beta=beta+g*(y-x^T*beta); P=(P-g*x^T*P)/lambda, lambda=.99.",
+          "v=.98*v+.02*preupdateResidual^2; mu=x_t^T*beta; meanPenalty=sqrt(v*x_t^T*P*x_t).",
+          "After at least 60 matured labels and index 90, enter if mu-meanPenalty>base log round-trip cost; exit if mu<=0; otherwise retain."
+        ],
+        "parameters": {
+          "forecastHorizonDays": 14,
+          "returnFeatureScale": 0.1,
+          "oneDayBtcScale": 0.03,
+          "forgettingFactor": 0.99,
+          "residualVarianceDecay": 0.98,
+          "initialResidualVariance": 0.01,
+          "initialInverseInformationDiagonal": 1,
+          "minimumMaturedLabels": 60,
+          "uncertaintyPenaltySd": 1,
+          "logEntryHurdle": 0.016600341364441277,
+          "warmupBars": 90
+        },
+        "initialization": "beta=0, inverse information=identity, residual variance=.01; first feature at 14, first mature update at 28.",
+        "nearestPriorFamily": "Relative-strength rotation and fixed-window momentum; generic regression prototypes elsewhere are not new mathematics.",
+        "materialDifference": "Causal fitted conditional ETH forecast with BTC context and explicit label maturation. It never rotates into BTC. Learning parameters respond to realized forecast errors.",
+        "novelty": "Established recursive least squares; new candidate application, not an original estimator or independent alpha source.",
+        "nullAndFailure": "Cross-asset predictability may be absent or unstable; overlapping outcomes violate independent-error interpretations, so the mean penalty is not a calibrated confidence bound.",
+        "sources": [
+          "https://arxiv.org/abs/2003.02737"
+        ]
+      },
+      {
+        "id": "eth_volume_pressure_v1",
+        "name": "ETH close-location volume pressure",
+        "family": "volume_conditioned_directional_pressure",
+        "economicMechanism": "High-volume closes near the daily high may indicate persistent directional participation.",
+        "information": "ETH daily high, low, close and native venue volume.",
+        "equations": [
+          "CLV_t=(2*C_t-H_t-L_t)/(H_t-L_t), or 0 when H_t=L_t.",
+          "pressure_t=sum_(j=t-27..t)(CLV_j*V_j)/sum_(j=t-27..t)(V_j).",
+          "Enter when pressure>.15 and C_t>C_(t-1); exit when pressure<-.05; otherwise retain."
+        ],
+        "parameters": {
+          "lookbackDays": 28,
+          "entryPressure": 0.15,
+          "exitPressure": -0.05,
+          "warmupBars": 90
+        },
+        "initialization": "Cash; no entry before index 90. A zero volume window has pressure zero.",
+        "nearestPriorFamily": "Indicator hysteresis, with volume and intrabar close location replacing the price-only statistic.",
+        "materialDifference": "Identical close histories can give different targets when high/low/volume histories differ.",
+        "novelty": "Chaikin-style established indicator. Under the prior strict structural protocol this is a feature variant, not a certified new mathematical system family.",
+        "nullAndFailure": "A close-location statistic is not actual signed order flow; a gap down may coexist with positive pressure. Native venue volume may not represent global ETH demand.",
+        "sources": [
+          "https://help.chaikinanalytics.com/chaikin-analytics-platform/analytics-chart-overview",
+          "https://library.tradingtechnologies.com/trade/analytics/charts/technical-indicators/chaikin-money-flow-cmf/"
+        ]
+      },
+      {
+        "id": "eth_drawdown_recovery_v1",
+        "name": "ETH drawdown recovery state machine",
+        "family": "event_anchored_recovery",
+        "economicMechanism": "A large selloff followed by recovery could reflect temporary liquidity pressure followed by replenished demand.",
+        "information": "ETH closes, trailing 90-close peak, and remembered peak/trough for an armed event.",
+        "equations": [
+          "In IDLE at t>=90, arm if C_t<=.80*max(C_(t-89)..C_t); save that peak and trough=C_t.",
+          "In ARMED, trough=min(trough,C_t). Enter if C_t>=1.08*trough and C_t<savedPeak.",
+          "In LONG, exit if C_t>=savedPeak or C_t<=savedTrough or t-entryIndex>=42.",
+          "After exit suppress arming through exitIndex+6; return to IDLE on exitIndex+7."
+        ],
+        "parameters": {
+          "peakLookbackDays": 90,
+          "armDrawdownFraction": 0.2,
+          "recoveryFraction": 0.08,
+          "maxSignalHoldingDays": 42,
+          "cooldownDays": 7,
+          "warmupBars": 90
+        },
+        "initialization": "IDLE, cash, with no prewarmup event state. One transition branch per completed bar.",
+        "nearestPriorFamily": "Trend-conditioned reversion and channel breakout; common drawdown recovery and trailing-stop ideas.",
+        "materialDifference": "Event-specific peak/trough remain after their original observations leave a fixed lookback. Entry requires an ordered drawdown then recovery sequence.",
+        "novelty": "A fixed heuristic state policy within the known recovery/reversion parent. New implementation and trial; independent structural novelty unresolved.",
+        "nullAndFailure": "A rebound may be a pause in a longer decline. Remembered barriers are close-signal conditions followed by delayed execution, not guaranteed stop prices.",
+        "sources": [],
+        "provenanceNote": "Research-team heuristic; no literature-originality claim or cited profitability theorem."
+      }
+    ]
+  },
+  "hashes": {
+    "reports/asset-system-search-2026-09-10/study.py": "b033b17d1730bf1e45f44af9b777b8b1a1dc0352dc9e45b92b2691d3743874d4",
+    "reports/parallel-strategy-study-2026-09-10/common.py": "423315441fe6b87ae1dd122a38321e75f2d1811cf2cb99ad4d7d91043e5a0b18",
+    "reports/parallel-strategy-study-2026-09-10/protocol.json": "9b20481a6a0e56324c1612f24b1e9dc9ef6eec5aef2b31eb4f228785c1badc02",
+    "reports/parallel-strategy-study-2026-09-10/data/dataset.json": "951499efbfe353842f55b78b94e7d0fe1ba642afa2867f077810835f2303a45e",
+    "reports/parallel-strategy-study-2026-09-10/data/rules.json": "b4fe02b4819f39b3f37d441dd60895e479d217cfdf340752dd8b25d52aed9e31",
+    "reports/new-spot-system-2026-09-10/market-data/dataset.json": "ab3518310bfd0e4b40f539ef69a864ea5fa56908708003711d61b9d835b90df6",
+    "tools/profit-search.py": "51bd81e6b416a06fa2516992f05e7e893f4a7a7ecc573d9f191da99eef56c2d5",
+    "reports/asset-system-search-2026-09-10/protocol.json": "200b213d887f8329e6873ce14a26cc00d38b01697d41c0e8d5a14b43f77d60e8",
+    "reports/asset-system-search-2026-09-10/btc/candidates.py": "1d7a84d44221b44a4b25622b5afa1d3e7eb78a1f261f0906b95a9e6611a21af4",
+    "reports/asset-system-search-2026-09-10/eth/candidates.py": "f80033e952cdcd5bc51cc733e6ddd0ed0fb5d55b69ac7e0ffed7fc20ffccc742"
+  },
+  "historyAlreadyReused": true,
+  "originalMathematicalInventionsClaimed": 0
+}

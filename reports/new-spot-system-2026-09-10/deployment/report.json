@@ -1,0 +1,105 @@
+{
+  "verifiedAtUtc": "2026-09-10T05:52:52.969704+00:00",
+  "passed": true,
+  "checks": {
+    "spotHealthy": true,
+    "paperOnly": true,
+    "sameLedgerAfterRestart": true,
+    "cashAndInventoryPreserved": true,
+    "cyclesAdvanceAfterRestart": true,
+    "noNewTradesOrProfit": true,
+    "declaredEntryWindowRespected": true,
+    "exactVerifiedImage": true,
+    "existingFuturesImageAndStartPreserved": true,
+    "separateNamedPaperVolume": true,
+    "compiledImageEvidenceAndKernelLockPassed": true,
+    "newTestsPassed": true
+  },
+  "initialDeploymentStartedAtUtc": "2026-09-10T05:49:08.847274032Z",
+  "containers": [
+    {
+      "name": "/crypto-spot-trend-paper",
+      "image": "sha256:b4fdc723b05fbee3bdeb66eda4eb686ea7ae92a779fad590deeadaaee3a6da7d",
+      "startedAt": "2026-09-10T05:50:34.763045159Z",
+      "health": "healthy",
+      "mounts": [
+        {
+          "Type": "volume",
+          "Name": "crypto_trade_spot_trend_research",
+          "Source": "/var/lib/docker/volumes/crypto_trade_spot_trend_research/_data",
+          "Destination": "/app/data",
+          "Driver": "local",
+          "Mode": "rw",
+          "RW": true,
+          "Propagation": ""
+        }
+      ]
+    },
+    {
+      "name": "/crypto-trade-engine",
+      "image": "sha256:4e5d6e8ecd4e816fdcb550caa11c20ff9172d0aa580ed99deaf4bccf8bca0c1a",
+      "startedAt": "2026-09-10T00:04:15.852578298Z",
+      "health": "healthy",
+      "mounts": [
+        {
+          "Type": "volume",
+          "Name": "crypto_trade_event_data",
+          "Source": "/var/lib/docker/volumes/crypto_trade_event_data/_data",
+          "Destination": "/app/data",
+          "Driver": "local",
+          "Mode": "rw",
+          "RW": true,
+          "Propagation": ""
+        }
+      ]
+    }
+  ],
+  "evidenceSha256": "3eed46dd2a5f17dc48e87e190243971754b1c7b0394ebcadb4eb289d30ebb509",
+  "sourceHashes": {
+    "src/spot-trend/account.ts": "12a33739b685eb68506ebe0a76d21ee53804213dd7bd73706425a7f5470cdd2f",
+    "src/spot-trend/data.ts": "33692c162453e016837459911b54949c08da87070759c674ab52b4f9e8719020",
+    "src/spot-trend/evidence.ts": "e6a0a83b5f43e645ba7f61d54be6b2707381b8a5aff66226657e74ea8b0c8641",
+    "src/spot-trend/journal.ts": "149cd6448f9dc39046670ee69bf360d0acfdaa288c60c619d301b9224b8acedd",
+    "src/spot-trend/market.ts": "2f9c90c460164ffeb0bacc08822c25b59c6523bd6b1d64fcc93162e3dc652565",
+    "src/spot-trend/paper-main.ts": "e9ce3adac7a74d08201687df54941701c4fd18c2e1da3bbddb01a7933470be9a",
+    "src/spot-trend/paper.ts": "77a13b2ca6f57dfd8d2efce95dbfc17e32c3f184c956900548dbd8ecc7b36313",
+    "src/spot-trend/replay.ts": "f2d942844a8c973ae3d8bd6189ca529e250f77e693b4786973e44f815cccda57",
+    "src/spot-trend/signal.ts": "f9ef8b0a81f81a75c9186a00e58226de2d39464d16e6b8ea78227f26e61ddc03",
+    "src/spot-trend/spec.ts": "a93cbc06c54668cb915f5011d7f6ffd04c3062261732f0c62b0f2d13ea98e25a",
+    "src/spot-trend/study-main.ts": "5b673f53bc406178273d1283f91fd50aea3424ba79c6e26808e1a726ac87e9b9"
+  },
+  "historicalIndependentAuditAssertions": 73337,
+  "newTestsPassed": 71,
+  "fullTypeScriptBuildPassed": true,
+  "paperCashUsd": 100000,
+  "paperBtcQuantity": 0,
+  "paperFills": 0,
+  "paperRealizedNetUsd": 0,
+  "paperLiquidationNetUsd": 0,
+  "decision": "NEXT_WEEK_ENTRY_WINDOW",
+  "delayedWeeklySignal": {
+    "version": "btc-spot-funded-weekly-trend-v1",
+    "availableAtMs": 1788393660000,
+    "lastWeekEndMs": 1788393600000,
+    "close": 77305.1,
+    "state": "long",
+    "reason": "TREND_ENTER",
+    "movingAverage": 74385.5475
+  },
+  "nextPossibleEntryWindowUtc": {
+    "start": "2026-09-17T00:00:00Z",
+    "end": "2026-09-17T01:00:00Z",
+    "entryGuaranteed": false
+  },
+  "historicalSummary": {
+    "baseNetUsd": 1175.5967730305565,
+    "stressNetUsd": 1228.512191738846,
+    "baseEpisodes": 11,
+    "stressEpisodes": 11,
+    "lowerMeanWeeklyNetUsd": -0.4781742076421477,
+    "provenProfitable": false
+  },
+  "profitProblemSolved": false,
+  "liveTradingEnabled": false,
+  "scope": "NEW_SEPARATE_RESEARCH_PAPER_SERVICE;HISTORICAL_ECONOMIC_SCREEN_PASSED;INDEPENDENT_PROSPECTIVE_PROFIT_UNVALIDATED"
+}

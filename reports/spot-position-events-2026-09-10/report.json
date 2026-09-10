@@ -1,0 +1,63 @@
+{
+  "version": "spot-dynamic-position-cards-v1",
+  "passed": true,
+  "recordedAt": "2026-09-10T17:46:03.291Z",
+  "changes": [
+    "Explicit OPEN LONG and CLOSE LONG order intent",
+    "Recorded position status, remaining BTC/basis, bid, realized/unrealized/total P&L and holding duration",
+    "Durable entry, holding and linked exit events with pagination and reload persistence",
+    "5-second polling and1-second display ages; valuations remain on the existing5-minute strategy cadence"
+  ],
+  "readOnlyProjection": true,
+  "spotRuntimeRestarted": false,
+  "tradingRulesChanged": false,
+  "financialLedgerChanged": false,
+  "validation": {
+    "uniqueTests": 105,
+    "finalUiTests": 27,
+    "typecheckPassed": true,
+    "productionBuildPassed": true,
+    "readOnlyNoNetworkImageCheckPassed": true,
+    "deployedBrowserPassed": true
+  },
+  "sourceCycle": 145,
+  "recordedActivityEvents": 13,
+  "recordedHoldingCycles": [
+    137,
+    138,
+    139,
+    140,
+    141,
+    142,
+    143,
+    144,
+    145
+  ],
+  "deployedImages": [
+    {
+      "id": "sha256:dccf9b4434c9760c366231fca34f8c483368fb0af3450f8bdeef2117b9d2601e",
+      "tags": [
+        "crypto-trade-engine:spot-dashboard-v4"
+      ]
+    },
+    {
+      "id": "sha256:066bf2b331a199d2918c124e5914c176e55a9daefc458b857a912ed5bd92cb36",
+      "tags": [
+        "crypto-trade-engine:spot-dashboard-v5"
+      ]
+    },
+    {
+      "id": "sha256:3682285933465fb691269a080586f08421f007c1c087d8d4f208dfcd72038b63",
+      "tags": [
+        "crypto-spot-trend-paper:v3"
+      ]
+    }
+  ],
+  "spotContainerUnchanged": true,
+  "limitations": [
+    "No live-tick price feed was introduced: recorded bid and P&L update when a strategy valuation is recorded, approximately every5 minutes.",
+    "Historical cache integrity checks rotate through128 older files per poll; the current journal, head, receipt/submission and migration anchors are checked each request.",
+    "Cold history loads resume across bounded chunks. Resource limits or unavailable/ambiguous evidence are reported; orphan journal files are excluded from history."
+  ],
+  "testHarnessNote": "Initial Chromium assertion read innerText while the timeline was collapsed. It now reads stored DOM text then verifies visible text after expanding. The initial failure report is retained."
+}

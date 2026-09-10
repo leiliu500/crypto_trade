@@ -1,0 +1,3893 @@
+{
+  "version": "btc-eth-weekly-mean-variance-inventory-v2",
+  "policy": "risk-managed-long-btc",
+  "benchmarkOnly": true,
+  "scenario": "base",
+  "fundingAssumption": "source-plus-hour",
+  "startMs": 1704067200000,
+  "endMs": 1735689600000,
+  "evidenceKind": "HOURLY_CANDLE_PROXY",
+  "accountingKnown": true,
+  "fundingTimestampVerified": false,
+  "synthetic": false,
+  "completedTrades": 1,
+  "orderCount": 69,
+  "grossPnlUsd": 264.56039999999996,
+  "feeUsd": 1.1306541999999997,
+  "fundingCashUsd": -38.73265154783036,
+  "knownFundingCashUsd": -38.73265154783036,
+  "netPnlUsd": 224.6970942521698,
+  "markedNetPnlUsd": 224.6970942521698,
+  "netReturnOnInitialEquity": 0.002246970942521698,
+  "maxDrawdownUsd": 111.83394542598398,
+  "knownMarkedMaxDrawdownProxyUsd": 111.83394542598398,
+  "maxDrawdownFraction": 0.0011172127897711714,
+  "maximumEntryNotionalUsd": 998.374,
+  "maximumMarkedNotionalUsd": 1006.74,
+  "maximumRiskBudgetUsd": 100,
+  "riskBreachCount": 0,
+  "riskHaltReasons": [],
+  "fundingRequiredHours": 8735,
+  "fundingObservedHours": 8735,
+  "missingFundingHours": 0,
+  "zeroVolumeHeldHours": 0,
+  "weeklyDecisions": 53,
+  "turnoverUsd": 2261.308400000001,
+  "exposureNotionalHours": 1391062.1087998406,
+  "hurdleBps": 37,
+  "trades": [
+    {
+      "symbol": "BTC/USD",
+      "side": 1,
+      "entryMs": 1704070800000,
+      "exitMs": 1735516800000,
+      "entryQty": 0.0235,
+      "entryPx": 42484,
+      "exitPx": 93547,
+      "reason": "WINDOW_FLATTEN",
+      "forecastId": "f54b312819e5c63400380ee37792ee137866f6f5903384574cd75969e0844748",
+      "grossPnlUsd": 264.56039999999996,
+      "feeUsd": 1.1306541999999997,
+      "fundingCashUsd": -38.73265154783036,
+      "netPnlUsd": 224.69709425216962,
+      "turnoverUsd": 2261.308400000001,
+      "reductions": 68
+    }
+  ],
+  "orders": [
+    {
+      "symbol": "BTC/USD",
+      "side": 1,
+      "atMs": 1704070800000,
+      "qty": 0.0235,
+      "price": 42484,
+      "reduceOnly": false,
+      "reason": "BENCHMARK_LONG_ENTRY",
+      "forecastId": "f54b312819e5c63400380ee37792ee137866f6f5903384574cd75969e0844748",
+      "feeUsd": 0.499187,
+      "grossPnlUsd": 0
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1704074400000,
+      "qty": 0.0004,
+      "price": 42621,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "f54b312819e5c63400380ee37792ee137866f6f5903384574cd75969e0844748",
+      "feeUsd": 0.008524200000000001,
+      "grossPnlUsd": 0.0548
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1704103200000,
+      "qty": 0.0002,
+      "price": 42656,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "f54b312819e5c63400380ee37792ee137866f6f5903384574cd75969e0844748",
+      "feeUsd": 0.0042656,
+      "grossPnlUsd": 0.0344
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1704106800000,
+      "qty": 0.0003,
+      "price": 42717,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "f54b312819e5c63400380ee37792ee137866f6f5903384574cd75969e0844748",
+      "feeUsd": 0.006407549999999999,
+      "grossPnlUsd": 0.06989999999999999
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1704117600000,
+      "qty": 0.0003,
+      "price": 42766,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "f54b312819e5c63400380ee37792ee137866f6f5903384574cd75969e0844748",
+      "feeUsd": 0.0064149,
+      "grossPnlUsd": 0.0846
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1704124800000,
+      "qty": 0.0003,
+      "price": 42835,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "f54b312819e5c63400380ee37792ee137866f6f5903384574cd75969e0844748",
+      "feeUsd": 0.0064252499999999995,
+      "grossPnlUsd": 0.10529999999999999
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1704132000000,
+      "qty": 0.0001,
+      "price": 42848,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "f54b312819e5c63400380ee37792ee137866f6f5903384574cd75969e0844748",
+      "feeUsd": 0.0021424000000000005,
+      "grossPnlUsd": 0.0364
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1704135600000,
+      "qty": 0.0014,
+      "price": 43170,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "f54b312819e5c63400380ee37792ee137866f6f5903384574cd75969e0844748",
+      "feeUsd": 0.030219,
+      "grossPnlUsd": 0.9604
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1704139200000,
+      "qty": 0.0017,
+      "price": 43593,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "f54b312819e5c63400380ee37792ee137866f6f5903384574cd75969e0844748",
+      "feeUsd": 0.03705405,
+      "grossPnlUsd": 1.8853
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1704142800000,
+      "qty": 0.0006,
+      "price": 43778,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "f54b312819e5c63400380ee37792ee137866f6f5903384574cd75969e0844748",
+      "feeUsd": 0.013133399999999998,
+      "grossPnlUsd": 0.7764
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1704153600000,
+      "qty": 0.0015,
+      "price": 44269,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "f54b312819e5c63400380ee37792ee137866f6f5903384574cd75969e0844748",
+      "feeUsd": 0.03320175,
+      "grossPnlUsd": 2.6775
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1704157200000,
+      "qty": 0.0023,
+      "price": 45231,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "f54b312819e5c63400380ee37792ee137866f6f5903384574cd75969e0844748",
+      "feeUsd": 0.052015650000000004,
+      "grossPnlUsd": 6.3181
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1704164400000,
+      "qty": 0.0006,
+      "price": 45497,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "f54b312819e5c63400380ee37792ee137866f6f5903384574cd75969e0844748",
+      "feeUsd": 0.013649099999999999,
+      "grossPnlUsd": 1.8077999999999999
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1704182400000,
+      "qty": 0.0001,
+      "price": 45577,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "f54b312819e5c63400380ee37792ee137866f6f5903384574cd75969e0844748",
+      "feeUsd": 0.0022788500000000002,
+      "grossPnlUsd": 0.3093
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1704186000000,
+      "qty": 0.0006,
+      "price": 45884,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "f54b312819e5c63400380ee37792ee137866f6f5903384574cd75969e0844748",
+      "feeUsd": 0.013765199999999998,
+      "grossPnlUsd": 2.04
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1704740400000,
+      "qty": 0.0018,
+      "price": 47059,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "f115f03019ecc05146598315392165754309126d6c8b675719bf776649fc32d2",
+      "feeUsd": 0.0423531,
+      "grossPnlUsd": 8.235
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1704751200000,
+      "qty": 0.0001,
+      "price": 47136,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "f115f03019ecc05146598315392165754309126d6c8b675719bf776649fc32d2",
+      "feeUsd": 0.0023568,
+      "grossPnlUsd": 0.4652
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1704978000000,
+      "qty": 0.0005,
+      "price": 47555,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "f115f03019ecc05146598315392165754309126d6c8b675719bf776649fc32d2",
+      "feeUsd": 0.01188875,
+      "grossPnlUsd": 2.5355
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1704985200000,
+      "qty": 0.001,
+      "price": 48583,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "f115f03019ecc05146598315392165754309126d6c8b675719bf776649fc32d2",
+      "feeUsd": 0.0242915,
+      "grossPnlUsd": 6.099
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1707699600000,
+      "qty": 0.0001,
+      "price": 48630,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "43b88d09302591c8320a96ce3d966807b7ad2f713fcb3e2c1bea87cd245da048",
+      "feeUsd": 0.0024315,
+      "grossPnlUsd": 0.6146
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1707750000000,
+      "qty": 0.0002,
+      "price": 48845,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "43b88d09302591c8320a96ce3d966807b7ad2f713fcb3e2c1bea87cd245da048",
+      "feeUsd": 0.0048845,
+      "grossPnlUsd": 1.2722
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1707753600000,
+      "qty": 0.0009,
+      "price": 49981,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "43b88d09302591c8320a96ce3d966807b7ad2f713fcb3e2c1bea87cd245da048",
+      "feeUsd": 0.02249145,
+      "grossPnlUsd": 6.7473
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1707771600000,
+      "qty": 0.0002,
+      "price": 50223,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "43b88d09302591c8320a96ce3d966807b7ad2f713fcb3e2c1bea87cd245da048",
+      "feeUsd": 0.0050223,
+      "grossPnlUsd": 1.5478
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1707901200000,
+      "qty": 0.0004,
+      "price": 50833,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "43b88d09302591c8320a96ce3d966807b7ad2f713fcb3e2c1bea87cd245da048",
+      "feeUsd": 0.010166600000000001,
+      "grossPnlUsd": 3.3396000000000003
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1707904800000,
+      "qty": 0.0005,
+      "price": 51626,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "43b88d09302591c8320a96ce3d966807b7ad2f713fcb3e2c1bea87cd245da048",
+      "feeUsd": 0.0129065,
+      "grossPnlUsd": 4.571
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1707919200000,
+      "qty": 0.0001,
+      "price": 51869,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "43b88d09302591c8320a96ce3d966807b7ad2f713fcb3e2c1bea87cd245da048",
+      "feeUsd": 0.00259345,
+      "grossPnlUsd": 0.9385
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1707922800000,
+      "qty": 0.0001,
+      "price": 51990,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "43b88d09302591c8320a96ce3d966807b7ad2f713fcb3e2c1bea87cd245da048",
+      "feeUsd": 0.0025995,
+      "grossPnlUsd": 0.9506
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1707958800000,
+      "qty": 0.0002,
+      "price": 52436,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "43b88d09302591c8320a96ce3d966807b7ad2f713fcb3e2c1bea87cd245da048",
+      "feeUsd": 0.0052436,
+      "grossPnlUsd": 1.9904000000000002
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1708009200000,
+      "qty": 0.0001,
+      "price": 52713,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "43b88d09302591c8320a96ce3d966807b7ad2f713fcb3e2c1bea87cd245da048",
+      "feeUsd": 0.0026356500000000002,
+      "grossPnlUsd": 1.0229000000000001
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1708437600000,
+      "qty": 0.0001,
+      "price": 52873,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "fd60617570aa9a349522ace9f3b7a8ae90f264c450ce13a0cdfba82c4e02d0de",
+      "feeUsd": 0.0026436500000000004,
+      "grossPnlUsd": 1.0389000000000002
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1708966800000,
+      "qty": 0.0003,
+      "price": 53457,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "4986c91e95b6f9fca4139f95af5c8922699db1e454ef4c6008520380a619757d",
+      "feeUsd": 0.00801855,
+      "grossPnlUsd": 3.2918999999999996
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1708974000000,
+      "qty": 0.0001,
+      "price": 53668,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "4986c91e95b6f9fca4139f95af5c8922699db1e454ef4c6008520380a619757d",
+      "feeUsd": 0.0026834000000000003,
+      "grossPnlUsd": 1.1184
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1708977600000,
+      "qty": 0.0003,
+      "price": 54596,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "4986c91e95b6f9fca4139f95af5c8922699db1e454ef4c6008520380a619757d",
+      "feeUsd": 0.0081894,
+      "grossPnlUsd": 3.6335999999999995
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1708984800000,
+      "qty": 0.0001,
+      "price": 54726,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "4986c91e95b6f9fca4139f95af5c8922699db1e454ef4c6008520380a619757d",
+      "feeUsd": 0.0027363,
+      "grossPnlUsd": 1.2242
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1708999200000,
+      "qty": 0.0004,
+      "price": 55933,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "4986c91e95b6f9fca4139f95af5c8922699db1e454ef4c6008520380a619757d",
+      "feeUsd": 0.0111866,
+      "grossPnlUsd": 5.3796
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1709002800000,
+      "qty": 0.0002,
+      "price": 56493,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "4986c91e95b6f9fca4139f95af5c8922699db1e454ef4c6008520380a619757d",
+      "feeUsd": 0.0056493,
+      "grossPnlUsd": 2.8018
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1709038800000,
+      "qty": 0.0001,
+      "price": 56898,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "4986c91e95b6f9fca4139f95af5c8922699db1e454ef4c6008520380a619757d",
+      "feeUsd": 0.0028448999999999996,
+      "grossPnlUsd": 1.4414
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1709042400000,
+      "qty": 0.0001,
+      "price": 57231,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "4986c91e95b6f9fca4139f95af5c8922699db1e454ef4c6008520380a619757d",
+      "feeUsd": 0.0028615500000000005,
+      "grossPnlUsd": 1.4747000000000001
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1709107200000,
+      "qty": 0.0003,
+      "price": 58388,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "4986c91e95b6f9fca4139f95af5c8922699db1e454ef4c6008520380a619757d",
+      "feeUsd": 0.008758199999999999,
+      "grossPnlUsd": 4.771199999999999
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1709110800000,
+      "qty": 0.0003,
+      "price": 59610,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "4986c91e95b6f9fca4139f95af5c8922699db1e454ef4c6008520380a619757d",
+      "feeUsd": 0.0089415,
+      "grossPnlUsd": 5.1377999999999995
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1709128800000,
+      "qty": 0.0002,
+      "price": 60645,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "4986c91e95b6f9fca4139f95af5c8922699db1e454ef4c6008520380a619757d",
+      "feeUsd": 0.006064500000000001,
+      "grossPnlUsd": 3.6322
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1709132400000,
+      "qty": 0.0001,
+      "price": 61152,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "4986c91e95b6f9fca4139f95af5c8922699db1e454ef4c6008520380a619757d",
+      "feeUsd": 0.0030576000000000006,
+      "grossPnlUsd": 1.8668
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1709139600000,
+      "qty": 0.0003,
+      "price": 62712,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "4986c91e95b6f9fca4139f95af5c8922699db1e454ef4c6008520380a619757d",
+      "feeUsd": 0.009406799999999998,
+      "grossPnlUsd": 6.0684
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1709510400000,
+      "qty": 0.0001,
+      "price": 63317,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "4986c91e95b6f9fca4139f95af5c8922699db1e454ef4c6008520380a619757d",
+      "feeUsd": 0.0031658500000000004,
+      "grossPnlUsd": 2.0833
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1709539200000,
+      "qty": 0.0001,
+      "price": 64270,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "7b13a65572a3b0529e6ec791f3dfff0eced96e620afc37a1e7f1478d4e973ae7",
+      "feeUsd": 0.0032135000000000006,
+      "grossPnlUsd": 2.1786000000000003
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1709542800000,
+      "qty": 0.0002,
+      "price": 65477,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "7b13a65572a3b0529e6ec791f3dfff0eced96e620afc37a1e7f1478d4e973ae7",
+      "feeUsd": 0.0065477,
+      "grossPnlUsd": 4.5986
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1709564400000,
+      "qty": 0.0001,
+      "price": 66395,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "7b13a65572a3b0529e6ec791f3dfff0eced96e620afc37a1e7f1478d4e973ae7",
+      "feeUsd": 0.00331975,
+      "grossPnlUsd": 2.3911000000000002
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1709575200000,
+      "qty": 0.0001,
+      "price": 67066,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "7b13a65572a3b0529e6ec791f3dfff0eced96e620afc37a1e7f1478d4e973ae7",
+      "feeUsd": 0.0033533,
+      "grossPnlUsd": 2.4582
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1709593200000,
+      "qty": 0.0001,
+      "price": 68093,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "7b13a65572a3b0529e6ec791f3dfff0eced96e620afc37a1e7f1478d4e973ae7",
+      "feeUsd": 0.0034046500000000004,
+      "grossPnlUsd": 2.5609
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1709604000000,
+      "qty": 0.0001,
+      "price": 68787,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "7b13a65572a3b0529e6ec791f3dfff0eced96e620afc37a1e7f1478d4e973ae7",
+      "feeUsd": 0.0034393500000000003,
+      "grossPnlUsd": 2.6303
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1710046800000,
+      "qty": 0.0001,
+      "price": 69687,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "7b13a65572a3b0529e6ec791f3dfff0eced96e620afc37a1e7f1478d4e973ae7",
+      "feeUsd": 0.0034843499999999998,
+      "grossPnlUsd": 2.7203
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1710144000000,
+      "qty": 0.0001,
+      "price": 71278,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "a66238da329aff21a65e43617235458dc746518c721ca1bee1c99b56343a68b9",
+      "feeUsd": 0.0035639000000000005,
+      "grossPnlUsd": 2.8794
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1710151200000,
+      "qty": 0.0001,
+      "price": 71971,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "a66238da329aff21a65e43617235458dc746518c721ca1bee1c99b56343a68b9",
+      "feeUsd": 0.0035985500000000003,
+      "grossPnlUsd": 2.9487
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1710313200000,
+      "qty": 0.0001,
+      "price": 72929,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "a66238da329aff21a65e43617235458dc746518c721ca1bee1c99b56343a68b9",
+      "feeUsd": 0.0036464500000000003,
+      "grossPnlUsd": 3.0445
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1730865600000,
+      "qty": 0.0001,
+      "price": 74384,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "e60cb58d57c3dd099ef40748f720a40c6f708eec758783467568fbddbc15bbe1",
+      "feeUsd": 0.0037192,
+      "grossPnlUsd": 3.19
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1730919600000,
+      "qty": 0.0001,
+      "price": 75360,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "e60cb58d57c3dd099ef40748f720a40c6f708eec758783467568fbddbc15bbe1",
+      "feeUsd": 0.003768,
+      "grossPnlUsd": 3.2876000000000003
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1731006000000,
+      "qty": 0.0001,
+      "price": 76718,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "e60cb58d57c3dd099ef40748f720a40c6f708eec758783467568fbddbc15bbe1",
+      "feeUsd": 0.0038359,
+      "grossPnlUsd": 3.4234
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1731214800000,
+      "qty": 0.0001,
+      "price": 79303,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "e60cb58d57c3dd099ef40748f720a40c6f708eec758783467568fbddbc15bbe1",
+      "feeUsd": 0.003965150000000001,
+      "grossPnlUsd": 3.6819
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1731240000000,
+      "qty": 0.0001,
+      "price": 80012,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "e60cb58d57c3dd099ef40748f720a40c6f708eec758783467568fbddbc15bbe1",
+      "feeUsd": 0.0040006,
+      "grossPnlUsd": 3.7528
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1731297600000,
+      "qty": 0.0001,
+      "price": 81713,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "78e9e128c7952c5172e3510236b389f18d4737a9392db62784ff2bee083504f5",
+      "feeUsd": 0.0040856500000000006,
+      "grossPnlUsd": 3.9229000000000003
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1731340800000,
+      "qty": 0.0001,
+      "price": 84230,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "78e9e128c7952c5172e3510236b389f18d4737a9392db62784ff2bee083504f5",
+      "feeUsd": 0.0042115,
+      "grossPnlUsd": 4.1746
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1731351600000,
+      "qty": 0.0001,
+      "price": 86024,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "78e9e128c7952c5172e3510236b389f18d4737a9392db62784ff2bee083504f5",
+      "feeUsd": 0.004301200000000001,
+      "grossPnlUsd": 4.354
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1731369600000,
+      "qty": 0.0001,
+      "price": 88834,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "78e9e128c7952c5172e3510236b389f18d4737a9392db62784ff2bee083504f5",
+      "feeUsd": 0.0044417,
+      "grossPnlUsd": 4.635
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1731510000000,
+      "qty": 0.0001,
+      "price": 91696,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "78e9e128c7952c5172e3510236b389f18d4737a9392db62784ff2bee083504f5",
+      "feeUsd": 0.004584800000000001,
+      "grossPnlUsd": 4.9212
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1732042800000,
+      "qty": 0.0001,
+      "price": 93793,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "b7139b9a44bc220633babb37e6478f81fa5b565ea9bc9b03a6658198ec8d4341",
+      "feeUsd": 0.00468965,
+      "grossPnlUsd": 5.1309000000000005
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1732165200000,
+      "qty": 0.0001,
+      "price": 97639,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "b7139b9a44bc220633babb37e6478f81fa5b565ea9bc9b03a6658198ec8d4341",
+      "feeUsd": 0.00488195,
+      "grossPnlUsd": 5.5155
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1733367600000,
+      "qty": 0.0001,
+      "price": 101685,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "0b9274c62d4336a1d5b10e62ee3cdc5b6a40eaec408cc6f9446c4b12b8a67a72",
+      "feeUsd": 0.00508425,
+      "grossPnlUsd": 5.920100000000001
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1734310800000,
+      "qty": 0.0001,
+      "price": 105461,
+      "reduceOnly": true,
+      "reason": "CAP_OR_RISK_REDUCTION",
+      "forecastId": "15b714f58f71f5fae5bd654ae6bd448f2015bab2f11e2a4f9d2567d0f7ff7645",
+      "feeUsd": 0.0052730500000000005,
+      "grossPnlUsd": 6.297700000000001
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "atMs": 1735516800000,
+      "qty": 0.0014,
+      "price": 93547,
+      "reduceOnly": true,
+      "reason": "WINDOW_FLATTEN",
+      "forecastId": "f436f8f518fafee93a7c1269ec2cdada1b7c4e1f0a5b271586b622d0d0c52540",
+      "feeUsd": 0.0654829,
+      "grossPnlUsd": 71.4882
+    }
+  ],
+  "perAsset": [
+    {
+      "symbol": "BTC/USD",
+      "grossPnlUsd": 264.56039999999996,
+      "feeUsd": 1.1306541999999997,
+      "knownFundingCashUsd": -38.73265154783036,
+      "fundingCashUsd": -38.73265154783036,
+      "netPnlUsd": 224.69709425216962,
+      "turnoverUsd": 2261.308400000001,
+      "completedTrades": 1,
+      "orders": 69,
+      "exposureNotionalHours": 1391062.1087998406,
+      "fundingRequiredHours": 8735,
+      "missingFundingHours": 0
+    },
+    {
+      "symbol": "ETH/USD",
+      "grossPnlUsd": 0,
+      "feeUsd": 0,
+      "knownFundingCashUsd": 0,
+      "fundingCashUsd": 0,
+      "netPnlUsd": 0,
+      "turnoverUsd": 0,
+      "completedTrades": 0,
+      "orders": 0,
+      "exposureNotionalHours": 0,
+      "fundingRequiredHours": 0,
+      "missingFundingHours": 0
+    }
+  ],
+  "dailyNetPnlUsd": [
+    {
+      "date": "2024-01-01",
+      "netPnlUsd": 34.598438597254074,
+      "knownCashPnlUsd": 2.573786838681289,
+      "exposureNotionalHours": 21386.4456,
+      "completedTrades": 0,
+      "orders": 10
+    },
+    {
+      "date": "2024-01-02",
+      "netPnlUsd": 12.604047578026922,
+      "knownCashPnlUsd": 11.986670419239339,
+      "exposureNotionalHours": 13794.554799999998,
+      "completedTrades": 0,
+      "orders": 5
+    },
+    {
+      "date": "2024-01-03",
+      "netPnlUsd": -28.06240582607819,
+      "knownCashPnlUsd": -0.39984926060536896,
+      "exposureNotionalHours": 13356.969599999999,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-01-04",
+      "netPnlUsd": 17.005367069734277,
+      "knownCashPnlUsd": -0.2757234720044336,
+      "exposureNotionalHours": 13356.969599999999,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-01-05",
+      "netPnlUsd": -0.3841526426535822,
+      "knownCashPnlUsd": -0.16453711935693968,
+      "exposureNotionalHours": 13356.969599999999,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-01-06",
+      "netPnlUsd": -2.61588310609897,
+      "knownCashPnlUsd": -0.128185295012036,
+      "exposureNotionalHours": 13356.969599999999,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-01-07",
+      "netPnlUsd": -0.8481845282658043,
+      "knownCashPnlUsd": -0.2564090150392148,
+      "exposureNotionalHours": 13356.969599999999,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-01-08",
+      "netPnlUsd": 39.812772982247196,
+      "knownCashPnlUsd": 8.363488365580547,
+      "exposureNotionalHours": 12966.116799999998,
+      "completedTrades": 0,
+      "orders": 2
+    },
+    {
+      "date": "2024-01-09",
+      "netPnlUsd": -9.944795546109702,
+      "knownCashPnlUsd": -0.3858243684120976,
+      "exposureNotionalHours": 11419.699200000001,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-01-10",
+      "netPnlUsd": 5.82229544264645,
+      "knownCashPnlUsd": -0.3235259863108448,
+      "exposureNotionalHours": 11419.699200000001,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-01-11",
+      "netPnlUsd": -1.4538061546142558,
+      "knownCashPnlUsd": 8.157744169881328,
+      "exposureNotionalHours": 10803.681200000006,
+      "completedTrades": 0,
+      "orders": 2
+    },
+    {
+      "date": "2024-01-12",
+      "netPnlUsd": -35.301709407981285,
+      "knownCashPnlUsd": -0.3547102897568909,
+      "exposureNotionalHours": 9890.275200000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-01-13",
+      "netPnlUsd": 0.8302780230242846,
+      "knownCashPnlUsd": 0.005191078769630264,
+      "exposureNotionalHours": 9890.275200000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-01-14",
+      "netPnlUsd": -11.193898913679813,
+      "knownCashPnlUsd": -0.02925278863003485,
+      "exposureNotionalHours": 9890.275200000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-01-15",
+      "netPnlUsd": 7.7264426312879415,
+      "knownCashPnlUsd": -0.1434597622084747,
+      "exposureNotionalHours": 9890.275200000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-01-16",
+      "netPnlUsd": 5.905660455211667,
+      "knownCashPnlUsd": -0.1598583630626309,
+      "exposureNotionalHours": 9890.275200000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-01-17",
+      "netPnlUsd": -3.9482072410381583,
+      "knownCashPnlUsd": -0.10909731497305343,
+      "exposureNotionalHours": 9890.275200000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-01-18",
+      "netPnlUsd": -14.125222539703344,
+      "knownCashPnlUsd": -0.09841557581285927,
+      "exposureNotionalHours": 9890.275200000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-01-19",
+      "netPnlUsd": 3.2740372713316184,
+      "knownCashPnlUsd": -0.1036842910654513,
+      "exposureNotionalHours": 9890.275200000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-01-20",
+      "netPnlUsd": 0.16696510953391197,
+      "knownCashPnlUsd": -0.16986420080181147,
+      "exposureNotionalHours": 9890.275200000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-01-21",
+      "netPnlUsd": -1.262773229772499,
+      "knownCashPnlUsd": -0.18947482172416225,
+      "exposureNotionalHours": 9890.275200000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-01-22",
+      "netPnlUsd": -19.910801237977566,
+      "knownCashPnlUsd": -0.17007190233181657,
+      "exposureNotionalHours": 9890.275200000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-01-23",
+      "netPnlUsd": 3.490298054677204,
+      "knownCashPnlUsd": -0.182263056389273,
+      "exposureNotionalHours": 9890.275200000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-01-24",
+      "netPnlUsd": 1.6456478493567275,
+      "knownCashPnlUsd": -0.1224550515432819,
+      "exposureNotionalHours": 9890.275200000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-01-25",
+      "netPnlUsd": -1.479639987146836,
+      "knownCashPnlUsd": -0.13296694298436035,
+      "exposureNotionalHours": 9890.275200000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-01-26",
+      "netPnlUsd": 18.11867482429808,
+      "knownCashPnlUsd": -0.12363851749942463,
+      "exposureNotionalHours": 9890.275200000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-01-27",
+      "netPnlUsd": 2.861648508176259,
+      "knownCashPnlUsd": -0.13642997130683107,
+      "exposureNotionalHours": 9890.275200000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-01-28",
+      "netPnlUsd": -1.1735707335002772,
+      "knownCashPnlUsd": -0.1850263742146685,
+      "exposureNotionalHours": 9890.275200000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-01-29",
+      "netPnlUsd": 12.284699931387884,
+      "knownCashPnlUsd": -0.1733482935394368,
+      "exposureNotionalHours": 9890.275200000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-01-30",
+      "netPnlUsd": -3.7638365279152595,
+      "knownCashPnlUsd": -0.13143419631756242,
+      "exposureNotionalHours": 9890.275200000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-01-31",
+      "netPnlUsd": -4.126032189648463,
+      "knownCashPnlUsd": -0.16923063986446876,
+      "exposureNotionalHours": 9890.275200000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-02-01",
+      "netPnlUsd": 5.267180481504344,
+      "knownCashPnlUsd": -0.04725029233999915,
+      "exposureNotionalHours": 9890.275200000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-02-02",
+      "netPnlUsd": 0.8343083071069906,
+      "knownCashPnlUsd": -0.12485997254020144,
+      "exposureNotionalHours": 9890.275200000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-02-03",
+      "netPnlUsd": -1.7736085807408202,
+      "knownCashPnlUsd": -0.08421405072724854,
+      "exposureNotionalHours": 9890.275200000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-02-04",
+      "netPnlUsd": -4.3053909148479335,
+      "knownCashPnlUsd": -0.03640935009939464,
+      "exposureNotionalHours": 9890.275200000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-02-05",
+      "netPnlUsd": 0.8054514044551802,
+      "knownCashPnlUsd": -0.160396660936326,
+      "exposureNotionalHours": 9890.275200000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-02-06",
+      "netPnlUsd": 3.972221838095468,
+      "knownCashPnlUsd": -0.206681841484193,
+      "exposureNotionalHours": 9890.275200000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-02-07",
+      "netPnlUsd": 12.009066483475834,
+      "knownCashPnlUsd": -0.12933641326172984,
+      "exposureNotionalHours": 9890.275200000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-02-08",
+      "netPnlUsd": 9.138576232218846,
+      "knownCashPnlUsd": -0.1721432587369867,
+      "exposureNotionalHours": 9890.275200000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-02-09",
+      "netPnlUsd": 17.559975118804765,
+      "knownCashPnlUsd": -0.2215929412542648,
+      "exposureNotionalHours": 9890.275200000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-02-10",
+      "netPnlUsd": 6.000751282242007,
+      "knownCashPnlUsd": -0.05985859918371292,
+      "exposureNotionalHours": 9890.275200000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-02-11",
+      "netPnlUsd": 5.195925176091265,
+      "knownCashPnlUsd": -0.24699602563769749,
+      "exposureNotionalHours": 9890.275200000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-02-12",
+      "netPnlUsd": 15.14138287796581,
+      "knownCashPnlUsd": 9.817448456114873,
+      "exposureNotionalHours": 9384.715600000001,
+      "completedTrades": 0,
+      "orders": 4
+    },
+    {
+      "date": "2024-02-13",
+      "netPnlUsd": -1.9887510623840399,
+      "knownCashPnlUsd": -0.2767823055670277,
+      "exposureNotionalHours": 8462.812799999998,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-02-14",
+      "netPnlUsd": 16.863217040427344,
+      "knownCashPnlUsd": 9.434978129002973,
+      "exposureNotionalHours": 7829.801199999999,
+      "completedTrades": 0,
+      "orders": 4
+    },
+    {
+      "date": "2024-02-15",
+      "netPnlUsd": 0.3273804624639922,
+      "knownCashPnlUsd": 2.592609029427074,
+      "exposureNotionalHours": 7107.5732000000025,
+      "completedTrades": 0,
+      "orders": 2
+    },
+    {
+      "date": "2024-02-16",
+      "netPnlUsd": 1.0870341374897805,
+      "knownCashPnlUsd": -0.3656592695644403,
+      "exposureNotionalHours": 7035.350400000003,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-02-17",
+      "netPnlUsd": -3.54749988542531,
+      "knownCashPnlUsd": -0.2388933136590562,
+      "exposureNotionalHours": 7035.350400000003,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-02-18",
+      "netPnlUsd": 3.29006930919536,
+      "knownCashPnlUsd": -0.26794263648886085,
+      "exposureNotionalHours": 7035.350400000003,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-02-19",
+      "netPnlUsd": -3.176961118407405,
+      "knownCashPnlUsd": -0.43294749244409925,
+      "exposureNotionalHours": 7035.350400000003,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-02-20",
+      "netPnlUsd": 3.0773873326896535,
+      "knownCashPnlUsd": 0.7746876833930857,
+      "exposureNotionalHours": 6992.8664,
+      "completedTrades": 0,
+      "orders": 1
+    },
+    {
+      "date": "2024-02-21",
+      "netPnlUsd": -2.8616340562383016,
+      "knownCashPnlUsd": -0.12973257191470114,
+      "exposureNotionalHours": 6933.3888,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-02-22",
+      "netPnlUsd": -4.4324814747519525,
+      "knownCashPnlUsd": -0.23108057537355126,
+      "exposureNotionalHours": 6933.3888,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-02-23",
+      "netPnlUsd": -3.8858362368172834,
+      "knownCashPnlUsd": -0.14352338411575657,
+      "exposureNotionalHours": 6933.3888,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-02-24",
+      "netPnlUsd": 5.750721844772727,
+      "knownCashPnlUsd": -0.14371376775634778,
+      "exposureNotionalHours": 6933.3888,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-02-25",
+      "netPnlUsd": 0.7542337993720309,
+      "knownCashPnlUsd": -0.2688326839758383,
+      "exposureNotionalHours": 6933.3888,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-02-26",
+      "netPnlUsd": 18.623201168670832,
+      "knownCashPnlUsd": 9.049806507770757,
+      "exposureNotionalHours": 6763.452799999999,
+      "completedTrades": 0,
+      "orders": 4
+    },
+    {
+      "date": "2024-02-27",
+      "netPnlUsd": 14.250353350979026,
+      "knownCashPnlUsd": 10.61743888061298,
+      "exposureNotionalHours": 5476.187599999999,
+      "completedTrades": 0,
+      "orders": 4
+    },
+    {
+      "date": "2024-02-28",
+      "netPnlUsd": 25.451847156353296,
+      "knownCashPnlUsd": 20.99132060463933,
+      "exposureNotionalHours": 4694.481999999998,
+      "completedTrades": 0,
+      "orders": 5
+    },
+    {
+      "date": "2024-02-29",
+      "netPnlUsd": -6.004997267755016,
+      "knownCashPnlUsd": -0.7034688631165471,
+      "exposureNotionalHours": 4078.4640000000013,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-03-01",
+      "netPnlUsd": 4.258951120639608,
+      "knownCashPnlUsd": -0.47789882803284106,
+      "exposureNotionalHours": 4078.4640000000013,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-03-02",
+      "netPnlUsd": -1.6851251078102791,
+      "knownCashPnlUsd": -0.3583923460347575,
+      "exposureNotionalHours": 4078.4640000000013,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-03-03",
+      "netPnlUsd": 4.153024608363978,
+      "knownCashPnlUsd": -0.48795651225079417,
+      "exposureNotionalHours": 4078.4640000000013,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-03-04",
+      "netPnlUsd": 18.01256098776838,
+      "knownCashPnlUsd": 15.660853735011617,
+      "exposureNotionalHours": 3713.1015999999995,
+      "completedTrades": 0,
+      "orders": 6
+    },
+    {
+      "date": "2024-03-05",
+      "netPnlUsd": -15.13640201565903,
+      "knownCashPnlUsd": 2.1539080906511967,
+      "exposureNotionalHours": 3271.268000000002,
+      "completedTrades": 0,
+      "orders": 1
+    },
+    {
+      "date": "2024-03-06",
+      "netPnlUsd": 7.166007560251359,
+      "knownCashPnlUsd": -0.4351098503963117,
+      "exposureNotionalHours": 3262.771200000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-03-07",
+      "netPnlUsd": 2.1081226755657383,
+      "knownCashPnlUsd": -0.345164643448346,
+      "exposureNotionalHours": 3262.771200000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-03-08",
+      "netPnlUsd": 3.927585013101975,
+      "knownCashPnlUsd": -0.27281752620123745,
+      "exposureNotionalHours": 3262.771200000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-03-09",
+      "netPnlUsd": 0.5477349201832169,
+      "knownCashPnlUsd": -0.1846276876726955,
+      "exposureNotionalHours": 3262.771200000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-03-10",
+      "netPnlUsd": 1.5251865353534981,
+      "knownCashPnlUsd": 2.324937914825197,
+      "exposureNotionalHours": 3182.051600000001,
+      "completedTrades": 0,
+      "orders": 1
+    },
+    {
+      "date": "2024-03-11",
+      "netPnlUsd": 9.187127166628244,
+      "knownCashPnlUsd": 5.377592025004175,
+      "exposureNotionalHours": 3033.357599999999,
+      "completedTrades": 0,
+      "orders": 2
+    },
+    {
+      "date": "2024-03-12",
+      "netPnlUsd": -2.320443776987588,
+      "knownCashPnlUsd": -0.4543924468619834,
+      "exposureNotionalHours": 2956.8863999999994,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-03-13",
+      "netPnlUsd": 4.1362898627681375,
+      "knownCashPnlUsd": 2.665569132650821,
+      "exposureNotionalHours": 2884.6636,
+      "completedTrades": 0,
+      "orders": 1
+    },
+    {
+      "date": "2024-03-14",
+      "netPnlUsd": -5.177312020449051,
+      "knownCashPnlUsd": -0.350609602517724,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-03-15",
+      "netPnlUsd": -5.612549119645223,
+      "knownCashPnlUsd": -0.272263013165955,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-03-16",
+      "netPnlUsd": -12.176068684346887,
+      "knownCashPnlUsd": -0.20908970440332547,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-03-17",
+      "netPnlUsd": 8.661333575197943,
+      "knownCashPnlUsd": -0.2459665515701405,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-03-18",
+      "netPnlUsd": -2.5363041814289318,
+      "knownCashPnlUsd": -0.29172780790663805,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-03-19",
+      "netPnlUsd": -16.19432812698625,
+      "knownCashPnlUsd": -0.1458012479263709,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-03-20",
+      "netPnlUsd": 16.6131420568139,
+      "knownCashPnlUsd": -0.14242797514165254,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-03-21",
+      "netPnlUsd": -6.977230037860522,
+      "knownCashPnlUsd": -0.25521842769184033,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-03-22",
+      "netPnlUsd": -4.774680146387283,
+      "knownCashPnlUsd": -0.10636073445989981,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-03-23",
+      "netPnlUsd": 0.345870213683213,
+      "knownCashPnlUsd": -0.09665555210094998,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-03-24",
+      "netPnlUsd": 9.08314457794961,
+      "knownCashPnlUsd": -0.12850919218193452,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-03-25",
+      "netPnlUsd": 7.2555800436736035,
+      "knownCashPnlUsd": -0.20830218455031735,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-03-26",
+      "netPnlUsd": 0.09305792873240648,
+      "knownCashPnlUsd": -0.199198186799907,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-03-27",
+      "netPnlUsd": -1.793541894971213,
+      "knownCashPnlUsd": -0.2637696392856171,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-03-28",
+      "netPnlUsd": 3.520712676915963,
+      "knownCashPnlUsd": -0.236573103616834,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-03-29",
+      "netPnlUsd": -2.7006047664276593,
+      "knownCashPnlUsd": -0.20407180972697142,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-03-30",
+      "netPnlUsd": -1.0232683417645205,
+      "knownCashPnlUsd": -0.2408573217298155,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-03-31",
+      "netPnlUsd": 4.588099658438068,
+      "knownCashPnlUsd": -0.3580040540967161,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-04-01",
+      "netPnlUsd": -5.06964923210694,
+      "knownCashPnlUsd": -0.23766839297766434,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-04-02",
+      "netPnlUsd": -11.903643016094719,
+      "knownCashPnlUsd": -0.053441677629512595,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-04-03",
+      "netPnlUsd": 1.2732850005337184,
+      "knownCashPnlUsd": -0.06880582638264987,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-04-04",
+      "netPnlUsd": 7.082559039405567,
+      "knownCashPnlUsd": -0.040782064850866453,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-04-05",
+      "netPnlUsd": -1.8796420343943794,
+      "knownCashPnlUsd": -0.025207062254369195,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-04-06",
+      "netPnlUsd": 3.059683198370209,
+      "knownCashPnlUsd": -0.05698843588141805,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-04-07",
+      "netPnlUsd": 1.0981207672307676,
+      "knownCashPnlUsd": -0.13629226838870462,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-04-08",
+      "netPnlUsd": 6.086378661641703,
+      "knownCashPnlUsd": -0.20575746920124852,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-04-09",
+      "netPnlUsd": -7.058743486925579,
+      "knownCashPnlUsd": -0.075107527653141,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-04-10",
+      "netPnlUsd": 4.101534049600133,
+      "knownCashPnlUsd": -0.058232885385270786,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-04-11",
+      "netPnlUsd": -1.857345880742514,
+      "knownCashPnlUsd": -0.10858804455922187,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-04-12",
+      "netPnlUsd": -8.11982831770689,
+      "knownCashPnlUsd": -0.06637624394849849,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-04-13",
+      "netPnlUsd": -8.859261418685094,
+      "knownCashPnlUsd": 0.01020921687617733,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-04-14",
+      "netPnlUsd": 4.91934094986118,
+      "knownCashPnlUsd": -0.03163408237547144,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-04-15",
+      "netPnlUsd": -6.471167414126967,
+      "knownCashPnlUsd": -0.025674097552721455,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-04-16",
+      "netPnlUsd": 1.1234110061842557,
+      "knownCashPnlUsd": -0.009696551687913394,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-04-17",
+      "netPnlUsd": -7.238904484466616,
+      "knownCashPnlUsd": -0.017434851729425847,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-04-18",
+      "netPnlUsd": 6.2678540500592135,
+      "knownCashPnlUsd": -0.03587029854254235,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-04-19",
+      "netPnlUsd": 0.8392879745196637,
+      "knownCashPnlUsd": -0.0044194735913754305,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-04-20",
+      "netPnlUsd": 3.235084893837552,
+      "knownCashPnlUsd": 0.02572935106054793,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-04-21",
+      "netPnlUsd": -0.07133978394637097,
+      "knownCashPnlUsd": -0.036469292986549676,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-04-22",
+      "netPnlUsd": 5.251682257670865,
+      "knownCashPnlUsd": -0.0333670725135515,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-04-23",
+      "netPnlUsd": -1.1894568426977514,
+      "knownCashPnlUsd": -0.013126630504540968,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-04-24",
+      "netPnlUsd": -6.0636856703047215,
+      "knownCashPnlUsd": -0.07153285232261608,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-04-25",
+      "netPnlUsd": 0.5100218433972827,
+      "knownCashPnlUsd": -0.04738077309225877,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-04-26",
+      "netPnlUsd": -2.0870499618923475,
+      "knownCashPnlUsd": -0.028613547342130098,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-04-27",
+      "netPnlUsd": -0.9738739353232404,
+      "knownCashPnlUsd": -0.05360359163768016,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-04-28",
+      "netPnlUsd": -0.9397428853100394,
+      "knownCashPnlUsd": -0.053703889889667206,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-04-29",
+      "netPnlUsd": 2.1096849561650686,
+      "knownCashPnlUsd": -0.020504780150626647,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-04-30",
+      "netPnlUsd": -9.085205864877338,
+      "knownCashPnlUsd": -0.058581852439313464,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-05-01",
+      "netPnlUsd": -6.676393413619309,
+      "knownCashPnlUsd": -0.06147877633054774,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-05-02",
+      "netPnlUsd": 2.1593189719241366,
+      "knownCashPnlUsd": -0.0326109726421415,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-05-03",
+      "netPnlUsd": 10.779560836951902,
+      "knownCashPnlUsd": -0.008947170737239402,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-05-04",
+      "netPnlUsd": 2.790964678319,
+      "knownCashPnlUsd": -0.050879150670892645,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-05-05",
+      "netPnlUsd": 0.2451787988696026,
+      "knownCashPnlUsd": -0.0778515212925195,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-05-06",
+      "netPnlUsd": -2.555839799177676,
+      "knownCashPnlUsd": -0.0693911671874377,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-05-07",
+      "netPnlUsd": -2.330999944988804,
+      "knownCashPnlUsd": -0.02008293518926923,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-05-08",
+      "netPnlUsd": -3.28087969308649,
+      "knownCashPnlUsd": -0.04996515493009926,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-05-09",
+      "netPnlUsd": 5.2972900424935006,
+      "knownCashPnlUsd": -0.03158741722006492,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-05-10",
+      "netPnlUsd": -6.418967332068206,
+      "knownCashPnlUsd": -0.00462550708744938,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-05-11",
+      "netPnlUsd": 0.02285219323982801,
+      "knownCashPnlUsd": -0.006884842682754973,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-05-12",
+      "netPnlUsd": 1.8546320512081707,
+      "knownCashPnlUsd": 0.0028467119466441177,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-05-13",
+      "netPnlUsd": 4.105990023970151,
+      "knownCashPnlUsd": -0.0358249489278019,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-05-14",
+      "netPnlUsd": -3.9610113505039237,
+      "knownCashPnlUsd": -0.05438989797640561,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-05-15",
+      "netPnlUsd": 13.171329150957945,
+      "knownCashPnlUsd": -0.03261398609041738,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-05-16",
+      "netPnlUsd": -2.8942138957597763,
+      "knownCashPnlUsd": -0.06769834668721786,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-05-17",
+      "netPnlUsd": 5.02178602226283,
+      "knownCashPnlUsd": -0.0939653401070264,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-05-18",
+      "netPnlUsd": -0.4622226214862053,
+      "knownCashPnlUsd": -0.07177719734206829,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-05-19",
+      "netPnlUsd": -1.9281055803101594,
+      "knownCashPnlUsd": -0.07179138210846274,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-05-20",
+      "netPnlUsd": 14.582992695000712,
+      "knownCashPnlUsd": -0.08650837511657394,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-05-21",
+      "netPnlUsd": -3.905143339448159,
+      "knownCashPnlUsd": -0.18058406857114973,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-05-22",
+      "netPnlUsd": -2.9927236645406765,
+      "knownCashPnlUsd": -0.1500464330601653,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-05-23",
+      "netPnlUsd": -3.4771803455533927,
+      "knownCashPnlUsd": -0.15519277329839698,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-05-24",
+      "netPnlUsd": 1.5585033750606385,
+      "knownCashPnlUsd": -0.12266980001332682,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-05-25",
+      "netPnlUsd": 1.993518272364554,
+      "knownCashPnlUsd": -0.09816894281518357,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-05-26",
+      "netPnlUsd": -2.4324042071403937,
+      "knownCashPnlUsd": -0.13157631636878425,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-05-27",
+      "netPnlUsd": 2.3562808114713505,
+      "knownCashPnlUsd": -0.1677625502453141,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-05-28",
+      "netPnlUsd": -3.053931285981804,
+      "knownCashPnlUsd": -0.12734501566864512,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-05-29",
+      "netPnlUsd": -2.307156792320768,
+      "knownCashPnlUsd": -0.13653001638402473,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-05-30",
+      "netPnlUsd": 2.037681688015141,
+      "knownCashPnlUsd": -0.08538805790356566,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-05-31",
+      "netPnlUsd": -2.445207135513215,
+      "knownCashPnlUsd": -0.07140620229079278,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-06-01",
+      "netPnlUsd": 0.5874769295150202,
+      "knownCashPnlUsd": -0.11383081283207551,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-06-02",
+      "netPnlUsd": -0.04907763730238912,
+      "knownCashPnlUsd": -0.08243449135556831,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-06-03",
+      "netPnlUsd": 2.856511097483832,
+      "knownCashPnlUsd": -0.1264763944881494,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-06-04",
+      "netPnlUsd": 4.773075635872829,
+      "knownCashPnlUsd": -0.11089727077754583,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-06-05",
+      "netPnlUsd": 1.4319742114087717,
+      "knownCashPnlUsd": -0.1482816823229154,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-06-06",
+      "netPnlUsd": -1.0772346285724552,
+      "knownCashPnlUsd": -0.12594651752102998,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-06-07",
+      "netPnlUsd": -4.200264014889456,
+      "knownCashPnlUsd": -0.14797598111697363,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-06-08",
+      "netPnlUsd": -0.22695822861373927,
+      "knownCashPnlUsd": -0.09930321487980569,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-06-09",
+      "netPnlUsd": 0.9637089535774521,
+      "knownCashPnlUsd": -0.09288556172222869,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-06-10",
+      "netPnlUsd": -0.5506761626114098,
+      "knownCashPnlUsd": -0.09599637608671352,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-06-11",
+      "netPnlUsd": -6.2271187467767675,
+      "knownCashPnlUsd": -0.03328924456048047,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-06-12",
+      "netPnlUsd": 2.617863929819663,
+      "knownCashPnlUsd": -0.02648530197077474,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-06-13",
+      "netPnlUsd": -4.238369669881024,
+      "knownCashPnlUsd": -0.022185500866689155,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-06-14",
+      "netPnlUsd": -2.0825610426711307,
+      "knownCashPnlUsd": -0.028129039767028664,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-06-15",
+      "netPnlUsd": 0.4949452640379661,
+      "knownCashPnlUsd": -0.018619875309130573,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-06-16",
+      "netPnlUsd": 1.2573839615447469,
+      "knownCashPnlUsd": -0.03145628607565092,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-06-17",
+      "netPnlUsd": -0.5210857022839832,
+      "knownCashPnlUsd": -0.03341376656801198,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-06-18",
+      "netPnlUsd": -3.7324898561878967,
+      "knownCashPnlUsd": 0.00284240550264977,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-06-19",
+      "netPnlUsd": -0.5567124863423487,
+      "knownCashPnlUsd": -0.014853029056363331,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-06-20",
+      "netPnlUsd": -0.360252857059038,
+      "knownCashPnlUsd": -0.039949555974126104,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-06-21",
+      "netPnlUsd": -2.019895242635158,
+      "knownCashPnlUsd": -0.02381472003538992,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-06-22",
+      "netPnlUsd": 0.2932216877627809,
+      "knownCashPnlUsd": -0.020432046268200128,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-06-23",
+      "netPnlUsd": -3.0582647507433194,
+      "knownCashPnlUsd": -0.03552330435133299,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-06-24",
+      "netPnlUsd": -8.136317733848614,
+      "knownCashPnlUsd": -0.02148916963797296,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-06-25",
+      "netPnlUsd": 4.281633383711522,
+      "knownCashPnlUsd": -0.014054555768212074,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-06-26",
+      "netPnlUsd": -2.7177170085422517,
+      "knownCashPnlUsd": -0.02544673259819621,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-06-27",
+      "netPnlUsd": 2.197538889073087,
+      "knownCashPnlUsd": -0.08692598101772014,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-06-28",
+      "netPnlUsd": -3.7521868885820027,
+      "knownCashPnlUsd": -0.08185788820769478,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-06-29",
+      "netPnlUsd": 1.5072260423858381,
+      "knownCashPnlUsd": -0.06934199859524368,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-06-30",
+      "netPnlUsd": 5.040198803984083,
+      "knownCashPnlUsd": -0.07268289711059578,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-07-01",
+      "netPnlUsd": 0.2639660258173535,
+      "knownCashPnlUsd": -0.07841368081023187,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-07-02",
+      "netPnlUsd": -2.3119669260521505,
+      "knownCashPnlUsd": -0.07064083530004228,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-07-03",
+      "netPnlUsd": -5.375171101516685,
+      "knownCashPnlUsd": -0.02229949620547128,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-07-04",
+      "netPnlUsd": -8.715761745496053,
+      "knownCashPnlUsd": 0.007082220347145428,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-07-05",
+      "netPnlUsd": -1.082631057957343,
+      "knownCashPnlUsd": 0.008493146263629795,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-07-06",
+      "netPnlUsd": 4.495563762251152,
+      "knownCashPnlUsd": -0.007170950779392604,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-07-07",
+      "netPnlUsd": -6.693597011315262,
+      "knownCashPnlUsd": -0.01594647562092856,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-07-08",
+      "netPnlUsd": 2.3919470646907257,
+      "knownCashPnlUsd": -0.016634149271425234,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-07-09",
+      "netPnlUsd": 3.718780155915198,
+      "knownCashPnlUsd": -0.017054172887532446,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-07-10",
+      "netPnlUsd": -0.9272213686589907,
+      "knownCashPnlUsd": -0.024230718890747772,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-07-11",
+      "netPnlUsd": -1.1174652555475006,
+      "knownCashPnlUsd": -0.01240061603118698,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-07-12",
+      "netPnlUsd": 1.6143204843569947,
+      "knownCashPnlUsd": -0.017111338802482508,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-07-13",
+      "netPnlUsd": 3.709573842203014,
+      "knownCashPnlUsd": -0.02210473824766055,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-07-14",
+      "netPnlUsd": 4.32819305367812,
+      "knownCashPnlUsd": -0.06015020516732779,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-07-15",
+      "netPnlUsd": 11.036711648961727,
+      "knownCashPnlUsd": -0.02637576878542391,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-07-16",
+      "netPnlUsd": 0.8625346675073615,
+      "knownCashPnlUsd": -0.033851046761205435,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-07-17",
+      "netPnlUsd": -2.802751516623289,
+      "knownCashPnlUsd": -0.034935347469037904,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-07-18",
+      "netPnlUsd": -0.35248215425565377,
+      "knownCashPnlUsd": -0.018778176420846643,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-07-19",
+      "netPnlUsd": 7.61049937543001,
+      "knownCashPnlUsd": -0.03980026049811093,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-07-20",
+      "netPnlUsd": 1.243302188780575,
+      "knownCashPnlUsd": -0.04494459065854722,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-07-21",
+      "netPnlUsd": 2.8466618425294428,
+      "knownCashPnlUsd": -0.06717668877742244,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-07-22",
+      "netPnlUsd": -1.8756077881060378,
+      "knownCashPnlUsd": -0.038894972328605275,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-07-23",
+      "netPnlUsd": -4.543079059419597,
+      "knownCashPnlUsd": -0.028919585852056538,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-07-24",
+      "netPnlUsd": -1.6304219045718753,
+      "knownCashPnlUsd": -0.04151261751744743,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-07-25",
+      "netPnlUsd": 1.1304108851300043,
+      "knownCashPnlUsd": -0.04579158358518613,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-07-26",
+      "netPnlUsd": 5.904682079669641,
+      "knownCashPnlUsd": -0.03034927828083215,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-07-27",
+      "netPnlUsd": -0.13026387478251422,
+      "knownCashPnlUsd": -0.06001013748419463,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-07-28",
+      "netPnlUsd": 0.9746273636278033,
+      "knownCashPnlUsd": -0.04062886463189554,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-07-29",
+      "netPnlUsd": -4.273564882563562,
+      "knownCashPnlUsd": -0.06882552411559538,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-07-30",
+      "netPnlUsd": -1.6365220871351767,
+      "knownCashPnlUsd": -0.035484165732836866,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-07-31",
+      "netPnlUsd": -4.446577436818728,
+      "knownCashPnlUsd": -0.05565445101133544,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-08-01",
+      "netPnlUsd": 1.9499882588955302,
+      "knownCashPnlUsd": -0.04844031319218037,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-08-02",
+      "netPnlUsd": -10.939663074550452,
+      "knownCashPnlUsd": -0.03166800073762639,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-08-03",
+      "netPnlUsd": -2.086168525305652,
+      "knownCashPnlUsd": -0.016342384368515202,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-08-04",
+      "netPnlUsd": -7.173888981796011,
+      "knownCashPnlUsd": -0.018698256146413277,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-08-05",
+      "netPnlUsd": -11.504287235975937,
+      "knownCashPnlUsd": 0.009103322931223939,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-08-06",
+      "netPnlUsd": 5.649613076264558,
+      "knownCashPnlUsd": 0.0067623002241206254,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-08-07",
+      "netPnlUsd": -2.4719922812354014,
+      "knownCashPnlUsd": 0.002288297277053066,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-08-08",
+      "netPnlUsd": 18.325862795996272,
+      "knownCashPnlUsd": 0.001531811993905448,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-08-09",
+      "netPnlUsd": -2.3198700077660703,
+      "knownCashPnlUsd": 0.0031284030427790746,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-08-10",
+      "netPnlUsd": 0.21124211844463048,
+      "knownCashPnlUsd": -0.010511471740843752,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-08-11",
+      "netPnlUsd": -6.2175329180657855,
+      "knownCashPnlUsd": -0.00887617414708453,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-08-12",
+      "netPnlUsd": 1.7619253991927621,
+      "knownCashPnlUsd": -0.016653281692381297,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-08-13",
+      "netPnlUsd": 3.470329467506531,
+      "knownCashPnlUsd": -0.010971905841901683,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-08-14",
+      "netPnlUsd": -5.360185640821214,
+      "knownCashPnlUsd": 0.0016399397478977264,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-08-15",
+      "netPnlUsd": -3.202271178969994,
+      "knownCashPnlUsd": 0.004103531455568382,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-08-16",
+      "netPnlUsd": 3.814107230849544,
+      "knownCashPnlUsd": 0.021093313998928068,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-08-17",
+      "netPnlUsd": 1.6859211805144128,
+      "knownCashPnlUsd": -0.015870048191639174,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-08-18",
+      "netPnlUsd": -3.06720640692086,
+      "knownCashPnlUsd": -0.02814997156706278,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-08-19",
+      "netPnlUsd": 2.911959585492667,
+      "knownCashPnlUsd": 0.0061583244628494,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-08-20",
+      "netPnlUsd": -1.2896922603949292,
+      "knownCashPnlUsd": -0.006467275323203493,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-08-21",
+      "netPnlUsd": 6.056257250569047,
+      "knownCashPnlUsd": 0.004094069070401864,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-08-22",
+      "netPnlUsd": -2.1587191847736733,
+      "knownCashPnlUsd": -0.02445218418118757,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-08-23",
+      "netPnlUsd": 10.273124767904477,
+      "knownCashPnlUsd": -0.012995543889465786,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-08-24",
+      "netPnlUsd": 0.30665542959451386,
+      "knownCashPnlUsd": -0.014894825103912565,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-08-25",
+      "netPnlUsd": 0.16630063685028063,
+      "knownCashPnlUsd": -0.023334964402058574,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-08-26",
+      "netPnlUsd": -3.9457065247347316,
+      "knownCashPnlUsd": -0.025671424149372943,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-08-27",
+      "netPnlUsd": -9.658938341405673,
+      "knownCashPnlUsd": -0.03756674437301276,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-08-28",
+      "netPnlUsd": -1.0501730671228415,
+      "knownCashPnlUsd": -0.006052708747564588,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-08-29",
+      "netPnlUsd": 0.8743910478352745,
+      "knownCashPnlUsd": -0.0028486943050900406,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-08-30",
+      "netPnlUsd": -0.714467580618674,
+      "knownCashPnlUsd": 0.003281178542256345,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-08-31",
+      "netPnlUsd": -0.3894905124314505,
+      "knownCashPnlUsd": -0.013820421138141942,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-09-01",
+      "netPnlUsd": -4.71291595932982,
+      "knownCashPnlUsd": -0.023629515247892762,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-09-02",
+      "netPnlUsd": 5.1466073322247325,
+      "knownCashPnlUsd": -0.021078689018138894,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-09-03",
+      "netPnlUsd": -4.716595156941025,
+      "knownCashPnlUsd": -0.02737256391355706,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-09-04",
+      "netPnlUsd": 1.4311582553364417,
+      "knownCashPnlUsd": 0.012812908615259723,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-09-05",
+      "netPnlUsd": -5.113072081931108,
+      "knownCashPnlUsd": -0.022298655491209598,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-09-06",
+      "netPnlUsd": -6.171582677157289,
+      "knownCashPnlUsd": -0.007955116053538713,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-09-07",
+      "netPnlUsd": 0.5693879726242699,
+      "knownCashPnlUsd": 0.02138245247451045,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-09-08",
+      "netPnlUsd": 2.069050320903301,
+      "knownCashPnlUsd": 0.0034468634131038824,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-09-09",
+      "netPnlUsd": 6.0604287332838,
+      "knownCashPnlUsd": -0.010976899188108192,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-09-10",
+      "netPnlUsd": 1.6379665425116912,
+      "knownCashPnlUsd": -0.024044786416336117,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-09-11",
+      "netPnlUsd": -0.8306754729400154,
+      "knownCashPnlUsd": 0.0019146816108902016,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-09-12",
+      "netPnlUsd": 2.166509287564452,
+      "knownCashPnlUsd": -0.01821521668596385,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-09-13",
+      "netPnlUsd": 6.738075131581127,
+      "knownCashPnlUsd": 0.0016831923264272023,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-09-14",
+      "netPnlUsd": -1.481561733673061,
+      "knownCashPnlUsd": -0.0224621445378595,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-09-15",
+      "netPnlUsd": -2.486555147650421,
+      "knownCashPnlUsd": -0.04534904689364382,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-09-16",
+      "netPnlUsd": -2.6416138455780356,
+      "knownCashPnlUsd": -0.03291468709675823,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-09-17",
+      "netPnlUsd": 5.898601260429359,
+      "knownCashPnlUsd": -0.011186703377487459,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-09-18",
+      "netPnlUsd": 4.048799878869858,
+      "knownCashPnlUsd": -0.022076104990412956,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-09-19",
+      "netPnlUsd": 3.3015496274366,
+      "knownCashPnlUsd": -0.04766612158960952,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-09-20",
+      "netPnlUsd": 0.6601882293977042,
+      "knownCashPnlUsd": -0.03830795884248788,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-09-21",
+      "netPnlUsd": 0.36436543504311203,
+      "knownCashPnlUsd": -0.02730013223462406,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-09-22",
+      "netPnlUsd": 0.5873128035204047,
+      "knownCashPnlUsd": -0.016478626183926894,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-09-23",
+      "netPnlUsd": -0.6653122248038414,
+      "knownCashPnlUsd": -0.02499896691545602,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-09-24",
+      "netPnlUsd": 2.5354929036844567,
+      "knownCashPnlUsd": -0.06272226699584647,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-09-25",
+      "netPnlUsd": -3.220159656080199,
+      "knownCashPnlUsd": -0.030397273769067274,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-09-26",
+      "netPnlUsd": 5.686266842654646,
+      "knownCashPnlUsd": -0.04490148558590799,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-09-27",
+      "netPnlUsd": 1.639937026332916,
+      "knownCashPnlUsd": -0.040790855028020774,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-09-28",
+      "netPnlUsd": 0.20044674038953758,
+      "knownCashPnlUsd": -0.020187870995258855,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-09-29",
+      "netPnlUsd": -0.7452071916186469,
+      "knownCashPnlUsd": -0.033501733674759,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-09-30",
+      "netPnlUsd": -6.444354509729237,
+      "knownCashPnlUsd": -0.041093620384925034,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-10-01",
+      "netPnlUsd": -7.184136858320329,
+      "knownCashPnlUsd": -0.047840508893288836,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-10-02",
+      "netPnlUsd": -0.381563224100546,
+      "knownCashPnlUsd": -0.02371711452239494,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-10-03",
+      "netPnlUsd": 0.24769425665698463,
+      "knownCashPnlUsd": -0.03537878904972095,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-10-04",
+      "netPnlUsd": 3.7372652952754777,
+      "knownCashPnlUsd": -0.036014793265062864,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-10-05",
+      "netPnlUsd": -0.12235081232981315,
+      "knownCashPnlUsd": -0.04154259023192934,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-10-06",
+      "netPnlUsd": 2.0483893647002844,
+      "knownCashPnlUsd": -0.050093005811681295,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-10-07",
+      "netPnlUsd": -1.7664790868971636,
+      "knownCashPnlUsd": -0.04907127447692556,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-10-08",
+      "netPnlUsd": -0.27817546947642313,
+      "knownCashPnlUsd": -0.04528645146291936,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-10-09",
+      "netPnlUsd": -4.352260666873178,
+      "knownCashPnlUsd": -0.03388989585340442,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-10-10",
+      "netPnlUsd": -0.8704840452595022,
+      "knownCashPnlUsd": -0.030364967937297684,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-10-11",
+      "netPnlUsd": 6.270295998234417,
+      "knownCashPnlUsd": -0.028814682036509352,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-10-12",
+      "netPnlUsd": 1.8455051746939262,
+      "knownCashPnlUsd": -0.0630054157059912,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-10-13",
+      "netPnlUsd": -1.071412620671822,
+      "knownCashPnlUsd": -0.06928811673794757,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-10-14",
+      "netPnlUsd": 8.867923139610127,
+      "knownCashPnlUsd": -0.125482449161358,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-10-15",
+      "netPnlUsd": 2.7489742328388047,
+      "knownCashPnlUsd": -0.0705876956515728,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-10-16",
+      "netPnlUsd": 1.408244783415455,
+      "knownCashPnlUsd": -0.05399530927248646,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-10-17",
+      "netPnlUsd": -0.5436411338090181,
+      "knownCashPnlUsd": -0.040278050158600226,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-10-18",
+      "netPnlUsd": 2.7562824633265848,
+      "knownCashPnlUsd": -0.05698736910876458,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-10-19",
+      "netPnlUsd": -0.17782786409856044,
+      "knownCashPnlUsd": -0.017029560034711635,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-10-20",
+      "netPnlUsd": 1.8536364465638542,
+      "knownCashPnlUsd": -0.064588204268766,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-10-21",
+      "netPnlUsd": -4.877851482117308,
+      "knownCashPnlUsd": -0.10809592067033642,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-10-22",
+      "netPnlUsd": 0.05209075177211275,
+      "knownCashPnlUsd": -0.04841168154089108,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-10-23",
+      "netPnlUsd": -2.1226278053212297,
+      "knownCashPnlUsd": -0.03924669579951839,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-10-24",
+      "netPnlUsd": 4.233183179961628,
+      "knownCashPnlUsd": -0.09747033075829496,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-10-25",
+      "netPnlUsd": -4.497397195944302,
+      "knownCashPnlUsd": -0.0603915110211385,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-10-26",
+      "netPnlUsd": 1.1092073390421433,
+      "knownCashPnlUsd": -0.05457892870105929,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-10-27",
+      "netPnlUsd": 2.5917989749876256,
+      "knownCashPnlUsd": -0.07061331950483567,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-10-28",
+      "netPnlUsd": 5.463135172007725,
+      "knownCashPnlUsd": -0.08006016126211098,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-10-29",
+      "netPnlUsd": 7.7247701430318045,
+      "knownCashPnlUsd": -0.10634760130423851,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-10-30",
+      "netPnlUsd": -1.1829764049962819,
+      "knownCashPnlUsd": -0.10291675205359802,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-10-31",
+      "netPnlUsd": -6.070095079263012,
+      "knownCashPnlUsd": -0.08002335092949826,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-11-01",
+      "netPnlUsd": -2.1573523097247858,
+      "knownCashPnlUsd": -0.05393313775430736,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-11-02",
+      "netPnlUsd": -0.32815517319949095,
+      "knownCashPnlUsd": -0.025656613426621504,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-11-03",
+      "netPnlUsd": -1.7301397387966517,
+      "knownCashPnlUsd": -0.0069230584634568035,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-11-04",
+      "netPnlUsd": -2.6133557733060684,
+      "knownCashPnlUsd": -0.032563540145993525,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-11-05",
+      "netPnlUsd": 4.336578733628812,
+      "knownCashPnlUsd": -0.02494250229800335,
+      "exposureNotionalHours": 2854.9248000000002,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-11-06",
+      "netPnlUsd": 17.385678831379863,
+      "knownCashPnlUsd": 6.363642870170599,
+      "exposureNotionalHours": 2748.7147999999993,
+      "completedTrades": 0,
+      "orders": 2
+    },
+    {
+      "date": "2024-11-07",
+      "netPnlUsd": 0.5570795139323081,
+      "knownCashPnlUsd": 3.296421248401504,
+      "exposureNotionalHours": 2629.7596000000003,
+      "completedTrades": 0,
+      "orders": 1
+    },
+    {
+      "date": "2024-11-08",
+      "netPnlUsd": 1.490316226839326,
+      "knownCashPnlUsd": -0.07909573790448675,
+      "exposureNotionalHours": 2549.0400000000004,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-11-09",
+      "netPnlUsd": 0.4669930456023508,
+      "knownCashPnlUsd": -0.04637626440058924,
+      "exposureNotionalHours": 2549.0400000000004,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-11-10",
+      "netPnlUsd": 8.903269852852247,
+      "knownCashPnlUsd": 7.241079981356813,
+      "exposureNotionalHours": 2417.3396,
+      "completedTrades": 0,
+      "orders": 2
+    },
+    {
+      "date": "2024-11-11",
+      "netPnlUsd": 17.73652147508801,
+      "knownCashPnlUsd": 12.347048143356169,
+      "exposureNotionalHours": 2204.9195999999997,
+      "completedTrades": 0,
+      "orders": 3
+    },
+    {
+      "date": "2024-11-12",
+      "netPnlUsd": -1.728149723380568,
+      "knownCashPnlUsd": 4.385825488597021,
+      "exposureNotionalHours": 1937.270399999999,
+      "completedTrades": 0,
+      "orders": 1
+    },
+    {
+      "date": "2024-11-13",
+      "netPnlUsd": 4.787696574901702,
+      "knownCashPnlUsd": 4.857320021100096,
+      "exposureNotionalHours": 1899.0347999999994,
+      "completedTrades": 0,
+      "orders": 1
+    },
+    {
+      "date": "2024-11-14",
+      "netPnlUsd": -5.806745802399007,
+      "knownCashPnlUsd": -0.1055939524391984,
+      "exposureNotionalHours": 1835.3087999999993,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-11-15",
+      "netPnlUsd": 6.645061035625815,
+      "knownCashPnlUsd": -0.08085670830561624,
+      "exposureNotionalHours": 1835.3087999999993,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-11-16",
+      "netPnlUsd": -0.9084704898165796,
+      "knownCashPnlUsd": -0.1105152129922187,
+      "exposureNotionalHours": 1835.3087999999993,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-11-17",
+      "netPnlUsd": -1.4849828769533815,
+      "knownCashPnlUsd": -0.1469503934143703,
+      "exposureNotionalHours": 1835.3087999999993,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-11-18",
+      "netPnlUsd": 0.9840725056471911,
+      "knownCashPnlUsd": -0.13263174294326627,
+      "exposureNotionalHours": 1835.3087999999993,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-11-19",
+      "netPnlUsd": 3.4418202607160424,
+      "knownCashPnlUsd": 5.015603620573132,
+      "exposureNotionalHours": 1814.0667999999996,
+      "completedTrades": 0,
+      "orders": 1
+    },
+    {
+      "date": "2024-11-20",
+      "netPnlUsd": 3.2370400926702416,
+      "knownCashPnlUsd": -0.05104668366938479,
+      "exposureNotionalHours": 1733.3472,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-11-21",
+      "netPnlUsd": 6.7789745300681545,
+      "knownCashPnlUsd": 5.422906153283008,
+      "exposureNotionalHours": 1652.627600000001,
+      "completedTrades": 0,
+      "orders": 1
+    },
+    {
+      "date": "2024-11-22",
+      "netPnlUsd": 0.8411136236927916,
+      "knownCashPnlUsd": -0.11440409658824519,
+      "exposureNotionalHours": 1631.385600000001,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-11-23",
+      "netPnlUsd": -2.1314289509939783,
+      "knownCashPnlUsd": -0.11719172895222688,
+      "exposureNotionalHours": 1631.385600000001,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-11-24",
+      "netPnlUsd": 0.3071375387922899,
+      "knownCashPnlUsd": -0.12488867236474001,
+      "exposureNotionalHours": 1631.385600000001,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-11-25",
+      "netPnlUsd": -8.1990084261393,
+      "knownCashPnlUsd": -0.1339483974641553,
+      "exposureNotionalHours": 1631.385600000001,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-11-26",
+      "netPnlUsd": -1.8170968767811644,
+      "knownCashPnlUsd": -0.12105364921474118,
+      "exposureNotionalHours": 1631.385600000001,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-11-27",
+      "netPnlUsd": 6.304728301518338,
+      "knownCashPnlUsd": -0.08975245647235354,
+      "exposureNotionalHours": 1631.385600000001,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-11-28",
+      "netPnlUsd": -0.4829881071385387,
+      "knownCashPnlUsd": -0.06899766527833887,
+      "exposureNotionalHours": 1631.385600000001,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-11-29",
+      "netPnlUsd": 2.8928779261818818,
+      "knownCashPnlUsd": -0.14574373777378916,
+      "exposureNotionalHours": 1631.385600000001,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-11-30",
+      "netPnlUsd": -1.866524120896628,
+      "knownCashPnlUsd": -0.12005126637411198,
+      "exposureNotionalHours": 1631.385600000001,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-12-01",
+      "netPnlUsd": 1.1866207862602778,
+      "knownCashPnlUsd": -0.133487229748394,
+      "exposureNotionalHours": 1631.385600000001,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-12-02",
+      "netPnlUsd": -2.44422011834547,
+      "knownCashPnlUsd": -0.12401780564019754,
+      "exposureNotionalHours": 1631.385600000001,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-12-03",
+      "netPnlUsd": 0.03527930619043218,
+      "knownCashPnlUsd": -0.13695795320558396,
+      "exposureNotionalHours": 1631.385600000001,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-12-04",
+      "netPnlUsd": 4.311711528476138,
+      "knownCashPnlUsd": -0.16566009950157215,
+      "exposureNotionalHours": 1631.385600000001,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-12-05",
+      "netPnlUsd": -2.464093692351952,
+      "knownCashPnlUsd": 5.660168080977606,
+      "exposureNotionalHours": 1542.1692000000007,
+      "completedTrades": 0,
+      "orders": 1
+    },
+    {
+      "date": "2024-12-06",
+      "netPnlUsd": 4.065751813352875,
+      "knownCashPnlUsd": -0.12494740494644489,
+      "exposureNotionalHours": 1529.424000000001,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-12-07",
+      "netPnlUsd": -0.012994580488708607,
+      "knownCashPnlUsd": -0.11824444631978942,
+      "exposureNotionalHours": 1529.424000000001,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-12-08",
+      "netPnlUsd": 1.833267159088905,
+      "knownCashPnlUsd": -0.1403540835635368,
+      "exposureNotionalHours": 1529.424000000001,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-12-09",
+      "netPnlUsd": -6.0720780271577155,
+      "knownCashPnlUsd": -0.12357936994203489,
+      "exposureNotionalHours": 1529.424000000001,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-12-10",
+      "netPnlUsd": -1.101914498935372,
+      "knownCashPnlUsd": -0.07941669335548812,
+      "exposureNotionalHours": 1529.424000000001,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-12-11",
+      "netPnlUsd": 6.752760324637819,
+      "knownCashPnlUsd": -0.06074023143950489,
+      "exposureNotionalHours": 1529.424000000001,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-12-12",
+      "netPnlUsd": -1.8511106784554556,
+      "knownCashPnlUsd": -0.05022407789041922,
+      "exposureNotionalHours": 1529.424000000001,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-12-13",
+      "netPnlUsd": 2.1087184917959405,
+      "knownCashPnlUsd": -0.03531050935120374,
+      "exposureNotionalHours": 1529.424000000001,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-12-14",
+      "netPnlUsd": -0.08948753901040618,
+      "knownCashPnlUsd": -0.03965989824717805,
+      "exposureNotionalHours": 1529.424000000001,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-12-15",
+      "netPnlUsd": 4.55725822251884,
+      "knownCashPnlUsd": -0.06102263664856677,
+      "exposureNotionalHours": 1529.424000000001,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-12-16",
+      "netPnlUsd": 2.2624518611286817,
+      "knownCashPnlUsd": 6.1967426831298775,
+      "exposureNotionalHours": 1431.7108,
+      "completedTrades": 0,
+      "orders": 1
+    },
+    {
+      "date": "2024-12-17",
+      "netPnlUsd": 0.013316881815342185,
+      "knownCashPnlUsd": -0.07152362567094814,
+      "exposureNotionalHours": 1427.4624000000001,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-12-18",
+      "netPnlUsd": -8.491774689998692,
+      "knownCashPnlUsd": -0.06038280320668911,
+      "exposureNotionalHours": 1427.4624000000001,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-12-19",
+      "netPnlUsd": -3.9428054637426158,
+      "knownCashPnlUsd": -0.0647704699354769,
+      "exposureNotionalHours": 1427.4624000000001,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-12-20",
+      "netPnlUsd": 0.5684063882414421,
+      "knownCashPnlUsd": -0.03425843185360207,
+      "exposureNotionalHours": 1427.4624000000001,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-12-21",
+      "netPnlUsd": -0.8357121146138979,
+      "knownCashPnlUsd": -0.02626301958525232,
+      "exposureNotionalHours": 1427.4624000000001,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-12-22",
+      "netPnlUsd": -3.036244450097257,
+      "knownCashPnlUsd": -0.006625129924644381,
+      "exposureNotionalHours": 1427.4624000000001,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-12-23",
+      "netPnlUsd": -0.41636072284578063,
+      "knownCashPnlUsd": -0.0325688024982266,
+      "exposureNotionalHours": 1427.4624000000001,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-12-24",
+      "netPnlUsd": 5.310366341759618,
+      "knownCashPnlUsd": -0.03389629510782348,
+      "exposureNotionalHours": 1427.4624000000001,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-12-25",
+      "netPnlUsd": 1.0407990743932771,
+      "knownCashPnlUsd": -0.033630420089650157,
+      "exposureNotionalHours": 1427.4624000000001,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-12-26",
+      "netPnlUsd": -5.196202153174994,
+      "knownCashPnlUsd": -0.03608662525565958,
+      "exposureNotionalHours": 1427.4624000000001,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-12-27",
+      "netPnlUsd": -2.192097229764613,
+      "knownCashPnlUsd": -0.07694751998566382,
+      "exposureNotionalHours": 1427.4624000000001,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-12-28",
+      "netPnlUsd": 1.3236931127403864,
+      "knownCashPnlUsd": -0.03440222682151022,
+      "exposureNotionalHours": 1427.4624000000001,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-12-29",
+      "netPnlUsd": -2.256157653046671,
+      "knownCashPnlUsd": -0.02668083396784,
+      "exposureNotionalHours": 1427.4624000000001,
+      "completedTrades": 0,
+      "orders": 0
+    },
+    {
+      "date": "2024-12-30",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 71.42235378056371,
+      "exposureNotionalHours": 0,
+      "completedTrades": 1,
+      "orders": 1
+    },
+    {
+      "date": "2024-12-31",
+      "netPnlUsd": 0,
+      "knownCashPnlUsd": 0,
+      "exposureNotionalHours": 0,
+      "completedTrades": 0,
+      "orders": 0
+    }
+  ],
+  "blockReasons": {
+    "ENTRY_FILLED_PROXY": 1
+  },
+  "unresolvedPosition": null,
+  "flatBenchmark": {
+    "completedTrades": 0,
+    "netPnlUsd": 0,
+    "maxDrawdownUsd": 0
+  },
+  "limitations": [
+    "Hourly candles do not establish executable depth, latency, spread, partial fills or impact; this is not executable-profit evidence.",
+    "Positive full-hour volume is used only as a fill-availability proxy; future candle volume never permits fallback to a second symbol at the same open.",
+    "Within-hour chronology is synthetic. Favorable-before-adverse marks retain peak-to-trough drawdown; stops receive an extra adverse execution allowance.",
+    "Funding uses archived absolute USD-per-unit rates prorated over synthetic holding intervals. FundingRow timestamps are normalized interval ends; source-plus-hour assigns [end-1h,end), while source-as-end shifts that interval one hour earlier. Actual settlement timing is unverified.",
+    "Missing held funding makes total funded P&L and drawdown unknown and permanently blocks later entries in that run.",
+    "Current lots, ticks and fixed fee assumptions do not establish historical contract specifications or account fee tiers.",
+    "Sizing reserves current rolling-loss, UTC-session-loss and drawdown dollar headroom. The notional cap is enforced at entry and hourly trims; intrabar price moves and zero-volume hours can exceed it before an executable reduction.",
+    "Depth is unavailable. Quantities are optimistic liquidity-feasible ceilings, with no claim of live depth participation parity.",
+    "Weekly forecast confidence bounds concern parameter uncertainty of a conditional mean; they are not predictive intervals or profit guarantees.",
+    "Flat orders are requested 48 hours before each window ends. Unfilled inventory is reported unresolved, never silently assigned a closing fill."
+  ],
+  "estimatorVersion": "btc-eth-weekly-gross-forecast-inventory-v1",
+  "selectionSpec": {
+    "version": "btc-eth-weekly-mean-variance-inventory-v2",
+    "forecastVersion": "btc-eth-weekly-gross-forecast-inventory-v1",
+    "decision": "POSITIVE_ABSOLUTE_GROSS_MEAN_MINUS_FULL_ROUND_TRIP_COST_HURDLE",
+    "confidenceIntervalGate": false,
+    "parameterVariance": "SAMPLE_VARIANCE_OF_BOOTSTRAP_CONDITIONAL_MEAN_DECIMAL_RETURNS",
+    "variance": "HISTORICAL_WEEKLY_VOLATILITY_SQUARED_PLUS_PARAMETER_VARIANCE",
+    "fraction": "MIN(0.01,0.25*NET_MEAN/(VARIANCE+NET_MEAN_SQUARED))",
+    "fractionalKellyMultiplier": 0.25,
+    "maximumEquityFraction": 0.01,
+    "score": "NET_MEAN_DIVIDED_BY_SQRT_VARIANCE",
+    "quantityDeadbandFraction": 0.25,
+    "switchImprovementFraction": 0.25,
+    "remainingControls": "ONE_SLOT; FULL_COST_HURDLE; NOTIONAL_AND_REMAINING_RISK_CAPS; LOTS; STOPS; FUNDING_COVERAGE",
+    "varianceInterpretation": "HISTORICAL_VOLATILITY_AND_PARAMETER_UNCERTAINTY_PROXY_NOT_CALIBRATED_PREDICTIVE_DISTRIBUTION",
+    "sizingInterpretation": "FRACTIONAL_SECOND_ORDER_EXPECTED_LOG_UTILITY_APPROXIMATION_NOT_EXACT_KELLY",
+    "validation": "UNCHANGED_EIGHT_RUN_AFTER_COST_ECONOMIC_AND_ACCOUNTING_GATES; PRIOR_FAILURES_PRESERVED",
+    "winProbability": null,
+    "returnGuarantee": false,
+    "sources": [
+      "https://www.columbia.edu/~ww2040/PortfolioChoice96.pdf",
+      "https://arxiv.org/abs/1803.03573"
+    ]
+  }
+}

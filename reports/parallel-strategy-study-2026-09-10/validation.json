@@ -1,0 +1,7238 @@
+{
+  "trend": {
+    "base": {
+      "start": "2025-07-01",
+      "end": "2026-01-01",
+      "scenario": "base",
+      "initialCapitalUsd": 10000.0,
+      "entryBudgetUsd": 1000.0,
+      "netPnlUsd": 118.26928979436525,
+      "returnOnAccountPct": 1.1826928979436602,
+      "netPctOfEntryBudget": 11.826928979436525,
+      "maxDrawdownUsd": 265.30471769881115,
+      "maxDrawdownPctInitialCapital": 2.653047176988111,
+      "maxIntradayLowDrawdownUsd": 278.4467384764812,
+      "closedTrades": 1,
+      "entries": 1,
+      "feesUsd": 16.954808300035204,
+      "adversePriceCostUsd": 0.6399057377999899,
+      "turnoverUsd": 2119.3510375044,
+      "profitFactor": null,
+      "winningTrades": 1,
+      "meanHoldingDays": 70.0,
+      "exposedDays": 70,
+      "totalDays": 184,
+      "positiveMonths": 2,
+      "monthlyPnlUsd": {
+        "2025-07": 24.79767186079698,
+        "2025-08": 192.2765511964426,
+        "2025-09": -98.80493326287433,
+        "2025-10": 0.0,
+        "2025-11": 0.0,
+        "2025-12": 0.0
+      },
+      "rejectedEntries": 0,
+      "selectionUtility": -14.383069055040323,
+      "daily": [
+        {
+          "date": "2025-07-01",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-02",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-03",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-04",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-05",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-06",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-07",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-08",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-09",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-10",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-11",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-12",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-13",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-14",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-15",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-16",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-17",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-18",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-19",
+          "equityUsd": 9996.559374948305,
+          "pnlUsd": -3.4406250516949513,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-20",
+          "equityUsd": 10041.975715049834,
+          "pnlUsd": 45.416340101528476,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-21",
+          "equityUsd": 10043.112232349738,
+          "pnlUsd": 1.136517299904881,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-22",
+          "equityUsd": 10038.91820631375,
+          "pnlUsd": -4.194026035987918,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-23",
+          "equityUsd": 10005.654285340952,
+          "pnlUsd": -33.26392097279859,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-24",
+          "equityUsd": 10027.015266592318,
+          "pnlUsd": 21.360981251365956,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-25",
+          "equityUsd": 10032.401249796496,
+          "pnlUsd": 5.385983204178046,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-26",
+          "equityUsd": 10037.0221628183,
+          "pnlUsd": 4.620913021804881,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-27",
+          "equityUsd": 10073.823147387877,
+          "pnlUsd": 36.80098456957603,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-28",
+          "equityUsd": 10052.232090683114,
+          "pnlUsd": -21.591056704763105,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-29",
+          "equityUsd": 10051.065081455652,
+          "pnlUsd": -1.1670092274616763,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-30",
+          "equityUsd": 10054.937556255569,
+          "pnlUsd": 3.872474799916745,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-31",
+          "equityUsd": 10024.797671860797,
+          "pnlUsd": -30.139884394771798,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-01",
+          "equityUsd": 9966.014779515031,
+          "pnlUsd": -58.782892345765504,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-02",
+          "equityUsd": 9940.24632873477,
+          "pnlUsd": -25.768450780262356,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-03",
+          "equityUsd": 9969.01962037624,
+          "pnlUsd": 28.773291641471587,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-04",
+          "equityUsd": 10030.868337438333,
+          "pnlUsd": 61.848717062091964,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-05",
+          "equityUsd": 10000.770032944778,
+          "pnlUsd": -30.09830449355468,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-06",
+          "equityUsd": 10020.772737423089,
+          "pnlUsd": 20.00270447831099,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-07",
+          "equityUsd": 10084.281878540407,
+          "pnlUsd": 63.509141117317995,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-08",
+          "equityUsd": 10110.78213558207,
+          "pnlUsd": 26.500257041663644,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-09",
+          "equityUsd": 10181.321051998308,
+          "pnlUsd": 70.53891641623704,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-10",
+          "equityUsd": 10178.188699440036,
+          "pnlUsd": -3.132352558272032,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-11",
+          "equityUsd": 10170.815196957732,
+          "pnlUsd": -7.373502482303593,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-12",
+          "equityUsd": 10271.962464655773,
+          "pnlUsd": 101.1472676980411,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-13",
+          "equityUsd": 10316.530574772496,
+          "pnlUsd": 44.56811011672289,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-14",
+          "equityUsd": 10260.680451459166,
+          "pnlUsd": -55.85012331333019,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-15",
+          "equityUsd": 10231.280689306039,
+          "pnlUsd": -29.399762153127085,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-16",
+          "equityUsd": 10226.019445805508,
+          "pnlUsd": -5.261243500530327,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-17",
+          "equityUsd": 10239.535685694122,
+          "pnlUsd": 13.5162398886132,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-18",
+          "equityUsd": 10195.078455313975,
+          "pnlUsd": -44.45723038014694,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-19",
+          "equityUsd": 10129.1521359393,
+          "pnlUsd": -65.92631937467559,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-20",
+          "equityUsd": 10201.29326454906,
+          "pnlUsd": 72.14112860976093,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-21",
+          "equityUsd": 10170.463153794102,
+          "pnlUsd": -30.830110754957786,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-22",
+          "equityUsd": 10338.470902647474,
+          "pnlUsd": 168.0077488533716,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-23",
+          "equityUsd": 10323.696177748721,
+          "pnlUsd": -14.774724898752538,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-24",
+          "equityUsd": 10324.386404108905,
+          "pnlUsd": 0.6902263601841696,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-25",
+          "equityUsd": 10213.126904435134,
+          "pnlUsd": -111.25949967377164,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-26",
+          "equityUsd": 10274.961761530154,
+          "pnlUsd": 61.8348570950202,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-27",
+          "equityUsd": 10248.6943519353,
+          "pnlUsd": -26.267409594853234,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-28",
+          "equityUsd": 10250.396355891742,
+          "pnlUsd": 1.702003956441331,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-29",
+          "equityUsd": 10208.165036223358,
+          "pnlUsd": -42.23131966838446,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-30",
+          "equityUsd": 10212.21214660838,
+          "pnlUsd": 4.047110385023188,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-31",
+          "equityUsd": 10217.07422305724,
+          "pnlUsd": 4.862076448858716,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-01",
+          "equityUsd": 10195.582958115396,
+          "pnlUsd": -21.491264941843838,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-02",
+          "equityUsd": 10198.687590739524,
+          "pnlUsd": 3.1046326241284987,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-03",
+          "equityUsd": 10233.165644827832,
+          "pnlUsd": 34.478054088307545,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-04",
+          "equityUsd": 10191.36398413868,
+          "pnlUsd": -41.80166068915241,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-05",
+          "equityUsd": 10193.542770962398,
+          "pnlUsd": 2.1787868237188377,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-06",
+          "equityUsd": 10184.658532069245,
+          "pnlUsd": -8.884238893153451,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-07",
+          "equityUsd": 10193.035496167562,
+          "pnlUsd": 8.37696409831733,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-08",
+          "equityUsd": 10193.67582664629,
+          "pnlUsd": 0.6403304787272646,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-09",
+          "equityUsd": 10193.87818216554,
+          "pnlUsd": 0.20235551924997708,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-10",
+          "equityUsd": 10205.4013587892,
+          "pnlUsd": 11.52317662366113,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-11",
+          "equityUsd": 10236.727656365336,
+          "pnlUsd": 31.326297576135403,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-12",
+          "equityUsd": 10307.136289091095,
+          "pnlUsd": 70.40863272575916,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-13",
+          "equityUsd": 10293.071194506429,
+          "pnlUsd": -14.06509458466644,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-14",
+          "equityUsd": 10277.159952307773,
+          "pnlUsd": -15.9112421986556,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-15",
+          "equityUsd": 10254.50999411871,
+          "pnlUsd": -22.64995818906209,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-16",
+          "equityUsd": 10248.295184883626,
+          "pnlUsd": -6.21480923508534,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-17",
+          "equityUsd": 10272.611111114744,
+          "pnlUsd": 24.315926231118283,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-18",
+          "equityUsd": 10271.829408971882,
+          "pnlUsd": -0.7817021428618318,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-19",
+          "equityUsd": 10239.014550932216,
+          "pnlUsd": -32.81485803966643,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-20",
+          "equityUsd": 10241.919600030506,
+          "pnlUsd": 2.9050490982899646,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-21",
+          "equityUsd": 10232.334046803511,
+          "pnlUsd": -9.585553226994307,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-22",
+          "equityUsd": 10164.736215399953,
+          "pnlUsd": -67.5978314035583,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-23",
+          "equityUsd": 10154.191552451575,
+          "pnlUsd": -10.544662948377663,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-24",
+          "equityUsd": 10151.311451294014,
+          "pnlUsd": -2.880101157561512,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-25",
+          "equityUsd": 10073.166184948663,
+          "pnlUsd": -78.14526634535105,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-26",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 45.103104845702546,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-27",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-09-28",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-09-29",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-09-30",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-01",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-02",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-03",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-04",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-05",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-06",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-07",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-08",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-09",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-10",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-11",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-12",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-13",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-14",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-15",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-16",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-17",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-18",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-19",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-20",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-21",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-22",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-23",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-24",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-25",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-26",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-27",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-28",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-29",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-30",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-31",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-01",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-02",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-03",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-04",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-05",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-06",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-07",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-08",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-09",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-10",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-11",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-12",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-13",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-14",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-15",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-16",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-17",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-18",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-19",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-20",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-21",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-22",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-23",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-24",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-25",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-26",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-27",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-28",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-29",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-30",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-01",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-02",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-03",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-04",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-05",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-06",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-07",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-08",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-09",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-10",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-11",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-12",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-13",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-14",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-15",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-16",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-17",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-18",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-19",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-20",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-21",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-22",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-23",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-24",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-25",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-26",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-27",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-28",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-29",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-30",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-31",
+          "equityUsd": 10118.269289794365,
+          "pnlUsd": 0.0,
+          "held": null
+        }
+      ],
+      "trades": [
+        {
+          "symbol": "ETH/USD",
+          "entryMs": 1752883200000,
+          "exitMs": 1758931200000,
+          "quantity": 0.27943482000000003,
+          "entryPrice": 3550.25,
+          "exitPrice": 4034.17,
+          "netPnlUsd": 118.2692897943648,
+          "feesUsd": 16.954808300035204,
+          "holdingDays": 70.0,
+          "exitReason": "target_change"
+        }
+      ],
+      "orders": [
+        {
+          "symbol": "ETH/USD",
+          "side": "BUY",
+          "timestampMs": 1752883200000,
+          "signalBarOpenMs": 1752710400000,
+          "quantity": 0.27943482000000003,
+          "price": 3550.25,
+          "feeUsd": 7.936507757640001
+        },
+        {
+          "symbol": "ETH/USD",
+          "side": "SELL",
+          "timestampMs": 1758931200000,
+          "quantity": 0.27943482000000003,
+          "price": 4034.17,
+          "feeUsd": 9.018300542395203,
+          "reason": "target_change"
+        }
+      ],
+      "rejections": []
+    },
+    "stress": {
+      "start": "2025-07-01",
+      "end": "2026-01-01",
+      "scenario": "stress",
+      "initialCapitalUsd": 10000.0,
+      "entryBudgetUsd": 1000.0,
+      "netPnlUsd": 93.42870148666043,
+      "returnOnAccountPct": 0.9342870148665972,
+      "netPctOfEntryBudget": 9.342870148666043,
+      "maxDrawdownUsd": 260.4273001804995,
+      "maxDrawdownPctInitialCapital": 2.604273001804995,
+      "maxIntradayLowDrawdownUsd": 273.3285835942206,
+      "closedTrades": 1,
+      "entries": 1,
+      "feesUsd": 20.94572438374,
+      "adversePriceCostUsd": 2.0958376422000953,
+      "turnoverUsd": 2094.572438374,
+      "profitFactor": null,
+      "winningTrades": 1,
+      "meanHoldingDays": 70.0,
+      "exposedDays": 70,
+      "totalDays": 184,
+      "positiveMonths": 2,
+      "monthlyPnlUsd": {
+        "2025-07": 5.957019683703038,
+        "2025-08": 188.74049384173668,
+        "2025-09": -101.26881203877929,
+        "2025-10": 0.0,
+        "2025-11": 0.0,
+        "2025-12": 0.0
+      },
+      "rejectedEntries": 0,
+      "selectionUtility": -36.78494860358933,
+      "daily": [
+        {
+          "date": "2025-07-01",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-02",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-03",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-04",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-05",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-06",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-07",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-08",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-09",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-10",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-11",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-12",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-13",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-14",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-15",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-16",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-17",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-18",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-19",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-20",
+          "equityUsd": 10022.817455922152,
+          "pnlUsd": 22.817455922151566,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-21",
+          "equityUsd": 10023.933860776442,
+          "pnlUsd": 1.116404854290522,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-22",
+          "equityUsd": 10019.819500447582,
+          "pnlUsd": -4.11436032886013,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-23",
+          "equityUsd": 9987.166019928934,
+          "pnlUsd": -32.653480518647484,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-24",
+          "equityUsd": 10008.135370618904,
+          "pnlUsd": 20.96935068996936,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-25",
+          "equityUsd": 10013.420594575433,
+          "pnlUsd": 5.28522395652908,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-26",
+          "equityUsd": 10017.957010397988,
+          "pnlUsd": 4.536415822554773,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-27",
+          "equityUsd": 10054.08223771961,
+          "pnlUsd": 36.12522732162142,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-28",
+          "equityUsd": 10032.886883120114,
+          "pnlUsd": -21.19535459949475,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-29",
+          "equityUsd": 10031.740525940464,
+          "pnlUsd": -1.1463571796502947,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-30",
+          "equityUsd": 10035.544471261059,
+          "pnlUsd": 3.803945320594721,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-31",
+          "equityUsd": 10005.957019683703,
+          "pnlUsd": -29.58745157735575,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-01",
+          "equityUsd": 9948.255226348925,
+          "pnlUsd": -57.7017933347779,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-02",
+          "equityUsd": 9922.959126113914,
+          "pnlUsd": -25.29610023501118,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-03",
+          "equityUsd": 9951.204168927452,
+          "pnlUsd": 28.24504281353802,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-04",
+          "equityUsd": 10011.917532430145,
+          "pnlUsd": 60.71336350269303,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-05",
+          "equityUsd": 9982.370924932826,
+          "pnlUsd": -29.5466074973192,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-06",
+          "equityUsd": 10002.006035674985,
+          "pnlUsd": 19.635110742159668,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-07",
+          "equityUsd": 10064.34771650174,
+          "pnlUsd": 62.34168082675387,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-08",
+          "equityUsd": 10090.362672545365,
+          "pnlUsd": 26.014956043625716,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-09",
+          "equityUsd": 10159.601557020698,
+          "pnlUsd": 69.23888447533318,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-10",
+          "equityUsd": 10156.527359263397,
+          "pnlUsd": -3.07419775730159,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-11",
+          "equityUsd": 10149.289788281196,
+          "pnlUsd": -7.23757098220085,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-12",
+          "equityUsd": 10248.57902390761,
+          "pnlUsd": 99.28923562641467,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-13",
+          "equityUsd": 10292.325756563765,
+          "pnlUsd": 43.74673265615456,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-14",
+          "equityUsd": 10237.504832340788,
+          "pnlUsd": -54.82092422297683,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-15",
+          "equityUsd": 10208.644405388057,
+          "pnlUsd": -28.86042695273136,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-16",
+          "equityUsd": 10203.478990732963,
+          "pnlUsd": -5.1654146550936275,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-17",
+          "equityUsd": 10216.747870867,
+          "pnlUsd": 13.268880134037317,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-18",
+          "equityUsd": 10173.107332818938,
+          "pnlUsd": -43.64053804806281,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-19",
+          "equityUsd": 10108.393972411484,
+          "pnlUsd": -64.71336040745337,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-20",
+          "equityUsd": 10179.209438376167,
+          "pnlUsd": 70.81546596468252,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-21",
+          "equityUsd": 10148.943975070231,
+          "pnlUsd": -30.265463305935555,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-22",
+          "equityUsd": 10313.864201435556,
+          "pnlUsd": 164.9202263653242,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-23",
+          "equityUsd": 10299.361830084461,
+          "pnlUsd": -14.502371351094553,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-24",
+          "equityUsd": 10300.039841813043,
+          "pnlUsd": 0.6780117285816232,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-25",
+          "equityUsd": 10190.825494738121,
+          "pnlUsd": -109.21434707492153,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-26",
+          "equityUsd": 10251.5225206088,
+          "pnlUsd": 60.69702587067877,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-27",
+          "equityUsd": 10225.739014352039,
+          "pnlUsd": -25.78350625676103,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-28",
+          "equityUsd": 10227.408175756136,
+          "pnlUsd": 1.6691614040973946,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-29",
+          "equityUsd": 10185.95415745928,
+          "pnlUsd": -41.45401829685579,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-30",
+          "equityUsd": 10189.926924977352,
+          "pnlUsd": 3.972767518071123,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-31",
+          "equityUsd": 10194.69751352544,
+          "pnlUsd": 4.770588548088199,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-01",
+          "equityUsd": 10173.602907656696,
+          "pnlUsd": -21.09460586874411,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-02",
+          "equityUsd": 10176.649876027306,
+          "pnlUsd": 3.046968370610557,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-03",
+          "equityUsd": 10210.496003682976,
+          "pnlUsd": 33.84612765566999,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-04",
+          "equityUsd": 10169.461317941146,
+          "pnlUsd": -41.03468574182989,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-05",
+          "equityUsd": 10171.601547734981,
+          "pnlUsd": 2.1402297938348056,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-06",
+          "equityUsd": 10162.879975178173,
+          "pnlUsd": -8.721572556807587,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-07",
+          "equityUsd": 10171.103249958554,
+          "pnlUsd": 8.223274780380962,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-08",
+          "equityUsd": 10171.732248791093,
+          "pnlUsd": 0.6289988325388549,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-09",
+          "equityUsd": 10171.93102331393,
+          "pnlUsd": 0.19877452283617458,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-10",
+          "equityUsd": 10183.242110544956,
+          "pnlUsd": 11.31108723102625,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-11",
+          "equityUsd": 10213.989533995304,
+          "pnlUsd": 30.747423450347924,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-12",
+          "equityUsd": 10283.10588623053,
+          "pnlUsd": 69.11635223522717,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-13",
+          "equityUsd": 10269.297864240032,
+          "pnlUsd": -13.808021990498673,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-14",
+          "equityUsd": 10253.681810973318,
+          "pnlUsd": -15.616053266714516,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-15",
+          "equityUsd": 10231.446293802263,
+          "pnlUsd": -22.235517171055108,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-16",
+          "equityUsd": 10225.346911183704,
+          "pnlUsd": -6.099382618558593,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-17",
+          "equityUsd": 10249.213468617489,
+          "pnlUsd": 23.866557433784692,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-18",
+          "equityUsd": 10248.448322851498,
+          "pnlUsd": -0.7651457659903826,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-19",
+          "equityUsd": 10216.235958397228,
+          "pnlUsd": -32.212364454269846,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-20",
+          "equityUsd": 10219.086875183672,
+          "pnlUsd": 2.850916786443122,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-21",
+          "equityUsd": 10209.679122082278,
+          "pnlUsd": -9.40775310139361,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-22",
+          "equityUsd": 10143.323829657416,
+          "pnlUsd": -66.35529242486155,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-23",
+          "equityUsd": 10132.971216837877,
+          "pnlUsd": -10.35261281953899,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-24",
+          "equityUsd": 10130.144806499457,
+          "pnlUsd": -2.8264103384208283,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-25",
+          "equityUsd": 10053.436901255056,
+          "pnlUsd": -76.70790524440054,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-26",
+          "equityUsd": 10097.711884012997,
+          "pnlUsd": 44.27498275794096,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-27",
+          "equityUsd": 10093.284385737203,
+          "pnlUsd": -4.427498275794278,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-28",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.14431574945774628,
+          "held": null
+        },
+        {
+          "date": "2025-09-29",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-09-30",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-01",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-02",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-03",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-04",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-05",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-06",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-07",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-08",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-09",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-10",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-11",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-12",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-13",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-14",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-15",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-16",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-17",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-18",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-19",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-20",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-21",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-22",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-23",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-24",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-25",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-26",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-27",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-28",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-29",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-30",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-31",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-01",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-02",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-03",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-04",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-05",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-06",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-07",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-08",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-09",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-10",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-11",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-12",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-13",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-14",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-15",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-16",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-17",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-18",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-19",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-20",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-21",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-22",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-23",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-24",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-25",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-26",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-27",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-28",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-29",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-30",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-01",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-02",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-03",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-04",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-05",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-06",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-07",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-08",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-09",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-10",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-11",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-12",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-13",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-14",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-15",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-16",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-17",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-18",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-19",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-20",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-21",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-22",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-23",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-24",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-25",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-26",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-27",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-28",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-29",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-30",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-31",
+          "equityUsd": 10093.42870148666,
+          "pnlUsd": 0.0,
+          "held": null
+        }
+      ],
+      "trades": [
+        {
+          "symbol": "ETH/USD",
+          "entryMs": 1752969600000,
+          "exitMs": 1759017600000,
+          "quantity": 0.27504431,
+          "entryPrice": 3599.78,
+          "exitPrice": 4015.62,
+          "netPnlUsd": 93.42870148665986,
+          "feesUsd": 20.94572438374,
+          "holdingDays": 70.0,
+          "exitReason": "target_change"
+        }
+      ],
+      "orders": [
+        {
+          "symbol": "ETH/USD",
+          "side": "BUY",
+          "timestampMs": 1752969600000,
+          "signalBarOpenMs": 1752710400000,
+          "quantity": 0.27504431,
+          "price": 3599.78,
+          "feeUsd": 9.900990062518002
+        },
+        {
+          "symbol": "ETH/USD",
+          "side": "SELL",
+          "timestampMs": 1759017600000,
+          "quantity": 0.27504431,
+          "price": 4015.62,
+          "feeUsd": 11.044734321222,
+          "reason": "target_change"
+        }
+      ],
+      "rejections": []
+    }
+  },
+  "reversion": {
+    "base": {
+      "start": "2025-07-01",
+      "end": "2026-01-01",
+      "scenario": "base",
+      "initialCapitalUsd": 10000.0,
+      "entryBudgetUsd": 1000.0,
+      "netPnlUsd": -216.69813451006485,
+      "returnOnAccountPct": -2.166981345100649,
+      "netPctOfEntryBudget": -21.669813451006483,
+      "maxDrawdownUsd": 358.9245531766992,
+      "maxDrawdownPctInitialCapital": 3.5892455317669922,
+      "maxIntradayLowDrawdownUsd": 386.1663665979795,
+      "closedTrades": 3,
+      "entries": 3,
+      "feesUsd": 46.067893856467194,
+      "adversePriceCostUsd": 1.7313065991999206,
+      "turnoverUsd": 5758.4867320584,
+      "profitFactor": 0.08746922887827939,
+      "winningTrades": 1,
+      "meanHoldingDays": 24.0,
+      "exposedDays": 72,
+      "totalDays": 184,
+      "positiveMonths": 2,
+      "monthlyPnlUsd": {
+        "2025-07": 0.0,
+        "2025-08": -68.30953423848041,
+        "2025-09": 49.44647729136159,
+        "2025-10": 48.53271505907833,
+        "2025-11": -246.36779262202435,
+        "2025-12": 0.0
+      },
+      "rejectedEntries": 0,
+      "selectionUtility": -396.16041109841444,
+      "daily": [
+        {
+          "date": "2025-07-01",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-02",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-03",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-04",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-05",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-06",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-07",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-08",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-09",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-10",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-11",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-12",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-13",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-14",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-15",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-16",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-17",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-18",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-19",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-20",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-21",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-22",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-23",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-24",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-25",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-26",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-27",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-28",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-29",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-30",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-31",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-01",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-02",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-03",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-04",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-05",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-06",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-07",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-08",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-09",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-10",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-11",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-12",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-13",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-14",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-15",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-16",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-17",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-18",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-19",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-20",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-21",
+          "equityUsd": 9967.94645189656,
+          "pnlUsd": -32.053548103440335,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-08-22",
+          "equityUsd": 10005.43272403528,
+          "pnlUsd": 37.48627213871987,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-08-23",
+          "equityUsd": 9992.747605786,
+          "pnlUsd": -12.685118249279185,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-08-24",
+          "equityUsd": 9976.49818798792,
+          "pnlUsd": -16.249417798080685,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-08-25",
+          "equityUsd": 9947.99928855208,
+          "pnlUsd": -28.49889943583912,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-08-26",
+          "equityUsd": 9962.49668954296,
+          "pnlUsd": 14.497400990880124,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-08-27",
+          "equityUsd": 9957.67111008136,
+          "pnlUsd": -4.825579461599773,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-08-28",
+          "equityUsd": 9968.817725119601,
+          "pnlUsd": 11.14661503824027,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-08-29",
+          "equityUsd": 9932.98187864152,
+          "pnlUsd": -35.835846478081294,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-08-30",
+          "equityUsd": 9935.99345347768,
+          "pnlUsd": 3.0115748361604346,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-08-31",
+          "equityUsd": 9931.69046576152,
+          "pnlUsd": -4.302987716160715,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-01",
+          "equityUsd": 9940.413529294961,
+          "pnlUsd": 8.723063533441746,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-02",
+          "equityUsd": 9957.05381472472,
+          "pnlUsd": 16.640285429759388,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-03",
+          "equityUsd": 9961.99562134552,
+          "pnlUsd": 4.94180662079998,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-04",
+          "equityUsd": 9953.15805253672,
+          "pnlUsd": -8.837568808799915,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-05",
+          "equityUsd": 9952.32810452584,
+          "pnlUsd": -0.8299480108798889,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-06",
+          "equityUsd": 9948.94632466408,
+          "pnlUsd": -3.381779861760151,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-07",
+          "equityUsd": 9956.674139338,
+          "pnlUsd": 7.727814673919056,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-08",
+          "equityUsd": 9964.3967883604,
+          "pnlUsd": 7.722649022400219,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-09",
+          "equityUsd": 9960.01545492952,
+          "pnlUsd": -4.381333430879749,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-10",
+          "equityUsd": 9980.77362556264,
+          "pnlUsd": 20.758170633120244,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-11",
+          "equityUsd": 9994.08981423928,
+          "pnlUsd": 13.316188676639285,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-12",
+          "equityUsd": 9999.35447408008,
+          "pnlUsd": 5.2646598408009595,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-13",
+          "equityUsd": 9997.95544346008,
+          "pnlUsd": -1.3990306200012128,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-14",
+          "equityUsd": 9993.1479437788,
+          "pnlUsd": -4.807499681279296,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-15",
+          "equityUsd": 9993.012775897361,
+          "pnlUsd": -0.1351678814389743,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-16",
+          "equityUsd": 10004.97039822424,
+          "pnlUsd": 11.957622326879573,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-17",
+          "equityUsd": 10002.42975861832,
+          "pnlUsd": -2.54063960592066,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-18",
+          "equityUsd": 10008.167936515121,
+          "pnlUsd": 5.738177896801062,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-19",
+          "equityUsd": 9995.6145423796,
+          "pnlUsd": -12.553394135520648,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-20",
+          "equityUsd": 9996.147465428081,
+          "pnlUsd": 0.5329230484803702,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-21",
+          "equityUsd": 9992.35932098008,
+          "pnlUsd": -3.7881444480008213,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-22",
+          "equityUsd": 9970.4018582524,
+          "pnlUsd": -21.95746272767974,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-23",
+          "equityUsd": 9963.97837058728,
+          "pnlUsd": -6.423487665120774,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-24",
+          "equityUsd": 9975.15511859272,
+          "pnlUsd": 11.176748005440459,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-25",
+          "equityUsd": 9938.57369641192,
+          "pnlUsd": -36.581422180799564,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-26",
+          "equityUsd": 9944.224058232881,
+          "pnlUsd": 5.650361820960825,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-27",
+          "equityUsd": 9944.34631198552,
+          "pnlUsd": 0.12225375263915339,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-28",
+          "equityUsd": 9965.06574023224,
+          "pnlUsd": 20.719428246718962,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-29",
+          "equityUsd": 9984.32242815688,
+          "pnlUsd": 19.256687924640573,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-30",
+          "equityUsd": 9981.136943052881,
+          "pnlUsd": -3.1854851039988716,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-10-01",
+          "equityUsd": 10020.77040434008,
+          "pnlUsd": 39.63346128719968,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-10-02",
+          "equityUsd": 10020.771265282001,
+          "pnlUsd": 0.000860941920109326,
+          "held": null
+        },
+        {
+          "date": "2025-10-03",
+          "equityUsd": 10020.771265282001,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-04",
+          "equityUsd": 10020.771265282001,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-05",
+          "equityUsd": 10020.771265282001,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-06",
+          "equityUsd": 10020.771265282001,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-07",
+          "equityUsd": 10020.771265282001,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-08",
+          "equityUsd": 10020.771265282001,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-09",
+          "equityUsd": 10020.771265282001,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-10",
+          "equityUsd": 10020.771265282001,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-11",
+          "equityUsd": 10020.771265282001,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-12",
+          "equityUsd": 10110.978225922621,
+          "pnlUsd": 90.20696064062031,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-13",
+          "equityUsd": 10133.957760817228,
+          "pnlUsd": 22.97953489460633,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-14",
+          "equityUsd": 10102.913482200049,
+          "pnlUsd": -31.04427861717886,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-15",
+          "equityUsd": 10066.664111993547,
+          "pnlUsd": -36.249370206502135,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-16",
+          "equityUsd": 10042.39379833788,
+          "pnlUsd": -24.27031365566654,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-17",
+          "equityUsd": 10026.0990282465,
+          "pnlUsd": -16.294770091379178,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-18",
+          "equityUsd": 10040.853783840434,
+          "pnlUsd": 14.754755593932714,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-19",
+          "equityUsd": 10065.848192898648,
+          "pnlUsd": 24.994409058213932,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-20",
+          "equityUsd": 10064.969308986136,
+          "pnlUsd": -0.8788839125118102,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-21",
+          "equityUsd": 10036.999812295717,
+          "pnlUsd": -27.969496690418964,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-22",
+          "equityUsd": 10018.910544902372,
+          "pnlUsd": -18.089267393344926,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-23",
+          "equityUsd": 10032.712957629912,
+          "pnlUsd": 13.802412727540286,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-24",
+          "equityUsd": 10052.998123037502,
+          "pnlUsd": 20.285165407589375,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-25",
+          "equityUsd": 10057.880519936562,
+          "pnlUsd": 4.882396899060041,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-26",
+          "equityUsd": 10111.500309201994,
+          "pnlUsd": 53.6197892654327,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-27",
+          "equityUsd": 10100.990431728791,
+          "pnlUsd": -10.509877473203233,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-28",
+          "equityUsd": 10064.688590840946,
+          "pnlUsd": -36.301840887845174,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-29",
+          "equityUsd": 10044.306354672868,
+          "pnlUsd": -20.382236168077725,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-30",
+          "equityUsd": 10018.112990545944,
+          "pnlUsd": -26.19336412692428,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-31",
+          "equityUsd": 10029.66965811196,
+          "pnlUsd": 11.556667566015676,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-11-01",
+          "equityUsd": 10036.393775926193,
+          "pnlUsd": 6.724117814233978,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-11-02",
+          "equityUsd": 10045.591886365797,
+          "pnlUsd": 9.198110439603624,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-11-03",
+          "equityUsd": 9965.479650089777,
+          "pnlUsd": -80.11223627601976,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-11-04",
+          "equityUsd": 9883.36041025235,
+          "pnlUsd": -82.11923983742781,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-11-05",
+          "equityUsd": 9882.756997416895,
+          "pnlUsd": -0.6034128354549466,
+          "held": null
+        },
+        {
+          "date": "2025-11-06",
+          "equityUsd": 9882.756997416895,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-07",
+          "equityUsd": 9882.756997416895,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-08",
+          "equityUsd": 9882.756997416895,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-09",
+          "equityUsd": 9882.756997416895,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-10",
+          "equityUsd": 9882.756997416895,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-11",
+          "equityUsd": 9882.756997416895,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-12",
+          "equityUsd": 9882.756997416895,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-13",
+          "equityUsd": 9847.491553923248,
+          "pnlUsd": -35.26544349364667,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-11-14",
+          "equityUsd": 9798.132084929071,
+          "pnlUsd": -49.359468994176495,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-11-15",
+          "equityUsd": 9807.889789768016,
+          "pnlUsd": 9.757704838944846,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-11-16",
+          "equityUsd": 9795.003842987664,
+          "pnlUsd": -12.885946780352242,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-11-17",
+          "equityUsd": 9775.033207640528,
+          "pnlUsd": -19.970635347135612,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-11-18",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 8.268657849406736,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-11-19",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-20",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-21",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-22",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-23",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-24",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-25",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-26",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-27",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-28",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-29",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-30",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-01",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-02",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-03",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-04",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-05",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-06",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-07",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-08",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-09",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-10",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-11",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-12",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-13",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-14",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-15",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-16",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-17",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-18",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-19",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-20",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-21",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-22",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-23",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-24",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-25",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-26",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-27",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-28",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-29",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-30",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-31",
+          "equityUsd": 9783.301865489935,
+          "pnlUsd": 0.0,
+          "held": null
+        }
+      ],
+      "trades": [
+        {
+          "symbol": "BTC/USD",
+          "entryMs": 1755734400000,
+          "exitMs": 1759363200000,
+          "quantity": 0.00867885,
+          "entryPrice": 114308.1,
+          "exitPrice": 118564.40000000001,
+          "netPnlUsd": 20.771265281999945,
+          "feesUsd": 16.168523973,
+          "holdingDays": 42.0,
+          "exitReason": "target_change"
+        },
+        {
+          "symbol": "ETH/USD",
+          "entryMs": 1760227200000,
+          "exitMs": 1762300800000,
+          "quantity": 0.26446916,
+          "entryPrice": 3751.15,
+          "exitPrice": 3285.59,
+          "netPnlUsd": -138.01426786510717,
+          "feesUsd": 14.8880057355072,
+          "holdingDays": 24.0,
+          "exitReason": "target_change"
+        },
+        {
+          "symbol": "BTC/USD",
+          "entryMs": 1762992000000,
+          "exitMs": 1763510400000,
+          "quantity": 0.00964069,
+          "entryPrice": 101697.3,
+          "exitPrice": 92938.20000000001,
+          "netPnlUsd": -99.4551319269599,
+          "feesUsd": 15.011364147960002,
+          "holdingDays": 6.0,
+          "exitReason": "target_change"
+        }
+      ],
+      "orders": [
+        {
+          "symbol": "BTC/USD",
+          "side": "BUY",
+          "timestampMs": 1755734400000,
+          "signalBarOpenMs": 1755561600000,
+          "quantity": 0.00867885,
+          "price": 114308.1,
+          "feeUsd": 7.93650282948
+        },
+        {
+          "symbol": "BTC/USD",
+          "side": "SELL",
+          "timestampMs": 1759363200000,
+          "quantity": 0.00867885,
+          "price": 118564.40000000001,
+          "feeUsd": 8.23202114352,
+          "reason": "target_change"
+        },
+        {
+          "symbol": "ETH/USD",
+          "side": "BUY",
+          "timestampMs": 1760227200000,
+          "signalBarOpenMs": 1760054400000,
+          "quantity": 0.26446916,
+          "price": 3751.15,
+          "feeUsd": 7.936507916271999
+        },
+        {
+          "symbol": "ETH/USD",
+          "side": "SELL",
+          "timestampMs": 1762300800000,
+          "quantity": 0.26446916,
+          "price": 3285.59,
+          "feeUsd": 6.9514978192352,
+          "reason": "target_change"
+        },
+        {
+          "symbol": "BTC/USD",
+          "side": "BUY",
+          "timestampMs": 1762992000000,
+          "signalBarOpenMs": 1762819200000,
+          "quantity": 0.00964069,
+          "price": 101697.3,
+          "feeUsd": 7.843457145096
+        },
+        {
+          "symbol": "BTC/USD",
+          "side": "SELL",
+          "timestampMs": 1763510400000,
+          "quantity": 0.00964069,
+          "price": 92938.20000000001,
+          "feeUsd": 7.167907002864001,
+          "reason": "target_change"
+        }
+      ],
+      "rejections": []
+    },
+    "stress": {
+      "start": "2025-07-01",
+      "end": "2026-01-01",
+      "scenario": "stress",
+      "initialCapitalUsd": 10000.0,
+      "entryBudgetUsd": 1000.0,
+      "netPnlUsd": -246.12179709030352,
+      "returnOnAccountPct": -2.46121797090304,
+      "netPctOfEntryBudget": -24.61217970903035,
+      "maxDrawdownUsd": 295.4619193235849,
+      "maxDrawdownPctInitialCapital": 2.9546191932358488,
+      "maxIntradayLowDrawdownUsd": 323.32276187356365,
+      "closedTrades": 3,
+      "entries": 3,
+      "feesUsd": 57.230155452704004,
+      "adversePriceCostUsd": 5.726596013199838,
+      "turnoverUsd": 5723.0155452704,
+      "profitFactor": 0.16699316902238023,
+      "winningTrades": 1,
+      "meanHoldingDays": 24.0,
+      "exposedDays": 72,
+      "totalDays": 184,
+      "positiveMonths": 1,
+      "monthlyPnlUsd": {
+        "2025-07": 0.0,
+        "2025-08": -58.507557171678855,
+        "2025-09": 49.96691743427982,
+        "2025-10": -36.838317557343544,
+        "2025-11": -200.74283979556094,
+        "2025-12": 0.0
+      },
+      "rejectedEntries": 0,
+      "selectionUtility": -393.85275675209596,
+      "daily": [
+        {
+          "date": "2025-07-01",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-02",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-03",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-04",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-05",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-06",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-07",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-08",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-09",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-10",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-11",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-12",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-13",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-14",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-15",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-16",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-17",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-18",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-19",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-20",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-21",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-22",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-23",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-24",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-25",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-26",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-27",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-28",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-29",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-30",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-31",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-01",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-02",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-03",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-04",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-05",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-06",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-07",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-08",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-09",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-10",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-11",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-12",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-13",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-14",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-15",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-16",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-17",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-18",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-19",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-20",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-21",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-08-22",
+          "equityUsd": 10016.0105611346,
+          "pnlUsd": 16.01056113460072,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-08-23",
+          "equityUsd": 10003.19257069352,
+          "pnlUsd": -12.817990441080838,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-08-24",
+          "equityUsd": 9986.77199623796,
+          "pnlUsd": -16.4205744555602,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-08-25",
+          "equityUsd": 9957.97308937112,
+          "pnlUsd": -28.79890686683939,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-08-26",
+          "equityUsd": 9972.622843168041,
+          "pnlUsd": 14.649753796920777,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-08-27",
+          "equityUsd": 9967.74655678208,
+          "pnlUsd": -4.876286385961066,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-08-28",
+          "equityUsd": 9979.01050844456,
+          "pnlUsd": 11.263951662480395,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-08-29",
+          "equityUsd": 9942.797487158361,
+          "pnlUsd": -36.213021286199364,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-08-30",
+          "equityUsd": 9945.84113957852,
+          "pnlUsd": 3.0436524201595603,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-08-31",
+          "equityUsd": 9941.492442828321,
+          "pnlUsd": -4.348696750199451,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-01",
+          "equityUsd": 9950.30736867332,
+          "pnlUsd": 8.81492584499938,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-02",
+          "equityUsd": 9967.12320005072,
+          "pnlUsd": 16.815831377400173,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-03",
+          "equityUsd": 9972.11701878128,
+          "pnlUsd": 4.993818730559724,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-04",
+          "equityUsd": 9963.1863018116,
+          "pnlUsd": -8.930716969680361,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-05",
+          "equityUsd": 9962.347033810162,
+          "pnlUsd": -0.8392680014385405,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-06",
+          "equityUsd": 9958.929889717161,
+          "pnlUsd": -3.4171440930003882,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-07",
+          "equityUsd": 9966.739261058361,
+          "pnlUsd": 7.809371341199949,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-08",
+          "equityUsd": 9974.5434087398,
+          "pnlUsd": 7.804147681439645,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-09",
+          "equityUsd": 9970.11548648324,
+          "pnlUsd": -4.427922256560123,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-10",
+          "equityUsd": 9991.09196285948,
+          "pnlUsd": 20.97647637623959,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-11",
+          "equityUsd": 10004.548981011201,
+          "pnlUsd": 13.457018151721059,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-12",
+          "equityUsd": 10009.868407866801,
+          "pnlUsd": 5.319426855599886,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-13",
+          "equityUsd": 10008.45453729176,
+          "pnlUsd": -1.4138705750410736,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-14",
+          "equityUsd": 10003.59740432492,
+          "pnlUsd": -4.857132966839345,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-15",
+          "equityUsd": 10003.4607185612,
+          "pnlUsd": -0.13668576372037933,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-16",
+          "equityUsd": 10015.543914196041,
+          "pnlUsd": 12.083195634841104,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-17",
+          "equityUsd": 10012.976485424,
+          "pnlUsd": -2.5674287720412394,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-18",
+          "equityUsd": 10018.774747757601,
+          "pnlUsd": 5.7982623336010874,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-19",
+          "equityUsd": 10006.0899606404,
+          "pnlUsd": -12.684787117201267,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-20",
+          "equityUsd": 10006.62799759568,
+          "pnlUsd": 0.5380369552804041,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-21",
+          "equityUsd": 10002.799925601561,
+          "pnlUsd": -3.8280719941194548,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-22",
+          "equityUsd": 9980.611560161,
+          "pnlUsd": -22.18836544056103,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-23",
+          "equityUsd": 9974.120292299242,
+          "pnlUsd": -6.491267861758388,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-24",
+          "equityUsd": 9985.41471531032,
+          "pnlUsd": 11.294423011078834,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-25",
+          "equityUsd": 9948.448616408721,
+          "pnlUsd": -36.96609890159925,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-26",
+          "equityUsd": 9954.1580765264,
+          "pnlUsd": 5.709460117679555,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-27",
+          "equityUsd": 9954.281703140721,
+          "pnlUsd": 0.12362661432052846,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-28",
+          "equityUsd": 9975.219002068761,
+          "pnlUsd": 20.937298928040036,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-29",
+          "equityUsd": 9994.67887589468,
+          "pnlUsd": 19.459873825919203,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-09-30",
+          "equityUsd": 9991.459360262601,
+          "pnlUsd": -3.219515632079492,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-10-01",
+          "equityUsd": 10031.51003025248,
+          "pnlUsd": 40.05066998987968,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-10-02",
+          "equityUsd": 10049.339251623322,
+          "pnlUsd": 17.82922137084097,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-10-03",
+          "equityUsd": 10049.340122233281,
+          "pnlUsd": 0.0008706099597475259,
+          "held": null
+        },
+        {
+          "date": "2025-10-04",
+          "equityUsd": 10049.340122233281,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-05",
+          "equityUsd": 10049.340122233281,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-06",
+          "equityUsd": 10049.340122233281,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-07",
+          "equityUsd": 10049.340122233281,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-08",
+          "equityUsd": 10049.340122233281,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-09",
+          "equityUsd": 10049.340122233281,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-10",
+          "equityUsd": 10049.340122233281,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-11",
+          "equityUsd": 10049.340122233281,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-12",
+          "equityUsd": 10049.340122233281,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-13",
+          "equityUsd": 10048.197923653972,
+          "pnlUsd": -1.142198579309479,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-14",
+          "equityUsd": 10020.341351461073,
+          "pnlUsd": -27.856572192898966,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-15",
+          "equityUsd": 9987.815711523028,
+          "pnlUsd": -32.52563993804506,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-16",
+          "equityUsd": 9966.036936899489,
+          "pnlUsd": -21.778774623538993,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-17",
+          "equityUsd": 9951.414886700644,
+          "pnlUsd": -14.62205019884459,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-18",
+          "equityUsd": 9964.656475901176,
+          "pnlUsd": 13.241589200531962,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-19",
+          "equityUsd": 9987.083077785017,
+          "pnlUsd": 22.426601883840704,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-20",
+          "equityUsd": 9986.293906395196,
+          "pnlUsd": -0.7891713898206945,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-21",
+          "equityUsd": 9961.19825619892,
+          "pnlUsd": -25.09565019627553,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-22",
+          "equityUsd": 9944.967238659041,
+          "pnlUsd": -16.23101753987976,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-23",
+          "equityUsd": 9957.351340140485,
+          "pnlUsd": 12.384101481444304,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-24",
+          "equityUsd": 9975.55410828717,
+          "pnlUsd": 18.20276814668432,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-25",
+          "equityUsd": 9979.933420566796,
+          "pnlUsd": 4.379312279626902,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-26",
+          "equityUsd": 10028.046962255405,
+          "pnlUsd": 48.113541688608166,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-27",
+          "equityUsd": 10018.61695308093,
+          "pnlUsd": -9.430009174475344,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-28",
+          "equityUsd": 9986.041842697552,
+          "pnlUsd": -32.57511038337725,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-29",
+          "equityUsd": 9967.754268073157,
+          "pnlUsd": -18.287574624395347,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-30",
+          "equityUsd": 9944.251095069472,
+          "pnlUsd": -23.503173003684424,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-31",
+          "equityUsd": 9954.621042705257,
+          "pnlUsd": 10.369947635785138,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-11-01",
+          "equityUsd": 9960.654081300268,
+          "pnlUsd": 6.033038595011021,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-11-02",
+          "equityUsd": 9968.908578464238,
+          "pnlUsd": 8.254497163969063,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-11-03",
+          "equityUsd": 9897.023309925857,
+          "pnlUsd": -71.88526853838084,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-11-04",
+          "equityUsd": 9823.33825947159,
+          "pnlUsd": -73.68505045426718,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-11-05",
+          "equityUsd": 9855.138332878098,
+          "pnlUsd": 31.80007340650809,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-11-06",
+          "equityUsd": 9855.138332878098,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-07",
+          "equityUsd": 9855.138332878098,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-08",
+          "equityUsd": 9855.138332878098,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-09",
+          "equityUsd": 9855.138332878098,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-10",
+          "equityUsd": 9855.138332878098,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-11",
+          "equityUsd": 9855.138332878098,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-12",
+          "equityUsd": 9855.138332878098,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-13",
+          "equityUsd": 9855.138332878098,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-14",
+          "equityUsd": 9783.759532581847,
+          "pnlUsd": -71.37880029625012,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-11-15",
+          "equityUsd": 9793.630585144207,
+          "pnlUsd": 9.871052562359182,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-11-16",
+          "equityUsd": 9780.595684035967,
+          "pnlUsd": -13.034901108239865,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-11-17",
+          "equityUsd": 9760.392749074086,
+          "pnlUsd": -20.2029349618806,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-11-18",
+          "equityUsd": 9768.757391496487,
+          "pnlUsd": 8.36464242240072,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-11-19",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": -14.879188586790406,
+          "held": "BTC/USD"
+        },
+        {
+          "date": "2025-11-20",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-21",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-22",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-23",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-24",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-25",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-26",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-27",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-28",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-29",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-30",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-01",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-02",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-03",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-04",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-05",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-06",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-07",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-08",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-09",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-10",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-11",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-12",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-13",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-14",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-15",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-16",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-17",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-18",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-19",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-20",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-21",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-22",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-23",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-24",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-25",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-26",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-27",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-28",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-29",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-30",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-31",
+          "equityUsd": 9753.878202909696,
+          "pnlUsd": 0.0,
+          "held": null
+        }
+      ],
+      "trades": [
+        {
+          "symbol": "BTC/USD",
+          "entryMs": 1755820800000,
+          "exitMs": 1759449600000,
+          "quantity": 0.00879404,
+          "entryPrice": 112587.5,
+          "exitPrice": 120529.3,
+          "netPnlUsd": 49.34012223328011,
+          "feesUsd": 20.50038463872,
+          "holdingDays": 42.0,
+          "exitReason": "target_change"
+        },
+        {
+          "symbol": "ETH/USD",
+          "entryMs": 1760313600000,
+          "exitMs": 1762387200000,
+          "quantity": 0.23795308,
+          "entryPrice": 4160.9,
+          "exitPrice": 3420.58,
+          "netPnlUsd": -194.2017893551839,
+          "feesUsd": 18.040365169584,
+          "holdingDays": 24.0,
+          "exitReason": "target_change"
+        },
+        {
+          "symbol": "BTC/USD",
+          "entryMs": 1763078400000,
+          "exitMs": 1763596800000,
+          "quantity": 0.00977909,
+          "entryPrice": 99779.8,
+          "exitPrice": 91336.20000000001,
+          "netPnlUsd": -101.26012996839995,
+          "feesUsd": 18.689405644400004,
+          "holdingDays": 6.0,
+          "exitReason": "target_change"
+        }
+      ],
+      "orders": [
+        {
+          "symbol": "BTC/USD",
+          "side": "BUY",
+          "timestampMs": 1755820800000,
+          "signalBarOpenMs": 1755561600000,
+          "quantity": 0.00879404,
+          "price": 112587.5,
+          "feeUsd": 9.900989785
+        },
+        {
+          "symbol": "BTC/USD",
+          "side": "SELL",
+          "timestampMs": 1759449600000,
+          "quantity": 0.00879404,
+          "price": 120529.3,
+          "feeUsd": 10.59939485372,
+          "reason": "target_change"
+        },
+        {
+          "symbol": "ETH/USD",
+          "side": "BUY",
+          "timestampMs": 1760313600000,
+          "signalBarOpenMs": 1760054400000,
+          "quantity": 0.23795308,
+          "price": 4160.9,
+          "feeUsd": 9.90098970572
+        },
+        {
+          "symbol": "ETH/USD",
+          "side": "SELL",
+          "timestampMs": 1762387200000,
+          "quantity": 0.23795308,
+          "price": 3420.58,
+          "feeUsd": 8.139375463864,
+          "reason": "target_change"
+        },
+        {
+          "symbol": "BTC/USD",
+          "side": "BUY",
+          "timestampMs": 1763078400000,
+          "signalBarOpenMs": 1762819200000,
+          "quantity": 0.00977909,
+          "price": 99779.8,
+          "feeUsd": 9.757556443820002
+        },
+        {
+          "symbol": "BTC/USD",
+          "side": "SELL",
+          "timestampMs": 1763596800000,
+          "quantity": 0.00977909,
+          "price": 91336.20000000001,
+          "feeUsd": 8.931849200580002,
+          "reason": "target_change"
+        }
+      ],
+      "rejections": []
+    }
+  },
+  "rotation": {
+    "base": {
+      "start": "2025-07-01",
+      "end": "2026-01-01",
+      "scenario": "base",
+      "initialCapitalUsd": 10000.0,
+      "entryBudgetUsd": 1000.0,
+      "netPnlUsd": 461.5939696320256,
+      "returnOnAccountPct": 4.615939696320259,
+      "netPctOfEntryBudget": 46.15939696320256,
+      "maxDrawdownUsd": 386.61100107627135,
+      "maxDrawdownPctInitialCapital": 3.8661100107627133,
+      "maxIntradayLowDrawdownUsd": 466.42836447863556,
+      "closedTrades": 2,
+      "entries": 2,
+      "feesUsd": 35.724579835972804,
+      "adversePriceCostUsd": 1.3489972286000358,
+      "turnoverUsd": 4465.5724794966,
+      "profitFactor": 6.599364870225882,
+      "winningTrades": 1,
+      "meanHoldingDays": 50.0,
+      "exposedDays": 100,
+      "totalDays": 184,
+      "positiveMonths": 2,
+      "monthlyPnlUsd": {
+        "2025-07": 414.9715056694404,
+        "2025-08": 265.48249863418823,
+        "2025-09": -121.73353036642766,
+        "2025-10": -97.12650430517533,
+        "2025-11": 0.0,
+        "2025-12": 0.0
+      },
+      "rejectedEntries": 0,
+      "selectionUtility": 268.28846909388994,
+      "daily": [
+        {
+          "date": "2025-07-01",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-02",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-03",
+          "equityUsd": 9991.425800925528,
+          "pnlUsd": -8.574199074471835,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-04",
+          "equityUsd": 9959.616432288358,
+          "pnlUsd": -31.809368637170337,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-05",
+          "equityUsd": 9963.057248364019,
+          "pnlUsd": 3.4408160756611323,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-06",
+          "equityUsd": 9984.169085375526,
+          "pnlUsd": 21.111837011507305,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-07",
+          "equityUsd": 9972.824726256216,
+          "pnlUsd": -11.344359119309956,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-08",
+          "equityUsd": 10000.841159708762,
+          "pnlUsd": 28.016433452545243,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-09",
+          "equityUsd": 10059.989515251878,
+          "pnlUsd": 59.14835554311685,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-10",
+          "equityUsd": 10129.391426152832,
+          "pnlUsd": 69.40191090095323,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-11",
+          "equityUsd": 10131.802676572928,
+          "pnlUsd": 2.4112504200966214,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-12",
+          "equityUsd": 10125.919991024217,
+          "pnlUsd": -5.882685548711379,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-13",
+          "equityUsd": 10137.62795139735,
+          "pnlUsd": 11.707960373132664,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-14",
+          "equityUsd": 10153.450347011123,
+          "pnlUsd": 15.822395613773551,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-15",
+          "equityUsd": 10201.438057752652,
+          "pnlUsd": 47.987710741528645,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-16",
+          "equityUsd": 10290.459126833624,
+          "pnlUsd": 89.02106908097267,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-17",
+          "equityUsd": 10331.270497039155,
+          "pnlUsd": 40.81137020553069,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-18",
+          "equityUsd": 10357.947346924979,
+          "pnlUsd": 26.676849885823685,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-19",
+          "equityUsd": 10375.98196911465,
+          "pnlUsd": 18.0346221896707,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-20",
+          "equityUsd": 10438.689789563621,
+          "pnlUsd": 62.70782044897169,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-21",
+          "equityUsd": 10440.259016027494,
+          "pnlUsd": 1.5692264638728375,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-22",
+          "equityUsd": 10434.468187637643,
+          "pnlUsd": -5.790828389850503,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-23",
+          "equityUsd": 10388.539608207244,
+          "pnlUsd": -45.92857943039962,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-24",
+          "equityUsd": 10418.0334109648,
+          "pnlUsd": 29.493802757555386,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-25",
+          "equityUsd": 10425.470013450906,
+          "pnlUsd": 7.436602486106494,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-26",
+          "equityUsd": 10431.850258610111,
+          "pnlUsd": 6.380245159205515,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-27",
+          "equityUsd": 10482.662576986611,
+          "pnlUsd": 50.812318376500116,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-28",
+          "equityUsd": 10452.851101554661,
+          "pnlUsd": -29.811475431950385,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-29",
+          "equityUsd": 10451.23977389298,
+          "pnlUsd": -1.611327661681571,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-30",
+          "equityUsd": 10456.586626015001,
+          "pnlUsd": 5.346852122022028,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-31",
+          "equityUsd": 10414.97150566944,
+          "pnlUsd": -41.61512034556108,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-01",
+          "equityUsd": 10333.808051052685,
+          "pnlUsd": -81.16345461675519,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-02",
+          "equityUsd": 10298.228711520602,
+          "pnlUsd": -35.579339532083395,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-03",
+          "equityUsd": 10337.956932727897,
+          "pnlUsd": 39.728221207295064,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-04",
+          "equityUsd": 10423.353471415488,
+          "pnlUsd": 85.3965386875916,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-05",
+          "equityUsd": 10381.795761794214,
+          "pnlUsd": -41.557709621274626,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-06",
+          "equityUsd": 10409.414147558362,
+          "pnlUsd": 27.618385764148115,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-07",
+          "equityUsd": 10497.103287835853,
+          "pnlUsd": 87.68914027749088,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-08",
+          "equityUsd": 10533.693056115404,
+          "pnlUsd": 36.58976827955121,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-09",
+          "equityUsd": 10631.088436179187,
+          "pnlUsd": 97.3953800637828,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-10",
+          "equityUsd": 10626.763494949491,
+          "pnlUsd": -4.324941229695469,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-11",
+          "equityUsd": 10616.58265984242,
+          "pnlUsd": -10.180835107072198,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-12",
+          "equityUsd": 10756.239987745408,
+          "pnlUsd": 139.65732790298898,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-13",
+          "equityUsd": 10817.776629418906,
+          "pnlUsd": 61.5366416734978,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-14",
+          "equityUsd": 10740.662544555264,
+          "pnlUsd": -77.11408486364235,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-15",
+          "equityUsd": 10700.069335102027,
+          "pnlUsd": -40.59320945323634,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-16",
+          "equityUsd": 10692.804964788787,
+          "pnlUsd": -7.264370313239851,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-17",
+          "equityUsd": 10711.467277564007,
+          "pnlUsd": 18.662312775219107,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-18",
+          "equityUsd": 10650.083731155277,
+          "pnlUsd": -61.38354640872967,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-19",
+          "equityUsd": 10559.057114105843,
+          "pnlUsd": -91.02661704943421,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-20",
+          "equityUsd": 10658.664720745523,
+          "pnlUsd": 99.60760663967994,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-21",
+          "equityUsd": 10616.09658237678,
+          "pnlUsd": -42.56813836874244,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-22",
+          "equityUsd": 10848.070354934873,
+          "pnlUsd": 231.9737725580926,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-23",
+          "equityUsd": 10827.670410904537,
+          "pnlUsd": -20.399944030335973,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-24",
+          "equityUsd": 10828.623428927718,
+          "pnlUsd": 0.9530180231813574,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-25",
+          "equityUsd": 10675.003812877887,
+          "pnlUsd": -153.61961604983117,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-26",
+          "equityUsd": 10760.381214657382,
+          "pnlUsd": 85.3774017794949,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-27",
+          "equityUsd": 10724.112946433843,
+          "pnlUsd": -36.26826822353905,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-28",
+          "equityUsd": 10726.46295874803,
+          "pnlUsd": 2.350012314187552,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-29",
+          "equityUsd": 10668.15279977952,
+          "pnlUsd": -58.31015896851022,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-30",
+          "equityUsd": 10673.740776943552,
+          "pnlUsd": 5.587977164032054,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-31",
+          "equityUsd": 10680.454004303629,
+          "pnlUsd": 6.7132273600764165,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-01",
+          "equityUsd": 10650.78031460997,
+          "pnlUsd": -29.67368969365816,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-02",
+          "equityUsd": 10655.066982023474,
+          "pnlUsd": 4.286667413503892,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-03",
+          "equityUsd": 10702.671954603084,
+          "pnlUsd": 47.60497257960924,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-04",
+          "equityUsd": 10644.95503978555,
+          "pnlUsd": -57.716914817534416,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-05",
+          "equityUsd": 10647.963361738239,
+          "pnlUsd": 3.0083219526895846,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-06",
+          "equityUsd": 10635.696603648703,
+          "pnlUsd": -12.26675808953587,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-07",
+          "equityUsd": 10647.262950901926,
+          "pnlUsd": 11.566347253223284,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-08",
+          "equityUsd": 10648.14707605596,
+          "pnlUsd": 0.8841251540343364,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-09",
+          "equityUsd": 10648.426474914162,
+          "pnlUsd": 0.2793988582016027,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-10",
+          "equityUsd": 10664.336900305178,
+          "pnlUsd": 15.910425391015451,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-11",
+          "equityUsd": 10707.590139983757,
+          "pnlUsd": 43.25323967857912,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-12",
+          "equityUsd": 10804.805633111437,
+          "pnlUsd": 97.21549312768002,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-13",
+          "equityUsd": 10785.385498775615,
+          "pnlUsd": -19.420134335821785,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-14",
+          "equityUsd": 10763.416328281408,
+          "pnlUsd": -21.969170494206992,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-15",
+          "equityUsd": 10732.142793070925,
+          "pnlUsd": -31.273535210482805,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-16",
+          "equityUsd": 10723.561803480678,
+          "pnlUsd": -8.580989590247555,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-17",
+          "equityUsd": 10757.1355950443,
+          "pnlUsd": 33.57379156362185,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-18",
+          "equityUsd": 10756.056273427686,
+          "pnlUsd": -1.079321616613015,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-19",
+          "equityUsd": 10710.747729819595,
+          "pnlUsd": -45.308543608090986,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-20",
+          "equityUsd": 10714.758825756518,
+          "pnlUsd": 4.011095936923084,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-21",
+          "equityUsd": 10701.523740117324,
+          "pnlUsd": -13.23508563919495,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-22",
+          "equityUsd": 10608.189211951512,
+          "pnlUsd": -93.33452816581121,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-23",
+          "equityUsd": 10593.629852272075,
+          "pnlUsd": -14.559359679436966,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-24",
+          "equityUsd": 10589.653202769727,
+          "pnlUsd": -3.976649502348664,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-25",
+          "equityUsd": 10481.75548754286,
+          "pnlUsd": -107.89771522686715,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-26",
+          "equityUsd": 10544.030813868863,
+          "pnlUsd": 62.27532632600378,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-27",
+          "equityUsd": 10544.030813868863,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-09-28",
+          "equityUsd": 10558.319074176445,
+          "pnlUsd": 14.288260307581368,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-29",
+          "equityUsd": 10576.103041625514,
+          "pnlUsd": 17.783967449069678,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-30",
+          "equityUsd": 10558.720473937201,
+          "pnlUsd": -17.38256768831343,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-01",
+          "equityUsd": 10608.40593212824,
+          "pnlUsd": 49.68545819103929,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-02",
+          "equityUsd": 10642.035399889071,
+          "pnlUsd": 33.629467760831176,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-03",
+          "equityUsd": 10648.74416052462,
+          "pnlUsd": 6.70876063554897,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-04",
+          "equityUsd": 10642.409876495143,
+          "pnlUsd": -6.334284029477203,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-05",
+          "equityUsd": 10649.182273678129,
+          "pnlUsd": 6.7723971829855145,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-06",
+          "equityUsd": 10691.336591235975,
+          "pnlUsd": 42.1543175578463,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-07",
+          "equityUsd": 10632.869289498656,
+          "pnlUsd": -58.46730173731885,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-08",
+          "equityUsd": 10651.602910040243,
+          "pnlUsd": 18.733620541586788,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-09",
+          "equityUsd": 10613.359792590243,
+          "pnlUsd": -38.24311744999977,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-10",
+          "equityUsd": 10482.92934593997,
+          "pnlUsd": -130.43044665027264,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-11",
+          "equityUsd": 10461.459353858601,
+          "pnlUsd": -21.469992081369128,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-12",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.1346157734242297,
+          "held": null
+        },
+        {
+          "date": "2025-10-13",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-14",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-15",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-16",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-17",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-18",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-19",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-20",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-21",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-22",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-23",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-24",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-25",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-26",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-27",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-28",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-29",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-30",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-31",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-01",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-02",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-03",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-04",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-05",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-06",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-07",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-08",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-09",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-10",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-11",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-12",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-13",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-14",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-15",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-16",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-17",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-18",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-19",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-20",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-21",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-22",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-23",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-24",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-25",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-26",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-27",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-28",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-29",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-30",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-01",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-02",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-03",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-04",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-05",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-06",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-07",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-08",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-09",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-10",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-11",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-12",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-13",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-14",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-15",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-16",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-17",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-18",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-19",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-20",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-21",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-22",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-23",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-24",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-25",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-26",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-27",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-28",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-29",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-30",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-31",
+          "equityUsd": 10461.593969632026,
+          "pnlUsd": 0.0,
+          "held": null
+        }
+      ],
+      "trades": [
+        {
+          "symbol": "ETH/USD",
+          "entryMs": 1751500800000,
+          "exitMs": 1758931200000,
+          "quantity": 0.38582476,
+          "entryPrice": 2571.28,
+          "exitPrice": 4034.17,
+          "netPnlUsd": 544.0308138688638,
+          "feesUsd": 20.388369287536,
+          "holdingDays": 86.0,
+          "exitReason": "target_change"
+        },
+        {
+          "symbol": "ETH/USD",
+          "entryMs": 1759017600000,
+          "exitMs": 1760227200000,
+          "quantity": 0.24672979,
+          "entryPrice": 4020.85,
+          "exitPrice": 3748.89,
+          "netPnlUsd": -82.4368442368368,
+          "feesUsd": 15.3362105484368,
+          "holdingDays": 14.0,
+          "exitReason": "target_change"
+        }
+      ],
+      "orders": [
+        {
+          "symbol": "ETH/USD",
+          "side": "BUY",
+          "timestampMs": 1751500800000,
+          "signalBarOpenMs": 1751328000000,
+          "quantity": 0.38582476,
+          "price": 2571.28,
+          "feeUsd": 7.9365079111424
+        },
+        {
+          "symbol": "ETH/USD",
+          "side": "SELL",
+          "timestampMs": 1758931200000,
+          "quantity": 0.38582476,
+          "price": 4034.17,
+          "feeUsd": 12.4518613763936,
+          "reason": "target_change"
+        },
+        {
+          "symbol": "ETH/USD",
+          "side": "BUY",
+          "timestampMs": 1759017600000,
+          "signalBarOpenMs": 1758844800000,
+          "quantity": 0.24672979,
+          "price": 4020.85,
+          "feeUsd": 7.936507808972
+        },
+        {
+          "symbol": "ETH/USD",
+          "side": "SELL",
+          "timestampMs": 1760227200000,
+          "quantity": 0.24672979,
+          "price": 3748.89,
+          "feeUsd": 7.3997027394648,
+          "reason": "target_change"
+        }
+      ],
+      "rejections": []
+    },
+    "stress": {
+      "start": "2025-07-01",
+      "end": "2026-01-01",
+      "scenario": "stress",
+      "initialCapitalUsd": 10000.0,
+      "entryBudgetUsd": 1000.0,
+      "netPnlUsd": 498.3410431832599,
+      "returnOnAccountPct": 4.983410431832591,
+      "netPctOfEntryBudget": 49.83410431832599,
+      "maxDrawdownUsd": 421.0893123521855,
+      "maxDrawdownPctInitialCapital": 4.2108931235218545,
+      "maxIntradayLowDrawdownUsd": 498.0716641820527,
+      "closedTrades": 2,
+      "entries": 2,
+      "feesUsd": 45.037747780340005,
+      "adversePriceCostUsd": 4.509646576900054,
+      "turnoverUsd": 4503.7747780340005,
+      "profitFactor": 27.132621327059667,
+      "winningTrades": 1,
+      "meanHoldingDays": 50.0,
+      "exposedDays": 100,
+      "totalDays": 184,
+      "positiveMonths": 3,
+      "monthlyPnlUsd": {
+        "2025-07": 396.02150537576745,
+        "2025-08": 261.9254910011841,
+        "2025-09": -161.91147884301972,
+        "2025-10": 2.3055256493280467,
+        "2025-11": 0.0,
+        "2025-12": 0.0
+      },
+      "rejectedEntries": 0,
+      "selectionUtility": 287.79638700716714,
+      "daily": [
+        {
+          "date": "2025-07-01",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-02",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-03",
+          "equityUsd": 10000.0,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-07-04",
+          "equityUsd": 9946.767235742356,
+          "pnlUsd": -53.232764257643794,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-05",
+          "equityUsd": 9950.160571830058,
+          "pnlUsd": 3.393336087701755,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-06",
+          "equityUsd": 9970.989155922945,
+          "pnlUsd": 20.828584092887468,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-07",
+          "equityUsd": 9959.796437112507,
+          "pnlUsd": -11.192718810438237,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-08",
+          "equityUsd": 9987.438144775693,
+          "pnlUsd": 27.641707663186025,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-09",
+          "equityUsd": 10045.79370068035,
+          "pnlUsd": 58.355555904656285,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-10",
+          "equityUsd": 10114.26502574623,
+          "pnlUsd": 68.47132506588059,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-11",
+          "equityUsd": 10116.645651286599,
+          "pnlUsd": 2.380625540368783,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-12",
+          "equityUsd": 10110.841459492935,
+          "pnlUsd": -5.804191793664359,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-13",
+          "equityUsd": 10122.393161519778,
+          "pnlUsd": 11.551702026843486,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-14",
+          "equityUsd": 10138.003263277347,
+          "pnlUsd": 15.610101757569282,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-15",
+          "equityUsd": 10185.34748136512,
+          "pnlUsd": 47.34421808777188,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-16",
+          "equityUsd": 10273.177448721975,
+          "pnlUsd": 87.82996735685629,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-17",
+          "equityUsd": 10313.44402929052,
+          "pnlUsd": 40.26658056854467,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-18",
+          "equityUsd": 10339.763167209054,
+          "pnlUsd": 26.31913791853367,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-19",
+          "equityUsd": 10357.553619659946,
+          "pnlUsd": 17.79045245089219,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-20",
+          "equityUsd": 10419.419653543975,
+          "pnlUsd": 61.86603388402909,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-21",
+          "equityUsd": 10420.968949530565,
+          "pnlUsd": 1.549295986589641,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-22",
+          "equityUsd": 10415.259227004375,
+          "pnlUsd": -5.70972252618958,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-23",
+          "equityUsd": 10369.944208781968,
+          "pnlUsd": -45.31501822240716,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-24",
+          "equityUsd": 10399.044521934966,
+          "pnlUsd": 29.100313152997842,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-25",
+          "equityUsd": 10406.379115861726,
+          "pnlUsd": 7.334593926760135,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-26",
+          "equityUsd": 10412.67454784626,
+          "pnlUsd": 6.295431984533934,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-27",
+          "equityUsd": 10462.807498709892,
+          "pnlUsd": 50.13295086363178,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-28",
+          "equityUsd": 10433.393547588876,
+          "pnlUsd": -29.413951121015998,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-29",
+          "equityUsd": 10431.802685124598,
+          "pnlUsd": -1.5908624642779614,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-30",
+          "equityUsd": 10437.0816277911,
+          "pnlUsd": 5.278942666502189,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-07-31",
+          "equityUsd": 10396.021505375767,
+          "pnlUsd": -41.060122415332444,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-01",
+          "equityUsd": 10315.945575493257,
+          "pnlUsd": -80.07592988251054,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-02",
+          "equityUsd": 10280.840795699547,
+          "pnlUsd": -35.104779793709895,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-03",
+          "equityUsd": 10320.037984160273,
+          "pnlUsd": 39.197188460726466,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-04",
+          "equityUsd": 10404.293234435878,
+          "pnlUsd": 84.25525027560434,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-05",
+          "equityUsd": 10363.289793581029,
+          "pnlUsd": -41.00344085484903,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-06",
+          "equityUsd": 10390.538509091517,
+          "pnlUsd": 27.248715510488182,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-07",
+          "equityUsd": 10477.053464245122,
+          "pnlUsd": 86.51495515360511,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-08",
+          "equityUsd": 10513.155839503368,
+          "pnlUsd": 36.10237525824596,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-09",
+          "equityUsd": 10609.242420837541,
+          "pnlUsd": 96.08658133417339,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-10",
+          "equityUsd": 10604.97618871837,
+          "pnlUsd": -4.266232119171036,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-11",
+          "equityUsd": 10594.932216200428,
+          "pnlUsd": -10.043972517942166,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-12",
+          "equityUsd": 10732.721310968764,
+          "pnlUsd": 137.78909476833542,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-13",
+          "equityUsd": 10793.431041018897,
+          "pnlUsd": 60.70973005013366,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-14",
+          "equityUsd": 10717.35305053593,
+          "pnlUsd": -76.07799048296692,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-15",
+          "equityUsd": 10677.301859897228,
+          "pnlUsd": -40.05119063870188,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-16",
+          "equityUsd": 10670.133531881227,
+          "pnlUsd": -7.1683280160013965,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-17",
+          "equityUsd": 10688.547481497453,
+          "pnlUsd": 18.41394961622609,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-18",
+          "equityUsd": 10627.98512350458,
+          "pnlUsd": -60.56235799287242,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-19",
+          "equityUsd": 10538.178859072146,
+          "pnlUsd": -89.80626443243455,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-20",
+          "equityUsd": 10636.45334864104,
+          "pnlUsd": 98.27448956889384,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-21",
+          "equityUsd": 10594.452312321655,
+          "pnlUsd": -42.00103631938509,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-22",
+          "equityUsd": 10823.321117247988,
+          "pnlUsd": 228.8688049263328,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-23",
+          "equityUsd": 10803.195384505114,
+          "pnlUsd": -20.12573274287388,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-24",
+          "equityUsd": 10804.136298409165,
+          "pnlUsd": 0.9409139040508308,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-25",
+          "equityUsd": 10652.573584442973,
+          "pnlUsd": -151.56271396619195,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-26",
+          "equityUsd": 10736.806162094383,
+          "pnlUsd": 84.23257765140988,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-27",
+          "equityUsd": 10701.02498234555,
+          "pnlUsd": -35.78117974883207,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-28",
+          "equityUsd": 10703.341368784038,
+          "pnlUsd": 2.316386438487825,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-29",
+          "equityUsd": 10645.813363662463,
+          "pnlUsd": -57.528005121575916,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-30",
+          "equityUsd": 10651.326590112303,
+          "pnlUsd": 5.5132264498406585,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-08-31",
+          "equityUsd": 10657.946996376952,
+          "pnlUsd": 6.620406264648409,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-01",
+          "equityUsd": 10628.6728597718,
+          "pnlUsd": -29.274136605152307,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-02",
+          "equityUsd": 10632.901304183979,
+          "pnlUsd": 4.22844441217967,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-03",
+          "equityUsd": 10679.871423972549,
+          "pnlUsd": 46.97011978856972,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-04",
+          "equityUsd": 10622.92534953862,
+          "pnlUsd": -56.946074433928516,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-05",
+          "equityUsd": 10625.895463308034,
+          "pnlUsd": 2.9701137694137287,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-06",
+          "equityUsd": 10613.792060759137,
+          "pnlUsd": -12.103402548897066,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-07",
+          "equityUsd": 10625.203948270117,
+          "pnlUsd": 11.411887510979795,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-08",
+          "equityUsd": 10626.076844301586,
+          "pnlUsd": 0.8728960314692813,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-09",
+          "equityUsd": 10626.352694562613,
+          "pnlUsd": 0.27585026102678967,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-10",
+          "equityUsd": 10642.04970804626,
+          "pnlUsd": 15.697013483646515,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-11",
+          "equityUsd": 10684.719586779367,
+          "pnlUsd": 42.66987873310791,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-12",
+          "equityUsd": 10780.636123432083,
+          "pnlUsd": 95.91653665271588,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-13",
+          "equityUsd": 10761.473977217454,
+          "pnlUsd": -19.162146214628592,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-14",
+          "equityUsd": 10739.80272725869,
+          "pnlUsd": -21.671249958764747,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-15",
+          "equityUsd": 10708.945285730655,
+          "pnlUsd": -30.857441528034542,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-16",
+          "equityUsd": 10700.480839364896,
+          "pnlUsd": -8.464446365758704,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-17",
+          "equityUsd": 10733.60176454163,
+          "pnlUsd": 33.12092517673409,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-18",
+          "equityUsd": 10732.539929975212,
+          "pnlUsd": -1.0618345664188382,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-19",
+          "equityUsd": 10687.837072606042,
+          "pnlUsd": -44.70285736916958,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-20",
+          "equityUsd": 10691.793445527896,
+          "pnlUsd": 3.956372921853472,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-21",
+          "equityUsd": 10678.73779276285,
+          "pnlUsd": -13.055652765046034,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-22",
+          "equityUsd": 10586.652929598918,
+          "pnlUsd": -92.084863163931,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-23",
+          "equityUsd": 10572.28604340132,
+          "pnlUsd": -14.366886197598433,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-24",
+          "equityUsd": 10568.363679415757,
+          "pnlUsd": -3.922363985562697,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-25",
+          "equityUsd": 10461.91193005423,
+          "pnlUsd": -106.45174936152762,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-26",
+          "equityUsd": 10523.354741619969,
+          "pnlUsd": 61.44281156573925,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-27",
+          "equityUsd": 10517.210460463395,
+          "pnlUsd": -6.144281156573925,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-28",
+          "equityUsd": 10517.410735310443,
+          "pnlUsd": 0.2002748470476945,
+          "held": null
+        },
+        {
+          "date": "2025-09-29",
+          "equityUsd": 10512.800185088523,
+          "pnlUsd": -4.610550221919766,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-09-30",
+          "equityUsd": 10496.035517533932,
+          "pnlUsd": -16.764667554591142,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-01",
+          "equityUsd": 10543.953127981287,
+          "pnlUsd": 47.9176104473554,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-02",
+          "equityUsd": 10576.38875573838,
+          "pnlUsd": 32.43562775709324,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-03",
+          "equityUsd": 10582.858873313697,
+          "pnlUsd": 6.470117575316181,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-04",
+          "equityUsd": 10576.75017523054,
+          "pnlUsd": -6.1086980831569235,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-05",
+          "equityUsd": 10583.281710497335,
+          "pnlUsd": 6.53153526679489,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-06",
+          "equityUsd": 10623.937860036867,
+          "pnlUsd": 40.656149539532635,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-07",
+          "equityUsd": 10567.54697038445,
+          "pnlUsd": -56.39088965241717,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-08",
+          "equityUsd": 10585.615582773498,
+          "pnlUsd": 18.068612389048212,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-09",
+          "equityUsd": 10548.731896822055,
+          "pnlUsd": -36.88368595144311,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-10",
+          "equityUsd": 10422.9390157995,
+          "pnlUsd": -125.79288102255487,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-11",
+          "equityUsd": 10402.231804895802,
+          "pnlUsd": -20.70721090369807,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-12",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 96.10923828745763,
+          "held": "ETH/USD"
+        },
+        {
+          "date": "2025-10-13",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-14",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-15",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-16",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-17",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-18",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-19",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-20",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-21",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-22",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-23",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-24",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-25",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-26",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-27",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-28",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-29",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-30",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-10-31",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-01",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-02",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-03",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-04",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-05",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-06",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-07",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-08",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-09",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-10",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-11",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-12",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-13",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-14",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-15",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-16",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-17",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-18",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-19",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-20",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-21",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-22",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-23",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-24",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-25",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-26",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-27",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-28",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-29",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-11-30",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-01",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-02",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-03",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-04",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-05",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-06",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-07",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-08",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-09",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-10",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-11",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-12",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-13",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-14",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-15",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-16",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-17",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-18",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-19",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-20",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-21",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-22",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-23",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-24",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-25",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-26",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-27",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-28",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-29",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-30",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        },
+        {
+          "date": "2025-12-31",
+          "equityUsd": 10498.34104318326,
+          "pnlUsd": 0.0,
+          "held": null
+        }
+      ],
+      "trades": [
+        {
+          "symbol": "ETH/USD",
+          "entryMs": 1751587200000,
+          "exitMs": 1759017600000,
+          "quantity": 0.38169401000000003,
+          "entryPrice": 2593.96,
+          "exitPrice": 4015.62,
+          "netPnlUsd": 517.410735310442,
+          "feesUsd": 25.228370946158,
+          "holdingDays": 86.0,
+          "exitReason": "target_change"
+        },
+        {
+          "symbol": "ETH/USD",
+          "entryMs": 1759104000000,
+          "exitMs": 1760313600000,
+          "quantity": 0.23860797,
+          "entryPrice": 4149.4800000000005,
+          "exitPrice": 4152.58,
+          "netPnlUsd": -19.069692127182066,
+          "feesUsd": 19.809376834182004,
+          "holdingDays": 14.0,
+          "exitReason": "target_change"
+        }
+      ],
+      "orders": [
+        {
+          "symbol": "ETH/USD",
+          "side": "BUY",
+          "timestampMs": 1751587200000,
+          "signalBarOpenMs": 1751328000000,
+          "quantity": 0.38169401000000003,
+          "price": 2593.96,
+          "feeUsd": 9.900989941796002
+        },
+        {
+          "symbol": "ETH/USD",
+          "side": "SELL",
+          "timestampMs": 1759017600000,
+          "quantity": 0.38169401000000003,
+          "price": 4015.62,
+          "feeUsd": 15.327381004362001,
+          "reason": "target_change"
+        },
+        {
+          "symbol": "ETH/USD",
+          "side": "BUY",
+          "timestampMs": 1759104000000,
+          "signalBarOpenMs": 1758844800000,
+          "quantity": 0.23860797,
+          "price": 4149.4800000000005,
+          "feeUsd": 9.900989993556001
+        },
+        {
+          "symbol": "ETH/USD",
+          "side": "SELL",
+          "timestampMs": 1760313600000,
+          "quantity": 0.23860797,
+          "price": 4152.58,
+          "feeUsd": 9.908386840626001,
+          "reason": "target_change"
+        }
+      ],
+      "rejections": []
+    }
+  }
+}

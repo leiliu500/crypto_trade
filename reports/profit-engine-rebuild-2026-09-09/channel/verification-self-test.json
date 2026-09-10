@@ -1,0 +1,12 @@
+{
+  "method": "Corrupt copied report fields in a temporary directory; original frozen reports and raw source files remain unchanged; no strategy replay called.",
+  "passed": true,
+  "exitCode": 1,
+  "expectedFailures": {
+    "independent_fee_corruption_rejected": true,
+    "episode_funding_corruption_rejected": true,
+    "hourly_mark_corruption_rejected": true,
+    "daily_mark_corruption_rejected": true
+  },
+  "failureCount": 17482
+}

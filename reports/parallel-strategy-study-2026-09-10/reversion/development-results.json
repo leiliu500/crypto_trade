@@ -1,0 +1,532 @@
+{
+  "candidate": "causal_ou_residual_reversion",
+  "period": [
+    "2025-01-01",
+    "2025-07-01"
+  ],
+  "selectedVariant": {
+    "id": "patient",
+    "trend_span": 150,
+    "fit_window": 90,
+    "entry_z": 1.5,
+    "max_holding_days": 42,
+    "min_half_life": 1.5,
+    "max_half_life": 35,
+    "edge_multiple": 1.75,
+    "trend_floor_20d": -0.05
+  },
+  "selectionScore": 0.0,
+  "trialCount": 4,
+  "allVariants": [
+    {
+      "variant": {
+        "id": "balanced",
+        "trend_span": 120,
+        "fit_window": 60,
+        "entry_z": 1.3,
+        "max_holding_days": 30,
+        "min_half_life": 1.5,
+        "max_half_life": 30,
+        "edge_multiple": 1.5,
+        "trend_floor_20d": -0.05
+      },
+      "base": {
+        "start": "2025-01-01",
+        "end": "2025-07-01",
+        "scenario": "base",
+        "initialCapitalUsd": 10000.0,
+        "entryBudgetUsd": 1000.0,
+        "netPnlUsd": -120.14537541638492,
+        "returnOnAccountPct": -1.2014537541638504,
+        "netPctOfEntryBudget": -12.014537541638493,
+        "maxDrawdownUsd": 183.70580308566423,
+        "maxDrawdownPctInitialCapital": 1.8370580308566424,
+        "maxIntradayLowDrawdownUsd": 209.1541947575679,
+        "closedTrades": 2,
+        "entries": 2,
+        "feesUsd": 30.809461629384003,
+        "adversePriceCostUsd": 1.1573856959997924,
+        "turnoverUsd": 3851.1827036730006,
+        "profitFactor": 0.14044820933066163,
+        "winningTrades": 1,
+        "meanHoldingDays": 10.0,
+        "exposedDays": 20,
+        "totalDays": 181,
+        "positiveMonths": 1,
+        "monthlyPnlUsd": {
+          "2025-01": 0.0,
+          "2025-02": -139.77677287231927,
+          "2025-03": 0.0,
+          "2025-04": 0.0,
+          "2025-05": 0.0,
+          "2025-06": 19.631397455934348
+        },
+        "rejectedEntries": 0,
+        "selectionUtility": -211.99827695921704
+      },
+      "stress": {
+        "start": "2025-01-01",
+        "end": "2025-07-01",
+        "scenario": "stress",
+        "initialCapitalUsd": 10000.0,
+        "entryBudgetUsd": 1000.0,
+        "netPnlUsd": -109.72567716476988,
+        "returnOnAccountPct": -1.0972567716477033,
+        "netPctOfEntryBudget": -10.972567716476988,
+        "maxDrawdownUsd": 172.10762116112892,
+        "maxDrawdownPctInitialCapital": 1.7210762116112892,
+        "maxIntradayLowDrawdownUsd": 197.71504515272864,
+        "closedTrades": 2,
+        "entries": 2,
+        "feesUsd": 38.62524299777001,
+        "adversePriceCostUsd": 3.8642748919999335,
+        "turnoverUsd": 3862.524299777,
+        "profitFactor": 0.18831814944446676,
+        "winningTrades": 1,
+        "meanHoldingDays": 9.5,
+        "exposedDays": 19,
+        "totalDays": 181,
+        "positiveMonths": 1,
+        "monthlyPnlUsd": {
+          "2025-01": 0.0,
+          "2025-02": -135.18311034018006,
+          "2025-03": 0.0,
+          "2025-04": 0.0,
+          "2025-05": 0.0,
+          "2025-06": 25.457433175410188
+        },
+        "rejectedEntries": 0,
+        "selectionUtility": -195.77948774533434
+      },
+      "developmentScore": -195.77948774533434,
+      "diagnostics": {
+        "events": [
+          {
+            "index": 148,
+            "openMs": 1739577600000,
+            "symbol": "BTC/USD",
+            "type": "entry_signal",
+            "z": -1.3605451906638784,
+            "forecast": 0.05064052427672457,
+            "hurdle": 0.033001001060004684,
+            "halfLife": 3.765588661535378
+          },
+          {
+            "index": 158,
+            "openMs": 1740441600000,
+            "symbol": "BTC/USD",
+            "type": "exit_signal",
+            "reason": "model_invalid:nonstationary_fit"
+          },
+          {
+            "index": 272,
+            "openMs": 1750291200000,
+            "symbol": "BTC/USD",
+            "type": "entry_signal",
+            "z": -1.4841205063959841,
+            "forecast": 0.042781738057042884,
+            "hurdle": 0.033001001060004684,
+            "halfLife": 3.143529063428627
+          }
+        ],
+        "rejectionCountsWhenFlat": {
+          "warmup": 238,
+          "insufficient_excursion_or_edge": 178,
+          "half_life": 6,
+          "nonstationary_fit": 36,
+          "falling_trend": 66
+        },
+        "entries": 2,
+        "exits": 1
+      }
+    },
+    {
+      "variant": {
+        "id": "fast",
+        "trend_span": 90,
+        "fit_window": 45,
+        "entry_z": 1.15,
+        "max_holding_days": 21,
+        "min_half_life": 1.5,
+        "max_half_life": 20,
+        "edge_multiple": 1.35,
+        "trend_floor_20d": -0.05
+      },
+      "base": {
+        "start": "2025-01-01",
+        "end": "2025-07-01",
+        "scenario": "base",
+        "initialCapitalUsd": 10000.0,
+        "entryBudgetUsd": 1000.0,
+        "netPnlUsd": -199.13006347940427,
+        "returnOnAccountPct": -1.9913006347940465,
+        "netPctOfEntryBudget": -19.913006347940428,
+        "maxDrawdownUsd": 305.56090016453163,
+        "maxDrawdownPctInitialCapital": 3.0556090016453163,
+        "maxIntradayLowDrawdownUsd": 370.34402750092704,
+        "closedTrades": 4,
+        "entries": 4,
+        "feesUsd": 61.39295993560481,
+        "adversePriceCostUsd": 2.3060993786003388,
+        "turnoverUsd": 7674.119991950601,
+        "profitFactor": 0.2487456758957892,
+        "winningTrades": 1,
+        "meanHoldingDays": 11.5,
+        "exposedDays": 46,
+        "totalDays": 181,
+        "positiveMonths": 2,
+        "monthlyPnlUsd": {
+          "2025-01": 42.58506006742937,
+          "2025-02": -305.56090016453163,
+          "2025-03": 0.0,
+          "2025-04": 0.0,
+          "2025-05": 0.0,
+          "2025-06": 63.84577661769799
+        },
+        "rejectedEntries": 0,
+        "selectionUtility": -351.9105135616701
+      },
+      "stress": {
+        "start": "2025-01-01",
+        "end": "2025-07-01",
+        "scenario": "stress",
+        "initialCapitalUsd": 10000.0,
+        "entryBudgetUsd": 1000.0,
+        "netPnlUsd": -360.84351100610183,
+        "returnOnAccountPct": -3.6084351100610146,
+        "netPctOfEntryBudget": -36.084351100610185,
+        "maxDrawdownUsd": 415.08807388058085,
+        "maxDrawdownPctInitialCapital": 4.150880738805808,
+        "maxIntradayLowDrawdownUsd": 439.06611512378186,
+        "closedTrades": 4,
+        "entries": 4,
+        "feesUsd": 74.5396458297,
+        "adversePriceCostUsd": 7.458148728799987,
+        "turnoverUsd": 7453.96458297,
+        "profitFactor": 0.04777522743178924,
+        "winningTrades": 1,
+        "meanHoldingDays": 11.25,
+        "exposedDays": 45,
+        "totalDays": 181,
+        "positiveMonths": 0,
+        "monthlyPnlUsd": {
+          "2025-01": -5.956881265496122,
+          "2025-02": -354.8069744720942,
+          "2025-03": 0.0,
+          "2025-04": 0.0,
+          "2025-05": 0.0,
+          "2025-06": -0.07965526851148752
+        },
+        "rejectedEntries": 0,
+        "selectionUtility": -568.3875479463923
+      },
+      "developmentScore": -568.3875479463923,
+      "diagnostics": {
+        "events": [
+          {
+            "index": 89,
+            "openMs": 1734480000000,
+            "symbol": "BTC/USD",
+            "type": "entry_signal",
+            "z": -1.198494280070504,
+            "forecast": 0.05552826888503083,
+            "hurdle": 0.029700900954004218,
+            "halfLife": 3.242401306867434
+          },
+          {
+            "index": 100,
+            "openMs": 1735430400000,
+            "symbol": "BTC/USD",
+            "type": "exit_signal",
+            "reason": "model_invalid:half_life"
+          },
+          {
+            "index": 130,
+            "openMs": 1738022400000,
+            "symbol": "ETH/USD",
+            "type": "entry_signal",
+            "z": -1.2250578293812553,
+            "forecast": 0.07131558989660303,
+            "hurdle": 0.029700900954004218,
+            "halfLife": 4.459820249128478
+          },
+          {
+            "index": 140,
+            "openMs": 1738886400000,
+            "symbol": "ETH/USD",
+            "type": "exit_signal",
+            "reason": "close_based_volatility_stop"
+          },
+          {
+            "index": 141,
+            "openMs": 1738972800000,
+            "symbol": "BTC/USD",
+            "type": "entry_signal",
+            "z": -1.5357431003627138,
+            "forecast": 0.055819287077424826,
+            "hurdle": 0.029700900954004218,
+            "halfLife": 3.4291708865669612
+          },
+          {
+            "index": 157,
+            "openMs": 1740355200000,
+            "symbol": "BTC/USD",
+            "type": "exit_signal",
+            "reason": "model_invalid:half_life"
+          },
+          {
+            "index": 257,
+            "openMs": 1748995200000,
+            "symbol": "BTC/USD",
+            "type": "entry_signal",
+            "z": -1.216135293511991,
+            "forecast": 0.03247636496360915,
+            "hurdle": 0.029700900954004218,
+            "halfLife": 2.7823168229317017
+          },
+          {
+            "index": 262,
+            "openMs": 1749427200000,
+            "symbol": "BTC/USD",
+            "type": "exit_signal",
+            "reason": "reversion_completed"
+          },
+          {
+            "index": 267,
+            "openMs": 1749859200000,
+            "symbol": "BTC/USD",
+            "type": "entry_signal",
+            "z": -1.3293247197021023,
+            "forecast": 0.04088883302407417,
+            "hurdle": 0.029700900954004218,
+            "halfLife": 3.5338961555306128
+          }
+        ],
+        "rejectionCountsWhenFlat": {
+          "warmup": 178,
+          "half_life": 30,
+          "insufficient_excursion_or_edge": 153,
+          "nonstationary_fit": 20,
+          "falling_trend": 65
+        },
+        "entries": 5,
+        "exits": 4
+      }
+    },
+    {
+      "variant": {
+        "id": "patient",
+        "trend_span": 150,
+        "fit_window": 90,
+        "entry_z": 1.5,
+        "max_holding_days": 42,
+        "min_half_life": 1.5,
+        "max_half_life": 35,
+        "edge_multiple": 1.75,
+        "trend_floor_20d": -0.05
+      },
+      "base": {
+        "start": "2025-01-01",
+        "end": "2025-07-01",
+        "scenario": "base",
+        "initialCapitalUsd": 10000.0,
+        "entryBudgetUsd": 1000.0,
+        "netPnlUsd": 0.0,
+        "returnOnAccountPct": 0.0,
+        "netPctOfEntryBudget": 0.0,
+        "maxDrawdownUsd": 0.0,
+        "maxDrawdownPctInitialCapital": 0.0,
+        "maxIntradayLowDrawdownUsd": 0.0,
+        "closedTrades": 0,
+        "entries": 0,
+        "feesUsd": 0.0,
+        "adversePriceCostUsd": 0.0,
+        "turnoverUsd": 0.0,
+        "profitFactor": null,
+        "winningTrades": 0,
+        "meanHoldingDays": 0,
+        "exposedDays": 0,
+        "totalDays": 181,
+        "positiveMonths": 0,
+        "monthlyPnlUsd": {
+          "2025-01": 0.0,
+          "2025-02": 0.0,
+          "2025-03": 0.0,
+          "2025-04": 0.0,
+          "2025-05": 0.0,
+          "2025-06": 0.0
+        },
+        "rejectedEntries": 0,
+        "selectionUtility": 0.0
+      },
+      "stress": {
+        "start": "2025-01-01",
+        "end": "2025-07-01",
+        "scenario": "stress",
+        "initialCapitalUsd": 10000.0,
+        "entryBudgetUsd": 1000.0,
+        "netPnlUsd": 0.0,
+        "returnOnAccountPct": 0.0,
+        "netPctOfEntryBudget": 0.0,
+        "maxDrawdownUsd": 0.0,
+        "maxDrawdownPctInitialCapital": 0.0,
+        "maxIntradayLowDrawdownUsd": 0.0,
+        "closedTrades": 0,
+        "entries": 0,
+        "feesUsd": 0.0,
+        "adversePriceCostUsd": 0.0,
+        "turnoverUsd": 0.0,
+        "profitFactor": null,
+        "winningTrades": 0,
+        "meanHoldingDays": 0,
+        "exposedDays": 0,
+        "totalDays": 181,
+        "positiveMonths": 0,
+        "monthlyPnlUsd": {
+          "2025-01": 0.0,
+          "2025-02": 0.0,
+          "2025-03": 0.0,
+          "2025-04": 0.0,
+          "2025-05": 0.0,
+          "2025-06": 0.0
+        },
+        "rejectedEntries": 0,
+        "selectionUtility": 0.0
+      },
+      "developmentScore": 0.0,
+      "diagnostics": {
+        "events": [],
+        "rejectionCountsWhenFlat": {
+          "warmup": 298,
+          "insufficient_excursion_or_edge": 153,
+          "nonstationary_fit": 59,
+          "falling_trend": 58
+        },
+        "entries": 0,
+        "exits": 0
+      }
+    },
+    {
+      "variant": {
+        "id": "rising_trend",
+        "trend_span": 120,
+        "fit_window": 60,
+        "entry_z": 1.3,
+        "max_holding_days": 30,
+        "min_half_life": 1.5,
+        "max_half_life": 30,
+        "edge_multiple": 1.5,
+        "trend_floor_20d": 0.0
+      },
+      "base": {
+        "start": "2025-01-01",
+        "end": "2025-07-01",
+        "scenario": "base",
+        "initialCapitalUsd": 10000.0,
+        "entryBudgetUsd": 1000.0,
+        "netPnlUsd": -120.14537541638492,
+        "returnOnAccountPct": -1.2014537541638504,
+        "netPctOfEntryBudget": -12.014537541638493,
+        "maxDrawdownUsd": 183.70580308566423,
+        "maxDrawdownPctInitialCapital": 1.8370580308566424,
+        "maxIntradayLowDrawdownUsd": 209.1541947575679,
+        "closedTrades": 2,
+        "entries": 2,
+        "feesUsd": 30.809461629384003,
+        "adversePriceCostUsd": 1.1573856959997924,
+        "turnoverUsd": 3851.1827036730006,
+        "profitFactor": 0.14044820933066163,
+        "winningTrades": 1,
+        "meanHoldingDays": 10.0,
+        "exposedDays": 20,
+        "totalDays": 181,
+        "positiveMonths": 1,
+        "monthlyPnlUsd": {
+          "2025-01": 0.0,
+          "2025-02": -139.77677287231927,
+          "2025-03": 0.0,
+          "2025-04": 0.0,
+          "2025-05": 0.0,
+          "2025-06": 19.631397455934348
+        },
+        "rejectedEntries": 0,
+        "selectionUtility": -211.99827695921704
+      },
+      "stress": {
+        "start": "2025-01-01",
+        "end": "2025-07-01",
+        "scenario": "stress",
+        "initialCapitalUsd": 10000.0,
+        "entryBudgetUsd": 1000.0,
+        "netPnlUsd": -109.72567716476988,
+        "returnOnAccountPct": -1.0972567716477033,
+        "netPctOfEntryBudget": -10.972567716476988,
+        "maxDrawdownUsd": 172.10762116112892,
+        "maxDrawdownPctInitialCapital": 1.7210762116112892,
+        "maxIntradayLowDrawdownUsd": 197.71504515272864,
+        "closedTrades": 2,
+        "entries": 2,
+        "feesUsd": 38.62524299777001,
+        "adversePriceCostUsd": 3.8642748919999335,
+        "turnoverUsd": 3862.524299777,
+        "profitFactor": 0.18831814944446676,
+        "winningTrades": 1,
+        "meanHoldingDays": 9.5,
+        "exposedDays": 19,
+        "totalDays": 181,
+        "positiveMonths": 1,
+        "monthlyPnlUsd": {
+          "2025-01": 0.0,
+          "2025-02": -135.18311034018006,
+          "2025-03": 0.0,
+          "2025-04": 0.0,
+          "2025-05": 0.0,
+          "2025-06": 25.457433175410188
+        },
+        "rejectedEntries": 0,
+        "selectionUtility": -195.77948774533434
+      },
+      "developmentScore": -195.77948774533434,
+      "diagnostics": {
+        "events": [
+          {
+            "index": 148,
+            "openMs": 1739577600000,
+            "symbol": "BTC/USD",
+            "type": "entry_signal",
+            "z": -1.3605451906638784,
+            "forecast": 0.05064052427672457,
+            "hurdle": 0.033001001060004684,
+            "halfLife": 3.765588661535378
+          },
+          {
+            "index": 158,
+            "openMs": 1740441600000,
+            "symbol": "BTC/USD",
+            "type": "exit_signal",
+            "reason": "model_invalid:nonstationary_fit"
+          },
+          {
+            "index": 272,
+            "openMs": 1750291200000,
+            "symbol": "BTC/USD",
+            "type": "entry_signal",
+            "z": -1.4841205063959841,
+            "forecast": 0.042781738057042884,
+            "hurdle": 0.033001001060004684,
+            "halfLife": 3.143529063428627
+          }
+        ],
+        "rejectionCountsWhenFlat": {
+          "warmup": 238,
+          "insufficient_excursion_or_edge": 118,
+          "falling_trend": 126,
+          "half_life": 6,
+          "nonstationary_fit": 36
+        },
+        "entries": 2,
+        "exits": 1
+      }
+    }
+  ]
+}

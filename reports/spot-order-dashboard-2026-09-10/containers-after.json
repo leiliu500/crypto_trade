@@ -1,0 +1,45 @@
+[
+  {
+    "name": "/crypto-trade-engine",
+    "image": "sha256:f2c56ce778d47b1f2fef74636a27f277d92bd4aaca69b835ca9d2b51bfd92cda",
+    "startedAt": "2026-09-10T06:19:55.580100173Z",
+    "health": "healthy",
+    "networks": [
+      "crypto-trade_default"
+    ],
+    "mounts": [
+      {
+        "Type": "volume",
+        "Name": "crypto_trade_event_data",
+        "Source": "/var/lib/docker/volumes/crypto_trade_event_data/_data",
+        "Destination": "/app/data",
+        "Driver": "local",
+        "Mode": "rw",
+        "RW": true,
+        "Propagation": ""
+      }
+    ]
+  },
+  {
+    "name": "/crypto-spot-trend-paper",
+    "image": "sha256:6b8b607debf4afa5054d1bac78cdd9086a8354b85494db73ab8b03864e43b8fe",
+    "startedAt": "2026-09-10T06:20:45.441977439Z",
+    "health": "healthy",
+    "networks": [
+      "crypto-spot-paper_default",
+      "crypto-trade_default"
+    ],
+    "mounts": [
+      {
+        "Type": "volume",
+        "Name": "crypto_trade_spot_trend_research",
+        "Source": "/var/lib/docker/volumes/crypto_trade_spot_trend_research/_data",
+        "Destination": "/app/data",
+        "Driver": "local",
+        "Mode": "rw",
+        "RW": true,
+        "Propagation": ""
+      }
+    ]
+  }
+]

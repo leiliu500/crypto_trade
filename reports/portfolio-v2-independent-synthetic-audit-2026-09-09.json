@@ -1,0 +1,108 @@
+{
+  "version": "independent-v2-auditor-synthetic-v1",
+  "createdAtUtc": "2026-09-09T02:31:49.059Z",
+  "scope": "Synthetic fixtures only; no historical financial evaluation",
+  "passed": true,
+  "rows": [
+    {
+      "name": "signed-cash-and-daily-reset",
+      "passed": true,
+      "checks": 5333,
+      "maximumNumericDifference": 5.551115123125783e-17,
+      "failures": [],
+      "fills": 8,
+      "fundingReceipts": 142,
+      "riskObservations": 250,
+      "unknowns": 0,
+      "cancellations": 0,
+      "finalDrawdownHalted": false,
+      "finalAccountingHalted": false
+    },
+    {
+      "name": "missing-funding-maintenance",
+      "passed": true,
+      "checks": 4440,
+      "maximumNumericDifference": 4.336808689942018e-19,
+      "failures": [],
+      "fills": 4,
+      "fundingReceipts": 23,
+      "riskObservations": 247,
+      "unknowns": 1,
+      "cancellations": 0,
+      "finalDrawdownHalted": false,
+      "finalAccountingHalted": true
+    },
+    {
+      "name": "gap-permanent-drawdown",
+      "passed": true,
+      "checks": 4368,
+      "maximumNumericDifference": 4.440892098500626e-16,
+      "failures": [],
+      "fills": 4,
+      "fundingReceipts": 18,
+      "riskObservations": 246,
+      "unknowns": 0,
+      "cancellations": 0,
+      "finalDrawdownHalted": true,
+      "finalAccountingHalted": false
+    },
+    {
+      "name": "post-fill-cap-cancel",
+      "passed": true,
+      "checks": 5309,
+      "maximumNumericDifference": 2.6020852139652106e-18,
+      "failures": [],
+      "fills": 7,
+      "fundingReceipts": 141,
+      "riskObservations": 249,
+      "unknowns": 0,
+      "cancellations": 1,
+      "finalDrawdownHalted": false,
+      "finalAccountingHalted": false
+    }
+  ],
+  "negativeControls": [
+    {
+      "name": "altered-fill-fee",
+      "rejected": true,
+      "discrepancyCount": 1789
+    },
+    {
+      "name": "altered-signed-funding",
+      "rejected": true,
+      "discrepancyCount": 1
+    },
+    {
+      "name": "altered-risk-cap",
+      "rejected": true,
+      "discrepancyCount": 1
+    },
+    {
+      "name": "reset-peak-checkpoint",
+      "rejected": true,
+      "discrepancyCount": 2
+    },
+    {
+      "name": "missing-risk-observation",
+      "rejected": true,
+      "discrepancyCount": 646
+    }
+  ],
+  "auditorSource": {
+    "path": "tools/portfolio-risk-audit.mjs",
+    "sha256": "6440ef879dfe7e1878c4d1b478979df90db28c625b45f05ba88bee509f528d04"
+  },
+  "implementationHashes": {
+    "src/portfolio-v2/protocol.ts": "5537afcf9703509db1ac9afa4c4506eee412da6aaa83637c64ac26dbd0c5fac9",
+    "src/portfolio-v2/study-main.ts": "3bdbbe70a5d06c8d981158617a1ba289766ebc2cfb1653deb66468e4c599f4dd",
+    "src/portfolio-v2/replay.ts": "311e7648296a5575d71344312d6ddb8fff4f399de9f5583f70901298bc0da63d",
+    "src/portfolio-v2/kernel.ts": "9ddb8eb82819faa8e2d8e6cb572d6368f8b2229f78118e701d1a4157e96beaf3",
+    "src/portfolio-v2/risk.ts": "3572b4138796ba6aff057e65a3618d672b4d8eb3e21040a2733a01a38b60d0f0"
+  },
+  "fixtures": {
+    "file": "reports/portfolio-v2-independent-synthetic-fixtures-2026-09-09.json.gz",
+    "jsonSha256": "04de2878958550da41101bb7c0d8a4f537043adb2b4ee01f4fe50c409ec1c51c",
+    "compressedSha256": "d2046c3a7df41d802ba31d8a9facb7e2cf3b2921d1ce1dab6b23b797bd6e3a3c",
+    "compressedBytes": 67012
+  }
+}

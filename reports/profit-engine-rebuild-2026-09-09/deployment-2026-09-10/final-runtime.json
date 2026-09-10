@@ -1,0 +1,39 @@
+{
+  "generatedAtMs": 1788999238883,
+  "health": {
+    "status": "healthy",
+    "generatedAtMs": 1788999238883,
+    "entriesAllowed": true,
+    "database": "connected"
+  },
+  "equity": 99998.28269740003,
+  "openOrders": 0,
+  "openPositions": 0,
+  "retainedSamples": 6151,
+  "newlyLearnedActionsSinceStartup": 3,
+  "selected": 0,
+  "markets": [
+    {
+      "symbol": "BTC/USD",
+      "size": {
+        "qty": 0,
+        "maximumNotional": 999.9828269740003,
+        "minimumOrderNotional": 7.827400000000001,
+        "reason": "LIQUIDITY_BELOW_MINIMUM_ORDER",
+        "bindingLimit": null
+      },
+      "decisionReason": null
+    },
+    {
+      "symbol": "ETH/USD",
+      "size": {
+        "qty": 0,
+        "maximumNotional": 999.9828269740003,
+        "minimumOrderNotional": 2.4666,
+        "reason": "LIQUIDITY_BELOW_MINIMUM_ORDER",
+        "bindingLimit": null
+      },
+      "decisionReason": null
+    }
+  ]
+}

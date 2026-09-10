@@ -1,0 +1,988 @@
+{
+  "generatedAt": "2026-09-10T16:05:14.626Z",
+  "mode": "DEPLOYED_READ_ONLY",
+  "url": "http://127.0.0.1:3001",
+  "ordersSubmitted": false,
+  "accountWrites": false,
+  "results": [
+    {
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 1100
+      },
+      "scenario": "default-spot",
+      "heading": "BTC spot strategy",
+      "orderMode": "Paper orders enabled",
+      "exchangeMode": "Live exchange orders disabled",
+      "serviceStatus": "Spot service connected · market cycle 3 min ago · checks about every 5m 0s",
+      "bodyWidth": 1425,
+      "viewportWidth": 1440,
+      "spotWidth": 1377,
+      "spotOrders": 0,
+      "partialOrders": [],
+      "values": [
+        {
+          "label": "Forward net P&L",
+          "value": "+$0.00"
+        },
+        {
+          "label": "Spot equity",
+          "value": "$100,000.00"
+        },
+        {
+          "label": "Cash",
+          "value": "$100,000.00"
+        },
+        {
+          "label": "BTC held",
+          "value": "0.00000000"
+        },
+        {
+          "label": "Realized net P&L",
+          "value": "+$0.00"
+        },
+        {
+          "label": "Unrealized net P&L",
+          "value": "+$0.00"
+        },
+        {
+          "label": "Fees paid",
+          "value": "$0.00"
+        },
+        {
+          "label": "Paper fills",
+          "value": "0"
+        }
+      ],
+      "futuresHeading": "Establishing futures engine state",
+      "scripts": [
+        "http://127.0.0.1:3001/app.js?v=20260910-spot-liveness-1",
+        "http://127.0.0.1:3001/spot.js?v=20260910-spot-liveness-1"
+      ],
+      "visibility": {
+        "view": "spot",
+        "spotVisible": true,
+        "futuresVisible": false,
+        "header": "Spot connected",
+        "mode": "SPOT · PAPER",
+        "selected": "spot-view-link"
+      },
+      "sourceStatus": {
+        "generatedAtMs": 1789056320233,
+        "orderSubmissionEnabled": true,
+        "liveTradingEnabled": false,
+        "healthy": true,
+        "lastSuccessMs": 1789056081915,
+        "cycles": 125,
+        "lastCycleMs": 1789056081915,
+        "lastDecisionReason": "NEXT_WEEK_ENTRY_WINDOW",
+        "account": {
+          "cashUsd": 100000,
+          "quantity": 0,
+          "realizedNetUsd": 0,
+          "feesUsd": 0
+        },
+        "mark": {
+          "equityUsd": 100000,
+          "liquidationEquityUsd": 100000,
+          "unrealizedNetUsd": 0,
+          "netPnlUsd": 0
+        },
+        "orderCount": 0,
+        "receiptCount": 0
+      },
+      "liveness": {
+        "initial": {
+          "heading": "Spot system liveness",
+          "cards": [
+            {
+              "id": "spot-live-service",
+              "label": "Spot API response",
+              "value": "Responding",
+              "detail": "Last upstream response 0s ago. Dashboard checks every 5s.",
+              "tone": "spot-liveness-card good"
+            },
+            {
+              "id": "spot-live-evaluations",
+              "label": "Recorded evaluations",
+              "value": "125 recorded",
+              "detail": "Last evaluation 3m 53s ago.",
+              "tone": "spot-liveness-card good"
+            },
+            {
+              "id": "spot-live-next",
+              "label": "Next evaluation · approximate",
+              "value": "About 1m 6s",
+              "detail": "Approximate 5m 0s cadence. The timer waits after work completes.",
+              "tone": "spot-liveness-card neutral"
+            },
+            {
+              "id": "spot-live-market",
+              "label": "Last successful market check",
+              "value": "3m 53s ago",
+              "detail": "Last market cycle with valid valuation and no error; not a live quote heartbeat.",
+              "tone": "spot-liveness-card good"
+            },
+            {
+              "id": "spot-live-broker",
+              "label": "Paper order broker",
+              "value": "0 pending · 0 terminal",
+              "detail": "Paper submissions enabled · no orders submitted yet.",
+              "tone": "spot-liveness-card neutral"
+            },
+            {
+              "id": "spot-live-gate",
+              "label": "Entry / risk gate",
+              "value": "Waiting for entry window",
+              "detail": "Waiting for the next weekly entry window.",
+              "tone": "spot-liveness-card neutral"
+            }
+          ],
+          "observations": [
+            {
+              "label": "Evaluation 125 · HOLD",
+              "time": "2026-09-10 16:01:21 UTC",
+              "detail": "Waiting for the next weekly entry window."
+            }
+          ],
+          "panelTop": 350.890625,
+          "panelBottom": 780.765625,
+          "strategyTop": 803.765625,
+          "bodyWidth": 1425,
+          "viewportWidth": 1440
+        },
+        "firstTick": {
+          "heading": "Spot system liveness",
+          "cards": [
+            {
+              "id": "spot-live-service",
+              "label": "Spot API response",
+              "value": "Responding",
+              "detail": "Last upstream response 1s ago. Dashboard checks every 5s.",
+              "tone": "spot-liveness-card good"
+            },
+            {
+              "id": "spot-live-evaluations",
+              "label": "Recorded evaluations",
+              "value": "125 recorded",
+              "detail": "Last evaluation 3m 58s ago.",
+              "tone": "spot-liveness-card good"
+            },
+            {
+              "id": "spot-live-next",
+              "label": "Next evaluation · approximate",
+              "value": "About 1m 1s",
+              "detail": "Approximate 5m 0s cadence. The timer waits after work completes.",
+              "tone": "spot-liveness-card neutral"
+            },
+            {
+              "id": "spot-live-market",
+              "label": "Last successful market check",
+              "value": "3m 58s ago",
+              "detail": "Last market cycle with valid valuation and no error; not a live quote heartbeat.",
+              "tone": "spot-liveness-card good"
+            },
+            {
+              "id": "spot-live-broker",
+              "label": "Paper order broker",
+              "value": "0 pending · 0 terminal",
+              "detail": "Paper submissions enabled · no orders submitted yet.",
+              "tone": "spot-liveness-card neutral"
+            },
+            {
+              "id": "spot-live-gate",
+              "label": "Entry / risk gate",
+              "value": "Waiting for entry window",
+              "detail": "Waiting for the next weekly entry window.",
+              "tone": "spot-liveness-card neutral"
+            }
+          ],
+          "observations": [
+            {
+              "label": "Evaluation 125 · HOLD",
+              "time": "2026-09-10 16:01:21 UTC",
+              "detail": "Waiting for the next weekly entry window."
+            }
+          ],
+          "panelTop": 350.890625,
+          "panelBottom": 780.765625,
+          "strategyTop": 803.765625,
+          "bodyWidth": 1425,
+          "viewportWidth": 1440
+        },
+        "secondTick": {
+          "heading": "Spot system liveness",
+          "cards": [
+            {
+              "id": "spot-live-service",
+              "label": "Spot API response",
+              "value": "Responding",
+              "detail": "Last upstream response 2s ago. Dashboard checks every 5s.",
+              "tone": "spot-liveness-card good"
+            },
+            {
+              "id": "spot-live-evaluations",
+              "label": "Recorded evaluations",
+              "value": "125 recorded",
+              "detail": "Last evaluation 3m 59s ago.",
+              "tone": "spot-liveness-card good"
+            },
+            {
+              "id": "spot-live-next",
+              "label": "Next evaluation · approximate",
+              "value": "About 1m 0s",
+              "detail": "Approximate 5m 0s cadence. The timer waits after work completes.",
+              "tone": "spot-liveness-card neutral"
+            },
+            {
+              "id": "spot-live-market",
+              "label": "Last successful market check",
+              "value": "3m 59s ago",
+              "detail": "Last market cycle with valid valuation and no error; not a live quote heartbeat.",
+              "tone": "spot-liveness-card good"
+            },
+            {
+              "id": "spot-live-broker",
+              "label": "Paper order broker",
+              "value": "0 pending · 0 terminal",
+              "detail": "Paper submissions enabled · no orders submitted yet.",
+              "tone": "spot-liveness-card neutral"
+            },
+            {
+              "id": "spot-live-gate",
+              "label": "Entry / risk gate",
+              "value": "Waiting for entry window",
+              "detail": "Waiting for the next weekly entry window.",
+              "tone": "spot-liveness-card neutral"
+            }
+          ],
+          "observations": [
+            {
+              "label": "Evaluation 125 · HOLD",
+              "time": "2026-09-10 16:01:21 UTC",
+              "detail": "Waiting for the next weekly entry window."
+            }
+          ],
+          "panelTop": 350.890625,
+          "panelBottom": 780.765625,
+          "strategyTop": 803.765625,
+          "bodyWidth": 1425,
+          "viewportWidth": 1440
+        },
+        "pollingBeforeTick": 2,
+        "pollingAfterTick": 2,
+        "pollIntervalsMs": [
+          5000.88200044632
+        ]
+      },
+      "networkRequests": [
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/api/spot-dashboard",
+          "method": "GET",
+          "timestampMs": 3791474741.1369996
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/api/spot-dashboard",
+          "method": "GET",
+          "timestampMs": 3791479742.019
+        }
+      ],
+      "javascriptErrors": [],
+      "consoleErrors": [],
+      "screenshot": "/home/ec2-user/crypto_trade/reports/spot-liveness-2026-09-10/browser-deployed/desktop-spot.png"
+    },
+    {
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 1100
+      },
+      "scenario": "explicit-futures",
+      "visibility": {
+        "url": "http://127.0.0.1:3001/?view=futures",
+        "view": "futures",
+        "spotVisible": false,
+        "futuresVisible": true,
+        "header": "Live stream",
+        "selected": "futures-view-link",
+        "bodyWidth": 1425,
+        "viewportWidth": 1440
+      },
+      "networkRequests": [
+        {
+          "kind": "websocket",
+          "url": "ws://127.0.0.1:3001/ws"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/api/dashboard",
+          "method": "GET",
+          "timestampMs": 3791482365.4490004
+        }
+      ],
+      "screenshot": "/home/ec2-user/crypto_trade/reports/spot-liveness-2026-09-10/browser-deployed/desktop-futures.png"
+    },
+    {
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 1100
+      },
+      "scenario": "browser-back-spot",
+      "networkRequests": [
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/api/spot-dashboard",
+          "method": "GET",
+          "timestampMs": 3791489213.147
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/api/spot-dashboard",
+          "method": "GET",
+          "timestampMs": 3791494213.841
+        }
+      ],
+      "passed": true
+    },
+    {
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 1100
+      },
+      "scenario": "invalid-view-defaults-spot",
+      "passed": true
+    },
+    {
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "scenario": "default-spot",
+      "heading": "BTC spot strategy",
+      "orderMode": "Paper orders enabled",
+      "exchangeMode": "Live exchange orders disabled",
+      "serviceStatus": "Spot service connected · market cycle 4 min ago · checks about every 5m 0s",
+      "bodyWidth": 390,
+      "viewportWidth": 390,
+      "spotWidth": 366,
+      "spotOrders": 0,
+      "partialOrders": [],
+      "values": [
+        {
+          "label": "Forward net P&L",
+          "value": "+$0.00"
+        },
+        {
+          "label": "Spot equity",
+          "value": "$100,000.00"
+        },
+        {
+          "label": "Cash",
+          "value": "$100,000.00"
+        },
+        {
+          "label": "BTC held",
+          "value": "0.00000000"
+        },
+        {
+          "label": "Realized net P&L",
+          "value": "+$0.00"
+        },
+        {
+          "label": "Unrealized net P&L",
+          "value": "+$0.00"
+        },
+        {
+          "label": "Fees paid",
+          "value": "$0.00"
+        },
+        {
+          "label": "Paper fills",
+          "value": "0"
+        }
+      ],
+      "futuresHeading": "Establishing futures engine state",
+      "scripts": [
+        "http://127.0.0.1:3001/app.js?v=20260910-spot-liveness-1",
+        "http://127.0.0.1:3001/spot.js?v=20260910-spot-liveness-1"
+      ],
+      "visibility": {
+        "view": "spot",
+        "spotVisible": true,
+        "futuresVisible": false,
+        "header": "Spot connected",
+        "mode": "SPOT · PAPER",
+        "selected": "spot-view-link"
+      },
+      "sourceStatus": {
+        "generatedAtMs": 1789056340404,
+        "orderSubmissionEnabled": true,
+        "liveTradingEnabled": false,
+        "healthy": true,
+        "lastSuccessMs": 1789056081915,
+        "cycles": 125,
+        "lastCycleMs": 1789056081915,
+        "lastDecisionReason": "NEXT_WEEK_ENTRY_WINDOW",
+        "account": {
+          "cashUsd": 100000,
+          "quantity": 0,
+          "realizedNetUsd": 0,
+          "feesUsd": 0
+        },
+        "mark": {
+          "equityUsd": 100000,
+          "liquidationEquityUsd": 100000,
+          "unrealizedNetUsd": 0,
+          "netPnlUsd": 0
+        },
+        "orderCount": 0,
+        "receiptCount": 0
+      },
+      "liveness": {
+        "initial": {
+          "heading": "Spot system liveness",
+          "cards": [
+            {
+              "id": "spot-live-service",
+              "label": "Spot API response",
+              "value": "Responding",
+              "detail": "Last upstream response 1s ago. Dashboard checks every 5s.",
+              "tone": "spot-liveness-card good"
+            },
+            {
+              "id": "spot-live-evaluations",
+              "label": "Recorded evaluations",
+              "value": "125 recorded",
+              "detail": "Last evaluation 4m 13s ago.",
+              "tone": "spot-liveness-card good"
+            },
+            {
+              "id": "spot-live-next",
+              "label": "Next evaluation · approximate",
+              "value": "About 46s",
+              "detail": "Approximate 5m 0s cadence. The timer waits after work completes.",
+              "tone": "spot-liveness-card neutral"
+            },
+            {
+              "id": "spot-live-market",
+              "label": "Last successful market check",
+              "value": "4m 13s ago",
+              "detail": "Last market cycle with valid valuation and no error; not a live quote heartbeat.",
+              "tone": "spot-liveness-card good"
+            },
+            {
+              "id": "spot-live-broker",
+              "label": "Paper order broker",
+              "value": "0 pending · 0 terminal",
+              "detail": "Paper submissions enabled · no orders submitted yet.",
+              "tone": "spot-liveness-card neutral"
+            },
+            {
+              "id": "spot-live-gate",
+              "label": "Entry / risk gate",
+              "value": "Waiting for entry window",
+              "detail": "Waiting for the next weekly entry window.",
+              "tone": "spot-liveness-card neutral"
+            }
+          ],
+          "observations": [
+            {
+              "label": "Evaluation 125 · HOLD",
+              "time": "2026-09-10 16:01:21 UTC",
+              "detail": "Waiting for the next weekly entry window."
+            }
+          ],
+          "panelTop": 464.984375,
+          "panelBottom": 1122.265625,
+          "strategyTop": 1145.265625,
+          "bodyWidth": 390,
+          "viewportWidth": 390
+        },
+        "firstTick": {
+          "heading": "Spot system liveness",
+          "cards": [
+            {
+              "id": "spot-live-service",
+              "label": "Spot API response",
+              "value": "Responding",
+              "detail": "Last upstream response 1s ago. Dashboard checks every 5s.",
+              "tone": "spot-liveness-card good"
+            },
+            {
+              "id": "spot-live-evaluations",
+              "label": "Recorded evaluations",
+              "value": "125 recorded",
+              "detail": "Last evaluation 4m 18s ago.",
+              "tone": "spot-liveness-card good"
+            },
+            {
+              "id": "spot-live-next",
+              "label": "Next evaluation · approximate",
+              "value": "About 41s",
+              "detail": "Approximate 5m 0s cadence. The timer waits after work completes.",
+              "tone": "spot-liveness-card neutral"
+            },
+            {
+              "id": "spot-live-market",
+              "label": "Last successful market check",
+              "value": "4m 18s ago",
+              "detail": "Last market cycle with valid valuation and no error; not a live quote heartbeat.",
+              "tone": "spot-liveness-card good"
+            },
+            {
+              "id": "spot-live-broker",
+              "label": "Paper order broker",
+              "value": "0 pending · 0 terminal",
+              "detail": "Paper submissions enabled · no orders submitted yet.",
+              "tone": "spot-liveness-card neutral"
+            },
+            {
+              "id": "spot-live-gate",
+              "label": "Entry / risk gate",
+              "value": "Waiting for entry window",
+              "detail": "Waiting for the next weekly entry window.",
+              "tone": "spot-liveness-card neutral"
+            }
+          ],
+          "observations": [
+            {
+              "label": "Evaluation 125 · HOLD",
+              "time": "2026-09-10 16:01:21 UTC",
+              "detail": "Waiting for the next weekly entry window."
+            }
+          ],
+          "panelTop": 464.984375,
+          "panelBottom": 1122.265625,
+          "strategyTop": 1145.265625,
+          "bodyWidth": 390,
+          "viewportWidth": 390
+        },
+        "secondTick": {
+          "heading": "Spot system liveness",
+          "cards": [
+            {
+              "id": "spot-live-service",
+              "label": "Spot API response",
+              "value": "Responding",
+              "detail": "Last upstream response 2s ago. Dashboard checks every 5s.",
+              "tone": "spot-liveness-card good"
+            },
+            {
+              "id": "spot-live-evaluations",
+              "label": "Recorded evaluations",
+              "value": "125 recorded",
+              "detail": "Last evaluation 4m 19s ago.",
+              "tone": "spot-liveness-card good"
+            },
+            {
+              "id": "spot-live-next",
+              "label": "Next evaluation · approximate",
+              "value": "About 40s",
+              "detail": "Approximate 5m 0s cadence. The timer waits after work completes.",
+              "tone": "spot-liveness-card neutral"
+            },
+            {
+              "id": "spot-live-market",
+              "label": "Last successful market check",
+              "value": "4m 19s ago",
+              "detail": "Last market cycle with valid valuation and no error; not a live quote heartbeat.",
+              "tone": "spot-liveness-card good"
+            },
+            {
+              "id": "spot-live-broker",
+              "label": "Paper order broker",
+              "value": "0 pending · 0 terminal",
+              "detail": "Paper submissions enabled · no orders submitted yet.",
+              "tone": "spot-liveness-card neutral"
+            },
+            {
+              "id": "spot-live-gate",
+              "label": "Entry / risk gate",
+              "value": "Waiting for entry window",
+              "detail": "Waiting for the next weekly entry window.",
+              "tone": "spot-liveness-card neutral"
+            }
+          ],
+          "observations": [
+            {
+              "label": "Evaluation 125 · HOLD",
+              "time": "2026-09-10 16:01:21 UTC",
+              "detail": "Waiting for the next weekly entry window."
+            }
+          ],
+          "panelTop": 464.984375,
+          "panelBottom": 1122.265625,
+          "strategyTop": 1145.265625,
+          "bodyWidth": 390,
+          "viewportWidth": 390
+        },
+        "pollingBeforeTick": 2,
+        "pollingAfterTick": 2,
+        "pollIntervalsMs": [
+          5000.692999839783
+        ]
+      },
+      "networkRequests": [
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/api/spot-dashboard",
+          "method": "GET",
+          "timestampMs": 3791494911.593
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/api/spot-dashboard",
+          "method": "GET",
+          "timestampMs": 3791499912.286
+        }
+      ],
+      "javascriptErrors": [],
+      "consoleErrors": [],
+      "screenshot": "/home/ec2-user/crypto_trade/reports/spot-liveness-2026-09-10/browser-deployed/mobile-spot.png"
+    },
+    {
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "scenario": "explicit-futures",
+      "visibility": {
+        "url": "http://127.0.0.1:3001/?view=futures",
+        "view": "futures",
+        "spotVisible": false,
+        "futuresVisible": true,
+        "header": "Live stream",
+        "selected": "futures-view-link",
+        "bodyWidth": 390,
+        "viewportWidth": 390
+      },
+      "networkRequests": [
+        {
+          "kind": "websocket",
+          "url": "ws://127.0.0.1:3001/ws"
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/api/dashboard",
+          "method": "GET",
+          "timestampMs": 3791502085.448
+        }
+      ],
+      "screenshot": "/home/ec2-user/crypto_trade/reports/spot-liveness-2026-09-10/browser-deployed/mobile-futures.png"
+    },
+    {
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "scenario": "browser-back-spot",
+      "networkRequests": [
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/api/spot-dashboard",
+          "method": "GET",
+          "timestampMs": 3791508297.717
+        },
+        {
+          "kind": "http",
+          "url": "http://127.0.0.1:3001/api/spot-dashboard",
+          "method": "GET",
+          "timestampMs": 3791513298.2450004
+        }
+      ],
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "tickDiagnostics": [
+    {
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 1100
+      },
+      "firstTick": {
+        "heading": "Spot system liveness",
+        "cards": [
+          {
+            "id": "spot-live-service",
+            "label": "Spot API response",
+            "value": "Responding",
+            "detail": "Last upstream response 1s ago. Dashboard checks every 5s.",
+            "tone": "spot-liveness-card good"
+          },
+          {
+            "id": "spot-live-evaluations",
+            "label": "Recorded evaluations",
+            "value": "125 recorded",
+            "detail": "Last evaluation 3m 58s ago.",
+            "tone": "spot-liveness-card good"
+          },
+          {
+            "id": "spot-live-next",
+            "label": "Next evaluation · approximate",
+            "value": "About 1m 1s",
+            "detail": "Approximate 5m 0s cadence. The timer waits after work completes.",
+            "tone": "spot-liveness-card neutral"
+          },
+          {
+            "id": "spot-live-market",
+            "label": "Last successful market check",
+            "value": "3m 58s ago",
+            "detail": "Last market cycle with valid valuation and no error; not a live quote heartbeat.",
+            "tone": "spot-liveness-card good"
+          },
+          {
+            "id": "spot-live-broker",
+            "label": "Paper order broker",
+            "value": "0 pending · 0 terminal",
+            "detail": "Paper submissions enabled · no orders submitted yet.",
+            "tone": "spot-liveness-card neutral"
+          },
+          {
+            "id": "spot-live-gate",
+            "label": "Entry / risk gate",
+            "value": "Waiting for entry window",
+            "detail": "Waiting for the next weekly entry window.",
+            "tone": "spot-liveness-card neutral"
+          }
+        ],
+        "observations": [
+          {
+            "label": "Evaluation 125 · HOLD",
+            "time": "2026-09-10 16:01:21 UTC",
+            "detail": "Waiting for the next weekly entry window."
+          }
+        ],
+        "panelTop": 350.890625,
+        "panelBottom": 780.765625,
+        "strategyTop": 803.765625,
+        "bodyWidth": 1425,
+        "viewportWidth": 1440
+      },
+      "secondTick": {
+        "heading": "Spot system liveness",
+        "cards": [
+          {
+            "id": "spot-live-service",
+            "label": "Spot API response",
+            "value": "Responding",
+            "detail": "Last upstream response 2s ago. Dashboard checks every 5s.",
+            "tone": "spot-liveness-card good"
+          },
+          {
+            "id": "spot-live-evaluations",
+            "label": "Recorded evaluations",
+            "value": "125 recorded",
+            "detail": "Last evaluation 3m 59s ago.",
+            "tone": "spot-liveness-card good"
+          },
+          {
+            "id": "spot-live-next",
+            "label": "Next evaluation · approximate",
+            "value": "About 1m 0s",
+            "detail": "Approximate 5m 0s cadence. The timer waits after work completes.",
+            "tone": "spot-liveness-card neutral"
+          },
+          {
+            "id": "spot-live-market",
+            "label": "Last successful market check",
+            "value": "3m 59s ago",
+            "detail": "Last market cycle with valid valuation and no error; not a live quote heartbeat.",
+            "tone": "spot-liveness-card good"
+          },
+          {
+            "id": "spot-live-broker",
+            "label": "Paper order broker",
+            "value": "0 pending · 0 terminal",
+            "detail": "Paper submissions enabled · no orders submitted yet.",
+            "tone": "spot-liveness-card neutral"
+          },
+          {
+            "id": "spot-live-gate",
+            "label": "Entry / risk gate",
+            "value": "Waiting for entry window",
+            "detail": "Waiting for the next weekly entry window.",
+            "tone": "spot-liveness-card neutral"
+          }
+        ],
+        "observations": [
+          {
+            "label": "Evaluation 125 · HOLD",
+            "time": "2026-09-10 16:01:21 UTC",
+            "detail": "Waiting for the next weekly entry window."
+          }
+        ],
+        "panelTop": 350.890625,
+        "panelBottom": 780.765625,
+        "strategyTop": 803.765625,
+        "bodyWidth": 1425,
+        "viewportWidth": 1440
+      },
+      "pollingBeforeTick": 2,
+      "pollingAfterTick": 2,
+      "responseTimes": [
+        {
+          "receivedAt": 1789056315358,
+          "generatedAtMs": 1789056315237,
+          "upstreamFetchedAtMs": 1789056315236
+        },
+        {
+          "receivedAt": 1789056320239,
+          "generatedAtMs": 1789056320233,
+          "upstreamFetchedAtMs": 1789056319212
+        }
+      ]
+    },
+    {
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "firstTick": {
+        "heading": "Spot system liveness",
+        "cards": [
+          {
+            "id": "spot-live-service",
+            "label": "Spot API response",
+            "value": "Responding",
+            "detail": "Last upstream response 1s ago. Dashboard checks every 5s.",
+            "tone": "spot-liveness-card good"
+          },
+          {
+            "id": "spot-live-evaluations",
+            "label": "Recorded evaluations",
+            "value": "125 recorded",
+            "detail": "Last evaluation 4m 18s ago.",
+            "tone": "spot-liveness-card good"
+          },
+          {
+            "id": "spot-live-next",
+            "label": "Next evaluation · approximate",
+            "value": "About 41s",
+            "detail": "Approximate 5m 0s cadence. The timer waits after work completes.",
+            "tone": "spot-liveness-card neutral"
+          },
+          {
+            "id": "spot-live-market",
+            "label": "Last successful market check",
+            "value": "4m 18s ago",
+            "detail": "Last market cycle with valid valuation and no error; not a live quote heartbeat.",
+            "tone": "spot-liveness-card good"
+          },
+          {
+            "id": "spot-live-broker",
+            "label": "Paper order broker",
+            "value": "0 pending · 0 terminal",
+            "detail": "Paper submissions enabled · no orders submitted yet.",
+            "tone": "spot-liveness-card neutral"
+          },
+          {
+            "id": "spot-live-gate",
+            "label": "Entry / risk gate",
+            "value": "Waiting for entry window",
+            "detail": "Waiting for the next weekly entry window.",
+            "tone": "spot-liveness-card neutral"
+          }
+        ],
+        "observations": [
+          {
+            "label": "Evaluation 125 · HOLD",
+            "time": "2026-09-10 16:01:21 UTC",
+            "detail": "Waiting for the next weekly entry window."
+          }
+        ],
+        "panelTop": 464.984375,
+        "panelBottom": 1122.265625,
+        "strategyTop": 1145.265625,
+        "bodyWidth": 390,
+        "viewportWidth": 390
+      },
+      "secondTick": {
+        "heading": "Spot system liveness",
+        "cards": [
+          {
+            "id": "spot-live-service",
+            "label": "Spot API response",
+            "value": "Responding",
+            "detail": "Last upstream response 2s ago. Dashboard checks every 5s.",
+            "tone": "spot-liveness-card good"
+          },
+          {
+            "id": "spot-live-evaluations",
+            "label": "Recorded evaluations",
+            "value": "125 recorded",
+            "detail": "Last evaluation 4m 19s ago.",
+            "tone": "spot-liveness-card good"
+          },
+          {
+            "id": "spot-live-next",
+            "label": "Next evaluation · approximate",
+            "value": "About 40s",
+            "detail": "Approximate 5m 0s cadence. The timer waits after work completes.",
+            "tone": "spot-liveness-card neutral"
+          },
+          {
+            "id": "spot-live-market",
+            "label": "Last successful market check",
+            "value": "4m 19s ago",
+            "detail": "Last market cycle with valid valuation and no error; not a live quote heartbeat.",
+            "tone": "spot-liveness-card good"
+          },
+          {
+            "id": "spot-live-broker",
+            "label": "Paper order broker",
+            "value": "0 pending · 0 terminal",
+            "detail": "Paper submissions enabled · no orders submitted yet.",
+            "tone": "spot-liveness-card neutral"
+          },
+          {
+            "id": "spot-live-gate",
+            "label": "Entry / risk gate",
+            "value": "Waiting for entry window",
+            "detail": "Waiting for the next weekly entry window.",
+            "tone": "spot-liveness-card neutral"
+          }
+        ],
+        "observations": [
+          {
+            "label": "Evaluation 125 · HOLD",
+            "time": "2026-09-10 16:01:21 UTC",
+            "detail": "Waiting for the next weekly entry window."
+          }
+        ],
+        "panelTop": 464.984375,
+        "panelBottom": 1122.265625,
+        "strategyTop": 1145.265625,
+        "bodyWidth": 390,
+        "viewportWidth": 390
+      },
+      "pollingBeforeTick": 2,
+      "pollingAfterTick": 2,
+      "responseTimes": [
+        {
+          "receivedAt": 1789056335441,
+          "generatedAtMs": 1789056335429,
+          "upstreamFetchedAtMs": 1789056334063
+        },
+        {
+          "receivedAt": 1789056340413,
+          "generatedAtMs": 1789056340404,
+          "upstreamFetchedAtMs": 1789056339044
+        }
+      ]
+    }
+  ],
+  "cleanup": {
+    "temporaryProfileRemoved": true
+  }
+}

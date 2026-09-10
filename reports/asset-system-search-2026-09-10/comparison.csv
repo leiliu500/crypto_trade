@@ -1,0 +1,15 @@
+asset,id,name,selected_new_on_development,continuous_base_net_usd,continuous_combined_net_usd,combined_low_drawdown_usd,combined_natural_episodes,combined_terminal_sales,later2025_combined_net_usd,recent2026_combined_net_usd
+BTC,btc_kalman_velocity_v1,Latent local-linear trend,False,-264.1,-349.33,421.62,6,1,-188.24,-96.31
+BTC,btc_nonlinear_gp_v1,Causal nonlinear return forecast,False,-197.25,-314.44,405.84,4,0,4.17,-136.31
+BTC,btc_rank_sen_trend_v1,Rank persistence and robust slope,True,-7.01,-65.53,389.56,3,1,-34.08,-199.85
+BTC,btc_directional_change_v1,Directional-change event state,False,-414.11,-476.82,707.16,9,1,-261.21,-37.74
+BTC,btc_weekly_signal_control,BTC weekly signal control (normalized),False,-39.87,-96.34,348.65,1,1,-156.78,-38.8
+BTC,buy_hold_btc,Passive BTC,False,-204.59,-219.41,668.3,0,1,-219.24,-154.6
+BTC,cash,Cash,False,0.0,0.0,0.0,0,0,0.0,0.0
+ETH,eth_kalman_drift_v1,ETH continuous-state drift filter,False,644.81,680.3,613.01,5,1,287.4,84.78
+ETH,eth_crossasset_mature_ridge_v1,ETH mature-label BTC context regression,False,-52.83,-298.12,404.68,7,0,10.77,-44.81
+ETH,eth_volume_pressure_v1,ETH close-location volume pressure,False,659.86,535.68,347.08,2,1,684.72,-3.3
+ETH,eth_drawdown_recovery_v1,ETH drawdown recovery state machine,True,514.63,364.69,482.05,11,0,-119.82,24.81
+ETH,eth40_control,ETH40 frozen signal control,False,948.41,841.4,752.57,9,1,303.85,159.58
+ETH,buy_hold_eth,Passive ETH,False,-296.88,-330.71,901.49,0,1,120.09,-227.54
+ETH,cash,Cash,False,0.0,0.0,0.0,0,0,0.0,0.0

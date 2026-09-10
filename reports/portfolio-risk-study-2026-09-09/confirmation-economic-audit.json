@@ -1,0 +1,1532 @@
+{
+  "version": "portfolio-risk-confirmation-economic-audit-v1",
+  "createdAtUtc": "2026-09-09T02:47:29.569689+00:00",
+  "scope": {
+    "selectedPolicy": "sign-trend-90d",
+    "stage": "confirm",
+    "startInclusiveUtc": "2025-01-01T00:00:00+00:00",
+    "endExclusiveUtc": "2026-01-01T00:00:00+00:00",
+    "onlyFourSavedSelectedRunsOpened": true,
+    "otherConfirmationPoliciesInspected": false,
+    "strategyRetunedOrReselected": false,
+    "newReplayRun": false,
+    "reserved2026PerformanceOpened": false
+  },
+  "artifactHashes": {
+    "reports/portfolio-risk-study-2026-09-09/confirm-governed-sign-trend-90d-base-source-plus-hour.json": "a623b0d05193f4627ed036a55a7a5d24103369fabb1261a1c8815a30645a6bb9",
+    "reports/portfolio-risk-study-2026-09-09/confirm-governed-sign-trend-90d-base-source-as-end.json": "bdd04cf3a4406b03331a3ef77071db80afb6243a5d4f47ddfee67fe391f46c49",
+    "reports/portfolio-risk-study-2026-09-09/confirm-governed-sign-trend-90d-stress-source-plus-hour.json": "54840151753c684fcf6a28faab16a2130ac5717b0cf975969c52c835ac654afc",
+    "reports/portfolio-risk-study-2026-09-09/confirm-governed-sign-trend-90d-stress-source-as-end.json": "225d1d6d83e8d9d803a144f7b97b7970f70c44a0d33264bdf9f8aed01d1e43ea"
+  },
+  "artifactHashesUnchanged": true,
+  "runs": [
+    {
+      "scenario": {
+        "id": "base-source-plus-hour",
+        "delayHours": 1,
+        "feeBps": 5,
+        "slippageBps": 1.5,
+        "fundingShiftMs": 0,
+        "extraFundingBpsPerDay": 0
+      },
+      "artifact": "reports/portfolio-risk-study-2026-09-09/confirm-governed-sign-trend-90d-base-source-plus-hour.json",
+      "inputReceipts": {
+        "bars": {
+          "sha256": "10150cba15c95ece08e4e386b29c8e130be34e5836b29f90838e3c5289886e1c",
+          "records": 35280
+        },
+        "funding": {
+          "sha256": "8790e6c844a6e585a4bdc33764333c03bf204bc7b6f7ba088b32f487ca5e1840",
+          "records": 17510
+        },
+        "targets": {
+          "sha256": "0bf91b6ddb7e30d4999b967447a87c661391bdffd3ada6c100cf184eb923ab1f",
+          "records": 365
+        },
+        "rules": {
+          "sha256": "1c3e22a34c769a1bf45987efb90668718a4e289bac5023ec79ba06b4c8b7da8c",
+          "records": 2
+        }
+      },
+      "allPathsKnown": true,
+      "netPnlUsd": -0.9416471914155409,
+      "pricePnlBeforeFeesFundingUsd": -0.7642000000000001,
+      "feesUsd": 0.1472277,
+      "fundingCostUsd": 0.030219491418304555,
+      "turnoverUsd": 294.45539999999994,
+      "slippageUsd": 0.0480999999999993,
+      "maximumLiquidationDrawdownUsd": 2.187023239705013,
+      "maximumObservedDailyLiquidationLossUsd": 0.41921743407147005,
+      "fills": 79,
+      "increaseFills": 38,
+      "reductionFills": 41,
+      "firstFillUtc": "2025-01-01T01:00:00+00:00",
+      "lastIncreaseFillUtc": "2025-04-08T00:00:00+00:00",
+      "lastFillUtc": "2025-05-10T19:00:00+00:00",
+      "lastFill": {
+        "id": "fill:btc-eth-persistent-target-portfolio-v1:78:1746835200000:ETH/USD",
+        "orderId": "btc-eth-persistent-target-portfolio-v1:78:1746835200000:ETH/USD",
+        "symbol": "ETH/USD",
+        "atMs": 1746903600000,
+        "signedQty": 0.001,
+        "price": 2496.7,
+        "feeUsd": 0.0012483499999999999
+      },
+      "lastFillIsReduction": true,
+      "flatFromLastFillThroughEnd": true,
+      "flatHoursFromFinalReduction": 5645,
+      "meanAnnualGrossExposureUsd": 1.1946289383561663,
+      "monthlyExposure": [
+        {
+          "month": "2025-01",
+          "hours": 744,
+          "anyAssetExposedHours": 738,
+          "meanGrossExposureUsd": 4.640866263440861,
+          "fills": 11,
+          "feesUsd": 0.03750405,
+          "perAssetExposedHours": {
+            "BTC/USD": 160,
+            "ETH/USD": 578
+          }
+        },
+        {
+          "month": "2025-02",
+          "hours": 672,
+          "anyAssetExposedHours": 670,
+          "meanGrossExposureUsd": 3.589812202380955,
+          "fills": 10,
+          "feesUsd": 0.01531665,
+          "perAssetExposedHours": {
+            "BTC/USD": 87,
+            "ETH/USD": 616
+          }
+        },
+        {
+          "month": "2025-03",
+          "hours": 744,
+          "anyAssetExposedHours": 735,
+          "meanGrossExposureUsd": 2.786278091397852,
+          "fills": 45,
+          "feesUsd": 0.07637319999999999,
+          "perAssetExposedHours": {
+            "BTC/USD": 47,
+            "ETH/USD": 688
+          }
+        },
+        {
+          "month": "2025-04",
+          "hours": 720,
+          "anyAssetExposedHours": 719,
+          "meanGrossExposureUsd": 2.878532361111112,
+          "fills": 12,
+          "feesUsd": 0.01678545,
+          "perAssetExposedHours": {
+            "BTC/USD": 15,
+            "ETH/USD": 708
+          }
+        },
+        {
+          "month": "2025-05",
+          "hours": 744,
+          "anyAssetExposedHours": 235,
+          "meanGrossExposureUsd": 0.610560483870968,
+          "fills": 1,
+          "feesUsd": 0.0012483499999999999,
+          "perAssetExposedHours": {
+            "BTC/USD": 0,
+            "ETH/USD": 235
+          }
+        },
+        {
+          "month": "2025-06",
+          "hours": 720,
+          "anyAssetExposedHours": 0,
+          "meanGrossExposureUsd": 0.0,
+          "fills": 0,
+          "feesUsd": 0,
+          "perAssetExposedHours": {
+            "BTC/USD": 0,
+            "ETH/USD": 0
+          }
+        },
+        {
+          "month": "2025-07",
+          "hours": 744,
+          "anyAssetExposedHours": 0,
+          "meanGrossExposureUsd": 0.0,
+          "fills": 0,
+          "feesUsd": 0,
+          "perAssetExposedHours": {
+            "BTC/USD": 0,
+            "ETH/USD": 0
+          }
+        },
+        {
+          "month": "2025-08",
+          "hours": 744,
+          "anyAssetExposedHours": 0,
+          "meanGrossExposureUsd": 0.0,
+          "fills": 0,
+          "feesUsd": 0,
+          "perAssetExposedHours": {
+            "BTC/USD": 0,
+            "ETH/USD": 0
+          }
+        },
+        {
+          "month": "2025-09",
+          "hours": 720,
+          "anyAssetExposedHours": 0,
+          "meanGrossExposureUsd": 0.0,
+          "fills": 0,
+          "feesUsd": 0,
+          "perAssetExposedHours": {
+            "BTC/USD": 0,
+            "ETH/USD": 0
+          }
+        },
+        {
+          "month": "2025-10",
+          "hours": 744,
+          "anyAssetExposedHours": 0,
+          "meanGrossExposureUsd": 0.0,
+          "fills": 0,
+          "feesUsd": 0,
+          "perAssetExposedHours": {
+            "BTC/USD": 0,
+            "ETH/USD": 0
+          }
+        },
+        {
+          "month": "2025-11",
+          "hours": 720,
+          "anyAssetExposedHours": 0,
+          "meanGrossExposureUsd": 0.0,
+          "fills": 0,
+          "feesUsd": 0,
+          "perAssetExposedHours": {
+            "BTC/USD": 0,
+            "ETH/USD": 0
+          }
+        },
+        {
+          "month": "2025-12",
+          "hours": 744,
+          "anyAssetExposedHours": 0,
+          "meanGrossExposureUsd": 0.0,
+          "fills": 0,
+          "feesUsd": 0,
+          "perAssetExposedHours": {
+            "BTC/USD": 0,
+            "ETH/USD": 0
+          }
+        }
+      ],
+      "perAsset": {
+        "BTC/USD": {
+          "netPnlUsd": -0.06738137222777661,
+          "realizedPricePnlUsd": 0.022299999999999875,
+          "unrealizedPricePnlUsd": 0,
+          "feesUsd": 0.07935154999999999,
+          "actualFundingCostUsd": 0.010329822227776495,
+          "extraFundingCostUsd": 0,
+          "totalFundingCostUsd": 0.010329822227776495,
+          "turnoverUsd": 158.70310000000003,
+          "filledOrders": 18,
+          "exposedHours": 309,
+          "staleMarkHours": 0,
+          "terminalQty": 0,
+          "firstFillUtc": "2025-01-01T01:00:00+00:00",
+          "lastFillUtc": "2025-04-07T23:00:00+00:00",
+          "lastIncreaseFillUtc": "2025-04-07T08:00:00+00:00",
+          "increaseFills": 9,
+          "reductionFills": 9
+        },
+        "ETH/USD": {
+          "netPnlUsd": -0.8742658191905281,
+          "realizedPricePnlUsd": -0.7865,
+          "unrealizedPricePnlUsd": 0,
+          "feesUsd": 0.06787615,
+          "actualFundingCostUsd": 0.01988966919052814,
+          "extraFundingCostUsd": 0,
+          "totalFundingCostUsd": 0.01988966919052814,
+          "turnoverUsd": 135.75230000000002,
+          "filledOrders": 61,
+          "exposedHours": 2825,
+          "staleMarkHours": 6,
+          "terminalQty": 0,
+          "firstFillUtc": "2025-01-07T13:00:00+00:00",
+          "lastFillUtc": "2025-05-10T19:00:00+00:00",
+          "lastIncreaseFillUtc": "2025-04-08T00:00:00+00:00",
+          "increaseFills": 29,
+          "reductionFills": 32
+        }
+      },
+      "postStop": {
+        "nonterminalHourlyHoldPlans": 5596,
+        "classifications": {
+          "allDesiredAssetsMinimumLotsExceedWholeCap": 2912,
+          "someLotFeasibleButFlatTrackingCostOptimum": 2684,
+          "allCapFeasibleAssetsDesiresBelowHalfLot": 2684
+        },
+        "freshDailyTargetDecisionsSeen": 234,
+        "maximumTargetAgeHours": 24.0,
+        "constantCapUsd": 3.251907041179948,
+        "firstFlatPretradeRisk": {
+          "atMs": 1746907200000,
+          "maximumGrossNotionalUsd": 3.251907041179948,
+          "exposureScale": 0.27099225343166233,
+          "drawdownUsd": 2.187023239705013,
+          "dailyLossUsd": 0.1502534315804951,
+          "drawdownHalted": false,
+          "dailyHalted": false,
+          "accountingHalted": false,
+          "accountingKnown": true,
+          "forceFlat": false,
+          "reasons": [
+            "DRAWDOWN_BUDGET_SCALING",
+            "DAILY_LOSS_BUDGET_SCALING"
+          ],
+          "previousDayLossUsd": null,
+          "previousDayHalted": null
+        },
+        "finalPeakLiquidationEquityUsd": 100001.24537604829,
+        "finalLiquidationEquityUsd": 99999.05835280858,
+        "finalDrawdownUsd": 2.187023239705013,
+        "finalReductionPlan": {
+          "atMs": 1746903600000,
+          "atUtc": "2025-05-10T19:00:00+00:00",
+          "status": "REDUCE",
+          "reason": "CONFIRM_REDUCTIONS_BEFORE_INCREASES",
+          "targetDecisionUtc": "2025-05-10T00:00:00+00:00",
+          "maximumGrossNotionalUsd": 3.251907041179948,
+          "desiredUsd": {
+            "BTC/USD": 2.068865093126009,
+            "ETH/USD": -1.183041948053939
+          },
+          "executableQty": {
+            "BTC/USD": 0,
+            "ETH/USD": 0
+          },
+          "minimumLotNotionalUsd": {
+            "BTC/USD": 10.3293,
+            "ETH/USD": 2.4966999999999997
+          },
+          "absoluteDesiredAsFractionOfMinimumLot": {
+            "BTC/USD": 0.20029092901997317,
+            "ETH/USD": 0.47384225099288624
+          }
+        },
+        "firstSubsequentHoldPlan": {
+          "atMs": 1746907200000,
+          "atUtc": "2025-05-10T20:00:00+00:00",
+          "status": "HOLD",
+          "reason": "TARGET_WITHIN_BAND_OR_LOT_COST_OPTIMUM",
+          "targetDecisionUtc": "2025-05-10T00:00:00+00:00",
+          "maximumGrossNotionalUsd": 3.251907041179948,
+          "desiredUsd": {
+            "BTC/USD": 2.068865093126009,
+            "ETH/USD": -1.183041948053939
+          },
+          "executableQty": {
+            "BTC/USD": 0,
+            "ETH/USD": 0
+          },
+          "minimumLotNotionalUsd": {
+            "BTC/USD": 10.324300000000001,
+            "ETH/USD": 2.5012
+          },
+          "absoluteDesiredAsFractionOfMinimumLot": {
+            "BTC/USD": 0.2003879287821943,
+            "ETH/USD": 0.47298974414438627
+          }
+        },
+        "lastNonterminalHoldPlan": {
+          "atMs": 1767049200000,
+          "atUtc": "2025-12-29T23:00:00+00:00",
+          "status": "HOLD",
+          "reason": "TARGET_WITHIN_BAND_OR_LOT_COST_OPTIMUM",
+          "targetDecisionUtc": "2025-12-29T00:00:00+00:00",
+          "maximumGrossNotionalUsd": 3.251907041179948,
+          "desiredUsd": {
+            "BTC/USD": -1.978707021296522,
+            "ETH/USD": -1.2732000198834266
+          },
+          "executableQty": {
+            "BTC/USD": 0,
+            "ETH/USD": 0
+          },
+          "minimumLotNotionalUsd": {
+            "BTC/USD": 8.728900000000001,
+            "ETH/USD": 2.9354
+          },
+          "absoluteDesiredAsFractionOfMinimumLot": {
+            "BTC/USD": 0.22668457896144095,
+            "ETH/USD": 0.4337398718687152
+          }
+        },
+        "terminalProtocolFlatHours": 48
+      },
+      "readiness": {
+        "hourlyPlans": 8760,
+        "blockedPlans": 0,
+        "unknownPaths": 0,
+        "zeroVolumeNoFills": 0,
+        "drawdownHaltHours": 0,
+        "dailyHaltHours": 0,
+        "accountingHaltHours": 0,
+        "targetReceiptRecords": 365,
+        "riskReasons": {
+          "DAILY_LOSS_BUDGET_SCALING": 1659,
+          "DRAWDOWN_BUDGET_SCALING": 8722,
+          "RISK_BUDGET_AVAILABLE": 38
+        },
+        "planReasons": {
+          "CONFIRM_REDUCTIONS_BEFORE_INCREASES": 41,
+          "JOINT_LOT_ALLOCATION": 38,
+          "TARGET_WITHIN_BAND_OR_LOT_COST_OPTIMUM": 8681
+        }
+      }
+    },
+    {
+      "scenario": {
+        "id": "base-source-as-end",
+        "delayHours": 1,
+        "feeBps": 5,
+        "slippageBps": 1.5,
+        "fundingShiftMs": -3600000,
+        "extraFundingBpsPerDay": 0
+      },
+      "artifact": "reports/portfolio-risk-study-2026-09-09/confirm-governed-sign-trend-90d-base-source-as-end.json",
+      "inputReceipts": {
+        "bars": {
+          "sha256": "10150cba15c95ece08e4e386b29c8e130be34e5836b29f90838e3c5289886e1c",
+          "records": 35280
+        },
+        "funding": {
+          "sha256": "8790e6c844a6e585a4bdc33764333c03bf204bc7b6f7ba088b32f487ca5e1840",
+          "records": 17510
+        },
+        "targets": {
+          "sha256": "0bf91b6ddb7e30d4999b967447a87c661391bdffd3ada6c100cf184eb923ab1f",
+          "records": 365
+        },
+        "rules": {
+          "sha256": "1c3e22a34c769a1bf45987efb90668718a4e289bac5023ec79ba06b4c8b7da8c",
+          "records": 2
+        }
+      },
+      "allPathsKnown": true,
+      "netPnlUsd": -0.9414083120354917,
+      "pricePnlBeforeFeesFundingUsd": -0.7642000000000001,
+      "feesUsd": 0.1472277,
+      "fundingCostUsd": 0.029980612022253553,
+      "turnoverUsd": 294.45539999999994,
+      "slippageUsd": 0.0480999999999993,
+      "maximumLiquidationDrawdownUsd": 2.1870988917071372,
+      "maximumObservedDailyLiquidationLossUsd": 0.41918755556980614,
+      "fills": 79,
+      "increaseFills": 38,
+      "reductionFills": 41,
+      "firstFillUtc": "2025-01-01T01:00:00+00:00",
+      "lastIncreaseFillUtc": "2025-04-08T00:00:00+00:00",
+      "lastFillUtc": "2025-05-10T19:00:00+00:00",
+      "lastFill": {
+        "id": "fill:btc-eth-persistent-target-portfolio-v1:78:1746835200000:ETH/USD",
+        "orderId": "btc-eth-persistent-target-portfolio-v1:78:1746835200000:ETH/USD",
+        "symbol": "ETH/USD",
+        "atMs": 1746903600000,
+        "signedQty": 0.001,
+        "price": 2496.7,
+        "feeUsd": 0.0012483499999999999
+      },
+      "lastFillIsReduction": true,
+      "flatFromLastFillThroughEnd": true,
+      "flatHoursFromFinalReduction": 5645,
+      "meanAnnualGrossExposureUsd": 1.1946289383561663,
+      "monthlyExposure": [
+        {
+          "month": "2025-01",
+          "hours": 744,
+          "anyAssetExposedHours": 738,
+          "meanGrossExposureUsd": 4.640866263440861,
+          "fills": 11,
+          "feesUsd": 0.03750405,
+          "perAssetExposedHours": {
+            "BTC/USD": 160,
+            "ETH/USD": 578
+          }
+        },
+        {
+          "month": "2025-02",
+          "hours": 672,
+          "anyAssetExposedHours": 670,
+          "meanGrossExposureUsd": 3.589812202380955,
+          "fills": 10,
+          "feesUsd": 0.01531665,
+          "perAssetExposedHours": {
+            "BTC/USD": 87,
+            "ETH/USD": 616
+          }
+        },
+        {
+          "month": "2025-03",
+          "hours": 744,
+          "anyAssetExposedHours": 735,
+          "meanGrossExposureUsd": 2.786278091397852,
+          "fills": 45,
+          "feesUsd": 0.07637319999999999,
+          "perAssetExposedHours": {
+            "BTC/USD": 47,
+            "ETH/USD": 688
+          }
+        },
+        {
+          "month": "2025-04",
+          "hours": 720,
+          "anyAssetExposedHours": 719,
+          "meanGrossExposureUsd": 2.878532361111112,
+          "fills": 12,
+          "feesUsd": 0.01678545,
+          "perAssetExposedHours": {
+            "BTC/USD": 15,
+            "ETH/USD": 708
+          }
+        },
+        {
+          "month": "2025-05",
+          "hours": 744,
+          "anyAssetExposedHours": 235,
+          "meanGrossExposureUsd": 0.610560483870968,
+          "fills": 1,
+          "feesUsd": 0.0012483499999999999,
+          "perAssetExposedHours": {
+            "BTC/USD": 0,
+            "ETH/USD": 235
+          }
+        },
+        {
+          "month": "2025-06",
+          "hours": 720,
+          "anyAssetExposedHours": 0,
+          "meanGrossExposureUsd": 0.0,
+          "fills": 0,
+          "feesUsd": 0,
+          "perAssetExposedHours": {
+            "BTC/USD": 0,
+            "ETH/USD": 0
+          }
+        },
+        {
+          "month": "2025-07",
+          "hours": 744,
+          "anyAssetExposedHours": 0,
+          "meanGrossExposureUsd": 0.0,
+          "fills": 0,
+          "feesUsd": 0,
+          "perAssetExposedHours": {
+            "BTC/USD": 0,
+            "ETH/USD": 0
+          }
+        },
+        {
+          "month": "2025-08",
+          "hours": 744,
+          "anyAssetExposedHours": 0,
+          "meanGrossExposureUsd": 0.0,
+          "fills": 0,
+          "feesUsd": 0,
+          "perAssetExposedHours": {
+            "BTC/USD": 0,
+            "ETH/USD": 0
+          }
+        },
+        {
+          "month": "2025-09",
+          "hours": 720,
+          "anyAssetExposedHours": 0,
+          "meanGrossExposureUsd": 0.0,
+          "fills": 0,
+          "feesUsd": 0,
+          "perAssetExposedHours": {
+            "BTC/USD": 0,
+            "ETH/USD": 0
+          }
+        },
+        {
+          "month": "2025-10",
+          "hours": 744,
+          "anyAssetExposedHours": 0,
+          "meanGrossExposureUsd": 0.0,
+          "fills": 0,
+          "feesUsd": 0,
+          "perAssetExposedHours": {
+            "BTC/USD": 0,
+            "ETH/USD": 0
+          }
+        },
+        {
+          "month": "2025-11",
+          "hours": 720,
+          "anyAssetExposedHours": 0,
+          "meanGrossExposureUsd": 0.0,
+          "fills": 0,
+          "feesUsd": 0,
+          "perAssetExposedHours": {
+            "BTC/USD": 0,
+            "ETH/USD": 0
+          }
+        },
+        {
+          "month": "2025-12",
+          "hours": 744,
+          "anyAssetExposedHours": 0,
+          "meanGrossExposureUsd": 0.0,
+          "fills": 0,
+          "feesUsd": 0,
+          "perAssetExposedHours": {
+            "BTC/USD": 0,
+            "ETH/USD": 0
+          }
+        }
+      ],
+      "perAsset": {
+        "BTC/USD": {
+          "netPnlUsd": -0.06733001224921975,
+          "realizedPricePnlUsd": 0.022299999999999875,
+          "unrealizedPricePnlUsd": 0,
+          "feesUsd": 0.07935154999999999,
+          "actualFundingCostUsd": 0.01027846224921964,
+          "extraFundingCostUsd": 0,
+          "totalFundingCostUsd": 0.01027846224921964,
+          "turnoverUsd": 158.70310000000003,
+          "filledOrders": 18,
+          "exposedHours": 309,
+          "staleMarkHours": 0,
+          "terminalQty": 0,
+          "firstFillUtc": "2025-01-01T01:00:00+00:00",
+          "lastFillUtc": "2025-04-07T23:00:00+00:00",
+          "lastIncreaseFillUtc": "2025-04-07T08:00:00+00:00",
+          "increaseFills": 9,
+          "reductionFills": 9
+        },
+        "ETH/USD": {
+          "netPnlUsd": -0.874078299773034,
+          "realizedPricePnlUsd": -0.7865,
+          "unrealizedPricePnlUsd": 0,
+          "feesUsd": 0.06787615,
+          "actualFundingCostUsd": 0.019702149773034007,
+          "extraFundingCostUsd": 0,
+          "totalFundingCostUsd": 0.019702149773034007,
+          "turnoverUsd": 135.75230000000002,
+          "filledOrders": 61,
+          "exposedHours": 2825,
+          "staleMarkHours": 6,
+          "terminalQty": 0,
+          "firstFillUtc": "2025-01-07T13:00:00+00:00",
+          "lastFillUtc": "2025-05-10T19:00:00+00:00",
+          "lastIncreaseFillUtc": "2025-04-08T00:00:00+00:00",
+          "increaseFills": 29,
+          "reductionFills": 32
+        }
+      },
+      "postStop": {
+        "nonterminalHourlyHoldPlans": 5596,
+        "classifications": {
+          "allDesiredAssetsMinimumLotsExceedWholeCap": 2912,
+          "someLotFeasibleButFlatTrackingCostOptimum": 2684,
+          "allCapFeasibleAssetsDesiresBelowHalfLot": 2684
+        },
+        "freshDailyTargetDecisionsSeen": 234,
+        "maximumTargetAgeHours": 24.0,
+        "constantCapUsd": 3.2516044331714515,
+        "firstFlatPretradeRisk": {
+          "atMs": 1746907200000,
+          "maximumGrossNotionalUsd": 3.2516044331714515,
+          "exposureScale": 0.27096703609762096,
+          "drawdownUsd": 2.1870988917071372,
+          "dailyLossUsd": 0.15025313607475255,
+          "drawdownHalted": false,
+          "dailyHalted": false,
+          "accountingHalted": false,
+          "accountingKnown": true,
+          "forceFlat": false,
+          "reasons": [
+            "DRAWDOWN_BUDGET_SCALING",
+            "DAILY_LOSS_BUDGET_SCALING"
+          ],
+          "previousDayLossUsd": null,
+          "previousDayHalted": null
+        },
+        "finalPeakLiquidationEquityUsd": 100001.24569057967,
+        "finalLiquidationEquityUsd": 99999.05859168796,
+        "finalDrawdownUsd": 2.1870988917071372,
+        "finalReductionPlan": {
+          "atMs": 1746903600000,
+          "atUtc": "2025-05-10T19:00:00+00:00",
+          "status": "REDUCE",
+          "reason": "CONFIRM_REDUCTIONS_BEFORE_INCREASES",
+          "targetDecisionUtc": "2025-05-10T00:00:00+00:00",
+          "maximumGrossNotionalUsd": 3.2516044331714515,
+          "desiredUsd": {
+            "BTC/USD": 2.0686725737403835,
+            "ETH/USD": -1.1829318594310678
+          },
+          "executableQty": {
+            "BTC/USD": 0,
+            "ETH/USD": 0
+          },
+          "minimumLotNotionalUsd": {
+            "BTC/USD": 10.3293,
+            "ETH/USD": 2.4966999999999997
+          },
+          "absoluteDesiredAsFractionOfMinimumLot": {
+            "BTC/USD": 0.20027229083678308,
+            "ETH/USD": 0.47379815734011616
+          }
+        },
+        "firstSubsequentHoldPlan": {
+          "atMs": 1746907200000,
+          "atUtc": "2025-05-10T20:00:00+00:00",
+          "status": "HOLD",
+          "reason": "TARGET_WITHIN_BAND_OR_LOT_COST_OPTIMUM",
+          "targetDecisionUtc": "2025-05-10T00:00:00+00:00",
+          "maximumGrossNotionalUsd": 3.2516044331714515,
+          "desiredUsd": {
+            "BTC/USD": 2.0686725737403835,
+            "ETH/USD": -1.1829318594310678
+          },
+          "executableQty": {
+            "BTC/USD": 0,
+            "ETH/USD": 0
+          },
+          "minimumLotNotionalUsd": {
+            "BTC/USD": 10.324300000000001,
+            "ETH/USD": 2.5012
+          },
+          "absoluteDesiredAsFractionOfMinimumLot": {
+            "BTC/USD": 0.2003692815726377,
+            "ETH/USD": 0.4729457298221125
+          }
+        },
+        "lastNonterminalHoldPlan": {
+          "atMs": 1767049200000,
+          "atUtc": "2025-12-29T23:00:00+00:00",
+          "status": "HOLD",
+          "reason": "TARGET_WITHIN_BAND_OR_LOT_COST_OPTIMUM",
+          "targetDecisionUtc": "2025-12-29T00:00:00+00:00",
+          "maximumGrossNotionalUsd": 3.2516044331714515,
+          "desiredUsd": {
+            "BTC/USD": -1.9785228916201414,
+            "ETH/USD": -1.2730815415513106
+          },
+          "executableQty": {
+            "BTC/USD": 0,
+            "ETH/USD": 0
+          },
+          "minimumLotNotionalUsd": {
+            "BTC/USD": 8.728900000000001,
+            "ETH/USD": 2.9354
+          },
+          "absoluteDesiredAsFractionOfMinimumLot": {
+            "BTC/USD": 0.226663484702556,
+            "ETH/USD": 0.4336995099650169
+          }
+        },
+        "terminalProtocolFlatHours": 48
+      },
+      "readiness": {
+        "hourlyPlans": 8760,
+        "blockedPlans": 0,
+        "unknownPaths": 0,
+        "zeroVolumeNoFills": 0,
+        "drawdownHaltHours": 0,
+        "dailyHaltHours": 0,
+        "accountingHaltHours": 0,
+        "targetReceiptRecords": 365,
+        "riskReasons": {
+          "DAILY_LOSS_BUDGET_SCALING": 1659,
+          "DRAWDOWN_BUDGET_SCALING": 8722,
+          "RISK_BUDGET_AVAILABLE": 38
+        },
+        "planReasons": {
+          "CONFIRM_REDUCTIONS_BEFORE_INCREASES": 41,
+          "JOINT_LOT_ALLOCATION": 38,
+          "TARGET_WITHIN_BAND_OR_LOT_COST_OPTIMUM": 8681
+        }
+      }
+    },
+    {
+      "scenario": {
+        "id": "stress-source-plus-hour",
+        "delayHours": 2,
+        "feeBps": 7.5,
+        "slippageBps": 3,
+        "fundingShiftMs": 0,
+        "extraFundingBpsPerDay": 1
+      },
+      "artifact": "reports/portfolio-risk-study-2026-09-09/confirm-governed-sign-trend-90d-stress-source-plus-hour.json",
+      "inputReceipts": {
+        "bars": {
+          "sha256": "10150cba15c95ece08e4e386b29c8e130be34e5836b29f90838e3c5289886e1c",
+          "records": 35280
+        },
+        "funding": {
+          "sha256": "8790e6c844a6e585a4bdc33764333c03bf204bc7b6f7ba088b32f487ca5e1840",
+          "records": 17510
+        },
+        "targets": {
+          "sha256": "0bf91b6ddb7e30d4999b967447a87c661391bdffd3ada6c100cf184eb923ab1f",
+          "records": 365
+        },
+        "rules": {
+          "sha256": "1c3e22a34c769a1bf45987efb90668718a4e289bac5023ec79ba06b4c8b7da8c",
+          "records": 2
+        }
+      },
+      "allPathsKnown": true,
+      "netPnlUsd": -0.847162567806663,
+      "pricePnlBeforeFeesFundingUsd": -0.5484000000000013,
+      "feesUsd": 0.22622939999999994,
+      "fundingCostUsd": 0.07253316752585169,
+      "turnoverUsd": 301.6392,
+      "slippageUsd": 0.09449999999999964,
+      "maximumLiquidationDrawdownUsd": 2.17286984360544,
+      "maximumObservedDailyLiquidationLossUsd": 0.4225691269530216,
+      "fills": 77,
+      "increaseFills": 37,
+      "reductionFills": 40,
+      "firstFillUtc": "2025-01-01T02:00:00+00:00",
+      "lastIncreaseFillUtc": "2025-04-22T20:00:00+00:00",
+      "lastFillUtc": "2025-05-10T14:00:00+00:00",
+      "lastFill": {
+        "id": "fill:btc-eth-persistent-target-portfolio-v1:76:1746835200000:ETH/USD",
+        "orderId": "btc-eth-persistent-target-portfolio-v1:76:1746835200000:ETH/USD",
+        "symbol": "ETH/USD",
+        "atMs": 1746885600000,
+        "signedQty": 0.001,
+        "price": 2439.6,
+        "feeUsd": 0.0018297
+      },
+      "lastFillIsReduction": true,
+      "flatFromLastFillThroughEnd": true,
+      "flatHoursFromFinalReduction": 5650,
+      "meanAnnualGrossExposureUsd": 1.1808021347031976,
+      "monthlyExposure": [
+        {
+          "month": "2025-01",
+          "hours": 744,
+          "anyAssetExposedHours": 737,
+          "meanGrossExposureUsd": 4.602893010752689,
+          "fills": 11,
+          "feesUsd": 0.0561774,
+          "perAssetExposedHours": {
+            "BTC/USD": 156,
+            "ETH/USD": 581
+          }
+        },
+        {
+          "month": "2025-02",
+          "hours": 672,
+          "anyAssetExposedHours": 670,
+          "meanGrossExposureUsd": 3.596683630952384,
+          "fills": 10,
+          "feesUsd": 0.023010825,
+          "perAssetExposedHours": {
+            "BTC/USD": 87,
+            "ETH/USD": 618
+          }
+        },
+        {
+          "month": "2025-03",
+          "hours": 744,
+          "anyAssetExposedHours": 734,
+          "meanGrossExposureUsd": 2.6622635752688204,
+          "fills": 43,
+          "feesUsd": 0.11969302500000005,
+          "perAssetExposedHours": {
+            "BTC/USD": 44,
+            "ETH/USD": 690
+          }
+        },
+        {
+          "month": "2025-04",
+          "hours": 720,
+          "anyAssetExposedHours": 719,
+          "meanGrossExposureUsd": 2.8882737500000006,
+          "fills": 12,
+          "feesUsd": 0.02551845,
+          "perAssetExposedHours": {
+            "BTC/USD": 15,
+            "ETH/USD": 707
+          }
+        },
+        {
+          "month": "2025-05",
+          "hours": 744,
+          "anyAssetExposedHours": 230,
+          "meanGrossExposureUsd": 0.5941151881720431,
+          "fills": 1,
+          "feesUsd": 0.0018297,
+          "perAssetExposedHours": {
+            "BTC/USD": 0,
+            "ETH/USD": 230
+          }
+        },
+        {
+          "month": "2025-06",
+          "hours": 720,
+          "anyAssetExposedHours": 0,
+          "meanGrossExposureUsd": 0.0,
+          "fills": 0,
+          "feesUsd": 0,
+          "perAssetExposedHours": {
+            "BTC/USD": 0,
+            "ETH/USD": 0
+          }
+        },
+        {
+          "month": "2025-07",
+          "hours": 744,
+          "anyAssetExposedHours": 0,
+          "meanGrossExposureUsd": 0.0,
+          "fills": 0,
+          "feesUsd": 0,
+          "perAssetExposedHours": {
+            "BTC/USD": 0,
+            "ETH/USD": 0
+          }
+        },
+        {
+          "month": "2025-08",
+          "hours": 744,
+          "anyAssetExposedHours": 0,
+          "meanGrossExposureUsd": 0.0,
+          "fills": 0,
+          "feesUsd": 0,
+          "perAssetExposedHours": {
+            "BTC/USD": 0,
+            "ETH/USD": 0
+          }
+        },
+        {
+          "month": "2025-09",
+          "hours": 720,
+          "anyAssetExposedHours": 0,
+          "meanGrossExposureUsd": 0.0,
+          "fills": 0,
+          "feesUsd": 0,
+          "perAssetExposedHours": {
+            "BTC/USD": 0,
+            "ETH/USD": 0
+          }
+        },
+        {
+          "month": "2025-10",
+          "hours": 744,
+          "anyAssetExposedHours": 0,
+          "meanGrossExposureUsd": 0.0,
+          "fills": 0,
+          "feesUsd": 0,
+          "perAssetExposedHours": {
+            "BTC/USD": 0,
+            "ETH/USD": 0
+          }
+        },
+        {
+          "month": "2025-11",
+          "hours": 720,
+          "anyAssetExposedHours": 0,
+          "meanGrossExposureUsd": 0.0,
+          "fills": 0,
+          "feesUsd": 0,
+          "perAssetExposedHours": {
+            "BTC/USD": 0,
+            "ETH/USD": 0
+          }
+        },
+        {
+          "month": "2025-12",
+          "hours": 744,
+          "anyAssetExposedHours": 0,
+          "meanGrossExposureUsd": 0.0,
+          "fills": 0,
+          "feesUsd": 0,
+          "perAssetExposedHours": {
+            "BTC/USD": 0,
+            "ETH/USD": 0
+          }
+        }
+      ],
+      "perAsset": {
+        "BTC/USD": {
+          "netPnlUsd": 0.07053729259875854,
+          "realizedPricePnlUsd": 0.22329999999999983,
+          "unrealizedPricePnlUsd": 0,
+          "feesUsd": 0.131111925,
+          "actualFundingCostUsd": 0.010194571151241302,
+          "extraFundingCostUsd": 0.011456211250000002,
+          "totalFundingCostUsd": 0.021650782401241304,
+          "turnoverUsd": 174.8159,
+          "filledOrders": 20,
+          "exposedHours": 302,
+          "staleMarkHours": 0,
+          "terminalQty": 0,
+          "firstFillUtc": "2025-01-01T02:00:00+00:00",
+          "lastFillUtc": "2025-04-07T23:00:00+00:00",
+          "lastIncreaseFillUtc": "2025-04-07T08:00:00+00:00",
+          "increaseFills": 10,
+          "reductionFills": 10
+        },
+        "ETH/USD": {
+          "netPnlUsd": -0.9176998601246115,
+          "realizedPricePnlUsd": -0.7717000000000012,
+          "unrealizedPricePnlUsd": 0,
+          "feesUsd": 0.09511747500000003,
+          "actualFundingCostUsd": 0.01923831054127701,
+          "extraFundingCostUsd": 0.031644074583333334,
+          "totalFundingCostUsd": 0.050882385124610345,
+          "turnoverUsd": 126.8233,
+          "filledOrders": 57,
+          "exposedHours": 2826,
+          "staleMarkHours": 6,
+          "terminalQty": 0,
+          "firstFillUtc": "2025-01-07T13:00:00+00:00",
+          "lastFillUtc": "2025-05-10T14:00:00+00:00",
+          "lastIncreaseFillUtc": "2025-04-22T20:00:00+00:00",
+          "increaseFills": 27,
+          "reductionFills": 30
+        }
+      },
+      "postStop": {
+        "nonterminalHourlyHoldPlans": 5601,
+        "classifications": {
+          "allDesiredAssetsMinimumLotsExceedWholeCap": 2888,
+          "someLotFeasibleButFlatTrackingCostOptimum": 2713,
+          "allCapFeasibleAssetsDesiresBelowHalfLot": 2713
+        },
+        "freshDailyTargetDecisionsSeen": 234,
+        "maximumTargetAgeHours": 25.0,
+        "constantCapUsd": 3.30852062557824,
+        "firstFlatPretradeRisk": {
+          "atMs": 1746889200000,
+          "maximumGrossNotionalUsd": 3.30852062557824,
+          "exposureScale": 0.27571005213152,
+          "drawdownUsd": 2.17286984360544,
+          "dailyLossUsd": 0.09292432047368493,
+          "drawdownHalted": false,
+          "dailyHalted": false,
+          "accountingHalted": false,
+          "accountingKnown": true,
+          "forceFlat": false,
+          "reasons": [
+            "DRAWDOWN_BUDGET_SCALING",
+            "DAILY_LOSS_BUDGET_SCALING"
+          ],
+          "previousDayLossUsd": null,
+          "previousDayHalted": null
+        },
+        "finalPeakLiquidationEquityUsd": 100001.3257072758,
+        "finalLiquidationEquityUsd": 99999.1528374322,
+        "finalDrawdownUsd": 2.17286984360544,
+        "finalReductionPlan": {
+          "atMs": 1746885600000,
+          "atUtc": "2025-05-10T14:00:00+00:00",
+          "status": "REDUCE",
+          "reason": "CONFIRM_REDUCTIONS_BEFORE_INCREASES",
+          "targetDecisionUtc": "2025-05-10T00:00:00+00:00",
+          "maximumGrossNotionalUsd": 3.30852062557824,
+          "desiredUsd": {
+            "BTC/USD": 2.1048826874407194,
+            "ETH/USD": -1.2036379381375206
+          },
+          "executableQty": {
+            "BTC/USD": 0,
+            "ETH/USD": 0
+          },
+          "minimumLotNotionalUsd": {
+            "BTC/USD": 10.3702,
+            "ETH/USD": 2.4396
+          },
+          "absoluteDesiredAsFractionOfMinimumLot": {
+            "BTC/USD": 0.2029741651502111,
+            "ETH/USD": 0.49337511810850987
+          }
+        },
+        "firstSubsequentHoldPlan": {
+          "atMs": 1746889200000,
+          "atUtc": "2025-05-10T15:00:00+00:00",
+          "status": "HOLD",
+          "reason": "TARGET_WITHIN_BAND_OR_LOT_COST_OPTIMUM",
+          "targetDecisionUtc": "2025-05-10T00:00:00+00:00",
+          "maximumGrossNotionalUsd": 3.30852062557824,
+          "desiredUsd": {
+            "BTC/USD": 2.1048826874407194,
+            "ETH/USD": -1.2036379381375206
+          },
+          "executableQty": {
+            "BTC/USD": 0,
+            "ETH/USD": 0
+          },
+          "minimumLotNotionalUsd": {
+            "BTC/USD": 10.3596,
+            "ETH/USD": 2.4378
+          },
+          "absoluteDesiredAsFractionOfMinimumLot": {
+            "BTC/USD": 0.2031818494382717,
+            "ETH/USD": 0.49373941182111764
+          }
+        },
+        "lastNonterminalHoldPlan": {
+          "atMs": 1767049200000,
+          "atUtc": "2025-12-29T23:00:00+00:00",
+          "status": "HOLD",
+          "reason": "TARGET_WITHIN_BAND_OR_LOT_COST_OPTIMUM",
+          "targetDecisionUtc": "2025-12-29T00:00:00+00:00",
+          "maximumGrossNotionalUsd": 3.30852062557824,
+          "desiredUsd": {
+            "BTC/USD": -2.013155022279052,
+            "ETH/USD": -1.2953656032991883
+          },
+          "executableQty": {
+            "BTC/USD": 0,
+            "ETH/USD": 0
+          },
+          "minimumLotNotionalUsd": {
+            "BTC/USD": 8.7302,
+            "ETH/USD": 2.9358000000000004
+          },
+          "absoluteDesiredAsFractionOfMinimumLot": {
+            "BTC/USD": 0.23059666700408377,
+            "ETH/USD": 0.4412308751615192
+          }
+        },
+        "terminalProtocolFlatHours": 48
+      },
+      "readiness": {
+        "hourlyPlans": 8760,
+        "blockedPlans": 0,
+        "unknownPaths": 0,
+        "zeroVolumeNoFills": 0,
+        "drawdownHaltHours": 0,
+        "dailyHaltHours": 0,
+        "accountingHaltHours": 0,
+        "targetReceiptRecords": 365,
+        "riskReasons": {
+          "DAILY_LOSS_BUDGET_SCALING": 1639,
+          "DRAWDOWN_BUDGET_SCALING": 8718,
+          "RISK_BUDGET_AVAILABLE": 42
+        },
+        "planReasons": {
+          "CONFIRM_REDUCTIONS_BEFORE_INCREASES": 40,
+          "JOINT_LOT_ALLOCATION": 37,
+          "TARGET_WITHIN_BAND_OR_LOT_COST_OPTIMUM": 8683
+        }
+      }
+    },
+    {
+      "scenario": {
+        "id": "stress-source-as-end",
+        "delayHours": 2,
+        "feeBps": 7.5,
+        "slippageBps": 3,
+        "fundingShiftMs": -3600000,
+        "extraFundingBpsPerDay": 1
+      },
+      "artifact": "reports/portfolio-risk-study-2026-09-09/confirm-governed-sign-trend-90d-stress-source-as-end.json",
+      "inputReceipts": {
+        "bars": {
+          "sha256": "10150cba15c95ece08e4e386b29c8e130be34e5836b29f90838e3c5289886e1c",
+          "records": 35280
+        },
+        "funding": {
+          "sha256": "8790e6c844a6e585a4bdc33764333c03bf204bc7b6f7ba088b32f487ca5e1840",
+          "records": 17510
+        },
+        "targets": {
+          "sha256": "0bf91b6ddb7e30d4999b967447a87c661391bdffd3ada6c100cf184eb923ab1f",
+          "records": 365
+        },
+        "rules": {
+          "sha256": "1c3e22a34c769a1bf45987efb90668718a4e289bac5023ec79ba06b4c8b7da8c",
+          "records": 2
+        }
+      },
+      "allPathsKnown": true,
+      "netPnlUsd": -0.8468515867134556,
+      "pricePnlBeforeFeesFundingUsd": -0.5484000000000013,
+      "feesUsd": 0.22622939999999994,
+      "fundingCostUsd": 0.07222218630495172,
+      "turnoverUsd": 301.6392,
+      "slippageUsd": 0.09449999999999964,
+      "maximumLiquidationDrawdownUsd": 2.1728250975284027,
+      "maximumObservedDailyLiquidationLossUsd": 0.4225392484513577,
+      "fills": 77,
+      "increaseFills": 37,
+      "reductionFills": 40,
+      "firstFillUtc": "2025-01-01T02:00:00+00:00",
+      "lastIncreaseFillUtc": "2025-04-22T20:00:00+00:00",
+      "lastFillUtc": "2025-05-10T14:00:00+00:00",
+      "lastFill": {
+        "id": "fill:btc-eth-persistent-target-portfolio-v1:76:1746835200000:ETH/USD",
+        "orderId": "btc-eth-persistent-target-portfolio-v1:76:1746835200000:ETH/USD",
+        "symbol": "ETH/USD",
+        "atMs": 1746885600000,
+        "signedQty": 0.001,
+        "price": 2439.6,
+        "feeUsd": 0.0018297
+      },
+      "lastFillIsReduction": true,
+      "flatFromLastFillThroughEnd": true,
+      "flatHoursFromFinalReduction": 5650,
+      "meanAnnualGrossExposureUsd": 1.1808021347031976,
+      "monthlyExposure": [
+        {
+          "month": "2025-01",
+          "hours": 744,
+          "anyAssetExposedHours": 737,
+          "meanGrossExposureUsd": 4.602893010752689,
+          "fills": 11,
+          "feesUsd": 0.0561774,
+          "perAssetExposedHours": {
+            "BTC/USD": 156,
+            "ETH/USD": 581
+          }
+        },
+        {
+          "month": "2025-02",
+          "hours": 672,
+          "anyAssetExposedHours": 670,
+          "meanGrossExposureUsd": 3.596683630952384,
+          "fills": 10,
+          "feesUsd": 0.023010825,
+          "perAssetExposedHours": {
+            "BTC/USD": 87,
+            "ETH/USD": 618
+          }
+        },
+        {
+          "month": "2025-03",
+          "hours": 744,
+          "anyAssetExposedHours": 734,
+          "meanGrossExposureUsd": 2.6622635752688204,
+          "fills": 43,
+          "feesUsd": 0.11969302500000005,
+          "perAssetExposedHours": {
+            "BTC/USD": 44,
+            "ETH/USD": 690
+          }
+        },
+        {
+          "month": "2025-04",
+          "hours": 720,
+          "anyAssetExposedHours": 719,
+          "meanGrossExposureUsd": 2.8882737500000006,
+          "fills": 12,
+          "feesUsd": 0.02551845,
+          "perAssetExposedHours": {
+            "BTC/USD": 15,
+            "ETH/USD": 707
+          }
+        },
+        {
+          "month": "2025-05",
+          "hours": 744,
+          "anyAssetExposedHours": 230,
+          "meanGrossExposureUsd": 0.5941151881720431,
+          "fills": 1,
+          "feesUsd": 0.0018297,
+          "perAssetExposedHours": {
+            "BTC/USD": 0,
+            "ETH/USD": 230
+          }
+        },
+        {
+          "month": "2025-06",
+          "hours": 720,
+          "anyAssetExposedHours": 0,
+          "meanGrossExposureUsd": 0.0,
+          "fills": 0,
+          "feesUsd": 0,
+          "perAssetExposedHours": {
+            "BTC/USD": 0,
+            "ETH/USD": 0
+          }
+        },
+        {
+          "month": "2025-07",
+          "hours": 744,
+          "anyAssetExposedHours": 0,
+          "meanGrossExposureUsd": 0.0,
+          "fills": 0,
+          "feesUsd": 0,
+          "perAssetExposedHours": {
+            "BTC/USD": 0,
+            "ETH/USD": 0
+          }
+        },
+        {
+          "month": "2025-08",
+          "hours": 744,
+          "anyAssetExposedHours": 0,
+          "meanGrossExposureUsd": 0.0,
+          "fills": 0,
+          "feesUsd": 0,
+          "perAssetExposedHours": {
+            "BTC/USD": 0,
+            "ETH/USD": 0
+          }
+        },
+        {
+          "month": "2025-09",
+          "hours": 720,
+          "anyAssetExposedHours": 0,
+          "meanGrossExposureUsd": 0.0,
+          "fills": 0,
+          "feesUsd": 0,
+          "perAssetExposedHours": {
+            "BTC/USD": 0,
+            "ETH/USD": 0
+          }
+        },
+        {
+          "month": "2025-10",
+          "hours": 744,
+          "anyAssetExposedHours": 0,
+          "meanGrossExposureUsd": 0.0,
+          "fills": 0,
+          "feesUsd": 0,
+          "perAssetExposedHours": {
+            "BTC/USD": 0,
+            "ETH/USD": 0
+          }
+        },
+        {
+          "month": "2025-11",
+          "hours": 720,
+          "anyAssetExposedHours": 0,
+          "meanGrossExposureUsd": 0.0,
+          "fills": 0,
+          "feesUsd": 0,
+          "perAssetExposedHours": {
+            "BTC/USD": 0,
+            "ETH/USD": 0
+          }
+        },
+        {
+          "month": "2025-12",
+          "hours": 744,
+          "anyAssetExposedHours": 0,
+          "meanGrossExposureUsd": 0.0,
+          "fills": 0,
+          "feesUsd": 0,
+          "perAssetExposedHours": {
+            "BTC/USD": 0,
+            "ETH/USD": 0
+          }
+        }
+      ],
+      "perAsset": {
+        "BTC/USD": {
+          "netPnlUsd": 0.07066531411020283,
+          "realizedPricePnlUsd": 0.22329999999999983,
+          "unrealizedPricePnlUsd": 0,
+          "feesUsd": 0.131111925,
+          "actualFundingCostUsd": 0.010066549639797017,
+          "extraFundingCostUsd": 0.011456211250000002,
+          "totalFundingCostUsd": 0.02152276088979702,
+          "turnoverUsd": 174.8159,
+          "filledOrders": 20,
+          "exposedHours": 302,
+          "staleMarkHours": 0,
+          "terminalQty": 0,
+          "firstFillUtc": "2025-01-01T02:00:00+00:00",
+          "lastFillUtc": "2025-04-07T23:00:00+00:00",
+          "lastIncreaseFillUtc": "2025-04-07T08:00:00+00:00",
+          "increaseFills": 10,
+          "reductionFills": 10
+        },
+        "ETH/USD": {
+          "netPnlUsd": -0.917516900415156,
+          "realizedPricePnlUsd": -0.7717000000000012,
+          "unrealizedPricePnlUsd": 0,
+          "feesUsd": 0.09511747500000003,
+          "actualFundingCostUsd": 0.01905535083182155,
+          "extraFundingCostUsd": 0.031644074583333334,
+          "totalFundingCostUsd": 0.05069942541515489,
+          "turnoverUsd": 126.8233,
+          "filledOrders": 57,
+          "exposedHours": 2826,
+          "staleMarkHours": 6,
+          "terminalQty": 0,
+          "firstFillUtc": "2025-01-07T13:00:00+00:00",
+          "lastFillUtc": "2025-05-10T14:00:00+00:00",
+          "lastIncreaseFillUtc": "2025-04-22T20:00:00+00:00",
+          "increaseFills": 27,
+          "reductionFills": 30
+        }
+      },
+      "postStop": {
+        "nonterminalHourlyHoldPlans": 5601,
+        "classifications": {
+          "allDesiredAssetsMinimumLotsExceedWholeCap": 2888,
+          "someLotFeasibleButFlatTrackingCostOptimum": 2713,
+          "allCapFeasibleAssetsDesiresBelowHalfLot": 2713
+        },
+        "freshDailyTargetDecisionsSeen": 234,
+        "maximumTargetAgeHours": 25.0,
+        "constantCapUsd": 3.3086996098863892,
+        "firstFlatPretradeRisk": {
+          "atMs": 1746889200000,
+          "maximumGrossNotionalUsd": 3.3086996098863892,
+          "exposureScale": 0.27572496749053244,
+          "drawdownUsd": 2.1728250975284027,
+          "dailyLossUsd": 0.0929413312842371,
+          "drawdownHalted": false,
+          "dailyHalted": false,
+          "accountingHalted": false,
+          "accountingKnown": true,
+          "forceFlat": false,
+          "reasons": [
+            "DRAWDOWN_BUDGET_SCALING",
+            "DAILY_LOSS_BUDGET_SCALING"
+          ],
+          "previousDayLossUsd": null,
+          "previousDayHalted": null
+        },
+        "finalPeakLiquidationEquityUsd": 100001.32597351081,
+        "finalLiquidationEquityUsd": 99999.15314841329,
+        "finalDrawdownUsd": 2.1728250975284027,
+        "finalReductionPlan": {
+          "atMs": 1746885600000,
+          "atUtc": "2025-05-10T14:00:00+00:00",
+          "status": "REDUCE",
+          "reason": "CONFIRM_REDUCTIONS_BEFORE_INCREASES",
+          "targetDecisionUtc": "2025-05-10T00:00:00+00:00",
+          "maximumGrossNotionalUsd": 3.3086996098863892,
+          "desiredUsd": {
+            "BTC/USD": 2.104996557358481,
+            "ETH/USD": -1.2037030525279084
+          },
+          "executableQty": {
+            "BTC/USD": 0,
+            "ETH/USD": 0
+          },
+          "minimumLotNotionalUsd": {
+            "BTC/USD": 10.3702,
+            "ETH/USD": 2.4396
+          },
+          "absoluteDesiredAsFractionOfMinimumLot": {
+            "BTC/USD": 0.2029851456441034,
+            "ETH/USD": 0.493401808709587
+          }
+        },
+        "firstSubsequentHoldPlan": {
+          "atMs": 1746889200000,
+          "atUtc": "2025-05-10T15:00:00+00:00",
+          "status": "HOLD",
+          "reason": "TARGET_WITHIN_BAND_OR_LOT_COST_OPTIMUM",
+          "targetDecisionUtc": "2025-05-10T00:00:00+00:00",
+          "maximumGrossNotionalUsd": 3.3086996098863892,
+          "desiredUsd": {
+            "BTC/USD": 2.104996557358481,
+            "ETH/USD": -1.2037030525279084
+          },
+          "executableQty": {
+            "BTC/USD": 0,
+            "ETH/USD": 0
+          },
+          "minimumLotNotionalUsd": {
+            "BTC/USD": 10.3596,
+            "ETH/USD": 2.4378
+          },
+          "absoluteDesiredAsFractionOfMinimumLot": {
+            "BTC/USD": 0.20319284116746603,
+            "ETH/USD": 0.4937661221297516
+          }
+        },
+        "lastNonterminalHoldPlan": {
+          "atMs": 1767049200000,
+          "atUtc": "2025-12-29T23:00:00+00:00",
+          "status": "HOLD",
+          "reason": "TARGET_WITHIN_BAND_OR_LOT_COST_OPTIMUM",
+          "targetDecisionUtc": "2025-12-29T00:00:00+00:00",
+          "maximumGrossNotionalUsd": 3.3086996098863892,
+          "desiredUsd": {
+            "BTC/USD": -2.013263929914711,
+            "ETH/USD": -1.2954356799716789
+          },
+          "executableQty": {
+            "BTC/USD": 0,
+            "ETH/USD": 0
+          },
+          "minimumLotNotionalUsd": {
+            "BTC/USD": 8.7302,
+            "ETH/USD": 2.9358000000000004
+          },
+          "absoluteDesiredAsFractionOfMinimumLot": {
+            "BTC/USD": 0.2306091418197419,
+            "ETH/USD": 0.4412547448639821
+          }
+        },
+        "terminalProtocolFlatHours": 48
+      },
+      "readiness": {
+        "hourlyPlans": 8760,
+        "blockedPlans": 0,
+        "unknownPaths": 0,
+        "zeroVolumeNoFills": 0,
+        "drawdownHaltHours": 0,
+        "dailyHaltHours": 0,
+        "accountingHaltHours": 0,
+        "targetReceiptRecords": 365,
+        "riskReasons": {
+          "DAILY_LOSS_BUDGET_SCALING": 1639,
+          "DRAWDOWN_BUDGET_SCALING": 8718,
+          "RISK_BUDGET_AVAILABLE": 42
+        },
+        "planReasons": {
+          "CONFIRM_REDUCTIONS_BEFORE_INCREASES": 40,
+          "JOINT_LOT_ALLOCATION": 37,
+          "TARGET_WITHIN_BAND_OR_LOT_COST_OPTIMUM": 8683
+        }
+      }
+    }
+  ],
+  "fundingTimingSensitivity": [
+    {
+      "costScenario": "base",
+      "positionPathsIdentical": true,
+      "plusHourMinusAsEndNetPnlUsd": -0.00023887938004918396,
+      "sameFinalFillTimestamp": true
+    },
+    {
+      "costScenario": "stress",
+      "positionPathsIdentical": true,
+      "plusHourMinusAsEndNetPnlUsd": -0.0003109810932073742,
+      "sameFinalFillTimestamp": true
+    }
+  ],
+  "conclusions": [
+    "The selected policy loses in every frozen 2025 scenario. Its positive 2024 development result did not generalize to this confirmation window.",
+    "Entry activity stops through a continuous drawdown-scaled cap plus the joint minimum-lot/tracking-cost allocator. No drawdown, daily-loss, or accounting hard halt fired.",
+    "The final ETH short reduction occurs on May 10 at 19:00 UTC in base scenarios and 14:00 UTC in stress scenarios. Actual inventory remains zero for the rest of 2025.",
+    "After flattening, fixed cash keeps liquidation equity and its drawdown buffer unchanged. Daily-loss reset does not reset the peak-based drawdown cap. Fresh daily targets continue, but no target is executable at a better lot/cost objective.",
+    "At the first base hold, the BTC minimum lot exceeds the entire $3.252 cap. The feasible ETH minimum lot is about $2.501, but the desired short is only $1.183, below half a lot; flat minimizes tracking error before adding any trading costs.",
+    "ETH loses on price movement even before fees and funding. BTC base price earnings are smaller than its costs. Stress BTC is positive, but its gain does not offset ETH loss.",
+    "The two funding timestamp interpretations have identical position paths within each cost scenario. They change small funding cash amounts but do not explain or fix the confirmation stop.",
+    "Stress has higher costs and a different fixed execution delay, hence a different path; its smaller loss does not imply that increasing costs improves profitability.",
+    "A risk governor reduces exposure but cannot create a directional edge. The observed lot/cash feedback further limits subsequent participation; these results do not justify a profitability claim."
+  ],
+  "limitations": [
+    "Hourly open execution remains a proxy; observed availability is replay-plan availability, not a claim about live quote health.",
+    "Both assets were flat by study end; six ETH held hours had zero-volume indicative marks. No missing exposed accounting path or zero-volume order attempt was reported.",
+    "Funding source timestamp convention remains unresolved; both fixed interpretations were retained.",
+    "The final 48 hours are a protocol flattening window; the stop occurred months earlier and is separately counted.",
+    "Price P&L uses simulated fill prices, so slippage is already reflected; it is not deducted twice."
+  ],
+  "reproducibleAuditScript": {
+    "path": "/tmp/portfolio-v2-confirmation-economic-audit.py",
+    "sha256": "7dabd7120db6605b19ece4aa2f48cd02c413f923224932a1bd352e595588773d"
+  }
+}

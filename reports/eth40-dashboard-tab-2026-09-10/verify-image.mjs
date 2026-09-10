@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
+import {writeFileSync} from 'node:fs';
+const out='reports/eth40-dashboard-tab-2026-09-10';
+const run=args=>execFileSync('docker',args,{encoding:'utf8',maxBuffer:16*1024*1024});
+const [before,after]=JSON.parse(run(['image','inspect','crypto-trade-engine:spot-dashboard-v5','crypto-trade-engine:spot-dashboard-v6']));
+assert.equal(before.Id,'sha256:066bf2b331a199d2918c124e5914c176e55a9daefc458b857a912ed5bd92cb36');
+assert.deepEqual(before.Config,after.Config,'Dashboard patch must preserve image command/environment/user/health configuration');
+assert.deepEqual(after.RootFS.Layers.slice(0,before.RootFS.Layers.length),before.RootFS.Layers);
+const code=`const fs=require('node:fs');const c=require('node:crypto');const files=[];function scan(p){for(const e of fs.readdirSync(p,{withFileTypes:true})){const f=p+'/'+e.name;if(e.isDirectory()){if(e.name!=='dashboard')scan(f)}else if(e.isFile())files.push({file:f,sha256:c.createHash('sha256').update(fs.readFileSync(f)).digest('hex')})}}for(const p of ['/app/src','/app/dist/src','/app/config'])scan(p);for(const p of ['/app/package.json','/app/package-lock.json'])files.push({file:p,sha256:c.createHash('sha256').update(fs.readFileSync(p)).digest('hex')});files.sort((a,b)=>a.file.localeCompare(b.file));process.stdout.write(JSON.stringify(files));`;
+const fingerprints= [before,after].map(image=>JSON.parse(run(['run','--rm','--network','none','--read-only','--entrypoint','node',image.Id,'-e',code])));
+assert.deepEqual(fingerprints[0],fingerprints[1],'All non-dashboard strategy/runtime/config bytes must remain unchanged');
+const result={passed:true,beforeImage:before.Id,afterImage:after.Id,inheritedLayers:before.RootFS.Layers.length,imageConfigUnchanged:true,nonDashboardFilesCompared:fingerprints[0].length,nonDashboardFingerprints:fingerprints[0]};
+writeFileSync(out+'/image-verification.json',JSON.stringify(result,null,2)+'\n');
+console.log(JSON.stringify({passed:true,beforeImage:before.Id,afterImage:after.Id,inheritedLayers:result.inheritedLayers,nonDashboardFilesCompared:result.nonDashboardFilesCompared}));

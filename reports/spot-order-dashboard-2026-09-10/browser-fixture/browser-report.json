@@ -1,0 +1,190 @@
+{
+  "generatedAt": "2026-09-10T06:21:44.473Z",
+  "mode": "SYNTHETIC_FIXTURE",
+  "url": "http://127.0.0.1:42245",
+  "results": [
+    {
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 1100
+      },
+      "heading": "BTC spot strategy",
+      "orderMode": "Paper orders enabled",
+      "exchangeMode": "Live exchange orders disabled",
+      "serviceStatus": "Spot service connected · market cycle 0 min ago · checks every 5 minutes",
+      "bodyWidth": 1425,
+      "viewportWidth": 1440,
+      "spotWidth": 1377,
+      "spotOrders": 3,
+      "partialOrders": [
+        "FILLED",
+        "PARTIAL FILL · CANCELED",
+        "REJECTED"
+      ],
+      "values": [
+        {
+          "label": "Forward net P&L",
+          "value": "+$9.12"
+        },
+        {
+          "label": "Spot equity",
+          "value": "$100,010.00"
+        },
+        {
+          "label": "Cash",
+          "value": "$99,900.00"
+        },
+        {
+          "label": "BTC held",
+          "value": "0.00100000"
+        },
+        {
+          "label": "Realized net P&L",
+          "value": "−$1.50"
+        },
+        {
+          "label": "Unrealized net P&L",
+          "value": "+$10.62"
+        },
+        {
+          "label": "Fees paid",
+          "value": "$2.50"
+        },
+        {
+          "label": "Paper fills",
+          "value": "1"
+        }
+      ],
+      "futuresHeading": "Futures engine operational",
+      "scripts": [
+        "http://127.0.0.1:42245/app.js?v=20260910-spot-orders-1",
+        "http://127.0.0.1:42245/spot.js?v=20260910-spot-orders-1"
+      ],
+      "sourceStatus": {
+        "generatedAtMs": 1789021305479,
+        "orderSubmissionEnabled": true,
+        "liveTradingEnabled": false,
+        "healthy": true,
+        "lastSuccessMs": 1789021305479,
+        "lastDecisionReason": "NEXT_WEEK_ENTRY_WINDOW",
+        "account": {
+          "cashUsd": 99900,
+          "quantity": 0.001,
+          "realizedNetUsd": -1.5,
+          "feesUsd": 2.5
+        },
+        "mark": {
+          "equityUsd": 100010,
+          "liquidationEquityUsd": 100009.12,
+          "unrealizedNetUsd": 10.62,
+          "netPnlUsd": 9.12
+        },
+        "orderCount": 3,
+        "receiptCount": 1
+      },
+      "javascriptErrors": [],
+      "consoleErrors": [],
+      "screenshot": "/home/ec2-user/crypto_trade/reports/spot-order-dashboard-2026-09-10/browser-fixture/desktop-fixture.png",
+      "spotScreenshot": "/home/ec2-user/crypto_trade/reports/spot-order-dashboard-2026-09-10/browser-fixture/desktop-fixture-spot.png"
+    },
+    {
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "heading": "BTC spot strategy",
+      "orderMode": "Paper orders enabled",
+      "exchangeMode": "Live exchange orders disabled",
+      "serviceStatus": "Spot service connected · market cycle 0 min ago · checks every 5 minutes",
+      "bodyWidth": 390,
+      "viewportWidth": 390,
+      "spotWidth": 366,
+      "spotOrders": 3,
+      "partialOrders": [
+        "FILLED",
+        "PARTIAL FILL · CANCELED",
+        "REJECTED"
+      ],
+      "values": [
+        {
+          "label": "Forward net P&L",
+          "value": "+$9.12"
+        },
+        {
+          "label": "Spot equity",
+          "value": "$100,010.00"
+        },
+        {
+          "label": "Cash",
+          "value": "$99,900.00"
+        },
+        {
+          "label": "BTC held",
+          "value": "0.00100000"
+        },
+        {
+          "label": "Realized net P&L",
+          "value": "−$1.50"
+        },
+        {
+          "label": "Unrealized net P&L",
+          "value": "+$10.62"
+        },
+        {
+          "label": "Fees paid",
+          "value": "$2.50"
+        },
+        {
+          "label": "Paper fills",
+          "value": "1"
+        }
+      ],
+      "futuresHeading": "Futures engine operational",
+      "scripts": [
+        "http://127.0.0.1:42245/app.js?v=20260910-spot-orders-1",
+        "http://127.0.0.1:42245/spot.js?v=20260910-spot-orders-1"
+      ],
+      "sourceStatus": {
+        "generatedAtMs": 1789021307728,
+        "orderSubmissionEnabled": true,
+        "liveTradingEnabled": false,
+        "healthy": true,
+        "lastSuccessMs": 1789021307728,
+        "lastDecisionReason": "NEXT_WEEK_ENTRY_WINDOW",
+        "account": {
+          "cashUsd": 99900,
+          "quantity": 0.001,
+          "realizedNetUsd": -1.5,
+          "feesUsd": 2.5
+        },
+        "mark": {
+          "equityUsd": 100010,
+          "liquidationEquityUsd": 100009.12,
+          "unrealizedNetUsd": 10.62,
+          "netPnlUsd": 9.12
+        },
+        "orderCount": 3,
+        "receiptCount": 1
+      },
+      "javascriptErrors": [],
+      "consoleErrors": [],
+      "screenshot": "/home/ec2-user/crypto_trade/reports/spot-order-dashboard-2026-09-10/browser-fixture/mobile-fixture.png",
+      "spotScreenshot": "/home/ec2-user/crypto_trade/reports/spot-order-dashboard-2026-09-10/browser-fixture/mobile-fixture-spot.png"
+    },
+    {
+      "scenario": "stale",
+      "screenshot": "/home/ec2-user/crypto_trade/reports/spot-order-dashboard-2026-09-10/browser-fixture/mobile-stale-fixture.png"
+    },
+    {
+      "scenario": "outage-retains-last-known",
+      "screenshot": "/home/ec2-user/crypto_trade/reports/spot-order-dashboard-2026-09-10/browser-fixture/mobile-outage-fixture.png"
+    },
+    {
+      "scenario": "recovered",
+      "passed": true
+    }
+  ],
+  "passed": true
+}

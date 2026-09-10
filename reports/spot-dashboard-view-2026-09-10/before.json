@@ -1,0 +1,129 @@
+{
+  "capturedAtUtc": "2026-09-10T06:28:59.364Z",
+  "passed": true,
+  "scope": "READ_ONLY_BASELINE_BEFORE_DASHBOARD_VIEW_CHANGE",
+  "checks": {
+    "expectedFuturesImage": true,
+    "expectedSpotImage": true,
+    "bothHealthy": true,
+    "futuresPaper": true,
+    "futuresVolume": true,
+    "spotVolume": true,
+    "dashboardNetworkShared": true,
+    "fundingValid": true,
+    "spotResearchPaper": true
+  },
+  "containers": [
+    {
+      "name": "/crypto-trade-engine",
+      "image": "sha256:f2c56ce778d47b1f2fef74636a27f277d92bd4aaca69b835ca9d2b51bfd92cda",
+      "startedAtUtc": "2026-09-10T06:19:55.580100173Z",
+      "health": "healthy",
+      "networks": [
+        "crypto-trade_default"
+      ],
+      "volumes": [
+        {
+          "name": "crypto_trade_event_data",
+          "destination": "/app/data",
+          "readWrite": true
+        }
+      ]
+    },
+    {
+      "name": "/crypto-spot-trend-paper",
+      "image": "sha256:6b8b607debf4afa5054d1bac78cdd9086a8354b85494db73ab8b03864e43b8fe",
+      "startedAtUtc": "2026-09-10T06:20:45.441977439Z",
+      "health": "healthy",
+      "networks": [
+        "crypto-spot-paper_default",
+        "crypto-trade_default"
+      ],
+      "volumes": [
+        {
+          "name": "crypto_trade_spot_trend_research",
+          "destination": "/app/data",
+          "readWrite": true
+        }
+      ]
+    }
+  ],
+  "futures": {
+    "capturedAtUtc": "2026-09-10T06:28:59.084Z",
+    "mode": "paper",
+    "paper": true,
+    "venue": "kraken_futures",
+    "schemaVersion": 4,
+    "savedAtUtc": "2026-09-10T06:19:56.270Z",
+    "initialEquityUsd": 100000,
+    "cashEquityUsd": 99998.28269740003,
+    "utcSessionDate": "2026-09-10",
+    "utcSessionStartingCashEquityUsd": 99998.28269740003,
+    "orders": 382,
+    "ordersSha256": "22b4aa92a84ed7e0ddd2bac788bb0d15fee0e57317ba09bf83d272b86864fb59",
+    "activities": 382,
+    "activitiesSha256": "85fd8db91debfc9b6a9bd1f04400288b61383b5e80902f215e290cef0ef2173f",
+    "positions": 0,
+    "positionsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "funding": {
+      "epochUtc": "2026-09-09T20:14:26.595Z",
+      "configSha256": "939040b31cc1425a17a11a704112460056f0c5cb35226dffc9a70e91557179a4",
+      "events": 11,
+      "eventsSha256": "2263c89db2990accefabd216617c773811b1ef038864e03b73d9e0c96e338d80",
+      "eventCounts": {
+        "RATES": 11
+      },
+      "lastObservedAtMs": 1789020032191,
+      "valid": true,
+      "priorHistoryFundingUnknown": true,
+      "epochAccountingKnown": true,
+      "dueUnpostedAdjustments": 0
+    },
+    "training": {
+      "file": "/app/data/distributional-training-risk-v2-20260909T201636-357d2802753bfecd.json",
+      "artifactSha256": "357d2802753bfecd18eabdd6fefe6fd7cec9649fadaed06d3a47fbe5436fd9c8",
+      "sizingPolicyId": "827a3c64f88eb32848104dc94f37b416f185a057441576e12cc16a4144ba7c02",
+      "selectionPolicyVersion": "btc-eth-selected-policy-paper-trial-3d-efficient-v1",
+      "trainingPolicyVersion": "btc-eth-independent-horizon-training-v1",
+      "retainedSamples": 6279,
+      "dates": [
+        "2026-09-04",
+        "2026-09-05",
+        "2026-09-06",
+        "2026-09-07",
+        "2026-09-08",
+        "2026-09-09",
+        "2026-09-10"
+      ]
+    }
+  },
+  "spot": {
+    "capturedAtUtc": "2026-09-10T06:28:59.346Z",
+    "mode": "RESEARCH_PAPER",
+    "version": "btc-spot-weekly-research-paper-runner-v2",
+    "runtimeSourceSha256": "7f98cc50ef5158dc075f6a172eeb4343cbce286c5a676debe2a17335dcc229da",
+    "evidenceSha256": "3eed46dd2a5f17dc48e87e190243971754b1c7b0394ebcadb4eb289d30ebb509",
+    "startedAtMs": 1789019349083,
+    "lastCycleMs": 1789021546414,
+    "cycles": 10,
+    "halted": false,
+    "initialCashUsd": 100000,
+    "cashUsd": 100000,
+    "btcQuantity": 0,
+    "entryCostUsd": 0,
+    "realizedNetUsd": 0,
+    "feesUsd": 0,
+    "receipts": 0,
+    "receiptsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "accountSha256": "e7d57e0c0296175813a5097f7cb9eb9de5cc5077ea50379f5b7140a6edf5b723",
+    "orders": 0,
+    "ordersSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "pendingOrders": 0,
+    "decision": "NEXT_WEEK_ENTRY_WINDOW",
+    "markedNetPnlUsd": 0,
+    "migrationEvidence": {
+      "file": "migrations/343a24cefa2879f957583cb7ee7f7ddbdd7daa54afc71b4918f007212beae7a1.json",
+      "sha256": "4cedc642840cd35347c3df96dcc9880be0b1ec02fca25331a6414d94790f30f0"
+    }
+  }
+}

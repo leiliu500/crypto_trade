@@ -1,0 +1,44 @@
+{
+  "BTC/USD": {
+    "developmentWinner": "btc_entry_path_efficiency__btc_hold_bounded_thesis_v1__btc_thesis_only",
+    "exactUtilityTies": [
+      "btc_entry_path_efficiency__btc_hold_immediate_v1__btc_thesis_only",
+      "btc_entry_path_efficiency__btc_hold_weekly_persistence_v1__btc_thesis_only",
+      "btc_entry_path_efficiency__btc_hold_bounded_thesis_v1__btc_thesis_only"
+    ],
+    "stageValuesWithinDevelopmentTies": {
+      "entry": [
+        "btc_entry_path_efficiency"
+      ],
+      "holding": [
+        "btc_hold_bounded_thesis_v1",
+        "btc_hold_immediate_v1",
+        "btc_hold_weekly_persistence_v1"
+      ],
+      "exit": [
+        "btc_thesis_only"
+      ]
+    },
+    "interpretation": "Lexical tie-breaking is deterministic; it does not establish superiority of tied component values."
+  },
+  "ETH/USD": {
+    "developmentWinner": "eth_entry_baseline__eth_hold_daily_persistence_v1__eth_thesis_only",
+    "exactUtilityTies": [
+      "eth_entry_baseline__eth_hold_daily_persistence_v1__eth_thesis_only",
+      "eth_entry_baseline__eth_hold_daily_persistence_v1__eth_volatility_trailing"
+    ],
+    "stageValuesWithinDevelopmentTies": {
+      "entry": [
+        "eth_entry_baseline"
+      ],
+      "holding": [
+        "eth_hold_daily_persistence_v1"
+      ],
+      "exit": [
+        "eth_thesis_only",
+        "eth_volatility_trailing"
+      ]
+    },
+    "interpretation": "Lexical tie-breaking is deterministic; it does not establish superiority of tied component values."
+  }
+}

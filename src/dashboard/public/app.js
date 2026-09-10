@@ -27,7 +27,7 @@ async function bootstrap(){
     el("clock").textContent=new Date().toLocaleTimeString([],{hour12:false});
     if(state.paused)setConnection("connecting","Paused");
     else if(snapshotAgeMs()>5000){setConnection("offline","Waiting for updates");void refreshDashboard();}
-    if(state.snapshot){el("last-update").textContent=`Updated ${relative(state.snapshot.generatedAtMs)}`;refreshCrossAssetPanels();}
+    if(state.snapshot){el("last-update").textContent=`Updated ${relative(state.snapshot.generatedAtMs)}`;refreshFuturesMarketPanels();}
   },1000);
 }
 async function refreshDashboard(){
@@ -52,49 +52,60 @@ function applySnapshot(snapshot,source="ws"){
 function render(s){
   const score=s.overall==="healthy"?"100%":s.overall==="degraded"?"68%":"24%";
   const mode=String(s.mode).toUpperCase();el("mode-badge").textContent=`${mode}${s.paper&&mode!=="PAPER"?" · PAPER":""}${s.paperEntryExercise?" · EXERCISE":""}`;
-  el("health-title").textContent=s.overall==="healthy"?"All systems operational":s.overall==="degraded"?"System warming or degraded":"Trading gates are closed";
-  el("health-description").textContent=s.entriesAllowed?"All causal data, account, order-book, and risk invariants currently permit new entries.":"The engine remains fail-closed until every execution invariant is healthy.";
+  el("health-title").textContent=s.overall==="healthy"?"Futures market monitoring":s.overall==="degraded"?"Futures monitoring warming or degraded":"Futures monitoring requires attention";
+  el("health-description").textContent="Read-only market feeds, account balances, and recorded order activity.";
   el("health-score").textContent=score;el("health-orbit").className=`health-orbit ${s.overall}`;el("health-pulse").style.background=s.overall==="critical"?"var(--red)":s.overall==="degraded"?"var(--amber)":"var(--cyan)";
   el("halt-reasons").innerHTML=(s.haltReasons||[]).map(reason=>`<span class="halt-chip">${esc(reason)}</span>`).join("");
-  el("equity").textContent=money(s.equity,5);el("drawdown").textContent=`UTC open ${money(s.sessionStartingEquity,5)} · Peak ${money(s.equityHighWater,5)}`;el("session-pnl").textContent=signedMoney(s.sessionPnl,5);el("session-pnl").className=pnlClass(s.sessionPnl);renderSessionPnlBreakdown(s.realizedSessionBreakdown);
-  el("latency").textContent=s.latencyP95Ms==null?"—":`${num(s.latencyP95Ms,1)} ms`;el("uptime").textContent=duration(s.uptimeMs);el("strategy-version").textContent=`Strategy ${s.strategyVersion}`;el("last-update").textContent=`Updated ${relative(s.generatedAtMs)}`;
+  const sessionKnown=!s.rollingPnlDetails?.fundingIncluded||Number.isFinite(s.rollingPnlDetails.utcSessionNetPnlUsd);
+  el("equity").textContent=money(s.equity,5);el("drawdown").textContent=`UTC open ${money(s.sessionStartingEquity,5)} · Peak ${money(s.equityHighWater,5)}`;el("session-pnl").textContent=sessionKnown?signedMoney(s.sessionPnl,5):"Unknown";el("session-pnl").className=sessionKnown?pnlClass(s.sessionPnl):"";renderSessionPnlBreakdown(s.realizedSessionBreakdown,s.rollingPnlDetails);
+  const rollingKnown=s.realizedPnlMeasurement==="KNOWN"&&Number.isFinite(s.realizedPnl24h);
+  el("rolling-pnl").textContent=rollingKnown?signedMoney(s.realizedPnl24h,5):"Unknown";el("rolling-pnl").className=rollingKnown?pnlClass(s.realizedPnl24h):"";
+  el("rolling-pnl-detail").innerHTML=rollingPnlDetailHtml(s.rollingPnlDetails,rollingKnown);
+  el("latency").textContent=s.latencyP95Ms==null?"—":`${num(s.latencyP95Ms,1)} ms`;el("uptime").textContent=duration(s.uptimeMs);el("strategy-version").textContent="Futures monitor";el("last-update").textContent=`Updated ${relative(s.generatedAtMs)}`;
   renderLiveness(s.liveness||[]);syncSymbols(s.markets||[]);renderMarkets(filtered(s.markets||[]));renderOrders(filtered(s.orders||[]));renderEvents(s.events||[]);
-  const hasJointModel=(s.markets||[]).some(m=>m.policyPulse?.research?.crossAsset);
-  el("market-subtitle").textContent=(s.markets||[]).some(m=>m.distributional)?"BTC / ETH · EXECUTABLE RETURN DISTRIBUTIONS":hasJointModel?`BTC / ETH JOINT MODEL · ${s.crossAssetPaperEntriesEnabled&&s.mode==="paper"?"PAPER ORDERS ENABLED":"RESEARCH"}`:s.policyEngineEnabled&&!s.paperEntryExercise?"EXECUTABLE POLICIES · LIVE SIGNALS & PAPER RESEARCH":"KRAKEN FUTURES MARKET DATA · LEGACY RULES";
-  el("footer-detail").textContent=`DB ${s.database.status} · ${s.database.queuedRecords} queued · ${s.policyEngineEnabled&&!s.paperEntryExercise?"EXECUTABLE POLICIES":s.signalMode||"DETERMINISTIC_ONLY"} · config ${s.configurationVersion||"-"}${s.modelVersion&&s.modelVersion!=="none"?` · model ${s.modelVersion}`:""}`;
+  el("market-subtitle").textContent="KRAKEN FUTURES · BID / ASK AND FEED STATUS";
+  el("footer-detail").textContent=`DB ${s.database.status} · ${s.database.queuedRecords} queued · Futures market and account monitoring`;
+}
+function rollingPnlDetailHtml(details,known){
+  const funded=details?.fundingIncluded===true;
+  const status=known?(funded?"After fill fees and posted paper funding":"Price P&L after fill fees · funding excluded"):(details?.reason||"Recorded fill history unavailable");
+  if(!funded)return esc(status);
+  const amount=value=>Number.isFinite(value)?signedMoney(value,5):"Unknown";
+  return `${esc(status)}<br><span>Paper funding cash · 24h ${amount(details.fundingCash24hUsd)} · UTC day ${amount(details.fundingCashUtcSessionUsd)}</span><br><span>Unsettled funding accrual ${amount(details.fundingUnsettledAccrualUsd)} · excluded from cash P&amp;L</span>`;
 }
 function filtered(items){return state.symbol==="all"?items:items.filter(item=>item.symbol===state.symbol);}
-function sessionPnlBreakdownHtml(breakdown){
+function sessionPnlBreakdownHtml(breakdown,rolling){
   if(!breakdown||![breakdown.realizedPnl,breakdown.unrealizedPnl,breakdown.totalPnl].every(Number.isFinite))return "";
   const entryFeeLabel=breakdown.entryStyle?`Entry ${esc(String(breakdown.entryStyle).toLowerCase().replaceAll("_"," "))} fee`:"Entry fees";
   const exitFeeLabel=breakdown.exitStyle?`Exit ${esc(String(breakdown.exitStyle).toLowerCase().replaceAll("_"," "))} fee`:"Exit fees";
   const execution=[breakdown.grossPricePnl,breakdown.entryFee,breakdown.exitFee].every(Number.isFinite)?`<div class="session-pnl-row"><span>Gross price gain</span><strong class="${pnlClass(breakdown.grossPricePnl)}">${signedMoney(breakdown.grossPricePnl,5)}</strong></div><div class="session-pnl-row"><span>${entryFeeLabel}</span><strong class="negative">${signedMoney(-Math.abs(breakdown.entryFee),5)}</strong></div><div class="session-pnl-row"><span>${exitFeeLabel}</span><strong class="negative">${signedMoney(-Math.abs(breakdown.exitFee),5)}</strong></div>`:"";
-  return `${execution}<div class="session-pnl-row"><span>Realized P&amp;L</span><strong class="${pnlClass(breakdown.realizedPnl)}">${signedMoney(breakdown.realizedPnl,5)}</strong></div><div class="session-pnl-row"><span>Open mark P&amp;L</span><strong class="${pnlClass(breakdown.unrealizedPnl)}">${signedMoney(breakdown.unrealizedPnl,5)}</strong></div><div class="session-pnl-row total"><span>Total UTC-day P&amp;L</span><strong class="${pnlClass(breakdown.totalPnl)}">${signedMoney(breakdown.totalPnl,5)}</strong></div>`;
+  const funded=rolling?.fundingIncluded===true,accountKnown=!funded||Number.isFinite(rolling.utcSessionNetPnlUsd);
+  const funding=funded?`<div class="session-pnl-row"><span>Posted paper funding cash · UTC day</span><strong class="${pnlClass(rolling.fundingCashUtcSessionUsd)}">${Number.isFinite(rolling.fundingCashUtcSessionUsd)?signedMoney(rolling.fundingCashUtcSessionUsd,5):"Unknown"}</strong></div>`:"";
+  return `${execution}${funding}<div class="session-pnl-row"><span>${funded?"Realized account P&amp;L after fill fees and posted funding":"Realized P&amp;L"}</span><strong class="${accountKnown?pnlClass(breakdown.realizedPnl):""}">${accountKnown?signedMoney(breakdown.realizedPnl,5):"Unknown"}</strong></div><div class="session-pnl-row"><span>Open mark P&amp;L</span><strong class="${pnlClass(breakdown.unrealizedPnl)}">${signedMoney(breakdown.unrealizedPnl,5)}</strong></div><div class="session-pnl-row total"><span>Total UTC-day P&amp;L${funded?" · unsettled funding excluded":""}</span><strong class="${accountKnown?pnlClass(breakdown.totalPnl):""}">${accountKnown?signedMoney(breakdown.totalPnl,5):"Unknown"}</strong></div>`;
 }
-function renderSessionPnlBreakdown(breakdown){const node=el("session-pnl-breakdown"),html=sessionPnlBreakdownHtml(breakdown);node.innerHTML=html;node.hidden=!html;}
+function renderSessionPnlBreakdown(breakdown,rolling){const node=el("session-pnl-breakdown"),html=sessionPnlBreakdownHtml(breakdown,rolling);node.innerHTML=html;node.hidden=!html;}
 function renderLiveness(items){el("liveness-grid").className="liveness-grid";el("liveness-grid").innerHTML=items.map(item=>`<article class="live-card ${item.healthy?"":"bad"}"><span class="status-icon">${item.healthy?"✓":"!"}</span><div><b>${esc(item.label)}</b><small title="${esc(item.detail)}">${esc(item.detail)}</small></div><i class="live-dot"></i></article>`).join("");}
 function syncSymbols(markets){const select=el("symbol-filter"),current=select.value||state.symbol,values=[...new Set(markets.map(m=>m.symbol))];select.innerHTML=`<option value="all">All symbols</option>${values.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join("")}`;select.value=values.includes(current)||current==="all"?current:"all";state.symbol=select.value;}
-function renderMarkets(items){const grid=el("market-grid");if(!items.length){grid.className="market-grid empty-grid";grid.innerHTML="<p>Waiting for order books…</p>";return;}grid.className=items.some(m=>m.policyPulse)?"market-grid policy-grid":"market-grid";grid.innerHTML=items.map(m=>{
-  if(m.distributional)return renderDistributionMarket(m);
-  if(m.policyPulse||(state.snapshot?.policyEngineEnabled&&!state.snapshot?.paperEntryExercise))return renderPolicyMarket(m);
-  const seed=[m.qi1,m.ofi,m.tfi,m.efficiency,m.velocityZ,m.sigmaHBps,1-m.providerAgeMs/(m.staleThresholdMs||1000),m.spreadBps].map((v,i)=>Math.max(3,Math.min(33,6+Math.abs(Number(v)||0)*(i<3?10:4))));
-  const focus=Number(m.longScore)>=Number(m.shortScore)?m.longRule:m.shortRule;
-  const gateText=(m.blockReasons||[]).slice(0,3).join(", ")||"All deterministic gates ready";
-  const ruleDetail=focus?`${esc(focus.family||"CONTINUATION")} · LCB ${num(focus.lowerBoundNetBps,2)} bp · gross ${num(focus.grossOpportunityBps,2)} · robust cost ${num(focus.robustCostBps,2)} · continuation ${num(100*focus.continuationQuality,0)}% · structure ${focus.slowTrendPass?"pass":"blocked"} · ${focus.executionPath||"no path"} @ ${num(focus.edgeHorizonMs/60000,0)}m · votes ${focus.bookVotes}/${focus.flowVotes}/${focus.kinematicVotes}`:"";
-  const rejection=m.entryPipeline&&m.entryPipeline.lastRejection?`${m.entryPipeline.lastRejection.stage}: ${m.entryPipeline.lastRejection.reason}`:"";
-  const counts=m.entryPipeline&&m.entryPipeline.counts?m.entryPipeline.counts:{};
-  const pipeline=`micro ${counts.MICRO_EVENT||0} · armed ${counts.MICRO_ARMED||0} · candidates ${counts.MICRO_CANDIDATE||0} · cost-qualified ${counts.COST_QUALITY_PASS||0} · sends ${counts.ORDER_SEND_ATTEMPT||0}`;
-  const liquidity=`spread limit ${num(m.liquidityTradeThresholdBps,2)} bp · stress ${num(m.liquidityStressThresholdBps,2)} bp`;
-  const dataValid=m.bookValid&&!m.stale;
-  const motionReady=m.kinematicsReady!==false;
-  const bookState=dataValid?(motionReady?"BOOK VALID":"MOTION RESET"):"DATA GATED";
-  const bookStateClass=!dataValid?"bad":!motionReady?"warn":"";
-  const freshness=!dataValid?(m.staleReason?`freshness ${m.staleReason}`:"market data unavailable"):!motionReady?"motion evidence unavailable until the next valid update":"";
-  const blocks=[pipeline,gateText,ruleDetail,liquidity,freshness,rejection].filter(Boolean).join(" · ");
-  const stateLabel=!m.slowTrendReady?"TREND WARMUP":m.entryReady?"ENTRY READY":m.candidateReady?`CANDIDATE ${m.candidateSide>0?"LONG":"SHORT"}`:`${esc(m.longPhase||"-")} / ${esc(m.shortPhase||"-")}`;
-  const slowTrend=m.slowTrendReady?`${num(m.trendFastBps,0)} / ${num(m.trendMediumBps,0)} / ${num(m.trendSlowBps,0)} bp`:"warming";
-  const pullback=m.longPullbackReady?`${num(m.longPullbackDepthBps,0)} / ${num(m.longPullbackRecoveryBps,0)} / ${num(m.longPullbackRemainingRoomBps,0)} bp`:"warming";
-  return `<article class="market-card"><div class="market-top"><div><div class="symbol">${esc(m.symbol)}</div><div class="venue">KRAKEN FUTURES · ${esc(m.regime||"WARMING")}</div></div><span class="book-state ${bookStateClass}">${bookState}</span></div><div class="market-price">${priceMoney(m.mid)}</div><div class="market-spread">${priceMoney(m.bestBid)} bid · ${priceMoney(m.bestAsk)} ask</div><div class="micro-bars">${seed.map(h=>`<i style="height:${h}px"></i>`).join("")}</div><div class="market-metrics"><div class="metric"><span>Spread</span><strong>${num(m.spreadBps,2)} bp</strong></div><div class="metric"><span>Slow trend 5/15/60m</span><strong>${slowTrend}</strong></div><div class="metric"><span>Pullback depth/recovery/room</span><strong>${pullback}</strong></div><div class="metric"><span>Provider age</span><strong>${num(m.providerAgeMs,0)} ms</strong></div></div><div class="decision-strip"><div><small>Rule state</small><b>${stateLabel}</b></div><small title="${esc(blocks)}">${esc(pipeline)} · ${esc(rejection||gateText)}</small></div></article>`;}).join("");}
+function renderMarkets(items){
+  const grid=el("market-grid");
+  if(!items.length){grid.className="market-grid empty-grid";grid.innerHTML="<p>Waiting for order books…</p>";return;}
+  grid.className="market-grid";grid.innerHTML=items.map(renderFuturesMarket).join("");
+}
+function renderFuturesMarket(m){
+  const elapsed=snapshotAgeMs(),snapshotCurrent=Number.isFinite(elapsed)&&elapsed<5000&&!state.paused;
+  const pricesKnown=Number.isFinite(m.bestBid)&&m.bestBid>0&&Number.isFinite(m.bestAsk)&&m.bestAsk>m.bestBid;
+  const sourceAge=Number.isFinite(m.providerAgeMs)&&m.providerAgeMs>=0?m.providerAgeMs:null;
+  const age=sourceAge!==null&&Number.isFinite(elapsed)?sourceAge+elapsed:null;
+  const threshold=Number.isFinite(m.staleThresholdMs)&&m.staleThresholdMs>0?m.staleThresholdMs:null;
+  const current=snapshotCurrent&&pricesKnown&&m.bookValid===true&&m.stale===false&&age!==null&&threshold!==null&&age<=threshold;
+  const label=!snapshotCurrent?"SNAPSHOT STALE":m.bookValid!==true||!pricesKnown?"BOOK UNAVAILABLE":current?"FEED CURRENT":"FEED UNCONFIRMED";
+  const detail=current?"Market data monitoring. This card provides no entry recommendation.":!snapshotCurrent?"Waiting for a new dashboard snapshot. Prices below are last recorded values.":"Fresh market data is unconfirmed. Prices below are recorded values.";
+  const midpoint=Number.isFinite(m.mid)&&m.mid>0?m.mid:pricesKnown?(m.bestBid+m.bestAsk)/2:null;
+  return `<article class="market-card futures-market-card" data-testid="futures-market-card" data-symbol="${esc(m.symbol)}"><div class="market-top"><div><div class="symbol">${esc(m.symbol)}</div><div class="venue">KRAKEN FUTURES · MARKET MONITORING</div></div><span class="book-state ${current?"":"bad"}">${label}</span></div><div class="market-price">${priceMoney(midpoint)}</div><div class="market-spread">${priceMoney(Number.isFinite(m.bestBid)&&m.bestBid>0?m.bestBid:null)} bid · ${priceMoney(Number.isFinite(m.bestAsk)&&m.bestAsk>0?m.bestAsk:null)} ask</div><div class="market-metrics"><div class="metric"><span>Recorded spread</span><strong>${Number.isFinite(m.spreadBps)&&m.spreadBps>=0?num(m.spreadBps,2):"—"} bp</strong></div><div class="metric"><span>Provider age estimate</span><strong>${age===null?"Unknown":`${num(age,0)} ms`}</strong></div><div class="metric"><span>Dashboard snapshot age</span><strong>${Number.isFinite(elapsed)?`${num(elapsed/1000,1)}s`:"Unknown"}</strong></div></div><p class="futures-market-note">${detail}</p><small class="futures-market-source">Provider age adds elapsed dashboard time to the reported age.${m.staleReason?` Recorded feed status: ${esc(m.staleReason)}.`:""}</small></article>`;
+}
+function refreshFuturesMarketPanels(){
+  if(state.snapshot)renderMarkets(filtered(state.snapshot.markets||[]));
+}
 function modelTradeResults(items,symbol,mode){
   const entries=items.filter(o=>o.symbol===symbol&&!o.reduceOnlyIntent&&o.crossAssetForecast?.version==="btc-eth-dynamic-bayes-v1"&&o.crossAssetEntryMode===mode);
   const positions=new Map();
@@ -160,69 +171,8 @@ function renderCrossAssetModel(m,nowMs=dashboardNowMs()){
   const resultPanel=`<div class="model-results" data-testid="model-results"><b>${evaluation?"Model paper evaluation":"Qualified model"} results · available history</b><div class="joint-metrics"><div><span>Entry attempts / filled</span><strong>${results.attempts} / ${results.filled}</strong></div><div><span>Closed / open / unresolved</span><strong>${results.closed} / ${results.open} / ${results.unresolved}</strong></div><div><span>Realized after fees</span><strong class="${pnlClass(results.net)}">${results.net===null?"Awaiting closed trades":signedMoney(results.net,5)}</strong></div><div><span>Closed trade fees / wins</span><strong>${results.fees===null?"—":money(results.fees,5)} / ${results.wins}</strong></div></div></div>`;
   return `<section class="cross-asset-panel ${tone}" data-testid="cross-asset-panel" data-symbol="${esc(m.symbol)}" aria-label="${esc(m.symbol)} joint model"><div class="joint-heading"><div><h3>BTC/ETH joint model</h3><small>${esc(learning.version||"Version unavailable")}</small></div><span class="joint-submission ${enabled?"enabled":"disabled"}">PAPER ORDERS ${enabled?"ENABLED":"DISABLED"}</span></div><p class="model-entry-mode">${modelOnly?"MODEL-ONLY ENTRIES · BREAKOUT/RETEST DISABLED":"MODEL + RULE ENTRIES"}<small>${evaluation?"Paper evaluation: collect outcomes even when the profitability screen fails.":"Model entries require the profitability screen to pass."}</small></p><p class="joint-entry-gate">${esc(entryGate)}</p><div class="joint-training"><div><span>Completed 15m training intervals</span><strong>${count}</strong></div>${progress}${trainingSource}<small>${num(learning.historySamples,0)} recent minute samples · ${num(learning.invalidLabelPairs,0)} discarded intervals</small></div><div class="joint-status"><b>${status}</b><p>${esc(detail)}</p></div>${metrics}<div class="joint-forecast-time">${esc(forecastTime)}</div>${reason}${resultPanel}<small class="joint-limit">Paper cap ${money(p.maximumNotional,0)} · shared 30m entry cooldown · profitability unproven</small></section>`;
 }
-function refreshCrossAssetPanels(){
-  for(const card of document.querySelectorAll('[data-testid="distribution-market-card"]')){
-    const market=state.snapshot?.markets?.find(m=>m.symbol===card.dataset.symbol);
-    if(market?.distributional)card.outerHTML=renderDistributionMarket(market);
-  }
-  for(const panel of document.querySelectorAll(".cross-asset-panel")){
-    const market=state.snapshot?.markets?.find(m=>m.symbol===panel.dataset.symbol);
-    if(market)panel.outerHTML=renderCrossAssetModel(market);
-  }
-}
 function policyFamilyName(family){return {CONTINUATION:"Trend",EARLY_BREAKOUT:"Breakout",PULLBACK_RECOVERY:"Recovery",BREAKOUT_RETEST:"Breakout retest"}[family]||String(family);}
-function renderDistributionMarket(m){
-  const c=m.distributional,s=c.statistics||{},d=c.decision,v=s.validation||{};
-  const now=dashboardNowMs();
-  const snapshotFresh=!state.paused&&snapshotAgeMs()<=5000;
-  const markets=s.markets||[],ownMarket=markets.find(item=>item.symbol===m.symbol);
-  const marketReady=ownMarket?.ready===true&&markets.every(item=>item.ready===true);
-  const dataFresh=m.bookValid&&!m.stale&&snapshotFresh;
-  const current=dataFresh&&marketReady&&d&&now>=d.atMs&&now-d.atMs<=1000;
-  const occupied=(state.snapshot?.positions||[]).some(p=>p.active);
-  const allowed=c.paperEnabled&&state.snapshot?.mode==="paper"&&state.snapshot?.paper===true;
-  const trial=s.entryMode==="PAPER_TRIAL",matchingEntryMode=(d?.entryMode||"VALIDATED")===(s.entryMode||"VALIDATED");
-  const validationDays=s.minimumValidationDays??(trial?null:s.minimumDays);
-  const reasonText=(reason)=>({READY:"Market context ready",BOOK_NOT_READY:"Waiting for a fresh book",STALE_BOOK:"Waiting for a fresh book",PEER_NOT_SYNCHRONIZED:"Waiting for synchronized BTC and ETH quotes",WARMING_30_MINUTES:"Collecting observed price history",WARMING_FLOW_30_SECONDS:"Collecting fresh live flow",MARKET_WARMUP:"Collecting market context"}[reason]||reason||"Waiting for market telemetry");
-  const priceHistoryReady=markets.length>=2&&markets.every(item=>item.coverageMs>=1800000);
-  const restored=markets.some(item=>item.restoredSampleCount>0);
-  const supportedDays=(d?.estimates||[]).map(e=>e.observedDays).filter(Number.isFinite);
-  const trainingDays=supportedDays.length?`${Math.min(...supportedDays)}–${Math.max(...supportedDays)}`:"—";
-  const supportRange=(key,digits)=>{
-    const estimates=d?.estimates||[],values=estimates.map(e=>e[key]);
-    return values.length&&values.every(value=>Number.isFinite(value)&&value>=0)?`${num(Math.min(...values),digits)}–${num(Math.max(...values),digits)}`:"—";
-  };
-  const relevantSamples=supportRange("samples",0),effectiveSamples=supportRange("effectiveSamples",1);
-  const sampleGate=d?.reason==="INSUFFICIENT_SAMPLES"||d?.reason==="INSUFFICIENT_EFFECTIVE_SAMPLES";
-  const flatExplanation=sampleGate?`The reported action needs more completed outcomes from similar market conditions. Each action requires at least ${num(s.minimumSamples,0)} relevant samples and ${num(s.minimumEffectiveSamples,0)} effective samples. See each action's support and gate below.`:"No supported action currently clears the net-return and downside-risk requirements.";
-  const status=occupied?"POSITION OPEN":!snapshotFresh?state.paused?"DASHBOARD PAUSED":"DASHBOARD STALE":!dataFresh?"WAITING FOR FRESH DATA":!marketReady?"MARKET WARMUP":!d?"WAITING FOR EVALUATION":d.actionId?current&&d.paperReady&&allowed&&matchingEntryMode?trial?"PAPER TRIAL · UNVALIDATED":"PAPER ENTRY CHECKS":trial?"TRIAL SIGNAL · UNVALIDATED":"SHADOW VALIDATION":"STAY FLAT";
-  const bookStatus=!snapshotFresh?state.paused?"DASHBOARD PAUSED":"DASHBOARD STALE":dataFresh?"BOOK VALID":"DATA GATED";
-  const explanation=occupied?"An existing position blocks another entry.":!snapshotFresh?state.paused?"Dashboard display is paused. Resume updates to see current market status.":"Dashboard updates are stale. Warmup progress shows the last observed data and does not advance until new updates arrive.":!dataFresh?"Fresh executable quotes are required before evaluation or entry.":!marketReady?priceHistoryReady?`${restored?"Recorded price history is restored.":"Price history is ready."} Waiting for fresh BTC and ETH quotes and 30 seconds of live book and trade flow.`:"Collecting BTC and ETH observed price history, order books, and trade flow.":!d?"Market context is ready. Waiting for the first evaluation on a fresh quote.":d.actionId?trial?"Paper trial permits eligible paper orders while prospective evidence is collected. Fresh-quote, liquidity, risk and portfolio checks still apply.":"The selected action must pass prospective validation, fresh-quote, liquidity, and portfolio checks.":trial?`Paper trial stays flat: ${d.reason}. ${flatExplanation}`:flatExplanation;
-  const entryMode=trial?`<p class="model-entry-mode">PAPER TRIAL · UNVALIDATED<small>${num(s.minimumDays,0)} qualifying training dates required. Prospective validation is collected alongside eligible paper orders, without being an entry prerequisite. Positive stressed net returns and execution checks remain required; no forced trades.</small></p>`:"";
-  const restoredExplanation=trial?"Restored price history speeds market warmup; trial training and execution requirements still apply.":"Restored price history speeds market warmup; training and prospective validation requirements still apply.";
-  const cadenceExplanation=trial?"Training outcomes update the model when complete. Faster checks do not force orders; trial training and execution requirements still apply.":"Training outcomes update the model when complete. Faster checks do not force orders; training, validation and execution requirements still apply.";
-  const warmup=markets.map(item=>{
-    const coverage=Number.isFinite(item.coverageMs)?Math.max(0,Math.min(1800000,item.coverageMs)):null;
-    const flow=Number.isFinite(item.flowCoverageMs)?Math.max(0,Math.min(30000,item.flowCoverageMs)):null;
-    return `<div class="joint-training" data-testid="distribution-warmup-progress" data-symbol="${esc(item.symbol)}"><div><span>${esc(item.symbol)} observed price history</span><strong>${coverage===null?"—":duration(coverage)} / 30m</strong></div>${coverage===null?"":`<progress max="1800000" value="${coverage}" aria-label="${esc(item.symbol)} observed price history">${duration(coverage)} / 30m</progress>`}<small>Fresh live flow ${flow===null?"—":duration(flow)} / 30s · ${num(item.restoredSampleCount||0,0)} recorded price samples restored</small><small>${esc(reasonText(item.reason))}</small></div>`;
-  }).join("");
-  const rows=(d?.estimates||[]).map(e=>`<tr><td>${esc(e.actionId)}</td><td>${signed(e.meanNetBps," bp")}</td><td>${signed(e.scoreBps," bp")}</td><td>Relevant ${num(e.samples,0)} / ${num(s.minimumSamples,0)}<br>Effective ${num(e.effectiveSamples,1)} / ${num(s.minimumEffectiveSamples,0)}<br>Dates ${num(e.observedDays,0)} / ${num(s.minimumDays,0)}</td><td>${esc(e.reason||"Evidence unavailable")}</td></tr>`).join("");
-  const learned=(s.learning?.byAction||[]).filter(a=>a.symbol===m.symbol);
-  const learnedRange=learned.length?`${Math.min(...learned.map(a=>a.samples))}–${Math.max(...learned.map(a=>a.samples))}`:"0";
-  const next=s.nextEvaluations?.[m.symbol],nextTraining=s.nextProposals?.[m.symbol];
-  const evaluationCadenceKnown=Number.isFinite(s.evaluationIntervalMs)&&s.evaluationIntervalMs>0;
-  const evaluationCadence=evaluationCadenceKnown?`Fresh quotes · at most once per ${duration(s.evaluationIntervalMs)} per symbol`:"Waiting for cadence telemetry";
-  const independent=s.trainingMode==="INDEPENDENT_HORIZONS",trainer=s.efficientTraining||{};
-  const trainingCadence=independent?(s.trainingIntervals||[]).map(h=>`${duration(h.horizonMs)} outcomes: every ${duration(h.intervalMs)}`).join(" · ")||"Waiting for cadence telemetry":Number.isFinite(s.trainingIntervalMs)&&s.trainingIntervalMs>0?`Every ${duration(s.trainingIntervalMs)}`:"Waiting for cadence telemetry";
-  const trainingClocks=(trainer.byAction||[]).filter(a=>a.symbol===m.symbol).map(a=>a.nextOriginAtMs).filter(Number.isFinite);
-  const nextCollection=independent?trainingClocks.length?Math.min(...trainingClocks):null:nextTraining;
-  const trainingProgress=independent?`This run: learned action outcomes ${num(trainer.learnedActions||0,0)} · excluded action outcomes ${num(trainer.invalidActions||0,0)} · pending actions ${num(s.pendingTrainingActions||0,0)}. Each action updates the model once its three execution scenarios complete.`:`This run: complete research panels ${num(s.completePanels||0,0)} · excluded panels ${num(s.invalidPanels||0,0)}.`;
-  const nextEvaluation=!snapshotFresh?"after fresh dashboard and market updates":!dataFresh?"on a fresh executable quote":!marketReady?"after market warmup":!evaluationCadenceKnown?"timing unavailable; waiting for current controller telemetry":Number.isFinite(next)&&next>now?`eligible in ${duration(Math.ceil((next-now)/1000)*1000)}, on a fresh quote`:"on the next fresh quote";
-  const nextTrainingCollection=!snapshotFresh?"after fresh dashboard and market updates":!dataFresh?"on a fresh executable quote":!marketReady?"after market warmup":Number.isFinite(nextCollection)&&nextCollection>now?`eligible in ${duration(Math.ceil((nextCollection-now)/1000)*1000)}, on a fresh quote`:"on the next fresh quote";
-  return `<article class="market-card policy-card" data-testid="distribution-market-card" data-symbol="${esc(m.symbol)}"><div class="market-top"><div><div class="symbol">${esc(m.symbol)}</div><div class="venue">KRAKEN FUTURES · DISTRIBUTIONAL ENGINE</div></div><span class="book-state ${dataFresh?"":"bad"}">${esc(bookStatus)}</span></div><div class="market-price">${priceMoney(m.mid)}</div><div class="market-spread">${priceMoney(m.bestBid)} bid · ${priceMoney(m.bestAsk)} ask</div><div class="policy-version">${esc(s.predictionModelVersion||s.version||"")}<span>${allowed?"PAPER PERMISSION ENABLED":"SHADOW ONLY"}</span></div><section class="cross-asset-panel" data-testid="distribution-model-panel"><div class="joint-heading"><h3>Executable net-return model</h3><b>${esc(status)}</b></div><p>${esc(explanation)}</p>${entryMode}${warmup}${restored?`<small>${esc(restoredExplanation)}</small>`:""}<div class="joint-metrics"><div><span>Training outcomes per action (includes restored)</span><strong>${learnedRange}</strong></div><div><span>Relevant training dates / required</span><strong>${trainingDays} / ${num(s.minimumDays,0)}</strong></div><div><span>Relevant samples / required</span><strong>${relevantSamples} / ${num(s.minimumSamples,0)}</strong></div><div><span>Effective samples / required</span><strong>${effectiveSamples} / ${num(s.minimumEffectiveSamples,0)}</strong></div><div><span>Prospective selections / required</span><strong>${num(v.selections||0,0)} / ${num(s.minimumValidationSelections,0)}</strong></div><div><span>Prospective days / required</span><strong>${num(v.observedDays||0,0)} / ${num(validationDays,0)}</strong></div><div><span>Prospective stressed lower mean</span><strong>${signed(v.lowerNetBps," bp")}</strong></div><div><span>Selected action</span><strong>${esc(d?.actionId||"FLAT")}</strong></div></div><small>Completed historical data counts toward training dates. Relevant dates depend on the current market context; prospective evidence is collected separately.</small><small>Training support is from the last evaluation. Only completed outcomes from similar market conditions count toward relevant samples, so stored totals can be larger. Effective samples account for their weights. Relevant and effective counts can change as market conditions change; a healthy feed can still have insufficient model evidence.</small>${rows?`<div class="distribution-table"><table><thead><tr><th>Action</th><th>Net mean</th><th>Risk score</th><th>Training support</th><th>Entry gate</th></tr></thead><tbody>${rows}</tbody></table></div>`:""}<p>${d?`Last evaluation ${time(d.atMs)} · ${current?"current":"reference only"} · ${esc(d.reason)}`:marketReady?"Waiting for the first evaluation on a fresh quote.":"Waiting for the first complete market context."}</p><div class="joint-metrics" data-testid="distribution-cadence"><div><span>Entry evaluation cadence</span><strong>${esc(evaluationCadence)}</strong></div><div><span>Training collection cadence</span><strong>${esc(trainingCadence)}</strong></div></div><small>Next entry evaluation ${esc(nextEvaluation)}. Next training collection ${esc(nextTrainingCollection)}.</small><small>${esc(cadenceExplanation)}</small><small>Six actions · three execution scenarios · $12 cap · one portfolio trade slot.</small><small>${esc(trainingProgress)} Shadow outcomes are hypothetical; actual fills and fees determine account P&amp;L.</small></section></article>`;
-}
 function renderPolicyMarket(m){
-  if(m.distributional)return renderDistributionMarket(m);
   const p=m.policyPulse;
   if(!p)return `<article class="market-card policy-card"><div class="symbol">${esc(m.symbol)}</div><div class="market-price">${priceMoney(m.mid)}</div><div class="policy-status"><b>WAITING FOR POLICY TELEMETRY</b><p>The policy engine is active; its per-symbol snapshot is not available yet.</p></div></article>`;
   const dataValid=m.bookValid&&!m.stale,motionReady=m.kinematicsReady!==false;
@@ -271,7 +221,7 @@ function renderLivePnl(position){
   const historyEndMs=position.closedAtMs!=null?position.closedAtMs:position.openedMs+Math.max(0,position.ageMs||0);
   const historyCoverage=duration(Math.max(0,historyEndMs-position.openedMs));
   const stateLabel=position.active?"OPEN":"CLOSED";
-  const title=position.active?"Estimated net position P&amp;L":"Realized trade P&amp;L";
+  const title=position.active?"Estimated net position P&amp;L · funding excluded":"Realized trade P&amp;L · funding excluded";
   const ageLabel=position.active?"Open":"Held";
   const context=position.latestReason||(position.active?"Position is open and monitored by the exit engine":"Position closed; retained P&amp;L samples are read-only history");
   const priceLabel=position.active?"Last mark":"Exit fill";
@@ -284,7 +234,7 @@ function renderRealizedPnlBreakdown(position){
   if(!breakdown||![breakdown.grossPricePnl,breakdown.entryFee,breakdown.exitFee,breakdown.realizedPnl].every(Number.isFinite))return "";
   const entryStyle=String(breakdown.entryStyle||"order").toLowerCase().replaceAll("_"," ");
   const exitStyle=String(breakdown.exitStyle||"order").toLowerCase().replaceAll("_"," ");
-  return `<div class="realized-pnl-breakdown" data-testid="realized-pnl-breakdown"><div class="realized-pnl-row"><span>Gross price gain</span><strong class="${pnlClass(breakdown.grossPricePnl)}">${signedMoney(breakdown.grossPricePnl,5)}</strong></div><div class="realized-pnl-row"><span>Entry ${esc(entryStyle)} fee</span><strong class="negative">${signedMoney(-Math.abs(breakdown.entryFee),5)}</strong></div><div class="realized-pnl-row"><span>Exit ${esc(exitStyle)} fee</span><strong class="negative">${signedMoney(-Math.abs(breakdown.exitFee),5)}</strong></div><div class="realized-pnl-row total"><span>Actual realized P&amp;L</span><strong class="${pnlClass(breakdown.realizedPnl)}">${signedMoney(breakdown.realizedPnl,5)}</strong></div></div>`;
+  return `<div class="realized-pnl-breakdown" data-testid="realized-pnl-breakdown"><div class="realized-pnl-row"><span>Gross price gain</span><strong class="${pnlClass(breakdown.grossPricePnl)}">${signedMoney(breakdown.grossPricePnl,5)}</strong></div><div class="realized-pnl-row"><span>Entry ${esc(entryStyle)} fee</span><strong class="negative">${signedMoney(-Math.abs(breakdown.entryFee),5)}</strong></div><div class="realized-pnl-row"><span>Exit ${esc(exitStyle)} fee</span><strong class="negative">${signedMoney(-Math.abs(breakdown.exitFee),5)}</strong></div><div class="realized-pnl-row total"><span>Price P&amp;L after fill fees</span><strong class="${pnlClass(breakdown.realizedPnl)}">${signedMoney(breakdown.realizedPnl,5)}</strong></div></div>`;
 }
 function groupOrderCards(items){
   const byId=new Map(items.map(order=>[order.clientOrderId,order]));
@@ -363,4 +313,23 @@ function renderOrders(items){
 el("symbol-filter").addEventListener("change",event=>{state.symbol=event.target.value;if(state.snapshot)render(state.snapshot);});
 document.querySelectorAll("[data-order-filter]").forEach(button=>button.addEventListener("click",()=>{document.querySelectorAll("[data-order-filter]").forEach(b=>b.classList.remove("active"));button.classList.add("active");state.orderFilter=button.dataset.orderFilter;if(state.snapshot)renderOrders(filtered(state.snapshot.orders||[]));}));
 el("pause-button").addEventListener("click",()=>{state.paused=!state.paused;el("pause-button").innerHTML=state.paused?"<span>▶</span> Resume stream":"<span>Ⅱ</span> Pause stream";setConnection("connecting",state.paused?"Paused":"Waiting for updates");if(!state.paused)void refreshDashboard();});
-bootstrap();
+const requestedDashboardView=new URLSearchParams(location.search).get("view");
+const dashboardView=["spot","eth40","futures"].includes(requestedDashboardView)?requestedDashboardView:"spot";
+document.documentElement.dataset.dashboardView=dashboardView;
+for(const [view,panel] of [["spot","spot-system"],["eth40","eth40-system"],["futures","futures-monitoring"]]){
+  el(panel).hidden=dashboardView!==view;
+  if(dashboardView===view)el(`${view}-view-link`).setAttribute("aria-current","page");
+  else el(`${view}-view-link`).removeAttribute("aria-current");
+}
+if(dashboardView==="eth40"){
+  document.title="Northstar · ETH40 Paper Observation";
+  el("mode-badge").textContent="ETH40 · PAPER";
+  setConnection("connecting","ETH40 connecting");
+  el("footer-detail").textContent="ETH40 forward paper observation · Separate funded accounts";
+}
+if(dashboardView==="futures"){
+  document.title="Northstar · Futures Monitoring";
+  el("mode-badge").textContent="FUTURES · CONNECTING";
+  el("footer-detail").textContent="BTC / ETH futures · Separate paper account";
+  bootstrap();
+}

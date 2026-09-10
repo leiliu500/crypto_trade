@@ -1,0 +1,228 @@
+{
+  "version": "spot-order-lifecycle-compiled-smoke-v1",
+  "syntheticData": true,
+  "mode": "RESEARCH_PAPER",
+  "liveTradingEnabled": false,
+  "networkUsed": false,
+  "productionAccountAccessed": false,
+  "financialPerformanceEvidence": false,
+  "startedAt": "2026-09-10T06:21:46.735Z",
+  "passed": true,
+  "checks": [
+    {
+      "name": "full: exclusive journal lock",
+      "passed": true,
+      "rejection": "SPOT_PAPER_LOCK_UNAVAILABLE:1:"
+    },
+    {
+      "name": "full: submission has no cash or fill effects",
+      "passed": true
+    },
+    {
+      "name": "full: submitted journal reload preserves request and cash",
+      "passed": true
+    },
+    {
+      "name": "full: broker produces the expected terminal order",
+      "passed": true
+    },
+    {
+      "name": "full: settled journal reload and repeat settlement do not duplicate fills",
+      "passed": true
+    },
+    {
+      "name": "full: missing submission proof rejected",
+      "passed": true,
+      "rejection": "SPOT_MISSING_SUBMISSION_EVIDENCE"
+    },
+    {
+      "name": "full: tampered submission bytes rejected",
+      "passed": true,
+      "rejection": "SPOT_CYCLE_EVIDENCE_CHANGED"
+    },
+    {
+      "name": "full: missing submission file rejected",
+      "passed": true,
+      "rejection": "ENOENT: no such file or directory, open '/tmp/spot-order-lifecycle-synthetic-PGEnCO/full/cycles/1-1605139320000-submitted.json'"
+    },
+    {
+      "name": "full: mismatched submission state rejected",
+      "passed": true,
+      "rejection": "SPOT_SUBMISSION_STATE_MISMATCH"
+    },
+    {
+      "name": "full: settlement without a submitted order rejected",
+      "passed": true,
+      "rejection": "SPOT_SETTLEMENT_WITHOUT_SUBMITTED_ORDER"
+    },
+    {
+      "name": "full: complete journal remains valid after corruption checks",
+      "passed": true
+    },
+    {
+      "name": "partial-ioc: exclusive journal lock",
+      "passed": true,
+      "rejection": "SPOT_PAPER_LOCK_UNAVAILABLE:1:"
+    },
+    {
+      "name": "partial-ioc: submission has no cash or fill effects",
+      "passed": true
+    },
+    {
+      "name": "partial-ioc: submitted journal reload preserves request and cash",
+      "passed": true
+    },
+    {
+      "name": "partial-ioc: broker produces the expected terminal order",
+      "passed": true
+    },
+    {
+      "name": "partial-ioc: settled journal reload and repeat settlement do not duplicate fills",
+      "passed": true
+    },
+    {
+      "name": "partial-ioc: missing submission proof rejected",
+      "passed": true,
+      "rejection": "SPOT_MISSING_SUBMISSION_EVIDENCE"
+    },
+    {
+      "name": "partial-ioc: tampered submission bytes rejected",
+      "passed": true,
+      "rejection": "SPOT_CYCLE_EVIDENCE_CHANGED"
+    },
+    {
+      "name": "partial-ioc: missing submission file rejected",
+      "passed": true,
+      "rejection": "ENOENT: no such file or directory, open '/tmp/spot-order-lifecycle-synthetic-PGEnCO/partial-ioc/cycles/1-1605139320000-submitted.json'"
+    },
+    {
+      "name": "partial-ioc: mismatched submission state rejected",
+      "passed": true,
+      "rejection": "SPOT_SUBMISSION_STATE_MISMATCH"
+    },
+    {
+      "name": "partial-ioc: settlement without a submitted order rejected",
+      "passed": true,
+      "rejection": "SPOT_SETTLEMENT_WITHOUT_SUBMITTED_ORDER"
+    },
+    {
+      "name": "partial-ioc: complete journal remains valid after corruption checks",
+      "passed": true
+    }
+  ],
+  "scenarios": [
+    {
+      "name": "full",
+      "stateFile": "/tmp/spot-order-lifecycle-synthetic-PGEnCO/full/state.json",
+      "orderId": "paper-spot-7494e60e2a2ee178db26ec7f3950e811",
+      "orderStatus": "FILLED",
+      "eventTypes": [
+        "SUBMITTED",
+        "ACCEPTED",
+        "FILLED"
+      ],
+      "requestedQuantity": 0.68797745,
+      "filledQuantity": 0.68797745,
+      "receiptCount": 1,
+      "cashBeforeUsd": 100000,
+      "cashAfterUsd": 99900.06934905064,
+      "quantityAfter": 0.68797745,
+      "feesUsd": 0.79310040436,
+      "submissionProof": {
+        "file": "cycles/1-1605139320000-submitted.json",
+        "sha256": "42377101a3356332e0ddbbe4ee5445511be834ef5db45861a0f614e2d474f04d"
+      },
+      "settlementProof": {
+        "file": "cycles/1-1605139320001-settled.json",
+        "sha256": "80e77968c38b23623f5f88a3f2a35b056d021614a002a4b7b559c5a76418924a"
+      },
+      "stateSha256": "9610642a7a6eae4265a00ef994a78cc121b2c08562edb5febab72c69812f70fd"
+    },
+    {
+      "name": "partial-ioc",
+      "stateFile": "/tmp/spot-order-lifecycle-synthetic-PGEnCO/partial-ioc/state.json",
+      "orderId": "paper-spot-7494e60e2a2ee178db26ec7f3950e811",
+      "orderStatus": "CANCELED",
+      "eventTypes": [
+        "SUBMITTED",
+        "ACCEPTED",
+        "PARTIAL_FILL",
+        "CANCELED"
+      ],
+      "requestedQuantity": 0.68797745,
+      "filledQuantity": 0.01,
+      "receiptCount": 1,
+      "cashBeforeUsd": 100000,
+      "cashAfterUsd": 99998.547472,
+      "quantityAfter": 0.01,
+      "feesUsd": 0.011528,
+      "submissionProof": {
+        "file": "cycles/1-1605139320000-submitted.json",
+        "sha256": "4bc08328ba1f7bda48dd789e0fa50cec8e99abc153c78bf92632d5c80902dd34"
+      },
+      "settlementProof": {
+        "file": "cycles/1-1605139320001-settled.json",
+        "sha256": "b6a63bdb60bc718819ae3d5197e8ab511f657f1b56c2a904dc410b25017d0ed9"
+      },
+      "stateSha256": "0df61a51dade2451c9f24da021bda0855994e43b80d8074b28d2f54212d35f55"
+    }
+  ],
+  "runtimeSourceSha256": "7f98cc50ef5158dc075f6a172eeb4343cbce286c5a676debe2a17335dcc229da",
+  "compiledManifestSha256": "30917f1c58b6ffa6033181fc1b9712137c3178654ade4f94d786c594cfe29f46",
+  "compiledManifest": [
+    {
+      "file": "dist/src/spot-trend/account.js",
+      "sha256": "8ed7478ae1b68d68ce19fc1f81e6ed78c2da12b367831ba662a78965eb66b530"
+    },
+    {
+      "file": "dist/src/spot-trend/data.js",
+      "sha256": "c1029826b81fdcbef8e382ca3b7f214489cf5ced984679295f5491a259a00f1e"
+    },
+    {
+      "file": "dist/src/spot-trend/evidence.js",
+      "sha256": "cdc62f4f8933646e03c7f35319bcb29a4069eb7777fb1fad5dad342bd8153ab3"
+    },
+    {
+      "file": "dist/src/spot-trend/journal.js",
+      "sha256": "d1c17d44b16e495b639a01fe6a0fd41f8b554103a8ba7caaaf24582af830a299"
+    },
+    {
+      "file": "dist/src/spot-trend/market.js",
+      "sha256": "eb3839a4b6522a7fce188f0fc836817044b1df988c299bc15db11966038eb6bb"
+    },
+    {
+      "file": "dist/src/spot-trend/migration.js",
+      "sha256": "de9c5a74e67f324d48d75c1eb28e4a3726439bea34ce66fcd293ee4c96e48b5c"
+    },
+    {
+      "file": "dist/src/spot-trend/orders.js",
+      "sha256": "1668b5880d274e5bc4eef2abc8fb0fec125cd18feba0a88d4fbe199b0ca40177"
+    },
+    {
+      "file": "dist/src/spot-trend/paper-main.js",
+      "sha256": "21eb48563d2b615ed020a9b1c46554f3332212e5d51d1a8cbf647667d8e59f9c"
+    },
+    {
+      "file": "dist/src/spot-trend/paper.js",
+      "sha256": "d25def67e69709b57e83e18a1d8811dbd8774057abdd8b90419d25895c472cf6"
+    },
+    {
+      "file": "dist/src/spot-trend/replay.js",
+      "sha256": "0aa746b83e3e3892d89f0e421eb4254e220e8565411a4217a4e16b5f4076535e"
+    },
+    {
+      "file": "dist/src/spot-trend/signal.js",
+      "sha256": "06074157dc673adb2cd9a5185fb5750c5a041c3eeda90e80431d526c0f233daf"
+    },
+    {
+      "file": "dist/src/spot-trend/spec.js",
+      "sha256": "ffa96969f3d658c74bfd1c56ee74b036fe17a6ff8914ef919d15c7ec03337b92"
+    },
+    {
+      "file": "dist/src/spot-trend/study-main.js",
+      "sha256": "53b5215b1d25376ea99385a670c69f561934c4bff98daaede1cbd72babda867f"
+    }
+  ],
+  "syntheticJournalRoot": "/tmp/spot-order-lifecycle-synthetic-PGEnCO",
+  "completedAt": "2026-09-10T06:21:47.126Z"
+}

@@ -1,0 +1,172 @@
+TAP version 13
+# Subtest: main dashboard includes the spot module and clearly separates futures capital
+ok 1 - main dashboard includes the spot module and clearly separates futures capital
+  ---
+  duration_ms: 10.297517
+  type: 'test'
+  ...
+# Subtest: spot dashboard shows current account P&L and never imports historical gains
+ok 2 - spot dashboard shows current account P&L and never imports historical gains
+  ---
+  duration_ms: 40.927922
+  type: 'test'
+  ...
+# Subtest: missing marks and metrics remain unknown instead of displaying fabricated zero profit
+ok 3 - missing marks and metrics remain unknown instead of displaying fabricated zero profit
+  ---
+  duration_ms: 2.491595
+  type: 'test'
+  ...
+# Subtest: a failed request retains the last account snapshot but removes order readiness
+ok 4 - a failed request retains the last account snapshot but removes order readiness
+  ---
+  duration_ms: 4.770079
+  type: 'test'
+  ...
+# Subtest: staleness uses server cycle time and monotonic elapsed time despite browser clock changes
+ok 5 - staleness uses server cycle time and monotonic elapsed time despite browser clock changes
+  ---
+  duration_ms: 5.790409
+  type: 'test'
+  ...
+# Subtest: startup failure, malformed status, halted and unexpected execution modes are explicit
+ok 6 - startup failure, malformed status, halted and unexpected execution modes are explicit
+  ---
+  duration_ms: 8.278535
+  type: 'test'
+  ...
+# Subtest: IOC partial fills show booked quantity, canceled remainder and escaped lifecycle details
+ok 7 - IOC partial fills show booked quantity, canceled remainder and escaped lifecycle details
+  ---
+  duration_ms: 4.866358
+  type: 'test'
+  ...
+# Subtest: rejected orders show their reason without fabricating fills or fill prices
+ok 8 - rejected orders show their reason without fabricating fills or fill prices
+  ---
+  duration_ms: 3.378241
+  type: 'test'
+  ...
+# Subtest: entry window observes Thursday UTC boundaries and never announces a guaranteed entry
+ok 9 - entry window observes Thursday UTC boundaries and never announces a guaranteed entry
+  ---
+  duration_ms: 1.904452
+  type: 'test'
+  ...
+# Subtest: entry schedule follows service metadata during the legacy-to-continuous rollout
+ok 10 - entry schedule follows service metadata during the legacy-to-continuous rollout
+  ---
+  duration_ms: 4.451676
+  type: 'test'
+  ...
+# Subtest: continuous entry cadence uses configuration and retains consumed-entry and position limits
+ok 11 - continuous entry cadence uses configuration and retains consumed-entry and position limits
+  ---
+  duration_ms: 4.422137
+  type: 'test'
+  ...
+# Subtest: unrecognized or contradictory schedule metadata does not invent continuous or weekly entry timing
+ok 12 - unrecognized or contradictory schedule metadata does not invent continuous or weekly entry timing
+  ---
+  duration_ms: 2.737566
+  type: 'test'
+  ...
+# Subtest: spot polling runs every five seconds, permits one request at a time, and times out for retry
+ok 13 - spot polling runs every five seconds, permits one request at a time, and times out for retry
+  ---
+  duration_ms: 12.003319
+  type: 'test'
+  ...
+# Subtest: missing enablement and order ledger fields are not reported as disabled or zero submissions
+ok 14 - missing enablement and order ledger fields are not reported as disabled or zero submissions
+  ---
+  duration_ms: 4.044232
+  type: 'test'
+  ...
+# Subtest: spot response reachability is independent of stale recorded evaluations and market checks
+ok 15 - spot response reachability is independent of stale recorded evaluations and market checks
+  ---
+  duration_ms: 2.90353
+  type: 'test'
+  ...
+# Subtest: liveness ages, approximate countdown and header clock tick every second without extra polling
+ok 16 - liveness ages, approximate countdown and header clock tick every second without extra polling
+  ---
+  duration_ms: 11.284608
+  type: 'test'
+  ...
+# Subtest: overdue evaluation estimate never resets on unchanged polls or claims a cycle is running
+ok 17 - overdue evaluation estimate never resets on unchanged polls or claims a cycle is running
+  ---
+  duration_ms: 10.465594
+  type: 'test'
+  ...
+# Subtest: session observations track distinct recorded evaluations and merge later settlement timestamps
+ok 18 - session observations track distinct recorded evaluations and merge later settlement timestamps
+  ---
+  duration_ms: 9.48015
+  type: 'test'
+  ...
+# Subtest: missing and future telemetry stay unknown; zero only means no successful check when explicitly recorded
+ok 19 - missing and future telemetry stay unknown; zero only means no successful check when explicitly recorded
+  ---
+  duration_ms: 5.313854
+  type: 'test'
+  ...
+# Subtest: paper broker liveness counts lifecycle states separately and never reports terminal orders as profitable trades
+ok 20 - paper broker liveness counts lifecycle states separately and never reports terminal orders as profitable trades
+  ---
+  duration_ms: 4.965295
+  type: 'test'
+  ...
+# Subtest: cached upstream timestamps cannot renew liveness, and futures view starts no spot timers
+ok 21 - cached upstream timestamps cannot renew liveness, and futures view starts no spot timers
+  ---
+  duration_ms: 7.65594
+  type: 'test'
+  ...
+# Subtest: filled order cards show evolving LONG position results while sell orders explicitly close LONG
+ok 22 - filled order cards show evolving LONG position results while sell orders explicitly close LONG
+  ---
+  duration_ms: 10.813411
+  type: 'test'
+  ...
+# Subtest: position history failures, mismatched sources and missing marks do not fabricate closure or profit
+ok 23 - position history failures, mismatched sources and missing marks do not fabricate closure or profit
+  ---
+  duration_ms: 15.353332
+  type: 'test'
+  ...
+# Subtest: older activity pages URL-encode cursors, merge by event ID, and survive current snapshot refreshes
+ok 24 - older activity pages URL-encode cursors, merge by event ID, and survive current snapshot refreshes
+  ---
+  duration_ms: 15.779311
+  type: 'test'
+  ...
+# Subtest: unfilled entry orders and loading position history are distinguished from missing history
+ok 25 - unfilled entry orders and loading position history are distinguished from missing history
+  ---
+  duration_ms: 5.851307
+  type: 'test'
+  ...
+# Subtest: pagination times out for retry and ignores results after the episode becomes unavailable
+ok 26 - pagination times out for retry and ignores results after the episode becomes unavailable
+  ---
+  duration_ms: 9.133494
+  type: 'test'
+  ...
+# Subtest: position duration and recorded mark age tick without creating records; closed duration stays fixed
+ok 27 - position duration and recorded mark age tick without creating records; closed duration stays fixed
+  ---
+  duration_ms: 4.912971
+  type: 'test'
+  ...
+1..27
+# tests 27
+# suites 0
+# pass 27
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 572.980175

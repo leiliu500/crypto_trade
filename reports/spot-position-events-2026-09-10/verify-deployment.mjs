@@ -1,0 +1,24 @@
+import assert from 'node:assert/strict';import {execFileSync} from 'node:child_process';import {readFileSync,writeFileSync} from 'node:fs';import {createHash} from 'node:crypto';
+const out='reports/spot-position-events-2026-09-10';const before=JSON.parse(readFileSync(out+'/deployment-preflight.json'));const oldSpot=JSON.parse(readFileSync(out+'/before-spot.json'));const oldFutures=JSON.parse(readFileSync(out+'/before-futures.json'));const image=JSON.parse(readFileSync(out+'/image-verification.json'));
+const run=args=>execFileSync('docker',args,{encoding:'utf8',maxBuffer:4*1024*1024}).trim();
+const containers=JSON.parse(run(['inspect','crypto-trade-engine','crypto-spot-trend-paper'])).map(x=>({name:x.Name,image:x.Image,startedAt:x.State.StartedAt,health:x.State.Health?.Status,mounts:x.Mounts.map(m=>({name:m.Name,destination:m.Destination,readWrite:m.RW}))}));
+assert.equal(containers[0].image,image.images[1].id);assert.equal(containers[1].image,before.containers[1].image);assert.equal(containers[1].startedAt,before.containers[1].startedAt);
+assert.equal(containers[0].mounts.find(m=>m.destination==='/app/spot-paper-data').readWrite,false);
+const get=async url=>{const r=await fetch(url);assert.ok(r.ok);return r.json()};
+const [spot,futures]=await Promise.all([get('http://127.0.0.1:3001/api/spot-dashboard'),get('http://127.0.0.1:3001/api/dashboard')]);
+assert.equal(spot.healthy,true);assert.equal(futures.overall,'healthy');assert.equal(spot.orderActivity.available,true,JSON.stringify(spot.orderActivity));
+assert.equal(spot.orderActivity.sourceCycle,spot.state.cycles);assert.equal(spot.orderActivity.sourceTimestampMs,spot.state.lastCycleMs);
+assert.deepEqual(spot.state.account,oldSpot.state.account);assert.deepEqual(spot.state.orders,oldSpot.state.orders);
+assert.equal(spot.strategy.version,oldSpot.strategy.version);assert.equal(spot.liveTradingEnabled,false);
+for(const key of ['strategyVersion','configurationVersion','equity','sessionStartingEquity','sessionRealizedPnl'])assert.deepEqual(futures[key],oldFutures[key],key);
+const order=spot.state.orders.find(o=>o.request.side==='buy'&&o.filledQuantity>0),activity=spot.orderActivity.orders[order.orderId];assert.equal(activity.direction,'LONG');assert.equal(activity.intent,'OPEN_LONG');assert.equal(activity.positionStatus,'OPEN');
+assert.equal(activity.remainingQuantity,spot.state.account.quantity);assert.ok(Math.abs(activity.unrealizedNetUsd-spot.state.lastDecision.mark.unrealizedNetUsd)<1e-7);
+const page=await get(`http://127.0.0.1:3001/api/spot-order-activity?${new URLSearchParams({orderId:order.orderId})}`);assert.equal(page.available,true);
+assert.ok(page.activity.events.some(e=>e.type==='FILLED'));assert.ok(page.activity.events.some(e=>e.reason==='HOLD_SPOT_NO_ADDITIONS'));
+const ids=page.activity.events.map(e=>e.id);assert.equal(new Set(ids).size,ids.length);
+const fillCycle=Number(order.request.clientOrderId.split(':').at(-2));const evaluations=page.activity.events.filter(e=>e.type==='STRATEGY_EVALUATION').map(e=>e.cycle).sort((a,b)=>a-b);
+assert.deepEqual(evaluations,Array.from({length:spot.state.cycles-fillCycle},(_,i)=>fillCycle+i+1),'Each recorded holding evaluation appears on the position timeline');
+const manifest=[];for(const file of ['app.js','spot.js','styles.css']){const r=await fetch(`http://127.0.0.1:3001/${file}`);assert.ok(r.ok);const raw=Buffer.from(await r.arrayBuffer());assert.deepEqual(raw,readFileSync('src/dashboard/public/'+file));manifest.push({file,sha256:createHash('sha256').update(raw).digest('hex')})}
+const result={passed:true,containers,spotRuntimeAndContainerUnchanged:true,spotAccountAndOrderUnchanged:true,futuresAccountAndStrategyPreserved:true,readOnlyJournalMount:true,manifest,activity,allHoldingCycles:evaluations,sourceCycle:spot.state.cycles};
+writeFileSync(out+'/after-spot.json',JSON.stringify(spot,null,2)+'\n');writeFileSync(out+'/deployment-verification.json',JSON.stringify(result,null,2)+'\n');
+console.log(JSON.stringify({passed:true,sourceCycle:spot.state.cycles,direction:activity.direction,position:activity.positionStatus,events:activity.totalEvents,holdingCycles:evaluations,containers},null,2));

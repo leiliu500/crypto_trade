@@ -1,0 +1,190 @@
+TAP version 13
+# Subtest: dashboard keeps exact trailing loss separate from session P&L and never substitutes unknown history
+ok 1 - dashboard keeps exact trailing loss separate from session P&L and never substitutes unknown history
+  ---
+  duration_ms: 7.23475
+  type: 'test'
+  ...
+# Subtest: operations monitor retains an order's full P&L history after the position closes
+ok 2 - operations monitor retains an order's full P&L history after the position closes
+  ---
+  duration_ms: 4.788878
+  type: 'test'
+  ...
+# Subtest: operations monitor emits one authoritative closed-position telemetry record
+ok 3 - operations monitor emits one authoritative closed-position telemetry record
+  ---
+  duration_ms: 2.812393
+  type: 'test'
+  ...
+# Subtest: operations monitor bounds default P&L history retained in memory
+ok 4 - operations monitor bounds default P&L history retained in memory
+  ---
+  duration_ms: 9382.225872
+  type: 'test'
+  ...
+# Subtest: dashboard broadcast skips serialization when there are no websocket clients
+ok 5 - dashboard broadcast skips serialization when there are no websocket clients
+  ---
+  duration_ms: 0.826733
+  type: 'test'
+  ...
+# Subtest: ordinary database telemetry is sampled and unchanged orders are deduplicated
+ok 6 - ordinary database telemetry is sampled and unchanged orders are deduplicated
+  ---
+  duration_ms: 2.37383
+  type: 'test'
+  ...
+# Subtest: durable health payload excludes high-cardinality dashboard collections
+ok 7 - durable health payload excludes high-cardinality dashboard collections
+  ---
+  duration_ms: 1.83905
+  type: 'test'
+  ...
+# Subtest: dashboard resets total session P&L at UTC rollover and carries live equity forward
+ok 8 - dashboard resets total session P&L at UTC rollover and carries live equity forward
+  ---
+  duration_ms: 2.186351
+  type: 'test'
+  ...
+# Subtest: dashboard does not subtract the prior Kraken UTC session after the broker resets its counter
+ok 9 - dashboard does not subtract the prior Kraken UTC session after the broker resets its counter
+  ---
+  duration_ms: 1.747633
+  type: 'test'
+  ...
+# Subtest: dashboard waits for account reconciliation before locking the UTC opening equity
+ok 10 - dashboard waits for account reconciliation before locking the UTC opening equity
+  ---
+  duration_ms: 1.549625
+  type: 'test'
+  ...
+# Subtest: filled reduce-only exit cards inherit complete history and actual realized P&L
+ok 11 - filled reduce-only exit cards inherit complete history and actual realized P&L
+  ---
+  duration_ms: 2.718848
+  type: 'test'
+  ...
+# Subtest: closed-trade P&L uses exact asymmetric fees from each execution leg
+ok 12 - closed-trade P&L uses exact asymmetric fees from each execution leg
+  ---
+  duration_ms: 1.446579
+  type: 'test'
+  ...
+# Subtest: partial exits allocate entry fees once and aggregate as one realized trade
+ok 13 - partial exits allocate entry fees once and aggregate as one realized trade
+  ---
+  duration_ms: 2.004787
+  type: 'test'
+  ...
+# Subtest: dashboard distinguishes a motion reset from invalid market data
+ok 14 - dashboard distinguishes a motion reset from invalid market data
+  ---
+  duration_ms: 15.343193
+  type: 'test'
+  ...
+# Subtest: market projection carries authoritative policy pulse instead of legacy readiness
+ok 15 - market projection carries authoritative policy pulse instead of legacy readiness
+  ---
+  duration_ms: 2.88689
+  type: 'test'
+  ...
+# Subtest: Market Pulse renders new policy signals, evidence and clocks without the legacy ready fallback
+ok 16 - Market Pulse renders new policy signals, evidence and clocks without the legacy ready fallback
+  ---
+  duration_ms: 67.960162
+  type: 'test'
+  ...
+# Subtest: joint model display separates submission permission, training, forecast freshness and entry gates
+ok 17 - joint model display separates submission permission, training, forecast freshness and entry gates
+  ---
+  duration_ms: 46.787112
+  type: 'test'
+  ...
+# Subtest: dashboard formats the realized P&L reconciliation at five-decimal USD precision
+ok 18 - dashboard formats the realized P&L reconciliation at five-decimal USD precision
+  ---
+  duration_ms: 6.6493
+  type: 'test'
+  ...
+# Subtest: dashboard fills a complete twenty-minute P&L history with one-minute checkpoints
+ok 19 - dashboard fills a complete twenty-minute P&L history with one-minute checkpoints
+  ---
+  duration_ms: 5.781331
+  type: 'test'
+  ...
+# Subtest: dashboard uses adaptive price precision for micro-priced assets
+ok 20 - dashboard uses adaptive price precision for micro-priced assets
+  ---
+  duration_ms: 4.092029
+  type: 'test'
+  ...
+# Subtest: dashboard assets provide a phone-safe layout
+ok 21 - dashboard assets provide a phone-safe layout
+  ---
+  duration_ms: 1.893334
+  type: 'test'
+  ...
+# Subtest: dashboard groups one trade into one card while keeping standalone order filters strict
+ok 22 - dashboard groups one trade into one card while keeping standalone order filters strict
+  ---
+  duration_ms: 4.295301
+  type: 'test'
+  ...
+# Subtest: operations monitor exposes structured cancellation reasons in order cards and timelines
+ok 23 - operations monitor exposes structured cancellation reasons in order cards and timelines
+  ---
+  duration_ms: 1.041617
+  type: 'test'
+  ...
+# Subtest: order cards stay in reverse creation-time order when an older order updates later
+ok 24 - order cards stay in reverse creation-time order when an older order updates later
+  ---
+  duration_ms: 0.875624
+  type: 'test'
+  ...
+# Subtest: dashboard only exposes orders and events from the current UTC session
+ok 25 - dashboard only exposes orders and events from the current UTC session
+  ---
+  duration_ms: 1.631556
+  type: 'test'
+  ...
+# Subtest: hydrated database orders retain their full card details after an engine reboot
+ok 26 - hydrated database orders retain their full card details after an engine reboot
+  ---
+  duration_ms: 2.188711
+  type: 'test'
+  ...
+# Subtest: dashboard server serves the read-only API, health probe, and browser routes
+ok 27 - dashboard server serves the read-only API, health probe, and browser routes
+  ---
+  duration_ms: 100.48198
+  type: 'test'
+  ...
+# Subtest: PostgreSQL migration defines the complete operational record set
+ok 28 - PostgreSQL migration defines the complete operational record set
+  ---
+  duration_ms: 9.131111
+  type: 'test'
+  ...
+# Subtest: model results count each actual entry once and separate evaluation, qualified, and legacy trades
+ok 29 - model results count each actual entry once and separate evaluation, qualified, and legacy trades
+  ---
+  duration_ms: 7.42713
+  type: 'test'
+  ...
+# Subtest: monitor retains the exact model forecast and evaluation mode in persisted order cards
+ok 30 - monitor retains the exact model forecast and evaluation mode in persisted order cards
+  ---
+  duration_ms: 1.269744
+  type: 'test'
+  ...
+1..30
+# tests 30
+# suites 0
+# pass 30
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 9763.15136

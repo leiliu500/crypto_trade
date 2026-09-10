@@ -1,0 +1,22 @@
+{
+  "passed": true,
+  "scope": "SPOT_DASHBOARD_LIVENESS",
+  "image": "sha256:c9eb00619c56e06b0e68c8e9b11c676c622b88a0dd69089ca459b8d20dca274f",
+  "testsPassed": 48,
+  "typecheckPassed": true,
+  "deploymentChecks": 13,
+  "browserPassed": true,
+  "viewports": [
+    "desktop",
+    "mobile"
+  ],
+  "observedEvaluationCounts": [
+    125,
+    125
+  ],
+  "displayRefreshMs": 1000,
+  "apiPollMs": 5000,
+  "strategyChanged": false,
+  "spotContainerRestarted": false,
+  "accountBalancesPreserved": true
+}

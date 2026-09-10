@@ -1,0 +1,25 @@
+{
+  "baseline": {
+    "startedAt": "2026-09-09T21:15:08.941806Z",
+    "endedAt": "2026-09-09T21:53:20.779237+00:00",
+    "seconds": 2291.837430715561,
+    "records": 600828,
+    "recordsPerSecond": 262.15995600194407,
+    "sourceCodeSha256": "8205a086e9d0df51f8345d12d75449fb59dc321e6cbb39ebceb39822d1833244"
+  },
+  "optimized": {
+    "startedAt": "2026-09-09T21:29:40.098538+00:00",
+    "endedAt": "2026-09-09T21:35:13.241083+00:00",
+    "seconds": 333.14254546165466,
+    "records": 600828,
+    "recordsPerSecond": 1803.516267090408,
+    "sourceCodeSha256": "ea201bae84aaa6e02a4b992a629b0593d3f5ce4089297ccab9e6719ec15fa51a"
+  },
+  "speedup": 6.879449838925949,
+  "cpuLimitEach": 1,
+  "memoryBytesEach": 2147483648,
+  "continuousFullRunCpuLimit": 1.5,
+  "throughputIsHardwareLoadDependent": true,
+  "sameRealArchive": true,
+  "allLabelsOriginsAndReportCountsIdentical": true
+}

@@ -1,0 +1,146 @@
+{
+  "system": "BTC spot weekly trend",
+  "mode": "RESEARCH_PAPER",
+  "liveTradingEnabled": false,
+  "orderSubmissionEnabled": true,
+  "orderExecutionMode": "LOCAL_SPOT_PAPER_BROKER",
+  "provenProfitable": false,
+  "strategy": {
+    "version": "btc-spot-weekly-research-paper-runner-v3",
+    "mode": "RESEARCH_PAPER",
+    "cycleIntervalMs": 300000,
+    "maximumBookAgeMs": 5000,
+    "entrySchedule": "CONTINUOUS_EACH_CYCLE",
+    "entryWindowMs": null,
+    "signalCutoff": "CURRENT_NATIVE_WEEK_OPEN;ONLY_ALREADY_FINALIZED_PREVIOUS_SIGNALS;MATCHES_HISTORICAL_BASE_WEEK_DELAY",
+    "entries": "EVALUATE_EVERY_CYCLE_THROUGHOUT_WEEK;FIRST_PARTIAL_FILL_CONSUMES_WEEKLY_ENTRY_NO_ADDITIONS",
+    "timingValidation": "REVISED_TIMING_UNDER_PROSPECTIVE_PAPER_EVALUATION;HISTORICAL_RESULTS_ARE_PARENT_STRATEGY_ONLY",
+    "exits": "CURRENT_DELAYED_WEEKLY_CASH_STATE_OR_MISSING_HISTORY_OR_PERSISTENT_ACCOUNT_DRAWDOWN_HALT;RETRY_PARTIAL_EXITS_WITH_FRESH_BOOKS",
+    "execution": "DURABLE_SUBMITTED_PAPER_IOC_THEN_BROKER_ACCEPTANCE_FILL_OR_CANCEL;10_BPS_COLLAR;5_PERCENT_ELIGIBLE_DEPTH;NO_LIVE_EXCHANGE_ORDERS",
+    "interpretation": "FORWARD_RESEARCH_PAPER_ONLY;L2_SIMULATED_FILLS_ARE_NOT_OBSERVED_VENUE_FILLS;LIVE_TRADING_DISABLED"
+  },
+  "healthy": true,
+  "lastError": null,
+  "lastSuccessMs": 1789059332724,
+  "evidence": {
+    "baseNetUsd": 1175.5967730305565,
+    "stressNetUsd": 1228.512191738846,
+    "baseEpisodes": 11,
+    "stressEpisodes": 11,
+    "lowerMeanWeeklyNetUsd": -0.4781742076421477,
+    "provenProfitable": false,
+    "scope": "PARENT_WEEKLY_STRATEGY",
+    "revisedTimingValidated": false,
+    "revisedTimingStatus": "PROSPECTIVE_PAPER_EVALUATION"
+  },
+  "state": {
+    "version": "btc-spot-weekly-research-paper-runner-v3",
+    "mode": "RESEARCH_PAPER",
+    "startedAtMs": 1789019349083,
+    "lastCycleMs": 1789059332724,
+    "cycles": 136,
+    "account": {
+      "initialCashUsd": 100000,
+      "cashUsd": 99900.09999846495,
+      "quantity": 0.00128587,
+      "entryCostUsd": 99.90000153503999,
+      "realizedNetUsd": 0,
+      "feesUsd": 0.79285715504,
+      "receipts": [
+        {
+          "id": "btc-spot-weekly-research-paper-runner-v3:1789019349083:136:buy",
+          "side": "buy",
+          "quantity": 0.00128587,
+          "price": 77074,
+          "feeBps": 80,
+          "timestampMs": 1789059332724
+        }
+      ]
+    },
+    "peakEquityUsd": 100000,
+    "halted": false,
+    "lastSignal": {
+      "version": "btc-spot-funded-weekly-trend-v1",
+      "availableAtMs": 1788393660000,
+      "lastWeekEndMs": 1788393600000,
+      "close": 77305.1,
+      "state": "long",
+      "reason": "TREND_ENTER",
+      "movingAverage": 74385.5475
+    },
+    "lastDecision": {
+      "timestampMs": 1789059332724,
+      "action": "buy",
+      "reason": "WEEKLY_TREND_ENTER",
+      "fill": {
+        "id": "btc-spot-weekly-research-paper-runner-v3:1789019349083:136:buy",
+        "side": "buy",
+        "quantity": 0.00128587,
+        "price": 77074,
+        "feeBps": 80,
+        "timestampMs": 1789059332724
+      },
+      "orderId": "paper-spot-4dd38b8829b96a6dff78b6bdd6bdee31",
+      "signal": {
+        "version": "btc-spot-funded-weekly-trend-v1",
+        "availableAtMs": 1788393660000,
+        "lastWeekEndMs": 1788393600000,
+        "close": 77305.1,
+        "state": "long",
+        "reason": "TREND_ENTER",
+        "movingAverage": 74385.5475
+      },
+      "mark": {
+        "equityUsd": 99999.20701425795,
+        "liquidationEquityUsd": 99998.4141581316,
+        "unrealizedNetUsd": -1.5858418683840085,
+        "netPnlUsd": -1.5858418683928903
+      }
+    },
+    "evidenceSha256": "3eed46dd2a5f17dc48e87e190243971754b1c7b0394ebcadb4eb289d30ebb509",
+    "orders": [
+      {
+        "request": {
+          "clientOrderId": "btc-spot-weekly-research-paper-runner-v3:1789019349083:136:buy",
+          "symbol": "BTC/USD",
+          "side": "buy",
+          "quantity": 0.00128587,
+          "limitPrice": 77151,
+          "timeInForce": "ioc",
+          "reduceOnly": false,
+          "createdAtMs": 1789059332678,
+          "feeBps": 80
+        },
+        "orderId": "paper-spot-4dd38b8829b96a6dff78b6bdd6bdee31",
+        "status": "FILLED",
+        "filledQuantity": 0.00128587,
+        "averageFillPrice": 77074,
+        "feeUsd": 0.79285715504,
+        "rejectionReason": null,
+        "cancellationReason": null,
+        "events": [
+          {
+            "type": "SUBMITTED",
+            "timestampMs": 1789059332678
+          },
+          {
+            "type": "ACCEPTED",
+            "timestampMs": 1789059332724
+          },
+          {
+            "type": "FILLED",
+            "timestampMs": 1789059332724
+          }
+        ],
+        "fill": {
+          "id": "btc-spot-weekly-research-paper-runner-v3:1789019349083:136:buy",
+          "side": "buy",
+          "quantity": 0.00128587,
+          "price": 77074,
+          "feeBps": 80,
+          "timestampMs": 1789059332724
+        }
+      }
+    ]
+  }
+}

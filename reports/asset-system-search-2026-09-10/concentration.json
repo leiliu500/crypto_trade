@@ -1,0 +1,34 @@
+{
+  "btc_rank_sen_trend_v1": {
+    "continuousNetUsd": -65.52611603941114,
+    "largestEpisodeNetUsd": 93.76158482980009,
+    "netExcludingLargestEpisodeUsd": -159.28770086921122,
+    "naturalEpisodes": 3,
+    "forcedTerminalEpisodes": 1,
+    "interpretation": "Post-result concentration diagnostic; not a new selection or retuned strategy."
+  },
+  "eth_drawdown_recovery_v1": {
+    "continuousNetUsd": 364.6854409788357,
+    "largestEpisodeNetUsd": 563.1693782769601,
+    "netExcludingLargestEpisodeUsd": -198.48393729812437,
+    "naturalEpisodes": 11,
+    "forcedTerminalEpisodes": 0,
+    "interpretation": "Post-result concentration diagnostic; not a new selection or retuned strategy."
+  },
+  "btc_weekly_signal_control": {
+    "continuousNetUsd": -96.34334523923098,
+    "largestEpisodeNetUsd": -38.57681717775017,
+    "netExcludingLargestEpisodeUsd": -57.76652806148081,
+    "naturalEpisodes": 1,
+    "forcedTerminalEpisodes": 1,
+    "interpretation": "Post-result concentration diagnostic; not a new selection or retuned strategy."
+  },
+  "eth40_control": {
+    "continuousNetUsd": 841.395078962978,
+    "largestEpisodeNetUsd": 557.6282567635772,
+    "netExcludingLargestEpisodeUsd": 283.76682219940085,
+    "naturalEpisodes": 9,
+    "forcedTerminalEpisodes": 1,
+    "interpretation": "Post-result concentration diagnostic; not a new selection or retuned strategy."
+  }
+}

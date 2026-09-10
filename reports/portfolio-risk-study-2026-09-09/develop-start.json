@@ -1,0 +1,32 @@
+{
+  "stage": "develop",
+  "startedAtUtc": "2026-09-09T02:34:08.199Z",
+  "protocolSha256": "41aa24e5bc8059b99e7cbbbba6cc5cfe3bdde712d93d648dd65fb71291866613",
+  "sourceHashes": {
+    "src/portfolio/types.ts": "932cedcff32633cd3317106ba185d34e879a94fd426b36b196ff45a2c584a3da",
+    "src/portfolio/signals.ts": "66907f0868be89af33445d7041454ff960d018eb469af886b43224624f1f6293",
+    "src/portfolio/kernel.ts": "3c78b6202330409b9bd84bfb6d9938fd383162069a70c29eaee4f3115decf756",
+    "src/portfolio/replay.ts": "f2427846d07113ca44fcb58152ba4476009b0e55f5a44bf142cd07504eef6120",
+    "src/portfolio/protocol.ts": "f585d18b3a423a4bd6ca4380a355f5e7006dbec3649fd6ad43a7fea9125f951c",
+    "src/portfolio/study-main.ts": "4aa4260d397c091445464fcc5609f8f6264fe1027ef4bf76ba88ff7d590a7d4e",
+    "src/portfolio/shadow.ts": "b14fc376b6678424187232745d5b92dc867aac48f46af04b24046ce0a776e827",
+    "src/portfolio/live-main.ts": "365730955686861db5946bdca7680ffc7ae1615c8e577591e60182265467e155",
+    "src/research/hourly-data.ts": "0786552d6f700f8ad906a6f6db80b423560eef6f79dbb7403250ce1eeb260a91",
+    "src/research/hourly-study-statistics.ts": "0a9b6437903c26845958748d18f4b43f3ad35749f616da924cd61252442c7a36",
+    "src/core/order-book.ts": "030a9979f2f6a1f4d736e4b927202ffeb446fb1a5a25a18f0a427dc61624db63",
+    "src/core/market.ts": "8bbdd7973b1ba9ee15f30177273cc9b16df4c3c00bbad9547b25bfa20e512837",
+    "src/kraken/market-stream.ts": "42b3005e966c09c0b1fe12012569ac27062a16436a05c373fac28ad514df7d89",
+    "src/kraken/paper-broker.ts": "9c6f240965a31cb7121e11e757856a11ad967a727e2415390b31ff66d7199857",
+    "src/execution/planner.ts": "5954f3b7796fd7ba907e251de7f933e52680b8ab9abb69ba332ab961e87f3604",
+    "src/venue/client.ts": "14c9a6fad0580f43d21926983558f097e0255b33e5b56a2b297517bf2884be2e",
+    "package-lock.json": "2315bada829d31ccb4d3970392ba56d73458d3219dda1ec98d8dda0d41893594",
+    "reports/distribution-instrument-rules-2026-09-07.json": "a89ee77c1a871c63266cde004776e7484ccdc81d544b7d32a81f56cb07d89cdf",
+    "src/portfolio-v2/risk.ts": "3572b4138796ba6aff057e65a3618d672b4d8eb3e21040a2733a01a38b60d0f0",
+    "src/portfolio-v2/kernel.ts": "9ddb8eb82819faa8e2d8e6cb572d6368f8b2229f78118e701d1a4157e96beaf3",
+    "src/portfolio-v2/replay.ts": "311e7648296a5575d71344312d6ddb8fff4f399de9f5583f70901298bc0da63d",
+    "src/portfolio-v2/protocol.ts": "5537afcf9703509db1ac9afa4c4506eee412da6aaa83637c64ac26dbd0c5fac9",
+    "src/portfolio-v2/study-main.ts": "3bdbbe70a5d06c8d981158617a1ba289766ebc2cfb1653deb66468e4c599f4dd"
+  },
+  "frozenPolicy": null,
+  "selectionSha256": null
+}

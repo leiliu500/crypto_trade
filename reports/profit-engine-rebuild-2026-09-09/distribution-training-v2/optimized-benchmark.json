@@ -1,0 +1,70 @@
+{
+  "sourceCodeSha256": "ea201bae84aaa6e02a4b992a629b0593d3f5ce4089297ccab9e6719ec15fa51a",
+  "artifactBytes": 2236409,
+  "artifactSha256": "15903dd1f7d8989c3d52151cdb559d89ddc5252002d3971ff9b05313256b3678",
+  "samples": 236,
+  "origins": 115,
+  "meanOriginBytes": 17060.321739130435,
+  "maxOriginBytes": 17153,
+  "meanSampleBytes": 1073.177966101695,
+  "labelsPerOrigin": 2.0521739130434784,
+  "projectedFullBytesAtObservedSharing": 115340947.52542372,
+  "conservativeBytesAtOneOriginPerLabel": 223963274.84745765,
+  "importLimit": 67108864,
+  "originsJsonBytes": 1962053,
+  "originsGzipBytes": 333268,
+  "originsGzipBase64Bytes": 444360,
+  "originDepthCounts": [
+    400
+  ],
+  "retainedDays": [
+    "2026-09-05"
+  ],
+  "decisionReasons": {
+    "NO_COMPLETED_SAMPLES": 493,
+    "INSUFFICIENT_DAYS": 27412,
+    "OUT_OF_SUPPORT": 313
+  },
+  "rawCompleteActions": 236,
+  "rawExcludedActions": 60,
+  "quality": {
+    "events": 600802,
+    "books": 585209,
+    "trades": 15588,
+    "acceptedBooks": 585209,
+    "duplicates": 0,
+    "invalidBooks": 0,
+    "timestampReversals": 0,
+    "crossStreamReceiveRegressions": 70924,
+    "invalidTimestamps": 0,
+    "disconnects": 5,
+    "recorderGaps": 0,
+    "recorderDroppedEvents": 0,
+    "firstMs": 1788565864233,
+    "lastMs": 1788584396364,
+    "maximumEventGapMs": 1544,
+    "invalidBookReasons": {},
+    "symbols": {
+      "ETH/USD": {
+        "acceptedBooks": 232673,
+        "resets": 232673,
+        "staleBooks": 0,
+        "quoteGaps": 0,
+        "maximumQuoteGapMs": 2745,
+        "firstMs": 1788565864233,
+        "lastMs": 1788584396330
+      },
+      "BTC/USD": {
+        "acceptedBooks": 352536,
+        "resets": 352536,
+        "staleBooks": 0,
+        "quoteGaps": 0,
+        "maximumQuoteGapMs": 2830,
+        "firstMs": 1788565864527,
+        "lastMs": 1788584396341
+      }
+    }
+  },
+  "endedAt": "2026-09-09T21:35:13.241Z",
+  "elapsedSeconds": 333.1430832519531
+}

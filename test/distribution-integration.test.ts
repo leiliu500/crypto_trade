@@ -14,7 +14,7 @@ import { DISTRIBUTION_SPEC as S, DISTRIBUTION_ACTIONS, type DistributionDecision
 import { policyReserveBps } from "../src/research/policy-planner.js";
 import { policyQuantity, POLICY_VERSION } from "../src/research/trading-policy.js";
 
-const cfg = loadConfig({ TRADING_MODE: "paper", CONFIG_DIR: "config", DISTRIBUTIONAL_ENGINE_ENABLED: "true",
+const cfg = loadConfig({ DISTRIBUTIONAL_SIZING_MODE: "LEGACY_FIXED", TRADING_MODE: "paper", CONFIG_DIR: "config", DISTRIBUTIONAL_ENGINE_ENABLED: "true",
   DISTRIBUTIONAL_PAPER_ENTRIES_ENABLED: "true", CONTINUOUS_RECORDING_ENABLED: "false" });
 const asset = (symbol = "BTC/USD"): AssetRules => ({ symbol, minOrderSize: .001, minTradeIncrement: .001,
   priceIncrement: .001, maximumOrderQty: 100, shortable: true });

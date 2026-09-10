@@ -1,0 +1,26 @@
+{
+  "passed": true,
+  "assets": [
+    {
+      "asset": "index.html",
+      "sha256": "7b2054d9e87ec48e59ea0d7d96d88f58ace0ec58f62149a05b7b5c0ec623c38f",
+      "matchesSource": true
+    },
+    {
+      "asset": "app.js",
+      "sha256": "3c443db4f8f688a3b2dcef5bc09534e46334ad372534a83e29dcb35cba1424d0",
+      "matchesSource": true
+    },
+    {
+      "asset": "spot.js",
+      "sha256": "01befa1e4199606cef203268f650535be485ad3d39c85d428d5731a52e70c42d",
+      "matchesSource": true
+    },
+    {
+      "asset": "styles.css",
+      "sha256": "1de7e1638fd7e4e125a789f0e362c99ea1aac15172a6f6518384ab85e29b78b8",
+      "matchesSource": true
+    }
+  ],
+  "futuresNavigationServed": true
+}

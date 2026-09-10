@@ -1,0 +1,436 @@
+TAP version 13
+# Subtest: spot ledger preserves cash identity through a profitable complete round trip
+ok 1 - spot ledger preserves cash identity through a profitable complete round trip
+  ---
+  duration_ms: 2.002451
+  type: 'test'
+  ...
+# Subtest: spot weighted entry cost includes fees and allocates them on partial exits
+ok 2 - spot weighted entry cost includes fees and allocates them on partial exits
+  ---
+  duration_ms: 0.448394
+  type: 'test'
+  ...
+# Subtest: spot marks count entry and hypothetical exit fees exactly once
+ok 3 - spot marks count entry and hypothetical exit fees exactly once
+  ---
+  duration_ms: 0.217147
+  type: 'test'
+  ...
+# Subtest: exact duplicate fills remain idempotent even after a newer fill
+ok 4 - exact duplicate fills remain idempotent even after a newer fill
+  ---
+  duration_ms: 0.765967
+  type: 'test'
+  ...
+# Subtest: spot ledger rejects overspending, overselling, and reversed new receipts without mutation
+ok 5 - spot ledger rejects overspending, overselling, and reversed new receipts without mutation
+  ---
+  duration_ms: 0.586914
+  type: 'test'
+  ...
+# Subtest: spot ledger rejects invalid quantities, prices, fees, clocks, and overflow
+ok 6 - spot ledger rejects invalid quantities, prices, fees, clocks, and overflow
+  ---
+  duration_ms: 0.762298
+  type: 'test'
+  ...
+# Subtest: spot ledger fails closed when floating precision would grant inventory without a cash debit
+ok 7 - spot ledger fails closed when floating precision would grant inventory without a cash debit
+  ---
+  duration_ms: 0.928601
+  type: 'test'
+  ...
+# Subtest: restored spot accounts reconcile their receipts and cannot manufacture cash from rounded aggregates
+ok 8 - restored spot accounts reconcile their receipts and cannot manufacture cash from rounded aggregates
+  ---
+  duration_ms: 1.300063
+  type: 'test'
+  ...
+# Subtest: L2 purchases round down to lots and respect the all-in budget including fees
+ok 9 - L2 purchases round down to lots and respect the all-in budget including fees
+  ---
+  duration_ms: 0.47726
+  type: 'test'
+  ...
+# Subtest: L2 cash caps a larger requested budget and omitted budgets use available cash
+ok 10 - L2 cash caps a larger requested budget and omitted budgets use available cash
+  ---
+  duration_ms: 0.610167
+  type: 'test'
+  ...
+# Subtest: L2 walks actual depth and caps fills at five percent of depth inside ten basis points
+ok 11 - L2 walks actual depth and caps fills at five percent of depth inside ten basis points
+  ---
+  duration_ms: 0.396327
+  type: 'test'
+  ...
+# Subtest: L2 sale book walks toward lower bids and cannot exceed actual inventory
+ok 12 - L2 sale book walks toward lower bids and cannot exceed actual inventory
+  ---
+  duration_ms: 0.32502
+  type: 'test'
+  ...
+# Subtest: L2 quantity bounds permit partial inventory reductions without flattening
+ok 13 - L2 quantity bounds permit partial inventory reductions without flattening
+  ---
+  duration_ms: 0.26419
+  type: 'test'
+  ...
+# Subtest: L2 rejects insufficient liquidity, lot quantity, and gross minimum notional
+ok 14 - L2 rejects insufficient liquidity, lot quantity, and gross minimum notional
+  ---
+  duration_ms: 0.308166
+  type: 'test'
+  ...
+# Subtest: L2 rejects stale and future data; exactly five seconds is allowed
+ok 15 - L2 rejects stale and future data; exactly five seconds is allowed
+  ---
+  duration_ms: 0.218581
+  type: 'test'
+  ...
+# Subtest: L2 validates both sides, ordering, tick alignment, and positive real depth
+ok 16 - L2 validates both sides, ordering, tick alignment, and positive real depth
+  ---
+  duration_ms: 0.255962
+  type: 'test'
+  ...
+# Subtest: L2 planner rejects malformed rules, reused IDs, and account time reversal
+ok 17 - L2 planner rejects malformed rules, reused IDs, and account time reversal
+  ---
+  duration_ms: 0.364803
+  type: 'test'
+  ...
+# Subtest: L2 discrete search never rounds purchases above cash over varied fractional budgets
+ok 18 - L2 discrete search never rounds purchases above cash over varied fractional budgets
+  ---
+  duration_ms: 11.122194
+  type: 'test'
+  ...
+# Subtest: native spot weekly bars preserve pre-2017 warmup and causal availability
+ok 19 - native spot weekly bars preserve pre-2017 warmup and causal availability
+  ---
+  duration_ms: 2.404807
+  type: 'test'
+  ...
+# Subtest: incomplete and future prices are excluded before their fields are read
+ok 20 - incomplete and future prices are excluded before their fields are read
+  ---
+  duration_ms: 0.359128
+  type: 'test'
+  ...
+# Subtest: missing weeks, reversed or duplicate times, and nonnative boundaries fail closed
+ok 21 - missing weeks, reversed or duplicate times, and nonnative boundaries fail closed
+  ---
+  duration_ms: 0.981895
+  type: 'test'
+  ...
+# Subtest: malformed OHLCVT, wrong pairs, oversized row counts and API errors are rejected
+ok 22 - malformed OHLCVT, wrong pairs, oversized row counts and API errors are rejected
+  ---
+  duration_ms: 0.986859
+  type: 'test'
+  ...
+# Subtest: acquisition preserves full raw bytes, seals complete bars, and reconstructs from source
+ok 23 - acquisition preserves full raw bytes, seals complete bars, and reconstructs from source
+  ---
+  duration_ms: 41.632499
+  type: 'test'
+  ...
+# Subtest: cached prices cannot be forged by changing the dataset hash alone
+ok 24 - cached prices cannot be forged by changing the dataset hash alone
+  ---
+  duration_ms: 9.059698
+  type: 'test'
+  ...
+# Subtest: failed, oversized or empty data cannot publish a successful manifest
+ok 25 - failed, oversized or empty data cannot publish a successful manifest
+  ---
+  duration_ms: 13.684965
+  type: 'test'
+  ...
+# Subtest: retrieval registration must precede source time and remain acquisition only
+ok 26 - retrieval registration must precede source time and remain acquisition only
+  ---
+  duration_ms: 8.913885
+  type: 'test'
+  ...
+# Subtest: audited research nomination loads with negative uncertainty and never claims proven profit
+ok 27 - audited research nomination loads with negative uncertainty and never claims proven profit
+  ---
+  duration_ms: 189.969768
+  type: 'test'
+  ...
+# Subtest: missing required run, source copy or data bindings cannot inherit a passed audit
+ok 28 - missing required run, source copy or data bindings cannot inherit a passed audit
+  ---
+  duration_ms: 111.088362
+  type: 'test'
+  ...
+# Subtest: source edits and artifact edits after the audit fail hash validation
+ok 29 - source edits and artifact edits after the audit fail hash validation
+  ---
+  duration_ms: 53.678466
+  type: 'test'
+  ...
+# Subtest: profit claims, missing eligibility and protocol retuning fail even with updated hashes
+ok 30 - profit claims, missing eligibility and protocol retuning fail even with updated hashes
+  ---
+  duration_ms: 196.328634
+  type: 'test'
+  ...
+# Subtest: failed audits, hidden failures and duplicate run substitutions are rejected
+ok 31 - failed audits, hidden failures and duplicate run substitutions are rejected
+  ---
+  duration_ms: 77.960411
+  type: 'test'
+  ...
+# Subtest: altered run summaries and synchronized nonflat inventory fail independent gate checks
+ok 32 - altered run summaries and synchronized nonflat inventory fail independent gate checks
+  ---
+  duration_ms: 115.333903
+  type: 'test'
+  ...
+# Subtest: unsafe relative paths and source symlinks escaping the repository are rejected
+ok 33 - unsafe relative paths and source symlinks escaping the repository are rejected
+  ---
+  duration_ms: 143.758903
+  type: 'test'
+  ...
+# Subtest: paper economic checks cannot be satisfied by retained report booleans alone
+ok 34 - paper economic checks cannot be satisfied by retained report booleans alone
+  ---
+  duration_ms: 70.085596
+  type: 'test'
+  ...
+# Subtest: spot kernel lock remains held after its flock helper exits and blocks independent open descriptions
+ok 35 - spot kernel lock remains held after its flock helper exits and blocks independent open descriptions
+  ---
+  duration_ms: 27.530011
+  type: 'test'
+  ...
+# Subtest: an independent Node process owns the lock until it releases its inherited open description
+ok 36 - an independent Node process owns the lock until it releases its inherited open description
+  ---
+  duration_ms: 265.199204
+  type: 'test'
+  ...
+# Subtest: SIGKILL releases the parent's kernel lock without deleting a stale file or consulting process IDs
+ok 37 - SIGKILL releases the parent's kernel lock without deleting a stale file or consulting process IDs
+  ---
+  duration_ms: 257.218436
+  type: 'test'
+  ...
+# Subtest: atomic spot journal replacement ignores abandoned pending files and preserves their evidence
+ok 38 - atomic spot journal replacement ignores abandoned pending files and preserves their evidence
+  ---
+  duration_ms: 8.734957
+  type: 'test'
+  ...
+# Subtest: exclusive cycle evidence cannot be overwritten, including by a competing writer
+ok 39 - exclusive cycle evidence cannot be overwritten, including by a competing writer
+  ---
+  duration_ms: 3.598355
+  type: 'test'
+  ...
+# Subtest: concurrent readers observe complete journal generations during repeated atomic replacement
+ok 40 - concurrent readers observe complete journal generations during repeated atomic replacement
+  ---
+  duration_ms: 51.920034
+  type: 'test'
+  ...
+# Subtest: public snapshot validates concurrent context before requesting fresh depth and preserves exact source hashes
+ok 41 - public snapshot validates concurrent context before requesting fresh depth and preserves exact source hashes
+  ---
+  duration_ms: 39.947347
+  type: 'test'
+  ...
+# Subtest: pair rules require online native spot identity, unit lots and usable increments
+ok 42 - pair rules require online native spot identity, unit lots and usable increments
+  ---
+  duration_ms: 1.553166
+  type: 'test'
+  ...
+# Subtest: book parsing rejects crossed, unsorted, duplicate, empty, oversized and invalid levels
+ok 43 - book parsing rejects crossed, unsorted, duplicate, empty, oversized and invalid levels
+  ---
+  duration_ms: 0.880434
+  type: 'test'
+  ...
+# Subtest: level change timestamps never replace receipt clocks or reject quiet levels as stale
+ok 44 - level change timestamps never replace receipt clocks or reject quiet levels as stale
+  ---
+  duration_ms: 0.41964
+  type: 'test'
+  ...
+# Subtest: failed rules prevent any depth request
+ok 45 - failed rules prevent any depth request
+  ---
+  duration_ms: 1.848641
+  type: 'test'
+  ...
+# Subtest: HTTP errors and both declared and streamed response-size excesses fail closed
+ok 46 - HTTP errors and both declared and streamed response-size excesses fail closed
+  ---
+  duration_ms: 8.26893
+  type: 'test'
+  ...
+# Subtest: invalid JSON, lossy UTF-8 and reversed or invalid local clocks are rejected
+ok 47 - invalid JSON, lossy UTF-8 and reversed or invalid local clocks are rejected
+  ---
+  duration_ms: 8.306961
+  type: 'test'
+  ...
+# Subtest: valid context cannot make an invalid final depth snapshot executable
+ok 48 - valid context cannot make an invalid final depth snapshot executable
+  ---
+  duration_ms: 1.565826
+  type: 'test'
+  ...
+# Subtest: fresh HTTP receipt cannot disguise a source missing the most recent completed week
+ok 49 - fresh HTTP receipt cannot disguise a source missing the most recent completed week
+  ---
+  duration_ms: 1.938108
+  type: 'test'
+  ...
+# Subtest: received malformed OHLC remains auditable while valid depth remains available for exits
+ok 50 - received malformed OHLC remains auditable while valid depth remains available for exits
+  ---
+  duration_ms: 5.629592
+  type: 'test'
+  ...
+# Subtest: failed OHLC network requests do not invent a source or discard fresh exit quotes
+ok 51 - failed OHLC network requests do not invent a source or discard fresh exit quotes
+  ---
+  duration_ms: 1.497778
+  type: 'test'
+  ...
+# Subtest: spot paper starts with independent funded cash and makes a fresh, fee-inclusive entry
+ok 52 - spot paper starts with independent funded cash and makes a fresh, fee-inclusive entry
+  ---
+  duration_ms: 8.21285
+  type: 'test'
+  ...
+# Subtest: spot paper follows the native-week delay and cannot use the newly finalized close
+ok 53 - spot paper follows the native-week delay and cannot use the newly finalized close
+  ---
+  duration_ms: 2.949298
+  type: 'test'
+  ...
+# Subtest: spot paper does not catch up entries after the first native-week hour
+ok 54 - spot paper does not catch up entries after the first native-week hour
+  ---
+  duration_ms: 3.319283
+  type: 'test'
+  ...
+# Subtest: a partial L2 entry consumes the entry and larger fresh depth cannot add inventory
+ok 55 - a partial L2 entry consumes the entry and larger fresh depth cannot add inventory
+  ---
+  duration_ms: 2.462811
+  type: 'test'
+  ...
+# Subtest: a denied first attempt may retry within the entry hour with executable depth
+ok 56 - a denied first attempt may retry within the entry hour with executable depth
+  ---
+  duration_ms: 2.839355
+  type: 'test'
+  ...
+# Subtest: bearish eligible weekly signals exit partially and retry with fresh depth
+ok 57 - bearish eligible weekly signals exit partially and retry with fresh depth
+  ---
+  duration_ms: 4.5225
+  type: 'test'
+  ...
+# Subtest: subminimum exit dust stays in inventory and liquidation P&L instead of being discarded
+ok 58 - subminimum exit dust stays in inventory and liquidation P&L instead of being discarded
+  ---
+  duration_ms: 5.527524
+  type: 'test'
+  ...
+# Subtest: spot paper reduces appreciated marked exposure without adding or flattening the remaining position
+ok 59 - spot paper reduces appreciated marked exposure without adding or flattening the remaining position
+  ---
+  duration_ms: 0.63668
+  type: 'test'
+  ...
+# Subtest: a subminimum marked-cap reduction flattens inventory and cannot re-enter that week
+ok 60 - a subminimum marked-cap reduction flattens inventory and cannot re-enter that week
+  ---
+  duration_ms: 0.953987
+  type: 'test'
+  ...
+# Subtest: stale and future books cannot trade or manufacture a fresh mark
+ok 61 - stale and future books cannot trade or manufacture a fresh mark
+  ---
+  duration_ms: 1.116755
+  type: 'test'
+  ...
+# Subtest: missing, stale, or failed history blocks entries but permits protective exits against fresh books
+ok 62 - missing, stale, or failed history blocks entries but permits protective exits against fresh books
+  ---
+  duration_ms: 1.030076
+  type: 'test'
+  ...
+# Subtest: backward cycle clocks are rejected while an exact duplicate remains idempotent
+ok 63 - backward cycle clocks are rejected while an exact duplicate remains idempotent
+  ---
+  duration_ms: 1.472093
+  type: 'test'
+  ...
+# Subtest: repeated cycles are idempotent and serialized restarts preserve receipt IDs and cash
+ok 64 - repeated cycles are idempotent and serialized restarts preserve receipt IDs and cash
+  ---
+  duration_ms: 0.87378
+  type: 'test'
+  ...
+# Subtest: weekly signal requires 40 available consecutive closes and ignores unfinished prices
+ok 65 - weekly signal requires 40 available consecutive closes and ignores unfinished prices
+  ---
+  duration_ms: 3.893749
+  type: 'test'
+  ...
+# Subtest: hysteresis preserves state inside cost-scaled band and equality goes to cash
+ok 66 - hysteresis preserves state inside cost-scaled band and equality goes to cash
+  ---
+  duration_ms: 1.447044
+  type: 'test'
+  ...
+# Subtest: historical fills occur strictly after finalized signal; stress waits another native week
+ok 67 - historical fills occur strictly after finalized signal; stress waits another native week
+  ---
+  duration_ms: 13.776249
+  type: 'test'
+  ...
+# Subtest: cash is exactly flat and buy-hold starts independently of a bullish candidate
+ok 68 - cash is exactly flat and buy-hold starts independently of a bullish candidate
+  ---
+  duration_ms: 9.716306
+  type: 'test'
+  ...
+# Subtest: missing weekly history rejects the replay and unavailable terminal volume leaves explicit inventory
+ok 69 - missing weekly history rejects the replay and unavailable terminal volume leaves explicit inventory
+  ---
+  duration_ms: 0.933331
+  type: 'test'
+  ...
+# Subtest: later prices cannot change earlier signals, fills or marked cash
+ok 70 - later prices cannot change earlier signals, fills or marked cash
+  ---
+  duration_ms: 6.575759
+  type: 'test'
+  ...
+# Subtest: bootstrap keeps calendar cash weeks and is deterministic without inventing evidence
+ok 71 - bootstrap keeps calendar cash weeks and is deterministic without inventing evidence
+  ---
+  duration_ms: 0.822709
+  type: 'test'
+  ...
+1..71
+# tests 71
+# suites 0
+# pass 71
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4099.915908

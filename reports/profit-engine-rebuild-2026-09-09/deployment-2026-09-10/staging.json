@@ -1,0 +1,36 @@
+{
+  "stagedAtUtc": "2026-09-10T00:02:09.319Z",
+  "target": "/app/data/distributional-training-risk-v2-20260909T201636-357d2802753bfecd.json",
+  "artifactSha256": "357d2802753bfecd18eabdd6fefe6fd7cec9649fadaed06d3a47fbe5436fd9c8",
+  "artifactBytes": 18242784,
+  "sourceCodeSha256": "c57475ab04ce281cbd83f86f95f0099d56d24ef5edcee758e293be197f8d036b",
+  "previousTrainingFile": "/app/data/distributional-training-2026-09-07.json",
+  "fullAuditSha256": "84ccbd892c312f56ddd69476ae3a1f3f9a4c5b84f10320146a2200108b62bf0d",
+  "preflightSha256": "7a32ea42a4a71e2aef280cb5a2152652c8ba520a31d2fa64b8482ca69af10410",
+  "backupDirectory": "/app/data/pre-risk-training-import-2026-09-10T00-02-09.319Z",
+  "backups": [
+    {
+      "original": "/app/data/kraken-paper-state.json",
+      "backup": "/app/data/pre-risk-training-import-2026-09-10T00-02-09.319Z/kraken-paper-state.json",
+      "bytes": 910655,
+      "sha256": "6de415a1c0464d14fffd310f63d3f61b9b42fc6634ed627ce494e3ad2f26d85f"
+    },
+    {
+      "original": "/app/data/distributional-state.json.sizing-827a3c64f88eb32848104dc94f37b416f185a057441576e12cc16a4144ba7c02.json",
+      "backup": "/app/data/pre-risk-training-import-2026-09-10T00-02-09.319Z/distributional-state.json.sizing-827a3c64f88eb32848104dc94f37b416f185a057441576e12cc16a4144ba7c02.json",
+      "bytes": 407715,
+      "sha256": "6f8bf26cc87b0c38152208afb969b985b699defbaeee356b6ffcc6f3c8b48510"
+    },
+    {
+      "original": "/app/data/distributional-state.json.market.json",
+      "backup": "/app/data/pre-risk-training-import-2026-09-10T00-02-09.319Z/distributional-state.json.market.json",
+      "bytes": 14390,
+      "sha256": "3e0dac93b01f3f02f986386c5302ac686043a600d2fc39ec7381b868f5c7345d"
+    }
+  ],
+  "paperCashEquity": 99998.28269740003,
+  "configurationChanged": false,
+  "runningStateChanged": false,
+  "brokerOrdersSubmitted": 0,
+  "snapshotsTakenWhileExistingEngineRunning": true
+}

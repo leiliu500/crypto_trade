@@ -1,0 +1,21 @@
+{
+  "sequence": 6,
+  "checks": [
+    {
+      "symbol": "BTC/USD",
+      "checksum": "2353920457",
+      "crcPassed": true,
+      "numericLevelsMatch": true,
+      "localAgeMs": 176,
+      "exchangeAgeMs": 248
+    },
+    {
+      "symbol": "ETH/USD",
+      "checksum": "910454355",
+      "crcPassed": true,
+      "numericLevelsMatch": true,
+      "localAgeMs": 17,
+      "exchangeAgeMs": 87
+    }
+  ]
+}

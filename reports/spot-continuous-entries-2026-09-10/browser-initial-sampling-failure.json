@@ -1,0 +1,154 @@
+{
+  "generatedAt": "2026-09-10T16:58:55.356Z",
+  "mode": "DEPLOYED_READ_ONLY",
+  "url": "http://127.0.0.1:3001",
+  "ordersSubmitted": false,
+  "accountWrites": false,
+  "results": [],
+  "passed": false,
+  "tickDiagnostics": [
+    {
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 1100
+      },
+      "firstTick": {
+        "heading": "Spot system liveness",
+        "cards": [
+          {
+            "id": "spot-live-service",
+            "label": "Spot API response",
+            "value": "Responding",
+            "detail": "Last upstream response 0s ago. Dashboard checks every 5s.",
+            "tone": "spot-liveness-card good"
+          },
+          {
+            "id": "spot-live-evaluations",
+            "label": "Recorded evaluations",
+            "value": "136 recorded",
+            "detail": "Last evaluation 3m 28s ago.",
+            "tone": "spot-liveness-card good"
+          },
+          {
+            "id": "spot-live-next",
+            "label": "Next evaluation · approximate",
+            "value": "About 1m 31s",
+            "detail": "Approximate 5m 0s cadence. The timer waits after work completes.",
+            "tone": "spot-liveness-card neutral"
+          },
+          {
+            "id": "spot-live-market",
+            "label": "Last successful market check",
+            "value": "3m 28s ago",
+            "detail": "Last market cycle with valid valuation and no error; not a live quote heartbeat.",
+            "tone": "spot-liveness-card good"
+          },
+          {
+            "id": "spot-live-broker",
+            "label": "Paper order broker",
+            "value": "0 pending · 1 terminal",
+            "detail": "Paper submissions enabled. Terminal includes fills, cancels and rejections.",
+            "tone": "spot-liveness-card neutral"
+          },
+          {
+            "id": "spot-live-gate",
+            "label": "Entry / risk gate",
+            "value": "Last decision: buy",
+            "detail": "A weekly entry was sent to the paper order broker.",
+            "tone": "spot-liveness-card neutral"
+          }
+        ],
+        "observations": [
+          {
+            "label": "Evaluation 136 · BUY",
+            "time": "2026-09-10 16:55:32 UTC",
+            "detail": "A weekly entry was sent to the paper order broker."
+          }
+        ],
+        "panelTop": 350.890625,
+        "panelBottom": 780.765625,
+        "strategyTop": 803.765625,
+        "bodyWidth": 1425,
+        "viewportWidth": 1440
+      },
+      "secondTick": {
+        "heading": "Spot system liveness",
+        "cards": [
+          {
+            "id": "spot-live-service",
+            "label": "Spot API response",
+            "value": "Responding",
+            "detail": "Last upstream response 0s ago. Dashboard checks every 5s.",
+            "tone": "spot-liveness-card good"
+          },
+          {
+            "id": "spot-live-evaluations",
+            "label": "Recorded evaluations",
+            "value": "136 recorded",
+            "detail": "Last evaluation 3m 29s ago.",
+            "tone": "spot-liveness-card good"
+          },
+          {
+            "id": "spot-live-next",
+            "label": "Next evaluation · approximate",
+            "value": "About 1m 30s",
+            "detail": "Approximate 5m 0s cadence. The timer waits after work completes.",
+            "tone": "spot-liveness-card neutral"
+          },
+          {
+            "id": "spot-live-market",
+            "label": "Last successful market check",
+            "value": "3m 29s ago",
+            "detail": "Last market cycle with valid valuation and no error; not a live quote heartbeat.",
+            "tone": "spot-liveness-card good"
+          },
+          {
+            "id": "spot-live-broker",
+            "label": "Paper order broker",
+            "value": "0 pending · 1 terminal",
+            "detail": "Paper submissions enabled. Terminal includes fills, cancels and rejections.",
+            "tone": "spot-liveness-card neutral"
+          },
+          {
+            "id": "spot-live-gate",
+            "label": "Entry / risk gate",
+            "value": "Last decision: buy",
+            "detail": "A weekly entry was sent to the paper order broker.",
+            "tone": "spot-liveness-card neutral"
+          }
+        ],
+        "observations": [
+          {
+            "label": "Evaluation 136 · BUY",
+            "time": "2026-09-10 16:55:32 UTC",
+            "detail": "A weekly entry was sent to the paper order broker."
+          }
+        ],
+        "panelTop": 350.890625,
+        "panelBottom": 780.765625,
+        "strategyTop": 803.765625,
+        "bodyWidth": 1425,
+        "viewportWidth": 1440
+      },
+      "pollingBeforeTick": 2,
+      "pollingAfterTick": 2,
+      "responseTimes": [
+        {
+          "receivedAt": 1789059536178,
+          "generatedAtMs": 1789059536151,
+          "upstreamFetchedAtMs": 1789059536151
+        },
+        {
+          "receivedAt": 1789059541158,
+          "generatedAtMs": 1789059541149,
+          "upstreamFetchedAtMs": 1789059541149
+        }
+      ]
+    }
+  ],
+  "error": "AssertionError [ERR_ASSERTION]: Upstream-response age updates each second\n    at file:///home/ec2-user/crypto_trade/reports/spot-continuous-entries-2026-09-10/browser-smoke.mjs:161:12",
+  "cleanup": {
+    "temporaryProfileRemoved": true
+  }
+}

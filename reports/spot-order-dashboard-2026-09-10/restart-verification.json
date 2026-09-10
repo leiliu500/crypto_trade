@@ -1,0 +1,14 @@
+{
+  "checkedAt": "2026-09-10T06:22:33.112479+00:00",
+  "passed": true,
+  "cashInventoryFeesReceiptsPreserved": true,
+  "originalStartPreserved": true,
+  "migrationProofPreservedOnRestart": true,
+  "exactLegacyBackupVerified": true,
+  "cyclesAdvanced": true,
+  "cashUsd": 100000,
+  "quantity": 0,
+  "orders": 0,
+  "fills": 0,
+  "realizedNetUsd": 0
+}

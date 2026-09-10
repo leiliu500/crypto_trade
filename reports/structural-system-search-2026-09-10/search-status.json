@@ -1,0 +1,59 @@
+{
+  "status": "INITIAL_STRUCTURAL_TRANCHE_COMPLETED_REQUESTED_TARGET_UNMET",
+  "requestedDistinctSystems": 10000,
+  "completedRequestedSearch": false,
+  "actualResearchAgents": 4,
+  "catalogedForecastMechanismFamilies": 11,
+  "economicSystemCatalogRecords": 10,
+  "economicParentGroups": 9,
+  "existingEconomicRecordsExcludedFromNewCount": 4,
+  "proposedNewToEngineArchitectures": 6,
+  "implementedInferencePrototypes": 2,
+  "nonbaselineFittedTradingPoliciesAfterEquivalenceAudit": 1,
+  "economicMechanismSnapshotStudies": 1,
+  "originalMathematicalInventionsEstablished": 0,
+  "newValidatedProfitableSystems": 0,
+  "candidateForProfitableDeployment": null,
+  "bestHistoricalComparedControl": "prior_eth40; remains unvalidated and failed prior risk/evidence screen",
+  "countsMayNotBeAddedTogether": true,
+  "configurationGridGenerated": false,
+  "newPrototypeResults": {
+    "bocpd": {
+      "base": -122.17550078544082,
+      "cost": -132.22080647387338,
+      "delay": -108.18077085966252,
+      "combined": -118.31202975617634
+    },
+    "hmm": {
+      "base": -296.88360362657295,
+      "cost": -300.6689503765283,
+      "delay": -327.09035177092665,
+      "combined": -330.7114745764211
+    }
+  },
+  "parityObservationSummary": {
+    "requestedDirections": 12,
+    "availableDisplayedComparisons": 12,
+    "positiveDisplayedGrossComparisons": 6,
+    "failedRequests": 0,
+    "actualNetProfitKnown": false,
+    "executableOpportunitiesVerified": 0,
+    "bestDisplayedCostBudgetBps": "0.526588677533296607148640000",
+    "diagnosticFeeScenario": {
+      "source": "https://www.kraken.com/features/fee-schedule",
+      "interpretation": "PUBLIC_KRAKEN_ENTRY_TIER_TAKER_80BP;HYPOTHETICAL_COINBASE_ZERO_FEE;NOT_ACCOUNT_ENTITLEMENT;NO_OTHER_COSTS",
+      "chosenAfterObservingQuotes": true,
+      "purpose": "COST_SCALE_DIAGNOSTIC_NOT_SELECTED_STRATEGY_OR_VALIDATION",
+      "bestNetBpsOfBuyNotional": "-79.47762403188696976570854912",
+      "positiveComparisons": 0
+    }
+  },
+  "productionChanged": false,
+  "realOrdersSubmitted": false,
+  "limitations": [
+    "New means established methods newly implemented in inspected engine; no user clarification was received.",
+    "Known historical data; no untouched profit validation.",
+    "Different inference mathematics can produce an equivalent trading policy.",
+    "The requested10000 distinct-system count and universal best-profit identification remain unsupported."
+  ]
+}

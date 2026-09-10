@@ -1,0 +1,66 @@
+{
+  "verified": true,
+  "method": "INDEPENDENT_PYTHON_RECONSTRUCTION_FROM_HASH_VERIFIED_SOURCE_DATA",
+  "decisionsVerified": 296,
+  "maximumDollarPerBaseArithmeticError": 1.2732925824820995e-11,
+  "runs": [
+    {
+      "period": "development-2024",
+      "scenario": "base",
+      "fundingShiftHours": 0,
+      "decisionsVerified": 50,
+      "entries": 0
+    },
+    {
+      "period": "development-2024",
+      "scenario": "base",
+      "fundingShiftHours": 1,
+      "decisionsVerified": 50,
+      "entries": 0
+    },
+    {
+      "period": "development-2024",
+      "scenario": "stress",
+      "fundingShiftHours": 0,
+      "decisionsVerified": 50,
+      "entries": 0
+    },
+    {
+      "period": "development-2024",
+      "scenario": "stress",
+      "fundingShiftHours": 1,
+      "decisionsVerified": 50,
+      "entries": 0
+    },
+    {
+      "period": "confirmation-2025-h1",
+      "scenario": "base",
+      "fundingShiftHours": 0,
+      "decisionsVerified": 24,
+      "entries": 0
+    },
+    {
+      "period": "confirmation-2025-h1",
+      "scenario": "base",
+      "fundingShiftHours": 1,
+      "decisionsVerified": 24,
+      "entries": 0
+    },
+    {
+      "period": "confirmation-2025-h1",
+      "scenario": "stress",
+      "fundingShiftHours": 0,
+      "decisionsVerified": 24,
+      "entries": 0
+    },
+    {
+      "period": "confirmation-2025-h1",
+      "scenario": "stress",
+      "fundingShiftHours": 1,
+      "decisionsVerified": 24,
+      "entries": 0
+    }
+  ],
+  "profitabilityEstablished": false,
+  "reserved2026Evaluated": false
+}

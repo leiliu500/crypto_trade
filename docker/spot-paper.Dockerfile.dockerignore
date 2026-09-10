@@ -1,0 +1,17 @@
+**
+!package.json
+!package-lock.json
+!tsconfig.json
+!dist/
+!dist/src/
+!dist/src/spot-trend/
+!dist/src/spot-trend/**
+!src/
+!src/spot-trend/
+!src/spot-trend/**
+!reports/
+!reports/new-spot-system-2026-09-10/
+!reports/new-spot-system-2026-09-10/**
+!docker/
+!docker/spot-paper.Dockerfile
+!docker/spot-paper.Dockerfile.dockerignore

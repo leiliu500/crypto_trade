@@ -1,0 +1,37 @@
+{
+  "version": "public-funding-extension-evidence-v1",
+  "savedAtUtc": "2026-09-09T02:42:59.738331+00:00",
+  "files": [
+    {
+      "symbol": "PF_XBTUSD",
+      "url": "https://futures.kraken.com/derivatives/api/v3/historical-funding-rates?symbol=PF_XBTUSD",
+      "file": "PF_XBTUSD.json.gz",
+      "compressedSha256": "4b5de4ad486b93e4e3ad89715522d47108509cae977eef5d44a2ad8f25739219",
+      "jsonSha256": "b5ff88efc681ec4571e8ce2cb16819a7cde4b7bc6c01cff96ce220305c29d3d3",
+      "headersFile": "PF_XBTUSD.headers",
+      "headersSha256": "560f504366cd09bd197418ed896f3140139c0f87961bbe0977863898a41dfd2d",
+      "rows": 8891,
+      "firstTimestamp": "2025-09-03T08:00:00Z",
+      "lastTimestamp": "2026-09-09T02:00:00Z",
+      "serverTime": "2026-09-09T02:37:56.381Z"
+    },
+    {
+      "symbol": "PF_ETHUSD",
+      "url": "https://futures.kraken.com/derivatives/api/v3/historical-funding-rates?symbol=PF_ETHUSD",
+      "file": "PF_ETHUSD.json.gz",
+      "compressedSha256": "4b60b533503a7eaf5ee466c43783dd8608a9dc0aabac6816703a376c214bd3e6",
+      "jsonSha256": "e5e6853a11b554fbdd987534e03476f915b07efdf92356fc8de73b5e402eacc7",
+      "headersFile": "PF_ETHUSD.headers",
+      "headersSha256": "2ecd0705811e12216d8fb346669bc030436b557c8118e8f7eaba53c6262b29a8",
+      "rows": 8891,
+      "firstTimestamp": "2025-09-03T08:00:00Z",
+      "lastTimestamp": "2026-09-09T02:00:00Z",
+      "serverTime": "2026-09-09T02:37:56.373Z"
+    }
+  ],
+  "coverageAudit": "reports/portfolio-funding-coverage-audit-2026-09-09.json",
+  "existingStudyInputsChanged": false,
+  "strategyReturnsEvaluatedFromTheseFiles": false,
+  "timestampConventionVerified": false,
+  "purpose": "Preserve authoritative funding-only evidence for a future separately sealed data repair; unresolved missing settlements remain absent."
+}

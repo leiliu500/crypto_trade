@@ -1,0 +1,3535 @@
+{
+  "version": "hourly-retry-maintenance-independent-audit-v1",
+  "createdAt": "2026-09-08T23:05:58.033Z",
+  "status": "PASS",
+  "scope": {
+    "startMs": 1761922800000,
+    "endMs": 1762056000000,
+    "gapStartMs": 1762012800000,
+    "firstPositiveVolumeOpenMs": 1762034400000,
+    "mode": "DELIBERATELY_SCHEDULED_OPERATIONAL_REGRESSION",
+    "strategyReturnsEvaluated": false,
+    "final2026EvaluationOpened": false,
+    "fundingReserveBpsPerHour": 1,
+    "fundingInterpretation": "FIXED_TEST_CHARGE_NOT_EMPIRICAL_FUNDING_OR_PROFITABILITY_EVIDENCE"
+  },
+  "sources": {
+    "dataset": {
+      "path": "reports/hourly-adaptive-study-2026-09-08/data-recent/dataset.json",
+      "sha256": "802694ae936dd864681dee2278f027ea1732a91fd6b635f1b08371673abcb227"
+    },
+    "rules": {
+      "path": "reports/distribution-instrument-rules-2026-09-07.json",
+      "sha256": "a89ee77c1a871c63266cde004776e7484ccdc81d544b7d32a81f56cb07d89cdf"
+    },
+    "source": {
+      "path": "src/research/hourly-retry-simulator.ts",
+      "sha256": "239759778a583c623ca55636a9b53140aa9f9690eb1bbbac2d304117265f08aa"
+    },
+    "legacy": {
+      "path": "src/research/hourly-simulator.ts",
+      "sha256": "0421f92bc37af0186d25b7c7710f61dd867945488dc85599072e23dfdf8a5eed"
+    }
+  },
+  "checks": {
+    "sourceUnchanged": true,
+    "legacySourceSealUnchanged": true,
+    "bothAssetsSixZeroVolumeHours": true,
+    "longShortBothScenarios": true,
+    "firstKnownQuoteExit": true,
+    "receiptsCausal": true,
+    "inventoryAndGlobalSlotRetained": true,
+    "lotTickAndNotionalCap": true,
+    "fundingEveryActualHoldingHour": true,
+    "grossFeesSlipFundingCashReconciled": true,
+    "hourlyEquityAndDrawdownRecomputed": true,
+    "dailyCalendarPnlTelescopes": true,
+    "unknownOutcomesNotSuppressed": true
+  },
+  "cases": [
+    {
+      "symbol": "BTC/USD",
+      "side": 1,
+      "scenario": "base",
+      "firstTrade": {
+        "id": "BTC/USD:1761922800000",
+        "symbol": "BTC/USD",
+        "side": 1,
+        "decisionMs": 1761922800000,
+        "expectedNetBps": 87,
+        "predictedGrossBps": 100,
+        "horizonHours": 24,
+        "scheduledEntryMs": 1761926400000,
+        "scheduledExitMs": 1762012800000,
+        "status": "COMPLETE",
+        "entryMs": 1761926400000,
+        "exitMs": 1762034400000,
+        "qty": 0.0001,
+        "entryReferencePx": 110173,
+        "entryPx": 110190,
+        "exitReferencePx": 109931,
+        "exitPx": 109914,
+        "grossPnlUsd": -0.024200000000000003,
+        "netPnlUsd": -0.07155384000000001,
+        "feesUsd": 0.0110052,
+        "slippageUsd": 0.0034000000000000002,
+        "fundingUsd": 0.032948639999999994,
+        "fundingReserveUsd": 0,
+        "invalidReasons": [],
+        "noFillReason": null,
+        "entryNotionalUsd": 11.019,
+        "exitAttempts": [
+          {
+            "attemptMs": 1762012800000,
+            "knownAtMs": 1762016400000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762016400000,
+            "knownAtMs": 1762020000000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762020000000,
+            "knownAtMs": 1762023600000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762023600000,
+            "knownAtMs": 1762027200000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762027200000,
+            "knownAtMs": 1762030800000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762030800000,
+            "knownAtMs": 1762034400000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762034400000,
+            "knownAtMs": 1762034400000,
+            "status": "FILLED"
+          }
+        ],
+        "exitRetryCount": 6,
+        "exitDelayHours": 6,
+        "exitRetryExhausted": false
+      },
+      "accountNetPnlUsd": -0.0692311799939489,
+      "maximumDrawdownUsd": 0.14599746000021696,
+      "metrics": {
+        "selected": 2,
+        "filled": 2,
+        "completed": 2,
+        "unfilled": 0,
+        "zeroQuantityNoFills": 0,
+        "exitRetriedTrades": 1,
+        "exitRetryAttempts": 6,
+        "exitZeroVolumeNoFills": 6,
+        "exitRetryExhaustedTrades": 0,
+        "maximumObservedExitDelayHours": 6,
+        "unknownTrades": 0,
+        "activeUtcDates": 2,
+        "finalEquityUsd": 99999.93076882,
+        "totalGrossPnlUsd": -0.001999999993131496,
+        "totalNetPnlUsd": -0.0692311799939489,
+        "knownCompletedGrossPnlUsd": -0.001999999999999731,
+        "knownCompletedNetPnlUsd": -0.0692311799999992,
+        "totalFeesUsd": 0.0226353,
+        "totalSlippageUsd": 0.006999999999999455,
+        "totalFundingUsd": 0.03759588,
+        "knownFundingUsd": 0.03759588,
+        "totalFundingReserveUsd": 0,
+        "knownFundingReserveUsd": 0,
+        "turnoverUsd": 45.2706,
+        "turnoverInitialEquity": 0.00045270600000000004,
+        "positionHours": 34,
+        "unknownPositionHours": 0,
+        "staleMarkHours": 6,
+        "maximumDrawdownUsd": 0.14599746000021696,
+        "maximumDrawdownFraction": 0.0000014599746000021696,
+        "maximumLiquidationDrawdownUsd": 0.1531364099937491,
+        "knownMaximumDrawdownUsd": 0.14599746000021696,
+        "knownMaximumLiquidationDrawdownUsd": 0.1531364099937491,
+        "maximumOneDayLossUsd": 0.07556348999787588,
+        "perAsset": [
+          {
+            "symbol": "BTC/USD",
+            "selected": 1,
+            "filled": 1,
+            "completed": 1,
+            "unknownTrades": 0,
+            "grossPnlUsd": -0.024200000000000003,
+            "netPnlUsd": -0.07155384000000001,
+            "knownCompletedGrossPnlUsd": -0.024200000000000003,
+            "knownCompletedNetPnlUsd": -0.07155384000000001
+          },
+          {
+            "symbol": "ETH/USD",
+            "selected": 1,
+            "filled": 1,
+            "completed": 1,
+            "unknownTrades": 0,
+            "grossPnlUsd": 0.02220000000000027,
+            "netPnlUsd": 0.002322660000000816,
+            "knownCompletedGrossPnlUsd": 0.02220000000000027,
+            "knownCompletedNetPnlUsd": 0.002322660000000816
+          }
+        ]
+      },
+      "skips": {
+        "busyForecasts": 6,
+        "belowHurdleForecasts": 0,
+        "endpointForecasts": 0,
+        "zeroDirectionForecasts": 0
+      },
+      "settlementsFirstTrade": [
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761930000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00108796,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761933600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109284,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761937200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109424,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761940800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0010980400000000002,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761944400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109435,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761948000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0010953100000000002,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761951600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109548,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761955200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109577,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761958800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109695,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761962400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109703,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761966000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109745,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761969600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00110176,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761973200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00110253,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761976800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011011600000000001,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761980400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109969,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761984000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00110026,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761987600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00110198,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761991200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0010996500000000002,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761994800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011012600000000002,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761998400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011011900000000002,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1762002000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0010999,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1762005600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0010992900000000002,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1762009200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109938,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1762012800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109931,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1762016400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109931,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1762020000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109931,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1762023600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109931,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1762027200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109931,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1762030800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109931,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1762034400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109931,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        }
+      ]
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": 1,
+      "scenario": "stress",
+      "firstTrade": {
+        "id": "BTC/USD:1761922800000",
+        "symbol": "BTC/USD",
+        "side": 1,
+        "decisionMs": 1761922800000,
+        "expectedNetBps": 87,
+        "predictedGrossBps": 100,
+        "horizonHours": 24,
+        "scheduledEntryMs": 1761930000000,
+        "scheduledExitMs": 1762016400000,
+        "status": "COMPLETE",
+        "entryMs": 1761930000000,
+        "exitMs": 1762034400000,
+        "qty": 0.0001,
+        "entryReferencePx": 108796,
+        "entryPx": 108829,
+        "exitReferencePx": 109931,
+        "exitPx": 109898,
+        "grossPnlUsd": 0.1135,
+        "netPnlUsd": 0.057307266666666676,
+        "feesUsd": 0.016404525000000003,
+        "slippageUsd": 0.0066,
+        "fundingUsd": 0.031860679999999995,
+        "fundingReserveUsd": 0.0013275283333333342,
+        "invalidReasons": [],
+        "noFillReason": null,
+        "entryNotionalUsd": 10.882900000000001,
+        "exitAttempts": [
+          {
+            "attemptMs": 1762016400000,
+            "knownAtMs": 1762020000000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762020000000,
+            "knownAtMs": 1762023600000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762023600000,
+            "knownAtMs": 1762027200000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762027200000,
+            "knownAtMs": 1762030800000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762030800000,
+            "knownAtMs": 1762034400000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762034400000,
+            "knownAtMs": 1762034400000,
+            "status": "FILLED"
+          }
+        ],
+        "exitRetryCount": 5,
+        "exitDelayHours": 5,
+        "exitRetryExhausted": false
+      },
+      "accountNetPnlUsd": 0.05511502291483339,
+      "maximumDrawdownUsd": 0.0962453770916909,
+      "metrics": {
+        "selected": 2,
+        "filled": 2,
+        "completed": 2,
+        "unfilled": 0,
+        "zeroQuantityNoFills": 0,
+        "exitRetriedTrades": 1,
+        "exitRetryAttempts": 5,
+        "exitZeroVolumeNoFills": 5,
+        "exitRetryExhaustedTrades": 0,
+        "maximumObservedExitDelayHours": 5,
+        "unknownTrades": 0,
+        "activeUtcDates": 2,
+        "finalEquityUsd": 100000.05511502291,
+        "totalGrossPnlUsd": 0.14079999999376014,
+        "totalNetPnlUsd": 0.05511502291483339,
+        "knownCompletedGrossPnlUsd": 0.14079999999999973,
+        "knownCompletedNetPnlUsd": 0.05511502291666749,
+        "totalFeesUsd": 0.03385305,
+        "totalSlippageUsd": 0.013799999999998909,
+        "totalFundingUsd": 0.03651065,
+        "knownFundingUsd": 0.03651065,
+        "totalFundingReserveUsd": 0.001521277083333334,
+        "knownFundingReserveUsd": 0.001521277083333334,
+        "turnoverUsd": 45.13740000000001,
+        "turnoverInitialEquity": 0.00045137400000000005,
+        "positionHours": 33,
+        "unknownPositionHours": 0,
+        "staleMarkHours": 6,
+        "maximumDrawdownUsd": 0.0962453770916909,
+        "maximumDrawdownFraction": 9.624526108952142e-7,
+        "maximumLiquidationDrawdownUsd": 0.0968756521033356,
+        "knownMaximumDrawdownUsd": 0.0962453770916909,
+        "knownMaximumLiquidationDrawdownUsd": 0.0968756521033356,
+        "maximumOneDayLossUsd": 0.013661835415405221,
+        "perAsset": [
+          {
+            "symbol": "BTC/USD",
+            "selected": 1,
+            "filled": 1,
+            "completed": 1,
+            "unknownTrades": 0,
+            "grossPnlUsd": 0.1135,
+            "netPnlUsd": 0.057307266666666676,
+            "knownCompletedGrossPnlUsd": 0.1135,
+            "knownCompletedNetPnlUsd": 0.057307266666666676
+          },
+          {
+            "symbol": "ETH/USD",
+            "selected": 1,
+            "filled": 1,
+            "completed": 1,
+            "unknownTrades": 0,
+            "grossPnlUsd": 0.027299999999999727,
+            "netPnlUsd": -0.0021922437499991817,
+            "knownCompletedGrossPnlUsd": 0.027299999999999727,
+            "knownCompletedNetPnlUsd": -0.0021922437499991817
+          }
+        ]
+      },
+      "skips": {
+        "busyForecasts": 6,
+        "belowHurdleForecasts": 0,
+        "endpointForecasts": 0,
+        "zeroDirectionForecasts": 0
+      },
+      "settlementsFirstTrade": [
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761933600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109284,
+          "reserveUsd": 0.000045535000000000004,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761937200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109424,
+          "reserveUsd": 0.000045593333333333336,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761940800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0010980400000000002,
+          "reserveUsd": 0.00004575166666666668,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761944400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109435,
+          "reserveUsd": 0.00004559791666666667,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761948000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0010953100000000002,
+          "reserveUsd": 0.000045637916666666676,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761951600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109548,
+          "reserveUsd": 0.000045645,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761955200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109577,
+          "reserveUsd": 0.00004565708333333334,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761958800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109695,
+          "reserveUsd": 0.000045706249999999996,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761962400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109703,
+          "reserveUsd": 0.00004570958333333333,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761966000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109745,
+          "reserveUsd": 0.000045727083333333335,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761969600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00110176,
+          "reserveUsd": 0.000045906666666666665,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761973200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00110253,
+          "reserveUsd": 0.00004593875,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761976800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011011600000000001,
+          "reserveUsd": 0.00004588166666666667,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761980400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109969,
+          "reserveUsd": 0.00004582041666666666,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761984000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00110026,
+          "reserveUsd": 0.00004584416666666667,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761987600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00110198,
+          "reserveUsd": 0.00004591583333333333,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761991200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0010996500000000002,
+          "reserveUsd": 0.000045818750000000006,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761994800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011012600000000002,
+          "reserveUsd": 0.00004588583333333334,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761998400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011011900000000002,
+          "reserveUsd": 0.00004588291666666667,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1762002000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0010999,
+          "reserveUsd": 0.000045829166666666665,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1762005600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0010992900000000002,
+          "reserveUsd": 0.00004580375000000001,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1762009200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109938,
+          "reserveUsd": 0.000045807500000000005,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1762012800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109931,
+          "reserveUsd": 0.000045804583333333335,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1762016400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109931,
+          "reserveUsd": 0.000045804583333333335,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1762020000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109931,
+          "reserveUsd": 0.000045804583333333335,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1762023600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109931,
+          "reserveUsd": 0.000045804583333333335,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1762027200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109931,
+          "reserveUsd": 0.000045804583333333335,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1762030800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109931,
+          "reserveUsd": 0.000045804583333333335,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1762034400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109931,
+          "reserveUsd": 0.000045804583333333335,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        }
+      ]
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "scenario": "base",
+      "firstTrade": {
+        "id": "BTC/USD:1761922800000",
+        "symbol": "BTC/USD",
+        "side": -1,
+        "decisionMs": 1761922800000,
+        "expectedNetBps": 87,
+        "predictedGrossBps": -100,
+        "horizonHours": 24,
+        "scheduledEntryMs": 1761926400000,
+        "scheduledExitMs": 1762012800000,
+        "status": "COMPLETE",
+        "entryMs": 1761926400000,
+        "exitMs": 1762034400000,
+        "qty": 0.0001,
+        "entryReferencePx": 110173,
+        "entryPx": 110156,
+        "exitReferencePx": 109931,
+        "exitPx": 109948,
+        "grossPnlUsd": 0.024200000000000003,
+        "netPnlUsd": -0.02315383999999999,
+        "feesUsd": 0.0110052,
+        "slippageUsd": 0.0034000000000000002,
+        "fundingUsd": 0.032948639999999994,
+        "fundingReserveUsd": 0,
+        "invalidReasons": [],
+        "noFillReason": null,
+        "entryNotionalUsd": 11.015600000000001,
+        "exitAttempts": [
+          {
+            "attemptMs": 1762012800000,
+            "knownAtMs": 1762016400000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762016400000,
+            "knownAtMs": 1762020000000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762020000000,
+            "knownAtMs": 1762023600000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762023600000,
+            "knownAtMs": 1762027200000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762027200000,
+            "knownAtMs": 1762030800000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762030800000,
+            "knownAtMs": 1762034400000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762034400000,
+            "knownAtMs": 1762034400000,
+            "status": "FILLED"
+          }
+        ],
+        "exitRetryCount": 6,
+        "exitDelayHours": 6,
+        "exitRetryExhausted": false
+      },
+      "accountNetPnlUsd": -0.020831179994274862,
+      "maximumDrawdownUsd": 0.1822902699932456,
+      "metrics": {
+        "selected": 2,
+        "filled": 2,
+        "completed": 2,
+        "unfilled": 0,
+        "zeroQuantityNoFills": 0,
+        "exitRetriedTrades": 1,
+        "exitRetryAttempts": 6,
+        "exitZeroVolumeNoFills": 6,
+        "exitRetryExhaustedTrades": 0,
+        "maximumObservedExitDelayHours": 6,
+        "unknownTrades": 0,
+        "activeUtcDates": 2,
+        "finalEquityUsd": 99999.97916882,
+        "totalGrossPnlUsd": 0.04640000000654254,
+        "totalNetPnlUsd": -0.020831179994274862,
+        "knownCompletedGrossPnlUsd": 0.046400000000000274,
+        "knownCompletedNetPnlUsd": -0.020831179999999175,
+        "totalFeesUsd": 0.0226353,
+        "totalSlippageUsd": 0.006999999999999455,
+        "totalFundingUsd": 0.03759588,
+        "knownFundingUsd": 0.03759588,
+        "totalFundingReserveUsd": 0,
+        "knownFundingReserveUsd": 0,
+        "turnoverUsd": 45.2706,
+        "turnoverInitialEquity": 0.00045270600000000004,
+        "positionHours": 34,
+        "unknownPositionHours": 0,
+        "staleMarkHours": 6,
+        "maximumDrawdownUsd": 0.1822902699932456,
+        "maximumDrawdownFraction": 0.0000018229003410221239,
+        "maximumLiquidationDrawdownUsd": 0.18274831998860464,
+        "knownMaximumDrawdownUsd": 0.1822902699932456,
+        "knownMaximumLiquidationDrawdownUsd": 0.18274831998860464,
+        "maximumOneDayLossUsd": 0.07586431999516208,
+        "perAsset": [
+          {
+            "symbol": "BTC/USD",
+            "selected": 1,
+            "filled": 1,
+            "completed": 1,
+            "unknownTrades": 0,
+            "grossPnlUsd": 0.024200000000000003,
+            "netPnlUsd": -0.02315383999999999,
+            "knownCompletedGrossPnlUsd": 0.024200000000000003,
+            "knownCompletedNetPnlUsd": -0.02315383999999999
+          },
+          {
+            "symbol": "ETH/USD",
+            "selected": 1,
+            "filled": 1,
+            "completed": 1,
+            "unknownTrades": 0,
+            "grossPnlUsd": 0.02220000000000027,
+            "netPnlUsd": 0.002322660000000816,
+            "knownCompletedGrossPnlUsd": 0.02220000000000027,
+            "knownCompletedNetPnlUsd": 0.002322660000000816
+          }
+        ]
+      },
+      "skips": {
+        "busyForecasts": 6,
+        "belowHurdleForecasts": 0,
+        "endpointForecasts": 0,
+        "zeroDirectionForecasts": 0
+      },
+      "settlementsFirstTrade": [
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761930000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00108796,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761933600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109284,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761937200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109424,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761940800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0010980400000000002,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761944400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109435,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761948000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0010953100000000002,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761951600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109548,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761955200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109577,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761958800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109695,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761962400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109703,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761966000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109745,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761969600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00110176,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761973200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00110253,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761976800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011011600000000001,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761980400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109969,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761984000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00110026,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761987600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00110198,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761991200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0010996500000000002,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761994800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011012600000000002,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761998400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011011900000000002,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1762002000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0010999,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1762005600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0010992900000000002,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1762009200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109938,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1762012800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109931,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1762016400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109931,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1762020000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109931,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1762023600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109931,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1762027200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109931,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1762030800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109931,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1762034400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109931,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        }
+      ]
+    },
+    {
+      "symbol": "BTC/USD",
+      "side": -1,
+      "scenario": "stress",
+      "firstTrade": {
+        "id": "BTC/USD:1761922800000",
+        "symbol": "BTC/USD",
+        "side": -1,
+        "decisionMs": 1761922800000,
+        "expectedNetBps": 87,
+        "predictedGrossBps": -100,
+        "horizonHours": 24,
+        "scheduledEntryMs": 1761930000000,
+        "scheduledExitMs": 1762016400000,
+        "status": "COMPLETE",
+        "entryMs": 1761930000000,
+        "exitMs": 1762034400000,
+        "qty": 0.0001,
+        "entryReferencePx": 108796,
+        "entryPx": 108763,
+        "exitReferencePx": 109931,
+        "exitPx": 109964,
+        "grossPnlUsd": -0.1135,
+        "netPnlUsd": -0.16969273333333332,
+        "feesUsd": 0.016404525000000003,
+        "slippageUsd": 0.0066,
+        "fundingUsd": 0.031860679999999995,
+        "fundingReserveUsd": 0.0013275283333333342,
+        "invalidReasons": [],
+        "noFillReason": null,
+        "entryNotionalUsd": 10.8763,
+        "exitAttempts": [
+          {
+            "attemptMs": 1762016400000,
+            "knownAtMs": 1762020000000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762020000000,
+            "knownAtMs": 1762023600000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762023600000,
+            "knownAtMs": 1762027200000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762027200000,
+            "knownAtMs": 1762030800000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762030800000,
+            "knownAtMs": 1762034400000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762034400000,
+            "knownAtMs": 1762034400000,
+            "status": "FILLED"
+          }
+        ],
+        "exitRetryCount": 5,
+        "exitDelayHours": 5,
+        "exitRetryExhausted": false
+      },
+      "accountNetPnlUsd": -0.17188497708411887,
+      "maximumDrawdownUsd": 0.20271770833642222,
+      "metrics": {
+        "selected": 2,
+        "filled": 2,
+        "completed": 2,
+        "unfilled": 0,
+        "zeroQuantityNoFills": 0,
+        "exitRetriedTrades": 1,
+        "exitRetryAttempts": 5,
+        "exitZeroVolumeNoFills": 5,
+        "exitRetryExhaustedTrades": 0,
+        "maximumObservedExitDelayHours": 5,
+        "unknownTrades": 0,
+        "activeUtcDates": 2,
+        "finalEquityUsd": 99999.82811502292,
+        "totalGrossPnlUsd": -0.08620000000519212,
+        "totalNetPnlUsd": -0.17188497708411887,
+        "knownCompletedGrossPnlUsd": -0.08620000000000028,
+        "knownCompletedNetPnlUsd": -0.1718849770833325,
+        "totalFeesUsd": 0.03385305,
+        "totalSlippageUsd": 0.013799999999998909,
+        "totalFundingUsd": 0.03651065,
+        "knownFundingUsd": 0.03651065,
+        "totalFundingReserveUsd": 0.001521277083333334,
+        "knownFundingReserveUsd": 0.001521277083333334,
+        "turnoverUsd": 45.13740000000001,
+        "turnoverInitialEquity": 0.00045137400000000005,
+        "positionHours": 33,
+        "unknownPositionHours": 0,
+        "staleMarkHours": 6,
+        "maximumDrawdownUsd": 0.20271770833642222,
+        "maximumDrawdownFraction": 0.0000020271770833642223,
+        "maximumLiquidationDrawdownUsd": 0.21501440834254026,
+        "knownMaximumDrawdownUsd": 0.20271770833642222,
+        "knownMaximumLiquidationDrawdownUsd": 0.21501440834254026,
+        "maximumOneDayLossUsd": 0.09754267291282304,
+        "perAsset": [
+          {
+            "symbol": "BTC/USD",
+            "selected": 1,
+            "filled": 1,
+            "completed": 1,
+            "unknownTrades": 0,
+            "grossPnlUsd": -0.1135,
+            "netPnlUsd": -0.16969273333333332,
+            "knownCompletedGrossPnlUsd": -0.1135,
+            "knownCompletedNetPnlUsd": -0.16969273333333332
+          },
+          {
+            "symbol": "ETH/USD",
+            "selected": 1,
+            "filled": 1,
+            "completed": 1,
+            "unknownTrades": 0,
+            "grossPnlUsd": 0.027299999999999727,
+            "netPnlUsd": -0.0021922437499991817,
+            "knownCompletedGrossPnlUsd": 0.027299999999999727,
+            "knownCompletedNetPnlUsd": -0.0021922437499991817
+          }
+        ]
+      },
+      "skips": {
+        "busyForecasts": 6,
+        "belowHurdleForecasts": 0,
+        "endpointForecasts": 0,
+        "zeroDirectionForecasts": 0
+      },
+      "settlementsFirstTrade": [
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761933600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109284,
+          "reserveUsd": 0.000045535000000000004,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761937200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109424,
+          "reserveUsd": 0.000045593333333333336,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761940800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0010980400000000002,
+          "reserveUsd": 0.00004575166666666668,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761944400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109435,
+          "reserveUsd": 0.00004559791666666667,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761948000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0010953100000000002,
+          "reserveUsd": 0.000045637916666666676,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761951600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109548,
+          "reserveUsd": 0.000045645,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761955200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109577,
+          "reserveUsd": 0.00004565708333333334,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761958800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109695,
+          "reserveUsd": 0.000045706249999999996,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761962400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109703,
+          "reserveUsd": 0.00004570958333333333,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761966000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109745,
+          "reserveUsd": 0.000045727083333333335,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761969600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00110176,
+          "reserveUsd": 0.000045906666666666665,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761973200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00110253,
+          "reserveUsd": 0.00004593875,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761976800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011011600000000001,
+          "reserveUsd": 0.00004588166666666667,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761980400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109969,
+          "reserveUsd": 0.00004582041666666666,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761984000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00110026,
+          "reserveUsd": 0.00004584416666666667,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761987600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00110198,
+          "reserveUsd": 0.00004591583333333333,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761991200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0010996500000000002,
+          "reserveUsd": 0.000045818750000000006,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761994800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011012600000000002,
+          "reserveUsd": 0.00004588583333333334,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1761998400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011011900000000002,
+          "reserveUsd": 0.00004588291666666667,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1762002000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0010999,
+          "reserveUsd": 0.000045829166666666665,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1762005600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0010992900000000002,
+          "reserveUsd": 0.00004580375000000001,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1762009200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109938,
+          "reserveUsd": 0.000045807500000000005,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1762012800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109931,
+          "reserveUsd": 0.000045804583333333335,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1762016400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109931,
+          "reserveUsd": 0.000045804583333333335,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1762020000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109931,
+          "reserveUsd": 0.000045804583333333335,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1762023600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109931,
+          "reserveUsd": 0.000045804583333333335,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1762027200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109931,
+          "reserveUsd": 0.000045804583333333335,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1762030800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109931,
+          "reserveUsd": 0.000045804583333333335,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "BTC/USD:1761922800000",
+          "symbol": "BTC/USD",
+          "atMs": 1762034400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00109931,
+          "reserveUsd": 0.000045804583333333335,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        }
+      ]
+    },
+    {
+      "symbol": "ETH/USD",
+      "side": 1,
+      "scenario": "base",
+      "firstTrade": {
+        "id": "ETH/USD:1761922800000",
+        "symbol": "ETH/USD",
+        "side": 1,
+        "decisionMs": 1761922800000,
+        "expectedNetBps": 87,
+        "predictedGrossBps": 100,
+        "horizonHours": 24,
+        "scheduledEntryMs": 1761926400000,
+        "scheduledExitMs": 1762012800000,
+        "status": "COMPLETE",
+        "entryMs": 1761926400000,
+        "exitMs": 1762034400000,
+        "qty": 0.003,
+        "entryReferencePx": 3858.1,
+        "entryPx": 3858.7,
+        "exitReferencePx": 3870,
+        "exitPx": 3869.4,
+        "grossPnlUsd": 0.03570000000000027,
+        "netPnlUsd": -0.014245349999999189,
+        "feesUsd": 0.01159215,
+        "slippageUsd": 0.0035999999999994543,
+        "fundingUsd": 0.034753200000000005,
+        "fundingReserveUsd": 0,
+        "invalidReasons": [],
+        "noFillReason": null,
+        "entryNotionalUsd": 11.5761,
+        "exitAttempts": [
+          {
+            "attemptMs": 1762012800000,
+            "knownAtMs": 1762016400000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762016400000,
+            "knownAtMs": 1762020000000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762020000000,
+            "knownAtMs": 1762023600000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762023600000,
+            "knownAtMs": 1762027200000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762027200000,
+            "knownAtMs": 1762030800000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762030800000,
+            "knownAtMs": 1762034400000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762034400000,
+            "knownAtMs": 1762034400000,
+            "status": "FILLED"
+          }
+        ],
+        "exitRetryCount": 6,
+        "exitDelayHours": 6,
+        "exitRetryExhausted": false
+      },
+      "accountNetPnlUsd": -0.036347960005514324,
+      "maximumDrawdownUsd": 0.13353224999445956,
+      "metrics": {
+        "selected": 2,
+        "filled": 2,
+        "completed": 2,
+        "unfilled": 0,
+        "zeroQuantityNoFills": 0,
+        "exitRetriedTrades": 1,
+        "exitRetryAttempts": 6,
+        "exitZeroVolumeNoFills": 6,
+        "exitRetryExhaustedTrades": 0,
+        "maximumObservedExitDelayHours": 6,
+        "unknownTrades": 0,
+        "activeUtcDates": 2,
+        "finalEquityUsd": 99999.96365204,
+        "totalGrossPnlUsd": 0.03239999999641441,
+        "totalNetPnlUsd": -0.036347960005514324,
+        "knownCompletedGrossPnlUsd": 0.032400000000000276,
+        "knownCompletedNetPnlUsd": -0.036347959999999194,
+        "totalFeesUsd": 0.022594799999999998,
+        "totalSlippageUsd": 0.006999999999999455,
+        "totalFundingUsd": 0.039153160000000006,
+        "knownFundingUsd": 0.039153160000000006,
+        "totalFundingReserveUsd": 0,
+        "knownFundingReserveUsd": 0,
+        "turnoverUsd": 45.1896,
+        "turnoverInitialEquity": 0.00045189599999999997,
+        "positionHours": 34,
+        "unknownPositionHours": 0,
+        "staleMarkHours": 6,
+        "maximumDrawdownUsd": 0.13353224999445956,
+        "maximumDrawdownFraction": 0.0000013353215852931083,
+        "maximumLiquidationDrawdownUsd": 0.13346894999267533,
+        "knownMaximumDrawdownUsd": 0.13353224999445956,
+        "knownMaximumLiquidationDrawdownUsd": 0.13346894999267533,
+        "maximumOneDayLossUsd": 0.055228950004675426,
+        "perAsset": [
+          {
+            "symbol": "BTC/USD",
+            "selected": 1,
+            "filled": 1,
+            "completed": 1,
+            "unknownTrades": 0,
+            "grossPnlUsd": -0.0033,
+            "netPnlUsd": -0.02210261,
+            "knownCompletedGrossPnlUsd": -0.0033,
+            "knownCompletedNetPnlUsd": -0.02210261
+          },
+          {
+            "symbol": "ETH/USD",
+            "selected": 1,
+            "filled": 1,
+            "completed": 1,
+            "unknownTrades": 0,
+            "grossPnlUsd": 0.03570000000000027,
+            "netPnlUsd": -0.014245349999999189,
+            "knownCompletedGrossPnlUsd": 0.03570000000000027,
+            "knownCompletedNetPnlUsd": -0.014245349999999189
+          }
+        ]
+      },
+      "skips": {
+        "busyForecasts": 6,
+        "belowHurdleForecasts": 0,
+        "endpointForecasts": 0,
+        "zeroDirectionForecasts": 0
+      },
+      "settlementsFirstTrade": [
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761930000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00114633,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761933600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00114807,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761937200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00115533,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761940800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011654999999999999,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761944400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00115767,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761948000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00115815,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761951600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011562599999999999,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761955200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011535900000000001,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761958800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00115374,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761962400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00115284,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761966000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011552099999999998,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761969600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00115803,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761973200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00115959,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761976800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00115602,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761980400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00115722,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761984000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00115752,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761987600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00116397,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761991200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00116205,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761994800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011622,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761998400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011627400000000002,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1762002000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011621700000000001,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1762005600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011605500000000002,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1762009200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011614499999999999,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1762012800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.001161,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1762016400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.001161,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1762020000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.001161,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1762023600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.001161,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1762027200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.001161,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1762030800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.001161,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1762034400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.001161,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        }
+      ]
+    },
+    {
+      "symbol": "ETH/USD",
+      "side": 1,
+      "scenario": "stress",
+      "firstTrade": {
+        "id": "ETH/USD:1761922800000",
+        "symbol": "ETH/USD",
+        "side": 1,
+        "decisionMs": 1761922800000,
+        "expectedNetBps": 87,
+        "predictedGrossBps": 100,
+        "horizonHours": 24,
+        "scheduledEntryMs": 1761930000000,
+        "scheduledExitMs": 1762016400000,
+        "status": "COMPLETE",
+        "entryMs": 1761930000000,
+        "exitMs": 1762034400000,
+        "qty": 0.003,
+        "entryReferencePx": 3821.1,
+        "entryPx": 3822.3,
+        "exitReferencePx": 3870,
+        "exitPx": 3868.8,
+        "grossPnlUsd": 0.14670000000000027,
+        "netPnlUsd": 0.08718786875000001,
+        "feesUsd": 0.017304975,
+        "slippageUsd": 0.007200000000000273,
+        "fundingUsd": 0.033606870000000004,
+        "fundingReserveUsd": 0.00140028625,
+        "invalidReasons": [],
+        "noFillReason": null,
+        "entryNotionalUsd": 11.4669,
+        "exitAttempts": [
+          {
+            "attemptMs": 1762016400000,
+            "knownAtMs": 1762020000000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762020000000,
+            "knownAtMs": 1762023600000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762023600000,
+            "knownAtMs": 1762027200000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762027200000,
+            "knownAtMs": 1762030800000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762030800000,
+            "knownAtMs": 1762034400000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762034400000,
+            "knownAtMs": 1762034400000,
+            "status": "FILLED"
+          }
+        ],
+        "exitRetryCount": 5,
+        "exitDelayHours": 5,
+        "exitRetryExhausted": false
+      },
+      "accountNetPnlUsd": 0.05159840417036321,
+      "maximumDrawdownUsd": 0.13382109375379514,
+      "metrics": {
+        "selected": 2,
+        "filled": 2,
+        "completed": 2,
+        "unfilled": 0,
+        "zeroQuantityNoFills": 0,
+        "exitRetriedTrades": 1,
+        "exitRetryAttempts": 5,
+        "exitZeroVolumeNoFills": 5,
+        "exitRetryExhaustedTrades": 0,
+        "maximumObservedExitDelayHours": 5,
+        "unknownTrades": 0,
+        "activeUtcDates": 2,
+        "finalEquityUsd": 100000.05159840417,
+        "totalGrossPnlUsd": 0.13899999999557622,
+        "totalNetPnlUsd": 0.05159840417036321,
+        "knownCompletedGrossPnlUsd": 0.13900000000000026,
+        "knownCompletedNetPnlUsd": 0.051598404166666674,
+        "totalFeesUsd": 0.03381195,
+        "totalSlippageUsd": 0.014000000000000273,
+        "totalFundingUsd": 0.03800606000000001,
+        "knownFundingUsd": 0.03800606000000001,
+        "totalFundingReserveUsd": 0.0015835858333333333,
+        "knownFundingReserveUsd": 0.0015835858333333333,
+        "turnoverUsd": 45.0826,
+        "turnoverInitialEquity": 0.000450826,
+        "positionHours": 33,
+        "unknownPositionHours": 0,
+        "staleMarkHours": 6,
+        "maximumDrawdownUsd": 0.13382109375379514,
+        "maximumDrawdownFraction": 0.000001338208583811216,
+        "maximumLiquidationDrawdownUsd": 0.13372614374384284,
+        "knownMaximumDrawdownUsd": 0.13382109375379514,
+        "knownMaximumLiquidationDrawdownUsd": 0.13372614374384284,
+        "maximumOneDayLossUsd": 0.023930539580760524,
+        "perAsset": [
+          {
+            "symbol": "BTC/USD",
+            "selected": 1,
+            "filled": 1,
+            "completed": 1,
+            "unknownTrades": 0,
+            "grossPnlUsd": -0.0077,
+            "netPnlUsd": -0.035589464583333334,
+            "knownCompletedGrossPnlUsd": -0.0077,
+            "knownCompletedNetPnlUsd": -0.035589464583333334
+          },
+          {
+            "symbol": "ETH/USD",
+            "selected": 1,
+            "filled": 1,
+            "completed": 1,
+            "unknownTrades": 0,
+            "grossPnlUsd": 0.14670000000000027,
+            "netPnlUsd": 0.08718786875000001,
+            "knownCompletedGrossPnlUsd": 0.14670000000000027,
+            "knownCompletedNetPnlUsd": 0.08718786875000001
+          }
+        ]
+      },
+      "skips": {
+        "busyForecasts": 6,
+        "belowHurdleForecasts": 0,
+        "endpointForecasts": 0,
+        "zeroDirectionForecasts": 0
+      },
+      "settlementsFirstTrade": [
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761933600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00114807,
+          "reserveUsd": 0.00004783625,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761937200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00115533,
+          "reserveUsd": 0.00004813875,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761940800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011654999999999999,
+          "reserveUsd": 0.000048562499999999995,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761944400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00115767,
+          "reserveUsd": 0.00004823625,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761948000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00115815,
+          "reserveUsd": 0.00004825625,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761951600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011562599999999999,
+          "reserveUsd": 0.0000481775,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761955200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011535900000000001,
+          "reserveUsd": 0.00004806625000000001,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761958800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00115374,
+          "reserveUsd": 0.000048072500000000004,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761962400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00115284,
+          "reserveUsd": 0.000048035000000000003,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761966000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011552099999999998,
+          "reserveUsd": 0.00004813374999999999,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761969600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00115803,
+          "reserveUsd": 0.00004825125,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761973200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00115959,
+          "reserveUsd": 0.00004831625,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761976800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00115602,
+          "reserveUsd": 0.0000481675,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761980400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00115722,
+          "reserveUsd": 0.000048217500000000004,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761984000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00115752,
+          "reserveUsd": 0.00004823,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761987600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00116397,
+          "reserveUsd": 0.00004849875,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761991200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00116205,
+          "reserveUsd": 0.00004841875,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761994800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011622,
+          "reserveUsd": 0.000048425,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761998400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011627400000000002,
+          "reserveUsd": 0.00004844750000000001,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1762002000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011621700000000001,
+          "reserveUsd": 0.000048423750000000005,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1762005600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011605500000000002,
+          "reserveUsd": 0.000048356250000000006,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1762009200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011614499999999999,
+          "reserveUsd": 0.000048393749999999994,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1762012800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.001161,
+          "reserveUsd": 0.000048375,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1762016400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.001161,
+          "reserveUsd": 0.000048375,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1762020000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.001161,
+          "reserveUsd": 0.000048375,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1762023600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.001161,
+          "reserveUsd": 0.000048375,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1762027200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.001161,
+          "reserveUsd": 0.000048375,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1762030800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.001161,
+          "reserveUsd": 0.000048375,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1762034400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.001161,
+          "reserveUsd": 0.000048375,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        }
+      ]
+    },
+    {
+      "symbol": "ETH/USD",
+      "side": -1,
+      "scenario": "base",
+      "firstTrade": {
+        "id": "ETH/USD:1761922800000",
+        "symbol": "ETH/USD",
+        "side": -1,
+        "decisionMs": 1761922800000,
+        "expectedNetBps": 87,
+        "predictedGrossBps": -100,
+        "horizonHours": 24,
+        "scheduledEntryMs": 1761926400000,
+        "scheduledExitMs": 1762012800000,
+        "status": "COMPLETE",
+        "entryMs": 1761926400000,
+        "exitMs": 1762034400000,
+        "qty": 0.003,
+        "entryReferencePx": 3858.1,
+        "entryPx": 3857.5,
+        "exitReferencePx": 3870,
+        "exitPx": 3870.6,
+        "grossPnlUsd": -0.03570000000000027,
+        "netPnlUsd": -0.08564534999999973,
+        "feesUsd": 0.011592149999999999,
+        "slippageUsd": 0.0035999999999994543,
+        "fundingUsd": 0.034753200000000005,
+        "fundingReserveUsd": 0,
+        "invalidReasons": [],
+        "noFillReason": null,
+        "entryNotionalUsd": 11.5725,
+        "exitAttempts": [
+          {
+            "attemptMs": 1762012800000,
+            "knownAtMs": 1762016400000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762016400000,
+            "knownAtMs": 1762020000000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762020000000,
+            "knownAtMs": 1762023600000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762023600000,
+            "knownAtMs": 1762027200000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762027200000,
+            "knownAtMs": 1762030800000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762030800000,
+            "knownAtMs": 1762034400000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762034400000,
+            "knownAtMs": 1762034400000,
+            "status": "FILLED"
+          }
+        ],
+        "exitRetryCount": 6,
+        "exitDelayHours": 6,
+        "exitRetryExhausted": false
+      },
+      "accountNetPnlUsd": -0.1077479600062361,
+      "maximumDrawdownUsd": 0.2100153800129192,
+      "metrics": {
+        "selected": 2,
+        "filled": 2,
+        "completed": 2,
+        "unfilled": 0,
+        "zeroQuantityNoFills": 0,
+        "exitRetriedTrades": 1,
+        "exitRetryAttempts": 6,
+        "exitZeroVolumeNoFills": 6,
+        "exitRetryExhaustedTrades": 0,
+        "maximumObservedExitDelayHours": 6,
+        "unknownTrades": 0,
+        "activeUtcDates": 2,
+        "finalEquityUsd": 99999.89225204,
+        "totalGrossPnlUsd": -0.03900000000430737,
+        "totalNetPnlUsd": -0.1077479600062361,
+        "knownCompletedGrossPnlUsd": -0.03900000000000027,
+        "knownCompletedNetPnlUsd": -0.10774795999999973,
+        "totalFeesUsd": 0.022594799999999998,
+        "totalSlippageUsd": 0.006999999999999455,
+        "totalFundingUsd": 0.039153160000000006,
+        "knownFundingUsd": 0.039153160000000006,
+        "totalFundingReserveUsd": 0,
+        "knownFundingReserveUsd": 0,
+        "turnoverUsd": 45.1896,
+        "turnoverInitialEquity": 0.00045189599999999997,
+        "positionHours": 34,
+        "unknownPositionHours": 0,
+        "staleMarkHours": 6,
+        "maximumDrawdownUsd": 0.2100153800129192,
+        "maximumDrawdownFraction": 0.0000021001516523582807,
+        "maximumLiquidationDrawdownUsd": 0.20737973001087084,
+        "knownMaximumDrawdownUsd": 0.2100153800129192,
+        "knownMaximumLiquidationDrawdownUsd": 0.20737973001087084,
+        "maximumOneDayLossUsd": 0.1113220499973977,
+        "perAsset": [
+          {
+            "symbol": "BTC/USD",
+            "selected": 1,
+            "filled": 1,
+            "completed": 1,
+            "unknownTrades": 0,
+            "grossPnlUsd": -0.0033,
+            "netPnlUsd": -0.02210261,
+            "knownCompletedGrossPnlUsd": -0.0033,
+            "knownCompletedNetPnlUsd": -0.02210261
+          },
+          {
+            "symbol": "ETH/USD",
+            "selected": 1,
+            "filled": 1,
+            "completed": 1,
+            "unknownTrades": 0,
+            "grossPnlUsd": -0.03570000000000027,
+            "netPnlUsd": -0.08564534999999973,
+            "knownCompletedGrossPnlUsd": -0.03570000000000027,
+            "knownCompletedNetPnlUsd": -0.08564534999999973
+          }
+        ]
+      },
+      "skips": {
+        "busyForecasts": 6,
+        "belowHurdleForecasts": 0,
+        "endpointForecasts": 0,
+        "zeroDirectionForecasts": 0
+      },
+      "settlementsFirstTrade": [
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761930000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00114633,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761933600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00114807,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761937200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00115533,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761940800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011654999999999999,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761944400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00115767,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761948000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00115815,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761951600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011562599999999999,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761955200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011535900000000001,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761958800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00115374,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761962400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00115284,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761966000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011552099999999998,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761969600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00115803,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761973200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00115959,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761976800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00115602,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761980400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00115722,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761984000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00115752,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761987600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00116397,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761991200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00116205,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761994800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011622,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761998400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011627400000000002,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1762002000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011621700000000001,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1762005600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011605500000000002,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1762009200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011614499999999999,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1762012800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.001161,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1762016400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.001161,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1762020000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.001161,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1762023600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.001161,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1762027200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.001161,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1762030800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.001161,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1762034400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.001161,
+          "reserveUsd": 0,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        }
+      ]
+    },
+    {
+      "symbol": "ETH/USD",
+      "side": -1,
+      "scenario": "stress",
+      "firstTrade": {
+        "id": "ETH/USD:1761922800000",
+        "symbol": "ETH/USD",
+        "side": -1,
+        "decisionMs": 1761922800000,
+        "expectedNetBps": 87,
+        "predictedGrossBps": -100,
+        "horizonHours": 24,
+        "scheduledEntryMs": 1761930000000,
+        "scheduledExitMs": 1762016400000,
+        "status": "COMPLETE",
+        "entryMs": 1761930000000,
+        "exitMs": 1762034400000,
+        "qty": 0.003,
+        "entryReferencePx": 3821.1,
+        "entryPx": 3819.9,
+        "exitReferencePx": 3870,
+        "exitPx": 3871.2,
+        "grossPnlUsd": -0.14670000000000027,
+        "netPnlUsd": -0.20621213124999918,
+        "feesUsd": 0.017304975,
+        "slippageUsd": 0.007199999999998909,
+        "fundingUsd": 0.033606870000000004,
+        "fundingReserveUsd": 0.00140028625,
+        "invalidReasons": [],
+        "noFillReason": null,
+        "entryNotionalUsd": 11.4597,
+        "exitAttempts": [
+          {
+            "attemptMs": 1762016400000,
+            "knownAtMs": 1762020000000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762020000000,
+            "knownAtMs": 1762023600000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762023600000,
+            "knownAtMs": 1762027200000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762027200000,
+            "knownAtMs": 1762030800000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762030800000,
+            "knownAtMs": 1762034400000,
+            "status": "ZERO_VOLUME_UNFILLED"
+          },
+          {
+            "attemptMs": 1762034400000,
+            "knownAtMs": 1762034400000,
+            "status": "FILLED"
+          }
+        ],
+        "exitRetryCount": 5,
+        "exitDelayHours": 5,
+        "exitRetryExhausted": false
+      },
+      "accountNetPnlUsd": -0.24180159583920613,
+      "maximumDrawdownUsd": 0.24180159583920613,
+      "metrics": {
+        "selected": 2,
+        "filled": 2,
+        "completed": 2,
+        "unfilled": 0,
+        "zeroQuantityNoFills": 0,
+        "exitRetriedTrades": 1,
+        "exitRetryAttempts": 5,
+        "exitZeroVolumeNoFills": 5,
+        "exitRetryExhaustedTrades": 0,
+        "maximumObservedExitDelayHours": 5,
+        "unknownTrades": 0,
+        "activeUtcDates": 2,
+        "finalEquityUsd": 99999.75819840416,
+        "totalGrossPnlUsd": -0.1543999999994412,
+        "totalNetPnlUsd": -0.24180159583920613,
+        "knownCompletedGrossPnlUsd": -0.1544000000000003,
+        "knownCompletedNetPnlUsd": -0.24180159583333252,
+        "totalFeesUsd": 0.03381195,
+        "totalSlippageUsd": 0.01399999999999891,
+        "totalFundingUsd": 0.03800606000000001,
+        "knownFundingUsd": 0.03800606000000001,
+        "totalFundingReserveUsd": 0.0015835858333333333,
+        "knownFundingReserveUsd": 0.0015835858333333333,
+        "turnoverUsd": 45.0826,
+        "turnoverInitialEquity": 0.000450826,
+        "positionHours": 33,
+        "unknownPositionHours": 0,
+        "staleMarkHours": 6,
+        "maximumDrawdownUsd": 0.24180159583920613,
+        "maximumDrawdownFraction": 0.000002418015958392061,
+        "maximumLiquidationDrawdownUsd": 0.24520546667918097,
+        "knownMaximumDrawdownUsd": 0.24180159583920613,
+        "knownMaximumLiquidationDrawdownUsd": 0.24520546667918097,
+        "maximumOneDayLossUsd": 0.12464443751377985,
+        "perAsset": [
+          {
+            "symbol": "BTC/USD",
+            "selected": 1,
+            "filled": 1,
+            "completed": 1,
+            "unknownTrades": 0,
+            "grossPnlUsd": -0.0077,
+            "netPnlUsd": -0.035589464583333334,
+            "knownCompletedGrossPnlUsd": -0.0077,
+            "knownCompletedNetPnlUsd": -0.035589464583333334
+          },
+          {
+            "symbol": "ETH/USD",
+            "selected": 1,
+            "filled": 1,
+            "completed": 1,
+            "unknownTrades": 0,
+            "grossPnlUsd": -0.14670000000000027,
+            "netPnlUsd": -0.20621213124999918,
+            "knownCompletedGrossPnlUsd": -0.14670000000000027,
+            "knownCompletedNetPnlUsd": -0.20621213124999918
+          }
+        ]
+      },
+      "skips": {
+        "busyForecasts": 6,
+        "belowHurdleForecasts": 0,
+        "endpointForecasts": 0,
+        "zeroDirectionForecasts": 0
+      },
+      "settlementsFirstTrade": [
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761933600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00114807,
+          "reserveUsd": 0.00004783625,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761937200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00115533,
+          "reserveUsd": 0.00004813875,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761940800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011654999999999999,
+          "reserveUsd": 0.000048562499999999995,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761944400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00115767,
+          "reserveUsd": 0.00004823625,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761948000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00115815,
+          "reserveUsd": 0.00004825625,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761951600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011562599999999999,
+          "reserveUsd": 0.0000481775,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761955200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011535900000000001,
+          "reserveUsd": 0.00004806625000000001,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761958800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00115374,
+          "reserveUsd": 0.000048072500000000004,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761962400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00115284,
+          "reserveUsd": 0.000048035000000000003,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761966000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011552099999999998,
+          "reserveUsd": 0.00004813374999999999,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761969600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00115803,
+          "reserveUsd": 0.00004825125,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761973200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00115959,
+          "reserveUsd": 0.00004831625,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761976800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00115602,
+          "reserveUsd": 0.0000481675,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761980400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00115722,
+          "reserveUsd": 0.000048217500000000004,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761984000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00115752,
+          "reserveUsd": 0.00004823,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761987600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00116397,
+          "reserveUsd": 0.00004849875,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761991200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.00116205,
+          "reserveUsd": 0.00004841875,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761994800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011622,
+          "reserveUsd": 0.000048425,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1761998400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011627400000000002,
+          "reserveUsd": 0.00004844750000000001,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1762002000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011621700000000001,
+          "reserveUsd": 0.000048423750000000005,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1762005600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011605500000000002,
+          "reserveUsd": 0.000048356250000000006,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1762009200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.0011614499999999999,
+          "reserveUsd": 0.000048393749999999994,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1762012800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.001161,
+          "reserveUsd": 0.000048375,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1762016400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.001161,
+          "reserveUsd": 0.000048375,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1762020000000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.001161,
+          "reserveUsd": 0.000048375,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1762023600000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.001161,
+          "reserveUsd": 0.000048375,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1762027200000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.001161,
+          "reserveUsd": 0.000048375,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1762030800000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.001161,
+          "reserveUsd": 0.000048375,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        },
+        {
+          "tradeId": "ETH/USD:1761922800000",
+          "symbol": "ETH/USD",
+          "atMs": 1762034400000,
+          "rate": null,
+          "absoluteRate": null,
+          "fundingUsd": 0.001161,
+          "reserveUsd": 0.000048375,
+          "source": "ADVERSE_TRAINING_RESERVE"
+        }
+      ]
+    }
+  ]
+}

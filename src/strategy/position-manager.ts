@@ -3,6 +3,8 @@ import { clamp } from "../core/market.js";
 import type { EntryFamily, ExecutionPath } from "../economics/types.js";
 import { findPolicy, policyExit, policyProtection, validPositionPolicy, type PolicyPositionSpec } from "../research/trading-policy.js";
 import { netLiquidation, requiredNetExecutionPrice, type LinearLedger, type NetProtection } from "../economics/net-liquidation.js";
+import { evaluateSystematicExit, type SystematicProtection } from "../systematic/position.js";
+import type { SystematicPositionSpec } from "../systematic/spec.js";
 
 export type PositionPhase = "OPEN" | "RECOVERY" | "PROTECTED" | "TREND_HOLD" | "EXITING";
 export interface Position {
@@ -22,6 +24,8 @@ export interface Position {
   selectedHorizonMs?: number;
   executionPath?: ExecutionPath;
   policy?: PolicyPositionSpec;
+  systematic?: SystematicPositionSpec;
+  systematicProtection?: SystematicProtection;
   ledger?: LinearLedger;
   netProtection?: NetProtection;
   netLiquidationUsd?: number;
@@ -78,6 +82,15 @@ export class PositionManager {
     p.mfePx = Math.max(p.mfePx, u);
     p.maePx = Math.max(p.maePx, -u);
     if (f.stale) { p.phase = "EXITING"; return { action: "EXIT", reason: "DATA_INVALID" }; }
+    if (p.systematic !== undefined) {
+      const result = evaluateSystematicExit(p, executableExitPx, nowMs);
+      if (result.protection) p.systematicProtection = result.protection;
+      if (result.netLiquidationUsd !== undefined) p.netLiquidationUsd = result.netLiquidationUsd;
+      if (result.floorPx !== undefined) p.floorPx = result.floorPx;
+      if (result.action === "EXIT") { p.phase = "EXITING"; return { action: "EXIT", reason: result.reason! }; }
+      p.phase = result.protection?.activated ? "PROTECTED" : "OPEN";
+      return { action: "HOLD", floorPx: p.floorPx, stopPx: result.stopPx!, signedMovePx: u };
+    }
     if (p.policy) {
       if (!validPositionPolicy(p.policy)) { p.phase = "EXITING"; return { action: "EXIT", reason: "INVALID_POLICY" }; }
       if (p.policy.id.startsWith("distribution-") && p.phase === "EXITING") return { action: "EXIT", reason: "POLICY_EXIT_LATCHED" };

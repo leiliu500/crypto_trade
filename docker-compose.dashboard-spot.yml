@@ -1,0 +1,13 @@
+# Overlay on docker-compose.yml; retain the deployed trading engine and account configuration.
+services:
+  engine:
+    image: crypto-trade-engine:spot-dashboard-v8
+    build:
+      context: .
+      dockerfile: docker/dashboard-spot.Dockerfile
+    volumes:
+      - spot_trend_activity:/app/spot-paper-data:ro
+volumes:
+  spot_trend_activity:
+    external: true
+    name: crypto_trade_spot_trend_research

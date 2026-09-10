@@ -1,0 +1,1013 @@
+{
+  "schemaVersion": "profit-search-strategy-hypotheses-v1",
+  "createdAtUtc": "2026-09-10T19:21:43.650083+00:00",
+  "authorRole": "strategy_research",
+  "recordCount": 25,
+  "agentCountRepresented": 1,
+  "statusMeaning": {
+    "supported": "Evidence supports the stated diagnostic or research intervention; this does not mean a trading edge is proven.",
+    "rejected": "The stated promotion or sufficiency claim conflicts with cited evidence for the specified candidate/sample.",
+    "needs_data": "Plausible, explicitly unvalidated candidate or comparison requiring a new replay and/or prospective evidence."
+  },
+  "scope": "Unlevered funded spot alternatives and model-selection evidence. Root owns market replays; this agent independently recalculated concentration, neighboring-parameter and passive-excess diagnostics from root screen ledgers.",
+  "recommendedBoundedFamily": {
+    "firstCandidate": "S04",
+    "optionalComplexityControl": "S05",
+    "requiredBenchmarks": [
+      "S01",
+      "S02",
+      "S03"
+    ],
+    "noParameterGrid": true,
+    "productionChanged": false,
+    "profitabilityEstablished": false,
+    "status": "Pre-screen strategy nomination preserved; superseded for research priority by root development-locked ETH40 candidate after independent result review.",
+    "exactS04Tested": false
+  },
+  "primarySourcesAccessedUtcDate": "2026-09-10",
+  "primarySources": {
+    "momentum": "https://www.nber.org/papers/w24877",
+    "crossSection": "https://www.nber.org/papers/w25882",
+    "timeSeries": "https://www.aqr.com/Insights/Research/Journal-Article/Time-Series-Momentum",
+    "volatility": "https://www.nber.org/papers/w22208",
+    "crashes": "https://www.nber.org/papers/w20439",
+    "overfit": "https://www.davidhbailey.com/dhbpapers/backtest-prob.pdf",
+    "fees": "https://www.kraken.com/features/fee-schedule",
+    "ohlc": "https://docs.kraken.com/api-reference/market-data/get-ohlc-data"
+  },
+  "hypotheses": [
+    {
+      "id": "S01",
+      "title": "Use cash as the absolute net-profit benchmark",
+      "status": "supported",
+      "rationale": "All three previously frozen daily candidates lost in the 2026 comparison. Avoiding loss is useful, but zero-trade cash behavior does not meet the profit objective.",
+      "evidence": [
+        "reports/parallel-strategy-study-2026-09-10/report.md",
+        "reports/parallel-strategy-study-2026-09-10/comparison.json"
+      ],
+      "testability": "Replay cash at the same starting capital and exact calendar dates; report net dollars and activity separately.",
+      "likelyImpact": "Prevents a least-losing candidate from being presented as a profitable winner; creates no returns itself.",
+      "priority": "required_control"
+    },
+    {
+      "id": "S02",
+      "title": "Use costed BTC buy-and-hold as the passive opportunity-cost benchmark",
+      "status": "supported",
+      "rationale": "Earlier weekly trend earned less total dollars than its passive BTC comparator while reducing sampled drawdown. Positive model dollars alone do not establish value added.",
+      "evidence": [
+        "reports/new-spot-system-2026-09-10/historical-study/report.md",
+        "reports/parallel-strategy-study-2026-09-10/report.md"
+      ],
+      "testability": "Start both policies with cash, the same funded initial exposure and execution convention; separately disclose later exposure differences and risk-adjusted comparisons.",
+      "likelyImpact": "Separates market appreciation from useful timing; passive exposure can lose substantially.",
+      "priority": "required_control"
+    },
+    {
+      "id": "S03",
+      "title": "Retain exact 40-week BTC trend as a nominated slow baseline",
+      "status": "needs_data",
+      "rationale": "The existing weekly study shows +1175.60 USD base and +1228.51 USD stress over 2017 through September 2026, 11 episodes, but its bootstrap lower mean weekly net is -0.48 USD. It is promising historical evidence, not validated future expectancy.",
+      "evidence": [
+        "src/spot-trend/spec.ts",
+        "src/spot-trend/signal.ts",
+        "reports/new-spot-system-2026-09-10/historical-study/report.md"
+      ],
+      "testability": "Exact formula: SMA40 on completed native weeks; enter above SMA*1.0166, exit at/below SMA, preserve state in band. Replay with sufficient pre-period weekly warmup and identical comparator accounting; then assess newly collected outcomes.",
+      "likelyImpact": "Low turnover can reduce cost drag and avoid some prolonged bear exposure, at the price of late entries and exits.",
+      "priority": "required_control"
+    },
+    {
+      "id": "S04",
+      "title": "BTC-only majority trend across three horizons with symmetric hysteresis",
+      "status": "needs_data",
+      "rationale": "Thirty-, sixty-, and ninety-day trends can disagree; a fixed majority could reduce dependence on one crossover. This is a new economic hypothesis and a bounded alternative to the failed drift and rotation predictors.",
+      "evidence": [
+        "reports/parallel-strategy-study-2026-09-10/trend/report.md",
+        "reports/parallel-strategy-study-2026-09-10/rotation/report.md",
+        "https://www.nber.org/papers/w24877",
+        "https://www.aqr.com/Insights/Research/Journal-Article/Time-Series-Momentum",
+        "reports/profit-search-100-2026-09-10/screen/ledgers/consensus_btc-090.json"
+      ],
+      "testability": "Freeze SMA windows [30,60,90], count close>SMA*(1+b) and close<SMA/(1+b), enter on two upper votes and exit on two lower votes, preserve state otherwise; b is the exact declared base round-trip reference-price break-even move. Require 90 completed bars, delayed funded fills, no additions. No post-result parameter search.",
+      "likelyImpact": "May reduce whipsaw and switching fees; can also miss early recovery and retain losses. Net direction is unknown.",
+      "priority": "defer_after_root_screen",
+      "rootScreenNote": "Related consensus_btc-090 lost in later windows, with a different lower-band formula. Exact S04 remains untested; ETH40 has stronger current exploratory evidence."
+    },
+    {
+      "id": "S05",
+      "title": "Single BTC SMA90 with the same symmetric band as a complexity control",
+      "status": "needs_data",
+      "rationale": "If a single fixed trend performs as well as the majority rule, ensemble complexity has no demonstrated benefit.",
+      "evidence": [
+        "reports/parallel-strategy-study-2026-09-10/common.py",
+        "https://www.aqr.com/Insights/Research/Journal-Article/Time-Series-Momentum"
+      ],
+      "testability": "Use the same costs, warmup, execution, entry/exit band and exposure as S04, replacing the majority with one SMA90 vote. Declare this as one additional tested variant.",
+      "likelyImpact": "Identifies whether horizon averaging adds economic value rather than merely more parameters.",
+      "priority": "optional_control"
+    },
+    {
+      "id": "S06",
+      "title": "Asymmetric Donchian breakout as an alternative trend entry mechanism",
+      "status": "needs_data",
+      "rationale": "A prior-price breakout asks whether trend continuation follows a range escape, unlike moving-average distance. No proof follows from that interpretation.",
+      "evidence": [
+        "reports/parallel-strategy-study-2026-09-10/report.md",
+        "https://www.aqr.com/Insights/Research/Journal-Article/Time-Series-Momentum"
+      ],
+      "testability": "For a later separate experiment freeze BTC close above the prior 120 completed daily closes maximum for entry; exit below the prior 60-close minimum. Exclude the decision close from both reference windows. Charge the same costs and delayed fills.",
+      "likelyImpact": "Potentially very low turnover and persistent upside participation; can enter near exhausted moves.",
+      "priority": "defer"
+    },
+    {
+      "id": "S07",
+      "title": "Reduce trend exposure when trailing volatility rises",
+      "status": "needs_data",
+      "rationale": "Primary research supports volatility management in other asset classes; transfer to crypto and tiny funded spot allocations is unestablished.",
+      "evidence": [
+        "https://www.nber.org/papers/w22208",
+        "reports/parallel-strategy-study-2026-09-10/common.py"
+      ],
+      "testability": "In a separate frozen sizing experiment compute trailing 30-day realized volatility and only reduce the existing entry budget via a fixed capped inverse-volatility multiplier. Never increase above current authorized cap; account for minimum size and any rebalance costs.",
+      "likelyImpact": "May reduce drawdown; lower exposure can also reduce profits. It does not repair negative signal expectancy.",
+      "priority": "defer"
+    },
+    {
+      "id": "S08",
+      "title": "Require persistent exit-and-reentry separation to suppress churn",
+      "status": "needs_data",
+      "rationale": "A fixed cooldown after a trend exit can reduce repeated loss-making crossings but may miss rapid recoveries. Prior momentum literature documents regime-dependent losses.",
+      "evidence": [
+        "reports/parallel-strategy-study-2026-09-10/rotation/report.md",
+        "https://www.nber.org/papers/w20439"
+      ],
+      "testability": "Apply a predeclared seven-completed-day reentry cooldown to one frozen candidate in a separate ablation; exits remain immediate at the signal horizon. Log missed qualifying entries and final mark-outs.",
+      "likelyImpact": "Trades fewer noisy reversals but carries meaningful opportunity cost; unknown net benefit.",
+      "priority": "defer"
+    },
+    {
+      "id": "S09",
+      "title": "Promote the already-tested BTC/ETH 60-day rotation",
+      "status": "rejected",
+      "rationale": "The preselected rotation earned +461.59 USD in 2025 H2 validation, concentrated in one ETH winner, then lost -98.00 USD base and -159.49 USD combined stress in 2026.",
+      "evidence": [
+        "reports/parallel-strategy-study-2026-09-10/report.md",
+        "reports/parallel-strategy-study-2026-09-10/rotation/report.md",
+        "reports/parallel-strategy-study-2026-09-10/final-selection-lock.json"
+      ],
+      "testability": "Retain original frozen module and ledgers as a failed reference; retrying alternate windows requires registering a new trial and new evidence.",
+      "likelyImpact": "Present evidence does not justify replacing the active policy with this candidate.",
+      "priority": "reject_promotion"
+    },
+    {
+      "id": "S10",
+      "title": "Monthly rather than daily relative-strength decisions",
+      "status": "needs_data",
+      "rationale": "The failed rotation incurred entry and switching costs. A fixed monthly decision schedule tests whether slower cross-sectional allocation has a better net tradeoff without adding assets.",
+      "evidence": [
+        "reports/parallel-strategy-study-2026-09-10/rotation/report.md",
+        "https://www.nber.org/papers/w25882"
+      ],
+      "testability": "For a later study hold between month-end decisions; compare BTC and ETH on predeclared 90-day momentum, require positive own momentum, retain incumbent unless the candidate advantage exceeds one declared round-trip hurdle. Same-date costed benchmarks are mandatory.",
+      "likelyImpact": "Less switching may save fees but slower exits and just two correlated assets limit diversification.",
+      "priority": "defer"
+    },
+    {
+      "id": "S11",
+      "title": "Fixed BTC/ETH basket without routine rebalancing",
+      "status": "needs_data",
+      "rationale": "A simple funded basket is a baseline for claiming that choosing between BTC and ETH adds value. It requires neither a predictive model nor frequent rotation.",
+      "evidence": [
+        "reports/parallel-strategy-study-2026-09-10/report.md",
+        "https://www.nber.org/papers/w25882"
+      ],
+      "testability": "Split one total allowed entry budget equally at inception, charge both assets fees, preserve fixed units, mark all liquidation costs, and compare on identical dates. Requires an explicitly multi-position research accountant.",
+      "likelyImpact": "May diversify asset-specific performance; common crypto market exposure can still dominate losses.",
+      "priority": "defer"
+    },
+    {
+      "id": "S12",
+      "title": "Broader liquid-asset cross-sectional momentum",
+      "status": "needs_data",
+      "rationale": "Research finds crypto market, size and momentum factors, but broader long-short results do not establish a funded long-only BTC/ETH edge. A wider point-in-time universe is a materially different data project.",
+      "evidence": [
+        "https://www.nber.org/papers/w25882",
+        "reports/parallel-strategy-study-2026-09-10/data/dataset.json"
+      ],
+      "testability": "Obtain point-in-time listings, delistings, liquidity and historical tradability. Freeze universe eligibility before returns; include failed/delisted assets and realistic volume/cost limits. No current-survivor-only scan.",
+      "likelyImpact": "Could add independent opportunities; survivorship and small-asset execution costs can erase apparent advantage.",
+      "priority": "needs_new_dataset"
+    },
+    {
+      "id": "S13",
+      "title": "Declare a blend of the three failed daily candidates profitable",
+      "status": "rejected",
+      "rationale": "A convex combination of their separately funded 2026 return streams remains negative when every component has negative net return. Combining target signals is a different untested strategy.",
+      "evidence": [
+        "reports/parallel-strategy-study-2026-09-10/report.md",
+        "reports/parallel-strategy-study-2026-09-10/comparison.json"
+      ],
+      "testability": "For accounting blends aggregate synchronized component P&L with fixed nonnegative weights summing to one; for signal combinations register a separate causal replay with actual turnover.",
+      "likelyImpact": "Diversification can reduce variance but cannot change the sign of the fixed convex weighted net totals in this sample.",
+      "priority": "reject_promotion"
+    },
+    {
+      "id": "S14",
+      "title": "Promote the fitted OU residual reversion candidate",
+      "status": "rejected",
+      "rationale": "The patient variant did not trade during development and lost -186.39 USD base and -218.82 USD combined stress in the 2026 comparison. The other development variants also lost.",
+      "evidence": [
+        "reports/parallel-strategy-study-2026-09-10/reversion/report.md",
+        "reports/parallel-strategy-study-2026-09-10/report.md"
+      ],
+      "testability": "Keep all four declared variants and rejection diagnostics; do not replace failed stability or excursion filters merely to induce entries.",
+      "likelyImpact": "Current tested reversion family offers no supported profit solution.",
+      "priority": "reject_promotion"
+    },
+    {
+      "id": "S15",
+      "title": "Simple pullback entry inside an established rising trend",
+      "status": "needs_data",
+      "rationale": "A trend-filtered pullback trades temporary weakness while avoiding explicit AR(1) estimation, so it is distinct from the rejected OU fit. No local evidence yet establishes that the discount predicts recovery.",
+      "evidence": [
+        "reports/parallel-strategy-study-2026-09-10/reversion/report.md",
+        "https://www.nber.org/papers/w24877"
+      ],
+      "testability": "Later freeze BTC close above SMA90 and a trailing five-day loss greater than a declared volatility-scaled amount; exit after recovery to prior level or fixed holding limit. Compare against trend entry without pullback selection on the same dates.",
+      "likelyImpact": "Potentially improves entry price; may systematically buy the beginning of structural declines.",
+      "priority": "defer"
+    },
+    {
+      "id": "S16",
+      "title": "Require out-of-sample residual stability before any pairs/reversion strategy",
+      "status": "supported",
+      "rationale": "A fitted half-life is conditional on a locally stable process. Price ratios can trend and the prior OU model already rejected many nonstationary or falling samples.",
+      "evidence": [
+        "reports/parallel-strategy-study-2026-09-10/reversion/report.md",
+        "reports/parallel-strategy-study-2026-09-10/reversion/development-signal-diagnostics.json"
+      ],
+      "testability": "Estimate residual relationships only on past data, report coefficient and half-life stability on subsequent blocks, and count model invalidations. Funded spot rotation must not be labelled market-neutral pairs arbitrage.",
+      "likelyImpact": "Avoids interpreting an unstable fit as a guaranteed restoring force; does not independently create a tradeable edge.",
+      "priority": "required_if_reversion"
+    },
+    {
+      "id": "S17",
+      "title": "Promote CUSUM change detection as a return forecast",
+      "status": "rejected",
+      "rationale": "The selected CUSUM lost -16.95 USD in 2026 with only one entry and no strategy exit. It also lost during development. Detecting a drift change and predicting profitable future drift are separate claims.",
+      "evidence": [
+        "reports/parallel-strategy-study-2026-09-10/trend/report.md",
+        "reports/parallel-strategy-study-2026-09-10/report.md"
+      ],
+      "testability": "Preserve frozen signal as a failed reference and distinguish strategy exits from terminal liquidation; a new prediction calibration requires subsequent labeled observations.",
+      "likelyImpact": "Smallest observed loss is not sufficient evidence of profitable predictability.",
+      "priority": "reject_promotion"
+    },
+    {
+      "id": "S18",
+      "title": "Return to the previously failed hourly trend system",
+      "status": "rejected",
+      "rationale": "The frozen hourly trend screen lost -1021.72 USD base during 2024 development and -803.78 USD base during 2025 H1, with hundreds of trades. Funding alignment checks did not change the conclusion.",
+      "evidence": [
+        "reports/systematic-rebuild-2026-09-09/economic-screen/report.md"
+      ],
+      "testability": "Use its immutable replay as evidence of the tested design failure; any substantially changed signal needs a new registered trial and executable spot evidence.",
+      "likelyImpact": "More evaluations and more trades did not establish net profit in that tested system.",
+      "priority": "reject_promotion"
+    },
+    {
+      "id": "S19",
+      "title": "Treat distance from moving average as a predicted profit margin",
+      "status": "rejected",
+      "rationale": "The active specification explicitly says its 1.66% band reduces turnover and is not expected profit. Backward-looking distance gives no calibrated distribution of subsequent liquidation proceeds.",
+      "evidence": [
+        "src/spot-trend/spec.ts",
+        "reports/new-spot-system-2026-09-10/historical-study/report.md",
+        "reports/parallel-strategy-study-2026-09-10/rotation/report.md"
+      ],
+      "testability": "Separate signal-strength fields from empirical forward net-return estimates; only label expected net edge after evaluation on later realized executable outcomes.",
+      "likelyImpact": "Prevents a numerical hurdle from falsely appearing to guarantee fee recovery.",
+      "priority": "required_correction"
+    },
+    {
+      "id": "S20",
+      "title": "Assume lower fees alone will make the failed daily candidates profitable",
+      "status": "rejected",
+      "rationale": "At zero commissions but retained adverse execution, 2026 net remained -1.10 USD CUSUM, -141.53 USD reversion and -35.48 USD rotation. Costs worsen an already adverse price outcome.",
+      "evidence": [
+        "reports/parallel-strategy-study-2026-09-10/report.md",
+        "reports/parallel-strategy-study-2026-09-10/sensitivity.json",
+        "https://www.kraken.com/features/fee-schedule"
+      ],
+      "testability": "Keep identical signal paths and delay while changing fees only; separate actual account tier verification from hypothetical zero-cost diagnostics. Never assume passive orders fill.",
+      "likelyImpact": "Confirms signal quality must improve as well as cost efficiency for these frozen paths.",
+      "priority": "reject_as_sufficient_solution"
+    },
+    {
+      "id": "S21",
+      "title": "Calibrate decision horizons against realized executable net movement",
+      "status": "supported",
+      "rationale": "A short horizon is economically unsuitable if favorable future movement rarely covers both sides of costs. Existing daily and hourly failures motivate measuring the attainable net distribution directly.",
+      "evidence": [
+        "reports/parallel-strategy-study-2026-09-10/report.md",
+        "reports/systematic-rebuild-2026-09-09/economic-screen/report.md",
+        "https://www.kraken.com/features/fee-schedule"
+      ],
+      "testability": "For every frozen candidate decision, archive contemporaneous quotes, costs, intended horizon and later bid-side liquidation mark-outs at predeclared horizons; retain rejected decisions and account for overlapping outcomes.",
+      "likelyImpact": "Can reject economically impossible horizons and distinguish forecast failure from cost drag; no current positive edge is implied.",
+      "priority": "first_data_intervention"
+    },
+    {
+      "id": "S22",
+      "title": "Measure timing skill against equal-exposure passive returns",
+      "status": "supported",
+      "rationale": "A low-exposure model can show a smaller account drawdown simply because most capital stays in cash. Earlier weekly and daily dollar figures use different starting capital and entry caps.",
+      "evidence": [
+        "reports/new-spot-system-2026-09-10/historical-study/report.md",
+        "reports/parallel-strategy-study-2026-09-10/report.md",
+        "reports/parallel-strategy-study-2026-09-10/common.py"
+      ],
+      "testability": "Report account return, allocated-capital return, average and peak exposure, turnover and net excess vs an explicitly risk/exposure-matched benchmark. Do not compare unadjusted dollars across incompatible studies.",
+      "likelyImpact": "Reveals whether the model improves timing or merely invests less.",
+      "priority": "required_control"
+    },
+    {
+      "id": "S23",
+      "title": "Track winner concentration and remove the largest trade diagnostically",
+      "status": "supported",
+      "rationale": "Rotation validation had one +544.03 USD ETH episode and one -82.44 USD loss. A result dependent on one episode has weak evidence of repeatable profitability.",
+      "evidence": [
+        "reports/parallel-strategy-study-2026-09-10/report.md",
+        "reports/parallel-strategy-study-2026-09-10/final-detail.json",
+        "reports/profit-search-100-2026-09-10/screen/ledgers/sma_eth-040.json"
+      ],
+      "testability": "Report contribution by episode, asset and regime, plus leave-one-episode-out net and effective independent sample limitations. Do not select models on this diagnostic after seeing final results.",
+      "likelyImpact": "Prevents a lucky concentrated episode from being mistaken for stable expectancy.",
+      "priority": "required_control",
+      "rootScreenNote": "Independent ETH40 review finds each later window loses when its largest episode is excluded; the 2026 largest episode is forced terminal liquidation."
+    },
+    {
+      "id": "S24",
+      "title": "Count every tested variant and reserve a genuinely later evaluation",
+      "status": "supported",
+      "rationale": "Expanding to many agents, hypotheses or variants increases selection opportunities. Historical dates already inspected by previous studies cannot be restored to untouched status by a new split.",
+      "evidence": [
+        "https://www.davidhbailey.com/dhbpapers/backtest-prob.pdf",
+        "reports/parallel-strategy-study-2026-09-10/report.md",
+        "reports/parallel-strategy-study-2026-09-10/final-selection-lock.json"
+      ],
+      "testability": "Save a trial registry with parameters, code/data hashes and all failures before replay; freeze the candidate and evaluation rules before newly collected data. Use dependence-aware uncertainty and disclose unknown prior search counts.",
+      "likelyImpact": "Reduces false discoveries from model search; is research discipline rather than an alpha source.",
+      "priority": "required_control"
+    },
+    {
+      "id": "S25",
+      "title": "Promote only after a prospective shadow experiment answers the profit question",
+      "status": "supported",
+      "rationale": "Current local evidence is repeated historical research with sparse episodes. New books and recorded decisions can test actual eligibility and execution without changing existing risk.",
+      "evidence": [
+        "reports/parallel-strategy-study-2026-09-10/report.md",
+        "reports/new-spot-system-2026-09-10/historical-study/report.md",
+        "https://docs.kraken.com/api-reference/market-data/get-ohlc-data"
+      ],
+      "testability": "Freeze one nominated candidate in isolated research output; record all signals, rejects, fee-inclusive fills, terminal marks and synchronized passive/cash benchmarks on subsequently observed data. Set decision checkpoints in advance and report insufficient evidence when too few independent episodes occur.",
+      "likelyImpact": "Produces the missing evidence needed to decide whether a strategy makes executable net profit; completion depends on future market observations.",
+      "priority": "first_data_intervention",
+      "rootScreenNominee": "sma_eth-040, as separately frozen prospective research only; existing screen gates failed."
+    }
+  ],
+  "rootScreenIndependentReview": {
+    "reviewedAtUtc": "2026-09-10T19:25:21.502317+00:00",
+    "selectedId": "sma_eth-040",
+    "recommendation": "Strongest development-locked nominee within this exploratory screen for a separately frozen prospective shadow study; does not qualify for promotion and does not establish expected profit.",
+    "sameCandidateAcrossScenarios": true,
+    "evidence": [
+      "screen/development-lock.json",
+      "screen/all-results.json",
+      "screen/baselines.json",
+      "screen/ledgers/sma_eth-040.json"
+    ],
+    "positiveInAll12Runs": true,
+    "failedGates": [
+      "Nine later episodes per scenario versus minimum ten, including one forced terminal episode.",
+      "Maximum later intraday-low drawdown proxy 517.0380869988785 USD exceeds 500 USD."
+    ],
+    "concentration": {
+      "development": {
+        "base": {
+          "netPnlUsd": 377.8030307387711,
+          "episodeCount": 1,
+          "winningEpisodeCount": 1,
+          "largestEpisodeNetUsd": 377.8030307387711,
+          "netExcludingLargestEpisodeUsd": 0.0,
+          "terminalEpisodes": 0,
+          "terminalNetUsd": 0,
+          "strategyExitEpisodes": 1,
+          "strategyExitNetUsd": 377.8030307387711,
+          "largestEntryDate": "2025-04-28",
+          "largestExitDate": "2025-06-18",
+          "largestExitReason": "target_change"
+        },
+        "cost": {
+          "netPnlUsd": 370.37652378290284,
+          "episodeCount": 1,
+          "winningEpisodeCount": 1,
+          "largestEpisodeNetUsd": 370.37652378290284,
+          "netExcludingLargestEpisodeUsd": 0.0,
+          "terminalEpisodes": 0,
+          "terminalNetUsd": 0,
+          "strategyExitEpisodes": 1,
+          "strategyExitNetUsd": 370.37652378290284,
+          "largestEntryDate": "2025-04-28",
+          "largestExitDate": "2025-06-18",
+          "largestExitReason": "target_change"
+        },
+        "delay": {
+          "netPnlUsd": 380.29262445857296,
+          "episodeCount": 1,
+          "winningEpisodeCount": 1,
+          "largestEpisodeNetUsd": 380.29262445857296,
+          "netExcludingLargestEpisodeUsd": 0.0,
+          "terminalEpisodes": 0,
+          "terminalNetUsd": 0,
+          "strategyExitEpisodes": 1,
+          "strategyExitNetUsd": 380.29262445857296,
+          "largestEntryDate": "2025-04-29",
+          "largestExitDate": "2025-06-19",
+          "largestExitReason": "target_change"
+        },
+        "combined": {
+          "netPnlUsd": 372.85728304532415,
+          "episodeCount": 1,
+          "winningEpisodeCount": 1,
+          "largestEpisodeNetUsd": 372.85728304532415,
+          "netExcludingLargestEpisodeUsd": 0.0,
+          "terminalEpisodes": 0,
+          "terminalNetUsd": 0,
+          "strategyExitEpisodes": 1,
+          "strategyExitNetUsd": 372.85728304532415,
+          "largestEntryDate": "2025-04-29",
+          "largestExitDate": "2025-06-19",
+          "largestExitReason": "target_change"
+        }
+      },
+      "later_2025": {
+        "base": {
+          "netPnlUsd": 335.7537256214641,
+          "episodeCount": 4,
+          "winningEpisodeCount": 1,
+          "largestEpisodeNetUsd": 623.0907388931423,
+          "netExcludingLargestEpisodeUsd": -287.3370132716782,
+          "terminalEpisodes": 0,
+          "terminalNetUsd": 0,
+          "strategyExitEpisodes": 4,
+          "strategyExitNetUsd": 335.7537256214641,
+          "largestEntryDate": "2025-07-08",
+          "largestExitDate": "2025-09-23",
+          "largestExitReason": "target_change"
+        },
+        "cost": {
+          "netPnlUsd": 312.1087900255211,
+          "episodeCount": 4,
+          "winningEpisodeCount": 1,
+          "largestEpisodeNetUsd": 614.0562886336448,
+          "netExcludingLargestEpisodeUsd": -301.94749860812374,
+          "terminalEpisodes": 0,
+          "terminalNetUsd": 0,
+          "strategyExitEpisodes": 4,
+          "strategyExitNetUsd": 312.1087900255211,
+          "largestEntryDate": "2025-07-08",
+          "largestExitDate": "2025-09-23",
+          "largestExitReason": "target_change"
+        },
+        "delay": {
+          "netPnlUsd": 327.1554481174352,
+          "episodeCount": 4,
+          "winningEpisodeCount": 2,
+          "largestEpisodeNetUsd": 566.0637857900642,
+          "netExcludingLargestEpisodeUsd": -238.90833767262905,
+          "terminalEpisodes": 0,
+          "terminalNetUsd": 0,
+          "strategyExitEpisodes": 4,
+          "strategyExitNetUsd": 327.1554481174352,
+          "largestEntryDate": "2025-07-09",
+          "largestExitDate": "2025-09-24",
+          "largestExitReason": "target_change"
+        },
+        "combined": {
+          "netPnlUsd": 303.8511296786171,
+          "episodeCount": 4,
+          "winningEpisodeCount": 2,
+          "largestEpisodeNetUsd": 557.6282567635772,
+          "netExcludingLargestEpisodeUsd": -253.77712708496006,
+          "terminalEpisodes": 0,
+          "terminalNetUsd": 0,
+          "strategyExitEpisodes": 4,
+          "strategyExitNetUsd": 303.8511296786171,
+          "largestEntryDate": "2025-07-09",
+          "largestExitDate": "2025-09-24",
+          "largestExitReason": "target_change"
+        }
+      },
+      "recent_2026": {
+        "base": {
+          "netPnlUsd": 227.56206615464646,
+          "episodeCount": 5,
+          "winningEpisodeCount": 2,
+          "largestEpisodeNetUsd": 355.7048587458015,
+          "netExcludingLargestEpisodeUsd": -128.14279259115506,
+          "terminalEpisodes": 1,
+          "terminalNetUsd": 355.7048587458015,
+          "strategyExitEpisodes": 4,
+          "strategyExitNetUsd": -128.14279259115506,
+          "largestEntryDate": "2026-07-06",
+          "largestExitDate": "2026-09-10",
+          "largestExitReason": "terminal"
+        },
+        "cost": {
+          "netPnlUsd": 198.97171804743687,
+          "episodeCount": 5,
+          "winningEpisodeCount": 2,
+          "largestEpisodeNetUsd": 347.7474558117,
+          "netExcludingLargestEpisodeUsd": -148.7757377642631,
+          "terminalEpisodes": 1,
+          "terminalNetUsd": 347.7474558117,
+          "strategyExitEpisodes": 4,
+          "strategyExitNetUsd": -148.7757377642631,
+          "largestEntryDate": "2026-07-06",
+          "largestExitDate": "2026-09-10",
+          "largestExitReason": "terminal"
+        },
+        "delay": {
+          "netPnlUsd": 187.87160707292173,
+          "episodeCount": 5,
+          "winningEpisodeCount": 2,
+          "largestEpisodeNetUsd": 344.208913958328,
+          "netExcludingLargestEpisodeUsd": -156.3373068854063,
+          "terminalEpisodes": 1,
+          "terminalNetUsd": 344.208913958328,
+          "strategyExitEpisodes": 4,
+          "strategyExitNetUsd": -156.3373068854063,
+          "largestEntryDate": "2026-07-07",
+          "largestExitDate": "2026-09-10",
+          "largestExitReason": "terminal"
+        },
+        "combined": {
+          "netPnlUsd": 159.5794206951723,
+          "episodeCount": 5,
+          "winningEpisodeCount": 1,
+          "largestEpisodeNetUsd": 336.3569219887679,
+          "netExcludingLargestEpisodeUsd": -176.7775012935956,
+          "terminalEpisodes": 1,
+          "terminalNetUsd": 336.3569219887679,
+          "strategyExitEpisodes": 4,
+          "strategyExitNetUsd": -176.7775012935956,
+          "largestEntryDate": "2026-07-07",
+          "largestExitDate": "2026-09-10",
+          "largestExitReason": "terminal"
+        }
+      }
+    },
+    "neighbors": {
+      "sma_eth-030": {
+        "summary": {
+          "developmentUtility": 28.524527882940674,
+          "minimumNetAcrossAllRunsUsd": -278.74415391338334,
+          "worstLaterWindowNetUsd": -278.74415391338334,
+          "positiveAllWindowsAndScenarios": false,
+          "atLeastTenLaterEpisodesEveryScenario": true,
+          "laterLowDrawdownWithin500Usd": false,
+          "exploratoryScreenPassed": false,
+          "validatedProfitable": false
+        },
+        "netByPeriodScenario": {
+          "development": {
+            "base": 166.46965655365238,
+            "cost": 143.75855698336272,
+            "delay": 261.39164720165536,
+            "combined": 238.0853245163289
+          },
+          "later_2025": {
+            "base": 226.67368185349187,
+            "cost": 193.13642142180106,
+            "delay": 228.4123680878456,
+            "combined": 194.86816365129744
+          },
+          "recent_2026": {
+            "base": -180.56121700660515,
+            "cost": -232.45000278034786,
+            "delay": -227.33260089979922,
+            "combined": -278.74415391338334
+          }
+        }
+      },
+      "sma_eth-040": {
+        "summary": {
+          "developmentUtility": 286.78792339044594,
+          "minimumNetAcrossAllRunsUsd": 159.57942069517412,
+          "worstLaterWindowNetUsd": 159.57942069517412,
+          "positiveAllWindowsAndScenarios": true,
+          "atLeastTenLaterEpisodesEveryScenario": false,
+          "laterLowDrawdownWithin500Usd": false,
+          "exploratoryScreenPassed": false,
+          "validatedProfitable": false
+        },
+        "netByPeriodScenario": {
+          "development": {
+            "base": 377.80303073877076,
+            "cost": 370.37652378290295,
+            "delay": 380.2926244585724,
+            "combined": 372.85728304532495
+          },
+          "later_2025": {
+            "base": 335.7537256214655,
+            "cost": 312.10879002552065,
+            "delay": 327.1554481174335,
+            "combined": 303.8511296786164
+          },
+          "recent_2026": {
+            "base": 227.56206615464544,
+            "cost": 198.97171804743812,
+            "delay": 187.87160707292605,
+            "combined": 159.57942069517412
+          }
+        }
+      },
+      "sma_eth-050": {
+        "summary": {
+          "developmentUtility": -103.17964354405285,
+          "minimumNetAcrossAllRunsUsd": 39.13167963109845,
+          "worstLaterWindowNetUsd": 39.13167963109845,
+          "positiveAllWindowsAndScenarios": true,
+          "atLeastTenLaterEpisodesEveryScenario": false,
+          "laterLowDrawdownWithin500Usd": true,
+          "exploratoryScreenPassed": false,
+          "validatedProfitable": false
+        },
+        "netByPeriodScenario": {
+          "development": {
+            "base": 117.60045751728285,
+            "cost": 106.14534838003237,
+            "delay": 62.91610691951428,
+            "combined": 51.79099324993149
+          },
+          "later_2025": {
+            "base": 301.0000914621469,
+            "cost": 282.98084563015254,
+            "delay": 211.00114521927935,
+            "combined": 193.69330775025628
+          },
+          "recent_2026": {
+            "base": 133.275146560527,
+            "cost": 110.8582062411624,
+            "delay": 61.057235655966,
+            "combined": 39.13167963109845
+          }
+        }
+      },
+      "sma_eth-060": {
+        "summary": {
+          "developmentUtility": -357.4866324305003,
+          "minimumNetAcrossAllRunsUsd": -213.0592353955417,
+          "worstLaterWindowNetUsd": 81.84030645533858,
+          "positiveAllWindowsAndScenarios": false,
+          "atLeastTenLaterEpisodesEveryScenario": false,
+          "laterLowDrawdownWithin500Usd": false,
+          "exploratoryScreenPassed": false,
+          "validatedProfitable": false
+        },
+        "netByPeriodScenario": {
+          "development": {
+            "base": -160.2694043273932,
+            "cost": -175.38407870855735,
+            "delay": -198.18861630765423,
+            "combined": -213.0592353955417
+          },
+          "later_2025": {
+            "base": 416.68944552108223,
+            "cost": 403.66971907104744,
+            "delay": 450.81497432321703,
+            "combined": 437.6176548976273
+          },
+          "recent_2026": {
+            "base": 104.06385546525962,
+            "cost": 81.84030645533858,
+            "delay": 174.72392386383035,
+            "combined": 151.99686520829528
+          }
+        }
+      }
+    },
+    "benchmarkComparisons": {
+      "development": {
+        "base": {
+          "candidateNetUsd": 377.80303073877076,
+          "candidateExposedDays": 51,
+          "candidateLowDrawdownUsd": 206.14197530567617,
+          "benchmarks": {
+            "cash": {
+              "netUsd": 0.0,
+              "excessOverBenchmarkUsd": 377.80303073877076,
+              "exposedDays": 0,
+              "lowDrawdownUsd": 0.0
+            },
+            "buy_hold_btc": {
+              "netUsd": 88.33515106079903,
+              "excessOverBenchmarkUsd": 289.4678796779717,
+              "exposedDays": 179,
+              "lowDrawdownUsd": 322.61568495321626
+            },
+            "buy_hold_eth": {
+              "netUsd": -291.73121088652806,
+              "excessOverBenchmarkUsd": 669.5342416252988,
+              "exposedDays": 179,
+              "lowDrawdownUsd": 656.505457918618
+            }
+          }
+        },
+        "cost": {
+          "candidateNetUsd": 370.37652378290295,
+          "candidateExposedDays": 51,
+          "candidateLowDrawdownUsd": 205.032663824275,
+          "benchmarks": {
+            "cash": {
+              "netUsd": 0.0,
+              "excessOverBenchmarkUsd": 370.37652378290295,
+              "exposedDays": 0,
+              "lowDrawdownUsd": 0.0
+            },
+            "buy_hold_btc": {
+              "netUsd": 82.47307497249858,
+              "excessOverBenchmarkUsd": 287.90344881040437,
+              "exposedDays": 179,
+              "lowDrawdownUsd": 320.87833965000027
+            },
+            "buy_hold_eth": {
+              "netUsd": -295.54639428495284,
+              "excessOverBenchmarkUsd": 665.9229180678558,
+              "exposedDays": 179,
+              "lowDrawdownUsd": 652.9698991371588
+            }
+          }
+        },
+        "delay": {
+          "candidateNetUsd": 380.2926244585724,
+          "candidateExposedDays": 51,
+          "candidateLowDrawdownUsd": 205.25561372692573,
+          "benchmarks": {
+            "cash": {
+              "netUsd": 0.0,
+              "excessOverBenchmarkUsd": 380.2926244585724,
+              "exposedDays": 0,
+              "lowDrawdownUsd": 0.0
+            },
+            "buy_hold_btc": {
+              "netUsd": 73.85002674873613,
+              "excessOverBenchmarkUsd": 306.44259770983626,
+              "exposedDays": 178,
+              "lowDrawdownUsd": 318.3219898565749
+            },
+            "buy_hold_eth": {
+              "netUsd": -322.159312042746,
+              "excessOverBenchmarkUsd": 702.4519365013184,
+              "exposedDays": 178,
+              "lowDrawdownUsd": 628.3011909404704
+            }
+          }
+        },
+        "combined": {
+          "candidateNetUsd": 372.85728304532495,
+          "candidateExposedDays": 51,
+          "candidateLowDrawdownUsd": 204.15169184810293,
+          "benchmarks": {
+            "cash": {
+              "netUsd": 0.0,
+              "excessOverBenchmarkUsd": 372.85728304532495,
+              "exposedDays": 0,
+              "lowDrawdownUsd": 0.0
+            },
+            "buy_hold_btc": {
+              "netUsd": 68.06608095975935,
+              "excessOverBenchmarkUsd": 304.7912020855656,
+              "exposedDays": 178,
+              "lowDrawdownUsd": 316.6076036178001
+            },
+            "buy_hold_eth": {
+              "netUsd": -325.808977961251,
+              "excessOverBenchmarkUsd": 698.666261006576,
+              "exposedDays": 178,
+              "lowDrawdownUsd": 624.9190175959502
+            }
+          }
+        }
+      },
+      "later_2025": {
+        "base": {
+          "candidateNetUsd": 335.7537256214655,
+          "candidateExposedDays": 89,
+          "candidateLowDrawdownUsd": 504.4486547059205,
+          "benchmarks": {
+            "cash": {
+              "netUsd": 0.0,
+              "excessOverBenchmarkUsd": 335.7537256214655,
+              "exposedDays": 0,
+              "lowDrawdownUsd": 0.0
+            },
+            "buy_hold_btc": {
+              "netUsd": -209.35291733043232,
+              "excessOverBenchmarkUsd": 545.1066429518978,
+              "exposedDays": 182,
+              "lowDrawdownUsd": 399.12948034815963
+            },
+            "buy_hold_eth": {
+              "netUsd": 135.2894212280189,
+              "excessOverBenchmarkUsd": 200.46430439344658,
+              "exposedDays": 182,
+              "lowDrawdownUsd": 845.1853734414581
+            }
+          }
+        },
+        "cost": {
+          "candidateNetUsd": 312.10879002552065,
+          "candidateExposedDays": 89,
+          "candidateLowDrawdownUsd": 512.3774089099952,
+          "benchmarks": {
+            "cash": {
+              "netUsd": 0.0,
+              "excessOverBenchmarkUsd": 312.10879002552065,
+              "exposedDays": 0,
+              "lowDrawdownUsd": 0.0
+            },
+            "buy_hold_btc": {
+              "netUsd": -213.61171563827884,
+              "excessOverBenchmarkUsd": 525.7205056637995,
+              "exposedDays": 182,
+              "lowDrawdownUsd": 396.98011785563904
+            },
+            "buy_hold_eth": {
+              "netUsd": 129.17739068048832,
+              "excessOverBenchmarkUsd": 182.93139934503233,
+              "exposedDays": 182,
+              "lowDrawdownUsd": 840.635565732864
+            }
+          }
+        },
+        "delay": {
+          "candidateNetUsd": 327.1554481174335,
+          "candidateExposedDays": 89,
+          "candidateLowDrawdownUsd": 509.006293074679,
+          "benchmarks": {
+            "cash": {
+              "netUsd": 0.0,
+              "excessOverBenchmarkUsd": 327.1554481174335,
+              "exposedDays": 0,
+              "lowDrawdownUsd": 0.0
+            },
+            "buy_hold_btc": {
+              "netUsd": -215.0073748822233,
+              "excessOverBenchmarkUsd": 542.1628229996568,
+              "exposedDays": 181,
+              "lowDrawdownUsd": 396.27472570304053
+            },
+            "buy_hold_eth": {
+              "netUsd": 126.15328701780527,
+              "excessOverBenchmarkUsd": 201.0021610996282,
+              "exposedDays": 181,
+              "lowDrawdownUsd": 838.3838202851894
+            }
+          }
+        },
+        "combined": {
+          "candidateNetUsd": 303.8511296786164,
+          "candidateExposedDays": 89,
+          "candidateLowDrawdownUsd": 517.0380869988785,
+          "benchmarks": {
+            "cash": {
+              "netUsd": 0.0,
+              "excessOverBenchmarkUsd": 303.8511296786164,
+              "exposedDays": 0,
+              "lowDrawdownUsd": 0.0
+            },
+            "buy_hold_btc": {
+              "netUsd": -219.2360700611207,
+              "excessOverBenchmarkUsd": 523.0871997397371,
+              "exposedDays": 181,
+              "lowDrawdownUsd": 394.1405389706397
+            },
+            "buy_hold_eth": {
+              "netUsd": 120.08811139338832,
+              "excessOverBenchmarkUsd": 183.7630182852281,
+              "exposedDays": 181,
+              "lowDrawdownUsd": 833.8688876897286
+            }
+          }
+        }
+      },
+      "recent_2026": {
+        "base": {
+          "candidateNetUsd": 227.56206615464544,
+          "candidateExposedDays": 138,
+          "candidateLowDrawdownUsd": 274.49358632342773,
+          "benchmarks": {
+            "cash": {
+              "netUsd": 0.0,
+              "excessOverBenchmarkUsd": 227.56206615464544,
+              "exposedDays": 0,
+              "lowDrawdownUsd": 0.0
+            },
+            "buy_hold_btc": {
+              "netUsd": -143.82005213376033,
+              "excessOverBenchmarkUsd": 371.38211828840576,
+              "exposedDays": 250,
+              "lowDrawdownUsd": 428.6262668774398
+            },
+            "buy_hold_eth": {
+              "netUsd": -223.00078580831905,
+              "excessOverBenchmarkUsd": 450.5628519629645,
+              "exposedDays": 250,
+              "lowDrawdownUsd": 582.0652194249978
+            }
+          }
+        },
+        "cost": {
+          "candidateNetUsd": 198.97171804743812,
+          "candidateExposedDays": 138,
+          "candidateLowDrawdownUsd": 288.81306553372997,
+          "benchmarks": {
+            "cash": {
+              "netUsd": 0.0,
+              "excessOverBenchmarkUsd": 198.97171804743812,
+              "exposedDays": 0,
+              "lowDrawdownUsd": 0.0
+            },
+            "buy_hold_btc": {
+              "netUsd": -148.43164028087995,
+              "excessOverBenchmarkUsd": 347.40335832831806,
+              "exposedDays": 250,
+              "lowDrawdownUsd": 426.3168258914393
+            },
+            "buy_hold_eth": {
+              "netUsd": -227.18392492790372,
+              "excessOverBenchmarkUsd": 426.15564297534183,
+              "exposedDays": 250,
+              "lowDrawdownUsd": 578.9279423105636
+            }
+          }
+        },
+        "delay": {
+          "candidateNetUsd": 187.87160707292605,
+          "candidateExposedDays": 137,
+          "candidateLowDrawdownUsd": 269.09028317629964,
+          "benchmarks": {
+            "cash": {
+              "netUsd": 0.0,
+              "excessOverBenchmarkUsd": 187.87160707292605,
+              "exposedDays": 0,
+              "lowDrawdownUsd": 0.0
+            },
+            "buy_hold_btc": {
+              "netUsd": -150.02095216753696,
+              "excessOverBenchmarkUsd": 337.892559240463,
+              "exposedDays": 249,
+              "lowDrawdownUsd": 425.52186796057686
+            },
+            "buy_hold_eth": {
+              "netUsd": -223.3636326922915,
+              "excessOverBenchmarkUsd": 411.23523976521756,
+              "exposedDays": 249,
+              "lowDrawdownUsd": 581.7934039750799
+            }
+          }
+        },
+        "combined": {
+          "candidateNetUsd": 159.57942069517412,
+          "candidateExposedDays": 137,
+          "candidateLowDrawdownUsd": 288.6988700397833,
+          "benchmarks": {
+            "cash": {
+              "netUsd": 0.0,
+              "excessOverBenchmarkUsd": 159.57942069517412,
+              "exposedDays": 0,
+              "lowDrawdownUsd": 0.0
+            },
+            "buy_hold_btc": {
+              "netUsd": -154.5985678281013,
+              "excessOverBenchmarkUsd": 314.1779885232754,
+              "exposedDays": 249,
+              "lowDrawdownUsd": 423.22938806708953
+            },
+            "buy_hold_eth": {
+              "netUsd": -227.54456524672605,
+              "excessOverBenchmarkUsd": 387.1239859419002,
+              "exposedDays": 249,
+              "lowDrawdownUsd": 578.6577799285133
+            }
+          }
+        }
+      }
+    },
+    "s04Distinction": "Root consensus_btc-090 uses the linear lower band SMA*(1-b), whereas S04 specifies SMA/(1+b); its negative replay is related evidence, not an exact S04 test.",
+    "profitabilityEstablished": false,
+    "newCandidateReplaysByThisAgent": 0
+  }
+}

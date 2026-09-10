@@ -1,0 +1,41 @@
+{
+  "generatedAtUtc": "2026-09-09T21:29:22.329Z",
+  "method": "Same fixed synthetic ages/clocks; warmed calculations only; exact deep equality of all measured output fields. One local wall-clock measurement per case, not a service latency guarantee.",
+  "node": "v22.20.0",
+  "sourceSha256": "d2030c1b49513ed7eacadbffe7bed2e8a571a65d5a2424112197b5bd72807c5e",
+  "referenceSha256": "d89c1806f906a5364e568caac3ae0b1196fc23435c6b35912bec85d68a51e605",
+  "strategyOutcomesEvaluated": false,
+  "eventDownsampling": false,
+  "cases": [
+    {
+      "name": "mixed ages, FIFO capacity 4096",
+      "measuredObservations": 4000,
+      "warmupObservations": 5000,
+      "exactOutputParity": true,
+      "baselineElapsedMs": 20679.22202,
+      "optimizedElapsedMs": 20.30689600000187,
+      "speedup": 1018.3349547857091,
+      "optimizedMicrosecondsPerObservation": 5.076724000000468
+    },
+    {
+      "name": "duplicate ages, FIFO capacity 4096",
+      "measuredObservations": 4000,
+      "warmupObservations": 5000,
+      "exactOutputParity": true,
+      "baselineElapsedMs": 10657.004693000003,
+      "optimizedElapsedMs": 10.011550000002899,
+      "speedup": 1064.4710052885835,
+      "optimizedMicrosecondsPerObservation": 2.5028875000007247
+    },
+    {
+      "name": "mixed ages, 256-observation time window",
+      "measuredObservations": 4000,
+      "warmupObservations": 5000,
+      "exactOutputParity": true,
+      "baselineElapsedMs": 930.4152800000011,
+      "optimizedElapsedMs": 10.404214000001957,
+      "speedup": 89.42677265191067,
+      "optimizedMicrosecondsPerObservation": 2.6010535000004893
+    }
+  ]
+}

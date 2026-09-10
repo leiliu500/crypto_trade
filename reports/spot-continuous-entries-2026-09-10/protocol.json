@@ -1,0 +1,17 @@
+{
+  "version": "spot-continuous-entry-timing-review-v1",
+  "recordedAt": "2026-09-10T16:47:22.694051+00:00",
+  "revision": "v2 first native-week hour only to v3 every cycle throughout week",
+  "fixed": [
+    "delayed closed-week signal cutoff",
+    "5 minute cadence",
+    "one filled entry per native week, no additions",
+    "cash sizing, risk limits, fees, IOC collar, depth participation, expiry",
+    "paper-only local broker"
+  ],
+  "inputs": "Previously recorded paper market books and journal, no manufactured historic intrawEEK liquidity",
+  "evaluation": "Replay each recorded market at its recorded decision timestamp under both runtimes from identical initial account; report orders, fees, realized and liquidation PnL, without tuning thresholds to outcomes",
+  "parentHistoricalStudyValidatesRevisedTiming": false,
+  "prospectiveProfitabilityProven": false,
+  "liveOrdersAllowed": false
+}

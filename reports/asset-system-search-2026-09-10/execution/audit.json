@@ -1,0 +1,162 @@
+{
+  "version": "asset-execution-audit-v1",
+  "researchOnly": true,
+  "candidateOutcomesScored": false,
+  "commonSha256": "423315441fe6b87ae1dd122a38321e75f2d1811cf2cb99ad4d7d91043e5a0b18",
+  "verifiedAtUtc": "2026-09-10T21:35:55.888773+00:00",
+  "formula": "P_exit_reference/P_entry_reference >= (1+entry_fee)*(1+entry_slip)/((1-exit_fee)*(1-exit_slip))",
+  "feeSource": {
+    "url": "https://www.kraken.com/features/fee-schedule",
+    "verifiedDate": "2026-09-10",
+    "publicSpotTier1MakerBps": 40,
+    "publicSpotTier1TakerBps": 80,
+    "actualAccountTier": "unknown"
+  },
+  "costScenarios": {
+    "base_taker": {
+      "entryFeeBps": 80,
+      "exitFeeBps": 80,
+      "entrySlippageBps": 3,
+      "exitSlippageBps": 3,
+      "breakEvenReferencePriceReturnPct": 1.6738892635532743,
+      "breakEvenReferencePriceReturnBps": 167.38892635532744,
+      "flatRoundTripLossPer1000BudgetUsd": 16.463314973761968,
+      "flatRoundTripLossOn10000AccountPct": 0.16463314973761967,
+      "netUsdFor1000BudgetAtGrossMovePct": {
+        "0": -16.463314973761968,
+        "0.1": -15.479778288735812,
+        "0.5": -11.545631548630864,
+        "1": -6.6279481234995385,
+        "2": 3.2074187267627785,
+        "3": 13.042785577025207
+      },
+      "note": "Analytical before adverse tick/lot rounding, missed fills, spread beyond assumed slippage, and other costs."
+    },
+    "stress_taker": {
+      "entryFeeBps": 100,
+      "exitFeeBps": 100,
+      "entrySlippageBps": 10,
+      "exitSlippageBps": 10,
+      "breakEvenReferencePriceReturnPct": 2.2244466688911224,
+      "breakEvenReferencePriceReturnBps": 222.44466688911223,
+      "flatRoundTripLossPer1000BudgetUsd": 21.760417800021802,
+      "flatRoundTripLossOn10000AccountPct": 0.21760417800021803,
+      "netUsdFor1000BudgetAtGrossMovePct": {
+        "0": -21.760417800021802,
+        "0.1": -20.78217821782191,
+        "0.5": -16.869219889022013,
+        "1": -11.978021978022003,
+        "2": -2.1956261560222012,
+        "3": 7.586769665977489
+      },
+      "note": "Analytical before adverse tick/lot rounding, missed fills, spread beyond assumed slippage, and other costs."
+    },
+    "maker_both_hypothetical": {
+      "entryFeeBps": 40,
+      "exitFeeBps": 40,
+      "entrySlippageBps": 3,
+      "exitSlippageBps": 3,
+      "breakEvenReferencePriceReturnPct": 0.8637129291397816,
+      "breakEvenReferencePriceReturnBps": 86.37129291397815,
+      "flatRoundTripLossPer1000BudgetUsd": 8.563168101362372,
+      "flatRoundTripLossOn10000AccountPct": 0.08563168101362373,
+      "netUsdFor1000BudgetAtGrossMovePct": {
+        "0": -8.563168101362372,
+        "0.1": -7.571731269463866,
+        "0.5": -3.605983941869284,
+        "1": 1.3512002176239157,
+        "2": 11.265568536610315,
+        "3": 21.179936855596715
+      },
+      "note": "Analytical before adverse tick/lot rounding, missed fills, spread beyond assumed slippage, and other costs."
+    },
+    "maker_entry_taker_exit_hypothetical": {
+      "entryFeeBps": 40,
+      "exitFeeBps": 80,
+      "entrySlippageBps": 3,
+      "exitSlippageBps": 3,
+      "breakEvenReferencePriceReturnPct": 1.2704214490153465,
+      "breakEvenReferencePriceReturnBps": 127.04214490153464,
+      "flatRoundTripLossPer1000BudgetUsd": 12.54484212505169,
+      "flatRoundTripLossOn10000AccountPct": 0.12544842125051692,
+      "netUsdFor1000BudgetAtGrossMovePct": {
+        "0": -12.54484212505169,
+        "0.1": -11.557386967176896,
+        "0.5": -7.607566335677052,
+        "1": -2.6702905463021898,
+        "2": 7.204261032447201,
+        "3": 17.078812611196703
+      },
+      "note": "Analytical before adverse tick/lot rounding, missed fills, spread beyond assumed slippage, and other costs."
+    }
+  },
+  "syntheticChecksPassed": 10,
+  "checks": [
+    "base: causal first fill at lag 2",
+    "base: flat-price costs lose money",
+    "base: funded fee-inclusive cap and independent ledger reconcile",
+    "base: terminal trade is not a natural completed episode",
+    "stress: causal first fill at lag 3",
+    "stress: flat-price costs lose money",
+    "stress: funded fee-inclusive cap and independent ledger reconcile",
+    "stress: terminal trade is not a natural completed episode",
+    "Unfinalized i-1 volume does not change the first base entry",
+    "Documented limitation reproduced: full exit assumed even when execution-day volume is zero"
+  ],
+  "syntheticFlatPriceResults": {
+    "base": {
+      "netPnlUsd": -16.463314935999733,
+      "feeUsd": 15.868255360000003,
+      "orders": [
+        {
+          "symbol": "ETH/USD",
+          "side": "BUY",
+          "timestampMs": 1735862400000,
+          "signalBarOpenMs": 1735689600000,
+          "quantity": 0.9917659600000001,
+          "price": 1000.3000000000001,
+          "feeUsd": 7.936507918304001
+        },
+        {
+          "symbol": "ETH/USD",
+          "side": "SELL",
+          "timestampMs": 1736380800000,
+          "quantity": 0.9917659600000001,
+          "price": 999.7,
+          "feeUsd": 7.931747441696001,
+          "reason": "terminal"
+        }
+      ],
+      "naturalEpisodes": 0
+    },
+    "stress": {
+      "netPnlUsd": -21.76041780000014,
+      "feeUsd": 19.782198,
+      "orders": [
+        {
+          "symbol": "ETH/USD",
+          "side": "BUY",
+          "timestampMs": 1735948800000,
+          "signalBarOpenMs": 1735689600000,
+          "quantity": 0.9891099,
+          "price": 1001.0,
+          "feeUsd": 9.900990099
+        },
+        {
+          "symbol": "ETH/USD",
+          "side": "SELL",
+          "timestampMs": 1736380800000,
+          "quantity": 0.9891099,
+          "price": 999.0,
+          "feeUsd": 9.881207901,
+          "reason": "terminal"
+        }
+      ],
+      "naturalEpisodes": 0
+    }
+  },
+  "cautions": [
+    "Maker scenarios are algebra only: no queue, fill-probability, or adverse-selection evidence.",
+    "No candidate P&L or reused historical strategy outcome was read or computed in this audit."
+  ]
+}

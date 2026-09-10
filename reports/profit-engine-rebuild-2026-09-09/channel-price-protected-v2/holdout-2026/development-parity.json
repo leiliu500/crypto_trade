@@ -1,0 +1,151 @@
+{
+  "checkedAtUtc": "2026-09-09T21:26:15.360Z",
+  "allDevelopmentRunsIdentical": true,
+  "matches": [
+    {
+      "originalFile": "reports/profit-engine-rebuild-2026-09-09/channel/2024-base-channel.json",
+      "originalSha256": "722cf4922778740662c9abcb63e82bc7f6e4d2f430f89e541b23d416e91360ae",
+      "reproducedSha256": "722cf4922778740662c9abcb63e82bc7f6e4d2f430f89e541b23d416e91360ae",
+      "identical": true
+    },
+    {
+      "originalFile": "reports/profit-engine-rebuild-2026-09-09/channel/2024-base-buy-hold-btc.json",
+      "originalSha256": "695bf85a47293be0431e234df31a25c135846c798b3f80a211b43d029b17a60f",
+      "reproducedSha256": "695bf85a47293be0431e234df31a25c135846c798b3f80a211b43d029b17a60f",
+      "identical": true
+    },
+    {
+      "originalFile": "reports/profit-engine-rebuild-2026-09-09/channel/2024-base-buy-hold-eth.json",
+      "originalSha256": "8961b9c8d08cda8a58ee1c83072f515e7852bf1afb31b82750eb5e26f69516a3",
+      "reproducedSha256": "8961b9c8d08cda8a58ee1c83072f515e7852bf1afb31b82750eb5e26f69516a3",
+      "identical": true
+    },
+    {
+      "originalFile": "reports/profit-engine-rebuild-2026-09-09/channel/2024-stress-channel.json",
+      "originalSha256": "55a1229b07d28eebba052e372834748b02bb12c04699148889ea8fafb9ddd87e",
+      "reproducedSha256": "55a1229b07d28eebba052e372834748b02bb12c04699148889ea8fafb9ddd87e",
+      "identical": true
+    },
+    {
+      "originalFile": "reports/profit-engine-rebuild-2026-09-09/channel/2024-stress-buy-hold-btc.json",
+      "originalSha256": "92e44b51752682cbe0c344daad518912fc52ec99da1e7bf9b66a712480ea7ac6",
+      "reproducedSha256": "92e44b51752682cbe0c344daad518912fc52ec99da1e7bf9b66a712480ea7ac6",
+      "identical": true
+    },
+    {
+      "originalFile": "reports/profit-engine-rebuild-2026-09-09/channel/2024-stress-buy-hold-eth.json",
+      "originalSha256": "d513d07391e7d1f785f1c7dcf6e35d0361052d24226ae5b8fa63bc2cec387666",
+      "reproducedSha256": "d513d07391e7d1f785f1c7dcf6e35d0361052d24226ae5b8fa63bc2cec387666",
+      "identical": true
+    },
+    {
+      "originalFile": "reports/profit-engine-rebuild-2026-09-09/channel/2025-h1-base-channel.json",
+      "originalSha256": "2811350a741cce18ad47d2d59a6f84960d36bca49fd03d3ad414cbe354bdecab",
+      "reproducedSha256": "2811350a741cce18ad47d2d59a6f84960d36bca49fd03d3ad414cbe354bdecab",
+      "identical": true
+    },
+    {
+      "originalFile": "reports/profit-engine-rebuild-2026-09-09/channel/2025-h1-base-buy-hold-btc.json",
+      "originalSha256": "d7a82a39bc8047c581766c024351e512874a59c3936d21b0ad8ae2a512e103d2",
+      "reproducedSha256": "d7a82a39bc8047c581766c024351e512874a59c3936d21b0ad8ae2a512e103d2",
+      "identical": true
+    },
+    {
+      "originalFile": "reports/profit-engine-rebuild-2026-09-09/channel/2025-h1-base-buy-hold-eth.json",
+      "originalSha256": "c4030274c6a3e4a9faf79c6d258b875d47774fe3aa71e55f9582ca362810c77a",
+      "reproducedSha256": "c4030274c6a3e4a9faf79c6d258b875d47774fe3aa71e55f9582ca362810c77a",
+      "identical": true
+    },
+    {
+      "originalFile": "reports/profit-engine-rebuild-2026-09-09/channel/2025-h1-stress-channel.json",
+      "originalSha256": "a3a105a1620120ea406baaccfc9adb75f824e1dea673a09526d6105fa8535bf4",
+      "reproducedSha256": "a3a105a1620120ea406baaccfc9adb75f824e1dea673a09526d6105fa8535bf4",
+      "identical": true
+    },
+    {
+      "originalFile": "reports/profit-engine-rebuild-2026-09-09/channel/2025-h1-stress-buy-hold-btc.json",
+      "originalSha256": "aa4db783b365d813f2d4604922dd488d2156bcd464eb06b4725e65b75f65bdbc",
+      "reproducedSha256": "aa4db783b365d813f2d4604922dd488d2156bcd464eb06b4725e65b75f65bdbc",
+      "identical": true
+    },
+    {
+      "originalFile": "reports/profit-engine-rebuild-2026-09-09/channel/2025-h1-stress-buy-hold-eth.json",
+      "originalSha256": "4532ca0ec230b371b4c7df954fbe6e0a3b571993457f33b64e061fd5a374417c",
+      "reproducedSha256": "4532ca0ec230b371b4c7df954fbe6e0a3b571993457f33b64e061fd5a374417c",
+      "identical": true
+    },
+    {
+      "originalFile": "reports/profit-engine-rebuild-2026-09-09/channel-price-protected-v2/2024-base-channel.json",
+      "originalSha256": "386e87330531a4fafaaef87692a328aaabee31e116de78f370235c16617ee49a",
+      "reproducedSha256": "386e87330531a4fafaaef87692a328aaabee31e116de78f370235c16617ee49a",
+      "identical": true
+    },
+    {
+      "originalFile": "reports/profit-engine-rebuild-2026-09-09/channel-price-protected-v2/2024-base-buy-hold-btc.json",
+      "originalSha256": "704eea80903224373cfef1b2ec17b44c03bcfe0a1d27b42d8f790880d2bd0e1f",
+      "reproducedSha256": "704eea80903224373cfef1b2ec17b44c03bcfe0a1d27b42d8f790880d2bd0e1f",
+      "identical": true
+    },
+    {
+      "originalFile": "reports/profit-engine-rebuild-2026-09-09/channel-price-protected-v2/2024-base-buy-hold-eth.json",
+      "originalSha256": "ba0a0e22656e71c5c8150612350b20191bd6672be761b44fde9b4091cd0c5ca7",
+      "reproducedSha256": "ba0a0e22656e71c5c8150612350b20191bd6672be761b44fde9b4091cd0c5ca7",
+      "identical": true
+    },
+    {
+      "originalFile": "reports/profit-engine-rebuild-2026-09-09/channel-price-protected-v2/2024-stress-channel.json",
+      "originalSha256": "05fa00c056e3cbbd83c0b72aa22427b0f40a1d596a772a99ee555b445a2a6a41",
+      "reproducedSha256": "05fa00c056e3cbbd83c0b72aa22427b0f40a1d596a772a99ee555b445a2a6a41",
+      "identical": true
+    },
+    {
+      "originalFile": "reports/profit-engine-rebuild-2026-09-09/channel-price-protected-v2/2024-stress-buy-hold-btc.json",
+      "originalSha256": "da509d4fa458abad1340ce0cabc3b6cead7e415987c8eea3e4e5a95f72c7b159",
+      "reproducedSha256": "da509d4fa458abad1340ce0cabc3b6cead7e415987c8eea3e4e5a95f72c7b159",
+      "identical": true
+    },
+    {
+      "originalFile": "reports/profit-engine-rebuild-2026-09-09/channel-price-protected-v2/2024-stress-buy-hold-eth.json",
+      "originalSha256": "3c2abee53e12cedeb2cdc655a3caeb205d6176ed3516c73804b36cd00ac88ff4",
+      "reproducedSha256": "3c2abee53e12cedeb2cdc655a3caeb205d6176ed3516c73804b36cd00ac88ff4",
+      "identical": true
+    },
+    {
+      "originalFile": "reports/profit-engine-rebuild-2026-09-09/channel-price-protected-v2/2025-h1-base-channel.json",
+      "originalSha256": "efc9734485964f6634b1f95cba2095caf4bef4744531a0963e46beb56e87f407",
+      "reproducedSha256": "efc9734485964f6634b1f95cba2095caf4bef4744531a0963e46beb56e87f407",
+      "identical": true
+    },
+    {
+      "originalFile": "reports/profit-engine-rebuild-2026-09-09/channel-price-protected-v2/2025-h1-base-buy-hold-btc.json",
+      "originalSha256": "8356ae082856f133d957e829945ef293d21201e45d110336c05c568c886de46c",
+      "reproducedSha256": "8356ae082856f133d957e829945ef293d21201e45d110336c05c568c886de46c",
+      "identical": true
+    },
+    {
+      "originalFile": "reports/profit-engine-rebuild-2026-09-09/channel-price-protected-v2/2025-h1-base-buy-hold-eth.json",
+      "originalSha256": "7a1d80a2e4a52cc98335cab056544bdd21bb23554cece0be9757a8a01beaeed2",
+      "reproducedSha256": "7a1d80a2e4a52cc98335cab056544bdd21bb23554cece0be9757a8a01beaeed2",
+      "identical": true
+    },
+    {
+      "originalFile": "reports/profit-engine-rebuild-2026-09-09/channel-price-protected-v2/2025-h1-stress-channel.json",
+      "originalSha256": "a3c255e24a9be24d69facf721689cebd4ed78a140735c43639d96871d9bcae81",
+      "reproducedSha256": "a3c255e24a9be24d69facf721689cebd4ed78a140735c43639d96871d9bcae81",
+      "identical": true
+    },
+    {
+      "originalFile": "reports/profit-engine-rebuild-2026-09-09/channel-price-protected-v2/2025-h1-stress-buy-hold-btc.json",
+      "originalSha256": "b95adb7363447abe3bcb189a86eed80d1d28a976e06605e1b98d19ff93303d00",
+      "reproducedSha256": "b95adb7363447abe3bcb189a86eed80d1d28a976e06605e1b98d19ff93303d00",
+      "identical": true
+    },
+    {
+      "originalFile": "reports/profit-engine-rebuild-2026-09-09/channel-price-protected-v2/2025-h1-stress-buy-hold-eth.json",
+      "originalSha256": "0e137250d76eb5acaa1d83f19f247c94026514c9cb61fa131e8a4c2c029a3e0e",
+      "reproducedSha256": "0e137250d76eb5acaa1d83f19f247c94026514c9cb61fa131e8a4c2c029a3e0e",
+      "identical": true
+    }
+  ],
+  "holdoutSignalsOrOutcomesComputed": false
+}

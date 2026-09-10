@@ -1,0 +1,33 @@
+{
+  "recordedAtUtc": "2026-09-09T03:01:21.126531+00:00",
+  "software": {
+    "testsPassed": 956,
+    "failed": 0,
+    "fullSuiteDurationMs": 55370.794749,
+    "typeScriptBuildPassed": true
+  },
+  "registeredBeforeReturns": true,
+  "protocolSha256": "41aa24e5bc8059b99e7cbbbba6cc5cfe3bdde712d93d648dd65fb71291866613",
+  "sourceSealsVerified": true,
+  "studyStatus": "CONFIRMATION_FAILED",
+  "candidateActivated": false,
+  "realOrdersAllowed": false,
+  "profitabilityEstablished": false,
+  "independentSyntheticAudit": "reports/portfolio-v2-independent-synthetic-audit-2026-09-09.json",
+  "throughputAudit": "reports/portfolio-v2-throughput-audit-2026-09-09.json",
+  "developmentPassed": true,
+  "confirmationPassed": false,
+  "selectedPolicy": "sign-trend-90d",
+  "selectionUnchanged": true,
+  "reservedTestAttempt": "RISK_STAGE_DENIED_CONFIRM_FAILED",
+  "reservedTestStartMarkerExists": false,
+  "productionModelChanged": false,
+  "independentDevelopmentAuditSha256": "4bf4b5ec3523c3c17db9557d7ee94a5aec8a04cb5d2631dfc994766fc770c7ca",
+  "allRequiredChecksComplete": true,
+  "independentConfirmationAuditSha256": "99bcc776995826d95b46f2c8a1fe26263044f746b07b2d9482f1016b0a33acb0",
+  "developmentEconomicAuditSha256": "06826b0e4fe38cc33121f2a4451fd4797a96d0db59da29338306521b2b3b417f",
+  "confirmationEconomicAuditSha256": "d92a0afd8a9100fc009f20f6f397c4092262545f18033a877f537023e03f484a",
+  "sourceAndDataSealsVerifiedAtCompletion": true,
+  "implementationScope": "RISK_GOVERNOR_AND_HISTORICAL_EXECUTION_ADAPTER;NO_RUNNING_ENGINE_SWITCH",
+  "result": "RISK_CONTROL_IMPLEMENTED;FROZEN_STRATEGY_FAILED_LATER_PROFITABILITY_AND_BTC_EXPOSURE_GATES"
+}

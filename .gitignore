@@ -5,3 +5,4 @@ dist/
 data/*.jsonl
 data/*.jsonl.gz
 coverage/
+__pycache__/

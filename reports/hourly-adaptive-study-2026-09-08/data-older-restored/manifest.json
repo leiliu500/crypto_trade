@@ -1,0 +1,164 @@
+{
+  "version": "kraken-hourly-dataset-v1",
+  "datasetFile": "dataset.json",
+  "datasetSha256": "6995137d4366500628885518de3908f663ab7584caba0a4fe9845f700ac3f36f",
+  "datasetBytes": 4332365,
+  "metadata": {
+    "version": "kraken-hourly-dataset-v1",
+    "researchOnly": true,
+    "venue": "KRAKEN_FUTURES",
+    "startMs": 1669852800000,
+    "endMs": 1704067200000,
+    "fetchedAtMs": 1788908195965,
+    "products": {
+      "BTC/USD": "PF_XBTUSD",
+      "ETH/USD": "PF_ETHUSD"
+    },
+    "sourceFiles": [
+      {
+        "file": "raw/PF_XBTUSD-candles-1.json",
+        "url": "https://futures.kraken.com/api/charts/v1/trade/PF_XBTUSD/1h?from=1669852800&to=1704063600&count=7000",
+        "bytes": 729972,
+        "sha256": "835ce581a816a80bf0b5a0080ac4e849e93db4f3119b8942c4f6f9dec93eebd0",
+        "fetchedAtMs": 1788908196328,
+        "status": 200
+      },
+      {
+        "file": "raw/PF_XBTUSD-candles-2.json",
+        "url": "https://futures.kraken.com/api/charts/v1/trade/PF_XBTUSD/1h?from=1695052800&to=1704063600&count=7000",
+        "bytes": 262055,
+        "sha256": "0eea372b9a855fee10462f866300c7bf9e1466aa6143463a42bb70ee074fd7ac",
+        "fetchedAtMs": 1788908196587,
+        "status": 200
+      },
+      {
+        "file": "raw/PF_ETHUSD-candles-1.json",
+        "url": "https://futures.kraken.com/api/charts/v1/trade/PF_ETHUSD/1h?from=1669852800&to=1704063600&count=7000",
+        "bytes": 745053,
+        "sha256": "60f40da1ceb56be2e61ed97a02a48bcb55a5768c95bb3edc2db8f34a1deefed8",
+        "fetchedAtMs": 1788908196850,
+        "status": 200
+      },
+      {
+        "file": "raw/PF_ETHUSD-candles-2.json",
+        "url": "https://futures.kraken.com/api/charts/v1/trade/PF_ETHUSD/1h?from=1695052800&to=1704063600&count=7000",
+        "bytes": 267112,
+        "sha256": "5ade61a5032016ae7a035f434eec8c13cad3f44832f6b243931e9b9d32abd437",
+        "fetchedAtMs": 1788908197068,
+        "status": 200
+      },
+      {
+        "file": "raw/funding-zip-tail.bin",
+        "url": "https://assets-cms.kraken.com/files/51n36hrp/facade/4b70936c1227e4ae5514cba8bf41a5561cf13bd7.zip?dl=",
+        "bytes": 65557,
+        "sha256": "b40319a51aba63ef6f68af8c81e112c616647118a770a3dee9bcf8f84db1e75d",
+        "fetchedAtMs": 1788908197282,
+        "status": 206,
+        "range": "bytes=109915193-109980749"
+      },
+      {
+        "file": "raw/funding-zip-directory.bin",
+        "url": "https://assets-cms.kraken.com/files/51n36hrp/facade/4b70936c1227e4ae5514cba8bf41a5561cf13bd7.zip?dl=",
+        "bytes": 93771,
+        "sha256": "98ba3c5405eb2af445ffaf2b3444a171bb3177aa31c22cb116dc8e6f6a114589",
+        "fetchedAtMs": 1788908197329,
+        "status": 206,
+        "range": "bytes=109886957-109980727"
+      },
+      {
+        "file": "raw/PF_XBTUSD-funding-header.bin",
+        "url": "https://assets-cms.kraken.com/files/51n36hrp/facade/4b70936c1227e4ae5514cba8bf41a5561cf13bd7.zip?dl=",
+        "bytes": 30,
+        "sha256": "d3199c62c0fb77002e9b0f1a40c961ee25888b528702f3617a597f137635b1c7",
+        "fetchedAtMs": 1788908197354,
+        "status": 206,
+        "range": "bytes=21488627-21488656"
+      },
+      {
+        "file": "raw/PF_XBTUSD-funding-member.bin",
+        "url": "https://assets-cms.kraken.com/files/51n36hrp/facade/4b70936c1227e4ae5514cba8bf41a5561cf13bd7.zip?dl=",
+        "bytes": 606599,
+        "sha256": "a65b8252bdfbc3e616fa18fdcf2575e56e259e5cc7cb98b15698cd6beed14677",
+        "fetchedAtMs": 1788908197387,
+        "status": 206,
+        "range": "bytes=21488627-22095225"
+      },
+      {
+        "file": "raw/PF_ETHUSD-funding-header.bin",
+        "url": "https://assets-cms.kraken.com/files/51n36hrp/facade/4b70936c1227e4ae5514cba8bf41a5561cf13bd7.zip?dl=",
+        "bytes": 30,
+        "sha256": "d3199c62c0fb77002e9b0f1a40c961ee25888b528702f3617a597f137635b1c7",
+        "fetchedAtMs": 1788908197743,
+        "status": 206,
+        "range": "bytes=51713334-51713363"
+      },
+      {
+        "file": "raw/PF_ETHUSD-funding-member.bin",
+        "url": "https://assets-cms.kraken.com/files/51n36hrp/facade/4b70936c1227e4ae5514cba8bf41a5561cf13bd7.zip?dl=",
+        "bytes": 584121,
+        "sha256": "472daecf21524f5d05a22241c943128dd64bba3014372e9e926051fb0b855cd6",
+        "fetchedAtMs": 1788908197770,
+        "status": 206,
+        "range": "bytes=51713334-52297454"
+      }
+    ],
+    "coverage": [
+      {
+        "symbol": "BTC/USD",
+        "expectedBars": 9504,
+        "bars": 9504,
+        "zeroVolumeHours": 0,
+        "missingBars": [],
+        "funding": 9504,
+        "missingFunding": []
+      },
+      {
+        "symbol": "ETH/USD",
+        "expectedBars": 9504,
+        "bars": 9504,
+        "zeroVolumeHours": 0,
+        "missingBars": [],
+        "funding": 9504,
+        "missingFunding": []
+      }
+    ],
+    "funding": {
+      "source": "https://assets-cms.kraken.com/files/51n36hrp/facade/4b70936c1227e4ae5514cba8bf41a5561cf13bd7.zip?dl=",
+      "archiveBytes": 109980750,
+      "downloadedBytes": 1350108,
+      "timestampConvention": "CSV timestamp interpreted as effective-hour start; normalized settlement timestamp is source + 1 hour",
+      "timestampConventionVerified": false,
+      "analyticsCoverage": [],
+      "members": [
+        {
+          "symbol": "BTC/USD",
+          "file": "raw/PF_XBTUSD-funding.csv",
+          "sha256": "8abfb9f959d9989fab6ddbcf587f31d24ae39684974cc2147c283ef2455bc7ef",
+          "crc32": 474597204,
+          "compressedBytes": 606516,
+          "uncompressedBytes": 2225969,
+          "firstSourceMs": 1647964800000,
+          "lastSourceMs": 1769904000000
+        },
+        {
+          "symbol": "ETH/USD",
+          "file": "raw/PF_ETHUSD-funding.csv",
+          "sha256": "814bc79243578ff0b3846d409db421b346a35116334b8b709c181942c52615a8",
+          "crc32": 29007966,
+          "compressedBytes": 584038,
+          "uncompressedBytes": 2228795,
+          "firstSourceMs": 1647964800000,
+          "lastSourceMs": 1769904000000
+        }
+      ]
+    },
+    "limitations": [
+      "Completed vendor trade candles are retrospective aggregates, not executable order-book paths; zero-volume hours remain flagged by volume=0",
+      "Missing funding is absent, never filled with zero; incomplete funding invalidates affected execution paths",
+      "CSV timestamp convention is an explicit interpretation pending source confirmation",
+      "relative_rate is a fraction relative to the rate-setting index; exact fixed-unit dollar funding requires absoluteRate",
+      "Current contract rules and configured fees do not prove historical availability, fill prices, impact or funding conventions",
+      "Public archives may be revised; raw response and extracted-member hashes attest only to these downloaded bytes"
+    ]
+  }
+}

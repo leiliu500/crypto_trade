@@ -21,7 +21,7 @@ COPY package.json package-lock.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 
 COPY --from=build --chown=node:node /app/dist ./dist
-COPY --from=build --chown=node:node /app/src/distribution ./src/distribution
+COPY --from=build --chown=node:node /app/src ./src
 COPY --chown=node:node config ./config
 COPY --chown=node:node database/migrations ./database/migrations
 COPY --chown=node:node src/dashboard/public ./dist/src/dashboard/public

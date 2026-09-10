@@ -1,0 +1,231 @@
+{
+  "verifiedAtUtc": "2026-09-10T00:01:40.324Z",
+  "sourceCodeSha256": "c57475ab04ce281cbd83f86f95f0099d56d24ef5edcee758e293be197f8d036b",
+  "sourceFiles": 82,
+  "artifact": {
+    "path": "/imports/full-training.json",
+    "bytes": 18242784,
+    "sha256": "357d2802753bfecd18eabdd6fefe6fd7cec9649fadaed06d3a47fbe5436fd9c8"
+  },
+  "currentBankSha256": "6f8bf26cc87b0c38152208afb969b985b699defbaeee356b6ffcc6f3c8b48510",
+  "runtimeContextSha256": "5a12be98798acd82274e0771abf64a2115c2bf49fcb80b7eb626fcf107510aef",
+  "dashboardSha256": "074246987970d9a740e4a34fd670371acd2958f829c2ceb85bc45fe2844ef406",
+  "sizingPolicyId": "827a3c64f88eb32848104dc94f37b416f185a057441576e12cc16a4144ba7c02",
+  "referenceEquity": 100000,
+  "currentRuntimeEquity": 99998.28269740003,
+  "profile": {
+    "entryMode": "PAPER_TRIAL",
+    "selectionPolicyVersion": "btc-eth-selected-policy-paper-trial-3d-efficient-v1",
+    "minimumTrainingDays": 3,
+    "requiresProspectiveValidation": false
+  },
+  "import": {
+    "imported": true,
+    "addedSamples": 5765,
+    "addedPanels": 2914,
+    "duplicatePanels": 0,
+    "skippedOverlapPanels": 82,
+    "capacityDiscardedHistoricalPanels": 35,
+    "addedActionLabels": 5765,
+    "duplicateActionLabels": 0,
+    "skippedOverlapActionLabels": 164,
+    "capacityDiscardedHistoricalActionLabels": 72,
+    "partiallyAddedHistoricalPanels": 2919,
+    "mergeGranularity": "ACTION",
+    "retainedSamples": 6146,
+    "trainingDates": [
+      "2026-09-04",
+      "2026-09-05",
+      "2026-09-06",
+      "2026-09-07",
+      "2026-09-08",
+      "2026-09-09"
+    ],
+    "prospectiveValidationReset": true,
+    "validation": {
+      "selections": 0,
+      "observedDays": 0,
+      "lowerNetBps": null,
+      "ready": false
+    },
+    "brokerOrdersSubmitted": 0
+  },
+  "repeatedImportAddedSamples": 0,
+  "mergedStateSha256": "3a241cf3fbe743931eec655729aa9ca9ea8b666eaa91da0b26aad99070fc056a",
+  "probes": [
+    {
+      "symbol": "BTC/USD",
+      "status": "NO_COMPATIBLE_FRESH_RECORDED_QUERY"
+    },
+    {
+      "symbol": "ETH/USD",
+      "queryAtMs": 1788998499313,
+      "status": "DIAGNOSTIC_ONLY_NO_ORDER_PERMISSION",
+      "before": [
+        {
+          "actionId": "long-5m",
+          "samples": 43,
+          "effectiveSamples": 41.35412611376684,
+          "observedDays": 1,
+          "meanNetBps": -8.084414413953303,
+          "lowerMeanNetBps": null,
+          "tailLossBps": 36.724234462114886,
+          "scoreBps": null,
+          "fillProbability": 0.9519074788968966,
+          "reason": "INSUFFICIENT_DAYS",
+          "eligible": false
+        },
+        {
+          "actionId": "short-5m",
+          "samples": 43,
+          "effectiveSamples": 41.354489823498476,
+          "observedDays": 1,
+          "meanNetBps": -6.678644380070755,
+          "lowerMeanNetBps": null,
+          "tailLossBps": 26.019570736363367,
+          "scoreBps": null,
+          "fillProbability": 0.8734064437706942,
+          "reason": "INSUFFICIENT_DAYS",
+          "eligible": false
+        },
+        {
+          "actionId": "long-15m",
+          "samples": 15,
+          "effectiveSamples": 14.047029743673932,
+          "observedDays": 1,
+          "meanNetBps": -6.4727969493738025,
+          "lowerMeanNetBps": null,
+          "tailLossBps": 53.9561567434427,
+          "scoreBps": null,
+          "fillProbability": 0.9257714082433058,
+          "reason": "INSUFFICIENT_DAYS",
+          "eligible": false
+        },
+        {
+          "actionId": "short-15m",
+          "samples": 16,
+          "effectiveSamples": 15.043501862383986,
+          "observedDays": 1,
+          "meanNetBps": -2.664338862290572,
+          "lowerMeanNetBps": null,
+          "tailLossBps": 38.48557849004555,
+          "scoreBps": null,
+          "fillProbability": 0.8852644669973525,
+          "reason": "INSUFFICIENT_DAYS",
+          "eligible": false
+        },
+        {
+          "actionId": "long-30m",
+          "samples": 5,
+          "effectiveSamples": 4.96329328704091,
+          "observedDays": 1,
+          "meanNetBps": -2.050540852306494,
+          "lowerMeanNetBps": null,
+          "tailLossBps": 73.90056056543976,
+          "scoreBps": null,
+          "fillProbability": 0.8185710959297401,
+          "reason": "INSUFFICIENT_DAYS",
+          "eligible": false
+        },
+        {
+          "actionId": "short-30m",
+          "samples": 4,
+          "effectiveSamples": 3.975111198614581,
+          "observedDays": 1,
+          "meanNetBps": -3.1316161532054623,
+          "lowerMeanNetBps": null,
+          "tailLossBps": 44.40710995148605,
+          "scoreBps": null,
+          "fillProbability": 0.7502850097410145,
+          "reason": "INSUFFICIENT_DAYS",
+          "eligible": false
+        }
+      ],
+      "after": [
+        {
+          "actionId": "long-5m",
+          "samples": 642,
+          "effectiveSamples": 598.1027190782862,
+          "observedDays": 6,
+          "meanNetBps": -15.51855269680842,
+          "lowerMeanNetBps": -17.112606929578693,
+          "tailLossBps": 37.01054762845741,
+          "scoreBps": -20.813661692424432,
+          "fillProbability": 0.8961538464494595,
+          "reason": "SCORE_BELOW_MINIMUM",
+          "eligible": false
+        },
+        {
+          "actionId": "short-5m",
+          "samples": 638,
+          "effectiveSamples": 593.9323499776415,
+          "observedDays": 6,
+          "meanNetBps": -16.06806195616365,
+          "lowerMeanNetBps": -17.273838660770917,
+          "tailLossBps": 37.31021821035518,
+          "scoreBps": -21.004860481806436,
+          "fillProbability": 0.9119747572955391,
+          "reason": "SCORE_BELOW_MINIMUM",
+          "eligible": false
+        },
+        {
+          "actionId": "long-15m",
+          "samples": 231,
+          "effectiveSamples": 217.67346615601963,
+          "observedDays": 5,
+          "meanNetBps": -12.705999436123887,
+          "lowerMeanNetBps": -15.86281348248037,
+          "tailLossBps": 49.22152604969346,
+          "scoreBps": -20.784966087449718,
+          "fillProbability": 0.862216319309705,
+          "reason": "SCORE_BELOW_MINIMUM",
+          "eligible": false
+        },
+        {
+          "actionId": "short-15m",
+          "samples": 223,
+          "effectiveSamples": 210.1869680206798,
+          "observedDays": 5,
+          "meanNetBps": -15.497497621988831,
+          "lowerMeanNetBps": -18.34953028498329,
+          "tailLossBps": 47.105373626886916,
+          "scoreBps": -23.060067647671985,
+          "fillProbability": 0.9201720933279703,
+          "reason": "SCORE_BELOW_MINIMUM",
+          "eligible": false
+        },
+        {
+          "actionId": "long-30m",
+          "samples": 96,
+          "effectiveSamples": 89.88724384892902,
+          "observedDays": 5,
+          "meanNetBps": -9.74003700269254,
+          "lowerMeanNetBps": -16.443064845452383,
+          "tailLossBps": 57.22989400935704,
+          "scoreBps": -22.166054246388086,
+          "fillProbability": 0.8444359711610155,
+          "reason": "SCORE_BELOW_MINIMUM",
+          "eligible": false
+        },
+        {
+          "actionId": "short-30m",
+          "samples": 94,
+          "effectiveSamples": 88.01902110267477,
+          "observedDays": 5,
+          "meanNetBps": -13.179369449288638,
+          "lowerMeanNetBps": -19.84119460290547,
+          "tailLossBps": 65.25381839254833,
+          "scoreBps": -26.366576442160305,
+          "fillProbability": 0.8390612249832914,
+          "reason": "SCORE_BELOW_MINIMUM",
+          "eligible": false
+        }
+      ]
+    }
+  ],
+  "labelFundingInterpretation": "EXECUTION_FEES_AND_FIXED_RESERVE;NO_OBSERVED_FUNDING_CASH_LABELS",
+  "originalRecordingsReplayedByThisPreflight": false,
+  "brokerOrdersSubmitted": 0,
+  "runningBankModified": false,
+  "prospectiveProfitEstablished": false
+}

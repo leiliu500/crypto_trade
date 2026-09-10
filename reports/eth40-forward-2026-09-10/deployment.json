@@ -1,0 +1,143 @@
+{
+  "version": "eth40-forward-deployment-v1",
+  "status": "RUNNING_PAPER_COLLECTOR",
+  "checkedAt": "2026-09-10T20:29:47.661756+00:00",
+  "containerName": "crypto-eth40-paper",
+  "containerId": "8187ce2a169b",
+  "imageId": "sha256:39dbd1a51ea727fc50db700a2e2df36b53806050f5cd5a7dcfa8b60566644cc7",
+  "volume": "crypto_trade_eth40_observation_v1",
+  "urlOnHost": "http://127.0.0.1:3003/",
+  "runtimeSourceSha256": "ff4ce72fe52926c48e96c9fd7aaf40a618a69c6168b085b01183cc2c90757d11",
+  "fingerprintsMatchCurrentFiles": true,
+  "liveTradingEnabled": false,
+  "automaticPromotionAllowed": false,
+  "historicalScreenPassed": false,
+  "validatedProfitable": false,
+  "checks": {
+    "build": "passed",
+    "uniqueFocusedTestsPassed": 61,
+    "signalParityDays": 720,
+    "signalParityMismatches": 0,
+    "publicRestAndWebsocketPreflight": "passed",
+    "savedQuoteCrcAndNumericLevelConsistency": "passed for ETH/USD and BTC/USD",
+    "durableContainerRestart": "passed; live balances still cash, synthetic tests cover committed fill recovery"
+  },
+  "startAtMs": 1789071221861,
+  "firstExecutionAtMs": 1789171200000,
+  "reviewAtMs": 1804709621861,
+  "committedEventSequence": 34,
+  "committedObservations": 33,
+  "marketErrors": [],
+  "freshRecordedQuotes": [
+    {
+      "symbol": "ETH/USD",
+      "bid": 2465.66,
+      "ask": 2465.67,
+      "receivedAtMs": 1789072181586,
+      "exchangeUpdateAtMs": 1789072181512,
+      "ageAtCaptureMs": 0,
+      "checksumValid": true,
+      "checksum": "4012943226",
+      "connectionId": "6122d1bf-15fd-49b9-ba8e-a6dc05603d50"
+    },
+    {
+      "symbol": "BTC/USD",
+      "bid": 77254,
+      "ask": 77254.1,
+      "receivedAtMs": 1789072181585,
+      "exchangeUpdateAtMs": 1789072181510,
+      "ageAtCaptureMs": 1,
+      "checksumValid": true,
+      "checksum": "1964881550",
+      "connectionId": "6122d1bf-15fd-49b9-ba8e-a6dc05603d50"
+    }
+  ],
+  "accounts": [
+    {
+      "accountId": "eth40",
+      "cashUsd": 10000,
+      "quantity": 0,
+      "liquidationEquityUsd": 10000,
+      "netPnlUsd": 0,
+      "realizedNetUsd": 0,
+      "feesUsd": 0,
+      "quoteAgeMs": 74,
+      "fresh": true,
+      "symbol": "ETH/USD",
+      "initialCashUsd": 10000,
+      "returnOnAccountPct": 0,
+      "fills": 0,
+      "completedEpisodes": 0,
+      "sampledMaxDrawdownUsd": 0,
+      "sampledMaxDrawdownPctInitial": 0,
+      "firstFillAtMs": null
+    },
+    {
+      "accountId": "passiveEth",
+      "cashUsd": 10000,
+      "quantity": 0,
+      "liquidationEquityUsd": 10000,
+      "netPnlUsd": 0,
+      "realizedNetUsd": 0,
+      "feesUsd": 0,
+      "quoteAgeMs": 74,
+      "fresh": true,
+      "symbol": "ETH/USD",
+      "initialCashUsd": 10000,
+      "returnOnAccountPct": 0,
+      "fills": 0,
+      "completedEpisodes": 0,
+      "sampledMaxDrawdownUsd": 0,
+      "sampledMaxDrawdownPctInitial": 0,
+      "firstFillAtMs": null
+    },
+    {
+      "accountId": "passiveBtc",
+      "cashUsd": 10000,
+      "quantity": 0,
+      "liquidationEquityUsd": 10000,
+      "netPnlUsd": 0,
+      "realizedNetUsd": 0,
+      "feesUsd": 0,
+      "quoteAgeMs": 76,
+      "fresh": true,
+      "symbol": "BTC/USD",
+      "initialCashUsd": 10000,
+      "returnOnAccountPct": 0,
+      "fills": 0,
+      "completedEpisodes": 0,
+      "sampledMaxDrawdownUsd": 0,
+      "sampledMaxDrawdownPctInitial": 0,
+      "firstFillAtMs": null
+    }
+  ],
+  "cashBenchmark": {
+    "initialCashUsd": 10000,
+    "equityUsd": 10000,
+    "netPnlUsd": 0,
+    "interestAssumed": 0
+  },
+  "existingContainersStillHealthy": [
+    "crypto-trade-engine c47ee446c37d",
+    "crypto-spot-trend-paper ee21ed86427c",
+    "crypto-trade-postgres 8151621c2196"
+  ],
+  "limitations": [
+    "No forward trades or economic evidence yet; first eligible UTC window has not arrived.",
+    "Bid-minus-fee inventory marks are not guaranteed full-position executable liquidation proceeds.",
+    "Local CRC validation is performed by the market adapter; event restore checks hashes and accounting, not an independent replay of every signal/book.",
+    "Live restart was checked with cash balances; synthetic crash tests cover persisted fills.",
+    "Initial missing quotes were recorded during websocket warmup; current captured books for both assets are fresh."
+  ],
+  "storage": {
+    "hostFreeGiBApprox": 9.1,
+    "hostUsedPct": 82,
+    "cycleBytesSample": 5889,
+    "twoHistoryResponsesBytesSample": 142243,
+    "estimatedDailyBytes": 57926304,
+    "estimated181DayGiB": 9.76460149884224,
+    "additionalCapacityNeededForFullReviewPeriod": true,
+    "additionalStorageProvisioned": false,
+    "recordsDeleted": false
+  }
+}

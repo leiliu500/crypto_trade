@@ -1,0 +1,103 @@
+{
+  "fullRegression": "PASS (dot reporter, exit 0)",
+  "typescriptBuild": "PASS",
+  "diffWhitespace": "PASS",
+  "frozenSourceHashes": "MATCH",
+  "independentCashFlowAndChronologyChecks": [
+    {
+      "window": "development-2024",
+      "scenario": "base",
+      "funding": "source-plus-hour",
+      "completedTrades": 493,
+      "netPnlUsd": -1021.7248320272254,
+      "netPerTradeUsd": -2.0724641623270292,
+      "winRate": 0.4969574036511156,
+      "netProfitFactor": 0.7114754152340551,
+      "independentAccountingCheck": "PASS"
+    },
+    {
+      "window": "development-2024",
+      "scenario": "base",
+      "funding": "source-as-end",
+      "completedTrades": 493,
+      "netPnlUsd": -1021.7689257484712,
+      "netPerTradeUsd": -2.0725536019238766,
+      "winRate": 0.4969574036511156,
+      "netProfitFactor": 0.7114187369311532,
+      "independentAccountingCheck": "PASS"
+    },
+    {
+      "window": "development-2024",
+      "scenario": "stress",
+      "funding": "source-plus-hour",
+      "completedTrades": 441,
+      "netPnlUsd": -1222.5122074935375,
+      "netPerTradeUsd": -2.7721365249286567,
+      "winRate": 0.48072562358276644,
+      "netProfitFactor": 0.6269605679798189,
+      "independentAccountingCheck": "PASS"
+    },
+    {
+      "window": "development-2024",
+      "scenario": "stress",
+      "funding": "source-as-end",
+      "completedTrades": 441,
+      "netPnlUsd": -1222.5335212899038,
+      "netPerTradeUsd": -2.772184855532662,
+      "winRate": 0.48072562358276644,
+      "netProfitFactor": 0.6268936400129712,
+      "independentAccountingCheck": "PASS"
+    },
+    {
+      "window": "development-2025-h1",
+      "scenario": "base",
+      "funding": "source-plus-hour",
+      "completedTrades": 244,
+      "netPnlUsd": -803.7783172601396,
+      "netPerTradeUsd": -3.294173431394015,
+      "winRate": 0.45491803278688525,
+      "netProfitFactor": 0.5583991647777974,
+      "independentAccountingCheck": "PASS"
+    },
+    {
+      "window": "development-2025-h1",
+      "scenario": "base",
+      "funding": "source-as-end",
+      "completedTrades": 244,
+      "netPnlUsd": -803.8255714546508,
+      "netPerTradeUsd": -3.294367096125618,
+      "winRate": 0.45491803278688525,
+      "netProfitFactor": 0.5583721236851149,
+      "independentAccountingCheck": "PASS"
+    },
+    {
+      "window": "development-2025-h1",
+      "scenario": "stress",
+      "funding": "source-plus-hour",
+      "completedTrades": 214,
+      "netPnlUsd": -707.4698993497703,
+      "netPerTradeUsd": -3.3059341091110763,
+      "winRate": 0.4672897196261682,
+      "netProfitFactor": 0.5641268166917904,
+      "independentAccountingCheck": "PASS"
+    },
+    {
+      "window": "development-2025-h1",
+      "scenario": "stress",
+      "funding": "source-as-end",
+      "completedTrades": 214,
+      "netPnlUsd": -707.4741458881726,
+      "netPerTradeUsd": -3.3059539527484705,
+      "winRate": 0.4672897196261682,
+      "netProfitFactor": 0.5641022584471481,
+      "independentAccountingCheck": "PASS"
+    }
+  ],
+  "candidateActivation": "REJECTED",
+  "deployed": false,
+  "profitabilityProblemResolved": false,
+  "existingCapAlreadyDeployed": {
+    "usdCeiling": 1000,
+    "maximumEquityFraction": 0.01
+  }
+}

@@ -1,0 +1,2007 @@
+{
+  "version": "btc-eth-persistent-target-study-v1",
+  "stage": "develop",
+  "completedAtUtc": "2026-09-09T01:53:41.795Z",
+  "protocolSha256": "807be0de5acd8d381bd3527ea781fefae744cf92a1df98c08271545cbbf0a66a",
+  "sourceHashes": {
+    "src/portfolio/types.ts": "932cedcff32633cd3317106ba185d34e879a94fd426b36b196ff45a2c584a3da",
+    "src/portfolio/signals.ts": "66907f0868be89af33445d7041454ff960d018eb469af886b43224624f1f6293",
+    "src/portfolio/kernel.ts": "3c78b6202330409b9bd84bfb6d9938fd383162069a70c29eaee4f3115decf756",
+    "src/portfolio/replay.ts": "f2427846d07113ca44fcb58152ba4476009b0e55f5a44bf142cd07504eef6120",
+    "src/portfolio/protocol.ts": "f585d18b3a423a4bd6ca4380a355f5e7006dbec3649fd6ad43a7fea9125f951c",
+    "src/portfolio/study-main.ts": "4aa4260d397c091445464fcc5609f8f6264fe1027ef4bf76ba88ff7d590a7d4e",
+    "src/portfolio/shadow.ts": "b14fc376b6678424187232745d5b92dc867aac48f46af04b24046ce0a776e827",
+    "src/portfolio/live-main.ts": "365730955686861db5946bdca7680ffc7ae1615c8e577591e60182265467e155",
+    "src/research/hourly-data.ts": "0786552d6f700f8ad906a6f6db80b423560eef6f79dbb7403250ce1eeb260a91",
+    "src/research/hourly-study-statistics.ts": "0a9b6437903c26845958748d18f4b43f3ad35749f616da924cd61252442c7a36",
+    "src/core/order-book.ts": "030a9979f2f6a1f4d736e4b927202ffeb446fb1a5a25a18f0a427dc61624db63",
+    "src/core/market.ts": "8bbdd7973b1ba9ee15f30177273cc9b16df4c3c00bbad9547b25bfa20e512837",
+    "src/kraken/market-stream.ts": "42b3005e966c09c0b1fe12012569ac27062a16436a05c373fac28ad514df7d89",
+    "src/kraken/paper-broker.ts": "9c6f240965a31cb7121e11e757856a11ad967a727e2415390b31ff66d7199857",
+    "src/execution/planner.ts": "5954f3b7796fd7ba907e251de7f933e52680b8ab9abb69ba332ab961e87f3604",
+    "src/venue/client.ts": "14c9a6fad0580f43d21926983558f097e0255b33e5b56a2b297517bf2884be2e",
+    "package-lock.json": "2315bada829d31ccb4d3970392ba56d73458d3219dda1ec98d8dda0d41893594",
+    "reports/distribution-instrument-rules-2026-09-07.json": "a89ee77c1a871c63266cde004776e7484ccdc81d544b7d32a81f56cb07d89cdf"
+  },
+  "dataSeals": [
+    {
+      "directory": "/home/ec2-user/crypto_trade/reports/hourly-adaptive-study-2026-09-08/data-older-restored",
+      "datasetSha256": "6995137d4366500628885518de3908f663ab7584caba0a4fe9845f700ac3f36f",
+      "manifestSha256": "b49fc0c9fe648aec3a049605f1e5c79d6d0a917bcf93c40bd151f47b992e941b"
+    },
+    {
+      "directory": "/home/ec2-user/crypto_trade/reports/hourly-adaptive-study-2026-09-08/data-recent",
+      "datasetSha256": "802694ae936dd864681dee2278f027ea1732a91fd6b635f1b08371673abcb227",
+      "manifestSha256": "5a57cfcc6dc6cc352f708f3101d0e2026580c5faf7b6661509016feb6483ecb4"
+    }
+  ],
+  "period": {
+    "startMs": 1704067200000,
+    "endMs": 1735689600000
+  },
+  "summaries": [
+    {
+      "policy": "multiscale-trend",
+      "scenario": "base-source-plus-hour",
+      "result": {
+        "known": true,
+        "netPnlUsd": 3.2477435726614203,
+        "maximumDrawdownUsd": 4.540580239292467,
+        "maximumOneDayLossUsd": 0.9458087460807292,
+        "targetCoverageFraction": 1,
+        "exposureHours": 7384,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 2.395475651943148,
+            "exposureHours": 5754
+          },
+          "ETH/USD": {
+            "netPnlUsd": 0.852267921252888,
+            "exposureHours": 5288
+          }
+        },
+        "utility": 0.9774534530151868,
+        "filledAdjustments": 125,
+        "feesUsd": 0.27251669999999995,
+        "slippageUsdAlreadyInPricePnl": 0.08760000000000176,
+        "fundingCostUsd": 1.4113397268039622,
+        "turnoverUsd": 545.0333999999997,
+        "meanGrossExposureUsd": 6.452164879326042,
+        "maximumGrossExposureUsd": 12.189800000000002,
+        "zeroVolumeNoFills": 0,
+        "unknownCount": 0,
+        "unknownReasons": [],
+        "perAssetAccounting": {
+          "BTC/USD": {
+            "feesUsd": 0.16315155,
+            "actualFundingCostUsd": 1.0036727980568525,
+            "extraFundingCostUsd": 0,
+            "turnoverUsd": 326.30310000000003,
+            "slippageUsd": 0.051500000000000025,
+            "pricePnlUsd": 3.5623000000000005,
+            "realizedPricePnlUsd": 3.5623000000000005,
+            "unrealizedPricePnlUsd": 0,
+            "totalFundingCostUsd": 1.0036727980568525,
+            "netPnlUsd": 2.395475651943148,
+            "filledOrders": 50,
+            "zeroVolumeNoFills": 0,
+            "exposedHours": 5754,
+            "staleMarkHours": 0,
+            "maximumExposureUsd": 10.835600000000001,
+            "terminalQty": 0
+          },
+          "ETH/USD": {
+            "feesUsd": 0.10936515000000001,
+            "actualFundingCostUsd": 0.4076669287471132,
+            "extraFundingCostUsd": 0,
+            "turnoverUsd": 218.73029999999997,
+            "slippageUsd": 0.03610000000000174,
+            "pricePnlUsd": 1.369300000000001,
+            "realizedPricePnlUsd": 1.369300000000001,
+            "unrealizedPricePnlUsd": 0,
+            "totalFundingCostUsd": 0.4076669287471132,
+            "netPnlUsd": 0.852267921252888,
+            "filledOrders": 75,
+            "zeroVolumeNoFills": 0,
+            "exposedHours": 5288,
+            "staleMarkHours": 0,
+            "maximumExposureUsd": 6.4606,
+            "terminalQty": 0
+          }
+        },
+        "sourceInputs": {
+          "bars": {
+            "sha256": "bc5eb94b1b580ecd820639e2bfa42e6dfcaf1158c88204ea2af4ef810b61fdf6",
+            "records": 35328
+          },
+          "funding": {
+            "sha256": "edfbf4427f8bbed9924a2654ca55a69261b1f2d613ca25db51a06249bff837f6",
+            "records": 17572
+          },
+          "targets": {
+            "sha256": "f22bb878596bf579102856c73e05f82f3492ba3b6922c1e936ed39d30b74b37a",
+            "records": 366
+          },
+          "rules": {
+            "sha256": "1c3e22a34c769a1bf45987efb90668718a4e289bac5023ec79ba06b4c8b7da8c",
+            "records": 2
+          }
+        },
+        "indicativePartialNetPnlUsd": null
+      }
+    },
+    {
+      "policy": "multiscale-trend",
+      "scenario": "base-source-as-end",
+      "result": {
+        "known": true,
+        "netPnlUsd": 3.247079075561487,
+        "maximumDrawdownUsd": 4.540434556707623,
+        "maximumOneDayLossUsd": 0.9454564341431251,
+        "targetCoverageFraction": 1,
+        "exposureHours": 7384,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 2.3947557413194978,
+            "exposureHours": 5754
+          },
+          "ETH/USD": {
+            "netPnlUsd": 0.8523233348850573,
+            "exposureHours": 5288
+          }
+        },
+        "utility": 0.9768617972076754,
+        "filledAdjustments": 125,
+        "feesUsd": 0.27251669999999995,
+        "slippageUsdAlreadyInPricePnl": 0.08760000000000176,
+        "fundingCostUsd": 1.412004223795444,
+        "turnoverUsd": 545.0333999999997,
+        "meanGrossExposureUsd": 6.452164879326042,
+        "maximumGrossExposureUsd": 12.189800000000002,
+        "zeroVolumeNoFills": 0,
+        "unknownCount": 0,
+        "unknownReasons": [],
+        "perAssetAccounting": {
+          "BTC/USD": {
+            "feesUsd": 0.16315155,
+            "actualFundingCostUsd": 1.004392708680503,
+            "extraFundingCostUsd": 0,
+            "turnoverUsd": 326.30310000000003,
+            "slippageUsd": 0.051500000000000025,
+            "pricePnlUsd": 3.5623000000000005,
+            "realizedPricePnlUsd": 3.5623000000000005,
+            "unrealizedPricePnlUsd": 0,
+            "totalFundingCostUsd": 1.004392708680503,
+            "netPnlUsd": 2.3947557413194978,
+            "filledOrders": 50,
+            "zeroVolumeNoFills": 0,
+            "exposedHours": 5754,
+            "staleMarkHours": 0,
+            "maximumExposureUsd": 10.835600000000001,
+            "terminalQty": 0
+          },
+          "ETH/USD": {
+            "feesUsd": 0.10936515000000001,
+            "actualFundingCostUsd": 0.40761151511494387,
+            "extraFundingCostUsd": 0,
+            "turnoverUsd": 218.73029999999997,
+            "slippageUsd": 0.03610000000000174,
+            "pricePnlUsd": 1.369300000000001,
+            "realizedPricePnlUsd": 1.369300000000001,
+            "unrealizedPricePnlUsd": 0,
+            "totalFundingCostUsd": 0.40761151511494387,
+            "netPnlUsd": 0.8523233348850573,
+            "filledOrders": 75,
+            "zeroVolumeNoFills": 0,
+            "exposedHours": 5288,
+            "staleMarkHours": 0,
+            "maximumExposureUsd": 6.4606,
+            "terminalQty": 0
+          }
+        },
+        "sourceInputs": {
+          "bars": {
+            "sha256": "bc5eb94b1b580ecd820639e2bfa42e6dfcaf1158c88204ea2af4ef810b61fdf6",
+            "records": 35328
+          },
+          "funding": {
+            "sha256": "edfbf4427f8bbed9924a2654ca55a69261b1f2d613ca25db51a06249bff837f6",
+            "records": 17572
+          },
+          "targets": {
+            "sha256": "f22bb878596bf579102856c73e05f82f3492ba3b6922c1e936ed39d30b74b37a",
+            "records": 366
+          },
+          "rules": {
+            "sha256": "1c3e22a34c769a1bf45987efb90668718a4e289bac5023ec79ba06b4c8b7da8c",
+            "records": 2
+          }
+        },
+        "indicativePartialNetPnlUsd": null
+      }
+    },
+    {
+      "policy": "multiscale-trend",
+      "scenario": "stress-source-plus-hour",
+      "result": {
+        "known": true,
+        "netPnlUsd": 3.138670924847247,
+        "maximumDrawdownUsd": 4.6635220279567875,
+        "maximumOneDayLossUsd": 0.9467842418380314,
+        "targetCoverageFraction": 1,
+        "exposureHours": 7381,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 2.6661938266613814,
+            "exposureHours": 5765
+          },
+          "ETH/USD": {
+            "netPnlUsd": 0.472477097168887,
+            "exposureHours": 5271
+          }
+        },
+        "utility": 0.8069099108688533,
+        "filledAdjustments": 119,
+        "feesUsd": 0.3981343499999999,
+        "slippageUsdAlreadyInPricePnl": 0.16540000000000046,
+        "fundingCostUsd": 1.6485947261697387,
+        "turnoverUsd": 530.8457999999999,
+        "meanGrossExposureUsd": 6.458824806466299,
+        "maximumGrossExposureUsd": 12.189800000000002,
+        "zeroVolumeNoFills": 0,
+        "unknownCount": 0,
+        "unknownReasons": [],
+        "perAssetAccounting": {
+          "BTC/USD": {
+            "feesUsd": 0.24115469999999997,
+            "actualFundingCostUsd": 1.004818135838618,
+            "extraFundingCostUsd": 0.16123333750000018,
+            "turnoverUsd": 321.53960000000006,
+            "slippageUsd": 0.0989,
+            "pricePnlUsd": 4.0733999999999995,
+            "realizedPricePnlUsd": 4.0733999999999995,
+            "unrealizedPricePnlUsd": 0,
+            "totalFundingCostUsd": 1.166051473338618,
+            "netPnlUsd": 2.6661938266613814,
+            "filledOrders": 48,
+            "zeroVolumeNoFills": 0,
+            "exposedHours": 5765,
+            "staleMarkHours": 0,
+            "maximumExposureUsd": 10.835600000000001,
+            "terminalQty": 0
+          },
+          "ETH/USD": {
+            "feesUsd": 0.15697965,
+            "actualFundingCostUsd": 0.4073549124144469,
+            "extraFundingCostUsd": 0.07518834041666686,
+            "turnoverUsd": 209.30619999999996,
+            "slippageUsd": 0.06650000000000046,
+            "pricePnlUsd": 1.1120000000000008,
+            "realizedPricePnlUsd": 1.1120000000000008,
+            "unrealizedPricePnlUsd": 0,
+            "totalFundingCostUsd": 0.48254325283111377,
+            "netPnlUsd": 0.472477097168887,
+            "filledOrders": 71,
+            "zeroVolumeNoFills": 0,
+            "exposedHours": 5271,
+            "staleMarkHours": 0,
+            "maximumExposureUsd": 6.4606,
+            "terminalQty": 0
+          }
+        },
+        "sourceInputs": {
+          "bars": {
+            "sha256": "bc5eb94b1b580ecd820639e2bfa42e6dfcaf1158c88204ea2af4ef810b61fdf6",
+            "records": 35328
+          },
+          "funding": {
+            "sha256": "edfbf4427f8bbed9924a2654ca55a69261b1f2d613ca25db51a06249bff837f6",
+            "records": 17572
+          },
+          "targets": {
+            "sha256": "f22bb878596bf579102856c73e05f82f3492ba3b6922c1e936ed39d30b74b37a",
+            "records": 366
+          },
+          "rules": {
+            "sha256": "1c3e22a34c769a1bf45987efb90668718a4e289bac5023ec79ba06b4c8b7da8c",
+            "records": 2
+          }
+        },
+        "indicativePartialNetPnlUsd": null
+      }
+    },
+    {
+      "policy": "multiscale-trend",
+      "scenario": "stress-source-as-end",
+      "result": {
+        "known": true,
+        "netPnlUsd": 3.1378846501756925,
+        "maximumDrawdownUsd": 4.663309185023536,
+        "maximumOneDayLossUsd": 0.9464319299877388,
+        "targetCoverageFraction": 1,
+        "exposureHours": 7381,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 2.665095425664194,
+            "exposureHours": 5765
+          },
+          "ETH/USD": {
+            "netPnlUsd": 0.4727892251482835,
+            "exposureHours": 5271
+          }
+        },
+        "utility": 0.8062300576639245,
+        "filledAdjustments": 119,
+        "feesUsd": 0.3981343499999999,
+        "slippageUsdAlreadyInPricePnl": 0.16540000000000046,
+        "fundingCostUsd": 1.6493809991875221,
+        "turnoverUsd": 530.8457999999999,
+        "meanGrossExposureUsd": 6.458824806466299,
+        "maximumGrossExposureUsd": 12.189800000000002,
+        "zeroVolumeNoFills": 0,
+        "unknownCount": 0,
+        "unknownReasons": [],
+        "perAssetAccounting": {
+          "BTC/USD": {
+            "feesUsd": 0.24115469999999997,
+            "actualFundingCostUsd": 1.0059165368358054,
+            "extraFundingCostUsd": 0.16123333750000018,
+            "turnoverUsd": 321.53960000000006,
+            "slippageUsd": 0.0989,
+            "pricePnlUsd": 4.0733999999999995,
+            "realizedPricePnlUsd": 4.0733999999999995,
+            "unrealizedPricePnlUsd": 0,
+            "totalFundingCostUsd": 1.1671498743358055,
+            "netPnlUsd": 2.665095425664194,
+            "filledOrders": 48,
+            "zeroVolumeNoFills": 0,
+            "exposedHours": 5765,
+            "staleMarkHours": 0,
+            "maximumExposureUsd": 10.835600000000001,
+            "terminalQty": 0
+          },
+          "ETH/USD": {
+            "feesUsd": 0.15697965,
+            "actualFundingCostUsd": 0.40704278443505043,
+            "extraFundingCostUsd": 0.07518834041666686,
+            "turnoverUsd": 209.30619999999996,
+            "slippageUsd": 0.06650000000000046,
+            "pricePnlUsd": 1.1120000000000008,
+            "realizedPricePnlUsd": 1.1120000000000008,
+            "unrealizedPricePnlUsd": 0,
+            "totalFundingCostUsd": 0.48223112485171726,
+            "netPnlUsd": 0.4727892251482835,
+            "filledOrders": 71,
+            "zeroVolumeNoFills": 0,
+            "exposedHours": 5271,
+            "staleMarkHours": 0,
+            "maximumExposureUsd": 6.4606,
+            "terminalQty": 0
+          }
+        },
+        "sourceInputs": {
+          "bars": {
+            "sha256": "bc5eb94b1b580ecd820639e2bfa42e6dfcaf1158c88204ea2af4ef810b61fdf6",
+            "records": 35328
+          },
+          "funding": {
+            "sha256": "edfbf4427f8bbed9924a2654ca55a69261b1f2d613ca25db51a06249bff837f6",
+            "records": 17572
+          },
+          "targets": {
+            "sha256": "f22bb878596bf579102856c73e05f82f3492ba3b6922c1e936ed39d30b74b37a",
+            "records": 366
+          },
+          "rules": {
+            "sha256": "1c3e22a34c769a1bf45987efb90668718a4e289bac5023ec79ba06b4c8b7da8c",
+            "records": 2
+          }
+        },
+        "indicativePartialNetPnlUsd": null
+      }
+    },
+    {
+      "policy": "sign-trend-90d",
+      "scenario": "base-source-plus-hour",
+      "result": {
+        "known": true,
+        "netPnlUsd": 6.490823499581893,
+        "maximumDrawdownUsd": 3.227148653983022,
+        "maximumOneDayLossUsd": 1.3365517268684926,
+        "targetCoverageFraction": 1,
+        "exposureHours": 8733,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 3.258247463746718,
+            "exposureHours": 8717
+          },
+          "ETH/USD": {
+            "netPnlUsd": 3.232576036090718,
+            "exposureHours": 7602
+          }
+        },
+        "utility": 4.877249172590382,
+        "filledAdjustments": 170,
+        "feesUsd": 0.32445234999999994,
+        "slippageUsdAlreadyInPricePnl": 0.10470000000000027,
+        "fundingCostUsd": 1.347424150162574,
+        "turnoverUsd": 648.9046999999997,
+        "meanGrossExposureUsd": 10.29644545765027,
+        "maximumGrossExposureUsd": 12.189800000000002,
+        "zeroVolumeNoFills": 0,
+        "unknownCount": 0,
+        "unknownReasons": [],
+        "perAssetAccounting": {
+          "BTC/USD": {
+            "feesUsd": 0.12413325,
+            "actualFundingCostUsd": 0.9811192862532824,
+            "extraFundingCostUsd": 0,
+            "turnoverUsd": 248.26650000000004,
+            "slippageUsd": 0.03900000000000002,
+            "pricePnlUsd": 4.3635,
+            "realizedPricePnlUsd": 4.3635,
+            "unrealizedPricePnlUsd": 0,
+            "totalFundingCostUsd": 0.9811192862532824,
+            "netPnlUsd": 3.258247463746718,
+            "filledOrders": 38,
+            "zeroVolumeNoFills": 0,
+            "exposedHours": 8717,
+            "staleMarkHours": 0,
+            "maximumExposureUsd": 10.835600000000001,
+            "terminalQty": 0
+          },
+          "ETH/USD": {
+            "feesUsd": 0.20031909999999997,
+            "actualFundingCostUsd": 0.3663048639092823,
+            "extraFundingCostUsd": 0,
+            "turnoverUsd": 400.63819999999987,
+            "slippageUsd": 0.06570000000000024,
+            "pricePnlUsd": 3.7992000000000004,
+            "realizedPricePnlUsd": 3.7992000000000004,
+            "unrealizedPricePnlUsd": 0,
+            "totalFundingCostUsd": 0.3663048639092823,
+            "netPnlUsd": 3.232576036090718,
+            "filledOrders": 132,
+            "zeroVolumeNoFills": 0,
+            "exposedHours": 7602,
+            "staleMarkHours": 0,
+            "maximumExposureUsd": 7.4418,
+            "terminalQty": 0
+          }
+        },
+        "sourceInputs": {
+          "bars": {
+            "sha256": "bc5eb94b1b580ecd820639e2bfa42e6dfcaf1158c88204ea2af4ef810b61fdf6",
+            "records": 35328
+          },
+          "funding": {
+            "sha256": "edfbf4427f8bbed9924a2654ca55a69261b1f2d613ca25db51a06249bff837f6",
+            "records": 17572
+          },
+          "targets": {
+            "sha256": "0e09db1bd6bcf1df88c02c836bb6c05ffbcd1dd728308bf31226ac1f684ac27c",
+            "records": 366
+          },
+          "rules": {
+            "sha256": "1c3e22a34c769a1bf45987efb90668718a4e289bac5023ec79ba06b4c8b7da8c",
+            "records": 2
+          }
+        },
+        "indicativePartialNetPnlUsd": null
+      }
+    },
+    {
+      "policy": "sign-trend-90d",
+      "scenario": "base-source-as-end",
+      "result": {
+        "known": true,
+        "netPnlUsd": 6.490531095347251,
+        "maximumDrawdownUsd": 3.226387143076863,
+        "maximumOneDayLossUsd": 1.336450663744472,
+        "targetCoverageFraction": 1,
+        "exposureHours": 8733,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 3.2580899911211487,
+            "exposureHours": 8717
+          },
+          "ETH/USD": {
+            "netPnlUsd": 3.232441104561094,
+            "exposureHours": 7602
+          }
+        },
+        "utility": 4.877337523808819,
+        "filledAdjustments": 170,
+        "feesUsd": 0.32445234999999994,
+        "slippageUsdAlreadyInPricePnl": 0.10470000000000027,
+        "fundingCostUsd": 1.3477165543177658,
+        "turnoverUsd": 648.9046999999997,
+        "meanGrossExposureUsd": 10.29644545765027,
+        "maximumGrossExposureUsd": 12.189800000000002,
+        "zeroVolumeNoFills": 0,
+        "unknownCount": 0,
+        "unknownReasons": [],
+        "perAssetAccounting": {
+          "BTC/USD": {
+            "feesUsd": 0.12413325,
+            "actualFundingCostUsd": 0.9812767588788516,
+            "extraFundingCostUsd": 0,
+            "turnoverUsd": 248.26650000000004,
+            "slippageUsd": 0.03900000000000002,
+            "pricePnlUsd": 4.3635,
+            "realizedPricePnlUsd": 4.3635,
+            "unrealizedPricePnlUsd": 0,
+            "totalFundingCostUsd": 0.9812767588788516,
+            "netPnlUsd": 3.2580899911211487,
+            "filledOrders": 38,
+            "zeroVolumeNoFills": 0,
+            "exposedHours": 8717,
+            "staleMarkHours": 0,
+            "maximumExposureUsd": 10.835600000000001,
+            "terminalQty": 0
+          },
+          "ETH/USD": {
+            "feesUsd": 0.20031909999999997,
+            "actualFundingCostUsd": 0.36643979543890587,
+            "extraFundingCostUsd": 0,
+            "turnoverUsd": 400.63819999999987,
+            "slippageUsd": 0.06570000000000024,
+            "pricePnlUsd": 3.7992000000000004,
+            "realizedPricePnlUsd": 3.7992000000000004,
+            "unrealizedPricePnlUsd": 0,
+            "totalFundingCostUsd": 0.36643979543890587,
+            "netPnlUsd": 3.232441104561094,
+            "filledOrders": 132,
+            "zeroVolumeNoFills": 0,
+            "exposedHours": 7602,
+            "staleMarkHours": 0,
+            "maximumExposureUsd": 7.4418,
+            "terminalQty": 0
+          }
+        },
+        "sourceInputs": {
+          "bars": {
+            "sha256": "bc5eb94b1b580ecd820639e2bfa42e6dfcaf1158c88204ea2af4ef810b61fdf6",
+            "records": 35328
+          },
+          "funding": {
+            "sha256": "edfbf4427f8bbed9924a2654ca55a69261b1f2d613ca25db51a06249bff837f6",
+            "records": 17572
+          },
+          "targets": {
+            "sha256": "0e09db1bd6bcf1df88c02c836bb6c05ffbcd1dd728308bf31226ac1f684ac27c",
+            "records": 366
+          },
+          "rules": {
+            "sha256": "1c3e22a34c769a1bf45987efb90668718a4e289bac5023ec79ba06b4c8b7da8c",
+            "records": 2
+          }
+        },
+        "indicativePartialNetPnlUsd": null
+      }
+    },
+    {
+      "policy": "sign-trend-90d",
+      "scenario": "stress-source-plus-hour",
+      "result": {
+        "known": true,
+        "netPnlUsd": 5.7886766730225645,
+        "maximumDrawdownUsd": 3.287092887228937,
+        "maximumOneDayLossUsd": 1.337635170610156,
+        "targetCoverageFraction": 1,
+        "exposureHours": 8732,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 3.079542900755815,
+            "exposureHours": 8716
+          },
+          "ETH/USD": {
+            "netPnlUsd": 2.709133771148527,
+            "exposureHours": 7601
+          }
+        },
+        "utility": 4.145130229408096,
+        "filledAdjustments": 177,
+        "feesUsd": 0.49912642500000004,
+        "slippageUsdAlreadyInPricePnl": 0.2076000000000005,
+        "fundingCostUsd": 1.7240969030956725,
+        "turnoverUsd": 665.5018999999995,
+        "meanGrossExposureUsd": 10.293303620218575,
+        "maximumGrossExposureUsd": 12.189800000000002,
+        "zeroVolumeNoFills": 0,
+        "unknownCount": 0,
+        "unknownReasons": [],
+        "perAssetAccounting": {
+          "BTC/USD": {
+            "feesUsd": 0.18627892499999996,
+            "actualFundingCostUsd": 0.9811781017441885,
+            "extraFundingCostUsd": 0.23890007249999945,
+            "turnoverUsd": 248.37190000000007,
+            "slippageUsd": 0.07610000000000003,
+            "pricePnlUsd": 4.485900000000003,
+            "realizedPricePnlUsd": 4.485900000000003,
+            "unrealizedPricePnlUsd": 0,
+            "totalFundingCostUsd": 1.220078174244188,
+            "netPnlUsd": 3.079542900755815,
+            "filledOrders": 38,
+            "zeroVolumeNoFills": 0,
+            "exposedHours": 8716,
+            "staleMarkHours": 0,
+            "maximumExposureUsd": 10.835600000000001,
+            "terminalQty": 0
+          },
+          "ETH/USD": {
+            "feesUsd": 0.3128475,
+            "actualFundingCostUsd": 0.36615178093480627,
+            "extraFundingCostUsd": 0.13786694791666668,
+            "turnoverUsd": 417.13,
+            "slippageUsd": 0.13150000000000048,
+            "pricePnlUsd": 3.5260000000000002,
+            "realizedPricePnlUsd": 3.5260000000000002,
+            "unrealizedPricePnlUsd": 0,
+            "totalFundingCostUsd": 0.5040187288514729,
+            "netPnlUsd": 2.709133771148527,
+            "filledOrders": 139,
+            "zeroVolumeNoFills": 0,
+            "exposedHours": 7601,
+            "staleMarkHours": 0,
+            "maximumExposureUsd": 7.4418,
+            "terminalQty": 0
+          }
+        },
+        "sourceInputs": {
+          "bars": {
+            "sha256": "bc5eb94b1b580ecd820639e2bfa42e6dfcaf1158c88204ea2af4ef810b61fdf6",
+            "records": 35328
+          },
+          "funding": {
+            "sha256": "edfbf4427f8bbed9924a2654ca55a69261b1f2d613ca25db51a06249bff837f6",
+            "records": 17572
+          },
+          "targets": {
+            "sha256": "0e09db1bd6bcf1df88c02c836bb6c05ffbcd1dd728308bf31226ac1f684ac27c",
+            "records": 366
+          },
+          "rules": {
+            "sha256": "1c3e22a34c769a1bf45987efb90668718a4e289bac5023ec79ba06b4c8b7da8c",
+            "records": 2
+          }
+        },
+        "indicativePartialNetPnlUsd": null
+      }
+    },
+    {
+      "policy": "sign-trend-90d",
+      "scenario": "stress-source-as-end",
+      "result": {
+        "known": true,
+        "netPnlUsd": 5.7885842649120605,
+        "maximumDrawdownUsd": 3.286331376511953,
+        "maximumOneDayLossUsd": 1.3375341074715834,
+        "targetCoverageFraction": 1,
+        "exposureHours": 8732,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 3.0793669839603894,
+            "exposureHours": 8716
+          },
+          "ETH/USD": {
+            "netPnlUsd": 2.7092172814032676,
+            "exposureHours": 7601
+          }
+        },
+        "utility": 4.145418576656084,
+        "filledAdjustments": 177,
+        "feesUsd": 0.49912642500000004,
+        "slippageUsdAlreadyInPricePnl": 0.2076000000000005,
+        "fundingCostUsd": 1.7241893096363419,
+        "turnoverUsd": 665.5018999999995,
+        "meanGrossExposureUsd": 10.293303620218575,
+        "maximumGrossExposureUsd": 12.189800000000002,
+        "zeroVolumeNoFills": 0,
+        "unknownCount": 0,
+        "unknownReasons": [],
+        "perAssetAccounting": {
+          "BTC/USD": {
+            "feesUsd": 0.18627892499999996,
+            "actualFundingCostUsd": 0.9813540185396139,
+            "extraFundingCostUsd": 0.23890007249999945,
+            "turnoverUsd": 248.37190000000007,
+            "slippageUsd": 0.07610000000000003,
+            "pricePnlUsd": 4.485900000000003,
+            "realizedPricePnlUsd": 4.485900000000003,
+            "unrealizedPricePnlUsd": 0,
+            "totalFundingCostUsd": 1.2202540910396134,
+            "netPnlUsd": 3.0793669839603894,
+            "filledOrders": 38,
+            "zeroVolumeNoFills": 0,
+            "exposedHours": 8716,
+            "staleMarkHours": 0,
+            "maximumExposureUsd": 10.835600000000001,
+            "terminalQty": 0
+          },
+          "ETH/USD": {
+            "feesUsd": 0.3128475,
+            "actualFundingCostUsd": 0.3660682706800658,
+            "extraFundingCostUsd": 0.13786694791666668,
+            "turnoverUsd": 417.13,
+            "slippageUsd": 0.13150000000000048,
+            "pricePnlUsd": 3.5260000000000002,
+            "realizedPricePnlUsd": 3.5260000000000002,
+            "unrealizedPricePnlUsd": 0,
+            "totalFundingCostUsd": 0.5039352185967325,
+            "netPnlUsd": 2.7092172814032676,
+            "filledOrders": 139,
+            "zeroVolumeNoFills": 0,
+            "exposedHours": 7601,
+            "staleMarkHours": 0,
+            "maximumExposureUsd": 7.4418,
+            "terminalQty": 0
+          }
+        },
+        "sourceInputs": {
+          "bars": {
+            "sha256": "bc5eb94b1b580ecd820639e2bfa42e6dfcaf1158c88204ea2af4ef810b61fdf6",
+            "records": 35328
+          },
+          "funding": {
+            "sha256": "edfbf4427f8bbed9924a2654ca55a69261b1f2d613ca25db51a06249bff837f6",
+            "records": 17572
+          },
+          "targets": {
+            "sha256": "0e09db1bd6bcf1df88c02c836bb6c05ffbcd1dd728308bf31226ac1f684ac27c",
+            "records": 366
+          },
+          "rules": {
+            "sha256": "1c3e22a34c769a1bf45987efb90668718a4e289bac5023ec79ba06b4c8b7da8c",
+            "records": 2
+          }
+        },
+        "indicativePartialNetPnlUsd": null
+      }
+    },
+    {
+      "policy": "constant-btc",
+      "scenario": "base-source-plus-hour",
+      "result": {
+        "known": true,
+        "netPnlUsd": 7.4193631891248515,
+        "maximumDrawdownUsd": 3.226837635447737,
+        "maximumOneDayLossUsd": 0.8223462025343906,
+        "targetCoverageFraction": 1,
+        "exposureHours": 8735,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 7.419363188893654,
+            "exposureHours": 8735
+          },
+          "ETH/USD": {
+            "netPnlUsd": 0,
+            "exposureHours": 0
+          }
+        },
+        "utility": 5.805944371400983,
+        "filledAdjustments": 87,
+        "feesUsd": 0.23981529999999998,
+        "slippageUsdAlreadyInPricePnl": 0.07629999999999998,
+        "fundingCostUsd": 1.2964215111063588,
+        "turnoverUsd": 479.63059999999996,
+        "meanGrossExposureUsd": 8.00815991575591,
+        "maximumGrossExposureUsd": 12.2398,
+        "zeroVolumeNoFills": 0,
+        "unknownCount": 0,
+        "unknownReasons": [],
+        "perAssetAccounting": {
+          "BTC/USD": {
+            "feesUsd": 0.23981529999999998,
+            "actualFundingCostUsd": 1.2964215111063588,
+            "extraFundingCostUsd": 0,
+            "turnoverUsd": 479.63059999999996,
+            "slippageUsd": 0.07629999999999998,
+            "pricePnlUsd": 8.955600000000013,
+            "realizedPricePnlUsd": 8.955600000000013,
+            "unrealizedPricePnlUsd": 0,
+            "totalFundingCostUsd": 1.2964215111063588,
+            "netPnlUsd": 7.419363188893654,
+            "filledOrders": 87,
+            "zeroVolumeNoFills": 0,
+            "exposedHours": 8735,
+            "staleMarkHours": 0,
+            "maximumExposureUsd": 12.2398,
+            "terminalQty": 0
+          },
+          "ETH/USD": {
+            "feesUsd": 0,
+            "actualFundingCostUsd": 0,
+            "extraFundingCostUsd": 0,
+            "turnoverUsd": 0,
+            "slippageUsd": 0,
+            "pricePnlUsd": 0,
+            "realizedPricePnlUsd": 0,
+            "unrealizedPricePnlUsd": 0,
+            "totalFundingCostUsd": 0,
+            "netPnlUsd": 0,
+            "filledOrders": 0,
+            "zeroVolumeNoFills": 0,
+            "exposedHours": 0,
+            "staleMarkHours": 0,
+            "maximumExposureUsd": 0,
+            "terminalQty": 0
+          }
+        },
+        "sourceInputs": {
+          "bars": {
+            "sha256": "bc5eb94b1b580ecd820639e2bfa42e6dfcaf1158c88204ea2af4ef810b61fdf6",
+            "records": 35328
+          },
+          "funding": {
+            "sha256": "edfbf4427f8bbed9924a2654ca55a69261b1f2d613ca25db51a06249bff837f6",
+            "records": 17572
+          },
+          "targets": {
+            "sha256": "df03811bd543650a3b72bf9316cb20009de97bcccc7e7c77aff54fcd64305537",
+            "records": 366
+          },
+          "rules": {
+            "sha256": "1c3e22a34c769a1bf45987efb90668718a4e289bac5023ec79ba06b4c8b7da8c",
+            "records": 2
+          }
+        },
+        "indicativePartialNetPnlUsd": null
+      }
+    },
+    {
+      "policy": "constant-btc",
+      "scenario": "base-source-as-end",
+      "result": {
+        "known": true,
+        "netPnlUsd": 7.418107777659316,
+        "maximumDrawdownUsd": 3.226227598483092,
+        "maximumOneDayLossUsd": 0.8223454251565272,
+        "targetCoverageFraction": 1,
+        "exposureHours": 8735,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 7.418107777414472,
+            "exposureHours": 8735
+          },
+          "ETH/USD": {
+            "netPnlUsd": 0,
+            "exposureHours": 0
+          }
+        },
+        "utility": 5.8049939784177695,
+        "filledAdjustments": 87,
+        "feesUsd": 0.23981529999999998,
+        "slippageUsdAlreadyInPricePnl": 0.07629999999999998,
+        "fundingCostUsd": 1.2976769225855407,
+        "turnoverUsd": 479.63059999999996,
+        "meanGrossExposureUsd": 8.00815991575591,
+        "maximumGrossExposureUsd": 12.2398,
+        "zeroVolumeNoFills": 0,
+        "unknownCount": 0,
+        "unknownReasons": [],
+        "perAssetAccounting": {
+          "BTC/USD": {
+            "feesUsd": 0.23981529999999998,
+            "actualFundingCostUsd": 1.2976769225855407,
+            "extraFundingCostUsd": 0,
+            "turnoverUsd": 479.63059999999996,
+            "slippageUsd": 0.07629999999999998,
+            "pricePnlUsd": 8.955600000000013,
+            "realizedPricePnlUsd": 8.955600000000013,
+            "unrealizedPricePnlUsd": 0,
+            "totalFundingCostUsd": 1.2976769225855407,
+            "netPnlUsd": 7.418107777414472,
+            "filledOrders": 87,
+            "zeroVolumeNoFills": 0,
+            "exposedHours": 8735,
+            "staleMarkHours": 0,
+            "maximumExposureUsd": 12.2398,
+            "terminalQty": 0
+          },
+          "ETH/USD": {
+            "feesUsd": 0,
+            "actualFundingCostUsd": 0,
+            "extraFundingCostUsd": 0,
+            "turnoverUsd": 0,
+            "slippageUsd": 0,
+            "pricePnlUsd": 0,
+            "realizedPricePnlUsd": 0,
+            "unrealizedPricePnlUsd": 0,
+            "totalFundingCostUsd": 0,
+            "netPnlUsd": 0,
+            "filledOrders": 0,
+            "zeroVolumeNoFills": 0,
+            "exposedHours": 0,
+            "staleMarkHours": 0,
+            "maximumExposureUsd": 0,
+            "terminalQty": 0
+          }
+        },
+        "sourceInputs": {
+          "bars": {
+            "sha256": "bc5eb94b1b580ecd820639e2bfa42e6dfcaf1158c88204ea2af4ef810b61fdf6",
+            "records": 35328
+          },
+          "funding": {
+            "sha256": "edfbf4427f8bbed9924a2654ca55a69261b1f2d613ca25db51a06249bff837f6",
+            "records": 17572
+          },
+          "targets": {
+            "sha256": "df03811bd543650a3b72bf9316cb20009de97bcccc7e7c77aff54fcd64305537",
+            "records": 366
+          },
+          "rules": {
+            "sha256": "1c3e22a34c769a1bf45987efb90668718a4e289bac5023ec79ba06b4c8b7da8c",
+            "records": 2
+          }
+        },
+        "indicativePartialNetPnlUsd": null
+      }
+    },
+    {
+      "policy": "constant-btc",
+      "scenario": "stress-source-plus-hour",
+      "result": {
+        "known": true,
+        "netPnlUsd": 6.961960337939672,
+        "maximumDrawdownUsd": 3.3317816606140696,
+        "maximumOneDayLossUsd": 0.8234139558771858,
+        "targetCoverageFraction": 1,
+        "exposureHours": 8734,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 6.961960336746686,
+            "exposureHours": 8734
+          },
+          "ETH/USD": {
+            "netPnlUsd": 0,
+            "exposureHours": 0
+          }
+        },
+        "utility": 5.296069507632637,
+        "filledAdjustments": 87,
+        "feesUsd": 0.3596807249999999,
+        "slippageUsdAlreadyInPricePnl": 0.14809999999999995,
+        "fundingCostUsd": 1.5890589382533264,
+        "turnoverUsd": 479.5743,
+        "meanGrossExposureUsd": 8.004461270491793,
+        "maximumGrossExposureUsd": 12.2398,
+        "zeroVolumeNoFills": 0,
+        "unknownCount": 0,
+        "unknownReasons": [],
+        "perAssetAccounting": {
+          "BTC/USD": {
+            "feesUsd": 0.3596807249999999,
+            "actualFundingCostUsd": 1.2960579107533299,
+            "extraFundingCostUsd": 0.29300102749999996,
+            "turnoverUsd": 479.5743,
+            "slippageUsd": 0.14809999999999995,
+            "pricePnlUsd": 8.910700000000016,
+            "realizedPricePnlUsd": 8.910700000000016,
+            "unrealizedPricePnlUsd": 0,
+            "totalFundingCostUsd": 1.5890589382533298,
+            "netPnlUsd": 6.961960336746686,
+            "filledOrders": 87,
+            "zeroVolumeNoFills": 0,
+            "exposedHours": 8734,
+            "staleMarkHours": 0,
+            "maximumExposureUsd": 12.2398,
+            "terminalQty": 0
+          },
+          "ETH/USD": {
+            "feesUsd": 0,
+            "actualFundingCostUsd": 0,
+            "extraFundingCostUsd": 0,
+            "turnoverUsd": 0,
+            "slippageUsd": 0,
+            "pricePnlUsd": 0,
+            "realizedPricePnlUsd": 0,
+            "unrealizedPricePnlUsd": 0,
+            "totalFundingCostUsd": 0,
+            "netPnlUsd": 0,
+            "filledOrders": 0,
+            "zeroVolumeNoFills": 0,
+            "exposedHours": 0,
+            "staleMarkHours": 0,
+            "maximumExposureUsd": 0,
+            "terminalQty": 0
+          }
+        },
+        "sourceInputs": {
+          "bars": {
+            "sha256": "bc5eb94b1b580ecd820639e2bfa42e6dfcaf1158c88204ea2af4ef810b61fdf6",
+            "records": 35328
+          },
+          "funding": {
+            "sha256": "edfbf4427f8bbed9924a2654ca55a69261b1f2d613ca25db51a06249bff837f6",
+            "records": 17572
+          },
+          "targets": {
+            "sha256": "df03811bd543650a3b72bf9316cb20009de97bcccc7e7c77aff54fcd64305537",
+            "records": 366
+          },
+          "rules": {
+            "sha256": "1c3e22a34c769a1bf45987efb90668718a4e289bac5023ec79ba06b4c8b7da8c",
+            "records": 2
+          }
+        },
+        "indicativePartialNetPnlUsd": null
+      }
+    },
+    {
+      "policy": "constant-btc",
+      "scenario": "stress-source-as-end",
+      "result": {
+        "known": true,
+        "netPnlUsd": 6.960826987968176,
+        "maximumDrawdownUsd": 3.331198426516494,
+        "maximumOneDayLossUsd": 0.8234131784847705,
+        "targetCoverageFraction": 1,
+        "exposureHours": 8734,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 6.96082698810124,
+            "exposureHours": 8734
+          },
+          "ETH/USD": {
+            "netPnlUsd": 0,
+            "exposureHours": 0
+          }
+        },
+        "utility": 5.295227774709929,
+        "filledAdjustments": 87,
+        "feesUsd": 0.3596807249999999,
+        "slippageUsdAlreadyInPricePnl": 0.14809999999999995,
+        "fundingCostUsd": 1.5901922868987803,
+        "turnoverUsd": 479.5743,
+        "meanGrossExposureUsd": 8.004461270491793,
+        "maximumGrossExposureUsd": 12.2398,
+        "zeroVolumeNoFills": 0,
+        "unknownCount": 0,
+        "unknownReasons": [],
+        "perAssetAccounting": {
+          "BTC/USD": {
+            "feesUsd": 0.3596807249999999,
+            "actualFundingCostUsd": 1.297191259398776,
+            "extraFundingCostUsd": 0.29300102749999996,
+            "turnoverUsd": 479.5743,
+            "slippageUsd": 0.14809999999999995,
+            "pricePnlUsd": 8.910700000000016,
+            "realizedPricePnlUsd": 8.910700000000016,
+            "unrealizedPricePnlUsd": 0,
+            "totalFundingCostUsd": 1.590192286898776,
+            "netPnlUsd": 6.96082698810124,
+            "filledOrders": 87,
+            "zeroVolumeNoFills": 0,
+            "exposedHours": 8734,
+            "staleMarkHours": 0,
+            "maximumExposureUsd": 12.2398,
+            "terminalQty": 0
+          },
+          "ETH/USD": {
+            "feesUsd": 0,
+            "actualFundingCostUsd": 0,
+            "extraFundingCostUsd": 0,
+            "turnoverUsd": 0,
+            "slippageUsd": 0,
+            "pricePnlUsd": 0,
+            "realizedPricePnlUsd": 0,
+            "unrealizedPricePnlUsd": 0,
+            "totalFundingCostUsd": 0,
+            "netPnlUsd": 0,
+            "filledOrders": 0,
+            "zeroVolumeNoFills": 0,
+            "exposedHours": 0,
+            "staleMarkHours": 0,
+            "maximumExposureUsd": 0,
+            "terminalQty": 0
+          }
+        },
+        "sourceInputs": {
+          "bars": {
+            "sha256": "bc5eb94b1b580ecd820639e2bfa42e6dfcaf1158c88204ea2af4ef810b61fdf6",
+            "records": 35328
+          },
+          "funding": {
+            "sha256": "edfbf4427f8bbed9924a2654ca55a69261b1f2d613ca25db51a06249bff837f6",
+            "records": 17572
+          },
+          "targets": {
+            "sha256": "df03811bd543650a3b72bf9316cb20009de97bcccc7e7c77aff54fcd64305537",
+            "records": 366
+          },
+          "rules": {
+            "sha256": "1c3e22a34c769a1bf45987efb90668718a4e289bac5023ec79ba06b4c8b7da8c",
+            "records": 2
+          }
+        },
+        "indicativePartialNetPnlUsd": null
+      }
+    },
+    {
+      "policy": "constant-eth",
+      "scenario": "base-source-plus-hour",
+      "result": {
+        "known": true,
+        "netPnlUsd": 4.359730457872502,
+        "maximumDrawdownUsd": 6.143677491869312,
+        "maximumOneDayLossUsd": 1.1011594031733694,
+        "targetCoverageFraction": 1,
+        "exposureHours": 8735,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 0,
+            "exposureHours": 0
+          },
+          "ETH/USD": {
+            "netPnlUsd": 4.359730457566002,
+            "exposureHours": 8735
+          }
+        },
+        "utility": 1.2878917119378457,
+        "filledAdjustments": 158,
+        "feesUsd": 0.24504940000000008,
+        "slippageUsdAlreadyInPricePnl": 0.08140000000000046,
+        "fundingCostUsd": 1.6180201424340095,
+        "turnoverUsd": 490.0988000000002,
+        "meanGrossExposureUsd": 10.450816541438963,
+        "maximumGrossExposureUsd": 12.262,
+        "zeroVolumeNoFills": 0,
+        "unknownCount": 0,
+        "unknownReasons": [],
+        "perAssetAccounting": {
+          "BTC/USD": {
+            "feesUsd": 0,
+            "actualFundingCostUsd": 0,
+            "extraFundingCostUsd": 0,
+            "turnoverUsd": 0,
+            "slippageUsd": 0,
+            "pricePnlUsd": 0,
+            "realizedPricePnlUsd": 0,
+            "unrealizedPricePnlUsd": 0,
+            "totalFundingCostUsd": 0,
+            "netPnlUsd": 0,
+            "filledOrders": 0,
+            "zeroVolumeNoFills": 0,
+            "exposedHours": 0,
+            "staleMarkHours": 0,
+            "maximumExposureUsd": 0,
+            "terminalQty": 0
+          },
+          "ETH/USD": {
+            "feesUsd": 0.24504940000000008,
+            "actualFundingCostUsd": 1.6180201424340095,
+            "extraFundingCostUsd": 0,
+            "turnoverUsd": 490.0988000000002,
+            "slippageUsd": 0.08140000000000046,
+            "pricePnlUsd": 6.222800000000011,
+            "realizedPricePnlUsd": 6.222800000000011,
+            "unrealizedPricePnlUsd": 0,
+            "totalFundingCostUsd": 1.6180201424340095,
+            "netPnlUsd": 4.359730457566002,
+            "filledOrders": 158,
+            "zeroVolumeNoFills": 0,
+            "exposedHours": 8735,
+            "staleMarkHours": 0,
+            "maximumExposureUsd": 12.262,
+            "terminalQty": 0
+          }
+        },
+        "sourceInputs": {
+          "bars": {
+            "sha256": "bc5eb94b1b580ecd820639e2bfa42e6dfcaf1158c88204ea2af4ef810b61fdf6",
+            "records": 35328
+          },
+          "funding": {
+            "sha256": "edfbf4427f8bbed9924a2654ca55a69261b1f2d613ca25db51a06249bff837f6",
+            "records": 17572
+          },
+          "targets": {
+            "sha256": "8874e65edb597feff94b28a3a3412dc48f8d910d290f693c48cd3ea8fd252493",
+            "records": 366
+          },
+          "rules": {
+            "sha256": "1c3e22a34c769a1bf45987efb90668718a4e289bac5023ec79ba06b4c8b7da8c",
+            "records": 2
+          }
+        },
+        "indicativePartialNetPnlUsd": null
+      }
+    },
+    {
+      "policy": "constant-eth",
+      "scenario": "base-source-as-end",
+      "result": {
+        "known": true,
+        "netPnlUsd": 4.358172969630687,
+        "maximumDrawdownUsd": 6.143609486854984,
+        "maximumOneDayLossUsd": 1.1007658290036488,
+        "targetCoverageFraction": 1,
+        "exposureHours": 8735,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 0,
+            "exposureHours": 0
+          },
+          "ETH/USD": {
+            "netPnlUsd": 4.358172969338932,
+            "exposureHours": 8735
+          }
+        },
+        "utility": 1.2863682262031944,
+        "filledAdjustments": 158,
+        "feesUsd": 0.24504940000000008,
+        "slippageUsdAlreadyInPricePnl": 0.08140000000000046,
+        "fundingCostUsd": 1.6195776306610783,
+        "turnoverUsd": 490.0988000000002,
+        "meanGrossExposureUsd": 10.450816541438963,
+        "maximumGrossExposureUsd": 12.262,
+        "zeroVolumeNoFills": 0,
+        "unknownCount": 0,
+        "unknownReasons": [],
+        "perAssetAccounting": {
+          "BTC/USD": {
+            "feesUsd": 0,
+            "actualFundingCostUsd": 0,
+            "extraFundingCostUsd": 0,
+            "turnoverUsd": 0,
+            "slippageUsd": 0,
+            "pricePnlUsd": 0,
+            "realizedPricePnlUsd": 0,
+            "unrealizedPricePnlUsd": 0,
+            "totalFundingCostUsd": 0,
+            "netPnlUsd": 0,
+            "filledOrders": 0,
+            "zeroVolumeNoFills": 0,
+            "exposedHours": 0,
+            "staleMarkHours": 0,
+            "maximumExposureUsd": 0,
+            "terminalQty": 0
+          },
+          "ETH/USD": {
+            "feesUsd": 0.24504940000000008,
+            "actualFundingCostUsd": 1.6195776306610783,
+            "extraFundingCostUsd": 0,
+            "turnoverUsd": 490.0988000000002,
+            "slippageUsd": 0.08140000000000046,
+            "pricePnlUsd": 6.222800000000011,
+            "realizedPricePnlUsd": 6.222800000000011,
+            "unrealizedPricePnlUsd": 0,
+            "totalFundingCostUsd": 1.6195776306610783,
+            "netPnlUsd": 4.358172969338932,
+            "filledOrders": 158,
+            "zeroVolumeNoFills": 0,
+            "exposedHours": 8735,
+            "staleMarkHours": 0,
+            "maximumExposureUsd": 12.262,
+            "terminalQty": 0
+          }
+        },
+        "sourceInputs": {
+          "bars": {
+            "sha256": "bc5eb94b1b580ecd820639e2bfa42e6dfcaf1158c88204ea2af4ef810b61fdf6",
+            "records": 35328
+          },
+          "funding": {
+            "sha256": "edfbf4427f8bbed9924a2654ca55a69261b1f2d613ca25db51a06249bff837f6",
+            "records": 17572
+          },
+          "targets": {
+            "sha256": "8874e65edb597feff94b28a3a3412dc48f8d910d290f693c48cd3ea8fd252493",
+            "records": 366
+          },
+          "rules": {
+            "sha256": "1c3e22a34c769a1bf45987efb90668718a4e289bac5023ec79ba06b4c8b7da8c",
+            "records": 2
+          }
+        },
+        "indicativePartialNetPnlUsd": null
+      }
+    },
+    {
+      "policy": "constant-eth",
+      "scenario": "stress-source-plus-hour",
+      "result": {
+        "known": true,
+        "netPnlUsd": 3.7433248863962945,
+        "maximumDrawdownUsd": 6.427971769779106,
+        "maximumOneDayLossUsd": 1.1021549144061282,
+        "targetCoverageFraction": 1,
+        "exposureHours": 8734,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 0,
+            "exposureHours": 0
+          },
+          "ETH/USD": {
+            "netPnlUsd": 3.7433248872180584,
+            "exposureHours": 8734
+          }
+        },
+        "utility": 0.5293390015067416,
+        "filledAdjustments": 158,
+        "feesUsd": 0.36668594999999987,
+        "slippageUsdAlreadyInPricePnl": 0.15649999999999994,
+        "fundingCostUsd": 1.99978916278194,
+        "turnoverUsd": 488.91459999999995,
+        "meanGrossExposureUsd": 10.44843919626592,
+        "maximumGrossExposureUsd": 12.262,
+        "zeroVolumeNoFills": 0,
+        "unknownCount": 0,
+        "unknownReasons": [],
+        "perAssetAccounting": {
+          "BTC/USD": {
+            "feesUsd": 0,
+            "actualFundingCostUsd": 0,
+            "extraFundingCostUsd": 0,
+            "turnoverUsd": 0,
+            "slippageUsd": 0,
+            "pricePnlUsd": 0,
+            "realizedPricePnlUsd": 0,
+            "unrealizedPricePnlUsd": 0,
+            "totalFundingCostUsd": 0,
+            "netPnlUsd": 0,
+            "filledOrders": 0,
+            "zeroVolumeNoFills": 0,
+            "exposedHours": 0,
+            "staleMarkHours": 0,
+            "maximumExposureUsd": 0,
+            "terminalQty": 0
+          },
+          "ETH/USD": {
+            "feesUsd": 0.36668594999999987,
+            "actualFundingCostUsd": 1.617350178615272,
+            "extraFundingCostUsd": 0.3824389841666661,
+            "turnoverUsd": 488.91459999999995,
+            "slippageUsd": 0.15649999999999994,
+            "pricePnlUsd": 6.109799999999996,
+            "realizedPricePnlUsd": 6.109799999999996,
+            "unrealizedPricePnlUsd": 0,
+            "totalFundingCostUsd": 1.999789162781938,
+            "netPnlUsd": 3.7433248872180584,
+            "filledOrders": 158,
+            "zeroVolumeNoFills": 0,
+            "exposedHours": 8734,
+            "staleMarkHours": 0,
+            "maximumExposureUsd": 12.262,
+            "terminalQty": 0
+          }
+        },
+        "sourceInputs": {
+          "bars": {
+            "sha256": "bc5eb94b1b580ecd820639e2bfa42e6dfcaf1158c88204ea2af4ef810b61fdf6",
+            "records": 35328
+          },
+          "funding": {
+            "sha256": "edfbf4427f8bbed9924a2654ca55a69261b1f2d613ca25db51a06249bff837f6",
+            "records": 17572
+          },
+          "targets": {
+            "sha256": "8874e65edb597feff94b28a3a3412dc48f8d910d290f693c48cd3ea8fd252493",
+            "records": 366
+          },
+          "rules": {
+            "sha256": "1c3e22a34c769a1bf45987efb90668718a4e289bac5023ec79ba06b4c8b7da8c",
+            "records": 2
+          }
+        },
+        "indicativePartialNetPnlUsd": null
+      }
+    },
+    {
+      "policy": "constant-eth",
+      "scenario": "stress-source-as-end",
+      "result": {
+        "known": true,
+        "netPnlUsd": 3.741810043065925,
+        "maximumDrawdownUsd": 6.427950466662878,
+        "maximumOneDayLossUsd": 1.1017613402946154,
+        "targetCoverageFraction": 1,
+        "exposureHours": 8734,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 0,
+            "exposureHours": 0
+          },
+          "ETH/USD": {
+            "netPnlUsd": 3.7418100432994246,
+            "exposureHours": 8734
+          }
+        },
+        "utility": 0.527834809734486,
+        "filledAdjustments": 158,
+        "feesUsd": 0.36668594999999987,
+        "slippageUsdAlreadyInPricePnl": 0.15649999999999994,
+        "fundingCostUsd": 2.001304006700567,
+        "turnoverUsd": 488.91459999999995,
+        "meanGrossExposureUsd": 10.44843919626592,
+        "maximumGrossExposureUsd": 12.262,
+        "zeroVolumeNoFills": 0,
+        "unknownCount": 0,
+        "unknownReasons": [],
+        "perAssetAccounting": {
+          "BTC/USD": {
+            "feesUsd": 0,
+            "actualFundingCostUsd": 0,
+            "extraFundingCostUsd": 0,
+            "turnoverUsd": 0,
+            "slippageUsd": 0,
+            "pricePnlUsd": 0,
+            "realizedPricePnlUsd": 0,
+            "unrealizedPricePnlUsd": 0,
+            "totalFundingCostUsd": 0,
+            "netPnlUsd": 0,
+            "filledOrders": 0,
+            "zeroVolumeNoFills": 0,
+            "exposedHours": 0,
+            "staleMarkHours": 0,
+            "maximumExposureUsd": 0,
+            "terminalQty": 0
+          },
+          "ETH/USD": {
+            "feesUsd": 0.36668594999999987,
+            "actualFundingCostUsd": 1.6188650225339054,
+            "extraFundingCostUsd": 0.3824389841666661,
+            "turnoverUsd": 488.91459999999995,
+            "slippageUsd": 0.15649999999999994,
+            "pricePnlUsd": 6.109799999999996,
+            "realizedPricePnlUsd": 6.109799999999996,
+            "unrealizedPricePnlUsd": 0,
+            "totalFundingCostUsd": 2.0013040067005714,
+            "netPnlUsd": 3.7418100432994246,
+            "filledOrders": 158,
+            "zeroVolumeNoFills": 0,
+            "exposedHours": 8734,
+            "staleMarkHours": 0,
+            "maximumExposureUsd": 12.262,
+            "terminalQty": 0
+          }
+        },
+        "sourceInputs": {
+          "bars": {
+            "sha256": "bc5eb94b1b580ecd820639e2bfa42e6dfcaf1158c88204ea2af4ef810b61fdf6",
+            "records": 35328
+          },
+          "funding": {
+            "sha256": "edfbf4427f8bbed9924a2654ca55a69261b1f2d613ca25db51a06249bff837f6",
+            "records": 17572
+          },
+          "targets": {
+            "sha256": "8874e65edb597feff94b28a3a3412dc48f8d910d290f693c48cd3ea8fd252493",
+            "records": 366
+          },
+          "rules": {
+            "sha256": "1c3e22a34c769a1bf45987efb90668718a4e289bac5023ec79ba06b4c8b7da8c",
+            "records": 2
+          }
+        },
+        "indicativePartialNetPnlUsd": null
+      }
+    },
+    {
+      "policy": "flat",
+      "scenario": "base-source-plus-hour",
+      "result": {
+        "known": true,
+        "netPnlUsd": 0,
+        "maximumDrawdownUsd": 0,
+        "maximumOneDayLossUsd": 0,
+        "targetCoverageFraction": 1,
+        "exposureHours": 0,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 0,
+            "exposureHours": 0
+          },
+          "ETH/USD": {
+            "netPnlUsd": 0,
+            "exposureHours": 0
+          }
+        },
+        "utility": 0,
+        "filledAdjustments": 0,
+        "feesUsd": 0,
+        "slippageUsdAlreadyInPricePnl": 0,
+        "fundingCostUsd": 0,
+        "turnoverUsd": 0,
+        "meanGrossExposureUsd": 0,
+        "maximumGrossExposureUsd": 0,
+        "zeroVolumeNoFills": 0,
+        "unknownCount": 0,
+        "unknownReasons": [],
+        "perAssetAccounting": {
+          "BTC/USD": {
+            "feesUsd": 0,
+            "actualFundingCostUsd": 0,
+            "extraFundingCostUsd": 0,
+            "turnoverUsd": 0,
+            "slippageUsd": 0,
+            "pricePnlUsd": 0,
+            "realizedPricePnlUsd": 0,
+            "unrealizedPricePnlUsd": 0,
+            "totalFundingCostUsd": 0,
+            "netPnlUsd": 0,
+            "filledOrders": 0,
+            "zeroVolumeNoFills": 0,
+            "exposedHours": 0,
+            "staleMarkHours": 0,
+            "maximumExposureUsd": 0,
+            "terminalQty": 0
+          },
+          "ETH/USD": {
+            "feesUsd": 0,
+            "actualFundingCostUsd": 0,
+            "extraFundingCostUsd": 0,
+            "turnoverUsd": 0,
+            "slippageUsd": 0,
+            "pricePnlUsd": 0,
+            "realizedPricePnlUsd": 0,
+            "unrealizedPricePnlUsd": 0,
+            "totalFundingCostUsd": 0,
+            "netPnlUsd": 0,
+            "filledOrders": 0,
+            "zeroVolumeNoFills": 0,
+            "exposedHours": 0,
+            "staleMarkHours": 0,
+            "maximumExposureUsd": 0,
+            "terminalQty": 0
+          }
+        },
+        "sourceInputs": {
+          "bars": {
+            "sha256": "bc5eb94b1b580ecd820639e2bfa42e6dfcaf1158c88204ea2af4ef810b61fdf6",
+            "records": 35328
+          },
+          "funding": {
+            "sha256": "edfbf4427f8bbed9924a2654ca55a69261b1f2d613ca25db51a06249bff837f6",
+            "records": 17572
+          },
+          "targets": {
+            "sha256": "f057be79330ac54253f3b61d5e9c6226900b2c71c550c43ca37e2d95535d23c1",
+            "records": 366
+          },
+          "rules": {
+            "sha256": "1c3e22a34c769a1bf45987efb90668718a4e289bac5023ec79ba06b4c8b7da8c",
+            "records": 2
+          }
+        },
+        "indicativePartialNetPnlUsd": null
+      }
+    },
+    {
+      "policy": "flat",
+      "scenario": "base-source-as-end",
+      "result": {
+        "known": true,
+        "netPnlUsd": 0,
+        "maximumDrawdownUsd": 0,
+        "maximumOneDayLossUsd": 0,
+        "targetCoverageFraction": 1,
+        "exposureHours": 0,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 0,
+            "exposureHours": 0
+          },
+          "ETH/USD": {
+            "netPnlUsd": 0,
+            "exposureHours": 0
+          }
+        },
+        "utility": 0,
+        "filledAdjustments": 0,
+        "feesUsd": 0,
+        "slippageUsdAlreadyInPricePnl": 0,
+        "fundingCostUsd": 0,
+        "turnoverUsd": 0,
+        "meanGrossExposureUsd": 0,
+        "maximumGrossExposureUsd": 0,
+        "zeroVolumeNoFills": 0,
+        "unknownCount": 0,
+        "unknownReasons": [],
+        "perAssetAccounting": {
+          "BTC/USD": {
+            "feesUsd": 0,
+            "actualFundingCostUsd": 0,
+            "extraFundingCostUsd": 0,
+            "turnoverUsd": 0,
+            "slippageUsd": 0,
+            "pricePnlUsd": 0,
+            "realizedPricePnlUsd": 0,
+            "unrealizedPricePnlUsd": 0,
+            "totalFundingCostUsd": 0,
+            "netPnlUsd": 0,
+            "filledOrders": 0,
+            "zeroVolumeNoFills": 0,
+            "exposedHours": 0,
+            "staleMarkHours": 0,
+            "maximumExposureUsd": 0,
+            "terminalQty": 0
+          },
+          "ETH/USD": {
+            "feesUsd": 0,
+            "actualFundingCostUsd": 0,
+            "extraFundingCostUsd": 0,
+            "turnoverUsd": 0,
+            "slippageUsd": 0,
+            "pricePnlUsd": 0,
+            "realizedPricePnlUsd": 0,
+            "unrealizedPricePnlUsd": 0,
+            "totalFundingCostUsd": 0,
+            "netPnlUsd": 0,
+            "filledOrders": 0,
+            "zeroVolumeNoFills": 0,
+            "exposedHours": 0,
+            "staleMarkHours": 0,
+            "maximumExposureUsd": 0,
+            "terminalQty": 0
+          }
+        },
+        "sourceInputs": {
+          "bars": {
+            "sha256": "bc5eb94b1b580ecd820639e2bfa42e6dfcaf1158c88204ea2af4ef810b61fdf6",
+            "records": 35328
+          },
+          "funding": {
+            "sha256": "edfbf4427f8bbed9924a2654ca55a69261b1f2d613ca25db51a06249bff837f6",
+            "records": 17572
+          },
+          "targets": {
+            "sha256": "f057be79330ac54253f3b61d5e9c6226900b2c71c550c43ca37e2d95535d23c1",
+            "records": 366
+          },
+          "rules": {
+            "sha256": "1c3e22a34c769a1bf45987efb90668718a4e289bac5023ec79ba06b4c8b7da8c",
+            "records": 2
+          }
+        },
+        "indicativePartialNetPnlUsd": null
+      }
+    },
+    {
+      "policy": "flat",
+      "scenario": "stress-source-plus-hour",
+      "result": {
+        "known": true,
+        "netPnlUsd": 0,
+        "maximumDrawdownUsd": 0,
+        "maximumOneDayLossUsd": 0,
+        "targetCoverageFraction": 1,
+        "exposureHours": 0,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 0,
+            "exposureHours": 0
+          },
+          "ETH/USD": {
+            "netPnlUsd": 0,
+            "exposureHours": 0
+          }
+        },
+        "utility": 0,
+        "filledAdjustments": 0,
+        "feesUsd": 0,
+        "slippageUsdAlreadyInPricePnl": 0,
+        "fundingCostUsd": 0,
+        "turnoverUsd": 0,
+        "meanGrossExposureUsd": 0,
+        "maximumGrossExposureUsd": 0,
+        "zeroVolumeNoFills": 0,
+        "unknownCount": 0,
+        "unknownReasons": [],
+        "perAssetAccounting": {
+          "BTC/USD": {
+            "feesUsd": 0,
+            "actualFundingCostUsd": 0,
+            "extraFundingCostUsd": 0,
+            "turnoverUsd": 0,
+            "slippageUsd": 0,
+            "pricePnlUsd": 0,
+            "realizedPricePnlUsd": 0,
+            "unrealizedPricePnlUsd": 0,
+            "totalFundingCostUsd": 0,
+            "netPnlUsd": 0,
+            "filledOrders": 0,
+            "zeroVolumeNoFills": 0,
+            "exposedHours": 0,
+            "staleMarkHours": 0,
+            "maximumExposureUsd": 0,
+            "terminalQty": 0
+          },
+          "ETH/USD": {
+            "feesUsd": 0,
+            "actualFundingCostUsd": 0,
+            "extraFundingCostUsd": 0,
+            "turnoverUsd": 0,
+            "slippageUsd": 0,
+            "pricePnlUsd": 0,
+            "realizedPricePnlUsd": 0,
+            "unrealizedPricePnlUsd": 0,
+            "totalFundingCostUsd": 0,
+            "netPnlUsd": 0,
+            "filledOrders": 0,
+            "zeroVolumeNoFills": 0,
+            "exposedHours": 0,
+            "staleMarkHours": 0,
+            "maximumExposureUsd": 0,
+            "terminalQty": 0
+          }
+        },
+        "sourceInputs": {
+          "bars": {
+            "sha256": "bc5eb94b1b580ecd820639e2bfa42e6dfcaf1158c88204ea2af4ef810b61fdf6",
+            "records": 35328
+          },
+          "funding": {
+            "sha256": "edfbf4427f8bbed9924a2654ca55a69261b1f2d613ca25db51a06249bff837f6",
+            "records": 17572
+          },
+          "targets": {
+            "sha256": "f057be79330ac54253f3b61d5e9c6226900b2c71c550c43ca37e2d95535d23c1",
+            "records": 366
+          },
+          "rules": {
+            "sha256": "1c3e22a34c769a1bf45987efb90668718a4e289bac5023ec79ba06b4c8b7da8c",
+            "records": 2
+          }
+        },
+        "indicativePartialNetPnlUsd": null
+      }
+    },
+    {
+      "policy": "flat",
+      "scenario": "stress-source-as-end",
+      "result": {
+        "known": true,
+        "netPnlUsd": 0,
+        "maximumDrawdownUsd": 0,
+        "maximumOneDayLossUsd": 0,
+        "targetCoverageFraction": 1,
+        "exposureHours": 0,
+        "perAsset": {
+          "BTC/USD": {
+            "netPnlUsd": 0,
+            "exposureHours": 0
+          },
+          "ETH/USD": {
+            "netPnlUsd": 0,
+            "exposureHours": 0
+          }
+        },
+        "utility": 0,
+        "filledAdjustments": 0,
+        "feesUsd": 0,
+        "slippageUsdAlreadyInPricePnl": 0,
+        "fundingCostUsd": 0,
+        "turnoverUsd": 0,
+        "meanGrossExposureUsd": 0,
+        "maximumGrossExposureUsd": 0,
+        "zeroVolumeNoFills": 0,
+        "unknownCount": 0,
+        "unknownReasons": [],
+        "perAssetAccounting": {
+          "BTC/USD": {
+            "feesUsd": 0,
+            "actualFundingCostUsd": 0,
+            "extraFundingCostUsd": 0,
+            "turnoverUsd": 0,
+            "slippageUsd": 0,
+            "pricePnlUsd": 0,
+            "realizedPricePnlUsd": 0,
+            "unrealizedPricePnlUsd": 0,
+            "totalFundingCostUsd": 0,
+            "netPnlUsd": 0,
+            "filledOrders": 0,
+            "zeroVolumeNoFills": 0,
+            "exposedHours": 0,
+            "staleMarkHours": 0,
+            "maximumExposureUsd": 0,
+            "terminalQty": 0
+          },
+          "ETH/USD": {
+            "feesUsd": 0,
+            "actualFundingCostUsd": 0,
+            "extraFundingCostUsd": 0,
+            "turnoverUsd": 0,
+            "slippageUsd": 0,
+            "pricePnlUsd": 0,
+            "realizedPricePnlUsd": 0,
+            "unrealizedPricePnlUsd": 0,
+            "totalFundingCostUsd": 0,
+            "netPnlUsd": 0,
+            "filledOrders": 0,
+            "zeroVolumeNoFills": 0,
+            "exposedHours": 0,
+            "staleMarkHours": 0,
+            "maximumExposureUsd": 0,
+            "terminalQty": 0
+          }
+        },
+        "sourceInputs": {
+          "bars": {
+            "sha256": "bc5eb94b1b580ecd820639e2bfa42e6dfcaf1158c88204ea2af4ef810b61fdf6",
+            "records": 35328
+          },
+          "funding": {
+            "sha256": "edfbf4427f8bbed9924a2654ca55a69261b1f2d613ca25db51a06249bff837f6",
+            "records": 17572
+          },
+          "targets": {
+            "sha256": "f057be79330ac54253f3b61d5e9c6226900b2c71c550c43ca37e2d95535d23c1",
+            "records": 366
+          },
+          "rules": {
+            "sha256": "1c3e22a34c769a1bf45987efb90668718a4e289bac5023ec79ba06b4c8b7da8c",
+            "records": 2
+          }
+        },
+        "indicativePartialNetPnlUsd": null
+      }
+    }
+  ],
+  "comparisons": [
+    {
+      "scenario": "base-source-plus-hour",
+      "gates": {
+        "completeAccounting": true,
+        "targetCoverage": true,
+        "meaningfulExposure": true,
+        "riskWithinLimits": false,
+        "positiveNetBothAssetsAndPortfolio": true,
+        "utilityAboveFlatAndSimpleRule": false
+      },
+      "intervals": {
+        "versusFlat": {
+          "days": 366,
+          "meanDailyImprovementUsd": 0.00887361631874705,
+          "lower95DailyUsd": -0.008960256244835528,
+          "lower95TotalUsd": -3.279453785609803,
+          "repetitions": 2000,
+          "blockDays": 7,
+          "seed": 20260908
+        },
+        "versusSimpleRule": {
+          "days": 366,
+          "meanDailyImprovementUsd": -0.008860874117269052,
+          "lower95DailyUsd": -0.02143687075943097,
+          "lower95TotalUsd": -7.845894697951735,
+          "repetitions": 2000,
+          "blockDays": 7,
+          "seed": 20260908
+        }
+      }
+    },
+    {
+      "scenario": "base-source-as-end",
+      "gates": {
+        "completeAccounting": true,
+        "targetCoverage": true,
+        "meaningfulExposure": true,
+        "riskWithinLimits": false,
+        "positiveNetBothAssetsAndPortfolio": true,
+        "utilityAboveFlatAndSimpleRule": false
+      },
+      "intervals": {
+        "versusFlat": {
+          "days": 366,
+          "meanDailyImprovementUsd": 0.008871800752900238,
+          "lower95DailyUsd": -0.00895812157608309,
+          "lower95TotalUsd": -3.278672496846411,
+          "repetitions": 2000,
+          "blockDays": 7,
+          "seed": 20260908
+        },
+        "versusSimpleRule": {
+          "days": 366,
+          "meanDailyImprovementUsd": -0.008861890764441977,
+          "lower95DailyUsd": -0.021435017997696055,
+          "lower95TotalUsd": -7.845216587156756,
+          "repetitions": 2000,
+          "blockDays": 7,
+          "seed": 20260908
+        }
+      }
+    },
+    {
+      "scenario": "stress-source-plus-hour",
+      "gates": {
+        "completeAccounting": true,
+        "targetCoverage": true,
+        "meaningfulExposure": true,
+        "riskWithinLimits": false,
+        "positiveNetBothAssetsAndPortfolio": true,
+        "utilityAboveFlatAndSimpleRule": false
+      },
+      "intervals": {
+        "versusFlat": {
+          "days": 366,
+          "meanDailyImprovementUsd": 0.008575603619801222,
+          "lower95DailyUsd": -0.009412780009002407,
+          "lower95TotalUsd": -3.445077483294881,
+          "repetitions": 2000,
+          "blockDays": 7,
+          "seed": 20260908
+        },
+        "versusSimpleRule": {
+          "days": 366,
+          "meanDailyImprovementUsd": -0.007240452863866987,
+          "lower95DailyUsd": -0.01972795042784724,
+          "lower95TotalUsd": -7.22042985659209,
+          "repetitions": 2000,
+          "blockDays": 7,
+          "seed": 20260908
+        }
+      }
+    },
+    {
+      "scenario": "stress-source-as-end",
+      "gates": {
+        "completeAccounting": true,
+        "targetCoverage": true,
+        "meaningfulExposure": true,
+        "riskWithinLimits": false,
+        "positiveNetBothAssetsAndPortfolio": true,
+        "utilityAboveFlatAndSimpleRule": false
+      },
+      "intervals": {
+        "versusFlat": {
+          "days": 366,
+          "meanDailyImprovementUsd": 0.008573455328348887,
+          "lower95DailyUsd": -0.009411835784882644,
+          "lower95TotalUsd": -3.4447318972670478,
+          "repetitions": 2000,
+          "blockDays": 7,
+          "seed": 20260908
+        },
+        "versusSimpleRule": {
+          "days": 366,
+          "meanDailyImprovementUsd": -0.007242348674143082,
+          "lower95DailyUsd": -0.019727383528686894,
+          "lower95TotalUsd": -7.220222371499403,
+          "repetitions": 2000,
+          "blockDays": 7,
+          "seed": 20260908
+        }
+      }
+    }
+  ],
+  "economicGatesPassed": false,
+  "confidencePassed": false,
+  "passed": false,
+  "status": "STAGE_FAILED",
+  "artifacts": {
+    "develop-multiscale-trend-targets.json": "c423885b1dd89381376f3a4356176f1aa3368a84513c4fd184fa95a786e5dc7f",
+    "develop-multiscale-trend-base-source-plus-hour.json": "57ae14f45a4f4684ce2c7fa3069643912b089a72fb070e71c7cf31e53b4b9bc3",
+    "develop-multiscale-trend-base-source-as-end.json": "81915559e082b500c28ea0f655c81a4aa483ed1d5e781b458b2bc8f9ebb79fbb",
+    "develop-multiscale-trend-stress-source-plus-hour.json": "dd9c6d0c0acb87d789866384d875bf1e8ca29da6733035fcfce59840a499efae",
+    "develop-multiscale-trend-stress-source-as-end.json": "4d54ad992aff7b556b79ed80dc03079a61fec557b677bdf99e561126ecc902ff",
+    "develop-sign-trend-90d-targets.json": "d35ea219bf62326dbb6eb69ddf8ed1507d5ea78676410949a4fbad61cee630b4",
+    "develop-sign-trend-90d-base-source-plus-hour.json": "876bdd5913fd67a87b78fac25446c5a1685bd70451fd508e31128a6fa82c1459",
+    "develop-sign-trend-90d-base-source-as-end.json": "c34e7b15a323dde08f4adcaa982e644782efac6c376bd28f7e2a8ca3b7d45e76",
+    "develop-sign-trend-90d-stress-source-plus-hour.json": "e60f07b73864d5d691601c5611efa067eb16dbe2b33ffc6d5e49418187a96d3b",
+    "develop-sign-trend-90d-stress-source-as-end.json": "ddb034da15bc28072d06800033a78bf40c2a980cb99e7f38994976019f4742e2",
+    "develop-constant-btc-targets.json": "2116bff4811aaa7233bf2b0383f8dbfbc9bec30a7a1452a37f0662e8fd582de9",
+    "develop-constant-btc-base-source-plus-hour.json": "0a18fef3760dbb0f20ca1aea2ac9f8f5d28f8b6cbc6d475b8f65e5767dc1475f",
+    "develop-constant-btc-base-source-as-end.json": "b0b1d6274380b800b18498b2cc61028ff81c6d73831e635947de614acda988d4",
+    "develop-constant-btc-stress-source-plus-hour.json": "0c49bf02ce049c861b44087bcf5c468e326075eb08e337035c344ebe684a3b77",
+    "develop-constant-btc-stress-source-as-end.json": "66c6cf3d5a56d63220d66b2fc4ab5040f25f16180fb3cef35b36c0f8f6117257",
+    "develop-constant-eth-targets.json": "19e4f3887543c0e5c69c72cb36d45e31566c59187eede36eccfbb91bc16e1321",
+    "develop-constant-eth-base-source-plus-hour.json": "7a795c9e1eb1a4abecc1e2540890b061691bc8abfba56156840905e8a7e65823",
+    "develop-constant-eth-base-source-as-end.json": "a65d9ec244dcce3a937e551eeb7eeb01eb8bb94f07650c3d7ced7379e1985dac",
+    "develop-constant-eth-stress-source-plus-hour.json": "6f32e474a2ff6ce20befb6e8fc1264802488ac42d45da3e95249720a572be143",
+    "develop-constant-eth-stress-source-as-end.json": "c5f261158d7c223d90c94532e77ad83bcf52dd5cf4510437097b420d93b6770b",
+    "develop-flat-targets.json": "f932329c37170b9ab741b20ffa14813f4c85e3bc115b0a393b3efc1530687d54",
+    "develop-flat-base-source-plus-hour.json": "95ac50ffa2bf6f72a0ebfcd40445ae812fb22b26c4faefef085ea4726c050c0c",
+    "develop-flat-base-source-as-end.json": "68533b9de2e3139f9dcfc7179f0e0f3eb295cfb4dcb3ef797ce88fa1595abfcc",
+    "develop-flat-stress-source-plus-hour.json": "a6bcfffe506b025281fed60c903520c88da8b9819fc901a6e6bbcd6f9c74b06c",
+    "develop-flat-stress-source-as-end.json": "ce563a568b848e5c54c091f145c796932addae8136ff694f33be256aa3e1b1d1"
+  },
+  "finalTestOpened": false,
+  "productionModelChanged": false,
+  "candidateActivated": false,
+  "profitabilityEstablished": false,
+  "hourlyScenarioEvidencePassed": false,
+  "reasonProfitabilityNotCertified": "CANDLE_EXECUTION_AND_FUNDING_TIMESTAMP_UNCERTAINTY;LIVE_SHADOW_RECONCILIATION_STILL_REQUIRED"
+}

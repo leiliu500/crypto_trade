@@ -1,0 +1,106 @@
+{
+  "passed": true,
+  "checkCount": 20,
+  "checks": [
+    {
+      "variant": "rotation_m60_t60",
+      "check": "warmup_and_relative_strength",
+      "passed": true
+    },
+    {
+      "variant": "rotation_m60_t60",
+      "check": "prefix_invariance",
+      "passed": true
+    },
+    {
+      "variant": "rotation_m60_t60",
+      "check": "positive_momentum_below_cost_hurdle_stays_cash",
+      "passed": true
+    },
+    {
+      "variant": "rotation_m60_t60",
+      "check": "bearish_market_stays_cash",
+      "passed": true
+    },
+    {
+      "variant": "rotation_m60_t60",
+      "check": "trend_failure_exits_to_cash",
+      "passed": true
+    },
+    {
+      "variant": "rotation_m60_t90",
+      "check": "warmup_and_relative_strength",
+      "passed": true
+    },
+    {
+      "variant": "rotation_m60_t90",
+      "check": "prefix_invariance",
+      "passed": true
+    },
+    {
+      "variant": "rotation_m60_t90",
+      "check": "positive_momentum_below_cost_hurdle_stays_cash",
+      "passed": true
+    },
+    {
+      "variant": "rotation_m60_t90",
+      "check": "bearish_market_stays_cash",
+      "passed": true
+    },
+    {
+      "variant": "rotation_m60_t90",
+      "check": "trend_failure_exits_to_cash",
+      "passed": true
+    },
+    {
+      "variant": "rotation_m90_t60",
+      "check": "warmup_and_relative_strength",
+      "passed": true
+    },
+    {
+      "variant": "rotation_m90_t60",
+      "check": "prefix_invariance",
+      "passed": true
+    },
+    {
+      "variant": "rotation_m90_t60",
+      "check": "positive_momentum_below_cost_hurdle_stays_cash",
+      "passed": true
+    },
+    {
+      "variant": "rotation_m90_t60",
+      "check": "bearish_market_stays_cash",
+      "passed": true
+    },
+    {
+      "variant": "rotation_m90_t60",
+      "check": "trend_failure_exits_to_cash",
+      "passed": true
+    },
+    {
+      "variant": "rotation_m90_t90",
+      "check": "warmup_and_relative_strength",
+      "passed": true
+    },
+    {
+      "variant": "rotation_m90_t90",
+      "check": "prefix_invariance",
+      "passed": true
+    },
+    {
+      "variant": "rotation_m90_t90",
+      "check": "positive_momentum_below_cost_hurdle_stays_cash",
+      "passed": true
+    },
+    {
+      "variant": "rotation_m90_t90",
+      "check": "bearish_market_stays_cash",
+      "passed": true
+    },
+    {
+      "variant": "rotation_m90_t90",
+      "check": "trend_failure_exits_to_cash",
+      "passed": true
+    }
+  ]
+}

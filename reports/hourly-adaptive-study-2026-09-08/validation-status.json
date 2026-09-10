@@ -1,0 +1,79 @@
+{
+  "createdAtUtc": "2026-09-08T23:13:53.922188+00:00",
+  "status": "DEVELOPMENT_FAILED_NO_PROMOTION",
+  "selectionSha256": "6d9877f9c7cd8b9f772e803de4c6d3d1b518effaf0cdcd6991bcbb6b191dc3e5",
+  "protocolSha256": "70a866fe364f2de0145115c3d68bdd4b7cd34c3b2407a51967d0bd7b56427eb3",
+  "sourceHashes": {
+    "src/research/hourly-data.ts": "0786552d6f700f8ad906a6f6db80b423560eef6f79dbb7403250ce1eeb260a91",
+    "src/research/hourly-model.ts": "69ac3085efe1377801d0d056224f5f6a3155764dc3faf71b00d315facc1c8c3f",
+    "src/research/hourly-adaptive-model.ts": "65bf37e08f3598f8dcedba944be81ca2223a832b0c0832aa40afb27aac48e648",
+    "src/research/hourly-price-setups.ts": "14c0a0c35d6b12a9b99e25d5a80d611960e6f48457e6097cff54f84583321f43",
+    "src/research/hourly-retry-simulator.ts": "239759778a583c623ca55636a9b53140aa9f9690eb1bbbac2d304117265f08aa",
+    "src/research/hourly-adaptive-study-main.ts": "9cdf86f64cbe96da82d615852cdf61e46ffe8892d602857605702c13308c36c4",
+    "src/research/hourly-adaptive-study-gates.ts": "e27cbedcca1d8cc18fbc9a0ad764d7116fd3fbf813f9a2abf2914b419abc5ba1",
+    "src/research/hourly-study-statistics.ts": "0a9b6437903c26845958748d18f4b43f3ad35749f616da924cd61252442c7a36",
+    "reports/distribution-instrument-rules-2026-09-07.json": "a89ee77c1a871c63266cde004776e7484ccdc81d544b7d32a81f56cb07d89cdf",
+    "package.json": "57b37eee487870483842e7af18ed1444bb9645a7d74abdd456c337c916ee2517",
+    "package-lock.json": "2315bada829d31ccb4d3970392ba56d73458d3219dda1ec98d8dda0d41893594"
+  },
+  "buildPassed": true,
+  "regressionTests": {
+    "command": "npm test",
+    "passed": 760,
+    "failed": 0
+  },
+  "additionalStudyTests": {
+    "command": "npx tsx --test test/hourly-adaptive-study.test.ts",
+    "passed": 14,
+    "failed": 0
+  },
+  "totalDistinctPassingTests": 774,
+  "typecheckPassed": true,
+  "sourceSealsVerified": true,
+  "developmentArtifactHashesVerified": true,
+  "originalV1SourceSealsUnchanged": true,
+  "confirmationAttempt": {
+    "denied": true,
+    "error": "ADAPTIVE_STAGE_DENIED_DEVELOPMENT_FAILED",
+    "startMarkerCreated": false
+  },
+  "finalTestAttempt": {
+    "denied": true,
+    "error": "ADAPTIVE_STAGE_DENIED_DEVELOPMENT_FAILED",
+    "startMarkerCreated": false
+  },
+  "finalTestOpened": false,
+  "candidateActivated": false,
+  "productionRuntimeChanged": false,
+  "profitabilityEstablished": false,
+  "candidateAssetEvaluations": 12,
+  "eligibleCandidateAssetEvaluations": 0,
+  "selectedByAsset": {
+    "BTC/USD": null,
+    "ETH/USD": null
+  },
+  "selectedBaseline": "buy-hold-btc",
+  "independentAudits": [
+    {
+      "file": "data-restoration-integrity-audit.json",
+      "sha256": "bbf714ae0c9ccddf71abe779d97bd2b93c2d298400ab31a232dfd9e23bd440c9",
+      "status": "PASS"
+    },
+    {
+      "file": "maintenance-retry-independent-audit.json",
+      "sha256": "48cedace1a497d33d71d4fdffbf2412b0fd59652408791b7112b8949d40837ed",
+      "status": "PASS"
+    },
+    {
+      "file": "independent-model-audit.json",
+      "sha256": "4113acdc320da10c5cf2bac24d81f08d35d1a7ecf8fa623890e9b39fc797fc10",
+      "status": "PASS_EXACT_RECONSTRUCTION_AND_FIXED_GATE_FAILURE_CONFIRMED"
+    },
+    {
+      "file": "development-execution-audit.json",
+      "sha256": "c40652ef1a16f635f54943a782c735c408a6eaed646309380f4d71767ee62d5e",
+      "status": "PASS"
+    }
+  ],
+  "finalVerificationAtUtc": "2026-09-08T23:18:05.499761+00:00"
+}

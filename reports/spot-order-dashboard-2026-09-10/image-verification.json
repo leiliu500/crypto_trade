@@ -1,0 +1,372 @@
+{
+  "passed": true,
+  "network": "none",
+  "futuresSourceClosure": {
+    "count": 82,
+    "sha256": "c57475ab04ce281cbd83f86f95f0099d56d24ef5edcee758e293be197f8d036b",
+    "hashes": [
+      {
+        "path": "src/backtest/replay.ts",
+        "sha256": "1722fa21f72dac116854305ae544f9c23120d443a69d60fb985c6327ab6dc945"
+      },
+      {
+        "path": "src/calibration/calibrated-edge-table.ts",
+        "sha256": "e244fe82487f1ca8ec2aee70b8932e351d44b4b5e1d43083d9124126fcf359f2"
+      },
+      {
+        "path": "src/carry/funding-accrual.ts",
+        "sha256": "900a3299e620a4e84630697e65c06e493617bc70e0fb5d77d5afbe63343e34b6"
+      },
+      {
+        "path": "src/config.ts",
+        "sha256": "5d1c4b95fec54dc68de8ee6dc514b026ab53bd65f576c1c90589681c0ddc5469"
+      },
+      {
+        "path": "src/config/deterministic-defaults.ts",
+        "sha256": "5c4d6ea179d6422643e87d9c7fbb8cd7fcd5d6522ef3b46b6ebb4a58dadc1351"
+      },
+      {
+        "path": "src/core/features.ts",
+        "sha256": "4b837fac12efe9f956d0d2ce482890e6814ba1f071d6c1d8d48c85e1f56e3d5b"
+      },
+      {
+        "path": "src/core/latency.ts",
+        "sha256": "c249ec68265fb2a4b90e89925191924678c1a5b66b2129b3469fad7c8e2a752d"
+      },
+      {
+        "path": "src/core/market.ts",
+        "sha256": "8bbdd7973b1ba9ee15f30177273cc9b16df4c3c00bbad9547b25bfa20e512837"
+      },
+      {
+        "path": "src/core/order-book.ts",
+        "sha256": "030a9979f2f6a1f4d736e4b927202ffeb446fb1a5a25a18f0a427dc61624db63"
+      },
+      {
+        "path": "src/core/statistics.ts",
+        "sha256": "d2030c1b49513ed7eacadbffe7bed2e8a571a65d5a2424112197b5bd72807c5e"
+      },
+      {
+        "path": "src/distribution/controller.ts",
+        "sha256": "61fda0ce992a4e12d1ef0e03b5c64aeeb6c1c054beca2da5eb521337f432f2c8"
+      },
+      {
+        "path": "src/distribution/efficient-trainer.ts",
+        "sha256": "1ee7a444887db25ddffd29acdf2d9c70f002bbebdf4d9479cd823f71c1f6e8f9"
+      },
+      {
+        "path": "src/distribution/execution.ts",
+        "sha256": "e7ebe161ce78547a3a3ba47fadbfbb02d90fbb39ff0f295a5e8b9e7e2dfe684f"
+      },
+      {
+        "path": "src/distribution/market.ts",
+        "sha256": "0279523eb000862aa43d4af8f203ac6e476c8a01b45c6c4d13703811d49d0b28"
+      },
+      {
+        "path": "src/distribution/model.ts",
+        "sha256": "54dad777f1bbea1f9f24c531ab7600e0da9328c824f90ab3875de5c4606beabf"
+      },
+      {
+        "path": "src/distribution/planner.ts",
+        "sha256": "914b3e1774a43d36b77427e934050e9cf268c46af747a8167bf67baee61fd1ed"
+      },
+      {
+        "path": "src/distribution/regime-model.ts",
+        "sha256": "20f074a4037f619b391f782523780216a3c688885a389021ca6f63fd87237657"
+      },
+      {
+        "path": "src/distribution/replay.ts",
+        "sha256": "9eed4bffb6aac47ba028ff9a218b6374202ef802b94c6a33e54a371c52d48e52"
+      },
+      {
+        "path": "src/distribution/risk-training-context.ts",
+        "sha256": "bc285b271204508063277d3f8e8e91c05e5837036fd3c630462fc4044bcd6135"
+      },
+      {
+        "path": "src/distribution/risk-training-origins.ts",
+        "sha256": "4ae3e572dee4757998c7355385c767818aebfb4e02b5ece73598a87c929aeb06"
+      },
+      {
+        "path": "src/distribution/risk-training-source.ts",
+        "sha256": "91ffa453f4c1ae391347591f2e007ae5a4f4b95448652033671ba63a4da2ae10"
+      },
+      {
+        "path": "src/distribution/sizing.ts",
+        "sha256": "4bc2ab74d651f94e63c60827e2fadafe7fbec70361d087b9a466da55a32410b9"
+      },
+      {
+        "path": "src/distribution/spec.ts",
+        "sha256": "83891a3ae832678b8f909a158195ecedd30f8bcc3eb40c55b28333ffef59a39e"
+      },
+      {
+        "path": "src/distribution/training-backfill.ts",
+        "sha256": "b8ac76b6e50e441bae48bb490d7c7d24e9dd64ae0583900c40bfe6d35f357900"
+      },
+      {
+        "path": "src/distribution/training-import.ts",
+        "sha256": "3ec2c16c305eea7c50a65dd9a5d9a4d679106ad8f063cb2470039831af6c673b"
+      },
+      {
+        "path": "src/distribution/training-main.ts",
+        "sha256": "109e233228df03f59540f7078071fc86742a18a10ba340fde3e53800f17a2469"
+      },
+      {
+        "path": "src/economics/analytic-edge.ts",
+        "sha256": "3cc99bf104bc0cf634f36d07a1c4f7bce6f16858f289e173d78e82ace579cc30"
+      },
+      {
+        "path": "src/economics/economic-edge-resolver.ts",
+        "sha256": "fe7b953d41e9516987bcb5819dcec7bfcee4337f69c4ce78f075be74561d5631"
+      },
+      {
+        "path": "src/economics/fee-validation.ts",
+        "sha256": "49fd1d83461d6786d9c2c391d39c878bea51779b60380e359a6ca3ec8723fce2"
+      },
+      {
+        "path": "src/economics/multi-horizon-cost-gate.ts",
+        "sha256": "002f2f136c5b87cb219ec40689a7f93040094cecc8dbac857645faf39216344b"
+      },
+      {
+        "path": "src/economics/net-liquidation.ts",
+        "sha256": "2a3d21588c1d8a73b93422baef2e8db1b044a071d47e5fb43146ac6471ab0578"
+      },
+      {
+        "path": "src/economics/types.ts",
+        "sha256": "36c0ed80307ce8a7ff0ccbd3e04671582f0ddacd9fc41a932ee8f33e21dd46f8"
+      },
+      {
+        "path": "src/engine/entry-pipeline-audit.ts",
+        "sha256": "f97e9d9a2791f2bb73d01786fe631b8c8486faf51748c0a3e0427125766fee78"
+      },
+      {
+        "path": "src/engine/trading-engine.ts",
+        "sha256": "c4421aedc590a9f392bc7c4b3f4e8125b6c7504813d1255e582ec942d7cd91f1"
+      },
+      {
+        "path": "src/engine/watchdog.ts",
+        "sha256": "f9072da3dd4e5e019b510d674307fb5e6ee145fbd0cb37666091f9786b1b0aa3"
+      },
+      {
+        "path": "src/env.ts",
+        "sha256": "fc48ff6ba17d9a7f370266e9378f6cfff6630c61d7e7a65f983f86ec26289ca5"
+      },
+      {
+        "path": "src/execution/book-walk.ts",
+        "sha256": "a080eb816006402e7886ab9ab4f8b495f391db21a4e69a4b3a5fa125e516f9e5"
+      },
+      {
+        "path": "src/execution/entry-route-shadow.ts",
+        "sha256": "1d4d276a001a23d8475bd487b57dd4e3eaeb363f85d305670fce440b2e67ad89"
+      },
+      {
+        "path": "src/execution/hybrid-entry-router.ts",
+        "sha256": "0f273aed5daa9f0872c83cc0ebaf52be6e5e2555c5d043906814986d24a0235a"
+      },
+      {
+        "path": "src/execution/order-state.ts",
+        "sha256": "3ee981889a7c22e0801db866b14c8dc57619e48a629c8138e97e6d7124fc3ce0"
+      },
+      {
+        "path": "src/execution/planner.ts",
+        "sha256": "0ac29aeee1c1f4608a2fcec4294a724cfaf407a65adc6099ce37f353b5c46cc7"
+      },
+      {
+        "path": "src/kraken/paper-broker.ts",
+        "sha256": "b32d8f5bf9b0d675cc1296a28941dfc630fc28f2084f5be4cb39b65dea5ef0e0"
+      },
+      {
+        "path": "src/kraken/paper-funding.ts",
+        "sha256": "3f3b1c13ba639c48a5631085b0f0c873abeee92f7af97be7ac14d31cdfe680e5"
+      },
+      {
+        "path": "src/recorder.ts",
+        "sha256": "3b5c996a5e968b918ce385b4d2546463a9023f53d13a2f0cea798c313ae3548c"
+      },
+      {
+        "path": "src/research/block-expectancy.ts",
+        "sha256": "02ef82c18c540dbbac4eeda18442167ecb9e7114a4148573b2cb19f03376cade"
+      },
+      {
+        "path": "src/research/cross-asset-model.ts",
+        "sha256": "dbe2034039b0e4c2824a22f0a407aba9aafda3e54c2d74ad28dea26ae0fe9ecf"
+      },
+      {
+        "path": "src/research/cross-asset-warmup.ts",
+        "sha256": "ac10aa0e940cab9cc85f2b78b9b5e745870c62ae32ef4df3bb81e64babb49b03"
+      },
+      {
+        "path": "src/research/dynamic-bayes.ts",
+        "sha256": "c4b765e68588ff5ba2209abe9739ffc4db8218b0d2a19922db64449bda3f2336"
+      },
+      {
+        "path": "src/research/execution-stress.ts",
+        "sha256": "33ed77c77e0af402241a4d6f5048d8d990dac6eb2c6797845001e4f9bef97aa5"
+      },
+      {
+        "path": "src/research/policy-collector.ts",
+        "sha256": "8b3411b4e0c7e55cb5d8c340b3ded62ab9e657966791b7cde0da68636c3733d7"
+      },
+      {
+        "path": "src/research/policy-planner.ts",
+        "sha256": "0b1a6d446800a1180e497a1cf98254150027343fcde80fefbddae552e6c62ad8"
+      },
+      {
+        "path": "src/research/policy-pulse.ts",
+        "sha256": "e9a11dc0bcc034bcc81f8c90ae4a70f9631cdff75db2d3cb28b775ad0844f27c"
+      },
+      {
+        "path": "src/research/policy-validation.ts",
+        "sha256": "d60c4be46b3da889bd1698a03a5989d2d1c836b91cb3f0e86b9b925e1f3b013a"
+      },
+      {
+        "path": "src/research/signal-episodes.ts",
+        "sha256": "81650f3fb1bb94076d817ddceaca56504ceff440c2fdb640a299a03d41c10d8a"
+      },
+      {
+        "path": "src/research/trading-policy.ts",
+        "sha256": "73309f308d806f58647bb51b8a489599101674ab8bef9107d065d6bb8dae8746"
+      },
+      {
+        "path": "src/risk/paper-funding-cash.ts",
+        "sha256": "7486c4c4fe29f3460ce02b492cf9529042e16b01da6162507c5baa82173ffd78"
+      },
+      {
+        "path": "src/risk/portfolio.ts",
+        "sha256": "57ec97ec9aba307100d9baedc123bcf882582203d6d0976842b20650af5afceb"
+      },
+      {
+        "path": "src/risk/risk-state.ts",
+        "sha256": "81683068282d66579354b36969eeb2da50ea81e5b0af049eda683b505d67c7aa"
+      },
+      {
+        "path": "src/risk/rolling-pnl.ts",
+        "sha256": "04e44da24fd4fef6ab270256c1a9db71a19ab628aaca0f13c7d1af355a7fbf58"
+      },
+      {
+        "path": "src/risk/sizing.ts",
+        "sha256": "3d0be830f15c1188d116e6209d6b014a53b28c400467399d5a1b669821dbb920"
+      },
+      {
+        "path": "src/strategy/breakout-retest.ts",
+        "sha256": "22fec8ee06a1fe3f070ed6e450c512c2672d6731641d6759b633e75bfb35f735"
+      },
+      {
+        "path": "src/strategy/continuation-quality.ts",
+        "sha256": "5c0c6dbab15fb7366851eb7e48104cc1ed48e1cd7b24515d207cfdefc147e463"
+      },
+      {
+        "path": "src/strategy/cost.ts",
+        "sha256": "96387e8f3a6206bf20ddbb9be0e39737e12aecded568737fb060b7794e5bc1cc"
+      },
+      {
+        "path": "src/strategy/deterministic-edge-resolver.ts",
+        "sha256": "71b69dfad5895cd4e15a3f7e49dc12fd9a4d807554e2581aa9e8a16525f8bea2"
+      },
+      {
+        "path": "src/strategy/deterministic-entry.ts",
+        "sha256": "f92040dfa45628c53738c5ca5aa946134255f1853227f0236489dcf8fba99593"
+      },
+      {
+        "path": "src/strategy/deterministic-features.ts",
+        "sha256": "ff6ff7d063d00a90831576769e52a3e7224fbbd81e389503542353ff67109faf"
+      },
+      {
+        "path": "src/strategy/deterministic-hold.ts",
+        "sha256": "a28bd371775681b0d0ff19d07f60248abecfc4c35eeac750915a5895cc62b888"
+      },
+      {
+        "path": "src/strategy/deterministic-regime.ts",
+        "sha256": "56eb5bd467adcaa204a6bb44eec93fc7869e88a638add9fd7af2769496384550"
+      },
+      {
+        "path": "src/strategy/dynamic-liquidity.ts",
+        "sha256": "36cbaf999a0f23dcd45b311a439377a15dab085da241567531c5b9f6fd6baa99"
+      },
+      {
+        "path": "src/strategy/early-breakout.ts",
+        "sha256": "55a0a8a602923e221b90b0f25873119d0247235cdfb8f2410bb7fd14007e49b9"
+      },
+      {
+        "path": "src/strategy/forecast.ts",
+        "sha256": "b48c3f05f129a63f466d8e2a947b10999f0b599c8ded9527226bd78546f4933f"
+      },
+      {
+        "path": "src/strategy/micro-fraction-types.ts",
+        "sha256": "e5b91659460e318279e0abb1c8920b91c1192b3e305960e90fcd0ac3e15f6b70"
+      },
+      {
+        "path": "src/strategy/position-manager.ts",
+        "sha256": "7d541226cae35217fee8f6744064fed98c3f6449fdf5e8f947867fbdff6d64a7"
+      },
+      {
+        "path": "src/strategy/pullback-recovery.ts",
+        "sha256": "528b435f11611bfae8b544c9e4b53fb7264894181f7570b3cb3489a408bc2745"
+      },
+      {
+        "path": "src/strategy/signal-router.ts",
+        "sha256": "24c81a19eb6125fa1c32c7265ae8bccf8ae61520b07d7bf911b3a498a557e651"
+      },
+      {
+        "path": "src/strategy/signal.ts",
+        "sha256": "16abdd19fedae0774ec75cf35988a4cf033d19e6739397c54c4ccc821e45fb97"
+      },
+      {
+        "path": "src/strategy/small-fraction-entry-trigger.ts",
+        "sha256": "6b0d3b9d319e074282c4ea7946a93f2d0a9f3301c7e030e68cb4be7d2c92d703"
+      },
+      {
+        "path": "src/strategy/time-ewma-square.ts",
+        "sha256": "e41c97ffd5914cafa3ac81733cc0edb4c9ffc40e364c0c97980ebdf20176720f"
+      },
+      {
+        "path": "src/systematic/position.ts",
+        "sha256": "16461c15dc7737dfd74668c2c0cbbf70271f0e791903ae1a3bb85462edd8298e"
+      },
+      {
+        "path": "src/systematic/spec.ts",
+        "sha256": "6e0339be53e6318cf112504cc46de587f1d1820418f1487833341aa0ca64bc54"
+      },
+      {
+        "path": "src/venue/client.ts",
+        "sha256": "14c9a6fad0580f43d21926983558f097e0255b33e5b56a2b297517bf2884be2e"
+      },
+      {
+        "path": "src/venue/types.ts",
+        "sha256": "f73f078412ca22e7c18f4fa8ebccee98b8c152d52455fb76b98b4bf9c16515a3"
+      }
+    ]
+  },
+  "spotCopiedJournalMigration": {
+    "passed": true,
+    "evidenceSha256": "3eed46dd2a5f17dc48e87e190243971754b1c7b0394ebcadb4eb289d30ebb509",
+    "runtimeSha256": "7f98cc50ef5158dc075f6a172eeb4343cbce286c5a676debe2a17335dcc229da",
+    "version": "btc-spot-weekly-research-paper-runner-v2",
+    "account": {
+      "initialCashUsd": 100000,
+      "cashUsd": 100000,
+      "quantity": 0,
+      "entryCostUsd": 0,
+      "realizedNetUsd": 0,
+      "feesUsd": 0,
+      "receipts": []
+    },
+    "cycles": 7,
+    "migrationEvidence": {
+      "file": "migrations/343a24cefa2879f957583cb7ee7f7ddbdd7daa54afc71b4918f007212beae7a1.json",
+      "sha256": "228f3f7c6bc4930e9bc7328376123d2e19d8d2107540fa62ca266375803bb830"
+    }
+  },
+  "images": [
+    {
+      "id": "sha256:f2c56ce778d47b1f2fef74636a27f277d92bd4aaca69b835ca9d2b51bfd92cda",
+      "tags": [
+        "crypto-trade-engine:spot-dashboard-v1"
+      ]
+    },
+    {
+      "id": "sha256:6b8b607debf4afa5054d1bac78cdd9086a8354b85494db73ab8b03864e43b8fe",
+      "tags": [
+        "crypto-spot-trend-paper:v2"
+      ]
+    }
+  ]
+}

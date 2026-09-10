@@ -1,0 +1,738 @@
+{
+  "version": "initial-economic-system-catalog-v1",
+  "createdAtUtc": "2026-09-10T19:36:11.553402+00:00",
+  "author": "economics_audit agent",
+  "scope": "Initial 10 mechanism catalog, not 10000 completed systems and not a parameter/configuration search. Known mechanisms are mapped honestly to existing repository overlap.",
+  "requested10000Complete": false,
+  "validatedProfitableSystems": 0,
+  "newMathematicalInventionsClaimed": 0,
+  "decisionRule": "Count a system only if economic mechanism, state/action/payoff structure or contractual cash-flow source changes substantially. Shared parent mechanisms are disclosed. Thresholds, lookbacks, symbols, algorithms fitting the same target and filter/exit combinations do not multiply the count.",
+  "clarificationPending": "Whether new means established systems new to this engine or original mathematical inventions.",
+  "sources": {
+    "as": {
+      "title": "Avellaneda and Stoikov, High-frequency trading in a limit order book",
+      "url": "https://math.nyu.edu/inmemoriam/avellaneda/HighFrequencyTrading.pdf",
+      "kind": "authors academic paper",
+      "verifiedClaim": "Inventory-aware optimal quoting under stylized stochastic price and market-order arrivals; does not establish current crypto profitability.",
+      "verifiedViaWebOn": "2026-09-10"
+    },
+    "arb": {
+      "title": "Makarov and Schoar, Trading and Arbitrage in Cryptocurrency Markets",
+      "url": "https://www.fmg.ac.uk/sites/default/files/publications/DP782.pdf",
+      "kind": "authors academic paper at LSE",
+      "verifiedClaim": "Historical cryptocurrency exchange price segmentation and limitations on arbitrage capital; not a current executable opportunity.",
+      "verifiedViaWebOn": "2026-09-10"
+    },
+    "carry": {
+      "title": "BIS Working Paper 1087, Crypto carry",
+      "url": "https://www.bis.org/publications/working-paper-1087-crypto-carry",
+      "kind": "original central-bank research",
+      "verifiedClaim": "Dated crypto basis and scarce arbitrage capital/leveraged demand; margin and liquidation risks limit the strategy.",
+      "verifiedViaWebOn": "2026-09-10"
+    },
+    "kraken_contract": {
+      "title": "Kraken linear multi-collateral derivatives specifications",
+      "url": "https://support.kraken.com/articles/4844359082772-linear-multi-collateral-derivatives-contract-specifications",
+      "kind": "official exchange contract documentation",
+      "verifiedClaim": "Funding is a signed transfer between long and short positions, accruing continuously and settling at hour end or net-position change.",
+      "verifiedViaWebOn": "2026-09-10"
+    },
+    "kraken_fee": {
+      "title": "Kraken fee schedule",
+      "url": "https://www.kraken.com/features/fee-schedule",
+      "kind": "official exchange fee documentation",
+      "verifiedClaim": "Published entry-tier spot maker/taker rates are 0.40%/0.80%; account qualification is separate.",
+      "verifiedViaWebOn": "2026-09-10"
+    },
+    "flow": {
+      "title": "Cont, Kukanov and Stoikov, The Price Impact of Order Book Events",
+      "url": "https://arxiv.org/abs/1011.6402",
+      "kind": "authors academic paper",
+      "verifiedClaim": "Order-flow imbalance was associated with short-horizon price changes in US equities; contemporaneous association is not a crypto prediction guarantee.",
+      "verifiedViaWebOn": "2026-09-10"
+    },
+    "trend": {
+      "title": "Moskowitz, Ooi and Pedersen, Time Series Momentum",
+      "url": "https://www.aqr.com/Insights/Research/Journal-Article/Time-Series-Momentum",
+      "kind": "authors original research",
+      "verifiedClaim": "Historical own-return predictability across 58 traditional futures/forwards; not current BTC/ETH profit evidence.",
+      "verifiedViaWebOn": "2026-09-10"
+    },
+    "vrp": {
+      "title": "Cboe S&P 500 Market-Neutral Volatility Risk Premia Optimized Index methodology",
+      "url": "https://cdn.cboe.com/api/global/us_indices/governance/SVRPO_Methodology.pdf",
+      "kind": "official index methodology",
+      "verifiedClaim": "Option premium strategy with purchased protection; an equity-index methodology, not measured cryptocurrency returns.",
+      "verifiedViaWebOn": "2026-09-10"
+    },
+    "option_payoff": {
+      "title": "Deribit position builder primer on basic option strategies",
+      "url": "https://insights.deribit.com/market-research/deribit-position-builder-primer-on-basic-option-strategies/",
+      "kind": "official venue educational payoff explanation",
+      "verifiedClaim": "Option combinations can have equivalent terminal payoffs; contract conventions and hedged premia matter.",
+      "verifiedViaWebOn": "2026-09-10"
+    },
+    "deribit_instrument": {
+      "title": "Deribit public/get_instrument",
+      "url": "https://docs.deribit.com/api-reference/market-data/public-get_instrument",
+      "kind": "official exchange API documentation",
+      "verifiedClaim": "Provides settlement/quote currencies, expiry, strike, fees, contract type and quantity increment; example payload is not a current live contract.",
+      "verifiedViaWebOn": "2026-09-10"
+    },
+    "deribit_fee": {
+      "title": "Deribit fees",
+      "url": "https://support.deribit.com/hc/en-us/articles/25944746248989-Fees",
+      "kind": "official exchange fee documentation",
+      "verifiedClaim": "Trading, delivery and liquidation costs have distinct rules and require product-specific normalization.",
+      "verifiedViaWebOn": "2026-09-10"
+    },
+    "uniswap": {
+      "title": "Uniswap v3 Core whitepaper",
+      "url": "https://app.uniswap.org/whitepaper-v3.pdf",
+      "kind": "protocol authors original whitepaper",
+      "verifiedClaim": "Concentrated-liquidity positions own a bounded segment of an automated reserve curve.",
+      "verifiedViaWebOn": "2026-09-10"
+    },
+    "uniswap_fees": {
+      "title": "Uniswap protocol fees",
+      "url": "https://developers.uniswap.org/docs/get-started/concepts/fees",
+      "kind": "official protocol documentation",
+      "verifiedClaim": "LP fee receipts and protocol allocation depend on pool/version; live pool state must be read.",
+      "verifiedViaWebOn": "2026-09-10"
+    },
+    "lvr": {
+      "title": "Milionis et al., Automated Market Making and Loss-Versus-Rebalancing",
+      "url": "https://arxiv.org/abs/2208.06046",
+      "kind": "authors academic paper",
+      "verifiedClaim": "An AMM liquidity provider bears stale-price adverse selection measured against a rebalancing benchmark.",
+      "verifiedViaWebOn": "2026-09-10"
+    },
+    "liquidation": {
+      "title": "Aave health factor and liquidations",
+      "url": "https://aave.com/help/borrowing/liquidations",
+      "kind": "official protocol documentation",
+      "verifiedClaim": "Eligible liquidators repay borrower debt and receive collateral plus a bonus; competition and current governance parameters matter.",
+      "verifiedViaWebOn": "2026-09-10"
+    }
+  },
+  "systems": [
+    {
+      "id": "EC01",
+      "name": "Two-sided inventory-constrained limit-order liquidity provision",
+      "mechanismParent": "liquidity_service",
+      "sourceOfExpectedReturn": "Earn an executable bid/ask spread by supplying immediacy; retain only the portion exceeding fees, inventory risk and adverse selection.",
+      "economicPayerOrConstraint": "Impatient counterparties pay for immediacy; informed counterparties can transfer losses to the market maker.",
+      "mathematicalControlModel": "Hamilton-Jacobi-Bellman stochastic control with inventory utility and marked point-process fills; queue-aware state extends the stylized Avellaneda-Stoikov model.",
+      "illustrativeEquation": "Canonical reservation price r_t=S_t-q_t*gamma*sigma^2*(T-t); realized episode net=q*(sale_bid_or_ask-purchase_bid_or_ask)-fees-inventory_unwind_cost.",
+      "stateVariables": [
+        "cash",
+        "inventory",
+        "midprice",
+        "depth",
+        "queue-ahead",
+        "fill intensities",
+        "adverse markout",
+        "account fees"
+      ],
+      "decisionActions": [
+        "quote both bid and ask",
+        "cancel/reprice",
+        "skew quotes by inventory",
+        "stop quoting or unwind"
+      ],
+      "requiredPublicData": [
+        "sequenced L2/L3 events",
+        "aggressor trades",
+        "venue tick/lot/rate-limit rules"
+      ],
+      "requiredPrivateData": [
+        "actual maker fees/rebates",
+        "own acknowledgments/fills/cancels",
+        "latency distribution",
+        "cash and owned spot inventory"
+      ],
+      "repoOverlap": "Existing directional maker/taker routing and a queue-aware entry shadow are reusable, but are not a full two-sided inventory controller.",
+      "repoEvidencePaths": [
+        "src/execution/entry-route-shadow.ts",
+        "src/execution/hybrid-entry-router.ts",
+        "src/strategy/cost.ts"
+      ],
+      "costAndExecutionFeasibility": "Potentially new complete controller; published 40 bp spot maker fees imply about 80.32 bp gross buy-to-sell appreciation even if both fills are maker, before inventory losses. Actual eligible fees must be verified.",
+      "costsAndFailureModes": [
+        "unfilled winners",
+        "toxic fills",
+        "queue uncertainty",
+        "fee tiers",
+        "inventory excursions",
+        "cancel latency"
+      ],
+      "firstFalsificationTest": "Record full opportunities without trading; reject if achievable completed spreads cannot exceed exact fees and adverse markouts on intended capital.",
+      "primarySourceIds": [
+        "as",
+        "kraken_fee"
+      ],
+      "newToEngineAssessment": "PARTIAL_INFRASTRUCTURE_NEW_SYSTEM_REQUIRED",
+      "mathematicalOriginality": "Established mathematical/economic mechanism; no claim of a new theorem or invention.",
+      "profitability": "UNVALIDATED",
+      "implementationStatus": "CATALOG_ONLY"
+    },
+    {
+      "id": "EC02",
+      "name": "Funded multi-market price-parity routing",
+      "mechanismParent": "instantaneous_price_parity",
+      "sourceOfExpectedReturn": "Buy an economically identical transferable asset where executable asks are lower and sell owned inventory where executable bids are higher; route cycles are grouped here.",
+      "economicPayerOrConstraint": "Market segmentation, restricted capital movement and asynchronous price discovery maintain price differences until arbitrage capacity closes them.",
+      "mathematicalControlModel": "Capacity-constrained min-cost circulation with negative-log conversion costs and explicit venue inventories; multi-stage stochastic control for non-atomic legs.",
+      "illustrativeEquation": "One matched quantity: net=q*(bid_B*(1-fee_B)-ask_A*(1+fee_A))-rebalance_cost-failed_leg_cost; a friction-adjusted cycle requires product(executable_conversion_rates)>1.",
+      "stateVariables": [
+        "synchronized books across venues/pairs",
+        "per-venue cash/inventory",
+        "transfer state",
+        "latency"
+      ],
+      "decisionActions": [
+        "route funded matched trades",
+        "decline stale cycles",
+        "rebalance already-owned inventory"
+      ],
+      "requiredPublicData": [
+        "multi-venue event books",
+        "asset network/transfer rules",
+        "withdrawal/deposit status",
+        "pair fees and minimums"
+      ],
+      "requiredPrivateData": [
+        "actual account fees",
+        "pre-positioned balances",
+        "order outcomes",
+        "transfer completion and bank/FX limits"
+      ],
+      "repoOverlap": "No complete multi-venue funded parity router was found in inspected execution/carry/strategy sources. Existing book walking and decimal inventory primitives are reusable.",
+      "repoEvidencePaths": [
+        "src/execution/book-walk.ts",
+        "src/carry/inventory.ts"
+      ],
+      "costAndExecutionFeasibility": "Public quote screening is feasible after a second source adapter. Trades require funded inventory at both venues; a visible spread alone does not prove simultaneous execution or cheap capital recycling.",
+      "costsAndFailureModes": [
+        "both trading fees",
+        "withdrawal/network fees",
+        "capital trapped at venues",
+        "settlement delay",
+        "FX mismatch",
+        "failed leg",
+        "custody loss"
+      ],
+      "firstFalsificationTest": "Normalize identical claims and record synchronized executable capacities; reject when fees plus inventory-recycling and failed-leg costs erase discrepancies.",
+      "primarySourceIds": [
+        "arb",
+        "kraken_fee"
+      ],
+      "newToEngineAssessment": "NEW_SYSTEM_REQUIRED",
+      "mathematicalOriginality": "Established mathematical/economic mechanism; no claim of a new theorem or invention.",
+      "profitability": "UNVALIDATED",
+      "implementationStatus": "CATALOG_ONLY"
+    },
+    {
+      "id": "EC03",
+      "name": "Dated spot-futures cash-and-carry",
+      "mechanismParent": "dated_convergence",
+      "sourceOfExpectedReturn": "Capture initial positive futures basis as the dated contract settles against its defined index, while owning offsetting spot.",
+      "economicPayerOrConstraint": "Demand for leveraged upside and scarce balance-sheet capacity can make a dated claim expensive relative to funded spot.",
+      "mathematicalControlModel": "Cash-flow matching, term-structure valuation and robust collateral optimization with settlement-index basis state.",
+      "illustrativeEquation": "For matched linear exposure: net=q*(F_entry-S_entry+S_exit-I_settlement)-all_execution_costs; excess_return also subtracts the declared capital hurdle.",
+      "stateVariables": [
+        "spot inventory",
+        "dated future short",
+        "expiry",
+        "basis",
+        "settlement index",
+        "margin collateral"
+      ],
+      "decisionActions": [
+        "open matched funded hedge",
+        "hold toward expiry",
+        "repair imbalance",
+        "close if collateral fails"
+      ],
+      "requiredPublicData": [
+        "synchronized spot/future books",
+        "complete dated contract specs",
+        "settlement index history",
+        "margin rules"
+      ],
+      "requiredPrivateData": [
+        "fees",
+        "cash/collateral",
+        "margin postings",
+        "funding/financing actually paid if any",
+        "all fills"
+      ],
+      "repoOverlap": "Already implemented as research economics and monitoring; saved study found no dated contract inside its 30-to-90-day policy window.",
+      "repoEvidencePaths": [
+        "src/carry/economics.ts",
+        "src/carry/monitor.ts",
+        "reports/carry-feasibility-reviewed-2026-09-09/report.json"
+      ],
+      "costAndExecutionFeasibility": "Existing local infrastructure; presently no qualifying opportunity established. The simple basis formula requires same quantity and correctly normalized linear payoff; futures margin can require cash long before expiry.",
+      "costsAndFailureModes": [
+        "four leg fees",
+        "spot/index settlement basis",
+        "cash opportunity cost",
+        "margin spikes",
+        "repair costs",
+        "counterparty risk"
+      ],
+      "firstFalsificationTest": "Reuse the monitor with newly captured quotes and verified fees; require positive net under explicit settlement/index and collateral stress.",
+      "primarySourceIds": [
+        "carry",
+        "kraken_contract"
+      ],
+      "newToEngineAssessment": "EXISTING_RESEARCH_SYSTEM",
+      "mathematicalOriginality": "Established mathematical/economic mechanism; no claim of a new theorem or invention.",
+      "profitability": "UNVALIDATED",
+      "implementationStatus": "CATALOG_ONLY"
+    },
+    {
+      "id": "EC04",
+      "name": "Spot-perpetual funding-transfer carry",
+      "mechanismParent": "recurring_funding_transfer",
+      "sourceOfExpectedReturn": "Collect positive perpetual funding while holding offsetting spot; funding may reverse and there is no maturity that locks total profit.",
+      "economicPayerOrConstraint": "Long perpetual holders pay shorts when the venue funding rate is positive; the transfer compensates carrying opposing derivatives exposure.",
+      "mathematicalControlModel": "Partially observed funding-state model with optimal stopping and joint basis/collateral state; continuous signed cash-flow integration.",
+      "illustrativeEquation": "Long spot/short perp net=integral(q_t*absoluteFundingRate_t dt)+q*(basis_entry-basis_exit)-fees-repair_costs for constant matched q.",
+      "stateVariables": [
+        "funding regime",
+        "spot-perp basis",
+        "matched exposure",
+        "cash accrual and settlements",
+        "collateral"
+      ],
+      "decisionActions": [
+        "open/close matched pair",
+        "maintain hedge",
+        "stop when stressed remaining income no longer covers liabilities"
+      ],
+      "requiredPublicData": [
+        "funding rates with effective timestamps",
+        "spot/perp books",
+        "index and margin data"
+      ],
+      "requiredPrivateData": [
+        "funding cash receipts",
+        "fees",
+        "partial fills",
+        "collateral movements"
+      ],
+      "repoOverlap": "Existing carry monitor, continuous accrual and horizon selector; prior fee frontier and zero-cycle screens did not qualify.",
+      "repoEvidencePaths": [
+        "src/carry/funding-accrual.ts",
+        "src/carry/horizon-signal.ts",
+        "reports/carry-fee-frontier-2026-09-09/frontier.json"
+      ],
+      "costAndExecutionFeasibility": "Not new to the engine research set. Lower spot fees alone failed all saved paths; missing future funding cannot be treated as zero or fixed.",
+      "costsAndFailureModes": [
+        "funding reversal",
+        "basis widening",
+        "four leg fees",
+        "liquidation",
+        "unknown rates",
+        "cash/collateral opportunity cost"
+      ],
+      "firstFalsificationTest": "On prospective synchronized rates/books, compare complete paired P&L with zero/last-rate funding baselines and all declared costs.",
+      "primarySourceIds": [
+        "kraken_contract",
+        "carry"
+      ],
+      "newToEngineAssessment": "EXISTING_RESEARCH_SYSTEM",
+      "mathematicalOriginality": "Established mathematical/economic mechanism; no claim of a new theorem or invention.",
+      "profitability": "UNVALIDATED",
+      "implementationStatus": "CATALOG_ONLY"
+    },
+    {
+      "id": "EC05",
+      "name": "Persistent directional-trend risk allocation",
+      "mechanismParent": "return_persistence",
+      "sourceOfExpectedReturn": "Exploit conditional positive serial dependence if gradual information incorporation or sustained demand makes past direction predict future net return.",
+      "economicPayerOrConstraint": "No contractual payer. The hypothesized source is predictable demand/information adjustment; raw market appreciation alone is not strategy alpha.",
+      "mathematicalControlModel": "Sequential drift inference/change-point detection with optimal switching between funded long and cash; volatility-aware allocation.",
+      "illustrativeEquation": "Value requires E[w_t*(S_future/S_t-1)-transaction_costs | information_t]>benchmark; changing a lookback does not create a new mechanism.",
+      "stateVariables": [
+        "causal price history",
+        "trend posterior/state",
+        "volatility",
+        "cash and exposure"
+      ],
+      "decisionActions": [
+        "hold funded long",
+        "hold cash",
+        "switch only with causal signal and cost hurdle"
+      ],
+      "requiredPublicData": [
+        "complete finalized spot bars or events",
+        "executable books",
+        "venue rules"
+      ],
+      "requiredPrivateData": [
+        "actual fees",
+        "fills",
+        "cash and inventory ledger"
+      ],
+      "repoOverlap": "Already present as weekly SMA/hysteresis, CUSUM trend and momentum rotation research.",
+      "repoEvidencePaths": [
+        "src/spot-trend/signal.ts",
+        "src/spot-trend/spec.ts",
+        "reports/parallel-strategy-study-2026-09-10/trend/report.md"
+      ],
+      "costAndExecutionFeasibility": "Easy to reproduce locally; existing weekly parent has positive history but sparse episodes, and daily variants failed. Not a newly discovered economic source.",
+      "costsAndFailureModes": [
+        "whipsaw turnover",
+        "delayed entry",
+        "gaps",
+        "beta/exposure confounding",
+        "few independent trends"
+      ],
+      "firstFalsificationTest": "Freeze the existing rule and measure genuinely later fully costed returns versus cash and an exposure-matched benchmark; retain all prior failures.",
+      "primarySourceIds": [
+        "trend"
+      ],
+      "newToEngineAssessment": "EXISTING_RESEARCH_AND_PAPER_SYSTEM",
+      "mathematicalOriginality": "Established mathematical/economic mechanism; no claim of a new theorem or invention.",
+      "profitability": "UNVALIDATED",
+      "implementationStatus": "CATALOG_ONLY"
+    },
+    {
+      "id": "EC06",
+      "name": "Order-flow information forecasting",
+      "mechanismParent": "predictive_liquidity_demand",
+      "sourceOfExpectedReturn": "Predict future executable price changes from persistent informed or liquidity-demanding order flow before those changes are incorporated.",
+      "economicPayerOrConstraint": "No contractual payment. A predictive information advantage must survive competition and the cost of acquiring immediacy.",
+      "mathematicalControlModel": "Marked point-process/Hawkes or state-space filtering of order-flow imbalance and book depletion, with a causal forecast horizon.",
+      "illustrativeEquation": "Empirical contemporaneous relation DeltaPrice\u2248beta*OFI motivates a hypothesis only; trading requires E[future_exit_bid-current_entry_ask-fees | past_events]>0.",
+      "stateVariables": [
+        "order arrivals/cancellations",
+        "depth",
+        "signed trades",
+        "event clock",
+        "forecast uncertainty"
+      ],
+      "decisionActions": [
+        "enter funded directional position",
+        "decline trade",
+        "exit on forecast deterioration"
+      ],
+      "requiredPublicData": [
+        "sequenced high-frequency books/trades",
+        "timestamp/sequence gap data"
+      ],
+      "requiredPrivateData": [
+        "real receive-to-submit latency",
+        "fees",
+        "order fills and rejects"
+      ],
+      "repoOverlap": "Existing distribution features and deterministic signal code already use order-flow imbalance, microprice and related pressure.",
+      "repoEvidencePaths": [
+        "src/distribution/market.ts",
+        "src/strategy/deterministic-features.ts",
+        "docs/DISTRIBUTIONAL_REBUILD.md"
+      ],
+      "costAndExecutionFeasibility": "Not structurally new. A contemporaneous US-equity regression cannot establish prospective crypto profit; spot entry-tier taker costs create a high hurdle.",
+      "costsAndFailureModes": [
+        "adverse selection",
+        "spread/fees",
+        "forecast decay",
+        "timestamp leakage",
+        "impact",
+        "regime changes"
+      ],
+      "firstFalsificationTest": "Estimate strictly future executable markouts on every event decision; compare with a no-information baseline after measured latency and costs.",
+      "primarySourceIds": [
+        "flow",
+        "kraken_fee"
+      ],
+      "newToEngineAssessment": "EXISTING_RESEARCH_AND_ENGINE_MECHANISM",
+      "mathematicalOriginality": "Established mathematical/economic mechanism; no claim of a new theorem or invention.",
+      "profitability": "UNVALIDATED",
+      "implementationStatus": "CATALOG_ONLY"
+    },
+    {
+      "id": "EC07",
+      "name": "Option insurance-risk premium allocation",
+      "mechanismParent": "volatility_insurance",
+      "sourceOfExpectedReturn": "Receive option premium for bearing convex volatility/jump losses when prices exceed the expected full cost of payouts and hedging.",
+      "economicPayerOrConstraint": "Option buyers pay for convex protection or upside exposure; the seller accepts tail losses rather than collecting free yield.",
+      "mathematicalControlModel": "Constrained option portfolio optimization under stochastic volatility/jumps and expected shortfall, with protected downside and discrete hedging.",
+      "illustrativeEquation": "Delta-hedged short-option local approximation: dPnl\u22480.5*Gamma_long*S^2*(sigma_implied^2-sigma_realized^2)*dt-costs; jumps, discrete hedging and model error invalidate treating this as guaranteed equality.",
+      "stateVariables": [
+        "option surface",
+        "Greeks",
+        "realized/jump risk",
+        "hedge inventory",
+        "collateral",
+        "joint stress scenarios"
+      ],
+      "decisionActions": [
+        "select fully funded or risk-bounded option exposure",
+        "purchase protection",
+        "rebalance hedge",
+        "stop allocation"
+      ],
+      "requiredPublicData": [
+        "full option-chain bid/ask/depth",
+        "contract-specific payoff/settlement metadata",
+        "underlying event data",
+        "historical full surfaces"
+      ],
+      "requiredPrivateData": [
+        "option account fees",
+        "hedge fills",
+        "collateral rules for this account",
+        "settlement cash"
+      ],
+      "repoOverlap": "No complete option data, payoff-normalization, hedging or accounting system found in inspected sources; current linear cash-flow primitives are insufficient.",
+      "repoEvidencePaths": [
+        "src/carry/inventory.ts",
+        "src/economics/net-liquidation.ts"
+      ],
+      "costAndExecutionFeasibility": "New system and new data stack. An equity-index VRP methodology does not establish a positive crypto premium. No borrowing or option orders are part of this catalog.",
+      "costsAndFailureModes": [
+        "option spread",
+        "trading/delivery fees",
+        "hedge turnover",
+        "gap losses",
+        "margin calls",
+        "settlement-currency exposure"
+      ],
+      "firstFalsificationTest": "Acquire complete causal surfaces and build an independent funded payoff ledger; reject if protected-tail strategy net does not beat matched risk/capital benchmarks.",
+      "primarySourceIds": [
+        "vrp",
+        "deribit_instrument",
+        "deribit_fee"
+      ],
+      "newToEngineAssessment": "NEW_SYSTEM_REQUIRED",
+      "mathematicalOriginality": "Established mathematical/economic mechanism; no claim of a new theorem or invention.",
+      "profitability": "UNVALIDATED",
+      "implementationStatus": "CATALOG_ONLY"
+    },
+    {
+      "id": "EC08",
+      "name": "Static derivative payoff-dominance dislocation search",
+      "mechanismParent": "contractual_payoff_parity",
+      "sourceOfExpectedReturn": "Buy a cheaper contract portfolio and sell an equivalent or dominated one when executable prices violate exact terminal payoff relations after costs.",
+      "economicPayerOrConstraint": "Inconsistent pricing of claims to the same contractual cash flows; unlike volatility selling, profit does not require forecasting realized volatility if all contract and execution conditions hold.",
+      "mathematicalControlModel": "Linear or mixed-integer programming over normalized piecewise-linear payoff vectors, lot sizes, bid/ask costs and collateral feasibility.",
+      "illustrativeEquation": "Find quantities z with initial_cash_cost(z)+cost_reserve<0 and terminal_payoff_z(s)>=0 for every admissible settlement state s; enforce funding and no-uncovered-liability constraints.",
+      "stateVariables": [
+        "all synchronized option/future quotes",
+        "payoff units",
+        "expiry and settlement index",
+        "lots",
+        "funded collateral"
+      ],
+      "decisionActions": [
+        "identify dominated payoff portfolios",
+        "request no trade when legs cannot be locked",
+        "shadow a whole combination"
+      ],
+      "requiredPublicData": [
+        "option-chain executable quotes/depth",
+        "full expiry/settlement/exercise conventions",
+        "combo-book metadata"
+      ],
+      "requiredPrivateData": [
+        "account fees",
+        "combination fill capability",
+        "margin offsets actually allowed",
+        "private fills"
+      ],
+      "repoOverlap": "No payoff-vector or static-dominance optimizer found. Inverse and linear instruments must not share an unnormalized payoff formula.",
+      "repoEvidencePaths": [
+        "src/core/market.ts",
+        "src/carry/economics.ts"
+      ],
+      "costAndExecutionFeasibility": "High-quality new read-only falsifiable screen, not a demonstrated profit strategy. A grid of settlement states is insufficient unless payoff breakpoints and tails prove the inequality globally.",
+      "costsAndFailureModes": [
+        "multi-leg spread/fees",
+        "leg failure",
+        "delivery charges",
+        "early exercise if applicable",
+        "collateral funding",
+        "different indices/currencies"
+      ],
+      "firstFalsificationTest": "Normalize instruments, prove dominance at exact breakpoints/tails and record synchronous executable capacity; reject all opportunities invalidated by costs or unavailable combo execution.",
+      "primarySourceIds": [
+        "option_payoff",
+        "deribit_instrument",
+        "deribit_fee"
+      ],
+      "newToEngineAssessment": "NEW_SYSTEM_REQUIRED",
+      "mathematicalOriginality": "Established mathematical/economic mechanism; no claim of a new theorem or invention.",
+      "profitability": "UNVALIDATED",
+      "implementationStatus": "CATALOG_ONLY"
+    },
+    {
+      "id": "EC09",
+      "name": "Automated-market-maker liquidity capital control",
+      "mechanismParent": "liquidity_service",
+      "sourceOfExpectedReturn": "Earn actual swap-fee receipts by supplying a reserve curve, after stale-price adverse selection and capital/rebalancing costs.",
+      "economicPayerOrConstraint": "Swappers pay protocol-defined fees; arbitrageurs can extract value when the pool price lags external markets.",
+      "mathematicalControlModel": "Constant-function market maker geometry and stochastic impulse control of concentrated-liquidity ranges; loss-versus-rebalancing benchmark.",
+      "illustrativeEquation": "Pool LP advantage versus matched rebalancing=earned_LP_fees-LVR-gas-range_reposition_costs-other_costs; pool token price gain alone is not fee alpha.",
+      "stateVariables": [
+        "tick/liquidity distribution",
+        "position ranges",
+        "pool inventory",
+        "external prices",
+        "gas",
+        "fee growth"
+      ],
+      "decisionActions": [
+        "allocate funded liquidity",
+        "withdraw/reposition ranges",
+        "hold off-chain cash"
+      ],
+      "requiredPublicData": [
+        "archival pool events/state",
+        "per-position fee-growth values",
+        "external synchronized prices",
+        "gas/block ordering"
+      ],
+      "requiredPrivateData": [
+        "wallet balances",
+        "actual inclusion costs",
+        "own position ownership/receipts"
+      ],
+      "repoOverlap": "No AMM adapter or on-chain inventory/fee-growth ledger found. CLOB maker execution does not implement reserve-curve ownership.",
+      "repoEvidencePaths": [
+        "src/spot-trend/account.ts",
+        "src/execution/entry-route-shadow.ts"
+      ],
+      "costAndExecutionFeasibility": "A genuinely different state/action/payoff mechanism from CLOB quoting, but shares the same broad economic parent (liquidity service); do not claim it is an independent risk premium.",
+      "costsAndFailureModes": [
+        "LVR/adverse selection",
+        "gas",
+        "range inactivity",
+        "inventory concentration",
+        "smart-contract loss",
+        "protocol fee share"
+      ],
+      "firstFalsificationTest": "Use archived pool state to reconcile actual LP fees and compare funded positions with matched external rebalancing after gas; do not annualize a displayed fee APY as total return.",
+      "primarySourceIds": [
+        "uniswap",
+        "uniswap_fees",
+        "lvr"
+      ],
+      "newToEngineAssessment": "NEW_SYSTEM_REQUIRED_SHARED_ECONOMIC_PARENT",
+      "mathematicalOriginality": "Established mathematical/economic mechanism; no claim of a new theorem or invention.",
+      "profitability": "UNVALIDATED",
+      "implementationStatus": "CATALOG_ONLY"
+    },
+    {
+      "id": "EC10",
+      "name": "Funded liquidation-service inventory acquisition",
+      "mechanismParent": "liquidation_service_bonus",
+      "sourceOfExpectedReturn": "Receive collateral at a protocol-defined liquidation bonus for paying an eligible borrower debt, then liquidate acquired collateral after all execution costs.",
+      "economicPayerOrConstraint": "The protocol pays the bonus from borrower collateral to incentivize rapid debt repayment and preserve solvency.",
+      "mathematicalControlModel": "Event-triggered constrained optimization of debt/collateral exchange with transaction-order competition, gas bidding and robust post-fill liquidation value.",
+      "illustrativeEquation": "net=executable_collateral_sale_proceeds-debt_repaid-gas-builder_costs-fees-failed_attempt_costs; protocol bonus percentage is not net return.",
+      "stateVariables": [
+        "eligible position health",
+        "oracle marks",
+        "repayable debt",
+        "collateral",
+        "market liquidity",
+        "transaction inclusion competition"
+      ],
+      "decisionActions": [
+        "monitor eligible positions",
+        "simulate using already-funded repayment capital",
+        "decline uneconomic opportunities"
+      ],
+      "requiredPublicData": [
+        "full protocol state/events",
+        "oracle updates",
+        "current liquidation parameters",
+        "DEX/CEX unwind books",
+        "gas"
+      ],
+      "requiredPrivateData": [
+        "owned repayment funds",
+        "wallet balances",
+        "transaction inclusion/failure costs"
+      ],
+      "repoOverlap": "No protocol liquidation bot or on-chain execution/receipt system found. Existing trading risk liquidation checks are unrelated to earning protocol liquidation bonuses.",
+      "repoEvidencePaths": [
+        "src/risk/risk-state.ts",
+        "src/carry/execution.ts"
+      ],
+      "costAndExecutionFeasibility": "Distinct economic service, but competitive and infrastructure-heavy. This catalog permits observation/simulation only and assumes funded capital; no flash borrowing, wallet transaction or lending action is performed.",
+      "costsAndFailureModes": [
+        "gas and reverted transactions",
+        "competition",
+        "collateral price fall",
+        "oracle delay",
+        "unwind slippage",
+        "protocol changes"
+      ],
+      "firstFalsificationTest": "Replay actual historical eligible positions with conservative inclusion order and funded capital; reject paper opportunities other liquidators already consume before achievable inclusion.",
+      "primarySourceIds": [
+        "liquidation"
+      ],
+      "newToEngineAssessment": "NEW_SYSTEM_REQUIRED",
+      "mathematicalOriginality": "Established mathematical/economic mechanism; no claim of a new theorem or invention.",
+      "profitability": "UNVALIDATED",
+      "implementationStatus": "CATALOG_ONLY"
+    }
+  ],
+  "recommendedNewToEngineReadOnlySequence": [
+    "EC02",
+    "EC08",
+    "EC01"
+  ],
+  "sequenceMeaning": "Order of falsifiable evidence collection, not a ranking by demonstrated profit. EC01 requires a fee-feasibility check first.",
+  "excludedFromCounts": [
+    "Parameter grids",
+    "Signal/filter/exit Cartesian products",
+    "Separate triangular versus cross-venue routes under identical price-parity economics",
+    "Model-family changes without a new economic mechanism",
+    "Existing trend/carry/order-flow variants described as inventions",
+    "Fees, sizing and risk controls counted as standalone return sources"
+  ],
+  "productionActions": {
+    "sourceEdited": false,
+    "deployed": false,
+    "ordersSubmitted": false,
+    "borrowed": false,
+    "externalMessagesSent": false
+  },
+  "repoEvidenceSha256": {
+    "docs/DISTRIBUTIONAL_REBUILD.md": "205eed82503ba902985a27336b48f0554c43201c3cd657793f4e3947dbd810aa",
+    "reports/carry-feasibility-reviewed-2026-09-09/report.json": "d7016c6b06e80379adddd906a45406402121e0bc8e913250f26cf625669c6356",
+    "reports/carry-fee-frontier-2026-09-09/frontier.json": "01e3d3e9111017a89bdf433616c76c9ef5176cf71e32815a23e43121c9023025",
+    "reports/parallel-strategy-study-2026-09-10/trend/report.md": "23046d4614db554cb5a3d2cedbe1f982495f960eb781e11c1de328f3b3ae8155",
+    "src/carry/economics.ts": "57a37a9788b9030eaaf30f5a499b95223f769a7193223747627814a5f6143ce5",
+    "src/carry/execution.ts": "59d2e34358928c1b797468fc6f2ba289cfc00639ba878a1227874b5af369a4f1",
+    "src/carry/funding-accrual.ts": "900a3299e620a4e84630697e65c06e493617bc70e0fb5d77d5afbe63343e34b6",
+    "src/carry/horizon-signal.ts": "4e5558bf248efdf5ce9fa764a1be5775f5ceae4afe9e447dd86e0a1046c2cabd",
+    "src/carry/inventory.ts": "a35bf93c725781736dcf8cb709acc84620d45655fc5a3c4175c5fd0fd9d01edf",
+    "src/carry/monitor.ts": "6fda02de3b8a9bf6d55f62e45f4aeed6ea172e0c4c03f9ea7e9f2ca4b9bcd641",
+    "src/core/market.ts": "8bbdd7973b1ba9ee15f30177273cc9b16df4c3c00bbad9547b25bfa20e512837",
+    "src/distribution/market.ts": "0279523eb000862aa43d4af8f203ac6e476c8a01b45c6c4d13703811d49d0b28",
+    "src/economics/net-liquidation.ts": "2a3d21588c1d8a73b93422baef2e8db1b044a071d47e5fb43146ac6471ab0578",
+    "src/execution/book-walk.ts": "a080eb816006402e7886ab9ab4f8b495f391db21a4e69a4b3a5fa125e516f9e5",
+    "src/execution/entry-route-shadow.ts": "1d4d276a001a23d8475bd487b57dd4e3eaeb363f85d305670fce440b2e67ad89",
+    "src/execution/hybrid-entry-router.ts": "0f273aed5daa9f0872c83cc0ebaf52be6e5e2555c5d043906814986d24a0235a",
+    "src/risk/risk-state.ts": "81683068282d66579354b36969eeb2da50ea81e5b0af049eda683b505d67c7aa",
+    "src/spot-trend/account.ts": "12a33739b685eb68506ebe0a76d21ee53804213dd7bd73706425a7f5470cdd2f",
+    "src/spot-trend/signal.ts": "f9ef8b0a81f81a75c9186a00e58226de2d39464d16e6b8ea78227f26e61ddc03",
+    "src/spot-trend/spec.ts": "a93cbc06c54668cb915f5011d7f6ffd04c3062261732f0c62b0f2d13ea98e25a",
+    "src/strategy/cost.ts": "96387e8f3a6206bf20ddbb9be0e39737e12aecded568737fb060b7794e5bc1cc",
+    "src/strategy/deterministic-features.ts": "ff6ff7d063d00a90831576769e52a3e7224fbbd81e389503542353ff67109faf"
+  },
+  "limitations": [
+    "No new backtests or executable profit measurements were run for this catalog.",
+    "Public research establishes models or historical mechanisms, not current account-specific profitability.",
+    "No current cross-venue/option/on-chain opportunities were fetched or claimed.",
+    "Novelty assessment covers inspected repository sources and is not a proof no related code exists elsewhere.",
+    "Liquidity provision entries EC01 and EC09 share an economic parent; architecture differences are disclosed rather than counted as independent premia."
+  ]
+}

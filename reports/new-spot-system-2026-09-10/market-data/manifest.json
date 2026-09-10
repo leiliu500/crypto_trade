@@ -1,0 +1,23 @@
+{
+  "version": "kraken-btc-spot-weeks-v1",
+  "sourceFile": "source.json",
+  "sourceSha256": "6e92f2ffbd3e1931dbb27435abb49d16871da6937f3c07b7f6336728406094c5",
+  "sourceBytes": 55648,
+  "datasetFile": "dataset.json",
+  "datasetSha256": "ab3518310bfd0e4b40f539ef69a864ea5fa56908708003711d61b9d835b90df6",
+  "datasetBytes": 115826,
+  "retrievedAtMs": 1789018116159,
+  "spec": {
+    "version": "kraken-btc-spot-weeks-v1",
+    "symbol": "BTC/USD",
+    "intervalMinutes": 10080,
+    "sourceUrl": "https://api.kraken.com/0/public/OHLC?pair=XBTUSD&interval=10080",
+    "documentationUrl": "https://docs.kraken.com/api-reference/market-data/get-ohlc-data",
+    "maximumResponseBytes": 1048576,
+    "maximumSourceRows": 721,
+    "finalizationLagMs": 60000,
+    "startMs": 0,
+    "gapPolicy": "REJECT_MISSING_COMPLETED_WEEKS",
+    "timestamps": "NATIVE_THURSDAY_UTC_EPOCH_ALIGNED_WEEKS"
+  }
+}

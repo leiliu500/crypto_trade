@@ -1,0 +1,57 @@
+{
+  "syntheticChecksPassed": true,
+  "historicalCandidatePnLInspected": false,
+  "simulatorSha256": "26c78bbc7cbcc6b0dc92eba2128cf232fa38ff7b85890aaee031ffb0d22eda22",
+  "checks": [
+    {
+      "check": "pending_entry_canceled_by_thesis_before_later_due_open",
+      "passed": true
+    },
+    {
+      "check": "entry_gate_disappearance_preserves_pending_valid_thesis",
+      "passed": true
+    },
+    {
+      "check": "pre_entry_close_high_low_and_thesis_cannot_trigger_position_exit",
+      "passed": true
+    },
+    {
+      "check": "natural_exit_uses_future_open_and_distinct_natural_count",
+      "passed": true
+    },
+    {
+      "check": "three_post_entry_breaks_and_minimum_age_before_exit",
+      "passed": true
+    },
+    {
+      "check": "protective_close_stop_overrides_minimum_holding_age",
+      "passed": true
+    },
+    {
+      "check": "intraday_low_affects_risk_diagnostic_but_not_close_stop",
+      "passed": true
+    },
+    {
+      "check": "terminal_fees_cash_lot_and_reference_pnl_reconciliation",
+      "passed": true
+    },
+    {
+      "check": "sizing_volume_uses_i_minus_2_not_unfinalized_or_future_volume",
+      "passed": true
+    },
+    {
+      "check": "cash_control_cannot_fire_or_pay_fees",
+      "passed": true
+    }
+  ],
+  "limitations": [
+    {
+      "id": "sell_minimum_not_enforced",
+      "observed": true,
+      "syntheticMinimumNotionalUsd": 50.0,
+      "sellNotionalUsd": 0.09817830000000001,
+      "implication": "Model assumes full exits even when synthetic sell notional falls below venue minimum; disclose assumption or implement residual/rejection handling."
+    }
+  ],
+  "resetTiming": "First in-window bar is first considered at next-day+60s; first buy is firstIndex+lag open. Passive follows same start delay."
+}

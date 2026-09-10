@@ -1,0 +1,261 @@
+{
+  "schemaVersion": 1,
+  "scope": "PAPER_ACCOUNTING_DEPLOYMENT_AND_SEPARATE_RESEARCH_ONLY",
+  "deployedConfiguration": "btc-eth-paper-accounting-v13.0.0",
+  "before": {
+    "generatedAtMs": 1788931057172,
+    "configurationVersion": "btc-eth-paper-controls-v12.0.0",
+    "mode": "paper",
+    "paper": true,
+    "overall": "healthy",
+    "entriesAllowed": true,
+    "haltReasons": [],
+    "equity": 99998.28269740003,
+    "realizedSessionPnl": 0,
+    "positionCount": 0,
+    "orderCount": 0,
+    "database": {
+      "connected": true,
+      "status": "connected",
+      "queuedRecords": 0,
+      "droppedRecords": 0,
+      "lastPersistedAtMs": 1788931056907,
+      "lastError": null
+    },
+    "markets": [
+      {
+        "symbol": "BTC/USD",
+        "bookValid": true,
+        "providerAgeMs": 69,
+        "decisionReason": "SCORE_BELOW_MINIMUM",
+        "evaluationAtMs": 1788931056829,
+        "estimates": [
+          {
+            "actionId": "long-5m",
+            "meanNetBps": -12.633086493160633,
+            "reason": "SCORE_BELOW_MINIMUM"
+          },
+          {
+            "actionId": "short-5m",
+            "meanNetBps": -13.728126579970729,
+            "reason": "SCORE_BELOW_MINIMUM"
+          },
+          {
+            "actionId": "long-15m",
+            "meanNetBps": -12.200468703422874,
+            "reason": "SCORE_BELOW_MINIMUM"
+          },
+          {
+            "actionId": "short-15m",
+            "meanNetBps": -11.611249982511039,
+            "reason": "SCORE_BELOW_MINIMUM"
+          },
+          {
+            "actionId": "long-30m",
+            "meanNetBps": -11.08380029866634,
+            "reason": "SCORE_BELOW_MINIMUM"
+          },
+          {
+            "actionId": "short-30m",
+            "meanNetBps": -11.122682313744873,
+            "reason": "SCORE_BELOW_MINIMUM"
+          }
+        ]
+      },
+      {
+        "symbol": "ETH/USD",
+        "bookValid": true,
+        "providerAgeMs": 84,
+        "decisionReason": "SCORE_BELOW_MINIMUM",
+        "evaluationAtMs": 1788931057108,
+        "estimates": [
+          {
+            "actionId": "long-5m",
+            "meanNetBps": -11.250058483247738,
+            "reason": "SCORE_BELOW_MINIMUM"
+          },
+          {
+            "actionId": "short-5m",
+            "meanNetBps": -13.148398823073098,
+            "reason": "SCORE_BELOW_MINIMUM"
+          },
+          {
+            "actionId": "long-15m",
+            "meanNetBps": -9.332855382207155,
+            "reason": "SCORE_BELOW_MINIMUM"
+          },
+          {
+            "actionId": "short-15m",
+            "meanNetBps": -11.245575207531969,
+            "reason": "SCORE_BELOW_MINIMUM"
+          },
+          {
+            "actionId": "long-30m",
+            "meanNetBps": -8.587434853192377,
+            "reason": "SCORE_BELOW_MINIMUM"
+          },
+          {
+            "actionId": "short-30m",
+            "meanNetBps": -11.027942169832285,
+            "reason": "SCORE_BELOW_MINIMUM"
+          }
+        ]
+      }
+    ]
+  },
+  "after": {
+    "generatedAtMs": 1788932076158,
+    "configurationVersion": "btc-eth-paper-accounting-v13.0.0",
+    "mode": "paper",
+    "paper": true,
+    "overall": "healthy",
+    "entriesAllowed": true,
+    "haltReasons": [],
+    "equity": 99998.28269740003,
+    "realizedSessionPnl": 0,
+    "realizedPnl24h": 0,
+    "realizedPnlMeasurement": "KNOWN",
+    "rollingPnlDetails": {
+      "status": "KNOWN",
+      "reason": null,
+      "asOfMs": 1788932076158,
+      "windowStartExclusiveMs": 1788845676158,
+      "windowEndInclusiveMs": 1788932076158,
+      "realizedPricePnl24hUsd": 0,
+      "fees24hUsd": 0,
+      "netRealizedPnl24hUsd": 0,
+      "utcSessionNetPnlUsd": 0,
+      "retainedFillEvents": 382,
+      "retainedMissingFeeEvents": 102,
+      "missingFeeEvents24h": 0,
+      "missingFeeEventsUtcSession": 0,
+      "measurement": "REALIZED_PRICE_PNL_MINUS_RECORDED_EXECUTION_FEES",
+      "fundingIncluded": false
+    },
+    "positionCount": 0,
+    "orderCount": 0,
+    "database": {
+      "connected": true,
+      "status": "connected",
+      "queuedRecords": 0,
+      "droppedRecords": 0,
+      "lastPersistedAtMs": 1788932075634,
+      "lastError": null
+    },
+    "markets": [
+      {
+        "symbol": "BTC/USD",
+        "bookValid": true,
+        "providerAgeMs": 70,
+        "decisionReason": "SCORE_BELOW_MINIMUM",
+        "evaluationAtMs": 1788932076147
+      },
+      {
+        "symbol": "ETH/USD",
+        "bookValid": true,
+        "providerAgeMs": 75,
+        "decisionReason": "SCORE_BELOW_MINIMUM",
+        "evaluationAtMs": 1788932075414
+      }
+    ]
+  },
+  "databaseRun": {
+    "startedAt": "2026-09-09T05:33:19.684073+00:00",
+    "configurationVersion": "btc-eth-paper-accounting-v13.0.0",
+    "configurationSha256": "441214b5c9baef072067c27dc4a8edde77668e3f2157dacb997af76ddd67b666",
+    "rollingLossMeasurement": "TRAILING_24H_REALIZED_PRICE_PNL_MINUS_RECORDED_EXECUTION_FEES"
+  },
+  "persistedHealth": {
+    "capturedAt": "2026-09-09T05:34:01.062+00:00",
+    "realizedPnl24h": 0,
+    "realizedPnlMeasurement": "KNOWN",
+    "details": {
+      "asOfMs": 1788932041062,
+      "reason": null,
+      "status": "KNOWN",
+      "fees24hUsd": 0,
+      "measurement": "REALIZED_PRICE_PNL_MINUS_RECORDED_EXECUTION_FEES",
+      "fundingIncluded": false,
+      "retainedFillEvents": 382,
+      "missingFeeEvents24h": 0,
+      "utcSessionNetPnlUsd": 0,
+      "netRealizedPnl24hUsd": 0,
+      "windowEndInclusiveMs": 1788932041062,
+      "realizedPricePnl24hUsd": 0,
+      "windowStartExclusiveMs": 1788845641062,
+      "retainedMissingFeeEvents": 102,
+      "missingFeeEventsUtcSession": 0
+    }
+  },
+  "postRestartEvaluations": [
+    {
+      "symbol": "ETH/USD",
+      "evaluations": 42,
+      "first_at": "2026-09-09T05:33:53.043+00:00",
+      "latest_at": "2026-09-09T05:34:35.432+00:00"
+    },
+    {
+      "symbol": "BTC/USD",
+      "evaluations": 43,
+      "first_at": "2026-09-09T05:33:53.051+00:00",
+      "latest_at": "2026-09-09T05:34:36.158+00:00"
+    }
+  ],
+  "verification": {
+    "sourceHashes": {
+      "dist/src/main.js": "720fb60599c1b35c1d0574be3c39733e1863b2d8ad16b43d19b97e75f11b58d3",
+      "dist/src/engine/trading-engine.js": "9469723e72bc8b4af1aa0faa58a4675f4aff9747290cba9052158a5ab7c1a908",
+      "dist/src/risk/rolling-pnl.js": "c6e176d223de165b1a46e3f31608af61a3e1a1d41a232d39b07bec38619093e0",
+      "src/main.ts": "99f7fcc022f62c13ff23b3c013fb4312cf70210cff55c688edf0e38ca6a170ac",
+      "src/engine/trading-engine.ts": "ae53fed1134b4110a61d9a5fa435939d35ae4434c8c7e4a2e0d41762d52b8427",
+      "src/risk/rolling-pnl.ts": "0fc656dcc21dacb0c1c2e942e24df53d9143587e7b15775c942d49a0ac739369",
+      "src/kraken/paper-broker.ts": "9c6f240965a31cb7121e11e757856a11ad967a727e2415390b31ff66d7199857",
+      "src/carry/funding-accrual.ts": "95e1f717001b5e89a47e7740ff2f49660c00d9b3b8accd3577fad7cb1c9f8a0e",
+      "src/carry/funding-model.ts": "82f57b69ce484021b7c17c475f1ad79d8b71e78d83f5868eced9bd5ef90720c3",
+      "src/carry/funding-study-main.ts": "fcfa09e79f2424ec24c8b1305bd26978d5485fc9c0440e371ba8450d5eba2634",
+      "src/carry/fee-frontier-main.ts": "7e8a0de27519f5963ebccbaa7d70b419d564aef991ddca5ee0dc2f0b4ffc810b",
+      "src/dashboard/operations-monitor.ts": "eb00ffc4f6f3710f592620a80c116e30a2119826297ffd64db9a1e08480fbd1d",
+      "src/dashboard/public/app.js": "4821dfc8e47cb4f46c3eda96eece6b749c723d743f1a2ad70c908ddee158ef89",
+      "src/database/postgres-store.ts": "492544a3e3a02a914027691799bef63fa74565384eb25ab21b04684eb57b90d5",
+      "src/config/audit.ts": "a8c5af1ade74d6e859b0faef518b147d97af0dbc5e0fd603861f93b1508f247f",
+      "config/base.json": "12f0935035bc0c5d60da06124d62d0bcdf84f42d158da84422779442d7c1880e",
+      "test/rolling-pnl.test.ts": "20c7d7993be146466612f2ce423797d6d0ea3e00c2634606ba418d64e19e6a1d",
+      "test/rolling-pnl-legacy-window.test.ts": "9b5c9a36a4e2616ac586ff7c8425d4c8f3372b45fec7e26062e68e70f22047e0",
+      "test/carry-funding-model.test.ts": "bbfb9be82b88a705f6ff29944e4aaa47f1d63a5c505ab678fb503f0a8a7e1c13",
+      "test/dashboard.test.ts": "5e2ffb1d75536055e5b6bb0ef3e61ab40aa3f02976be74eba02077c731096920"
+    },
+    "configurationSha256": "441214b5c9baef072067c27dc4a8edde77668e3f2157dacb997af76ddd67b666",
+    "testLogSha256": "0e0b6870b91f508a1a9320420a8163aa1d1281bb3087b97962d62d87c1499ee8",
+    "deployedCompiledHashes": {
+      "dist/src/main.js": "720fb60599c1b35c1d0574be3c39733e1863b2d8ad16b43d19b97e75f11b58d3",
+      "dist/src/engine/trading-engine.js": "9469723e72bc8b4af1aa0faa58a4675f4aff9747290cba9052158a5ab7c1a908",
+      "dist/src/risk/rolling-pnl.js": "c6e176d223de165b1a46e3f31608af61a3e1a1d41a232d39b07bec38619093e0"
+    },
+    "deployedBuildMatchesLocal": true,
+    "configurationMatchesDatabase": true,
+    "tests": {
+      "passed": 1070,
+      "failed": 0,
+      "durationMs": 46646.298505,
+      "log": "/tmp/btc-eth-v13-final-tests.log"
+    },
+    "build": "PASSED",
+    "typecheck": "PASSED",
+    "gitDiffCheck": "PASSED",
+    "paperHistoryPreflight": "independent-window-preflight.json"
+  },
+  "research": {
+    "fundingForecast": "../carry-funding-model-development-2026-09-09/report.json",
+    "fundingIndependentAudit": "../carry-funding-model-development-2026-09-09/independent-audit.json",
+    "feeFrontier": "../carry-fee-frontier-2026-09-09/frontier.json",
+    "activationAllowed": false,
+    "validatedProfitability": false
+  },
+  "limitations": [
+    "Runtime rolling PnL excludes funding.",
+    "102 historical fee records remain unknown outside the current window.",
+    "Continuous funding accrual component is separate research, not a reconciled venue feed.",
+    "No complete paired spot/futures historical execution backtest or verified account fees.",
+    "Existing distribution paper trial remains unvalidated; no profitable replacement selected."
+  ]
+}

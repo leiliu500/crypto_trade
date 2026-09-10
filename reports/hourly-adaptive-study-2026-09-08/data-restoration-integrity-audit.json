@@ -1,0 +1,352 @@
+{
+  "version": "hourly-public-data-restoration-audit-v1",
+  "status": "PASS",
+  "createdAtUtc": "2026-09-08T23:01:04.897Z",
+  "financialReturnsInspected": false,
+  "fundingQuantilesComputed": false,
+  "originalManifestsModified": false,
+  "checks": [
+    {
+      "restored": "reports/hourly-adaptive-study-2026-09-08/data-recent",
+      "original": "reports/hourly-model-study-2026-09-08/data/manifest.json",
+      "datasetSha256": "802694ae936dd864681dee2278f027ea1732a91fd6b635f1b08371673abcb227",
+      "originalDatasetSha256": "c141a993de40105fcb3d42551d918d28586502abbe96c97b0fa4194c1e167882",
+      "normalizedDataExactlyMatchesOriginal": true,
+      "sourceChecks": [
+        {
+          "file": "raw/PF_XBTUSD-candles-1.json",
+          "sha256": "072f60c4b4a8397e7a4a321bdeae07e32f2ef7cf6ba8db224309bf071a946e3b",
+          "match": true
+        },
+        {
+          "file": "raw/PF_XBTUSD-candles-2.json",
+          "sha256": "b973367da3c24be28bd4794a9f001ab95c0b89e13336de28feee3f0c15901061",
+          "match": true
+        },
+        {
+          "file": "raw/PF_XBTUSD-candles-3.json",
+          "sha256": "a7920658a850abeb1ceebb6da53d5760651cb0ee03f3b7e61d7041390f94ad1f",
+          "match": true
+        },
+        {
+          "file": "raw/PF_XBTUSD-candles-4.json",
+          "sha256": "9b184c8b169d35b72725291c824db848de915f7ababb5e991126a7afaac6fa15",
+          "match": true
+        },
+        {
+          "file": "raw/PF_ETHUSD-candles-1.json",
+          "sha256": "60481a913a8320f5be095f92101ff5bc6e8cf5ec49900214f53a5569b91cbc08",
+          "match": true
+        },
+        {
+          "file": "raw/PF_ETHUSD-candles-2.json",
+          "sha256": "c49021e3a801070a70f4f5a28b9b82017e1053d4bc17839765ab0de6c1397e1f",
+          "match": true
+        },
+        {
+          "file": "raw/PF_ETHUSD-candles-3.json",
+          "sha256": "42fd4d5923c740f4f0e070baab978319f8d2a8870f19b8ecd8f6b1f57d011530",
+          "match": true
+        },
+        {
+          "file": "raw/PF_ETHUSD-candles-4.json",
+          "sha256": "d16b066d3bf872534624a94491f5a9ac6d74b7382acdd3fd7b5bf53fefbc9252",
+          "match": true
+        },
+        {
+          "file": "raw/funding-zip-tail.bin",
+          "sha256": "b40319a51aba63ef6f68af8c81e112c616647118a770a3dee9bcf8f84db1e75d",
+          "match": true
+        },
+        {
+          "file": "raw/funding-zip-directory.bin",
+          "sha256": "98ba3c5405eb2af445ffaf2b3444a171bb3177aa31c22cb116dc8e6f6a114589",
+          "match": true
+        },
+        {
+          "file": "raw/PF_XBTUSD-funding-header.bin",
+          "sha256": "d3199c62c0fb77002e9b0f1a40c961ee25888b528702f3617a597f137635b1c7",
+          "match": true
+        },
+        {
+          "file": "raw/PF_XBTUSD-funding-member.bin",
+          "sha256": "a65b8252bdfbc3e616fa18fdcf2575e56e259e5cc7cb98b15698cd6beed14677",
+          "match": true
+        },
+        {
+          "file": "raw/PF_ETHUSD-funding-header.bin",
+          "sha256": "d3199c62c0fb77002e9b0f1a40c961ee25888b528702f3617a597f137635b1c7",
+          "match": true
+        },
+        {
+          "file": "raw/PF_ETHUSD-funding-member.bin",
+          "sha256": "472daecf21524f5d05a22241c943128dd64bba3014372e9e926051fb0b855cd6",
+          "match": true
+        },
+        {
+          "file": "raw/PF_XBTUSD-funding-analytics-1.json",
+          "sha256": "4fc47dbb93e34b0ed100b823f5663ff6e4d75c6c8eadd29996068a49537f0943",
+          "match": true
+        },
+        {
+          "file": "raw/PF_XBTUSD-funding-analytics-2.json",
+          "sha256": "dd77cde2f4554ec5d8746233c75d86234258b4268c0b1f8afad167bd1b587db5",
+          "match": true
+        },
+        {
+          "file": "raw/PF_XBTUSD-funding-analytics-3.json",
+          "sha256": "a8afffb73599184a068181a35bb67aba1fd95b501f2ffa5c2ca81762855bc0c4",
+          "match": true
+        },
+        {
+          "file": "raw/PF_XBTUSD-funding-analytics-4.json",
+          "sha256": "4f416dc533eeff28f3776605feb8f01f466f3d94749f0ca50e79cc36bac0ffa9",
+          "match": true
+        },
+        {
+          "file": "raw/PF_XBTUSD-funding-analytics-5.json",
+          "sha256": "f25a00301753e14649161f5d5b2ba8c2d623a525e8ef4a85b2c37b36f74308f6",
+          "match": true
+        },
+        {
+          "file": "raw/PF_XBTUSD-funding-analytics-6.json",
+          "sha256": "1b8beaffd1fc77743ffd6e633f7788abfed6c350ba9cbe4262efc687edf42a5c",
+          "match": true
+        },
+        {
+          "file": "raw/PF_XBTUSD-funding-analytics-7.json",
+          "sha256": "4ad660e6acfd0328117b6320e65a125eb7e7634c253d07c5968700eb216f3de5",
+          "match": true
+        },
+        {
+          "file": "raw/PF_ETHUSD-funding-analytics-1.json",
+          "sha256": "501b8df90957fda182f51e40e131c9ede486ed4c19a7ba7f8afffc7b3ece46be",
+          "match": true
+        },
+        {
+          "file": "raw/PF_ETHUSD-funding-analytics-2.json",
+          "sha256": "878207ca5b85842679a34457e30722c0140179ac0f9ad96761d645414dfafedd",
+          "match": true
+        },
+        {
+          "file": "raw/PF_ETHUSD-funding-analytics-3.json",
+          "sha256": "2f38dcfb7ffc17a082077128e6b7a26f5dcbd02136475afe1554586a4f8e622e",
+          "match": true
+        },
+        {
+          "file": "raw/PF_ETHUSD-funding-analytics-4.json",
+          "sha256": "3c454b2ca6e83ef6c5aad766c04428f2196e4671e835d757837104036e8d5750",
+          "match": true
+        },
+        {
+          "file": "raw/PF_ETHUSD-funding-analytics-5.json",
+          "sha256": "a9bf05c176f66b7798c4ca770259802c5457b7b7ac6728a48d4ce3ee86d6e5ee",
+          "match": true
+        },
+        {
+          "file": "raw/PF_ETHUSD-funding-analytics-6.json",
+          "sha256": "2c56ef05f5261b3cebada09de48570fcc1b605de4f0017a4a4bd1670b0cb17c6",
+          "match": true
+        },
+        {
+          "file": "raw/PF_ETHUSD-funding-analytics-7.json",
+          "sha256": "4bef3884f66ab43f05f49fd6b97a005c5d685adf77368da689467b046daf6d21",
+          "match": true
+        },
+        {
+          "file": "raw/PF_XBTUSD-funding.csv",
+          "sha256": "8abfb9f959d9989fab6ddbcf587f31d24ae39684974cc2147c283ef2455bc7ef",
+          "match": true
+        },
+        {
+          "file": "raw/PF_ETHUSD-funding.csv",
+          "sha256": "814bc79243578ff0b3846d409db421b346a35116334b8b709c181942c52615a8",
+          "match": true
+        }
+      ],
+      "coverage": [
+        {
+          "symbol": "BTC/USD",
+          "expectedBars": 24120,
+          "bars": 24120,
+          "zeroVolumeHours": 12,
+          "missingBars": [],
+          "funding": 19026,
+          "missingFunding": [
+            {
+              "fromMs": 1752188400000,
+              "toMsExclusive": 1752192000000,
+              "hours": 1
+            },
+            {
+              "fromMs": 1756616400000,
+              "toMsExclusive": 1756620000000,
+              "hours": 1
+            },
+            {
+              "fromMs": 1762016400000,
+              "toMsExclusive": 1762023600000,
+              "hours": 2
+            },
+            {
+              "fromMs": 1762059600000,
+              "toMsExclusive": 1762063200000,
+              "hours": 1
+            },
+            {
+              "fromMs": 1763532000000,
+              "toMsExclusive": 1763535600000,
+              "hours": 1
+            },
+            {
+              "fromMs": 1764842400000,
+              "toMsExclusive": 1764846000000,
+              "hours": 1
+            },
+            {
+              "fromMs": 1769911200000,
+              "toMsExclusive": 1788224400000,
+              "hours": 5087
+            }
+          ]
+        },
+        {
+          "symbol": "ETH/USD",
+          "expectedBars": 24120,
+          "bars": 24120,
+          "zeroVolumeHours": 12,
+          "missingBars": [],
+          "funding": 19026,
+          "missingFunding": [
+            {
+              "fromMs": 1752188400000,
+              "toMsExclusive": 1752192000000,
+              "hours": 1
+            },
+            {
+              "fromMs": 1756616400000,
+              "toMsExclusive": 1756620000000,
+              "hours": 1
+            },
+            {
+              "fromMs": 1762016400000,
+              "toMsExclusive": 1762023600000,
+              "hours": 2
+            },
+            {
+              "fromMs": 1762059600000,
+              "toMsExclusive": 1762063200000,
+              "hours": 1
+            },
+            {
+              "fromMs": 1763532000000,
+              "toMsExclusive": 1763535600000,
+              "hours": 1
+            },
+            {
+              "fromMs": 1764842400000,
+              "toMsExclusive": 1764846000000,
+              "hours": 1
+            },
+            {
+              "fromMs": 1769911200000,
+              "toMsExclusive": 1788224400000,
+              "hours": 5087
+            }
+          ]
+        }
+      ],
+      "fundingTimestampConventionVerified": false
+    },
+    {
+      "restored": "reports/hourly-adaptive-study-2026-09-08/data-older-restored",
+      "original": "reports/hourly-adaptive-study-2026-09-08/data-older/manifest.json",
+      "datasetSha256": "6995137d4366500628885518de3908f663ab7584caba0a4fe9845f700ac3f36f",
+      "originalDatasetSha256": "409e1abee8b7e2efb5ff002ad1bb454d104693003c48c408badf62fb4d78c728",
+      "normalizedDataExactlyMatchesOriginal": true,
+      "sourceChecks": [
+        {
+          "file": "raw/PF_XBTUSD-candles-1.json",
+          "sha256": "835ce581a816a80bf0b5a0080ac4e849e93db4f3119b8942c4f6f9dec93eebd0",
+          "match": true
+        },
+        {
+          "file": "raw/PF_XBTUSD-candles-2.json",
+          "sha256": "0eea372b9a855fee10462f866300c7bf9e1466aa6143463a42bb70ee074fd7ac",
+          "match": true
+        },
+        {
+          "file": "raw/PF_ETHUSD-candles-1.json",
+          "sha256": "60f40da1ceb56be2e61ed97a02a48bcb55a5768c95bb3edc2db8f34a1deefed8",
+          "match": true
+        },
+        {
+          "file": "raw/PF_ETHUSD-candles-2.json",
+          "sha256": "5ade61a5032016ae7a035f434eec8c13cad3f44832f6b243931e9b9d32abd437",
+          "match": true
+        },
+        {
+          "file": "raw/funding-zip-tail.bin",
+          "sha256": "b40319a51aba63ef6f68af8c81e112c616647118a770a3dee9bcf8f84db1e75d",
+          "match": true
+        },
+        {
+          "file": "raw/funding-zip-directory.bin",
+          "sha256": "98ba3c5405eb2af445ffaf2b3444a171bb3177aa31c22cb116dc8e6f6a114589",
+          "match": true
+        },
+        {
+          "file": "raw/PF_XBTUSD-funding-header.bin",
+          "sha256": "d3199c62c0fb77002e9b0f1a40c961ee25888b528702f3617a597f137635b1c7",
+          "match": true
+        },
+        {
+          "file": "raw/PF_XBTUSD-funding-member.bin",
+          "sha256": "a65b8252bdfbc3e616fa18fdcf2575e56e259e5cc7cb98b15698cd6beed14677",
+          "match": true
+        },
+        {
+          "file": "raw/PF_ETHUSD-funding-header.bin",
+          "sha256": "d3199c62c0fb77002e9b0f1a40c961ee25888b528702f3617a597f137635b1c7",
+          "match": true
+        },
+        {
+          "file": "raw/PF_ETHUSD-funding-member.bin",
+          "sha256": "472daecf21524f5d05a22241c943128dd64bba3014372e9e926051fb0b855cd6",
+          "match": true
+        },
+        {
+          "file": "raw/PF_XBTUSD-funding.csv",
+          "sha256": "8abfb9f959d9989fab6ddbcf587f31d24ae39684974cc2147c283ef2455bc7ef",
+          "match": true
+        },
+        {
+          "file": "raw/PF_ETHUSD-funding.csv",
+          "sha256": "814bc79243578ff0b3846d409db421b346a35116334b8b709c181942c52615a8",
+          "match": true
+        }
+      ],
+      "coverage": [
+        {
+          "symbol": "BTC/USD",
+          "expectedBars": 9504,
+          "bars": 9504,
+          "zeroVolumeHours": 0,
+          "missingBars": [],
+          "funding": 9504,
+          "missingFunding": []
+        },
+        {
+          "symbol": "ETH/USD",
+          "expectedBars": 9504,
+          "bars": 9504,
+          "zeroVolumeHours": 0,
+          "missingBars": [],
+          "funding": 9504,
+          "missingFunding": []
+        }
+      ],
+      "fundingTimestampConventionVerified": false
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "completedAtUtc": "2026-09-09T05:14:01.445Z",
+  "protocolSha256": "19a90390aece15b34839224af141f503b3e8518965e2e8ee69b877c82a27fe2c",
+  "reportSha256": "01e3d3e9111017a89bdf433616c76c9ef5176cf71e32815a23e43121c9023025",
+  "sourceHashes": {
+    "src/carry/fee-frontier-main.ts": "7e8a0de27519f5963ebccbaa7d70b419d564aef991ddca5ee0dc2f0b4ffc810b",
+    "src/carry/monitor.ts": "6fda02de3b8a9bf6d55f62e45f4aeed6ea172e0c4c03f9ea7e9f2ca4b9bcd641",
+    "src/carry/economics.ts": "57a37a9788b9030eaaf30f5a499b95223f769a7193223747627814a5f6143ce5",
+    "src/carry/config.ts": "8929daa39e9752416e347178301b24342e26b3594308aeb40941cea8d624ab1b",
+    "src/economics/fee-validation.ts": "49fd1d83461d6786d9c2c391d39c878bea51779b60380e359a6ca3ec8723fce2",
+    "tsconfig.json": "f67c2b8d0029850632819cc5da43e2c89468c9217e0dd8f93b3e1887afedaca3",
+    "package-lock.json": "2315bada829d31ccb4d3970392ba56d73458d3219dda1ec98d8dda0d41893594"
+  },
+  "sealedInputs": {
+    "inputPath": "/home/ec2-user/crypto_trade/reports/carry-feasibility-reviewed-2026-09-09/public-input.json.gz",
+    "compressedInputSha256": "21e43af9dc06a8a211456a2c3dd50fa7677b3b6e42a23372faf46eab4fbba993",
+    "decodedInputSha256": "4c2e7e3f7b6291f2be2cdd5897786aca3b85eeb1cf4cd0b5c777790025d00cf7",
+    "normalizedSnapshotSha256": "4c2e7e3f7b6291f2be2cdd5897786aca3b85eeb1cf4cd0b5c777790025d00cf7",
+    "configurationPath": "/home/ec2-user/crypto_trade/config/carry-research.json",
+    "configurationSha256": "8331c1d03d90c4ea99f035abb32b55b9a53192224b488a8733274c068f93b304",
+    "normalizedConfigurationSha256": "e4a30e75183ac9d9ec1a20ba49d9b8caad3eac0436737b3cca8d7af02e6be1c1",
+    "documentPath": "/home/ec2-user/crypto_trade/docs/FUNDING_ECONOMIC_PROTOCOL.md",
+    "documentSha256": "21c082adb28c2d9c6db81ed9e8de561b8ea0ab234b8b1fe6ab43eaf3b2701388"
+  },
+  "artifacts": {
+    "spot-fee-0bps.json": "1f3e20a67929e18e9a8557eb6a4d58cfc7ea5e7ccd5c15fe563c67ce6b48b6cb",
+    "spot-fee-20bps.json": "d94d551e894bf98f62493ca7225c7eb85a13ffe7e272621a054ac8d28b69e0a5",
+    "spot-fee-40bps.json": "22b4ab3e35188edd07d1b85f05aafcecd5cc1cd9ed8bb4c3b7b2b138777e9fe7",
+    "spot-fee-80bps.json": "794db26a3713c07fae0eb4679d1f15bb109b95588c5977ba8502be403b074b5c"
+  }
+}

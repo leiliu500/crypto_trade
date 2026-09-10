@@ -1,0 +1,29 @@
+import assert from 'node:assert/strict';import {readFile,writeFile} from 'node:fs/promises';
+const out='reports/spot-continuous-entries-2026-09-10';const read=async file=>JSON.parse(await readFile(`${out}/${file}`,'utf8'));
+const [images,deployment,replay,browser,followup]=await Promise.all(['image-verification.json','deployment-verification.json','replay-report.json','browser-deployed/browser-report.json','followup-cycle.json'].map(read));
+for(const report of [images,deployment,replay,browser,followup])assert.equal(report.passed,true);
+const current=followup.current,account=current.state.account,fill=account.receipts[0];
+const summary={version:'spot-continuous-entry-deployment-v1',recordedAt:new Date().toISOString(),passed:true,
+ change:'Removed the first-hour-only entry gate; delayed closed-week signal, sizing, fees and risk controls unchanged.',
+ liveTradingEnabled:false,provenProfitable:false,validation:{regressionTests:202,finalUiTests:21,compiledLifecycleChecks:22,deploymentChecks:deployment.checked.length,desktopMobileBrowserPassed:true,independentRecordedBookReviewPassed:true},
+ deployed:images.images.slice(1).map(({id,tags})=>({id,tags})),runtimeSourceSha256:images.migration.runtimeSha256,parentResearchEvidenceSha256:images.migration.evidenceSha256,
+ account:{startedAtMs:current.state.startedAtMs,...account},cycle:current.state.cycles,latestDecision:current.state.lastDecision,firstFillAt:new Date(fill.timestampMs).toISOString(),
+ replay:{cycles:replay.observedCycles,previousOrders:replay.previous.orders,revisedOrders:replay.revised.orders,revisedRealizedNetUsd:replay.revised.realizedNetUsd,revisedLiquidationNetUsd:replay.revised.liquidationNetUsd},
+ limitations:['Profitability is unvalidated; revised timing has no independent economic validation.','Recorded-book replay was retrospective and had no completed trend episodes.','Fills are local L2 simulations, not actual exchange executions.','Holding-period returns and future execution costs can produce losses.'],
+ verificationNotes:['Initial deployment check ran during futures startup warmup; status became healthy without code or configuration changes.','Initial browser age assertion sampled a whole-second rounding boundary; corrected harness waits two display ticks without adding API requests. Original failed browser report retained.']};
+await writeFile(`${out}/report.json`,JSON.stringify(summary,null,2)+'\n');
+const text=`The entry timing fix is deployed. The spot service now evaluates entries approximately every five minutes throughout the week. Its first qualifying paper order was submitted and filled at ${summary.firstFillAt}: ${fill.quantity.toFixed(8)} BTC at $${fill.price.toLocaleString('en-US')}, costing $${account.entryCostUsd.toFixed(2)} including the $${account.feesUsd.toFixed(2)} entry fee. The next scheduled evaluation held the position without adding another order.
+
+The dashboard displays the continuous entry schedule, actual paper order lifecycle, account P&L, and system liveness. Historical evidence is labeled as the parent weekly strategy; revised timing is explicitly under paper evaluation. Both containers are healthy. Futures trading source, configuration and existing account were preserved.
+
+The old policy blocked all ${replay.observedCycles} archived checks with NEXT_WEEK_ENTRY_WINDOW. Replaying the same immutable recorded books under the revised policy produced one entry, no additions, zero realized profit and $${replay.revised.liquidationNetUsd.toFixed(2)} liquidation P&L at the end of that short sample. This confirms the entry blocker and costed execution path; it does not establish a profitable missed opportunity.
+
+The deployed paper account has $${account.realizedNetUsd.toFixed(2)} realized P&L and $${current.state.lastDecision.mark.netPnlUsd.toFixed(2)} liquidation P&L at ${new Date(current.state.lastCycleMs).toISOString()}. Liquidation valuation includes an estimated exit fee at the recorded best bid; actual execution can differ. Profitability remains unvalidated. No live exchange orders were enabled or submitted.
+
+The policy revision changes timing only. It preserves the delayed closed-week signal, cash-funded sizing, approximately $100 initial entry budget, position and drawdown limits, one filled entry per native week, no additions, fresh-book checks, IOC limit protection, displayed-depth participation, 30-second order expiry and declared fees. An exact known v2 journal upgrades with an immutable backup, a separate runtime-upgrade proof, and all existing account and receipt evidence retained. Pending orders prevent the version switch.
+
+Validation passed: 202 regression tests, 21 final UI tests after the evidence-text addition, 22 compiled lifecycle checks with networking disabled, copied-journal migration/reload, 10 deployment assertions, and desktop/mobile Chromium checks. An independent reviewer verified all 134 source cycles and 402 raw public responses and reproduced both costed replay results. The first browser attempt encountered a whole-second display rounding boundary; its report is retained and the corrected two-tick harness passed. The futures monitor's initial startup warmup also cleared before final verification.
+
+Artifacts: [recorded-book replay](replay-report.json), [independent review](independent-review.json), [runtime manifest](runtime-manifest.json), [image verification](image-verification.json), [deployment verification](deployment-verification.json), [next scheduled cycle](followup-cycle.json), [browser report](browser-deployed/browser-report.json), [desktop screenshot](browser-deployed/desktop-spot.png), [mobile screenshot](browser-deployed/mobile-spot.png).
+`;
+await writeFile(`${out}/report.md`,text);console.log(JSON.stringify({passed:true,report:`${out}/report.md`,cycle:current.state.cycles,orders:current.state.orders.length,realizedNetUsd:account.realizedNetUsd,liquidationNetUsd:current.state.lastDecision.mark.netPnlUsd}));
